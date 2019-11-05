@@ -11,7 +11,7 @@ const updeep = require('updeep');
 
 // define action types so they are visible
 // and export them so other reducers can use them
-export const TEST_ACTION_FOR_PATTERN = 'TEST_ACTION_FOR_PATTERN';
+export const CHANGE_PAGE = 'CHANGE_PAGE';
 
 // ///////////////////////////
 export function addPattern(text) {
@@ -27,24 +27,26 @@ export function removePattern(_id) {
 }
 
 // this would be a UI state change
-export function testActionForPattern(text) {
-	return () => {
-		Meteor.call('addPattern', text);
+export function changePage(currentPageNumber) {
+	return {
+		'type': 'CHANGE_PAGE',
+		'payload': currentPageNumber,
 	};
 }
 
 // ///////////////////////////
 // default state
 const initialPatternState = {
+	'currentPageNumber': 1,
 	'isLoading': false,
 	'error': null,
 };
 
 // state updates
-export default function reusableItem(state = initialPatternState, action) {
+export default function pattern(state = initialPatternState, action) {
 	switch (action.type) {
-		case TEST_ACTION_FOR_PATTERN: {
-			return updeep(state, state);
+		case CHANGE_PAGE: {
+			return updeep({ 'currentPageNumber': action.payload }, state);
 		}
 
 		default:
