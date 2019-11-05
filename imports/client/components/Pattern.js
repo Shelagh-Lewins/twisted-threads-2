@@ -1,15 +1,11 @@
 import React from 'react';
 
-export default function Todo({ onClick, completed, text, testArray }) {
-	console.log('in todo', text);
-	console.log('testArray', testArray);
+export default function Pattern({ name, id }) {
+	console.log('in pattern', id);
+
 	return (
-		<li
-			onClick={onClick}
-			style={{textDecoration: completed ? 'line-through' : 'none'}}
-		>
-			{text}
-			{testArray}
-		</li>
+		<div>
+			Name: {name}
+		</div>
 	);
 }
