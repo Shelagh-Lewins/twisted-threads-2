@@ -1,6 +1,12 @@
 {
   "name": "meteor-react-redux-auth",
-  "private": true,
+  "description": "A demo app using Meteor with React and Redux, and incorporating user authentication.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shelagh-Lewins/meteor-react-redux-auth.git"
+  },
+  "author": "Shelagh Lewins",
+  "license": "MIT",
   "scripts": {
     "start": "meteor run",
     "test": "meteor test --once --driver-package meteortesting:mocha",
