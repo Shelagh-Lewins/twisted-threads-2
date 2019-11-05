@@ -1,0 +1,115 @@
+{
+	"plugins": [
+		"meteor"
+	],
+	"settings": {
+		"import/resolver": "meteor"
+	},
+	"extends": [
+		"react-app",
+		"airbnb",
+		"plugin:meteor/recommended"
+	],
+	"env": {
+		"meteor": true,
+		"node": true,
+		"browser": true
+	},
+	"rules": {
+		"array-callback-return": [
+			"off"
+		],
+		"import/no-extraneous-dependencies": [
+			"error", {"devDependencies": true}
+		],
+		"eol-last": [
+			"error",
+			"always"
+		],
+		"func-names": [
+			"error",
+			"as-needed"
+		],
+		"quotes": [
+			2,
+			"single",
+			{
+				"avoidEscape": true,
+				"allowTemplateLiterals": true
+			}
+		],
+		"padded-blocks": [
+			"error",
+			"never"
+		],
+		"semi": [
+			"error",
+			"always"
+		],
+		"indent": [
+			"error",
+			"tab",
+			{
+				"SwitchCase": 1
+			}
+		],
+		"key-spacing": [
+			"error",
+			{
+				"mode": "strict"
+			}
+		],
+		"no-alert": [
+			"off"
+		],
+		"object-curly-spacing": [
+			"error",
+			"always"
+		],
+		"quote-props": [
+			2,
+			"always"
+		],
+		"consistent-return": [
+			"off"
+		],
+		"no-return-assign": [
+			"off"
+		],
+		"no-tabs": [
+			"off"
+		],
+		"max-len": [
+			"off"
+		],
+		"react/jsx-indent": [
+			"error",
+			"tab"
+		],
+		"react/jsx-indent-props": [
+			"error",
+			"tab"
+		],
+		"react/jsx-filename-extension": [
+			1,
+			{
+				"extensions": [
+					".js",
+					".jsx"
+				]
+			}
+		],
+		"react/no-did-update-set-state": [
+			"warn"
+		],
+		"react/require-default-props": [
+			"off"
+		],
+		"react/jsx-one-expression-per-line": [
+			"warn"
+		],
+		"react/jsx-boolean-value": [
+			"off"
+		]
+	}
+}
