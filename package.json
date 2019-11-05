@@ -1,6 +1,7 @@
 {
   "name": "meteor-react-redux-auth",
   "description": "A demo app using Meteor with React and Redux, and incorporating user authentication.",
+  "main": "main.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Shelagh-Lewins/meteor-react-redux-auth.git"

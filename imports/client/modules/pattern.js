@@ -1,6 +1,10 @@
-const updeep = require('updeep');
+// Partial store for Pattern collection in database e.g. actions to call a method to edit a pattern
 
-/* eslint-disable array-callback-return */
+// And also for Pattern page state
+
+// Note: it may be better to separate these
+
+const updeep = require('updeep');
 
 // ////////////////////////////////
 // Action creators
