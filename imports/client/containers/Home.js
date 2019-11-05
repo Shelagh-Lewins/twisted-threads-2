@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PatternList from '../components/PatternList';
 import AddPattern from '../components/AddPattern';
+import './Home.scss';
 
 class Home extends Component {
 	constructor(props) {
