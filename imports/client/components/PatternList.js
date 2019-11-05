@@ -1,22 +1,24 @@
 import { Meteor } from 'meteor/meteor';
-import { createContainer } from 'meteor/react-meteor-data';
+import { createContainer } from 'react-meteor-data';
 import { connect } from 'react-redux';
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
+
 import Patterns from '../../collection';
 import Pattern from './Pattern';
 
-class PatternList extends Component {
+class PatternList extends PureComponent {
 	render() {
-		const { dispatch } = this.props;
-		const patterns = this.props.patternList;
+		const { dispatch, patternList } = this.props;
 
 		return (
 			<div className="pattern-list">
-				{patterns.map((pattern) => (
+				{patternList.map((pattern) => (
 					<Pattern
 						key={pattern._id}
 						name={pattern.name}
-						id={pattern._id}
+						_id={pattern._id}
+						dispatch={dispatch}
 					/>
 				))}
 			</div>
@@ -25,12 +27,17 @@ class PatternList extends Component {
 }
 
 const PatternListContainer = createContainer(({ visibilityFilter, pageSkip }) => {
-	const todoSub = Meteor.subscribe('getTodos', visibilityFilter, pageSkip);
+	const patternSub = Meteor.subscribe('getPatterns', visibilityFilter, pageSkip);
 	return {
-		'todoSubReady': todoSub.ready(),
+		'todoSubReady': patternSub.ready(),
 		'patternList': Patterns.find({}, { 'limit': 10 }).fetch() || [],
 	};
 }, PatternList);
+
+PatternList.propTypes = {
+	'dispatch': PropTypes.func.isRequired,
+	'patternList': PropTypes.arrayOf(PropTypes.any).isRequired,
+};
 
 function mapStateToProps(state) {
 	return {};

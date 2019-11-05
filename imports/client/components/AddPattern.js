@@ -1,8 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+
 import { addPattern } from '../modules/pattern';
 
-function AddTodo({ dispatch }) {
+function AddPattern({ dispatch }) {
 	let input;
 	return (
 		<div>
@@ -13,7 +15,6 @@ function AddTodo({ dispatch }) {
 			<button
 				type="button"
 				onClick={() => {
-					console.log('YO');
 					dispatch(addPattern(input.value));
 					input.value = '';
 				}}
@@ -24,4 +25,8 @@ function AddTodo({ dispatch }) {
 	);
 }
 
-export default connect()(AddTodo);
+AddPattern.propTypes = {
+	'dispatch': PropTypes.func.isRequired,
+};
+
+export default connect()(AddPattern);

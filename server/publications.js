@@ -4,7 +4,7 @@ const patternPublishFields = {
 	'name': 1,
 };
 
-Meteor.publish('getTodos', () => {
+Meteor.publish('getPatterns', () => {
 	return Patterns.find({},
 		{ 'fields': patternPublishFields });
 });

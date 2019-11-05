@@ -20,6 +20,13 @@ export function addPattern(text) {
 	};
 }
 
+export function removePattern(_id) {
+	return () => {
+		Meteor.call('removePattern', _id);
+	};
+}
+
+// this would be a UI state change
 export function testActionForPattern(text) {
 	return () => {
 		Meteor.call('addPattern', text);
