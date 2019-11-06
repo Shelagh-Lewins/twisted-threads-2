@@ -102,6 +102,9 @@
 				]
 			}
 		],
+		"react/jsx-fragments": [
+			"off"
+		],
 		"react/no-did-update-set-state": [
 			"warn"
 		],

@@ -1,20 +1,27 @@
 import React from 'react';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import store from '../modules/store';
 
+import Navbar from '../components/Navbar';
 import Home from './Home';
-import Footer from '../components/Footer';
+import Pattern from './Pattern';
 import DevTools from '../components/DevTools';
 
 function App() {
 	return (
-		<div className="app-container">
-			<Provider store={store}>
-				<DevTools />
-				<Home />
-				<Footer />
-			</Provider>
-		</div>
+		<Provider store={store}>
+			<Router>
+				<div className="app-container">
+					<Navbar />
+					<div className="main-container">
+						<DevTools />
+						<Route exact path="/" component={Home} />
+						<Route exact path="/pattern/:id" component={Pattern} />
+					</div>
+				</div>
+			</Router>
+		</Provider>
 	);
 }
 

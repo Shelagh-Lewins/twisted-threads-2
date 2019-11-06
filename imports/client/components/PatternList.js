@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import Pattern from './Pattern';
+import PatternSummary from './PatternSummary';
 import Pagination from './Pagination';
 import { changePage } from '../modules/pattern';
 import { ITEMS_PER_PAGE } from '../../parameters';
@@ -20,8 +20,9 @@ class PatternList extends PureComponent {
 
 		return (
 			<div className="pattern-list">
+				<h2>Patterns</h2>
 				{patterns.map((pattern) => (
-					<Pattern
+					<PatternSummary
 						key={pattern._id}
 						name={pattern.name}
 						_id={pattern._id}

@@ -1,27 +1,32 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import { removePattern } from '../modules/pattern';
 
-function Pattern({ name, _id, dispatch }) {
+function PatternSummary({ name, _id, dispatch }) {
 	return (
 		<div>
-			Name: {name}
+			<Link to={`/pattern/${_id}`}>
+				<div className="pattern-name">
+					<div>{name}</div>
+				</div>
+			</Link>
 			<button
 				type="button"
 				onClick={() => {
 					dispatch(removePattern(_id));
 				}}
 			>
-			Remove Pattern
+			X
 			</button>
 		</div>
 	);
 }
 
-Pattern.propTypes = {
+PatternSummary.propTypes = {
 	'_id': PropTypes.string.isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'name': PropTypes.string.isRequired,
 };
 
-export default Pattern;
+export default PatternSummary;

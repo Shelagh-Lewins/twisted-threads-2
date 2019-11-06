@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.3.4",
+    "bootstrap": "^4.3.1",
     "create-react-class": "^15.6.3",
     "meteor-node-stubs": "^0.4.1",
     "prop-types": "^15.7.2",
@@ -24,6 +25,8 @@
     "react-dom": "^16.11.0",
     "react-paginate": "^6.3.2",
     "react-redux": "^7.1.1",
+    "react-router-dom": "^5.1.2",
+    "reactstrap": "^8.1.1",
     "redux": "^4.0.4",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.3.0",

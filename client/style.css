@@ -1,5 +1,5 @@
-.app-container {
-	max-width: 320px;
+.main-container {
+	max-width: 600px;
 	margin: 0 auto;
 	padding-top: 16px;
 }
