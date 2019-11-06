@@ -4,11 +4,11 @@ import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
+import { setIsLoading } from '../modules/pattern';
 
 import Patterns from '../../collection';
 
 class Pattern extends PureComponent {
-
 	render() {
 		const { name } = this.props;
 
@@ -21,9 +21,7 @@ class Pattern extends PureComponent {
 }
 
 Pattern.propTypes = {
-	// 'dispatch': PropTypes.func.isRequired,
-	'_id': PropTypes.string.isRequired,
-	// 'name': PropTypes.string.isRequired,
+	'name': PropTypes.string.isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
@@ -32,18 +30,19 @@ function mapStateToProps(state, ownProps) {
 	};
 }
 
-const Tracker = withTracker(({ _id }) => {
+const Tracker = withTracker(({ _id, dispatch }) => {
+	dispatch(setIsLoading(true));
+
 	Meteor.subscribe('pattern', _id, {
-		'onReady': () => console.log('pattern subscribe ready'),
+		'onReady': () => dispatch(setIsLoading(false)),
 	});
 
 	const pattern = Patterns.findOne({ _id }) || {};
 
+	// pass database data as props
 	return {
-		'name': pattern.name,
+		'name': pattern.name || '',
 	};
 })(Pattern);
 
 export default connect(mapStateToProps)(Tracker);
-
-// export default connect(mapStateToProps)(Pattern);

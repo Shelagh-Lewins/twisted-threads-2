@@ -10,6 +10,7 @@ Meteor.publish('patterns', (skip = 0, limit = ITEMS_PER_PAGE) => Patterns.find({
 		'fields': patternsPublishFields,
 		'skip': skip,
 		'limit': limit,
+		'sort': { 'name': 1 },
 	}));
 
 const patternPublishFields = {

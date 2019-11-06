@@ -1,0 +1,16 @@
+@import "../constants/variables";
+
+.loading {
+	position: relative;
+	top: 30vh;
+	z-index: 10;
+
+	.inner-tube {
+		margin-left: 50%;
+		position: absolute;
+	}
+
+	.spinner-border {
+		margin-left: -50%;
+	}
+}

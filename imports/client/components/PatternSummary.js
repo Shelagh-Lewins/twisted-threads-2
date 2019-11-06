@@ -7,9 +7,7 @@ function PatternSummary({ name, _id, dispatch }) {
 	return (
 		<div>
 			<Link to={`/pattern/${_id}`}>
-				<div className="pattern-name">
-					<div>{name}</div>
-				</div>
+				{name}
 			</Link>
 			<button
 				type="button"

@@ -14,6 +14,7 @@ const updeep = require('updeep');
 export const SET_PAGE_NUMBER = 'SET_PAGE_NUMBER';
 export const GET_PATTERN_COUNT = 'GET_PATTERN_COUNT';
 export const SET_PATTERN_COUNT = 'SET_PATTERN_COUNT';
+export const SET_ISLOADING = 'SET_ISLOADING';
 
 // ///////////////////////////
 // Action that call Meteor methods; these do not change the Store but are located here in order to keep server interactions away from UI
@@ -31,6 +32,8 @@ export function removePattern(_id) {
 
 // ////////////////////////////
 // Actions that change the Store
+
+// pagination
 export function setPageNumber(currentPageNumber) {
 	return {
 		'type': 'SET_PAGE_NUMBER',
@@ -56,6 +59,14 @@ export const changePage = (currentPageNumber) => (dispatch) => {
 	dispatch(getPatternCount());
 };
 
+// waiting for data subscription to be ready
+export function setIsLoading(isLoading) {
+	return {
+		'type': 'SET_ISLOADING',
+		'payload': isLoading,
+	};
+}
+
 // ///////////////////////////
 // default state
 const initialPatternState = {
@@ -74,6 +85,10 @@ export default function pattern(state = initialPatternState, action) {
 
 		case SET_PATTERN_COUNT: {
 			return updeep({ 'patternCount': action.payload }, state);
+		}
+
+		case SET_ISLOADING: {
+			return updeep({ 'isLoading': action.payload }, state);
 		}
 
 		default:
