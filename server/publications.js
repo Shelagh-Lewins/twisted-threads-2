@@ -4,9 +4,9 @@ const patternPublishFields = {
 	'name': 1,
 };
 
-Meteor.publish('getPatterns', (pageSkip = 0) => 	Patterns.find({},
+Meteor.publish('patterns', (skip = 0, limit = 10) => 	Patterns.find({},
 	{
 		'fields': patternPublishFields,
-		'skip': pageSkip,
-		'limit': 10,
+		'skip': skip,
+		'limit': limit,
 	}));

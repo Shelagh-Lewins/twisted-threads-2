@@ -3,7 +3,6 @@ import { Provider } from 'react-redux';
 import store from '../modules/store';
 
 import Home from './Home';
-
 import Footer from '../components/Footer';
 import DevTools from '../components/DevTools';
 

@@ -1,30 +1,27 @@
-import { Meteor } from 'meteor/meteor';
-import { createContainer } from 'react-meteor-data';
 import { connect } from 'react-redux';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import Patterns from '../../collection';
 import Pattern from './Pattern';
 import Pagination from './Pagination';
-import { changePage, getPatternCount } from '../modules/pattern';
-
-const PER_PAGE_SKIP = 10;
+import { changePage } from '../modules/pattern';
+import { ITEMS_PER_PAGE } from '../constants/parameters';
 
 class PatternList extends PureComponent {
 	render() {
-		const { dispatch, patternList } = this.props;
-		console.log('count', this.props.patternCount);
-		const pagination = this.props.patternCount > 10 ? (
+		const { dispatch, patternCount, patterns } = this.props;
+
+		const pagination = patternCount > ITEMS_PER_PAGE ? (
 			<Pagination
-				handlePageClick={(data) => { return dispatch(changePage(data.selected)); }}
-				pageCount={this.props.patternCount / 10}
+				handlePageClick={(data) => dispatch(changePage(data.selected))}
+				pageCount={patternCount / ITEMS_PER_PAGE}
 			/>
 		) : '';
 
 		return (
 			<div className="pattern-list">
-				{patternList.map((pattern) => (
+				{pagination}
+				{patterns.map((pattern) => (
 					<Pattern
 						key={pattern._id}
 						name={pattern.name}
@@ -32,34 +29,22 @@ class PatternList extends PureComponent {
 						dispatch={dispatch}
 					/>
 				))}
-				{pagination}
 			</div>
 		);
 	}
 }
 
-const PatternListContainer = createContainer(({ pageSkip, dispatch }) => {
-	const patternSub = Meteor.subscribe('getPatterns', pageSkip, {
-		'onReady': () => { dispatch(getPatternCount()); },
-	});
-	Meteor.subscribe('patternsCountByFilter', 'all');
-
-	return {
-		'todoSubReady': patternSub.ready(),
-		'patternList': Patterns.find({}, { 'limit': PER_PAGE_SKIP }).fetch() || [],
-	};
-}, PatternList);
-
 PatternList.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
-	'patternList': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'patternCount': PropTypes.number.isRequired,
+	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 function mapStateToProps(state) {
 	return {
-		'pageSkip': state.pattern.currentPageNumber * PER_PAGE_SKIP,
 		'patternCount': state.pattern.patternCount,
+		'currentPageNumber': state.pattern.currentPageNumber,
 	};
 }
 
-export default connect(mapStateToProps)(PatternListContainer);
+export default connect(mapStateToProps)(PatternList);
