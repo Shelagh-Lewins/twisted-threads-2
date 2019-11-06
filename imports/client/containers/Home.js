@@ -7,7 +7,7 @@ import { getPatternCount } from '../modules/pattern';
 import Patterns from '../../collection';
 import PatternList from '../components/PatternList';
 import AddPattern from '../components/AddPattern';
-import { ITEMS_PER_PAGE } from '../constants/parameters';
+import { ITEMS_PER_PAGE } from '../../parameters';
 import './Home.scss';
 
 class Home extends Component {

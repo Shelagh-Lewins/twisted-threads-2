@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import Pattern from './Pattern';
 import Pagination from './Pagination';
 import { changePage } from '../modules/pattern';
-import { ITEMS_PER_PAGE } from '../constants/parameters';
+import { ITEMS_PER_PAGE } from '../../parameters';
 
 class PatternList extends PureComponent {
 	render() {
@@ -20,7 +20,6 @@ class PatternList extends PureComponent {
 
 		return (
 			<div className="pattern-list">
-				{pagination}
 				{patterns.map((pattern) => (
 					<Pattern
 						key={pattern._id}
@@ -29,6 +28,7 @@ class PatternList extends PureComponent {
 						dispatch={dispatch}
 					/>
 				))}
+				{pagination}
 			</div>
 		);
 	}
