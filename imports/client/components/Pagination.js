@@ -6,17 +6,17 @@ function Pagination({ handlePageClick, pageCount }) {
 	return (
 		<div className="paginate">
 			<ReactPaginate
-				previousLabel={'previous'}
-        nextLabel={'next'}
-        breakLabel={'...'}
-        breakClassName={'break-me'}
-        pageCount={pageCount}
-        marginPagesDisplayed={2}
-        pageRangeDisplayed={5}
-        onPageChange={handlePageClick}
-        containerClassName={'pagination'}
-        subContainerClassName={'pages pagination'}
-        activeClassName={'active'}
+				previousLabel="previous"
+				nextLabel="next"
+				breakLabel="..."
+				breakClassName="break-me"
+				pageCount={pageCount}
+				marginPagesDisplayed={2}
+				pageRangeDisplayed={5}
+				onPageChange={handlePageClick}
+				containerClassName="pagination"
+				subContainerClassName="pages pagination"
+				activeClassName="active"
 			/>
 		</div>
 	);

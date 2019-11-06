@@ -11,9 +11,12 @@ const updeep = require('updeep');
 
 // define action types so they are visible
 // and export them so other reducers can use them
-export const CHANGE_PAGE = 'CHANGE_PAGE';
+export const SET_PAGE_NUMBER = 'SET_PAGE_NUMBER';
+export const GET_PATTERN_COUNT = 'GET_PATTERN_COUNT';
+export const SET_PATTERN_COUNT = 'SET_PATTERN_COUNT';
 
 // ///////////////////////////
+// Action that call Meteor methods; these do not change the Store but are located here in order to keep server interactions away from UI
 export function addPattern(text) {
 	return () => {
 		Meteor.call('addPattern', text);
@@ -26,27 +29,51 @@ export function removePattern(_id) {
 	};
 }
 
-// this would be a UI state change
-export function changePage(currentPageNumber) {
+// ////////////////////////////
+// Actions that change the Store
+export function setPageNumber(currentPageNumber) {
 	return {
-		'type': 'CHANGE_PAGE',
+		'type': 'SET_PAGE_NUMBER',
 		'payload': currentPageNumber,
 	};
 }
 
+export function setPatternCount(patternCount) {
+	return {
+		'type': 'SET_PATTERN_COUNT',
+		'payload': patternCount,
+	};
+}
+
+export const getPatternCount = () => (dispatch) => {
+	return Meteor.call('getPatternCount', (error, result) => {
+		dispatch(setPatternCount(result));
+	});
+};
+
+export const changePage = (currentPageNumber) => (dispatch) => {
+	dispatch(setPageNumber(currentPageNumber));
+	dispatch(getPatternCount());
+};
+
 // ///////////////////////////
 // default state
 const initialPatternState = {
-	'currentPageNumber': 1,
-	'isLoading': false,
+	'currentPageNumber': 0,
 	'error': null,
+	'isLoading': false,
+	'patternCount': 0,
 };
 
 // state updates
 export default function pattern(state = initialPatternState, action) {
 	switch (action.type) {
-		case CHANGE_PAGE: {
+		case SET_PAGE_NUMBER: {
 			return updeep({ 'currentPageNumber': action.payload }, state);
+		}
+
+		case SET_PATTERN_COUNT: {
+			return updeep({ 'patternCount': action.payload }, state);
 		}
 
 		default:

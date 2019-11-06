@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 import Patterns from '../../collection';
 import Pattern from './Pattern';
 import Pagination from './Pagination';
+import { changePage, getPatternCount } from '../modules/pattern';
 
 const PER_PAGE_SKIP = 10;
 
@@ -17,7 +18,7 @@ class PatternList extends PureComponent {
 		const pagination = this.props.patternCount > 10 ? (
 			<Pagination
 				handlePageClick={(data) => { return dispatch(changePage(data.selected)); }}
-				pageCount={2}
+				pageCount={this.props.patternCount / 10}
 			/>
 		) : '';
 
@@ -37,26 +38,27 @@ class PatternList extends PureComponent {
 	}
 }
 
-const PatternListContainer = createContainer(({ pageSkip }) => {
-	const patternSub = Meteor.subscribe('getPatterns', pageSkip);
+const PatternListContainer = createContainer(({ pageSkip, dispatch }) => {
+	const patternSub = Meteor.subscribe('getPatterns', pageSkip, {
+		'onReady': () => { dispatch(getPatternCount()); },
+	});
 	Meteor.subscribe('patternsCountByFilter', 'all');
 
 	return {
 		'todoSubReady': patternSub.ready(),
 		'patternList': Patterns.find({}, { 'limit': PER_PAGE_SKIP }).fetch() || [],
-		'patternCount': Counts.get('PatternCount'),
 	};
 }, PatternList);
 
 PatternList.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'patternList': PropTypes.arrayOf(PropTypes.any).isRequired,
-	// 'pageSkip': PropTypes.number.isRequired,
 };
 
 function mapStateToProps(state) {
 	return {
-		'pageSkip': state.currentPageNumber * PER_PAGE_SKIP,
+		'pageSkip': state.pattern.currentPageNumber * PER_PAGE_SKIP,
+		'patternCount': state.pattern.patternCount,
 	};
 }
 

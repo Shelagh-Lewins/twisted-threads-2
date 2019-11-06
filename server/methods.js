@@ -18,4 +18,7 @@ Meteor.methods({
 		});
 		return patterns;
 	},
+	getPatternCount() {
+		return Patterns.find().count();
+	},
 });
