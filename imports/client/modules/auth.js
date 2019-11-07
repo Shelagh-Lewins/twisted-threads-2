@@ -16,10 +16,8 @@ export function register({
 	email,
 	username,
 	password,
-	history
+	history,
 }) {
-	console.log('register');
-	console.log('password', password);
 	return () => {
 		Accounts.createUser({ email, username, password }, (error) => {
 			if (error) {
