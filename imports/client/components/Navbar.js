@@ -3,7 +3,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { withTracker } from 'meteor/react-meteor-data';
 import { Link, withRouter } from 'react-router-dom';
+
+import { getIsAuthenticated, getUser, logout } from '../modules/auth';
 
 class Navbar extends Component {
 	constructor(props) {
@@ -20,7 +23,7 @@ class Navbar extends Component {
 
 		const { dispatch, history } = this.props;
 
-		// dispatch(authReducer.logoutUser(history));
+		dispatch(logout(history));
 	}
 
 	showDropdown(e) {
@@ -35,23 +38,16 @@ class Navbar extends Component {
 			// auth,
 			dispatch,
 			history,
+			isAuthenticated,
 			location,
+			username,
 		} = this.props;
-		// const { isAuthenticated, user } = auth;
-		const { isAuthenticated, user } = {
-			'isAuthenticated': true,
-			'user': { 'username': 'tester' },
-		};
+
 		const { showDropdown } = this.state;
 
 		const authLinks = (
 			<ul className="navbar-nav ml-auto">
-				{user.username
-					&& (
-						<React.Fragment>
-							<li className="nav-item"><Link to="/account" className="nav-link">{user.username}</Link></li>
-						</React.Fragment>
-					)}
+				<li className="nav-item"><Link to="/account" className="nav-link">{username}</Link></li>
 				<li className="nav-item"><Link to="/" className="nav-link" onClick={this.onLogout}>Logout</Link></li>
 			</ul>
 		);
@@ -81,7 +77,6 @@ class Navbar extends Component {
 }
 
 Navbar.propTypes = {
-	// 'auth': PropTypes.objectOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'location': PropTypes.objectOf(PropTypes.any).isRequired,
@@ -92,4 +87,12 @@ const mapStateToProps = (state, ownProps) => ({
 	'location': ownProps.location,
 });
 
-export default withRouter(connect(mapStateToProps)(Navbar));
+// required to make checks of user status reactive
+const Tracker = withTracker(() => {
+	return {
+		'isAuthenticated': getIsAuthenticated(),
+		'username': getUser().username,
+	};
+})(Navbar);
+
+export default withRouter(connect(mapStateToProps)(Tracker));

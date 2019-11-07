@@ -4,10 +4,14 @@ import { ITEMS_PER_PAGE } from '../imports/parameters';
 /* eslint-disable prefer-arrow-callback */
 /* eslint-disable func-names */
 
+// don't allow users to edit their profile
+// https://docs.meteor.com/api/accounts.html
+Meteor.users.deny({ 'update': () => true });
+
 const patternsPublishFields = {
 	'name': 1,
 };
-
+/*
 const raw = Patterns.rawCollection();
 raw.findme = Meteor.wrapAsync(raw.find);
 
@@ -15,14 +19,14 @@ Meteor.publish('patternsraw', function() {
 	const result = raw.findme({});
 	console.log('*** result', result);
 	return result;
-});
+}); */
 
 Meteor.publish('patterns', (skip = 0, limit = ITEMS_PER_PAGE) => Patterns.find({},
 	{
 		'fields': patternsPublishFields,
 		'skip': skip,
 		'limit': limit,
-		// 'sort': { 'name': 1 },
+		'sort': { 'name': 1 },
 	}));
 
 const patternPublishFields = {

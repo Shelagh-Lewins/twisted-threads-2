@@ -4,6 +4,9 @@ import { Provider } from 'react-redux';
 import store from '../modules/store';
 
 import Navbar from '../components/Navbar';
+import Login from './Login';
+import Register from './Register';
+import Welcome from './Welcome';
 import Home from './Home';
 import Pattern from './Pattern';
 import DevTools from '../components/DevTools';
@@ -16,6 +19,9 @@ function App() {
 					<Navbar />
 					<div className="main-container">
 						<DevTools />
+						<Route exact path="/login" component={Login} />
+						<Route exact path="/register" component={Register} />
+						<Route exact path="/welcome" component={Welcome} />
 						<Route exact path="/" component={Home} />
 						<Route exact path="/pattern/:id" component={Pattern} />
 					</div>
