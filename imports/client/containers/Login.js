@@ -3,9 +3,19 @@ import { connect } from 'react-redux';
 // import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
 
-import { isAuthenticated, user, login } from '../modules/auth';
+import { login } from '../modules/auth';
+import isEmpty from '../modules/isEmpty';
+import { clearErrors } from '../modules/errors';
+import formatErrorMessages from '../modules/formatErrorMessages';
+import FlashMessage from '../components/FlashMessage';
 
 class Login extends Component {
+	onCloseFlashMessage = () => {
+		const { dispatch } = this.props;
+
+		dispatch(clearErrors());
+	}
+
 	handleSubmit = (event) => {
 		event.preventDefault();
 
@@ -16,13 +26,20 @@ class Login extends Component {
 			'password': this.password.value,
 			history,
 		}));
-
-		// Meteor.loginWithPassword(this.email.value, this.password.value);
 	}
 
 	render() {
+		const { errors } = this.props;
+
 		return (
 			<form onSubmit={this.handleSubmit}>
+				{!isEmpty(errors) && (
+					<FlashMessage
+						message={formatErrorMessages(errors)}
+						type="error"
+						onClick={this.onCloseFlashMessage}
+					/>
+				)}
 				<h1>Login</h1>
 				<label>
 					Email
@@ -46,7 +63,12 @@ class Login extends Component {
 
 Login.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
+	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 };
 
-export default connect()(Login);
+const mapStateToProps = (state) => ({
+	'errors': state.errors,
+});
+
+export default connect(mapStateToProps)(Login);

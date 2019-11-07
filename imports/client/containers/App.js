@@ -10,6 +10,7 @@ import Welcome from './Welcome';
 import Home from './Home';
 import Pattern from './Pattern';
 import DevTools from '../components/DevTools';
+import './App.scss';
 
 function App() {
 	return (

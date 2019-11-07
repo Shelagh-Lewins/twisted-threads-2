@@ -1,5 +1,6 @@
 // Actions and reducer for auth
 // most of this will actually be calls to the Meteor.Accounts system, but using actions keeps the UI agnostic.
+import { getErrors, clearErrors } from './errors';
 
 // ////////////////////////////////
 // Action creators
@@ -12,34 +13,38 @@ export const LOGOUT = 'LOGOUT';
 
 // ///////////////////////////
 // Action that call Meteor methods; these do not change the Store but are located here in order to keep server interactions away from UI
-export function register({
+// export const register = (user, history) => (dispatch) => {
+
+export const register = ({
 	email,
 	username,
 	password,
 	history,
-}) {
-	return () => {
-		Accounts.createUser({ email, username, password }, (error) => {
-			if (error) {
-				console.log('register error', error);
-			} else {
-				history.push('/welcome');
-			}
-		});
-	};
-}
+}) => (dispatch) => {
+	dispatch(clearErrors());
 
-export function login({ email, password, history }) {
-	return () => {
-		Meteor.loginWithPassword(email, password, (error) => {
-			if (error) {
-				console.log('login error', error);
-			} else {
-				history.push('/');
-			}
-		});
-	};
-}
+	Accounts.createUser({ email, username, password }, (error) => {
+		if (error) {
+			console.log('register error', error);
+
+			return dispatch(getErrors({ 'register': error.reason }));
+		}
+
+		history.push('/welcome');
+	});
+};
+
+export const login = ({ email, password, history }) => (dispatch) => {
+	dispatch(clearErrors());
+	Meteor.loginWithPassword(email, password, (error) => {
+		if (error) {
+			console.log('login error', error);
+			return dispatch(getErrors({ 'login': error.reason }));
+		}
+
+		history.push('/');
+	});
+};
 
 export function logout(history) {
 	return () => {

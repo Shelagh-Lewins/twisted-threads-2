@@ -1,0 +1,48 @@
+@import "../constants/variables";
+
+.valid-feedback {
+	color: $color-valid;
+	display: block;
+	font-size: 80%;
+	margin-top: .25rem;
+	width: 100%;
+
+	&::before {
+		content: "\2714 ";
+	}
+}
+
+.invalid-feedback {
+	color: $color-invalid;
+	font-size: 80%;
+	margin-top: .25rem;
+	width: 100%;
+
+	&::before {
+		content: "\2718 ";
+	}
+}
+
+.flash-error {
+	border-radius: 8px;
+	padding: 8px;
+
+	&.error {
+		border: 1px solid $color-invalid;
+		color: $color-invalid;
+
+		&::before {
+			content: "\2718 ";
+		}
+	}
+
+	&.success {
+		border: 1px solid $color-valid;
+		color: $color-valid;
+
+		&::before {
+			content: "\2714 ";
+		}
+	}
+}
+

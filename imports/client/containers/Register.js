@@ -52,7 +52,12 @@ class Register extends Component {
 
 Register.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
+	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 };
 
-export default connect()(Register);
+const mapStateToProps = (state) => ({
+	'errors': state.errors,
+});
+
+export default connect(mapStateToProps)(Register);
