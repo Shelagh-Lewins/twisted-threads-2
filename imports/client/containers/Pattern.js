@@ -32,7 +32,7 @@ function mapStateToProps(state, ownProps) {
 
 const Tracker = withTracker(({ _id, dispatch }) => {
 	dispatch(setIsLoading(true));
-
+	console.log('tracker says id', _id);
 	Meteor.subscribe('pattern', _id, {
 		'onReady': () => dispatch(setIsLoading(false)),
 	});
