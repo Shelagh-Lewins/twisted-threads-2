@@ -1,0 +1,24 @@
+@import "../constants/variables";
+
+.flash-message {
+	border-radius: 8px;
+	padding: 8px;
+
+	&.error {
+		border: 1px solid $color-invalid;
+		color: $color-invalid;
+
+		&::before {
+			content: "\2718 ";
+		}
+	}
+
+	&.success {
+		border: 1px solid $color-valid;
+		color: $color-valid;
+
+		&::before {
+			content: "\2714 ";
+		}
+	}
+}

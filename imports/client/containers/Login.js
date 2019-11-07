@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-// import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
 
 import { login } from '../modules/auth';
@@ -22,7 +21,7 @@ class Login extends Component {
 		const { dispatch, history } = this.props;
 
 		dispatch(login({
-			'email': this.email.value,
+			'user': this.user.value,
 			'password': this.password.value,
 			history,
 		}));
@@ -42,10 +41,10 @@ class Login extends Component {
 				)}
 				<h1>Login</h1>
 				<label>
-					Email
+					Email or Username
 					<input
-						type="email"
-						ref={(email) => this.email = email}
+						type="text"
+						ref={(user) => this.user = user}
 					/>
 				</label>
 				<label>

@@ -1,27 +1,24 @@
 // errorReducer.js
 const updeep = require('updeep');
 
-const GET_ERRORS = 'GET_ERRORS';
+const LOG_ERRORS = 'LOG_ERRORS';
 const CLEAR_ERRORS = 'CLEAR_ERRORS';
 
 // error is an object, e.g. { 'registration': error.message }
-export const getErrors = (error) =>
-	({
-		'type': GET_ERRORS,
-		'payload': error,
-	});
+export const logErrors = (error) => ({
+	'type': LOG_ERRORS,
+	'payload': error,
+});
 
-export const clearErrors = () => {
-	return {
-		'type': CLEAR_ERRORS,
-	};
-};
+export const clearErrors = () => ({
+	'type': CLEAR_ERRORS,
+});
 
 const initialState = {};
 
 export default function (state = initialState, action) {
 	switch (action.type) {
-		case GET_ERRORS: {
+		case LOG_ERRORS: {
 			// ensure we have a key-value object to allow multiple errors to be displayed
 			const errors = {};
 
@@ -34,7 +31,7 @@ export default function (state = initialState, action) {
 				}
 			});
 
-			return updeep(errors, {}); // clear any existing errors
+			return updeep(errors, {}); // delete any existing errors
 		}
 
 		case CLEAR_ERRORS: {

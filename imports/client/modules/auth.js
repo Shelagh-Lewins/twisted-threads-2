@@ -1,6 +1,7 @@
-// Actions and reducer for auth
-// most of this will actually be calls to the Meteor.Accounts system, but using actions keeps the UI agnostic.
-import { getErrors, clearErrors } from './errors';
+// Actions for auth
+// At present there is no reducer and no store for auth, because state is maintained by Meteor: we are using the Meteor accounts packages.
+// Using actions keeps the UI separated from the server.
+import { logErrors, clearErrors } from './errors';
 
 // ////////////////////////////////
 // Action creators
@@ -13,7 +14,6 @@ export const LOGOUT = 'LOGOUT';
 
 // ///////////////////////////
 // Action that call Meteor methods; these do not change the Store but are located here in order to keep server interactions away from UI
-// export const register = (user, history) => (dispatch) => {
 
 export const register = ({
 	email,
@@ -25,38 +25,35 @@ export const register = ({
 
 	Accounts.createUser({ email, username, password }, (error) => {
 		if (error) {
-			console.log('register error', error);
-
-			return dispatch(getErrors({ 'register': error.reason }));
+			return dispatch(logErrors({ 'register': error.reason }));
 		}
 
 		history.push('/welcome');
 	});
 };
 
-export const login = ({ email, password, history }) => (dispatch) => {
+// user can be email or username
+export const login = ({ user, password, history }) => (dispatch) => {
 	dispatch(clearErrors());
-	Meteor.loginWithPassword(email, password, (error) => {
+	Meteor.loginWithPassword(user, password, (error) => {
 		if (error) {
-			console.log('login error', error);
-			return dispatch(getErrors({ 'login': error.reason }));
+			return dispatch(logErrors({ 'login': error.reason }));
 		}
 
 		history.push('/');
 	});
 };
 
-export function logout(history) {
-	return () => {
-		Meteor.logout((error) => {
-			if (error) {
-				console.log('logout error', error);
-			} else {
-				history.push('/');
-			}
-		});
-	};
-}
+export const logout = ({ history }) => (dispatch) => {
+	dispatch(clearErrors());
+	Meteor.logout((error) => {
+		if (error) {
+			return dispatch(logErrors({ 'logout': error.reason }));
+		}
+
+		history.push('/');
+	});
+};
 
 // ///////////////////////////
 // Functions to provide info to UI

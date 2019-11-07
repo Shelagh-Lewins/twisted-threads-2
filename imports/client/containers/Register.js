@@ -1,11 +1,20 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-// import { Accounts } from 'meteor/accounts-base';
 import PropTypes from 'prop-types';
 
-import { isAuthenticated, user, register } from '../modules/auth';
+import { register } from '../modules/auth';
+import isEmpty from '../modules/isEmpty';
+import { clearErrors } from '../modules/errors';
+import formatErrorMessages from '../modules/formatErrorMessages';
+import FlashMessage from '../components/FlashMessage';
 
 class Register extends Component {
+	onCloseFlashMessage = () => {
+		const { dispatch } = this.props;
+
+		dispatch(clearErrors());
+	}
+
 	handleSubmit = (event) => {
 		event.preventDefault();
 
@@ -20,8 +29,17 @@ class Register extends Component {
 	}
 
 	render() {
+		const { errors } = this.props;
+
 		return (
 			<form onSubmit={this.handleSubmit}>
+				{!isEmpty(errors) && (
+					<FlashMessage
+						message={formatErrorMessages(errors)}
+						type="error"
+						onClick={this.onCloseFlashMessage}
+					/>
+				)}
 				<h1>Register</h1>
 				<label>
 					Email
