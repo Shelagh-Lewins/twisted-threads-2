@@ -34,39 +34,39 @@ class Register extends Component {
 
 		return (
 			<div>
-			<RegisterForm />
-			<form onSubmit={this.handleSubmit}>
-				{!isEmpty(errors) && (
-					<FlashMessage
-						message={formatErrorMessages(errors)}
-						type="error"
-						onClick={this.onCloseFlashMessage}
-					/>
-				)}
-				<h1>Register</h1>
-				<label>
-					Email
-					<input
-						type="email"
-						ref={(email) => this.email = email}
-					/>
-				</label>
-				<label>
-					Username
-					<input
-						type="text"
-						ref={(username) => this.username = username}
-					/>
-				</label>
-				<label>
-					Password
-					<input
-						type="password"
-						ref={(password) => this.password = password}
-					/>
-				</label>
-				<input type="submit" value="Create an account" />
-			</form>
+				<RegisterForm />
+				<form onSubmit={this.handleSubmit}>
+					{!isEmpty(errors) && (
+						<FlashMessage
+							message={formatErrorMessages(errors)}
+							type="error"
+							onClick={this.onCloseFlashMessage}
+						/>
+					)}
+					<h1>Register</h1>
+					<label>
+						Email
+						<input
+							type="email"
+							ref={(email) => this.email = email}
+						/>
+					</label>
+					<label>
+						Username
+						<input
+							type="text"
+							ref={(username) => this.username = username}
+						/>
+					</label>
+					<label>
+						Password
+						<input
+							type="password"
+							ref={(password) => this.password = password}
+						/>
+					</label>
+					<input type="submit" value="Create an account" />
+				</form>
 			</div>
 		);
 	}
