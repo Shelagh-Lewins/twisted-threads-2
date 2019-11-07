@@ -19,6 +19,7 @@
     "bcrypt": "^3.0.6",
     "bootstrap": "^4.3.1",
     "create-react-class": "^15.6.3",
+    "formik": "^2.0.3",
     "meteor-node-stubs": "^0.4.1",
     "prop-types": "^15.7.2",
     "react": "^16.11.0",

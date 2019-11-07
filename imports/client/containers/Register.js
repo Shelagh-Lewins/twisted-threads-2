@@ -7,6 +7,7 @@ import isEmpty from '../modules/isEmpty';
 import { clearErrors } from '../modules/errors';
 import formatErrorMessages from '../modules/formatErrorMessages';
 import FlashMessage from '../components/FlashMessage';
+import RegisterForm from '../components/RegisterForm';
 
 class Register extends Component {
 	onCloseFlashMessage = () => {
@@ -32,6 +33,8 @@ class Register extends Component {
 		const { errors } = this.props;
 
 		return (
+			<div>
+			<RegisterForm />
 			<form onSubmit={this.handleSubmit}>
 				{!isEmpty(errors) && (
 					<FlashMessage
@@ -64,6 +67,7 @@ class Register extends Component {
 				</label>
 				<input type="submit" value="Create an account" />
 			</form>
+			</div>
 		);
 	}
 }
