@@ -2,16 +2,15 @@ import React, { Component } from 'react';
 import { Container, Row, Col } from 'reactstrap';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
 
-import { login } from '../modules/auth';
+import { forgotPassword } from '../modules/auth';
 import isEmpty from '../modules/isEmpty';
 import { clearErrors } from '../modules/errors';
 import formatErrorMessages from '../modules/formatErrorMessages';
 import FlashMessage from '../components/FlashMessage';
-import LoginForm from '../components/LoginForm';
+import ForgotPasswordForm from '../components/ForgotPasswordForm';
 
-class Login extends Component {
+class ForgotPassword extends Component {
 	componentDidMount() {
 		this.clearErrors();
 	}
@@ -20,13 +19,11 @@ class Login extends Component {
 		this.clearErrors();
 	}
 
-	handleSubmit = ({ user, password }) => {
-		const { dispatch, history } = this.props;
+	handleSubmit = ({ email }) => {
+		const { dispatch } = this.props;
 
-		dispatch(login({
-			user,
-			password,
-			history,
+		dispatch(forgotPassword({
+			email,
 		}));
 	}
 
@@ -37,11 +34,22 @@ class Login extends Component {
 	}
 
 	render() {
-		const { errors } = this.props;
+		const { errors, forgotPasswordEmailSent } = this.props;
 
 		return (
 			<div>
 				<Container>
+					<Row>
+						<Col lg="12">
+							{forgotPasswordEmailSent && (
+								<FlashMessage
+									message="A reset password email has been sent"
+									type="success"
+									onClick={this.onCloseFlashMessage}
+								/>
+							)}
+						</Col>
+					</Row>
 					<Row>
 						<Col lg="12">
 							{!isEmpty(errors) && (
@@ -55,15 +63,11 @@ class Login extends Component {
 					</Row>
 					<Row>
 						<Col lg="12">
-							<h1>Login</h1>
-							<LoginForm
+							<h1>Forgot your password?</h1>
+							<p>Enter your email address and a reset password email will be sent to you</p>
+							<ForgotPasswordForm
 								handleSubmit={this.handleSubmit}
 							/>
-						</Col>
-					</Row>
-					<Row>
-						<Col lg="12">
-							<Link to="forgot-password">Forgot password?</Link>
 						</Col>
 					</Row>
 				</Container>
@@ -72,14 +76,14 @@ class Login extends Component {
 	}
 }
 
-Login.propTypes = {
+ForgotPassword.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
-	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 };
 
 const mapStateToProps = (state) => ({
 	'errors': state.errors,
+	'forgotPasswordEmailSent': state.auth.forgotPasswordEmailSent,
 });
 
-export default connect(mapStateToProps)(Login);
+export default connect(mapStateToProps)(ForgotPassword);

@@ -10,6 +10,11 @@ Meteor.startup(() => {
 		const urlWithoutHash = url.replace('#/', '');
 		return `Hello ${user.username},\n\nYou have registered a new email address on Twisted Threads, the online app for tablet weaving. To verify your email address, please click the link below:\n\n ${urlWithoutHash}`;
 	};
+	Accounts.emailTemplates.resetPassword.subject = (user) => 'Reset your password';
+	Accounts.emailTemplates.resetPassword.text = (user, url) => {
+		const urlWithoutHash = url.replace('#/', '');
+		return `Hello ${user.username},\n\nTo reset your password on Twisted Threads, please click the link below.:\n\n ${urlWithoutHash}`;
+	};
 });
 
 Accounts.onCreateUser((options, user) => {

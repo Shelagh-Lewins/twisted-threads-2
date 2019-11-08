@@ -12,6 +12,7 @@ function PatternSummary({ name, _id, dispatch }) {
 			</Link>
 			<Button
 				type="button"
+				color="danger"
 				onClick={() => {
 					dispatch(removePattern(_id));
 				}}
