@@ -5,22 +5,6 @@ import PropTypes from 'prop-types';
 
 const validate = (values) => {
 	const errors = {};
-	if (!values.username) {
-		errors.username = 'Required';
-	} else if (/\s/.test(values.username)) {
-		errors.username = 'Must not contain spaces';
-	}
-
-	if (!values.email) {
-		errors.email = 'Required';
-	} else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
-		// don't overcomplicate email validation by specifying allowed characters; it's too easy to miss out a valid character like _ and refuse valid addresses
-		// this regex requires exactly one @ symbol
-		// and x.x after it, so x@x.x
-		// and forbids spaces
-		// https://tylermcginnis.com/validate-email-address-javascript/
-		errors.email = 'Invalid email address';
-	}
 
 	if (!values.password) {
 		errors.password = 'Required';
@@ -43,13 +27,12 @@ const validate = (values) => {
 	return errors;
 };
 
-const RegisterForm = (props) => {
+const ResetPasswordForm = (props) => {
 	const formik = useFormik({
 		'initialValues': {
 			'confirmPassword': '',
-			'email': '',
 			'password': '',
-			'username': '',
+
 		},
 		validate,
 		'onSubmit': (values) => {
@@ -60,50 +43,12 @@ const RegisterForm = (props) => {
 	return (
 		<form onSubmit={formik.handleSubmit}>
 			<div className="form-group">
-				<label htmlFor="email">
-					Email Address (this will never be displayed)
-					<input
-						className={`form-control ${formik.touched.email && formik.errors.email ? 'is-invalid' : ''
-						}`}
-						placeholder="Email address"
-						id="email"
-						name="email"
-						type="email"
-						onChange={formik.handleChange}
-						onBlur={formik.handleBlur}
-						value={formik.values.email}
-					/>
-					{formik.touched.email && formik.errors.email ? (
-						<div className="invalid-feedback invalid">{formik.errors.email}</div>
-					) : null}
-				</label>
-			</div>
-			<div className="form-group">
-				<label htmlFor="username">
-					Username (this may be displayed)
-					<input
-						className={`form-control ${formik.touched.username && formik.errors.username ? 'is-invalid' : ''
-						}`}
-						placeholder="Username"
-						id="username"
-						name="username"
-						type="text"
-						onChange={formik.handleChange}
-						onBlur={formik.handleBlur}
-						value={formik.values.username}
-					/>
-					{formik.touched.username && formik.errors.username ? (
-						<div className="invalid-feedback">{formik.errors.username}</div>
-					) : null}
-				</label>
-			</div>
-			<div className="form-group">
 				<label htmlFor="password">
-					Password
+					New password
 					<input
 						className={`form-control ${formik.touched.password &&	formik.errors.password ? 'is-invalid' : ''
 						}`}
-						placeholder="Password"
+						placeholder="New password"
 						id="password"
 						name="password"
 						type="password"
@@ -135,13 +80,13 @@ const RegisterForm = (props) => {
 					) : null}
 				</label>
 			</div>
-			<Button type="submit" color="primary">Create an account</Button>
+			<Button type="submit" color="primary">Reset password</Button>
 		</form>
 	);
 };
 
-RegisterForm.propTypes = {
+ResetPasswordForm.propTypes = {
 	'handleSubmit': PropTypes.func.isRequired,
 };
 
-export default RegisterForm;
+export default ResetPasswordForm;

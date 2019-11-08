@@ -11,6 +11,7 @@ import Account from './Account';
 import VerifyEmail from './VerifyEmail';
 import EmailVerified from './EmailVerified';
 import ForgotPassword from './ForgotPassword';
+import ResetPassword from './ResetPassword';
 import Home from './Home';
 import Pattern from './Pattern';
 import DevTools from '../components/DevTools';
@@ -31,6 +32,7 @@ function App() {
 						<Route exact path="/verify-email/:token" component={VerifyEmail} />
 						<Route exact path="/email-verified" component={EmailVerified} />
 						<Route exact path="/forgot-password" component={ForgotPassword} />
+						<Route exact path="/reset-password/:token" component={ResetPassword} />
 						<Route exact path="/" component={Home} />
 						<Route exact path="/pattern/:id" component={Pattern} />
 					</div>

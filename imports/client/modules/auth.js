@@ -1,6 +1,7 @@
 // Actions for auth
 // Using actions keeps the UI separated from the server.
 import { logErrors, clearErrors } from './errors';
+
 const updeep = require('updeep');
 
 // ////////////////////////////////
@@ -15,6 +16,8 @@ export const VERIFICATION_EMAIL_SENT = 'VERIFICATION_EMAIL_SENT';
 export const VERIFICATION_EMAIL_NOT_SENT = 'VERIFICATION_EMAIL_NOT_SENT';
 export const FORGOT_PASSWORD_EMAIL_SENT = 'FORGOT_PASSWORD_EMAIL_SENT';
 export const FORGOT_PASSWORD_EMAIL_NOT_SENT = 'FORGOT_PASSWORD_EMAIL_NOT_SENT';
+export const PASSWORD_RESET = 'PASSWORD_RESET';
+export const PASSWORD_NOT_RESET = 'PASSWORD_NOT_RESET';
 
 // ///////////////////////////
 // Action that call Meteor methods; these do not change the Store but are located here in order to keep server interactions away from UI
@@ -126,6 +129,32 @@ export const forgotPassword = (email) => (dispatch) => {
 	});
 };
 
+// reset password
+export function passwordReset() {
+	return {
+		'type': 'PASSWORD_RESET',
+	};
+}
+
+export function passwordNotReset() {
+	return {
+		'type': 'PASSWORD_NOT_RESET',
+	};
+}
+
+export const resetPassword = ({ token, password }) => (dispatch) => {
+	dispatch(clearErrors());
+	dispatch(passwordNotReset());
+
+	Accounts.resetPassword(token, password, (error) => {
+		if (error) {
+			return dispatch(logErrors({ 'reset password': error.reason }));
+		}
+
+		dispatch(passwordReset());
+	});
+};
+
 // ///////////////////////////
 // Functions to provide info to UI
 
@@ -144,6 +173,7 @@ export function getIsAuthenticated() {
 const initialAuthState = {
 	'error': null,
 	'forgotPasswordEmailSent': false,
+	'passwordReset': false,
 	'verificationEmailSent': false,
 };
 
@@ -164,6 +194,14 @@ export default function auth(state = initialAuthState, action) {
 
 		case VERIFICATION_EMAIL_NOT_SENT: {
 			return updeep({ 'verificationEmailSent': false }, state);
+		}
+
+		case PASSWORD_RESET: {
+			return updeep({ 'passwordReset': true }, state);
+		}
+
+		case PASSWORD_NOT_RESET: {
+			return updeep({ 'passwordReset': false }, state);
 		}
 
 		default:
