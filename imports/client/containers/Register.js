@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Container, Row, Col } from 'reactstrap';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
@@ -16,15 +17,13 @@ class Register extends Component {
 		dispatch(clearErrors());
 	}
 
-	handleSubmit = (event) => {
-		event.preventDefault();
-
+	handleSubmit = ({ email, username, password }) => {
 		const { dispatch, history } = this.props;
 
 		dispatch(register({
-			'email': this.email.value,
-			'username': this.username.value,
-			'password': this.password.value,
+			email,
+			username,
+			password,
 			history,
 		}));
 	}
@@ -34,39 +33,26 @@ class Register extends Component {
 
 		return (
 			<div>
-				<RegisterForm />
-				<form onSubmit={this.handleSubmit}>
-					{!isEmpty(errors) && (
-						<FlashMessage
-							message={formatErrorMessages(errors)}
-							type="error"
-							onClick={this.onCloseFlashMessage}
-						/>
-					)}
-					<h1>Register</h1>
-					<label>
-						Email
-						<input
-							type="email"
-							ref={(email) => this.email = email}
-						/>
-					</label>
-					<label>
-						Username
-						<input
-							type="text"
-							ref={(username) => this.username = username}
-						/>
-					</label>
-					<label>
-						Password
-						<input
-							type="password"
-							ref={(password) => this.password = password}
-						/>
-					</label>
-					<input type="submit" value="Create an account" />
-				</form>
+				<Container>
+					<Row>
+						<Col lg="12">
+							{!isEmpty(errors) && (
+								<FlashMessage
+									message={formatErrorMessages(errors)}
+									type="error"
+									onClick={this.onCloseFlashMessage}
+								/>
+							)}
+						</Col>
+					</Row>
+					<Row>
+						<Col lg="12">
+							<RegisterForm
+								handleSubmit={this.handleSubmit}
+							/>
+						</Col>
+					</Row>
+				</Container>
 			</div>
 		);
 	}
