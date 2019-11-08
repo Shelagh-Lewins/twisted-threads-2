@@ -1,7 +1,7 @@
 // Actions for auth
-// At present there is no reducer and no store for auth, because state is maintained by Meteor: we are using the Meteor accounts packages.
 // Using actions keeps the UI separated from the server.
 import { logErrors, clearErrors } from './errors';
+const updeep = require('updeep');
 
 // ////////////////////////////////
 // Action creators
@@ -11,6 +11,8 @@ import { logErrors, clearErrors } from './errors';
 export const REGISTER = 'REGISTER';
 export const LOGIN = 'LOGIN';
 export const LOGOUT = 'LOGOUT';
+export const VERIFICATION_EMAIL_SENT = 'VERIFICATION_EMAIL_SENT';
+export const VERIFICATION_EMAIL_NOT_SENT = 'VERIFICATION_EMAIL_NOT_SENT';
 
 // ///////////////////////////
 // Action that call Meteor methods; these do not change the Store but are located here in order to keep server interactions away from UI
@@ -56,6 +58,46 @@ export const logout = (history) => (dispatch) => {
 	});
 };
 
+// ////////////////////////////////
+// verification of email address
+
+// allow UI feedback of email resend success
+export function verificationEmailSent() {
+	return {
+		'type': 'VERIFICATION_EMAIL_SENT',
+	};
+}
+
+export function verificationEmailNotSent() {
+	return {
+		'type': 'VERIFICATION_EMAIL_NOT_SENT',
+	};
+}
+
+export const verifyEmail = (token, history) => (dispatch) => {
+	dispatch(clearErrors());
+
+	Accounts.verifyEmail(token, (error) => {
+		if (error) {
+			return dispatch(logErrors({ 'verify email': error.reason }));
+		}
+
+		history.push('/email-verified');
+	});
+};
+
+export const sendVerificationEmail = (userId) => (dispatch) => {
+	dispatch(clearErrors());
+	dispatch(verificationEmailNotSent());
+
+	Meteor.call('sendVerificationEmail', userId, (error) => {
+		if (error) {
+			return dispatch(logErrors({ 'send verification email': error.reason }));
+		}
+		dispatch(verificationEmailSent());
+	});
+};
+
 // ///////////////////////////
 // Functions to provide info to UI
 
@@ -65,4 +107,26 @@ export function getUser() {
 
 export function getIsAuthenticated() {
 	return Boolean(Meteor.userId());
+}
+
+// default state
+const initialAuthState = {
+	'verificationEmailSent': false,
+	'error': null,
+};
+
+// state updates
+export default function auth(state = initialAuthState, action) {
+	switch (action.type) {
+		case VERIFICATION_EMAIL_SENT: {
+			return updeep({ 'verificationEmailSent': true }, state);
+		}
+
+		case VERIFICATION_EMAIL_NOT_SENT: {
+			return updeep({ 'verificationEmailSent': false }, state);
+		}
+
+		default:
+			return state;
+	}
 }

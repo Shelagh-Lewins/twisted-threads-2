@@ -7,6 +7,9 @@ import Navbar from '../components/Navbar';
 import Login from './Login';
 import Register from './Register';
 import Welcome from './Welcome';
+import Account from './Account';
+import VerifyEmail from './VerifyEmail';
+import EmailVerified from './EmailVerified';
 import Home from './Home';
 import Pattern from './Pattern';
 import DevTools from '../components/DevTools';
@@ -23,6 +26,9 @@ function App() {
 						<Route exact path="/login" component={Login} />
 						<Route exact path="/register" component={Register} />
 						<Route exact path="/welcome" component={Welcome} />
+						<Route exact path="/account" component={Account} />
+						<Route exact path="/verify-email/:token" component={VerifyEmail} />
+						<Route exact path="/email-verified" component={EmailVerified} />
 						<Route exact path="/" component={Home} />
 						<Route exact path="/pattern/:id" component={Pattern} />
 					</div>

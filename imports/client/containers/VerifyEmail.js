@@ -3,31 +3,22 @@ import { Container, Row, Col } from 'reactstrap';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { register } from '../modules/auth';
 import isEmpty from '../modules/isEmpty';
 import { clearErrors } from '../modules/errors';
+import { verifyEmail } from '../modules/auth';
 import formatErrorMessages from '../modules/formatErrorMessages';
 import FlashMessage from '../components/FlashMessage';
-import RegisterForm from '../components/RegisterForm';
 
-class Register extends Component {
+class VerifyEmail extends Component {
 	componentDidMount() {
+		const { dispatch, history, token } = this.props;
 		this.clearErrors();
+
+		dispatch(verifyEmail(token, history));
 	}
 
 	onCloseFlashMessage() {
 		this.clearErrors();
-	}
-
-	handleSubmit = ({ email, username, password }) => {
-		const { dispatch, history } = this.props;
-
-		dispatch(register({
-			email,
-			username,
-			password,
-			history,
-		}));
 	}
 
 	clearErrors() {
@@ -55,10 +46,7 @@ class Register extends Component {
 					</Row>
 					<Row>
 						<Col lg="12">
-							<h1>Create an account</h1>
-							<RegisterForm
-								handleSubmit={this.handleSubmit}
-							/>
+							<p>Verifying email address...</p>
 						</Col>
 					</Row>
 				</Container>
@@ -67,14 +55,16 @@ class Register extends Component {
 	}
 }
 
-Register.propTypes = {
+VerifyEmail.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
+	'token': PropTypes.string.isRequired,
 };
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state, ownProps) => ({
 	'errors': state.errors,
+	'token': ownProps.match.params.token, // read the url parameter to find the token
 });
 
-export default connect(mapStateToProps)(Register);
+export default connect(mapStateToProps)(VerifyEmail);

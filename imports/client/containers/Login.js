@@ -54,6 +54,7 @@ class Login extends Component {
 					</Row>
 					<Row>
 						<Col lg="12">
+							<h1>Login</h1>
 							<LoginForm
 								handleSubmit={this.handleSubmit}
 							/>

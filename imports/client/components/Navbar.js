@@ -76,7 +76,7 @@ Navbar.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isAuthenticated': PropTypes.bool.isRequired,
-	'username': PropTypes.string.isRequired,
+	'username': PropTypes.string,
 };
 
 const mapStateToProps = (state, ownProps) => ({

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { removePattern } from '../modules/pattern';
@@ -9,14 +10,14 @@ function PatternSummary({ name, _id, dispatch }) {
 			<Link to={`/pattern/${_id}`}>
 				{name}
 			</Link>
-			<button
+			<Button
 				type="button"
 				onClick={() => {
 					dispatch(removePattern(_id));
 				}}
 			>
 			X
-			</button>
+			</Button>
 		</div>
 	);
 }
