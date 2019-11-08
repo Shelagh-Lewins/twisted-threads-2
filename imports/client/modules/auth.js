@@ -44,8 +44,9 @@ export const login = ({ user, password, history }) => (dispatch) => {
 	});
 };
 
-export const logout = ({ history }) => (dispatch) => {
+export const logout = (history) => (dispatch) => {
 	dispatch(clearErrors());
+
 	Meteor.logout((error) => {
 		if (error) {
 			return dispatch(logErrors({ 'logout': error.reason }));

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from 'reactstrap';
 import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
 
@@ -134,7 +135,7 @@ const RegisterForm = (props) => {
 					) : null}
 				</label>
 			</div>
-			<button type="submit">Submit</button>
+			<Button type="submit" color="primary">Create an account</Button>
 		</form>
 	);
 };

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Container, Row, Col } from 'reactstrap';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
@@ -7,55 +8,59 @@ import isEmpty from '../modules/isEmpty';
 import { clearErrors } from '../modules/errors';
 import formatErrorMessages from '../modules/formatErrorMessages';
 import FlashMessage from '../components/FlashMessage';
+import LoginForm from '../components/LoginForm';
 
 class Login extends Component {
-	onCloseFlashMessage = () => {
-		const { dispatch } = this.props;
-
-		dispatch(clearErrors());
+	componentDidMount() {
+		this.clearErrors();
 	}
 
-	handleSubmit = (event) => {
-		event.preventDefault();
+	onCloseFlashMessage() {
+		this.clearErrors();
+	}
 
+	handleSubmit = ({ user, password }) => {
 		const { dispatch, history } = this.props;
 
 		dispatch(login({
-			'user': this.user.value,
-			'password': this.password.value,
+			user,
+			password,
 			history,
 		}));
+	}
+
+	clearErrors() {
+		const { dispatch } = this.props;
+
+		dispatch(clearErrors());
 	}
 
 	render() {
 		const { errors } = this.props;
 
 		return (
-			<form onSubmit={this.handleSubmit}>
-				{!isEmpty(errors) && (
-					<FlashMessage
-						message={formatErrorMessages(errors)}
-						type="error"
-						onClick={this.onCloseFlashMessage}
-					/>
-				)}
-				<h1>Login</h1>
-				<label>
-					Email or Username
-					<input
-						type="text"
-						ref={(user) => this.user = user}
-					/>
-				</label>
-				<label>
-					Password
-					<input
-						type="password"
-						ref={(password) => this.password = password}
-					/>
-				</label>
-				<input type="submit" value="Log in" />
-			</form>
+			<div>
+				<Container>
+					<Row>
+						<Col lg="12">
+							{!isEmpty(errors) && (
+								<FlashMessage
+									message={formatErrorMessages(errors)}
+									type="error"
+									onClick={this.onCloseFlashMessage}
+								/>
+							)}
+						</Col>
+					</Row>
+					<Row>
+						<Col lg="12">
+							<LoginForm
+								handleSubmit={this.handleSubmit}
+							/>
+						</Col>
+					</Row>
+				</Container>
+			</div>
 		);
 	}
 }

@@ -11,10 +11,12 @@ import FlashMessage from '../components/FlashMessage';
 import RegisterForm from '../components/RegisterForm';
 
 class Register extends Component {
-	onCloseFlashMessage = () => {
-		const { dispatch } = this.props;
+	componentDidMount() {
+		this.clearErrors();
+	}
 
-		dispatch(clearErrors());
+	onCloseFlashMessage() {
+		this.clearErrors();
 	}
 
 	handleSubmit = ({ email, username, password }) => {
@@ -26,6 +28,12 @@ class Register extends Component {
 			password,
 			history,
 		}));
+	}
+
+	clearErrors() {
+		const { dispatch } = this.props;
+
+		dispatch(clearErrors());
 	}
 
 	render() {

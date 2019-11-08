@@ -28,18 +28,14 @@ class Navbar extends Component {
 
 	showDropdown(e) {
 		e.preventDefault();
-		this.setState(prevState => ({
+		this.setState((prevState) => ({
 			'showDropdown': !prevState.showDropdown,
 		}));
 	}
 
 	render() {
 		const {
-			// auth,
-			dispatch,
-			history,
 			isAuthenticated,
-			location,
 			username,
 		} = this.props;
 
@@ -79,20 +75,18 @@ class Navbar extends Component {
 Navbar.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
-	'location': PropTypes.objectOf(PropTypes.any).isRequired,
+	'isAuthenticated': PropTypes.bool.isRequired,
+	'username': PropTypes.string.isRequired,
 };
 
 const mapStateToProps = (state, ownProps) => ({
-	// 'auth': state.auth,
 	'location': ownProps.location,
 });
 
-// required to make checks of user status reactive
-const Tracker = withTracker(() => {
-	return {
-		'isAuthenticated': getIsAuthenticated(),
-		'username': getUser().username,
-	};
-})(Navbar);
+// withTracker makes checks of user status reactive
+const Tracker = withTracker(() => ({
+	'isAuthenticated': getIsAuthenticated(),
+	'username': getUser().username,
+}))(Navbar);
 
 export default withRouter(connect(mapStateToProps)(Tracker));
