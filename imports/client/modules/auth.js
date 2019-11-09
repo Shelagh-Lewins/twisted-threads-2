@@ -12,10 +12,16 @@ const updeep = require('updeep');
 export const REGISTER = 'REGISTER';
 export const LOGIN = 'LOGIN';
 export const LOGOUT = 'LOGOUT';
+
 export const VERIFICATION_EMAIL_SENT = 'VERIFICATION_EMAIL_SENT';
 export const VERIFICATION_EMAIL_NOT_SENT = 'VERIFICATION_EMAIL_NOT_SENT';
+
+export const EMAIL_VERIFIED = 'EMAIL_VERIFIED';
+export const EMAIL_NOT_VERIFIED = 'EMAIL_NOT_VERIFIED';
+
 export const FORGOT_PASSWORD_EMAIL_SENT = 'FORGOT_PASSWORD_EMAIL_SENT';
 export const FORGOT_PASSWORD_EMAIL_NOT_SENT = 'FORGOT_PASSWORD_EMAIL_NOT_SENT';
+
 export const PASSWORD_RESET = 'PASSWORD_RESET';
 export const PASSWORD_NOT_RESET = 'PASSWORD_NOT_RESET';
 
@@ -79,15 +85,29 @@ export function verificationEmailNotSent() {
 	};
 }
 
-export const verifyEmail = (token, history) => (dispatch) => {
+// UI feedback of email verification success
+export function emailVerified() {
+	return {
+		'type': 'EMAIL_VERIFIED',
+	};
+}
+
+export function emailNotVerified() {
+	return {
+		'type': 'EMAIL_NOT_VERIFIED',
+	};
+}
+
+export const verifyEmail = (token) => (dispatch) => {
 	dispatch(clearErrors());
+	dispatch(emailNotVerified());
 
 	Accounts.verifyEmail(token, (error) => {
 		if (error) {
 			return dispatch(logErrors({ 'verify email': error.reason }));
 		}
 
-		history.push('/email-verified');
+		dispatch(emailVerified());
 	});
 };
 
@@ -175,6 +195,7 @@ const initialAuthState = {
 	'forgotPasswordEmailSent': false,
 	'passwordReset': false,
 	'verificationEmailSent': false,
+	'emailVerified': false,
 };
 
 // state updates
@@ -194,6 +215,14 @@ export default function auth(state = initialAuthState, action) {
 
 		case VERIFICATION_EMAIL_NOT_SENT: {
 			return updeep({ 'verificationEmailSent': false }, state);
+		}
+
+		case EMAIL_VERIFIED: {
+			return updeep({ 'emailVerified': true }, state);
+		}
+
+		case EMAIL_NOT_VERIFIED: {
+			return updeep({ 'emailVerified': false }, state);
 		}
 
 		case PASSWORD_RESET: {

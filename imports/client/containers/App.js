@@ -9,7 +9,6 @@ import Register from './Register';
 import Welcome from './Welcome';
 import Account from './Account';
 import VerifyEmail from './VerifyEmail';
-import EmailVerified from './EmailVerified';
 import ForgotPassword from './ForgotPassword';
 import ResetPassword from './ResetPassword';
 import Home from './Home';
@@ -30,7 +29,6 @@ function App() {
 						<Route exact path="/welcome" component={Welcome} />
 						<Route exact path="/account" component={Account} />
 						<Route exact path="/verify-email/:token" component={VerifyEmail} />
-						<Route exact path="/email-verified" component={EmailVerified} />
 						<Route exact path="/forgot-password" component={ForgotPassword} />
 						<Route exact path="/reset-password/:token" component={ResetPassword} />
 						<Route exact path="/" component={Home} />

@@ -14,10 +14,10 @@ import FlashMessage from '../components/FlashMessage';
 
 class VerifyEmail extends Component {
 	componentDidMount() {
-		const { dispatch, history, token } = this.props;
+		const { dispatch, token } = this.props;
 		this.clearErrors();
 
-		dispatch(verifyEmail(token, history));
+		dispatch(verifyEmail(token));
 	}
 
 	onCloseFlashMessage() {
@@ -31,17 +31,31 @@ class VerifyEmail extends Component {
 	}
 
 	render() {
-		const { errors } = this.props;
+		const { emailVerified, errors } = this.props;
+
+		let showFlashMessage = false;
+		let message;
+		let type;
+
+		if (!isEmpty(errors)) {
+			showFlashMessage = true;
+			message = formatErrorMessages(errors);
+			type = 'error';
+		} else if (emailVerified) {
+			showFlashMessage = true;
+			message = 'Your email address has been verified';
+			type = 'success';
+		}
 
 		return (
 			<div>
 				<Container>
 					<Row>
 						<Col lg="12">
-							{!isEmpty(errors) && (
+							{showFlashMessage && (
 								<FlashMessage
-									message={formatErrorMessages(errors)}
-									type="error"
+									message={message}
+									type={type}
 									onClick={this.onCloseFlashMessage}
 								/>
 							)}
@@ -60,12 +74,13 @@ class VerifyEmail extends Component {
 
 VerifyEmail.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
+	'emailVerified': PropTypes.bool.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
-	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'token': PropTypes.string.isRequired,
 };
 
 const mapStateToProps = (state, ownProps) => ({
+	'emailVerified': state.auth.emailVerified,
 	'errors': state.errors,
 	'token': ownProps.match.params.token, // read the url parameter to find the token
 });
