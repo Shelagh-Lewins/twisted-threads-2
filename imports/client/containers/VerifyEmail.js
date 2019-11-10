@@ -50,22 +50,24 @@ class VerifyEmail extends Component {
 		return (
 			<div>
 				<Container>
-					<Row>
-						<Col lg="12">
-							{showFlashMessage && (
+					{showFlashMessage && (
+						<Row>
+							<Col lg="12">
 								<FlashMessage
 									message={message}
 									type={type}
 									onClick={this.onCloseFlashMessage}
 								/>
-							)}
-						</Col>
-					</Row>
-					<Row>
-						<Col lg="12">
-							<p>Verifying email address...</p>
-						</Col>
-					</Row>
+							</Col>
+						</Row>
+					)}
+					{!showFlashMessage && (
+						<Row>
+							<Col lg="12">
+								<p>Verifying email address...</p>
+							</Col>
+						</Row>
+					)}
 				</Container>
 			</div>
 		);

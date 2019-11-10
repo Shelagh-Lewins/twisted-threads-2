@@ -8,6 +8,7 @@ import Login from './Login';
 import Register from './Register';
 import Welcome from './Welcome';
 import Account from './Account';
+import ChangePassword from './ChangePassword';
 import VerifyEmail from './VerifyEmail';
 import ForgotPassword from './ForgotPassword';
 import ResetPassword from './ResetPassword';
@@ -29,6 +30,7 @@ function App() {
 						<Route exact path="/welcome" component={Welcome} />
 						<Route exact path="/account" component={Account} />
 						<Route exact path="/verify-email/:token" component={VerifyEmail} />
+						<Route exact path="/change-password" component={ChangePassword} />
 						<Route exact path="/forgot-password" component={ForgotPassword} />
 						<Route exact path="/reset-password/:token" component={ResetPassword} />
 						<Route exact path="/" component={Home} />

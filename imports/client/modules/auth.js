@@ -25,6 +25,9 @@ export const FORGOT_PASSWORD_EMAIL_NOT_SENT = 'FORGOT_PASSWORD_EMAIL_NOT_SENT';
 export const PASSWORD_RESET = 'PASSWORD_RESET';
 export const PASSWORD_NOT_RESET = 'PASSWORD_NOT_RESET';
 
+export const PASSWORD_CHANGED = 'PASSWORD_CHANGED';
+export const PASSWORD_NOT_CHANGED = 'PASSWORD_NOT_CHANGED';
+
 // ///////////////////////////
 // Action that call Meteor methods; these do not change the Store but are located here in order to keep server interactions away from UI
 
@@ -175,6 +178,32 @@ export const resetPassword = ({ token, password }) => (dispatch) => {
 	});
 };
 
+// change password
+export function passwordChanged() {
+	return {
+		'type': 'PASSWORD_CHANGED',
+	};
+}
+
+export function passwordNotChanged() {
+	return {
+		'type': 'PASSWORD_NOT_CHANGED',
+	};
+}
+
+export const changePassword = ({ oldPassword, newPassword }) => (dispatch) => {
+	dispatch(clearErrors());
+	dispatch(passwordNotReset());
+
+	Accounts.changePassword(oldPassword, newPassword, (error) => {
+		if (error) {
+			return dispatch(logErrors({ 'change password': error.reason }));
+		}
+
+		dispatch(passwordChanged());
+	});
+};
+
 // ///////////////////////////
 // Functions to provide info to UI
 
@@ -193,6 +222,7 @@ export function getIsAuthenticated() {
 const initialAuthState = {
 	'error': null,
 	'forgotPasswordEmailSent': false,
+	'passwordChanged': false,
 	'passwordReset': false,
 	'verificationEmailSent': false,
 	'emailVerified': false,
@@ -231,6 +261,14 @@ export default function auth(state = initialAuthState, action) {
 
 		case PASSWORD_NOT_RESET: {
 			return updeep({ 'passwordReset': false }, state);
+		}
+
+		case PASSWORD_CHANGED: {
+			return updeep({ 'passwordChanged': true }, state);
+		}
+
+		case PASSWORD_NOT_CHANGED: {
+			return updeep({ 'passwordChanged': false }, state);
 		}
 
 		default:

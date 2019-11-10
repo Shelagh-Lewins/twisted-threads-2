@@ -53,17 +53,17 @@ class ResetPassword extends Component {
 		return (
 			<div>
 				<Container>
-					<Row>
-						<Col lg="12">
-							{showFlashMessage && (
+					{showFlashMessage && (
+						<Row>
+							<Col lg="12">
 								<FlashMessage
 									message={message}
 									type={type}
 									onClick={this.onCloseFlashMessage}
 								/>
-							)}
-						</Col>
-					</Row>
+							</Col>
+						</Row>
+					)}
 					<Row>
 						<Col lg="12">
 							<h1>Reset your password</h1>

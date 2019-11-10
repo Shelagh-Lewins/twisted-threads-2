@@ -42,17 +42,17 @@ class Login extends Component {
 		return (
 			<div>
 				<Container>
-					<Row>
-						<Col lg="12">
-							{!isEmpty(errors) && (
+					{!isEmpty(errors) && (
+						<Row>
+							<Col lg="12">
 								<FlashMessage
 									message={formatErrorMessages(errors)}
 									type="error"
 									onClick={this.onCloseFlashMessage}
 								/>
-							)}
-						</Col>
-					</Row>
+							</Col>
+						</Row>
+					)}
 					<Row>
 						<Col lg="12">
 							<h1>Login</h1>

@@ -39,17 +39,17 @@ class ForgotPassword extends Component {
 		return (
 			<div>
 				<Container>
-					<Row>
-						<Col lg="12">
-							{forgotPasswordEmailSent && (
+					{forgotPasswordEmailSent && (
+						<Row>
+							<Col lg="12">
 								<FlashMessage
 									message="A reset password email has been sent"
 									type="success"
 									onClick={this.onCloseFlashMessage}
 								/>
-							)}
-						</Col>
-					</Row>
+							</Col>
+						</Row>
+					)}
 					<Row>
 						<Col lg="12">
 							{!isEmpty(errors) && (
@@ -78,6 +78,7 @@ class ForgotPassword extends Component {
 
 ForgotPassword.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
+	'forgotPasswordEmailSent': PropTypes.bool.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 };
 

@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Link, withRouter } from 'react-router-dom';
 
-import { getIsAuthenticated, getUser, logout } from '../modules/auth';
+import { getIsAuthenticated, getUser } from '../modules/auth';
 
 class Navbar extends Component {
 	constructor(props) {
@@ -14,16 +14,6 @@ class Navbar extends Component {
 		this.state = {
 			'showDropdown': false,
 		};
-
-		this.onLogout = this.onLogout.bind(this);
-	}
-
-	onLogout(e) {
-		e.preventDefault();
-
-		const { dispatch, history } = this.props;
-
-		dispatch(logout(history));
 	}
 
 	showDropdown(e) {
@@ -44,7 +34,6 @@ class Navbar extends Component {
 		const authLinks = (
 			<ul className="navbar-nav ml-auto">
 				<li className="nav-item"><Link to="/account" className="nav-link">{username}</Link></li>
-				<li className="nav-item"><Link to="/" className="nav-link" onClick={this.onLogout}>Logout</Link></li>
 			</ul>
 		);
 		const guestLinks = (

@@ -3,14 +3,14 @@ import { Container, Row, Col } from 'reactstrap';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { register } from '../modules/auth';
+import { changePassword } from '../modules/auth';
 import isEmpty from '../modules/isEmpty';
 import { clearErrors } from '../modules/errors';
 import formatErrorMessages from '../modules/formatErrorMessages';
 import FlashMessage from '../components/FlashMessage';
-import RegisterForm from '../components/RegisterForm';
+import ChangePasswordForm from '../components/ChangePasswordForm';
 
-class Register extends Component {
+class ChangePassword extends Component {
 	componentDidMount() {
 		this.clearErrors();
 	}
@@ -19,14 +19,12 @@ class Register extends Component {
 		this.clearErrors();
 	}
 
-	handleSubmit = ({ email, username, password }) => {
-		const { dispatch, history } = this.props;
+	handleSubmit = ({ newPassword, oldPassword }) => {
+		const { dispatch } = this.props;
 
-		dispatch(register({
-			email,
-			username,
-			password,
-			history,
+		dispatch(changePassword({
+			newPassword,
+			oldPassword,
 		}));
 	}
 
@@ -37,17 +35,30 @@ class Register extends Component {
 	}
 
 	render() {
-		const { errors } = this.props;
+		const { errors, passwordChanged } = this.props;
+		let showFlashMessage = false;
+		let message;
+		let type;
+
+		if (!isEmpty(errors)) {
+			showFlashMessage = true;
+			message = formatErrorMessages(errors);
+			type = 'error';
+		} else if (passwordChanged) {
+			showFlashMessage = true;
+			message = 'Your password has been changed';
+			type = 'success';
+		}
 
 		return (
 			<div>
 				<Container>
-					{!isEmpty(errors) && (
+					{showFlashMessage && (
 						<Row>
 							<Col lg="12">
 								<FlashMessage
-									message={formatErrorMessages(errors)}
-									type="error"
+									message={message}
+									type={type}
 									onClick={this.onCloseFlashMessage}
 								/>
 							</Col>
@@ -55,8 +66,8 @@ class Register extends Component {
 					)}
 					<Row>
 						<Col lg="12">
-							<h1>Create an account</h1>
-							<RegisterForm
+							<h1>Change your password</h1>
+							<ChangePasswordForm
 								handleSubmit={this.handleSubmit}
 							/>
 						</Col>
@@ -67,14 +78,15 @@ class Register extends Component {
 	}
 }
 
-Register.propTypes = {
+ChangePassword.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
-	'history': PropTypes.objectOf(PropTypes.any).isRequired,
+	'passwordChanged': PropTypes.bool.isRequired,
 };
 
 const mapStateToProps = (state) => ({
 	'errors': state.errors,
+	'passwordChanged': state.auth.passwordChanged,
 });
 
-export default connect(mapStateToProps)(Register);
+export default connect(mapStateToProps)(ChangePassword);
