@@ -7,6 +7,7 @@ Meteor.methods({
 
 		const patterns = Patterns.insert({
 			name,
+			'name_sort': name.toLowerCase(),
 		});
 		return patterns;
 	},

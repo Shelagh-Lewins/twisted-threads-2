@@ -1,13 +1,19 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Container, Row, Col } from 'reactstrap';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
-import { getPatternCount, setIsLoading } from '../modules/pattern';
+import { addPattern, getPatternCount, setIsLoading } from '../modules/pattern';
 
 import Patterns from '../../collection';
 import Loading from '../components/Loading';
 import PatternList from '../components/PatternList';
-import AddPattern from '../components/AddPattern';
+import AddPatternForm from '../components/AddPatternForm';
+import isEmpty from '../modules/isEmpty';
+import { clearErrors } from '../modules/errors';
+import formatErrorMessages from '../modules/formatErrorMessages';
+import FlashMessage from '../components/FlashMessage';
+
 import { ITEMS_PER_PAGE } from '../../parameters';
 import './Home.scss';
 
@@ -18,30 +24,74 @@ class Home extends Component {
 		this.state = {};
 	}
 
+	componentDidMount() {
+		this.clearErrors();
+	}
+
+	onCloseFlashMessage() {
+		this.clearErrors();
+	}
+
+	handleSubmit = ({ name }, { resetForm }) => {
+		const { dispatch } = this.props;
+
+		dispatch(addPattern(name));
+		resetForm();
+	}
+
+	clearErrors() {
+		const { dispatch } = this.props;
+
+		dispatch(clearErrors());
+	}
+
 	render() {
-		const { patterns, isLoading } = this.props;
+		const { errors, isLoading, patterns } = this.props;
 		return (
 			<div>
-				{isLoading && <Loading />}
-				<h1>Home</h1>
-				<AddPattern />
-				<PatternList
-					patterns={patterns}
-				/>
+				<Container>
+					{!isEmpty(errors) && (
+						<Row>
+							<Col lg="12">
+								<FlashMessage
+									message={formatErrorMessages(errors)}
+									type="error"
+									onClick={this.onCloseFlashMessage}
+								/>
+							</Col>
+						</Row>
+					)}
+					{isLoading && <Loading />}
+					<Row>
+						<Col lg="12">
+							<h1>Home</h1>
+							<AddPatternForm
+								handleSubmit={this.handleSubmit}
+							/>
+							<hr />
+						</Col>
+					</Row>
+					<PatternList
+						patterns={patterns}
+					/>
+				</Container>
 			</div>
 		);
 	}
 }
 
 Home.propTypes = {
+	'dispatch': PropTypes.func.isRequired,
+	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 function mapStateToProps(state) {
 	return {
-		'pageSkip': state.pattern.currentPageNumber * ITEMS_PER_PAGE,
+		'errors': state.errors,
 		'isLoading': state.pattern.isLoading,
+		'pageSkip': state.pattern.currentPageNumber * ITEMS_PER_PAGE,
 	};
 }
 
