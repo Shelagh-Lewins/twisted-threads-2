@@ -108,7 +108,19 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 	// console.log('home pattern', Patterns.find().fetch());
 
 	return {
-		'patterns': Patterns.find({}, { 'limit': ITEMS_PER_PAGE }).fetch().sort((a, b) => a.name.localeCompare(b.name)),
+		'patterns': Patterns.find({}, {
+			'sort': { 'name_sort': 1 },
+			'limit': ITEMS_PER_PAGE,
+		}).fetch(),
+		/* 'patterns': Patterns.find({}, { 'limit': ITEMS_PER_PAGE }).fetch().sort((a, b) => {
+			if (a.name_sort < b.name_sort) {
+				return -1;
+			}
+			if (a.name_sort > b.name_sort) {
+				return 1;
+			}
+			return 0;
+		}), */
 	};
 })(Home);
 

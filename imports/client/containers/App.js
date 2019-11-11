@@ -33,7 +33,7 @@ function App() {
 						<Route exact path="/change-password" component={ChangePassword} />
 						<Route exact path="/forgot-password" component={ForgotPassword} />
 						<Route exact path="/reset-password/:token" component={ResetPassword} />
-						<Route exact path="/" component={Home} />
+						<Route exact path="/:page" component={Home} />
 						<Route exact path="/pattern/:id" component={Pattern} />
 					</div>
 				</div>
