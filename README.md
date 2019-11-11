@@ -1,16 +1,13 @@
 # meteor-react-redux-auth
 A demo app using Meteor 1.8.1 with React and Redux.
 
-This is intended as a bare-bones but complete app that demonstrates the technologies.
+This is intended as a bare-bones but complete app that demonstrates how to use Meteor/React/Redux together.
 
 # Quick start
-git clone https://github.com/Shelagh-Lewins/meteor-react-redux-auth.git
-
 ```
+git clone https://github.com/Shelagh-Lewins/meteor-react-redux-auth.git
 cd meteor-react-redux-auth
-
 npm install
-
 meteor
 ```
 
