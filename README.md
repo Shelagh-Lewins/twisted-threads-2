@@ -17,8 +17,7 @@ To send emails, you'll need to provide a valid MAIL_URL.
 1. Copy and rename the file ```.env.template``` to ```.env```
 2. Enter your mail credentials in ```.env```. NEVER commit ```.env``` to GitHub.
 3. Start the app by executing the script ```
-run_meteor.js
-```
+run_meteor.js```
 
 The script will first load the environment variables from .env and then run Meteor. This avoids using settings.json and better simulates a production environment.
 
