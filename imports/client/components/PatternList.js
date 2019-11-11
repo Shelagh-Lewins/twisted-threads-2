@@ -40,7 +40,9 @@ class PatternList extends PureComponent {
 						/>
 					))}
 				</Col>
-				{pagination}
+				<Col lg="12">
+					{pagination}
+				</Col>
 			</Row>
 		);
 	}

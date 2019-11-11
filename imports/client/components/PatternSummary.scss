@@ -1,0 +1,16 @@
+@import "../constants/variables";
+
+.pattern-summary {
+	border-bottom: 1px solid $color-panel-border;
+	clear: both;
+	overflow: hidden;
+	padding: 4px 0;
+
+	a {
+		line-height: 2.4;
+	}
+
+	button {
+		float: right;
+	}
+}

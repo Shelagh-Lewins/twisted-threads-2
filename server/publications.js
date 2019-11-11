@@ -24,6 +24,8 @@ Meteor.publish('patterns', (skip = 0, limit = ITEMS_PER_PAGE) => {
 
 	check(skip, positiveIntegerCheck);
 
+	// Meteor._sleepForMs(3000); // simulate server delay
+
 	return Patterns.find({},
 		{
 			'fields': {

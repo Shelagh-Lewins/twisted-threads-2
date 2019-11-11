@@ -76,13 +76,15 @@ class Home extends Component {
 							<hr />
 						</Col>
 					</Row>
-					<PatternList
-						currentPageNumber={currentPageNumber}
-						dispatch={dispatch}
-						history={history}
-						patternCount={patternCount}
-						patterns={patterns}
-					/>
+					{!isLoading && (
+						<PatternList
+							currentPageNumber={currentPageNumber}
+							dispatch={dispatch}
+							history={history}
+							patternCount={patternCount}
+							patterns={patterns}
+						/>
+					)}
 				</Container>
 			</div>
 		);

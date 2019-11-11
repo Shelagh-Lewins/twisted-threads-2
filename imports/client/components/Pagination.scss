@@ -1,6 +1,11 @@
 @import "../constants/variables";
 
 .paginate {
+	ul {
+		justify-content: center;
+		margin-top: 8px;
+	}
+
 	li {
 		cursor: pointer;
 		display: inline-block;
