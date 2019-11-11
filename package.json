@@ -10,7 +10,7 @@
   "license": "MIT",
   "scripts": {
     "start": "meteor run",
-    "test": "meteor test --once --driver-package meteortesting:mocha",
+    "test": "TEST_WATCH=1 meteor test --driver-package meteortesting:mocha",
     "test-app": "TEST_WATCH=1 meteor test --full-app --driver-package meteortesting:mocha",
     "visualize": "meteor --production --extra-packages bundle-visualizer"
   },
@@ -39,6 +39,7 @@
     "@typescript-eslint/eslint-plugin": "^2.6.1",
     "@typescript-eslint/parser": "^2.6.1",
     "babel-eslint": "^10.0.3",
+    "chai": "^4.2.0",
     "eslint": "^6.6.0",
     "eslint-config-airbnb": "^18.0.1",
     "eslint-config-react-app": "^5.0.2",

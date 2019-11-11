@@ -29,3 +29,4 @@ The script will first load the environment variables from .env and then run Mete
 * Server-side pagination using react-paginate.
 * updeep to update deeply nested objects/arrays in the reducer.
 * Linting with eslint and sass-lint, based on the AirBnB configuration with react-app and meteor, plus a .eslintrc.json file for custom configuration.
+* Redux Devtools as React components.
