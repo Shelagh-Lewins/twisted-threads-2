@@ -26,6 +26,7 @@ const AddPatternForm = (props) => {
 	});
 
 	return (
+		// note that onBlur is not set because we don't want to show an error unless the user clicks submit
 		<form onSubmit={formik.handleSubmit}>
 			<div className="form-group">
 				<label htmlFor="name">
@@ -38,7 +39,6 @@ const AddPatternForm = (props) => {
 						name="name"
 						type="text"
 						onChange={formik.handleChange}
-						onBlur={formik.handleBlur}
 						value={formik.values.name}
 					/>
 					{formik.touched.name && formik.errors.name ? (
