@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import { Row, Col } from 'reactstrap';
 import PropTypes from 'prop-types';
 
 import PatternSummary from './PatternSummary';
@@ -25,18 +26,22 @@ class PatternList extends PureComponent {
 		) : '';
 
 		return (
-			<div className="pattern-list">
-				<h2>Patterns</h2>
-				{patterns.map((pattern) => (
-					<PatternSummary
-						key={pattern._id}
-						name={pattern.name}
-						_id={pattern._id}
-						dispatch={dispatch}
-					/>
-				))}
+			<Row className="pattern-list">
+				<Col lg="12">
+					<h2>Patterns</h2>
+				</Col>
+				<Col lg="12">
+					{patterns.map((pattern) => (
+						<PatternSummary
+							key={pattern._id}
+							name={pattern.name}
+							_id={pattern._id}
+							dispatch={dispatch}
+						/>
+					))}
+				</Col>
 				{pagination}
-			</div>
+			</Row>
 		);
 	}
 }

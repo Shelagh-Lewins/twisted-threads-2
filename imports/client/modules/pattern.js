@@ -15,20 +15,6 @@ export const GET_PATTERN_COUNT = 'GET_PATTERN_COUNT';
 export const SET_PATTERN_COUNT = 'SET_PATTERN_COUNT';
 export const SET_ISLOADING = 'SET_ISLOADING';
 
-// ///////////////////////////
-// Action that call Meteor methods; these do not change the Store but are located here in order to keep server interactions away from UI
-export function addPattern(text) {
-	return () => {
-		Meteor.call('addPattern', text);
-	};
-}
-
-export function removePattern(_id) {
-	return () => {
-		Meteor.call('removePattern', _id);
-	};
-}
-
 // ////////////////////////////
 // Actions that change the Store
 
@@ -40,11 +26,9 @@ export function setPatternCount(patternCount) {
 	};
 }
 
-export const getPatternCount = () => (dispatch) => {
-	return Meteor.call('getPatternCount', (error, result) => {
-		dispatch(setPatternCount(result));
-	});
-};
+export const getPatternCount = () => (dispatch) => Meteor.call('getPatternCount', (error, result) => {
+	dispatch(setPatternCount(result));
+});
 
 export const changePage = (newPageNumber, history) => (dispatch) => {
 	const url = `/?page=${newPageNumber + 1}`;
@@ -58,6 +42,18 @@ export function setIsLoading(isLoading) {
 	return {
 		'type': 'SET_ISLOADING',
 		'payload': isLoading,
+	};
+}
+
+// ///////////////////////////
+// Action that call Meteor methods; these do not change the Store but are located here in order to keep server interactions away from UI
+export const addPattern = (text) => (dispatch) => Meteor.call('addPattern', text, () => {
+	dispatch(getPatternCount());
+});
+
+export function removePattern(_id) {
+	return () => {
+		Meteor.call('removePattern', _id);
 	};
 }
 

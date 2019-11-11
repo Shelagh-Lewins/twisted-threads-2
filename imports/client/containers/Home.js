@@ -20,12 +20,6 @@ import './Home.scss';
 const queryString = require('query-string');
 
 class Home extends Component {
-	constructor(props) {
-		super(props);
-
-		this.state = {};
-	}
-
 	componentDidMount() {
 		this.clearErrors();
 	}
@@ -54,9 +48,10 @@ class Home extends Component {
 			errors,
 			history,
 			isLoading,
-			patternCount,
 			patterns,
+			patternCount,
 		} = this.props;
+
 		return (
 			<div>
 				<Container>
@@ -102,7 +97,9 @@ Home.propTypes = {
 	'currentPageNumber': PropTypes.number,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
+	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isLoading': PropTypes.bool.isRequired,
+	'patternCount': PropTypes.number.isRequired,
 	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
@@ -140,15 +137,6 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 			'sort': { 'name_sort': 1 },
 			'limit': ITEMS_PER_PAGE,
 		}).fetch(),
-		/* 'patterns': Patterns.find({}, { 'limit': ITEMS_PER_PAGE }).fetch().sort((a, b) => {
-			if (a.name_sort < b.name_sort) {
-				return -1;
-			}
-			if (a.name_sort > b.name_sort) {
-				return 1;
-			}
-			return 0;
-		}), */
 	};
 })(Home);
 

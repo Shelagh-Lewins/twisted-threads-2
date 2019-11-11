@@ -9,9 +9,11 @@ import { ITEMS_PER_PAGE } from '../imports/parameters';
 // https://docs.meteor.com/api/accounts.html
 Meteor.users.deny({ 'update': () => true });
 
-const patternsPublishFields = {
-	'name': 1,
-};
+/* Meteor.publish('patternstest', async function () {
+	const result = await Patterns.rawCollection().find({});
+	console.log('result', result);
+	return result;
+}); */
 
 // list of patterns
 Meteor.publish('patterns', (skip = 0, limit = ITEMS_PER_PAGE) => {
@@ -24,7 +26,10 @@ Meteor.publish('patterns', (skip = 0, limit = ITEMS_PER_PAGE) => {
 
 	return Patterns.find({},
 		{
-			'fields': patternsPublishFields,
+			'fields': {
+				'name': 1,
+				'name_sort': 1,
+			},
 			'sort': { 'name_sort': 1 },
 			'skip': skip,
 			'limit': limit,
@@ -32,27 +37,21 @@ Meteor.publish('patterns', (skip = 0, limit = ITEMS_PER_PAGE) => {
 });
 
 // individual pattern
-const patternPublishFields = {
-	'name': 1,
-};
-
-// example of how to stop subscription, e.g. if user logs out, but not sure it's necessary here
 Meteor.publish('pattern', function (_id = undefined) {
 	const nonEmptyStringCheck = Match.Where((x) => {
 		check(x, String);
 		return x !== '';
 	});
 
-	// check(_id, String);
 	check(_id, nonEmptyStringCheck);
 
-	if (_id) {
-		return Patterns.find(
-			{ _id },
-			{
-				'fields': patternPublishFields,
+	return Patterns.find(
+		{ _id },
+		{
+			'fields': {
+				'name': 1,
+				'name_sort': 1,
 			},
-		);
-	}
-	return this.stop();
+		},
+	);
 });
