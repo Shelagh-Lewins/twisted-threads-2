@@ -17,6 +17,8 @@ import FlashMessage from '../components/FlashMessage';
 import { ITEMS_PER_PAGE } from '../../parameters';
 import './Home.scss';
 
+const queryString = require('query-string');
+
 class Home extends Component {
 	constructor(props) {
 		super(props);
@@ -46,7 +48,15 @@ class Home extends Component {
 	}
 
 	render() {
-		const { errors, isLoading, patterns } = this.props;
+		const {
+			currentPageNumber,
+			dispatch,
+			errors,
+			history,
+			isLoading,
+			patternCount,
+			patterns,
+		} = this.props;
 		return (
 			<div>
 				<Container>
@@ -72,6 +82,10 @@ class Home extends Component {
 						</Col>
 					</Row>
 					<PatternList
+						currentPageNumber={currentPageNumber}
+						dispatch={dispatch}
+						history={history}
+						patternCount={patternCount}
 						patterns={patterns}
 					/>
 				</Container>
@@ -80,18 +94,34 @@ class Home extends Component {
 	}
 }
 
+Home.defaultProps = {
+	'currentPageNumber': 1,
+};
+
 Home.propTypes = {
+	'currentPageNumber': PropTypes.number,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
-function mapStateToProps(state) {
+function mapStateToProps(state, ownProps) {
+	// find page number as URL query parameter, if present, in the form '/?page=1'
+	let currentPageNumber = 1;
+	const parsed = queryString.parse(ownProps.location.search);
+	const page = parseInt(parsed.page, 10);
+
+	if (!Number.isNaN(page)) {
+		currentPageNumber = page;
+	}
+
 	return {
+		'currentPageNumber': currentPageNumber, // read the url parameter to find the currentPage
 		'errors': state.errors,
 		'isLoading': state.pattern.isLoading,
-		'pageSkip': state.pattern.currentPageNumber * ITEMS_PER_PAGE,
+		'pageSkip': (currentPageNumber - 1) * ITEMS_PER_PAGE,
+		'patternCount': state.pattern.patternCount,
 	};
 }
 
@@ -104,8 +134,6 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 			dispatch(setIsLoading(false));
 		},
 	});
-
-	// console.log('home pattern', Patterns.find().fetch());
 
 	return {
 		'patterns': Patterns.find({}, {

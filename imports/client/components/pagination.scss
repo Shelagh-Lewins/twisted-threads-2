@@ -2,13 +2,24 @@
 
 .paginate {
 	li {
-		color: $color-paginate;
 		cursor: pointer;
 		display: inline-block;
 		margin: 0 4px;
 
+		a {
+			color: $color-paginate;
+		}
+
 		&.active {
-			color: $color-paginate-active;
+			a {
+				color: $color-paginate-active;
+			}
+		}
+
+		&.disabled {
+			a {
+				color: $color-paginate-disabled;
+			}
 		}
 
 		&.previous {

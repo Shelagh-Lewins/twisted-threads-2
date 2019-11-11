@@ -1,4 +1,3 @@
-import { connect } from 'react-redux';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
@@ -9,12 +8,19 @@ import { ITEMS_PER_PAGE } from '../../parameters';
 
 class PatternList extends PureComponent {
 	render() {
-		const { dispatch, patternCount, patterns } = this.props;
+		const {
+			currentPageNumber,
+			dispatch,
+			history,
+			patternCount,
+			patterns,
+		} = this.props;
 
 		const pagination = patternCount > ITEMS_PER_PAGE ? (
 			<Pagination
-				handlePageClick={(data) => dispatch(changePage(data.selected))}
-				pageCount={patternCount / ITEMS_PER_PAGE}
+				handlePageClick={(data) => dispatch(changePage(data.selected, history))}
+				initialPage={currentPageNumber - 1}
+				pageCount={Math.ceil(patternCount / ITEMS_PER_PAGE)}
 			/>
 		) : '';
 
@@ -36,16 +42,11 @@ class PatternList extends PureComponent {
 }
 
 PatternList.propTypes = {
+	'currentPageNumber': PropTypes.number,
 	'dispatch': PropTypes.func.isRequired,
+	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'patternCount': PropTypes.number.isRequired,
 	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
-function mapStateToProps(state) {
-	return {
-		'patternCount': state.pattern.patternCount,
-		'currentPageNumber': state.pattern.currentPageNumber,
-	};
-}
-
-export default connect(mapStateToProps)(PatternList);
+export default PatternList;

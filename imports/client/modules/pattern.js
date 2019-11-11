@@ -11,7 +11,6 @@ const updeep = require('updeep');
 
 // define action types so they are visible
 // and export them so other reducers can use them
-export const SET_PAGE_NUMBER = 'SET_PAGE_NUMBER';
 export const GET_PATTERN_COUNT = 'GET_PATTERN_COUNT';
 export const SET_PATTERN_COUNT = 'SET_PATTERN_COUNT';
 export const SET_ISLOADING = 'SET_ISLOADING';
@@ -33,14 +32,7 @@ export function removePattern(_id) {
 // ////////////////////////////
 // Actions that change the Store
 
-// pagination
-export function setPageNumber(currentPageNumber) {
-	return {
-		'type': 'SET_PAGE_NUMBER',
-		'payload': currentPageNumber,
-	};
-}
-
+// used in pagination
 export function setPatternCount(patternCount) {
 	return {
 		'type': 'SET_PATTERN_COUNT',
@@ -54,8 +46,10 @@ export const getPatternCount = () => (dispatch) => {
 	});
 };
 
-export const changePage = (currentPageNumber) => (dispatch) => {
-	dispatch(setPageNumber(currentPageNumber));
+export const changePage = (newPageNumber, history) => (dispatch) => {
+	const url = `/?page=${newPageNumber + 1}`;
+
+	history.push(url);
 	dispatch(getPatternCount());
 };
 
@@ -79,10 +73,6 @@ const initialPatternState = {
 // state updates
 export default function pattern(state = initialPatternState, action) {
 	switch (action.type) {
-		case SET_PAGE_NUMBER: {
-			return updeep({ 'currentPageNumber': action.payload }, state);
-		}
-
 		case SET_PATTERN_COUNT: {
 			return updeep({ 'patternCount': action.payload }, state);
 		}

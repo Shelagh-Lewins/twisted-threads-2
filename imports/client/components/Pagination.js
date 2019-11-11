@@ -3,10 +3,11 @@ import ReactPaginate from 'react-paginate';
 import PropTypes from 'prop-types';
 import './pagination.scss';
 
-function Pagination({ handlePageClick, pageCount }) {
+function Pagination({ handlePageClick, initialPage, pageCount }) {
 	return (
 		<div className="paginate">
 			<ReactPaginate
+				initialPage={initialPage || 0}
 				previousLabel="previous"
 				nextLabel="next"
 				breakLabel="..."
@@ -26,6 +27,7 @@ function Pagination({ handlePageClick, pageCount }) {
 Pagination.propTypes = {
 	'handlePageClick': PropTypes.func.isRequired,
 	'pageCount': PropTypes.number.isRequired,
+	'initialPage': PropTypes.number.isRequired,
 };
 
 export default Pagination;
