@@ -21,6 +21,22 @@ run_meteor.js```
 
 The script will first load the environment variables from .env and then run Meteor. This avoids using settings.json and better simulates a production environment.
 
+# Testing
+Tests are written with Mocha and chai. Run basic tests with:
+
+```
+npm run test
+```
+
+or
+
+```
+TEST_WATCH=1 meteor test --driver-package meteortesting:mocha
+```
+
+Only the server is fully tested. The client tests in ```imports/main.test.js``` are just there as examples.
+
+
 # Features
 * Routing with react-router.
 * User authentication including account creation, login, logout, email validation, forgot password and reset password. The Meteor Accounts and Email packages drive the back end. The UI is written in React and Redux.
