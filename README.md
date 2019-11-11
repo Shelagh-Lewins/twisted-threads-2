@@ -22,10 +22,10 @@ run_meteor.js```
 The script will first load the environment variables from .env and then run Meteor. This avoids using settings.json and better simulates a production environment.
 
 # Features
-* Routing with react-router
-* User authentication including account creation, login, logout, email validation, forgot password and reset password. Meteor Accounts and Email packages drive the back end. The UI is written in React and Redux.
-* Formik forms with client-side validation
-* Styling with SCSS and Bootstrap
+* Routing with react-router.
+* User authentication including account creation, login, logout, email validation, forgot password and reset password. The Meteor Accounts and Email packages drive the back end. The UI is written in React and Redux.
+* Formik forms with client-side validation.
+* Styling with SCSS and Bootstrap.
 * Server-side pagination using react-paginate.
-* updeep to update deeply nested objects/arrays in the reducer
-* Linting with eslint and sass-lint, based on the AirBnB configuration with react-app and meteor, plus a .eslintrc.json file for custom configuration
+* updeep to update deeply nested objects/arrays in the reducer.
+* Linting with eslint and sass-lint, based on the AirBnB configuration with react-app and meteor, plus a .eslintrc.json file for custom configuration.
