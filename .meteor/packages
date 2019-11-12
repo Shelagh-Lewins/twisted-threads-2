@@ -24,3 +24,6 @@ react-meteor-data
 accounts-password
 email
 meteortesting:mocha
+dburles:factory
+johanbrook:publication-collector
+xolvio:cleaner
