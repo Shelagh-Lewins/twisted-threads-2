@@ -2,21 +2,14 @@ import { check } from 'meteor/check';
 import Patterns from '../imports/collection';
 import { ITEMS_PER_PAGE } from '../imports/parameters';
 // arrow functions lose "this" context
-/* eslint-disable prefer-arrow-callback */
 /* eslint-disable func-names */
 
 // don't allow users to edit their profile
 // https://docs.meteor.com/api/accounts.html
 Meteor.users.deny({ 'update': () => true });
 
-/* Meteor.publish('patternstest', async function () {
-	const result = await Patterns.rawCollection().find({});
-	console.log('result', result);
-	return result;
-}); */
-
 // list of patterns
-Meteor.publish('patterns', (skip = 0, limit = ITEMS_PER_PAGE) => {
+Meteor.publish('patterns', function (skip = 0, limit = ITEMS_PER_PAGE) {
 	const positiveIntegerCheck = Match.Where((x) => {
 		check(x, Match.Integer);
 		return x >= 0;
@@ -26,7 +19,7 @@ Meteor.publish('patterns', (skip = 0, limit = ITEMS_PER_PAGE) => {
 
 	// Meteor._sleepForMs(3000); // simulate server delay
 
-	return Patterns.find({},
+	return Patterns.find({ 'created_by': this.userId },
 		{
 			'fields': {
 				'name': 1,
@@ -48,7 +41,10 @@ Meteor.publish('pattern', function (_id = undefined) {
 	check(_id, nonEmptyStringCheck);
 
 	return Patterns.find(
-		{ _id },
+		{
+			_id,
+			'created_by': this.userId,
+		},
 		{
 			'fields': {
 				'name': 1,

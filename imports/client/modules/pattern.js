@@ -2,7 +2,7 @@
 
 // And also for Pattern page state
 
-// Note: it may be better to separate these
+import { logErrors, clearErrors } from './errors';
 
 const updeep = require('updeep');
 
@@ -47,9 +47,15 @@ export function setIsLoading(isLoading) {
 
 // ///////////////////////////
 // Action that call Meteor methods; these do not change the Store but are located here in order to keep server interactions away from UI
-export const addPattern = (text) => (dispatch) => Meteor.call('addPattern', text, () => {
-	dispatch(getPatternCount());
-});
+export const addPattern = (text) => (dispatch) => {
+	dispatch(clearErrors());
+	Meteor.call('addPattern', text, (error) => {
+		if (error) {
+			return dispatch(logErrors({ 'add-pattern': error.reason }));
+		}
+		dispatch(getPatternCount());
+	});
+};
 
 export function removePattern(_id) {
 	return () => {

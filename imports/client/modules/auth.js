@@ -205,7 +205,7 @@ export const changePassword = ({ oldPassword, newPassword }) => (dispatch) => {
 };
 
 // ///////////////////////////
-// Functions to provide info to UI
+// Provide info to UI
 
 export function getUser() {
 	return Meteor.user() || {};
@@ -213,6 +213,19 @@ export function getUser() {
 
 export function getIsAuthenticated() {
 	return Boolean(Meteor.userId());
+}
+
+// is the user logged in AND has a verified email address?
+export function getIsVerified() {
+	if (!Meteor.user()) {
+		return false;
+	}
+
+	if (!Meteor.user().emails[0]) {
+		return false;
+	}
+
+	return Meteor.user().emails[0].verified;
 }
 
 // ///////////////////////////

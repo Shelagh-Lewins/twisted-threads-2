@@ -3,17 +3,17 @@ Meteor.startup(() => {
 		'sendVerificationEmail': true,
 	});
 
-	Accounts.emailTemplates.siteName = 'Twisted Threads 2';
-	Accounts.emailTemplates.from = 'Twisted Threads 2 <no-reply@twistedthreads.org>';
+	Accounts.emailTemplates.siteName = 'Meteor React Redux demo';
+	Accounts.emailTemplates.from = 'Meteor React Redux demo <no-reply@meteor-react-redux-demo.org>';
 	Accounts.emailTemplates.verifyEmail.subject = (user) => 'Verify your email address';
 	Accounts.emailTemplates.verifyEmail.text = (user, url) => {
 		const urlWithoutHash = url.replace('#/', '');
-		return `Hello ${user.username},\n\nYou have registered a new email address on Twisted Threads, the online app for tablet weaving. To verify your email address, please click the link below:\n\n ${urlWithoutHash}`;
+		return `Hello ${user.username},\n\nYou have registered a new email address on Meteor React Redux demo. To verify your email address, please click the link below:\n\n ${urlWithoutHash}`;
 	};
 	Accounts.emailTemplates.resetPassword.subject = (user) => 'Reset your password';
 	Accounts.emailTemplates.resetPassword.text = (user, url) => {
 		const urlWithoutHash = url.replace('#/', '');
-		return `Hello ${user.username},\n\nTo reset your password on Twisted Threads, please click the link below.:\n\n ${urlWithoutHash}`;
+		return `Hello ${user.username},\n\nTo reset your password on Meteor React Redux demo, please click the link below.:\n\n ${urlWithoutHash}`;
 	};
 });
 

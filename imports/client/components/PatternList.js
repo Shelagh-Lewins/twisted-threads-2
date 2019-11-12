@@ -28,9 +28,6 @@ class PatternList extends PureComponent {
 		return (
 			<Row className="pattern-list">
 				<Col lg="12">
-					<h2>Patterns</h2>
-				</Col>
-				<Col lg="12">
 					{patterns.map((pattern) => (
 						<PatternSummary
 							key={pattern._id}
