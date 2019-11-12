@@ -6,6 +6,10 @@ This is intended as a bare-bones but complete app that demonstrates how to use M
 Users can create patterns, which in this app comprise only a name as all they do is demonstrate technology. You could rename "patterns" to "posts" or "todos" or whatever you like. Users can only view patterns they created, and can only create patterns if they have verified their email address.
 
 # Quick start
+Install Meteor 1.8.1.
+
+In a terminal window, cd into your Meteor directory. Then run the following:
+
 ```
 git clone https://github.com/Shelagh-Lewins/meteor-react-redux-auth.git
 cd meteor-react-redux-auth
