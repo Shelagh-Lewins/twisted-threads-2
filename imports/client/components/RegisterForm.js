@@ -10,6 +10,7 @@ const validate = (values) => {
 	} else if (/\s/.test(values.username)) {
 		errors.username = 'Must not contain spaces';
 	} else if (/@/.test(values.username)) {
+		// help users to understand this isn't email address
 		errors.username = 'Must not contain @ symbol';
 	}
 

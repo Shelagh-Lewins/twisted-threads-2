@@ -15,6 +15,9 @@
 		"node": true,
 		"browser": true
 	},
+	"globals": {
+		"Factory": true
+	},
 	"rules": {
 		"array-callback-return": [
 			"off"
