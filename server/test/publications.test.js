@@ -26,15 +26,15 @@ Factory.define('pattern', Patterns, {
 if (Meteor.isServer) {
 	// PUBLICATIONS
 	describe('test publications', () => {
-		before(() => {
+		beforeEach(() => {
 			resetDatabase();
 
 			const currentUser = stubUser();
 
-			this.firstDocument = Factory.create('pattern', { 'name': 'Pattern 1', 'created_by': currentUser._id });
+			this.pattern = Factory.create('pattern', { 'name': 'Pattern 1', 'created_by': currentUser._id });
 			Factory.create('pattern', { 'name': 'Pattern 2', 'created_by': currentUser._id });
 		});
-		after(() => {
+		afterEach(() => {
 			unwrapUser();
 		});
 		describe('publish patterns', () => {
@@ -87,7 +87,7 @@ if (Meteor.isServer) {
 
 				const testPromise = new Promise((resolve, reject) => {
 					collector.collect('pattern',
-						this.firstDocument._id,
+						this.pattern._id,
 						(collections) => {
 							resolve(collections.patterns);
 						});
@@ -102,7 +102,7 @@ if (Meteor.isServer) {
 
 				const testPromise = new Promise((resolve, reject) => {
 					collector.collect('pattern',
-						this.firstDocument._id,
+						this.pattern._id,
 						(collections) => {
 							resolve(collections.patterns);
 						});
@@ -111,14 +111,14 @@ if (Meteor.isServer) {
 				const result = await testPromise;
 
 				assert.equal(result.length, 1);
-				assert.equal(result[0].name, this.firstDocument.name);
+				assert.equal(result[0].name, this.pattern.name);
 			});
 			it('should publish nothing if a different user is logged in', async () => {
 				const collector = new PublicationCollector({ 'userId': 'xxx' });
 
 				const testPromise = new Promise((resolve, reject) => {
 					collector.collect('pattern',
-						this.firstDocument._id,
+						this.pattern._id,
 						(collections) => {
 							resolve(collections.patterns.length);
 						});

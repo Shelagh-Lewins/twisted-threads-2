@@ -4,15 +4,15 @@ import Patterns from '../imports/collection';
 Meteor.methods({
 	addPattern(name) {
 		check(name, String);
-console.log('here 2', Meteor.userId());
+
 		if (!Meteor.userId()) {
 			throw new Meteor.Error('add-pattern-not-logged-in', 'Unable to create pattern because the user is not logged in');
 		}
-console.log('here 3');
+
 		if (!Meteor.user().emails[0].verified) {
 			throw new Meteor.Error('add-pattern-not-verified', 'Unable to create pattern because the user\'s email address is not verified');
 		}
-console.log('here 4', Meteor.user().emails[0]);
+
 		return Patterns.insert({
 			name,
 			'name_sort': name.toLowerCase(),
