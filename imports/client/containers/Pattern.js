@@ -7,26 +7,39 @@ import PropTypes from 'prop-types';
 import { setIsLoading } from '../modules/pattern';
 
 import Patterns from '../../collection';
+import Loading from '../components/Loading';
 
 class Pattern extends PureComponent {
 	render() {
-		const { name } = this.props;
+		const { isLoading, name } = this.props;
+
+		let content = <Loading />;
+
+		if (!isLoading) {
+			if (name && name !== '') {
+				content = <h2>{name}</h2>;
+			} else {
+				content = <p>Either this pattern does not exist or you do not have permission to view it</p>;
+			}
+		}
 
 		return (
 			<div className="pattern-detail">
-				<h2>{name}</h2>
+				{content}
 			</div>
 		);
 	}
 }
 
 Pattern.propTypes = {
+	'isLoading': PropTypes.bool.isRequired,
 	'name': PropTypes.string.isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
 	return {
 		'_id': ownProps.match.params.id, // read the url parameter to find the id of the pattern
+		'isLoading': state.pattern.isLoading,
 	};
 }
 

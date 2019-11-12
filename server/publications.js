@@ -10,6 +10,7 @@ Meteor.users.deny({ 'update': () => true });
 
 // list of patterns
 Meteor.publish('patterns', function (skip = 0, limit = ITEMS_PER_PAGE) {
+	// this needs to return the same number of patterns as the getPatternCount method, for pagination
 	const positiveIntegerCheck = Match.Where((x) => {
 		check(x, Match.Integer);
 		return x >= 0;
@@ -19,7 +20,8 @@ Meteor.publish('patterns', function (skip = 0, limit = ITEMS_PER_PAGE) {
 
 	// Meteor._sleepForMs(3000); // simulate server delay
 
-	return Patterns.find({ 'created_by': this.userId },
+	return Patterns.find(
+		{ 'created_by': this.userId },
 		{
 			'fields': {
 				'name': 1,
@@ -28,7 +30,8 @@ Meteor.publish('patterns', function (skip = 0, limit = ITEMS_PER_PAGE) {
 			'sort': { 'name_sort': 1 },
 			'skip': skip,
 			'limit': limit,
-		});
+		},
+	);
 });
 
 // individual pattern

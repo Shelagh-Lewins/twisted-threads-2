@@ -13,13 +13,12 @@ Meteor.methods({
 			throw new Meteor.Error('add-pattern-not-logged-in', 'Unable to create pattern because the user\'s email address is not verified');
 		}
 
-		const patterns = Patterns.insert({
+		return Patterns.insert({
 			name,
 			'name_sort': name.toLowerCase(),
 			'created_at': new Date(),
 			'created_by': Meteor.userId(),
 		});
-		return patterns;
 	},
 	removePattern(_id) {
 		check(_id, String);
@@ -34,12 +33,13 @@ Meteor.methods({
 			throw new Meteor.Error('remove-pattern-not-created-by-user', 'Unable to remove pattern because it was not created by the current logged in user');
 		}
 
-		const patterns = Patterns.remove({
+		return Patterns.remove({
 			_id,
 		});
-		return patterns;
 	},
 	getPatternCount() {
+		// this is required for pagination
+		// it needs to return the same number of patterns as the patterns publication in publications.js
 		return Patterns.find({ 'created_by': Meteor.userId() }).count();
 	},
 	sendVerificationEmail(userId) {

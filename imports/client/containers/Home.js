@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Container, Row, Col } from 'reactstrap';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Link, withRouter } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { addPattern, getPatternCount, setIsLoading } from '../modules/pattern';
 import { getIsAuthenticated, getIsVerified } from '../modules/auth';
