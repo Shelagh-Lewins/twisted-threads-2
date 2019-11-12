@@ -11,6 +11,7 @@ import '../publications';
 import Patterns from '../../imports/collection';
 import { stubUser, unwrapUser } from './mockUser';
 
+// it seems not to matter where factories are defined, but keep an eye on this.
 Factory.define('user', Meteor.users, {
 	'username': 'Jennifer',
 	'emails': [{
@@ -24,7 +25,6 @@ Factory.define('pattern', Patterns, {
 });
 
 if (Meteor.isServer) {
-	// PUBLICATIONS
 	describe('test publications', () => {
 		beforeEach(() => {
 			resetDatabase();

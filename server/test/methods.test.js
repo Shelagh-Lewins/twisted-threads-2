@@ -8,7 +8,6 @@ import '../methods';
 import { stubUser, unwrapUser } from './mockUser';
 
 if (Meteor.isServer) {
-	// METHODS
 	describe('test methods', () => {
 		beforeEach(() => {
 			resetDatabase();
