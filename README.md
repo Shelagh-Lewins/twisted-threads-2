@@ -36,7 +36,7 @@ or
 TEST_WATCH=1 meteor test --driver-package meteortesting:mocha
 ```
 
-Testing covers only server methods and publications. The client tests in ```imports/main.test.js``` are just there as examples.
+Testing covers server methods and publications. The client tests in ```imports/main.test.js``` are just there as examples.
 
 
 # Features

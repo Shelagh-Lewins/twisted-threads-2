@@ -101,5 +101,13 @@ if (Meteor.isServer) {
 				unwrapUser();
 			});
 		});
+		describe('sendVerificationEmail method', () => {
+			it('throws an error if the user is not logged in', () => {
+				function expectedError() {
+					Meteor.call('sendVerificationEmail', 'abc');
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'send-verification-email-not-logged-in');
+			});
+		});
 	});
 }
