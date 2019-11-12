@@ -4,137 +4,137 @@
 // it seems publicationcollector is async
 // I adapted a solution from https://staxmanade.com/2015/11/testing-asyncronous-code-with-mochajs-and-es7-async-await/
 
-import { Meteor } from 'meteor/meteor';
 import { Factory } from 'meteor/dburles:factory';
 import { PublicationCollector } from 'meteor/johanbrook:publication-collector';
 import { resetDatabase } from 'meteor/xolvio:cleaner';
-
-import { Random } from 'meteor/random';
 import { assert } from 'chai';
+import './publications';
 import Patterns from '../imports/collection';
 
 const sinon = require('sinon');
 
-
-// import { addPattern } from './methods';
-import './publications';
-
 Factory.define('user', Meteor.users, {
-	'name': 'Pattern 1',
+	'username': 'Jennifer',
+	'emails': [{
+		'address': 'jennifer@here.com',
+		'verified': false,
+	}],
 });
 
 Factory.define('pattern', Patterns, {
-	'name': 'Pattern 2',
+	'name': 'Pattern 1',
 });
 
 if (Meteor.isServer) {
-	describe('patterns', () => {
-		// PUBLICATIONS
-		describe('publications', () => {
-			before(() => {
-				resetDatabase();
+	// PUBLICATIONS
+	describe('publications', () => {
+		before(() => {
+			resetDatabase();
 
-				const currentUser = Factory.create('user');
-				sinon.stub(Meteor, 'user');
-				Meteor.user.returns(currentUser); // now Meteor.user() will return the user we just created
+			const currentUser = Factory.create('user');
+			sinon.stub(Meteor, 'user');
+			Meteor.user.returns(currentUser); // now Meteor.user() will return the user we just created
 
-				sinon.stub(Meteor, 'userId');
-				Meteor.userId.returns(currentUser._id); // needed in methods
+			sinon.stub(Meteor, 'userId');
+			Meteor.userId.returns(currentUser._id); // needed in methods
 
-				this.firstDocument = Factory.create('pattern', { 'name': 'Pattern 1', 'created_by': currentUser._id });
-				Factory.create('pattern', { 'name': 'Pattern 2', 'created_by': currentUser._id });
+			this.firstDocument = Factory.create('pattern', { 'name': 'Pattern 1', 'created_by': currentUser._id });
+			Factory.create('pattern', { 'name': 'Pattern 2', 'created_by': currentUser._id });
+		});
+		after(() => {
+			Meteor.user.restore(); // Unwraps the spy
+			Meteor.userId.restore(); // Unwraps the sp
+		});
+		describe('publish patterns', () => {
+			it('should publish nothing if user not logged in', async () => {
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('patterns',
+						(collections) => {
+							resolve(collections.patterns);
+						});
+				});
+
+				const result = await testPromise;
+
+				assert.equal(result, undefined);
 			});
-			describe('publish patterns', () => {
-				it('should publish nothing if user not logged in', async () => {
-					const collector = new PublicationCollector();
+			it('should publish 2 documents if the user is logged in', async () => {
+				const collector = new PublicationCollector({ 'userId': Meteor.user()._id });
 
-					const testPromise = new Promise((resolve, reject) => {
-						collector.collect('patterns',
-							(collections) => {
-								resolve(collections.patterns);
-							});
-					});
-
-					const result = await testPromise;
-
-					assert.equal(result, undefined);
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('patterns',
+						(collections) => {
+							resolve(collections.patterns.length);
+						});
 				});
-				it('should publish 2 documents if the user is logged in', async () => {
-					const collector = new PublicationCollector({ 'userId': Meteor.user()._id });
 
-					const testPromise = new Promise((resolve, reject) => {
-						collector.collect('patterns',
-							(collections) => {
-								resolve(collections.patterns.length);
-							});
-					});
+				const result = await testPromise;
 
-					const result = await testPromise;
-
-					assert.equal(result, 2);
-				});
-				it('should publish 0 documents if a different user is logged in', async () => {
-					const collector = new PublicationCollector({ 'userId': 'xxx' });
-
-					const testPromise = new Promise((resolve, reject) => {
-						collector.collect('patterns',
-							(collections) => {
-								resolve(collections.patterns.length);
-							});
-					});
-
-					const result = await testPromise;
-
-					assert.equal(result, 0);
-				});
+				assert.equal(result, 2);
 			});
-			describe('publish single pattern', () => {
-				it('should publish nothing if user not logged in', async () => {
-					const collector = new PublicationCollector();
+			it('should publish 0 documents if a different user is logged in', async () => {
+				const collector = new PublicationCollector({ 'userId': 'xxx' });
 
-					const testPromise = new Promise((resolve, reject) => {
-						collector.collect('pattern',
-							this.firstDocument._id,
-							(collections) => {
-								resolve(collections.patterns);
-							});
-					});
-
-					const result = await testPromise;
-
-					assert.equal(result, undefined);
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('patterns',
+						(collections) => {
+							resolve(collections.patterns.length);
+						});
 				});
-				it('should publish the document if the user is logged in', async () => {
-					const collector = new PublicationCollector({ 'userId': Meteor.user()._id });
 
-					const testPromise = new Promise((resolve, reject) => {
-						collector.collect('pattern',
-							this.firstDocument._id,
-							(collections) => {
-								resolve(collections.patterns);
-							});
-					});
+				const result = await testPromise;
 
-					const result = await testPromise;
+				assert.equal(result, 0);
+			});
+		});
+		describe('publish single pattern', () => {
+			it('should publish nothing if user not logged in', async () => {
+				const collector = new PublicationCollector();
 
-					assert.equal(result.length, 1);
-					assert.equal(result[0].name, this.firstDocument.name);
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('pattern',
+						this.firstDocument._id,
+						(collections) => {
+							resolve(collections.patterns);
+						});
 				});
-				it('should publish nothing if a different user is logged in', async () => {
-					const collector = new PublicationCollector({ 'userId': 'xxx' });
 
-					const testPromise = new Promise((resolve, reject) => {
-						collector.collect('pattern',
-							this.firstDocument._id,
-							(collections) => {
-								resolve(collections.patterns.length);
-							});
-					});
+				const result = await testPromise;
 
-					const result = await testPromise;
+				assert.equal(result, undefined);
+			});
+			it('should publish the document if the user is logged in', async () => {
+				const collector = new PublicationCollector({ 'userId': Meteor.user()._id });
 
-					assert.equal(result, 0);
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('pattern',
+						this.firstDocument._id,
+						(collections) => {
+							resolve(collections.patterns);
+						});
 				});
+
+				const result = await testPromise;
+
+				assert.equal(result.length, 1);
+				assert.equal(result[0].name, this.firstDocument.name);
+			});
+			it('should publish nothing if a different user is logged in', async () => {
+				const collector = new PublicationCollector({ 'userId': 'xxx' });
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('pattern',
+						this.firstDocument._id,
+						(collections) => {
+							resolve(collections.patterns.length);
+						});
+				});
+
+				const result = await testPromise;
+
+				assert.equal(result, 0);
 			});
 		});
 	});

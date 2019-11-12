@@ -10,7 +10,7 @@ Meteor.methods({
 		}
 
 		if (!Meteor.user().emails[0].verified) {
-			throw new Meteor.Error('add-pattern-not-logged-in', 'Unable to create pattern because the user\'s email address is not verified');
+			throw new Meteor.Error('add-pattern-not-verified', 'Unable to create pattern because the user\'s email address is not verified');
 		}
 
 		return Patterns.insert({
