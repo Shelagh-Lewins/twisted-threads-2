@@ -63,6 +63,22 @@ export function removePattern(_id) {
 	};
 }
 
+export function editThreadingCell({
+	_id,
+	hole,
+	tablet,
+	value,
+}) {
+	return () => {
+		Meteor.call('editThreadingCell', {
+			_id,
+			hole,
+			tablet,
+			value,
+		});
+	};
+}
+
 // ///////////////////////////
 // default state
 const initialPatternState = {

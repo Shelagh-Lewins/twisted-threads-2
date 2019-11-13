@@ -23,7 +23,7 @@ class Pattern extends PureComponent {
 	}
 
 	render() {
-		const { isLoading, pattern } = this.props;
+		const { dispatch, isLoading, pattern } = this.props;
 
 		let content = <Loading />;
 
@@ -35,6 +35,7 @@ class Pattern extends PureComponent {
 						{/* if navigating from the home page, the pattern is in MiniMongo before Tracker sets isLoading to true. Since the Home version is just the summary, it doesn't have threading and causes an error. */}
 						{pattern.threading && (
 							<Threading
+								dispatch={dispatch}
 								pattern={pattern}
 							/>
 						)}
@@ -54,12 +55,12 @@ class Pattern extends PureComponent {
 }
 
 Pattern.propTypes = {
+	'dispatch': PropTypes.func.isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
-	console.log('map isLoading', state.pattern.isLoading);
 	return {
 		'_id': ownProps.match.params.id, // read the url parameter to find the id of the pattern
 		'isLoading': state.pattern.isLoading,

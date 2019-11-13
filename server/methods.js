@@ -90,6 +90,25 @@ Meteor.methods({
 			_id,
 		});
 	},
+	editThreadingCell({
+		_id,
+		hole,
+		tablet,
+		value,
+	}) {
+		// to do: check and test
+		// user must own pattern
+		// values must be valid
+		// pattern must exist
+
+		/* console.log('_id', _id);
+		console.log('hole', hole);
+		console.log('tablet', tablet);
+		console.log('value', value); */
+
+		// update the value in the nested arrays
+		Patterns.update({ _id }, { '$set': { [`threading.${hole}.${tablet}`]: value } });
+	},
 	getPatternCount() {
 		// this is required for pagination
 		// it needs to return the same number of patterns as the patterns publication in publications.js
