@@ -3,7 +3,12 @@ import { Button, Col, Row } from 'reactstrap';
 import { useFormik } from 'formik';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import parameters from '../constants/parameters';
+import {
+	ALLOWED_HOLES,
+	ALLOWED_PATTERN_TYPES,
+	MAX_ROWS,
+	MAX_TABLETS,
+} from '../../parameters';
 
 const validate = (values) => {
 	const errors = {};
@@ -14,11 +19,23 @@ const validate = (values) => {
 
 	if (!values.tablets) {
 		errors.tablets = 'Required';
-		// TODO positive integer
-		// within limits (parameterise)
+	} else if (values.tablets < 1) {
+		errors.tablets = 'Must be at least 1';
+	} else if (values.tablets > MAX_TABLETS) {
+		errors.tablets = `Must not be greater than ${MAX_TABLETS}`;
+	} else if (!Number.isInteger(values.tablets)) {
+		errors.tablets = 'Must be a whole number';
 	}
 
-	// TODO rows, holes
+	if (!values.rows) {
+		errors.rows = 'Required';
+	} else if (values.rows < 1) {
+		errors.rows = 'Must be at least 1';
+	} else if (values.rows > MAX_ROWS) {
+		errors.rows = `Must not be greater than ${MAX_ROWS}`;
+	} else if (!Number.isInteger(values.rows)) {
+		errors.rows = 'Must be a whole number';
+	}
 
 	return errors;
 };
@@ -38,8 +55,23 @@ const AddPatternForm = (props) => {
 		},
 	});
 
+	const patternTypeOptions = ALLOWED_PATTERN_TYPES.map((type) => (
+		<option
+			key={`hole-option-${type.name}`}
+			label={type.displayName}
+			value={type.name}
+		/>
+	));
+
+	const holeOptions = ALLOWED_HOLES.map((value) => (
+		<option
+			key={`hole-option-${value}`}
+			label={value}
+			value={value}
+		/>
+	));
+
 	return (
-		// note that onBlur is not set because we don't want to show an error unless the user clicks submit
 		<form onSubmit={formik.handleSubmit}>
 			<div className="form-group">
 				<label htmlFor="name">
@@ -52,6 +84,7 @@ const AddPatternForm = (props) => {
 						name="name"
 						type="text"
 						onChange={formik.handleChange}
+						onBlur={formik.handleBlur}
 						value={formik.values.name}
 					/>
 					{formik.touched.name && formik.errors.name ? (
@@ -59,23 +92,42 @@ const AddPatternForm = (props) => {
 					) : null}
 				</label>
 			</div>
-			<div className="form-group">
-				<label htmlFor="patternType">
-					Pattern type
-					<select
-						className="form-control"
-						id="patternType"
-						name="patternType"
-						onChange={formik.handleChange}
-						value={formik.values.patternType}
-					>
-						<option value="individual" label="Individual" />
-						<option value="allTogether" label="All together" />
-					</select>
-				</label>
-			</div>
 			<Row className="form-group">
-				<Col>
+				<Col lg="6">
+					<label htmlFor="patternType">
+						Pattern type
+						<select
+							className="form-control"
+							id="patternType"
+							name="patternType"
+							onChange={formik.handleChange}
+							onBlur={formik.handleBlur}
+							value={formik.values.patternType}
+						>
+							{patternTypeOptions}
+						</select>
+					</label>
+				</Col>
+				<Col lg="6">
+					<div className="form-group">
+						<label htmlFor="holes">
+							Number of holes in each tablet
+							<select
+								className="form-control"
+								id="holes"
+								name="holes"
+								onChange={formik.handleChange}
+								onBlur={formik.handleBlur}
+								value={formik.values.holes}
+							>
+								{holeOptions}
+							</select>
+						</label>
+					</div>
+				</Col>
+			</Row>
+			<Row className="form-group">
+				<Col lg="6">
 					<label htmlFor="tablets">
 						Number of tablets
 						<input
@@ -83,11 +135,12 @@ const AddPatternForm = (props) => {
 							}`}
 							placeholder="Number of tablets"
 							id="tablets"
-							max={parameters.maxTablets}
+							max={MAX_TABLETS}
 							min="1"
 							name="tablets"
 							type="number"
 							onChange={formik.handleChange}
+							onBlur={formik.handleBlur}
 							value={formik.values.tablets}
 						/>
 						{formik.touched.tablets && formik.errors.tablets ? (
@@ -103,11 +156,12 @@ const AddPatternForm = (props) => {
 							}`}
 							placeholder="Number of rows"
 							id="rows"
-							max={parameters.maxRows}
+							max={MAX_ROWS}
 							min="1"
 							name="rows"
 							type="number"
 							onChange={formik.handleChange}
+							onBlur={formik.handleBlur}
 							value={formik.values.rows}
 						/>
 						{formik.touched.rows && formik.errors.rows ? (
@@ -115,22 +169,6 @@ const AddPatternForm = (props) => {
 						) : null}
 					</label>
 				</Col>
-				<div className="form-group">
-					<label htmlFor="holes">
-						Number of holes in each tablet
-						<select
-							className="form-control"
-							id="holes"
-							name="holes"
-							onChange={formik.handleChange}
-							value={formik.values.holes}
-						>
-							<option value="2" label="2" />
-							<option value="4" label="4" />
-							<option value="6" label="6" />
-						</select>
-					</label>
-				</div>
 			</Row>
 			<Button type="submit" color="primary">Create a new pattern</Button>
 		</form>

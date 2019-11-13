@@ -1,5 +1,12 @@
 import { check } from 'meteor/check';
 import Patterns from '../imports/collection';
+import {
+	ALLOWED_HOLES,
+	ALLOWED_PATTERN_TYPES,
+	DEFAULT_PALETTE,
+	MAX_ROWS,
+	MAX_TABLETS,
+} from '../imports/parameters';
 
 Meteor.methods({
 	addPattern({
@@ -9,20 +16,35 @@ Meteor.methods({
 		tablets,
 		patternType,
 	}) {
-		const validPatternTypeCheck = Match.Where((x) => {
-			const validPatternTypes = [
-				'individual', // simulation pattern, woven by turning each tablet individually
-				'allTogether', // simulation pattern, woven by turning all tablets together
+		const validHolesCheck = Match.Where((x) => {
+			check(x, Match.Integer);
 
-				// TODO build and add freehand, allTogether, packs, 3-1-broken-twill
-			];
-			return validPatternTypes.indexOf(x) !== -1;
+			return ALLOWED_HOLES.indexOf(x) !== -1;
+		});
+
+		const validRowsCheck = Match.Where((x) => {
+			check(x, Match.Integer);
+
+			return x >= 1 && x <= MAX_ROWS;
+		});
+
+		const validTabletsCheck = Match.Where((x) => {
+			check(x, Match.Integer);
+
+			return x >= 1 && x <= MAX_TABLETS;
+		});
+
+		const validPatternTypeCheck = Match.Where((x) => {
+			check(x, String);
+			const allowedType = ALLOWED_PATTERN_TYPES.find((type) => type.name === x);
+
+			return typeof allowedType.name === 'string';
 		});
 
 		check(name, String);
-		check(holes, Number);
-		check(rows, Number);
-		check(tablets, Number);
+		check(holes, validHolesCheck);
+		check(rows, validRowsCheck);
+		check(tablets, validTabletsCheck);
 		check(patternType, validPatternTypeCheck);
 
 		if (!Meteor.userId()) {
@@ -34,7 +56,9 @@ Meteor.methods({
 		}
 
 		// threading is an array of arrays
-		const threading = new Array(rows).fill(new Array(tablets).fill(0));
+		// one row per hole
+		// one column per tablet
+		const threading = new Array(holes).fill(new Array(tablets).fill(0));
 
 		return Patterns.insert({
 			name,
@@ -42,6 +66,8 @@ Meteor.methods({
 			'created_at': new Date(),
 			'created_by': Meteor.userId(),
 			holes,
+			'palette': DEFAULT_PALETTE,
+			patternType,
 			rows,
 			tablets,
 			threading,

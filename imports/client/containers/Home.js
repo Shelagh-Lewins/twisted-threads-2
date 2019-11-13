@@ -32,6 +32,8 @@ class Home extends Component {
 
 	handleSubmit = (data, { resetForm }) => {
 		const { dispatch } = this.props;
+		const modifiedData = { ...data };
+		modifiedData.holes = parseInt(modifiedData.holes, 10); // select value is string
 
 		dispatch(addPattern(data));
 		resetForm();
