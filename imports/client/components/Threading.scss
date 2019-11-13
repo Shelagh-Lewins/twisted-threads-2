@@ -1,0 +1,38 @@
+@import "../constants/variables";
+
+.threading {
+	ul {
+		float: left;
+		list-style-type: none;
+		margin: 0;
+		padding: 0;
+
+		&.threading-chart {
+			border-left: 1px solid $color-chart-border;
+			border-top: 1px solid $color-chart-border;
+		}
+
+		li {
+			margin: 0;
+			padding: 0;
+		}
+
+		.cell {
+			display: inline-block;
+
+			span {
+				background: $color-chart-background;
+				border-bottom: 1px solid $color-chart-border;
+				border-right: 1px solid $color-chart-border;
+				display: inline-block;
+				height: 32px;
+				width: 32px;
+
+				&:focus {
+					outline: 2px solid $color-focus;
+					outline-offset: -2px;
+				}
+			}
+		}
+	}
+}
