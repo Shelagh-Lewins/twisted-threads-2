@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Container, Row, Col } from 'reactstrap';
+import { Col, Container, Row } from 'reactstrap';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
@@ -30,10 +30,10 @@ class Home extends Component {
 		this.clearErrors();
 	}
 
-	handleSubmit = ({ name }, { resetForm }) => {
+	handleSubmit = (data, { resetForm }) => {
 		const { dispatch } = this.props;
 
-		dispatch(addPattern(name));
+		dispatch(addPattern(data));
 		resetForm();
 	}
 
@@ -83,7 +83,7 @@ class Home extends Component {
 					{verified && (
 						<Row>
 							<Col lg="12">
-								<h1>Home</h1>
+								<h1>Create pattern</h1>
 								<AddPatternForm
 									handleSubmit={this.handleSubmit}
 								/>
