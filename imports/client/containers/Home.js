@@ -74,7 +74,7 @@ class Home extends Component {
 					<Row>
 						<Col lg="12">
 							<h1>Welcome</h1>
-							This app demonstrates using Meteor, React and Redux together.
+							This is the development version of Twisted Threads 2, the online app for tablet weaving.
 							{!isAuthenticated && <p>To get started, please <Link to="/register">Register</Link>.</p>}
 							{isAuthenticated && !verified && <p>To create patterns, please verify your email address. You can request a new verification email from your <Link to="/account">Account</Link> page</p>}
 							<hr />
