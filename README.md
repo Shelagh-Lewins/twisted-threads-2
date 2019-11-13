@@ -1,9 +1,9 @@
-# meteor-react-redux-auth
-A demo app using Meteor 1.8.1 with React and Redux.
+# Twisted Threads 2
+An app for tablet weaving built using Meteor 1.8.1 with React and Redux. It will be the replacement for Twisted Threads.
 
-This is intended as a bare-bones but complete app that demonstrates how to use Meteor/React/Redux together.
+This is built on top of the 
+[Meteor/React/Redux/Auth demo app](https://github.com/Shelagh-Lewins/meteor-react-redux-auth).
 
-Users can create patterns, which in this app comprise only a name as all they do is demonstrate technology. You could rename "patterns" to "posts" or "todos" or whatever you like. Users can only view patterns they created, and can only create patterns if they have verified their email address.
 
 # Quick start
 Install Meteor 1.8.1.
@@ -11,8 +11,8 @@ Install Meteor 1.8.1.
 In a terminal window, cd into your Meteor directory. Then run the following:
 
 ```
-git clone https://github.com/Shelagh-Lewins/meteor-react-redux-auth.git
-cd meteor-react-redux-auth
+git clone https://github.com/Shelagh-Lewins/twisted-threads-2.git
+cd twisted-threads-2
 npm install
 meteor
 ```
@@ -26,30 +26,3 @@ To send emails, you'll need to provide a valid MAIL_URL.
 run_meteor.js```
 
 The script will first load the environment variables from .env and then run Meteor. This avoids using settings.json and better simulates a production environment.
-
-# Testing
-Tests are written with Mocha and chai. Run basic tests with:
-
-```
-npm run test
-```
-
-or
-
-```
-TEST_WATCH=1 meteor test --driver-package meteortesting:mocha
-```
-
-Testing covers server methods and publications. The client tests in ```imports/main.test.js``` are just there as examples.
-
-
-# Features
-* Routing with react-router.
-* User authentication including account creation, login, logout, email validation, forgot password and reset password. The Meteor Accounts and Email packages drive the back end. The UI is written in React and Redux.
-* Loading spinner while waiting for subscriptions to be ready.
-* Formik forms with client-side validation.
-* Styling with SCSS and Bootstrap.
-* Server-side pagination using react-paginate.
-* updeep to update deeply nested objects/arrays in the reducer.
-* Linting with eslint and sass-lint, based on the AirBnB configuration with react-app and meteor, plus a .eslintrc.json file for custom configuration.
-* Redux Devtools as React components.

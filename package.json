@@ -1,10 +1,10 @@
 {
-  "name": "meteor-react-redux-auth",
-  "description": "A demo app using Meteor with React and Redux, and incorporating user authentication.",
+  "name": "Twisted Threads 2",
+  "description": "An app for tablet weaving built with Meteor, React and Redux.",
   "main": "main.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Shelagh-Lewins/meteor-react-redux-auth.git"
+    "url": "git+https://github.com/Shelagh-Lewins/twisted-threads-2.git"
   },
   "author": "Shelagh Lewins",
   "license": "MIT",
