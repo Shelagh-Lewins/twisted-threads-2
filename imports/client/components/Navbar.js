@@ -62,8 +62,6 @@ class Navbar extends Component {
 }
 
 Navbar.propTypes = {
-	'dispatch': PropTypes.func.isRequired,
-	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isAuthenticated': PropTypes.bool.isRequired,
 	'username': PropTypes.string,
 };

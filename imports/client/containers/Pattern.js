@@ -11,13 +11,13 @@ import Loading from '../components/Loading';
 
 class Pattern extends PureComponent {
 	render() {
-		const { isLoading, name } = this.props;
+		const { isLoading, pattern } = this.props;
 
 		let content = <Loading />;
 
 		if (!isLoading) {
-			if (name && name !== '') {
-				content = <h2>{name}</h2>;
+			if (pattern.name && pattern.name !== '') {
+				content = <h2>{pattern.name}</h2>;
 			} else {
 				content = <p>Either this pattern does not exist or you do not have permission to view it</p>;
 			}
@@ -33,7 +33,7 @@ class Pattern extends PureComponent {
 
 Pattern.propTypes = {
 	'isLoading': PropTypes.bool.isRequired,
-	'name': PropTypes.string.isRequired,
+	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
@@ -54,7 +54,7 @@ const Tracker = withTracker(({ _id, dispatch }) => {
 
 	// pass database data as props
 	return {
-		'name': pattern.name || '',
+		'pattern': pattern || {},
 	};
 })(Pattern);
 

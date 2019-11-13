@@ -31,8 +31,14 @@ Meteor.publish('patterns', function (skip = 0, limit = ITEMS_PER_PAGE) {
 		{ 'created_by': this.userId },
 		{
 			'fields': {
+				'created_at': 1,
+				'created_by': 1,
+				'holes': 1,
 				'name': 1,
 				'name_sort': 1,
+				'patternType': 1,
+				'rows': 1,
+				'tablets': 1,
 			},
 			'sort': { 'name_sort': 1 },
 			'skip': skip,
@@ -63,8 +69,15 @@ Meteor.publish('pattern', function (_id = undefined) {
 		},
 		{
 			'fields': {
+				'created_at': 1,
+				'created_by': 1,
+				'holes': 1,
 				'name': 1,
 				'name_sort': 1,
+				'patternType': 1,
+				'rows': 1,
+				'tablets': 1,
+				'threading': 1,
 			},
 		},
 	);
