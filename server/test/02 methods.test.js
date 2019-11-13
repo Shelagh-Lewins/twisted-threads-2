@@ -6,6 +6,7 @@ import Patterns from '../../imports/collection';
 import '../publications';
 import '../methods';
 import { stubUser, unwrapUser } from './mockUser';
+import { defaultPatternData } from './testData';
 
 if (Meteor.isServer) {
 	describe('test methods', () => {
@@ -15,7 +16,7 @@ if (Meteor.isServer) {
 		describe('addPattern method', () => {
 			it('cannot create pattern if not logged in', () => {
 				function expectedError() {
-					Meteor.call('addPattern', 'my pattern');
+					Meteor.call('addPattern', defaultPatternData);
 				}
 				expect(expectedError).to.throw(Meteor.Error(), 'add-pattern-not-logged-in');
 			});
@@ -28,7 +29,7 @@ if (Meteor.isServer) {
 						}],
 					});
 
-					Meteor.call('addPattern', 'my pattern');
+					Meteor.call('addPattern', defaultPatternData);
 				}
 
 				expect(expectedError).to.throw(Meteor.Error(), 'add-pattern-not-verified');
@@ -44,7 +45,7 @@ if (Meteor.isServer) {
 					}],
 				});
 
-				Meteor.call('addPattern', 'my pattern');
+				Meteor.call('addPattern', defaultPatternData);
 
 				assert.equal(Patterns.find().fetch().length, 1);
 				unwrapUser();

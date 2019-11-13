@@ -1,5 +1,5 @@
 {
-  "name": "Twisted Threads 2",
+  "name": "twisted-threads-2",
   "description": "An app for tablet weaving built with Meteor, React and Redux.",
   "main": "main.js",
   "repository": {

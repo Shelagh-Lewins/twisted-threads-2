@@ -2,10 +2,10 @@
 
 import assert from 'assert';
 
-describe('meteor-react-redux-auth', () => {
+describe('twisted-threads-2', () => {
 	it('package.json has correct name', async () => {
 		const { name } = await import('../package.json');
-		assert.strictEqual(name, 'meteor-react-redux-auth');
+		assert.strictEqual(name, 'twisted-threads-2');
 	});
 
 	if (Meteor.isClient) {

@@ -10,6 +10,7 @@ import { assert } from 'chai';
 import '../publications';
 import Patterns from '../../imports/collection';
 import { stubUser, unwrapUser } from './mockUser';
+import { defaultPatternData } from './testData';
 
 // it seems not to matter where factories are defined, but keep an eye on this.
 Factory.define('user', Meteor.users, {
@@ -20,9 +21,7 @@ Factory.define('user', Meteor.users, {
 	}],
 });
 
-Factory.define('pattern', Patterns, {
-	'name': 'Pattern 1',
-});
+Factory.define('pattern', Patterns, defaultPatternData);
 
 if (Meteor.isServer) {
 	describe('test publications', () => {
