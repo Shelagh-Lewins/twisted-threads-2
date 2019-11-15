@@ -1,0 +1,15 @@
+@import "../constants/variables";
+
+.palette {
+	.color {
+		border: 1px solid $color-panel-border;
+		display: inline-block;
+		height: 32px;
+		margin-right: 8px;
+		width: 32px;
+	}
+
+	label {
+		font-size: 0;
+	}
+}

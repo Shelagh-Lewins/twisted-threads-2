@@ -5,16 +5,19 @@ import { editThreadingCell } from '../modules/pattern';
 import Toolbar from './Toolbar';
 import './Threading.scss';
 import { HOLE_LABELS } from '../../parameters';
+import Palette from './Palette';
 
 // row and tablet have nothing to identify them except index
 // note row here indicates hole of the tablet
 /* eslint-disable react/no-array-index-key */
 
-// TODO add hole labels
-
 class Threading extends PureComponent {
 	constructor(props) {
 		super(props);
+
+		this.state = {
+			'selectedColor': 0,
+		};
 
 		// Toolbar will be rendered to the body element
 		// so it can be positioned within the viewport
@@ -29,25 +32,27 @@ class Threading extends PureComponent {
 	componentWillUnmount() {
 		document.body.removeChild(this.el);
 	}
-	
-	handleClickPaletteCell(value) {
-		console.log('clicked color', value);
+
+	handleClickPaletteCell(index) {
+		console.log('clicked color', index);
+		this.setState({
+			'selectedColor': index,
+		});
 	}
 
 	handleClickThreadingCell(rowIndex, tabletIndex, cell) {
 		const { dispatch, 'pattern': { _id } } = this.props;
-
-		const value = cell === 0 ? 1 : 0;
+		const { selectedColor } = this.state;
 
 		dispatch(editThreadingCell({
 			_id,
 			'hole': rowIndex,
 			'tablet': tabletIndex,
-			'value': value,
+			'value': selectedColor,
 		}));
 	}
 
-	// TODO improve keyboard handler to only act on space or enter
+	// TODO improve keyboard handler to only act on space or enter, for threading cell and palette color
 
 	renderCell(cell, rowIndex, tabletIndex) {
 		return (
@@ -113,15 +118,39 @@ class Threading extends PureComponent {
 		// nested props
 		const { 'pattern': { palette } } = this.props;
 
+		// we use children twice so that the onclick doesn't have to be passed down through Toolbar to Palette
 		return (
 			<div className="threading">
 				{this.renderChart()}
 				{ReactDOM.createPortal(
-					<Toolbar
-						context="threading"
-						handleClickPaletteCell={this.handleClickPaletteCell}
-						palette={palette}
-					/>,
+					<Toolbar>
+						<Palette>
+							{palette.map((color, index) => {
+								const identifier = `palette-color-${index}`;
+
+								// eslint doesn't associate the label with the span, so I've disabled the rule
+								return (
+									<label // eslint-disable-line jsx-a11y/label-has-associated-control
+										htmlFor={identifier}
+										key={identifier} // eslint-disable-line react/no-array-index-key
+									>
+										Color
+										<span // eslint-disable-line jsx-a11y/control-has-associated-label
+											className="color"
+											id={identifier}
+											name={identifier}
+
+											onClick={() => this.handleClickPaletteCell(index)}
+											onKeyPress={() => this.this.handleClickPaletteCell(index)}
+											role="button"
+											style={{ 'backgroundColor': color }}
+											tabIndex="0"
+										/>
+									</label>
+								);
+							})}
+						</Palette>
+					</Toolbar>,
 					this.el,
 				)}
 			</div>

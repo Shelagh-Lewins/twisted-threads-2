@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import './Palette.scss';
 
 function Palette(props) {
 	const { children } = props;
