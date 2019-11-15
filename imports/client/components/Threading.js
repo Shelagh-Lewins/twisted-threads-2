@@ -1,6 +1,8 @@
 import React, { PureComponent } from 'react';
+import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { editThreadingCell } from '../modules/pattern';
+import Toolbar from './Toolbar';
 import './Threading.scss';
 import { HOLE_LABELS } from '../../parameters';
 
@@ -11,7 +13,28 @@ import { HOLE_LABELS } from '../../parameters';
 // TODO add hole labels
 
 class Threading extends PureComponent {
-	handleClick(rowIndex, tabletIndex, cell) {
+	constructor(props) {
+		super(props);
+
+		// Toolbar will be rendered to the body element
+		// so it can be positioned within the viewport
+		this.el = document.createElement('div');
+		this.el.className = 'toolbar-holder';
+	}
+
+	componentDidMount() {
+		document.body.appendChild(this.el);
+	}
+
+	componentWillUnmount() {
+		document.body.removeChild(this.el);
+	}
+	
+	handleClickPaletteCell(value) {
+		console.log('clicked color', value);
+	}
+
+	handleClickThreadingCell(rowIndex, tabletIndex, cell) {
 		const { dispatch, 'pattern': { _id } } = this.props;
 
 		const value = cell === 0 ? 1 : 0;
@@ -24,13 +47,15 @@ class Threading extends PureComponent {
 		}));
 	}
 
+	// TODO improve keyboard handler to only act on space or enter
+
 	renderCell(cell, rowIndex, tabletIndex) {
 		return (
 			<span
 				className="cell"
 				type="button"
-				onClick={() => this.handleClick(rowIndex, tabletIndex, cell)}
-				onKeyPress={() => this.handleClick(rowIndex, tabletIndex, cell)}
+				onClick={() => this.handleClickThreadingCell(rowIndex, tabletIndex, cell)}
+				onKeyPress={() => this.handleClickThreadingCell(rowIndex, tabletIndex, cell)}
 				role="button"
 				tabIndex="0"
 			>
@@ -85,9 +110,20 @@ class Threading extends PureComponent {
 	}
 
 	render() {
+		// nested props
+		const { 'pattern': { palette } } = this.props;
+
 		return (
 			<div className="threading">
 				{this.renderChart()}
+				{ReactDOM.createPortal(
+					<Toolbar
+						context="threading"
+						handleClickPaletteCell={this.handleClickPaletteCell}
+						palette={palette}
+					/>,
+					this.el,
+				)}
 			</div>
 		);
 	}

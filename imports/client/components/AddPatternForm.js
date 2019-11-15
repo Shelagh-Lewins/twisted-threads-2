@@ -55,20 +55,25 @@ const AddPatternForm = (props) => {
 		},
 	});
 
+	// note firefox doesn't support the 'label' shorthand in option
+	// https://bugzilla.mozilla.org/show_bug.cgi?id=40545#c11
 	const patternTypeOptions = ALLOWED_PATTERN_TYPES.map((type) => (
 		<option
-			key={`hole-option-${type.name}`}
+			key={`type-option-${type.name}`}
 			label={type.displayName}
 			value={type.name}
-		/>
+		>
+			{type.displayName}
+		</option>
 	));
 
 	const holeOptions = ALLOWED_HOLES.map((value) => (
 		<option
 			key={`hole-option-${value}`}
-			label={value}
 			value={value}
-		/>
+		>
+			{value}
+		</option>
 	));
 
 	return (

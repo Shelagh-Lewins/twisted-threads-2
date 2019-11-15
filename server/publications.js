@@ -8,6 +8,27 @@ import { ITEMS_PER_PAGE } from '../imports/parameters';
 // https://docs.meteor.com/api/accounts.html
 Meteor.users.deny({ 'update': () => true });
 
+// limited fields for all patterns
+const patternsFields = {
+	'created_at': 1,
+	'created_by': 1,
+	'holes': 1,
+	'name': 1,
+	'name_sort': 1,
+	'patternType': 1,
+	'rows': 1,
+	'tablets': 1,
+};
+
+// additional fields for individual pattern
+const patternFields = {
+	...patternsFields,
+	...{
+		'palette': 1,
+		'threading': 1,
+	},
+};
+
 // list of patterns
 Meteor.publish('patterns', function (skip = 0, limit = ITEMS_PER_PAGE) {
 	// this needs to return the same number of patterns as the getPatternCount method, for pagination
@@ -30,16 +51,7 @@ Meteor.publish('patterns', function (skip = 0, limit = ITEMS_PER_PAGE) {
 	return Patterns.find(
 		{ 'created_by': this.userId },
 		{
-			'fields': {
-				'created_at': 1,
-				'created_by': 1,
-				'holes': 1,
-				'name': 1,
-				'name_sort': 1,
-				'patternType': 1,
-				'rows': 1,
-				'tablets': 1,
-			},
+			'fields': patternsFields,
 			'sort': { 'name_sort': 1 },
 			'skip': skip,
 			'limit': limit,
@@ -68,17 +80,7 @@ Meteor.publish('pattern', function (_id = undefined) {
 			'created_by': this.userId,
 		},
 		{
-			'fields': {
-				'created_at': 1,
-				'created_by': 1,
-				'holes': 1,
-				'name': 1,
-				'name_sort': 1,
-				'patternType': 1,
-				'rows': 1,
-				'tablets': 1,
-				'threading': 1,
-			},
+			'fields': patternFields,
 		},
 	);
 });

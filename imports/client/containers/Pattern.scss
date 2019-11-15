@@ -2,4 +2,6 @@
 
 .pattern {
 	background-color: $color-pattern-page-background;
+	min-height: 100vh;
+	position: relative;
 }

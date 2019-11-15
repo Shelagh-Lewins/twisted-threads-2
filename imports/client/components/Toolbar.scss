@@ -1,0 +1,11 @@
+@import "../constants/variables";
+
+.toolbar-holder {
+	background: $color-toolbar-background;
+	bottom: 0;
+	position: absolute;
+}
+
+.toolbar {
+	width: 100vw;
+}
