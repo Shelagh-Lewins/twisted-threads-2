@@ -5,7 +5,6 @@ import './Toolbar.scss';
 
 function Toolbar(props) {
 	const { children } = props;
-	console.log('children', children);
 
 	return (
 		<div className="toolbar">

@@ -29,7 +29,7 @@
 				width: 32px;
 
 				&:focus {
-					outline: 2px solid $color-focus;
+					outline: 2px dashed $color-focus;
 					outline-offset: -2px;
 				}
 			}

@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { editThreadingCell } from '../modules/pattern';
+import { SVGBackwardWarp, SVGForwardWarp } from '../modules/svg';
 import Toolbar from './Toolbar';
 import './Threading.scss';
 import { HOLE_LABELS } from '../../parameters';
@@ -34,13 +35,12 @@ class Threading extends PureComponent {
 	}
 
 	handleClickPaletteCell(index) {
-		console.log('clicked color', index);
 		this.setState({
 			'selectedColor': index,
 		});
 	}
 
-	handleClickThreadingCell(rowIndex, tabletIndex, cell) {
+	handleClickThreadingCell(rowIndex, tabletIndex) {
 		const { dispatch, 'pattern': { _id } } = this.props;
 		const { selectedColor } = this.state;
 
@@ -54,17 +54,22 @@ class Threading extends PureComponent {
 
 	// TODO improve keyboard handler to only act on space or enter, for threading cell and palette color
 
-	renderCell(cell, rowIndex, tabletIndex) {
+	renderCell(colorIndex, rowIndex, tabletIndex) {
+		const { 'pattern': { palette } } = this.props;
+
 		return (
 			<span
 				className="cell"
 				type="button"
-				onClick={() => this.handleClickThreadingCell(rowIndex, tabletIndex, cell)}
-				onKeyPress={() => this.handleClickThreadingCell(rowIndex, tabletIndex, cell)}
+				onClick={() => this.handleClickThreadingCell(rowIndex, tabletIndex, colorIndex)}
+				onKeyPress={() => this.handleClickThreadingCell(rowIndex, tabletIndex, colorIndex)}
 				role="button"
 				tabIndex="0"
 			>
-				{cell}
+				<SVGForwardWarp
+					fill={palette[colorIndex]}
+					stroke="#000000"
+				/>
 			</span>
 		);
 	}
@@ -78,12 +83,12 @@ class Threading extends PureComponent {
 				<span className="label">{HOLE_LABELS[labelIndex]}</span>
 				<ul className="threading-row">
 					{
-						row.map((cell, index) => (
+						row.map((colorIndex, index) => (
 							<li
 								className="cell value"
 								key={`threading-cell-${rowIndex}-${index}`}
 							>
-								{this.renderCell(cell, rowIndex, index)}
+								{this.renderCell(colorIndex, rowIndex, index)}
 							</li>
 						))
 					}
@@ -117,6 +122,7 @@ class Threading extends PureComponent {
 	render() {
 		// nested props
 		const { 'pattern': { palette } } = this.props;
+		const { selectedColor } = this.state;
 
 		// we use children twice so that the onclick doesn't have to be passed down through Toolbar to Palette
 		return (
@@ -125,8 +131,8 @@ class Threading extends PureComponent {
 				{ReactDOM.createPortal(
 					<Toolbar>
 						<Palette>
-							{palette.map((color, index) => {
-								const identifier = `palette-color-${index}`;
+							{palette.map((color, colorIndex) => {
+								const identifier = `palette-color-${colorIndex}`;
 
 								// eslint doesn't associate the label with the span, so I've disabled the rule
 								return (
@@ -136,12 +142,12 @@ class Threading extends PureComponent {
 									>
 										Color
 										<span // eslint-disable-line jsx-a11y/control-has-associated-label
-											className="color"
+											className={`color ${selectedColor === colorIndex ? 'selected' : ''}`}
 											id={identifier}
 											name={identifier}
 
-											onClick={() => this.handleClickPaletteCell(index)}
-											onKeyPress={() => this.this.handleClickPaletteCell(index)}
+											onClick={() => this.handleClickPaletteCell(colorIndex)}
+											onKeyPress={() => this.this.handleClickPaletteCell(colorIndex)}
 											role="button"
 											style={{ 'backgroundColor': color }}
 											tabIndex="0"

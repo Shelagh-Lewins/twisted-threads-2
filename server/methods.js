@@ -67,6 +67,7 @@ Meteor.methods({
 			'created_by': Meteor.userId(),
 			holes,
 			'palette': DEFAULT_PALETTE,
+			'orientations': new Array(tablets).fill('/'),
 			patternType,
 			rows,
 			tablets,

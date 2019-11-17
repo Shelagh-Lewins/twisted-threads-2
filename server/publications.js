@@ -24,6 +24,7 @@ const patternsFields = {
 const patternFields = {
 	...patternsFields,
 	...{
+		'orientations': 1,
 		'palette': 1,
 		'threading': 1,
 	},
