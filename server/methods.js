@@ -120,6 +120,19 @@ Meteor.methods({
 		// update the value in the nested arrays
 		Patterns.update({ _id }, { '$set': { [`orientations.${tablet}`]: newOrientation } });
 	},
+	editPaletteColor({
+		_id,
+		colorHexValue,
+		colorIndex,
+	}) {
+		// to do: check and test
+		// user must own pattern
+		// values must be valid
+		// pattern must exist
+
+		// update the value in the nested arrays
+		Patterns.update({ _id }, { '$set': { [`palette.${colorIndex}`]: colorHexValue } });
+	},
 	getPatternCount() {
 		// this is required for pagination
 		// it needs to return the same number of patterns as the patterns publication in publications.js

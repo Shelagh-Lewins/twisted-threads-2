@@ -4,22 +4,22 @@
 export const ITEMS_PER_PAGE = 10;
 
 export const DEFAULT_PALETTE = [
-	'#ffffff',
-	'#cc0000',
-	'#ffd966',
-	'#1c4587',
+	'#7A1313',
+	'#C32828',
+	'#f98c03',
+	'#fbe158',
 	'#6aa84f',
-	'#783f04',
+	'#1f6d1f',
+	'#172f79',
+	'#2c5c94',
+	'#76bae6',
+	'#9025c5',
+	'#a67bc8',
+	'#000000',
+	'#828282',
 	'#ffffff',
-	'#ffffff',
-	'#ffffff',
-	'#ffffff',
-	'#ffffff',
-	'#ffffff',
-	'#ffffff',
-	'#ffffff',
-	'#ffffff',
-	'#ffffff',
+	'#523f12',
+	'#aa8e4b',
 ];
 
 export const MAX_ROWS = 100;

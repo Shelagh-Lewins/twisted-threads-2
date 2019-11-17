@@ -75,6 +75,9 @@
 			position: relative;
 
 			> span {
+				-moz-appearance: none; /* Mozilla */
+				-webkit-appearance: none; /* WebKit */
+				appearance: none; /* CSS3 */
 				background: transparent;
 				border-right: 1px solid transparent;
 				display: inline-block;
@@ -90,8 +93,6 @@
 
 		.z,
 		.s {
-			-moz-border-radius: 8px;
-			-webkit-border-radius: 8px;
 			background-color: $color-orientation;
 			border: 1px solid $color-orientation;
 			border-radius: 8px;

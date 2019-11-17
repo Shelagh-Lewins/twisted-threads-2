@@ -92,6 +92,20 @@ export function editOrientation({
 	};
 }
 
+export function editPaletteColor({
+	_id,
+	colorHexValue,
+	colorIndex,
+}) {
+	return () => {
+		Meteor.call('editPaletteColor', {
+			_id,
+			colorHexValue,
+			colorIndex,
+		});
+	};
+}
+
 // ///////////////////////////
 // default state
 const initialPatternState = {

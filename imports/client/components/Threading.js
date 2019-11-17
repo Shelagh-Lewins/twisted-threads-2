@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import { editOrientation, editThreadingCell } from '../modules/pattern';
+import { editOrientation, editPaletteColor, editThreadingCell } from '../modules/pattern';
 import { SVGBackwardWarp, SVGForwardWarp } from '../modules/svg';
 import Toolbar from './Toolbar';
 import './Threading.scss';
@@ -10,6 +10,7 @@ import Palette from './Palette';
 
 // row and tablet have nothing to identify them except index
 // note row here indicates hole of the tablet
+// so disable the rule below
 /* eslint-disable react/no-array-index-key */
 
 class Threading extends PureComponent {
@@ -17,13 +18,16 @@ class Threading extends PureComponent {
 		super(props);
 
 		this.state = {
-			'selectedColor': 0,
+			'selectedColorIndex': 0,
 		};
 
-		// Toolbar will be rendered to the body element
+		// Toolbar is rendered to the body element
 		// so it can be positioned within the viewport
 		this.el = document.createElement('div');
 		this.el.className = 'toolbar-holder';
+
+		this.selectColor = this.selectColor.bind(this);
+		this.handleEditColor = this.handleEditColor.bind(this);
 	}
 
 	componentDidMount() {
@@ -34,21 +38,32 @@ class Threading extends PureComponent {
 		document.body.removeChild(this.el);
 	}
 
-	handleClickPaletteCell(index) {
+	selectColor(index) {
 		this.setState({
-			'selectedColor': index,
+			'selectedColorIndex': index,
 		});
+	}
+
+	handleEditColor(colorHexValue) {
+		const { dispatch, 'pattern': { _id } } = this.props;
+		const { selectedColorIndex } = this.state;
+
+		dispatch(editPaletteColor({
+			_id,
+			'colorHexValue': colorHexValue,
+			'colorIndex': selectedColorIndex,
+		}));
 	}
 
 	handleClickThreadingCell(rowIndex, tabletIndex) {
 		const { dispatch, 'pattern': { _id } } = this.props;
-		const { selectedColor } = this.state;
+		const { selectedColorIndex } = this.state;
 
 		dispatch(editThreadingCell({
 			_id,
 			'hole': rowIndex,
 			'tablet': tabletIndex,
-			'value': selectedColor,
+			'value': selectedColorIndex,
 		}));
 	}
 
@@ -197,39 +212,20 @@ class Threading extends PureComponent {
 
 	renderToolbar() {
 		const { 'pattern': { palette } } = this.props;
-		const { selectedColor } = this.state;
+		const { selectedColorIndex } = this.state;
 
-		// we use children twice so that the onclick doesn't have to be passed down through Toolbar to Palette
+		// Toolbar will be reused when editing turning, so Palette is passed as a property (props.children).
+		// This also avoids having to pass props through Toolbar to Palette.
 
 		return (
 			ReactDOM.createPortal(
 				<Toolbar>
-					<Palette>
-						{palette.map((color, colorIndex) => {
-							const identifier = `palette-color-${colorIndex}`;
-
-							// eslint doesn't associate the label with the span, so I've disabled the rule
-							return (
-								<label // eslint-disable-line jsx-a11y/label-has-associated-control
-									htmlFor={identifier}
-									key={identifier} // eslint-disable-line react/no-array-index-key
-								>
-									Color
-									<span // eslint-disable-line jsx-a11y/control-has-associated-label
-										className={`color ${selectedColor === colorIndex ? 'selected' : ''}`}
-										id={identifier}
-										name={identifier}
-
-										onClick={() => this.handleClickPaletteCell(colorIndex)}
-										onKeyPress={() => this.this.handleClickPaletteCell(colorIndex)}
-										role="button"
-										style={{ 'backgroundColor': color }}
-										tabIndex="0"
-									/>
-								</label>
-							);
-						})}
-					</Palette>
+					<Palette
+						handleEditColor={this.handleEditColor}
+						palette={palette}
+						selectColor={this.selectColor}
+						selectedColorIndex={selectedColorIndex}
+					/>
 				</Toolbar>,
 				this.el,
 			)
