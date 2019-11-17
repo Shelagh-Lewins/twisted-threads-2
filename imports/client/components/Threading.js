@@ -59,7 +59,6 @@ class Threading extends PureComponent {
 
 		return (
 			<span
-				className="cell"
 				type="button"
 				onClick={() => this.handleClickThreadingCell(rowIndex, tabletIndex, colorIndex)}
 				onKeyPress={() => this.handleClickThreadingCell(rowIndex, tabletIndex, colorIndex)}
@@ -119,6 +118,80 @@ class Threading extends PureComponent {
 		);
 	}
 
+	renderOrientation(tabletIndex, value) {
+		return (
+			<span
+				type="button"
+				onClick={() => this.handleClickOrientation(tabletIndex)}
+				onKeyPress={() => this.handleClickOrientation(tabletIndex)}
+				role="button"
+				tabIndex="0"
+			>
+				<span
+					className={`${value === '/' ? 's' : 'z'}`}
+				/>
+			</span>
+		);
+	}
+
+	renderOrientations() {
+		const { 'pattern': { orientations } } = this.props;
+
+		return (
+			<ul className="orientations">
+				{
+					orientations.map((tabletIndex) => (
+						<li
+							className="orientation"
+							key={`orientations-${tabletIndex}`}
+						>
+							{this.renderOrientation(tabletIndex, orientations[tabletIndex])}
+						</li>
+					))
+				}
+			</ul>
+		);
+	}
+
+	renderToolbar() {
+		const { 'pattern': { palette } } = this.props;
+		const { selectedColor } = this.state;
+
+		return (
+			ReactDOM.createPortal(
+				<Toolbar>
+					<Palette>
+						{palette.map((color, colorIndex) => {
+							const identifier = `palette-color-${colorIndex}`;
+
+							// eslint doesn't associate the label with the span, so I've disabled the rule
+							return (
+								<label // eslint-disable-line jsx-a11y/label-has-associated-control
+									htmlFor={identifier}
+									key={identifier} // eslint-disable-line react/no-array-index-key
+								>
+									Color
+									<span // eslint-disable-line jsx-a11y/control-has-associated-label
+										className={`color ${selectedColor === colorIndex ? 'selected' : ''}`}
+										id={identifier}
+										name={identifier}
+
+										onClick={() => this.handleClickPaletteCell(colorIndex)}
+										onKeyPress={() => this.this.handleClickPaletteCell(colorIndex)}
+										role="button"
+										style={{ 'backgroundColor': color }}
+										tabIndex="0"
+									/>
+								</label>
+							);
+						})}
+					</Palette>
+				</Toolbar>,
+				this.el,
+			)
+		);
+	}
+
 	render() {
 		// nested props
 		const { 'pattern': { palette } } = this.props;
@@ -128,37 +201,8 @@ class Threading extends PureComponent {
 		return (
 			<div className="threading">
 				{this.renderChart()}
-				{ReactDOM.createPortal(
-					<Toolbar>
-						<Palette>
-							{palette.map((color, colorIndex) => {
-								const identifier = `palette-color-${colorIndex}`;
-
-								// eslint doesn't associate the label with the span, so I've disabled the rule
-								return (
-									<label // eslint-disable-line jsx-a11y/label-has-associated-control
-										htmlFor={identifier}
-										key={identifier} // eslint-disable-line react/no-array-index-key
-									>
-										Color
-										<span // eslint-disable-line jsx-a11y/control-has-associated-label
-											className={`color ${selectedColor === colorIndex ? 'selected' : ''}`}
-											id={identifier}
-											name={identifier}
-
-											onClick={() => this.handleClickPaletteCell(colorIndex)}
-											onKeyPress={() => this.this.handleClickPaletteCell(colorIndex)}
-											role="button"
-											style={{ 'backgroundColor': color }}
-											tabIndex="0"
-										/>
-									</label>
-								);
-							})}
-						</Palette>
-					</Toolbar>,
-					this.el,
-				)}
+				{this.renderOrientations()}
+				{this.renderToolbar()}
 			</div>
 		);
 	}

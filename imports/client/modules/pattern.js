@@ -53,9 +53,8 @@ export const addPattern = (data, history) => (dispatch) => {
 		if (error) {
 			return dispatch(logErrors({ 'add-pattern': error.reason }));
 		}
-		console.log('result', result);
+
 		history.push(`/pattern/${result}`);
-		// dispatch(getPatternCount());
 	});
 };
 
