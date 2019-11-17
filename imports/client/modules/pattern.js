@@ -80,6 +80,18 @@ export function editThreadingCell({
 	};
 }
 
+export function editOrientation({
+	_id,
+	tablet,
+}) {
+	return () => {
+		Meteor.call('editOrientation', {
+			_id,
+			tablet,
+		});
+	};
+}
+
 // ///////////////////////////
 // default state
 const initialPatternState = {

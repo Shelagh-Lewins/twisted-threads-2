@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import { editThreadingCell } from '../modules/pattern';
+import { editOrientation, editThreadingCell } from '../modules/pattern';
 import { SVGBackwardWarp, SVGForwardWarp } from '../modules/svg';
 import Toolbar from './Toolbar';
 import './Threading.scss';
@@ -52,10 +52,33 @@ class Threading extends PureComponent {
 		}));
 	}
 
+	handleClickOrientation(tabletIndex) {
+		const { dispatch, 'pattern': { _id } } = this.props;
+
+		dispatch(editOrientation({
+			_id,
+			'tablet': tabletIndex,
+		}));
+	}
+
 	// TODO improve keyboard handler to only act on space or enter, for threading cell and palette color
 
 	renderCell(colorIndex, rowIndex, tabletIndex) {
-		const { 'pattern': { palette } } = this.props;
+		const { pattern, 'pattern': { palette } } = this.props;
+
+		const svg = pattern.orientations[tabletIndex] === '\\'
+			? (
+				<SVGBackwardWarp
+					fill={palette[colorIndex]}
+					stroke="#000000"
+				/>
+			)
+			: (
+				<SVGForwardWarp
+					fill={palette[colorIndex]}
+					stroke="#000000"
+				/>
+			);
 
 		return (
 			<span
@@ -65,10 +88,7 @@ class Threading extends PureComponent {
 				role="button"
 				tabIndex="0"
 			>
-				<SVGForwardWarp
-					fill={palette[colorIndex]}
-					stroke="#000000"
-				/>
+				{svg}
 			</span>
 		);
 	}
@@ -138,24 +158,29 @@ class Threading extends PureComponent {
 		const { 'pattern': { orientations } } = this.props;
 
 		return (
-			<ul className="orientations">
-				{
-					orientations.map((tabletIndex) => (
-						<li
-							className="orientation"
-							key={`orientations-${tabletIndex}`}
-						>
-							{this.renderOrientation(tabletIndex, orientations[tabletIndex])}
-						</li>
-					))
-				}
-			</ul>
+			<>
+				<ul className="orientations">
+					{
+						orientations.map((value, tabletIndex) => (
+							<li
+								className="orientation"
+								key={`orientations-${tabletIndex}`}
+							>
+								{this.renderOrientation(tabletIndex, orientations[tabletIndex])}
+							</li>
+						))
+					}
+				</ul>
+				<p className="hint">Slope of line = angle of tablet viewed from above</p>
+			</>
 		);
 	}
 
 	renderToolbar() {
 		const { 'pattern': { palette } } = this.props;
 		const { selectedColor } = this.state;
+
+		// we use children twice so that the onclick doesn't have to be passed down through Toolbar to Palette
 
 		return (
 			ReactDOM.createPortal(
@@ -193,11 +218,6 @@ class Threading extends PureComponent {
 	}
 
 	render() {
-		// nested props
-		const { 'pattern': { palette } } = this.props;
-		const { selectedColor } = this.state;
-
-		// we use children twice so that the onclick doesn't have to be passed down through Toolbar to Palette
 		return (
 			<div className="threading">
 				{this.renderChart()}

@@ -50,9 +50,9 @@
 	}
 
 	.orientations {
-		border-bottom: 1px solid $color-chart-border;
-		border-left: 1px solid $color-chart-border;
-		border-top: 1px solid $color-chart-border;
+		border-bottom: 1px solid transparent;
+		border-left: 1px solid transparent;
+		border-top: 1px solid transparent;
 		clear: both;
 		font-size: 0;
 		margin-left: 32px;
@@ -65,8 +65,7 @@
 			position: relative;
 
 			> span {
-				background: $color-chart-background;
-				border-right: 1px solid $color-chart-border;
+				border-right: 1px solid transparent;
 				display: inline-block;
 				height: 32px;
 				width: 32px;
@@ -89,7 +88,7 @@
 			left: -2%;
 			position: absolute;
 			right: 0;
-			top: 40%;
+			top: 42%;
 			width: 100%;
 		}
 
@@ -108,5 +107,9 @@
 			-webkit-transform: rotate(-45deg);
 			transform: rotate(-45deg);
 		}
+	}
+
+	.hint {
+		clear: both;
 	}
 }
