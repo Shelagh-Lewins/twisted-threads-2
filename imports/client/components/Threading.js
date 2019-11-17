@@ -116,12 +116,31 @@ class Threading extends PureComponent {
 		);
 	}
 
+	renderTabletLabels() {
+		const { 'pattern': { tablets } } = this.props;
+
+		const labels = [];
+		for (let i = 0; i < tablets; i += 1) {
+			labels.push((
+				<li
+					className="label"
+					key={`tablet-label-${i}`}
+				>
+					<span>{i + 1}</span>
+				</li>
+			));
+		}
+
+		return <ul className="tablet-labels">{labels}</ul>;
+	}
+
 	renderChart() {
 		const { pattern } = this.props;
 
 		return (
 			<>
 				<h2>Threading chart</h2>
+				{this.renderTabletLabels()}
 				<ul className="threading-chart">
 					{
 						pattern.threading.map((row, index) => (

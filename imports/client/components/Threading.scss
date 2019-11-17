@@ -15,6 +15,8 @@
 		.label {
 			display: inline-block;
 			height: 32px;
+			line-height: 32px;
+			text-align: center;
 			width: 32px;
 		}
 
@@ -44,6 +46,14 @@
 		}
 	}
 
+	.tablet-labels {
+		margin-left: 32px;
+	}
+
+	.threading-chart {
+		clear: both;
+	}
+
 	.threading-row {
 		border-bottom: 1px solid $color-chart-border;
 		border-left: 1px solid $color-chart-border;
@@ -65,6 +75,7 @@
 			position: relative;
 
 			> span {
+				background: transparent;
 				border-right: 1px solid transparent;
 				display: inline-block;
 				height: 32px;
