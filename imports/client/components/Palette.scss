@@ -1,12 +1,48 @@
 @import "../constants/variables";
 
 .palette {
+	position: relative;
+
 	.color {
 		border: 1px solid $color-panel-border;
 		display: inline-block;
 		height: 32px;
 		margin-right: 8px;
 		width: 32px;
+	}
+
+	.color-holder {
+		margin-left: 40px;
+	}
+
+	.controls {
+		margin-bottom: 8px;
+	}
+
+	label {
+		&[for="empty-hole"] {
+			float: left;
+		}
+	}
+
+	.empty-hole {
+		border: 1px solid $color-panel-border;
+		display: inline-block;
+
+		height: 32px;
+		margin-right: 8px;
+		position: relative;
+		width: 32px;
+
+		svg {
+			position: absolute;
+		}
+	}
+
+	&.editing {
+		.empty-hole {
+			background: $color-palette-disabled;
+		}
 	}
 
 	label {
@@ -16,4 +52,12 @@
 	.selected {
 		outline: 4px solid $color-toolbar-selected;
 	}
+}
+
+.color-picker-holder {
+	left: 50%;
+	position: absolute;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 2;
 }

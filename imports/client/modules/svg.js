@@ -43,9 +43,32 @@ SVGBackwardWarp.propTypes = {
 	'stroke': PropTypes.string.isRequired,
 };
 
+export function SVGForwardEmpty() {
+	return (
+		<svg
+			className="forward-empty"
+			viewBox="0 0 256 256"
+		>
+			<g><path strokeWidth="10" d="m254.43 2.803-252.55 250.71h-0.62053" /></g>
+		</svg>
+	);
+}
+
+export function SVGBackwardEmpty() {
+	return (
+		<svg
+			className="backward-empty"
+			viewBox="0 0 256 256"
+		>
+			<g><path strokeWidth="10" d="m2.4708 2.7978 252.56 250.71h0.62053" /></g>
+		</svg>
+	);
+}
+
 // /////////////////////////
-// Threading chart only
-export function SVGThreadingEmpty() {
+// Palette only
+export function SVGPaletteEmpty(props) {
+	const { stroke } = props;
 	// xmlns causes a namespace error. It may be unnecessary.
 	/* return (
 		<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" height="256" viewBox="0 0 256 256" width="256" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/">
@@ -55,12 +78,20 @@ export function SVGThreadingEmpty() {
 	);
 	*/
 	return (
-		<svg>
-			<path d="m2.4708 2.7978 252.56 250.71h0.62053" stroke="#000" strokeWidth="10" fill="none" />
-			<path d="m254.43 2.803-252.55 250.71h-0.62053" stroke="#000" strokeWidth="10" fill="none" />
+		<svg
+			className="threading-empty"
+			viewBox="0 0 256 256"
+			style={{ 'stroke': stroke }}
+		>
+			<path d="m2.4708 2.7978 252.56 250.71h0.62053" strokeWidth="10" fill="none" />
+			<path d="m254.43 2.803-252.55 250.71h-0.62053" strokeWidth="10" fill="none" />
 		</svg>
 	);
 }
+
+SVGBackwardWarp.propTypes = {
+	'stroke': PropTypes.string.isRequired,
+};
 
 // /////////////////////////
 // Weaving chart only
@@ -120,19 +151,3 @@ SVGVerticalRightWarp.propTypes = {
 	'fill': PropTypes.string.isRequired,
 	'stroke': PropTypes.string.isRequired,
 };
-
-export const forwardEmpty = (
-	<svg className="forward-empty">
-		<symbol id="forward-empty-symbol">
-			<g><path strokeWidth="10" d="m254.43 2.803-252.55 250.71h-0.62053" /></g>
-		</symbol>
-	</svg>
-);
-
-export const backwardEmpty = (
-	<svg className="backward-empty">
-		<symbol id="backward-empty-symbol">
-			<g><path strokeWidth="10" d="m2.4708 2.7978 252.56 250.71h0.62053" /></g>
-		</symbol>
-	</svg>
-);

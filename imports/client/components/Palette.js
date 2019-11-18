@@ -1,7 +1,9 @@
 import React, { PureComponent } from 'react';
+import ReactDOM from 'react-dom';
 import { Button } from 'reactstrap';
 import { PhotoshopPicker } from 'react-color';
 import PropTypes from 'prop-types';
+import { SVGPaletteEmpty } from '../modules/svg';
 import './Palette.scss';
 
 class Palette extends PureComponent {
@@ -14,12 +16,26 @@ class Palette extends PureComponent {
 			'showEditColorPanel': false,
 		};
 
+		// Color picker is rendered to the body element
+		// so it can be positioned within the viewport
+		this.el = document.createElement('div');
+		this.el.className = 'color-picker-holder';
+
 		this.handleClickDone = this.handleClickDone.bind(this);
 		this.handleClickEdit = this.handleClickEdit.bind(this);
-		this.handleClickPaletteCell = this.handleClickPaletteCell.bind(this);
+		this.handleClickColor = this.handleClickColor.bind(this);
+		this.handleClickEmptyHole = this.handleClickEmptyHole.bind(this);
 		this.handleColorChange = this.handleColorChange.bind(this);
 		this.acceptColorChange = this.acceptColorChange.bind(this);
 		this.cancelColorChange = this.cancelColorChange.bind(this);
+	}
+
+	componentDidMount() {
+		document.body.appendChild(this.el);
+	}
+
+	componentWillUnmount() {
+		document.body.removeChild(this.el);
 	}
 
 	handleClickDone() {
@@ -30,13 +46,20 @@ class Palette extends PureComponent {
 	}
 
 	handleClickEdit() {
+		const { selectColor, selectedColorIndex } = this.props;
+
+		// cannot edit empty hole cell
+		if (selectedColorIndex === -1) {
+			selectColor(0);
+		}
+
 		this.setState({
 			'isEditing': true,
 			'showEditColorPanel': true,
 		});
 	}
 
-	handleClickPaletteCell(colorIndex) {
+	handleClickColor(colorIndex) {
 		const { palette, selectColor, selectedColorIndex } = this.props;
 		const { isEditing, showEditColorPanel } = this.state;
 
@@ -59,6 +82,17 @@ class Palette extends PureComponent {
 		this.setState({
 			'newColor': palette[colorIndex],
 		});
+	}
+
+	handleClickEmptyHole() {
+		const { selectColor } = this.props;
+		const { isEditing } = this.state;
+
+		if (isEditing) {
+			return; // cannot edit empty hole cell
+		}
+
+		selectColor(-1);
 	}
 
 	acceptColorChange() {
@@ -84,45 +118,81 @@ class Palette extends PureComponent {
 		});
 	}
 
+	renderEmptyHole() {
+		const { selectedColorIndex } = this.props;
+		const { isEditing } = this.state;
+
+		return (
+			<label // eslint-disable-line jsx-a11y/label-has-associated-control
+				htmlFor="empty-hole"
+				title="Empty hole"
+			>
+				Empty hole
+				<span // eslint-disable-line jsx-a11y/control-has-associated-label
+					className={`empty-hole ${selectedColorIndex === -1 ? 'selected' : ''}`}
+					id="empty-hole"
+					name="empty-hole"
+
+					onClick={() => this.handleClickEmptyHole()}
+					onKeyPress={() => this.handleClickEmptyHole()}
+					role="button"
+					tabIndex="0"
+				>
+					<SVGPaletteEmpty
+						stroke={isEditing ? '#666' : '#000'}
+					/>
+				</span>
+			</label>
+		);
+	}
+
 	renderColors() {
 		const { palette, selectedColorIndex } = this.props;
 
-		return palette.map((color, colorIndex) => {
-			const identifier = `palette-color-${colorIndex}`;
+		return (
+			<div className="color-holder">
+				{palette.map((color, colorIndex) => {
+					const identifier = `palette-color-${colorIndex}`;
 
-			// eslint doesn't associate the label with the span, so I've disabled the rule
-			return (
-				<label // eslint-disable-line jsx-a11y/label-has-associated-control
-					htmlFor={identifier}
-					key={identifier} // eslint-disable-line react/no-array-index-key
-				>
-					Color
-					<span // eslint-disable-line jsx-a11y/control-has-associated-label
-						className={`color ${selectedColorIndex === colorIndex ? 'selected' : ''}`}
-						id={identifier}
-						name={identifier}
+					// eslint doesn't associate the label with the span, so I've disabled the rule
+					return (
+						<label // eslint-disable-line jsx-a11y/label-has-associated-control
+							htmlFor={identifier}
+							key={identifier} // eslint-disable-line react/no-array-index-key
+							title="Thread color"
+						>
+							Thread color
+							<span // eslint-disable-line jsx-a11y/control-has-associated-label
+								className={`color ${selectedColorIndex === colorIndex ? 'selected' : ''}`}
+								id={identifier}
+								name={identifier}
 
-						onClick={() => this.handleClickPaletteCell(colorIndex)}
-						onKeyPress={() => this.handleClickPaletteCell(colorIndex)}
-						role="button"
-						style={{ 'backgroundColor': color }}
-						tabIndex="0"
-					/>
-				</label>
-			);
-		});
+								onClick={() => this.handleClickColor(colorIndex)}
+								onKeyPress={() => this.handleClickColor(colorIndex)}
+								role="button"
+								style={{ 'backgroundColor': color }}
+								tabIndex="0"
+							/>
+						</label>
+					);
+				})}
+			</div>
+		);
 	}
 
 	renderEditColorPanel() {
 		const { newColor } = this.state;
 
 		return (
-			<PhotoshopPicker
-				color={newColor}
-				onChangeComplete={this.handleColorChange}
-				onAccept={this.acceptColorChange}
-				onCancel={this.cancelColorChange}
-			/>
+			ReactDOM.createPortal(
+				<PhotoshopPicker
+					color={newColor}
+					onChangeComplete={this.handleColorChange}
+					onAccept={this.acceptColorChange}
+					onCancel={this.cancelColorChange}
+				/>,
+				this.el,
+			)
 		);
 	}
 
@@ -130,14 +200,14 @@ class Palette extends PureComponent {
 		const { isEditing, showEditColorPanel } = this.state;
 
 		return (
-			<div className="palette">
-				<h3>Palette</h3>
+			<div className={`palette ${isEditing ? 'editing' : ''}`}>
 				{showEditColorPanel && this.renderEditColorPanel()}
 				<div className="controls">
 					{isEditing
 						? <Button color="secondary" onClick={this.handleClickDone}>Done</Button>
-						: <Button color="secondary" onClick={this.handleClickEdit}>Edit colors</Button>}
+						: <Button color="secondary" onClick={this.handleClickEdit}>Edit thread colors</Button>}
 				</div>
+				{this.renderEmptyHole()}
 				{this.renderColors()}
 			</div>
 		);

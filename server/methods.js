@@ -58,7 +58,7 @@ Meteor.methods({
 		// threading is an array of arrays
 		// one row per hole
 		// one column per tablet
-		const threading = new Array(holes).fill(new Array(tablets).fill(0));
+		const threading = new Array(holes).fill(new Array(tablets).fill(3)); // default thread color is different from that selected in palette, so that users will see something happen if they click on the threading chart
 
 		return Patterns.insert({
 			name,

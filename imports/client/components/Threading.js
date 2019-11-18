@@ -2,7 +2,12 @@ import React, { PureComponent } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { editOrientation, editPaletteColor, editThreadingCell } from '../modules/pattern';
-import { SVGBackwardWarp, SVGForwardWarp } from '../modules/svg';
+import {
+	SVGBackwardEmpty,
+	SVGBackwardWarp,
+	SVGForwardEmpty,
+	SVGForwardWarp,
+} from '../modules/svg';
 import Toolbar from './Toolbar';
 import './Threading.scss';
 import { HOLE_LABELS } from '../../parameters';
@@ -81,19 +86,32 @@ class Threading extends PureComponent {
 	renderCell(colorIndex, rowIndex, tabletIndex) {
 		const { pattern, 'pattern': { palette } } = this.props;
 
-		const svg = pattern.orientations[tabletIndex] === '\\'
-			? (
-				<SVGBackwardWarp
-					fill={palette[colorIndex]}
-					stroke="#000000"
-				/>
-			)
-			: (
-				<SVGForwardWarp
-					fill={palette[colorIndex]}
-					stroke="#000000"
-				/>
-			);
+		let svg;
+		const orientation = pattern.orientations[tabletIndex];
+
+		if (colorIndex === -1) { // empty hole
+			svg = orientation === '\\'
+				? (
+					<SVGBackwardEmpty />
+				)
+				: (
+					<SVGForwardEmpty	/>
+				);
+		} else { // colored thread
+			svg = orientation === '\\'
+				? (
+					<SVGBackwardWarp
+						fill={palette[colorIndex]}
+						stroke="#000000"
+					/>
+				)
+				: (
+					<SVGForwardWarp
+						fill={palette[colorIndex]}
+						stroke="#000000"
+					/>
+				);
+		}
 
 		return (
 			<span
