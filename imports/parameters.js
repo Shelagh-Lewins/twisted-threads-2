@@ -39,3 +39,5 @@ export const ALLOWED_PATTERN_TYPES = [
 	},
 	// TODO build and add freehand, allTogether, packs, 3-1-broken-twill
 ];
+
+export const COLORS_IN_COLOR_BOOK = 36;

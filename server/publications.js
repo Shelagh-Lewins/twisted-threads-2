@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import Patterns from '../imports/collection';
+import { ColorBooks, Patterns } from '../imports/collection';
 import { ITEMS_PER_PAGE } from '../imports/parameters';
 // arrow functions lose "this" context
 /* eslint-disable func-names */
@@ -7,6 +7,27 @@ import { ITEMS_PER_PAGE } from '../imports/parameters';
 // don't allow users to edit their profile
 // https://docs.meteor.com/api/accounts.html
 Meteor.users.deny({ 'update': () => true });
+
+// //////////////////////////
+// Color books
+// list of patterns
+Meteor.publish('colorBooks', function () {
+	// Meteor._sleepForMs(3000); // simulate server delay
+
+	// explicitly return nothing when user is not logged in
+	// this is so we can test behaviour when user is not logged in: PublicationCollector passes in undefined userId, and find() is inconsistent between Meteor and MongoDB on undefined
+	if (!this.userId) {
+		this.ready();
+		return;
+	}
+
+	return ColorBooks.find(
+		{ 'created_by': this.userId },
+	);
+});
+
+// //////////////////////////
+// Patterns
 
 // limited fields for all patterns
 const patternsFields = {
@@ -43,7 +64,6 @@ Meteor.publish('patterns', function (skip = 0, limit = ITEMS_PER_PAGE) {
 	// Meteor._sleepForMs(3000); // simulate server delay
 
 	// explicitly return nothing when user is not logged in
-	// this is to test behaviour when user is not logged in: PublicationCollector passes in undefined userId, and find() is inconsistent between Meteor and MongoDB on undefined
 	if (!this.userId) {
 		this.ready();
 		return;

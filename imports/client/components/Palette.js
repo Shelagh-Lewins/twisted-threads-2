@@ -4,6 +4,7 @@ import { Button, ButtonGroup, ButtonToolbar } from 'reactstrap';
 import { PhotoshopPicker } from 'react-color';
 import PropTypes from 'prop-types';
 import { SVGPaletteEmpty } from '../modules/svg';
+import ColorBooks from './ColorBooks';
 import './Palette.scss';
 
 class Palette extends PureComponent {
@@ -20,7 +21,7 @@ class Palette extends PureComponent {
 		// Color picker is rendered to the body element
 		// so it can be positioned within the viewport
 		this.el = document.createElement('div');
-		this.el.className = 'color-picker-holder';
+		this.el.className = 'edit-color-holder';
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
@@ -196,22 +197,36 @@ class Palette extends PureComponent {
 	}
 
 	renderEditColorPanel() {
+		const { colorBooks, dispatch } = this.props;
 		const { editMode, newColor } = this.state;
 
 		if (editMode === 'colorPicker') {
 			return (
 				ReactDOM.createPortal(
-					<PhotoshopPicker
-						color={newColor}
-						onChangeComplete={this.handleColorChange}
-						onAccept={this.acceptColorChange}
-						onCancel={this.cancelColorChange}
-					/>,
+					<div className="color-picker">
+						<PhotoshopPicker
+							color={newColor}
+							onChangeComplete={this.handleColorChange}
+							onAccept={this.acceptColorChange}
+							onCancel={this.cancelColorChange}
+						/>
+					</div>,
 					this.el,
 				)
 			);
 		}
-		return;
+		return (
+			ReactDOM.createPortal(
+				<ColorBooks
+					colorBooks={colorBooks}
+					dispatch={dispatch}
+					onChangeComplete={this.handleColorChange}
+					onAccept={this.acceptColorChange}
+					onCancel={this.cancelColorChange}
+				/>,
+				this.el,
+			)
+		);
 	}
 
 	renderEditOptions() {
@@ -270,8 +285,9 @@ class Palette extends PureComponent {
 	}
 }
 
-
 Palette.propTypes = {
+	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'dispatch': PropTypes.func.isRequired,
 	'handleEditColor': PropTypes.func.isRequired,
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'selectColor': PropTypes.func.isRequired,

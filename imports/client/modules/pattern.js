@@ -47,6 +47,18 @@ export function setIsLoading(isLoading) {
 
 // ///////////////////////////
 // Action that call Meteor methods; these do not change the Store but are located here in order to keep server interactions away from UI
+export const addColorBook = (name, history) => (dispatch) => {
+
+	dispatch(clearErrors());
+	Meteor.call('addColorBook', name, (error, result) => {
+		if (error) {
+			return dispatch(logErrors({ 'add-color-book': error.reason }));
+		}
+
+		// history.push(`/pattern/${result}`);
+	});
+};
+
 export const addPattern = (data, history) => (dispatch) => {
 	dispatch(clearErrors());
 	Meteor.call('addPattern', data, (error, result) => {

@@ -1,5 +1,5 @@
 // Runs on both client and server
 
-const Patterns = new Mongo.Collection('patterns');
+export const ColorBooks = new Mongo.Collection('colorBooks');
 
-export default Patterns;
+export const Patterns = new Mongo.Collection('patterns');

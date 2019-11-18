@@ -229,7 +229,7 @@ class Threading extends PureComponent {
 	}
 
 	renderToolbar() {
-		const { 'pattern': { palette } } = this.props;
+		const { colorBooks, dispatch, 'pattern': { palette } } = this.props;
 		const { selectedColorIndex } = this.state;
 
 		// Toolbar will be reused when editing turning, so Palette is passed as a property (props.children).
@@ -239,6 +239,8 @@ class Threading extends PureComponent {
 			ReactDOM.createPortal(
 				<Toolbar>
 					<Palette
+						colorBooks={colorBooks}
+						dispatch={dispatch}
 						handleEditColor={this.handleEditColor}
 						palette={palette}
 						selectColor={this.selectColor}
@@ -262,6 +264,7 @@ class Threading extends PureComponent {
 }
 
 Threading.propTypes = {
+	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 };

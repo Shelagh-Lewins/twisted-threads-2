@@ -1,14 +1,41 @@
 import { check } from 'meteor/check';
-import Patterns from '../imports/collection';
+import { ColorBooks, Patterns } from '../imports/collection';
 import {
 	ALLOWED_HOLES,
 	ALLOWED_PATTERN_TYPES,
+	COLORS_IN_COLOR_BOOK,
 	DEFAULT_PALETTE,
 	MAX_ROWS,
 	MAX_TABLETS,
 } from '../imports/parameters';
 
 Meteor.methods({
+	addColorBook(name) {
+		const nonEmptyStringCheck = Match.Where((x) => {
+			check(x, String);
+			return x !== '';
+		});
+
+		check(name, nonEmptyStringCheck);
+
+		if (!Meteor.userId()) {
+			throw new Meteor.Error('add-pattern-not-logged-in', 'Unable to create pattern because the user is not logged in');
+		}
+
+		if (!Meteor.user().emails[0].verified) {
+			throw new Meteor.Error('add-pattern-not-verified', 'Unable to create pattern because the user\'s email address is not verified');
+		}
+
+		const colors = new Array(COLORS_IN_COLOR_BOOK).fill('#ffffff');
+
+		return ColorBooks.insert({
+			name,
+			'name_sort': name.toLowerCase(),
+			'created_at': new Date(),
+			'created_by': Meteor.userId(),
+			'colors': colors,
+		});
+	},
 	addPattern({
 		holes,
 		name,

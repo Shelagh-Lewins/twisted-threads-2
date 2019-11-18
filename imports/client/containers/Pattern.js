@@ -6,7 +6,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import { setIsLoading } from '../modules/pattern';
 
-import Patterns from '../../collection';
+import { ColorBooks, Patterns } from '../../collection';
 import Loading from '../components/Loading';
 import Threading from '../components/Threading';
 import './Pattern.scss';
@@ -23,7 +23,7 @@ class Pattern extends PureComponent {
 	}
 
 	render() {
-		const { dispatch, isLoading, pattern } = this.props;
+		const { colorBooks, dispatch, isLoading, pattern } = this.props;
 
 		let content = <Loading />;
 
@@ -35,6 +35,7 @@ class Pattern extends PureComponent {
 						{/* if navigating from the home page, the pattern is in MiniMongo before Tracker sets isLoading to true. Since the Home version is just the summary, it doesn't have threading and causes an error. */}
 						{pattern.threading && (
 							<Threading
+								colorBooks={colorBooks}
 								dispatch={dispatch}
 								pattern={pattern}
 							/>
@@ -55,6 +56,7 @@ class Pattern extends PureComponent {
 }
 
 Pattern.propTypes = {
+	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
@@ -74,10 +76,15 @@ const Tracker = withTracker(({ _id, dispatch }) => {
 		'onReady': () => dispatch(setIsLoading(false)),
 	});
 
+	Meteor.subscribe('colorBooks');
+
 	const pattern = Patterns.findOne({ _id }) || {};
 
 	// pass database data as props
 	return {
+		'colorBooks': ColorBooks.find({}, {
+			'sort': { 'name_sort': 1 },
+		}).fetch(),
 		'pattern': pattern || {},
 	};
 })(Pattern);
