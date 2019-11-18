@@ -16,10 +16,18 @@
 	}
 
 	.controls {
+		float: left;
 		margin-bottom: 8px;
+		width: 100%;
+
+		.toggle {
+			float: right;
+		}
 	}
 
 	label {
+		font-size: 0;
+
 		&[for="empty-hole"] {
 			float: left;
 		}
@@ -45,13 +53,35 @@
 		}
 	}
 
-	label {
-		font-size: 0;
+	span {
+		&:focus {
+			outline: 2px dashed $color-focus;
+			outline-offset: 2px;
+		}
+
+		&.selected {
+			outline: 4px solid $color-toolbar-outline;
+		}
 	}
 
-	span {
-		&.selected {
-			outline: 4px solid $color-toolbar-selected;
+	button {
+		&:focus {
+			outline: 4px dashed $color-toolbar-outline;
+			outline-offset: 2px;
+		}
+	}
+
+	.btn-toolbar {
+		display: inline-block;
+
+		button {
+			background: $color-palette-button;
+			border-color: $color-palette-button;
+
+			&.selected {
+				background: $color-palette-button-selected;
+				border-color: $color-palette-button-selected;
+			}
 		}
 	}
 }

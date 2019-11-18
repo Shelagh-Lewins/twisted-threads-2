@@ -22,13 +22,21 @@ class Palette extends PureComponent {
 		this.el = document.createElement('div');
 		this.el.className = 'color-picker-holder';
 
-		this.handleClickDone = this.handleClickDone.bind(this);
-		this.handleClickEdit = this.handleClickEdit.bind(this);
-		this.handleClickColor = this.handleClickColor.bind(this);
-		this.handleClickEmptyHole = this.handleClickEmptyHole.bind(this);
-		this.handleColorChange = this.handleColorChange.bind(this);
-		this.acceptColorChange = this.acceptColorChange.bind(this);
-		this.cancelColorChange = this.cancelColorChange.bind(this);
+		// bind onClick functions to provide context
+		const functionsToBind = [
+			'handleClickDone',
+			'handleClickEdit',
+			'handleClickColor',
+			'handleClickEmptyHole',
+			'handleColorChange',
+			'acceptColorChange',
+			'cancelColorChange',
+			'handleClickEditMode',
+		];
+
+		functionsToBind.forEach((functionName) => {
+			this[functionName] = this[functionName].bind(this);
+		});
 	}
 
 	componentDidMount() {
@@ -94,6 +102,12 @@ class Palette extends PureComponent {
 		}
 
 		selectColor(-1);
+	}
+
+	handleClickEditMode(event) {
+		this.setState({
+			'editMode': event.target.value,
+		});
 	}
 
 	acceptColorChange() {
@@ -182,19 +196,22 @@ class Palette extends PureComponent {
 	}
 
 	renderEditColorPanel() {
-		const { newColor } = this.state;
+		const { editMode, newColor } = this.state;
 
-		return (
-			ReactDOM.createPortal(
-				<PhotoshopPicker
-					color={newColor}
-					onChangeComplete={this.handleColorChange}
-					onAccept={this.acceptColorChange}
-					onCancel={this.cancelColorChange}
-				/>,
-				this.el,
-			)
-		);
+		if (editMode === 'colorPicker') {
+			return (
+				ReactDOM.createPortal(
+					<PhotoshopPicker
+						color={newColor}
+						onChangeComplete={this.handleColorChange}
+						onAccept={this.acceptColorChange}
+						onCancel={this.cancelColorChange}
+					/>,
+					this.el,
+				)
+			);
+		}
+		return;
 	}
 
 	renderEditOptions() {
@@ -212,14 +229,15 @@ class Palette extends PureComponent {
 
 		return (
 			<>
-				<Button color="secondary" onClick={this.handleClickDone}>Done</Button>
 				<ButtonToolbar>
 					<ButtonGroup className="edit-mode">
 						{options.map((option) => (
 							<Button
-								className={editMode === option ? 'selected' : ''}
+								className={editMode === option.value ? 'selected' : ''}
 								color="info"
 								key={option.value}
+								onClick={this.handleClickEditMode}
+								value={option.value}
 							>
 								{option.name}
 							</Button>
@@ -236,10 +254,14 @@ class Palette extends PureComponent {
 		return (
 			<div className={`palette ${isEditing ? 'editing' : ''}`}>
 				{showEditColorPanel && this.renderEditColorPanel()}
+
 				<div className="controls">
-					{isEditing
-						? this.renderEditOptions()
-						: <Button color="secondary" onClick={this.handleClickEdit}>Edit thread colors</Button>}
+					{isEditing && this.renderEditOptions()}
+					<div className="toggle">
+						{isEditing
+							? <Button color="secondary" onClick={this.handleClickDone}>Done</Button>
+							: <Button color="secondary" onClick={this.handleClickEdit}>Edit thread colors</Button>}
+					</div>
 				</div>
 				{this.renderEmptyHole()}
 				{this.renderColors()}

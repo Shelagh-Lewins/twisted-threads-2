@@ -8,7 +8,6 @@ function Toolbar(props) {
 
 	return (
 		<div className="toolbar">
-			<h2>Toolbar</h2>
 			{children}
 		</div>
 	);
