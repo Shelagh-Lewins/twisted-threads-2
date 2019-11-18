@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import ReactDOM from 'react-dom';
-import { Button } from 'reactstrap';
+import { Button, ButtonGroup, ButtonToolbar } from 'reactstrap';
 import { PhotoshopPicker } from 'react-color';
 import PropTypes from 'prop-types';
 import { SVGPaletteEmpty } from '../modules/svg';
@@ -11,6 +11,7 @@ class Palette extends PureComponent {
 		super(props);
 
 		this.state = {
+			'editMode': 'colorPicker',
 			'isEditing': false,
 			'newColor': props.palette[props.selectedColorIndex],
 			'showEditColorPanel': false,
@@ -196,6 +197,39 @@ class Palette extends PureComponent {
 		);
 	}
 
+	renderEditOptions() {
+		const { editMode } = this.state;
+		const options = [
+			{
+				'name': 'Color picker',
+				'value': 'colorPicker',
+			},
+			{
+				'name': 'Color books',
+				'value': 'colorBooks',
+			},
+		];
+
+		return (
+			<>
+				<Button color="secondary" onClick={this.handleClickDone}>Done</Button>
+				<ButtonToolbar>
+					<ButtonGroup className="edit-mode">
+						{options.map((option) => (
+							<Button
+								className={editMode === option ? 'selected' : ''}
+								color="info"
+								key={option.value}
+							>
+								{option.name}
+							</Button>
+						))}
+					</ButtonGroup>
+				</ButtonToolbar>
+			</>
+		);
+	}
+
 	render() {
 		const { isEditing, showEditColorPanel } = this.state;
 
@@ -204,7 +238,7 @@ class Palette extends PureComponent {
 				{showEditColorPanel && this.renderEditColorPanel()}
 				<div className="controls">
 					{isEditing
-						? <Button color="secondary" onClick={this.handleClickDone}>Done</Button>
+						? this.renderEditOptions()
 						: <Button color="secondary" onClick={this.handleClickEdit}>Edit thread colors</Button>}
 				</div>
 				{this.renderEmptyHole()}

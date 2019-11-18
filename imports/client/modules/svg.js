@@ -1,4 +1,4 @@
-// svg elements used for threading and weaving chart
+// svg elements used for palette, threading and weaving chart
 
 import React from 'react';
 import PropTypes from 'prop-types';

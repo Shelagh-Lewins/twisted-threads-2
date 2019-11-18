@@ -49,8 +49,10 @@
 		font-size: 0;
 	}
 
-	.selected {
-		outline: 4px solid $color-toolbar-selected;
+	span {
+		&.selected {
+			outline: 4px solid $color-toolbar-selected;
+		}
 	}
 }
 
