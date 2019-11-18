@@ -24,6 +24,8 @@ const AddColorBookForm = (props) => {
 		},
 	});
 
+	const { handleCancel } = props;
+
 	return (
 		<form onSubmit={formik.handleSubmit}>
 			<div className="form-group">
@@ -45,12 +47,14 @@ const AddColorBookForm = (props) => {
 					) : null}
 				</label>
 			</div>
+			<Button type="button" color="secondary" onClick={handleCancel}>Cancel</Button>
 			<Button type="submit" color="primary">Add color book</Button>
 		</form>
 	);
 };
 
 AddColorBookForm.propTypes = {
+	'handleCancel': PropTypes.func.isRequired,
 	'handleSubmit': PropTypes.func.isRequired,
 };
 

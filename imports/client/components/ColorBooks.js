@@ -25,6 +25,7 @@ class ColorBooks extends PureComponent {
 			'newColor': '',
 			'selectedColorBook': colorBooks[0]._id,
 			'selectedColorIndex': 0,
+			'showAddColorBookForm': false,
 			'showEditColorPanel': false,
 		};
 
@@ -35,6 +36,8 @@ class ColorBooks extends PureComponent {
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
+			'cancelAddColorBook',
+			'handleClickAddButton',
 			'handleClickColor',
 			'handleClickAddColorBook',
 			'handleChangeColorBook',
@@ -69,6 +72,12 @@ class ColorBooks extends PureComponent {
 		this.setState({
 			'isEditing': false,
 			'showEditColorPanel': false,
+		});
+	}
+
+	handleClickAddButton() {
+		this.setState({
+			'showAddColorBookForm': true,
 		});
 	}
 
@@ -145,6 +154,15 @@ class ColorBooks extends PureComponent {
 		const { dispatch } = this.props;
 
 		dispatch(addColorBook(name));
+		this.setState({
+			'showAddColorBookForm': false,
+		});
+	}
+
+	cancelAddColorBook() {
+		this.setState({
+			'showAddColorBookForm': false,
+		});
 	}
 
 	handleChangeColorBook(event) {
@@ -239,7 +257,18 @@ class ColorBooks extends PureComponent {
 	render() {
 		// TO DO hide add color book form behind a + button
 		const { cancelColorChange } = this.props;
-		const { showEditColorPanel } = this.state;
+		const { showAddColorBookForm, showEditColorPanel } = this.state;
+		const addButton = (
+			<Button
+				className="add"
+				color="secondary"
+				onClick={this.handleClickAddButton}
+				title="Add color book"
+			>
+				Add color book
+			</Button>
+		);
+
 		const closeButton = (
 			<Button
 				className="close"
@@ -254,12 +283,16 @@ class ColorBooks extends PureComponent {
 		return (
 			<div className="color-books">
 				{showEditColorPanel && this.renderEditColorPanel()}
+				{!showAddColorBookForm && addButton}
 				{closeButton}
-				<AddColorBookForm
-					handleSubmit={cancelColorChange}
-				/>
-				{this.renderColorBookSelect()}
-				{this.renderColorBook()}
+				{showAddColorBookForm && (
+					<AddColorBookForm
+						handleCancel={this.cancelAddColorBook}
+						handleSubmit={this.handleClickAddColorBook}
+					/>
+				)}
+				{!showAddColorBookForm && this.renderColorBookSelect()}
+				{!showAddColorBookForm && this.renderColorBook()}
 			</div>
 		);
 	}
