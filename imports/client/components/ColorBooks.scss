@@ -2,4 +2,43 @@
 
 .color-books {
 	background: $color-toolbar-background;
+	border: 1px solid $color-panel-border;
+	border-radius: 4px;
+	padding: 8px;
+	position: relative;
+	width: 378px;
+
+	.close {
+		float: right;
+	}
+
+	.controls {
+		float: right;
+		margin: 8px 0;
+	}
+
+	.colors {
+		clear: both;
+	}
+
+	.select-color-book {
+		width: 100%;
+	}
+
+	.color {
+		border: 1px solid $color-panel-border;
+		display: inline-block;
+		height: 32px;
+		margin-right: 8px;
+		width: 32px;
+
+		&:focus {
+			outline: 2px dashed $color-focus;
+			outline-offset: 2px;
+		}
+
+		&.selected {
+			outline: 4px solid $color-toolbar-outline;
+		}
+	}
 }

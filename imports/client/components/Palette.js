@@ -7,6 +7,11 @@ import { SVGPaletteEmpty } from '../modules/svg';
 import ColorBooks from './ColorBooks';
 import './Palette.scss';
 
+// colors have nothing to identify them except index
+// note row here indicates hole of the tablet
+// so disable the rule below
+/* eslint-disable react/no-array-index-key */
+
 class Palette extends PureComponent {
 	constructor(props) {
 		super(props);
@@ -174,8 +179,8 @@ class Palette extends PureComponent {
 					return (
 						<label // eslint-disable-line jsx-a11y/label-has-associated-control
 							htmlFor={identifier}
-							key={identifier} // eslint-disable-line react/no-array-index-key
-							title="Thread color"
+							key={identifier}
+							title={`Thread color ${color}`}
 						>
 							Thread color
 							<span // eslint-disable-line jsx-a11y/control-has-associated-label
@@ -197,7 +202,7 @@ class Palette extends PureComponent {
 	}
 
 	renderEditColorPanel() {
-		const { colorBooks, dispatch } = this.props;
+		const { colorBooks, dispatch, handleEditColor } = this.props;
 		const { editMode, newColor } = this.state;
 
 		if (editMode === 'colorPicker') {
@@ -220,9 +225,8 @@ class Palette extends PureComponent {
 				<ColorBooks
 					colorBooks={colorBooks}
 					dispatch={dispatch}
-					onChangeComplete={this.handleColorChange}
-					onAccept={this.acceptColorChange}
-					onCancel={this.cancelColorChange}
+					onSelectColor={handleEditColor}
+					cancelColorChange={this.cancelColorChange}
 				/>,
 				this.el,
 			)

@@ -36,6 +36,19 @@ Meteor.methods({
 			'colors': colors,
 		});
 	},
+	editColorBookColor({
+		_id,
+		colorHexValue,
+		colorIndex,
+	}) {
+		// to do: check and test
+		// user must own color book
+		// values must be valid
+		// color book must exist
+
+		// update the value in the nested arrays
+		ColorBooks.update({ _id }, { '$set': { [`colors.${colorIndex}`]: colorHexValue } });
+	},
 	addPattern({
 		holes,
 		name,

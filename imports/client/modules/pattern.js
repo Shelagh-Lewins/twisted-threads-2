@@ -48,14 +48,23 @@ export function setIsLoading(isLoading) {
 // ///////////////////////////
 // Action that call Meteor methods; these do not change the Store but are located here in order to keep server interactions away from UI
 export const addColorBook = (name, history) => (dispatch) => {
-
 	dispatch(clearErrors());
 	Meteor.call('addColorBook', name, (error, result) => {
 		if (error) {
 			return dispatch(logErrors({ 'add-color-book': error.reason }));
 		}
 
+		// TODO can we open the new color book?
 		// history.push(`/pattern/${result}`);
+	});
+};
+
+export const editColorBookColor = (data) => (dispatch) => {
+	dispatch(clearErrors());
+	Meteor.call('editColorBookColor', data, (error, result) => {
+		if (error) {
+			return dispatch(logErrors({ 'edit-color-book': error.reason }));
+		}
 	});
 };
 
