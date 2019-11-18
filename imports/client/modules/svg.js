@@ -48,6 +48,7 @@ export function SVGForwardEmpty() {
 		<svg
 			className="forward-empty"
 			viewBox="0 0 256 256"
+			style={{ 'fill': '#fff', 'stroke': '#000' }}
 		>
 			<g><path strokeWidth="10" d="m254.43 2.803-252.55 250.71h-0.62053" /></g>
 		</svg>
@@ -59,6 +60,7 @@ export function SVGBackwardEmpty() {
 		<svg
 			className="backward-empty"
 			viewBox="0 0 256 256"
+			style={{ 'fill': '#fff', 'stroke': '#000' }}
 		>
 			<g><path strokeWidth="10" d="m2.4708 2.7978 252.56 250.71h0.62053" /></g>
 		</svg>
@@ -79,7 +81,7 @@ export function SVGPaletteEmpty(props) {
 	*/
 	return (
 		<svg
-			className="threading-empty"
+			className="palette-empty"
 			viewBox="0 0 256 256"
 			style={{ 'stroke': stroke }}
 		>
@@ -89,7 +91,7 @@ export function SVGPaletteEmpty(props) {
 	);
 }
 
-SVGBackwardWarp.propTypes = {
+SVGPaletteEmpty.propTypes = {
 	'stroke': PropTypes.string.isRequired,
 };
 
