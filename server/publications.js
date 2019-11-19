@@ -22,7 +22,7 @@ Meteor.publish('colorBooks', function () {
 	}
 
 	return ColorBooks.find(
-		{ 'created_by': this.userId },
+		{ 'createdBy': this.userId },
 	);
 });
 
@@ -31,11 +31,12 @@ Meteor.publish('colorBooks', function () {
 
 // limited fields for all patterns
 const patternsFields = {
-	'created_at': 1,
-	'created_by': 1,
+	'createdAt': 1,
+	'createdBy': 1,
 	'holes': 1,
+	'isPublic': 1,
 	'name': 1,
-	'name_sort': 1,
+	'nameSort': 1,
 	'patternType': 1,
 	'rows': 1,
 	'tablets': 1,
@@ -70,10 +71,10 @@ Meteor.publish('patterns', function (skip = 0, limit = ITEMS_PER_PAGE) {
 	}
 
 	return Patterns.find(
-		{ 'created_by': this.userId },
+		{ 'createdBy': this.userId },
 		{
 			'fields': patternsFields,
-			'sort': { 'name_sort': 1 },
+			'sort': { 'nameSort': 1 },
 			'skip': skip,
 			'limit': limit,
 		},
@@ -98,7 +99,7 @@ Meteor.publish('pattern', function (_id = undefined) {
 	return Patterns.find(
 		{
 			_id,
-			'created_by': this.userId,
+			'createdBy': this.userId,
 		},
 		{
 			'fields': patternFields,

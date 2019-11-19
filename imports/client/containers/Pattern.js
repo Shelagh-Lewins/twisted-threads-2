@@ -92,7 +92,7 @@ const Tracker = withTracker(({ _id, dispatch }) => {
 	// pass database data as props
 	return {
 		'colorBooks': ColorBooks.find({}, {
-			'sort': { 'name_sort': 1 },
+			'sort': { 'nameSort': 1 },
 		}).fetch(),
 		'pattern': pattern || {},
 	};

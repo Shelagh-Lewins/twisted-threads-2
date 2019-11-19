@@ -165,7 +165,7 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 
 	return {
 		'patterns': Patterns.find({}, {
-			'sort': { 'name_sort': 1 },
+			'sort': { 'nameSort': 1 },
 			'limit': ITEMS_PER_PAGE,
 		}).fetch(),
 	};

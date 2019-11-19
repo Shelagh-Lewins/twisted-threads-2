@@ -8,18 +8,19 @@ import { PublicationCollector } from 'meteor/johanbrook:publication-collector';
 import { resetDatabase } from 'meteor/xolvio:cleaner';
 import { assert } from 'chai';
 import '../publications';
-import Patterns from '../../imports/collection';
+import { Patterns } from '../../imports/collection';
 import { stubUser, unwrapUser } from './mockUser';
 import { defaultPatternData } from './testData';
 
 // fields that should be published for patterns list
 const patternsFields = [
 	'_id',
-	'created_at',
-	'created_by',
+	'createdAt',
+	'createdBy',
 	'holes',
+	'isPublic',
 	'name',
-	'name_sort',
+	'nameSort',
 	'patternType',
 	'rows',
 	'tablets',
@@ -28,11 +29,11 @@ const patternsFields = [
 // fields that should be published for individual pattern
 const patternFields = [
 	'_id',
-	'created_at',
-	'created_by',
+	'createdAt',
+	'createdBy',
 	'holes',
 	'name',
-	'name_sort',
+	'nameSort',
 	'patternType',
 	'rows',
 	'tablets',
@@ -57,8 +58,8 @@ if (Meteor.isServer) {
 
 			const currentUser = stubUser();
 
-			this.pattern = Factory.create('pattern', { 'name': 'Pattern 1', 'created_by': currentUser._id });
-			Factory.create('pattern', { 'name': 'Pattern 2', 'created_by': currentUser._id });
+			this.pattern = Factory.create('pattern', { 'name': 'Pattern 1', 'createdBy': currentUser._id });
+			Factory.create('pattern', { 'name': 'Pattern 2', 'createdBy': currentUser._id });
 		});
 		afterEach(() => {
 			unwrapUser();
@@ -97,6 +98,7 @@ if (Meteor.isServer) {
 
 				// the values are correct
 				assert.equal(testPattern.holes, defaultPatternData.holes);
+				assert.equal(testPattern.isPublic, defaultPatternData.isPublic);
 				assert.equal(testPattern.name, defaultPatternData.name);
 				assert.equal(testPattern.patternType, defaultPatternData.patternType);
 				assert.equal(testPattern.rows, defaultPatternData.rows);
@@ -109,6 +111,7 @@ if (Meteor.isServer) {
 
 				// no extra fields are published
 				Object.keys(testPattern).forEach((fieldName) => {
+					console.log('*** field', fieldName);
 					assert.include(patternsFields, fieldName);
 				});
 			});

@@ -31,10 +31,11 @@ Meteor.methods({
 
 		return ColorBooks.insert({
 			name,
-			'name_sort': name.toLowerCase(),
-			'created_at': new Date(),
-			'created_by': Meteor.userId(),
+			'nameSort': name.toLowerCase(),
+			'createdAt': new Date(),
+			'createdBy': Meteor.userId(),
 			'colors': colors,
+			'isPublic': false,
 		});
 	},
 	editColorBookColor({
@@ -103,10 +104,11 @@ Meteor.methods({
 
 		return Patterns.insert({
 			name,
-			'name_sort': name.toLowerCase(),
-			'created_at': new Date(),
-			'created_by': Meteor.userId(),
+			'nameSort': name.toLowerCase(),
+			'createdAt': new Date(),
+			'createdBy': Meteor.userId(),
 			holes,
+			'isPublic': false,
 			'palette': DEFAULT_PALETTE,
 			'orientations': new Array(tablets).fill('/'),
 			patternType,
@@ -124,7 +126,7 @@ Meteor.methods({
 
 		const pattern = Patterns.findOne({ _id });
 
-		if (pattern.created_by !== Meteor.userId()) {
+		if (pattern.createdBy !== Meteor.userId()) {
 			throw new Meteor.Error('remove-pattern-not-created-by-user', 'Unable to remove pattern because it was not created by the current logged in user');
 		}
 
@@ -177,7 +179,7 @@ Meteor.methods({
 	getPatternCount() {
 		// this is required for pagination
 		// it needs to return the same number of patterns as the patterns publication in publications.js
-		return Patterns.find({ 'created_by': Meteor.userId() }).count();
+		return Patterns.find({ 'createdBy': Meteor.userId() }).count();
 	},
 	sendVerificationEmail(userId) {
 		check(userId, String);

@@ -21,6 +21,6 @@ Accounts.onCreateUser((options, user) => {
 	const newUser = { ...user };
 	// We still want the default hook's 'profile' behavior.
 	newUser.profile = options.profile || {};
-	newUser.profile.name_sort = user.username.toLowerCase();
+	newUser.profile.nameSort = user.username.toLowerCase();
 	return newUser;
 });
