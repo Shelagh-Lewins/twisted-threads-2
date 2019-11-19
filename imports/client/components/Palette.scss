@@ -68,9 +68,6 @@
 		display: inline-block;
 
 		button {
-			background: $color-palette-button;
-			border-color: $color-palette-button;
-
 			&.selected {
 				background: $color-palette-button-selected;
 				border-color: $color-palette-button-selected;

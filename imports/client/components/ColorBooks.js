@@ -3,7 +3,7 @@
 import React, { PureComponent } from 'react';
 import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
-import { addColorBook, setColorBookAdded } from '../modules/colorBook';
+import { addColorBook, removeColorBook, setColorBookAdded } from '../modules/colorBook';
 import AddColorBookForm from './AddColorBookForm';
 import ColorBook from './ColorBook';
 import './ColorBooks.scss';
@@ -30,6 +30,7 @@ class ColorBooks extends PureComponent {
 			'cancelAddColorBook',
 			'handleClickAddButton',
 			'handleClickAddColorBook',
+			'handleClickRemoveColorBook',
 			'handleChangeColorBook',
 		];
 
@@ -49,12 +50,14 @@ class ColorBooks extends PureComponent {
 		}
 	}
 
+	// show the form to add a new color book
 	handleClickAddButton() {
 		this.setState({
 			'showAddColorBookForm': true,
 		});
 	}
 
+	// actually add a new color book
 	handleClickAddColorBook({ name }) {
 		const { dispatch } = this.props;
 
@@ -64,10 +67,34 @@ class ColorBooks extends PureComponent {
 		});
 	}
 
+	// hide the add color book form and take no action
 	cancelAddColorBook() {
 		this.setState({
 			'showAddColorBookForm': false,
 		});
+	}
+
+	handleClickRemoveColorBook(_id) {
+		const { colorBooks, dispatch } = this.props;
+		const response = confirm('Do you want to delete this color book?'); // eslint-disable-line no-restricted-globals
+
+		if (response === true) {
+			// deselect the removed color book
+			let newSelection;
+			if (colorBooks.length === 1) { // there will be no remaining color books
+				newSelection = '';
+			} else if (colorBooks[0]._id === _id) {
+				newSelection = colorBooks[1]._id; // eslint-disable-line prefer-destructuring
+			} else {
+				newSelection = colorBooks[0]._id; // eslint-disable-line prefer-destructuring
+			}
+
+			this.setState({
+				'selectedColorBook': newSelection,
+			});
+
+			dispatch(removeColorBook(_id));
+		}
 	}
 
 	handleChangeColorBook(event) {
@@ -131,15 +158,18 @@ class ColorBooks extends PureComponent {
 			</Button>
 		);
 
-		const colorBookElms = colorBooks.length > 0
+		const colorBook = colorBooks.find((obj) => obj._id === selectedColorBook);
+
+		const colorBookElms = colorBook
 			? (
 				[
 					this.renderColorBookSelect(),
 					<ColorBook
-						colorBook={colorBooks.find((obj) => obj._id === selectedColorBook)}
+						colorBook={colorBook}
 						dispatch={dispatch}
 						key="color-book"
 						onSelectColor={onSelectColor}
+						handleClickRemoveColorBook={this.handleClickRemoveColorBook}
 					/>]
 			)
 			: (

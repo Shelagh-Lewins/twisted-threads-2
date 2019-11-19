@@ -42,6 +42,16 @@ class ColorBook extends PureComponent {
 		document.body.appendChild(this.el);
 	}
 
+	componentDidUpdate(prevProps) {
+		const { colorBook } = this.props;
+
+		if (prevProps.colorBook._id !== colorBook._id) {
+			this.setState({
+				'isEditing': false,
+			});
+		}
+	}
+
 	componentWillUnmount() {
 		document.body.removeChild(this.el);
 	}
@@ -168,23 +178,24 @@ class ColorBook extends PureComponent {
 	}
 
 	render() {
-		const { colorBook } = this.props;
+		const { colorBook, handleClickRemoveColorBook } = this.props;
 		const { isEditing, showEditColorPanel } = this.state;
-
-		if (!colorBook) {
-			return; // in case of timing issue when new book created
-		}
 
 		const controlElm = isEditing
 			? (
 				<>
-					<Button color="secondary" onClick={this.handleClickDone}>Done</Button>
+					<div className="buttons">
+						<Button color="secondary" onClick={this.handleClickDone}>Done</Button>
+					</div>
 					<p className="hint">Editing colors: select a color to open a color picker</p>
 				</>
 			)
 			: (
 				<>
-					<Button color="secondary" onClick={this.handleClickEdit}>Edit colors</Button>
+					<div className="buttons">
+						<Button color="danger" onClick={() => handleClickRemoveColorBook(colorBook._id)}>Delete color book</Button>
+						<Button color="secondary" onClick={this.handleClickEdit}>Edit colors</Button>
+					</div>
 					<p className="hint">Select a color to assign it to the threading color palette</p>
 				</>
 			);
@@ -206,6 +217,7 @@ class ColorBook extends PureComponent {
 ColorBook.propTypes = {
 	'colorBook': PropTypes.objectOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,
+	'handleClickRemoveColorBook': PropTypes.func.isRequired,
 	'onSelectColor': PropTypes.func,
 };
 

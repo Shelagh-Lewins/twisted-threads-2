@@ -2,9 +2,16 @@
 
 .color-book {
 	.controls {
-		button {
+		margin: 8px 0;
+
+		.buttons {
 			float: right;
-			margin: 8px 0;
+		}
+
+		button {
+			&:last-child {
+				margin-left: 8px;
+			}
 		}
 	}
 

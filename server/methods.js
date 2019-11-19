@@ -51,6 +51,15 @@ Meteor.methods({
 		// update the value in the nested arrays
 		return ColorBooks.update({ _id }, { '$set': { [`colors.${colorIndex}`]: colorHexValue } });
 	},
+	removeColorBook(_id) {
+		// to do: check and test
+		// user must own color book
+		// color book must exist
+
+		check(_id, String);
+
+		return ColorBooks.remove({ _id });
+	},
 	addPattern({
 		holes,
 		name,

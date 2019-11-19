@@ -259,7 +259,7 @@ class Palette extends PureComponent {
 						{options.map((option) => (
 							<Button
 								className={editMode === option.value ? 'selected' : ''}
-								color="info"
+								color="secondary"
 								key={option.value}
 								onClick={this.handleClickEditMode}
 								value={option.value}

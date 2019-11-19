@@ -44,6 +44,15 @@ export const editColorBookColor = (data) => (dispatch) => {
 	});
 };
 
+export const removeColorBook = (_id) => (dispatch) => {
+	dispatch(clearErrors());
+	Meteor.call('removeColorBook', _id, (error, result) => {
+		if (error) {
+			return dispatch(logErrors({ 'edit-color-book': error.reason }));
+		}
+	});
+};
+
 // ///////////////////////////
 // default state
 const initialColorBookState = {
