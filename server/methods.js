@@ -20,11 +20,11 @@ Meteor.methods({
 		check(name, nonEmptyStringCheck);
 
 		if (!Meteor.userId()) {
-			throw new Meteor.Error('add-pattern-not-logged-in', 'Unable to create pattern because the user is not logged in');
+			throw new Meteor.Error('add-color-book-not-logged-in', 'Unable to create color book because the user is not logged in');
 		}
 
 		if (!Meteor.user().emails[0].verified) {
-			throw new Meteor.Error('add-pattern-not-verified', 'Unable to create pattern because the user\'s email address is not verified');
+			throw new Meteor.Error('add-color-book-not-verified', 'Unable to create color book because the user\'s email address is not verified');
 		}
 
 		const colors = new Array(COLORS_IN_COLOR_BOOK).fill(DEFAULT_COLOR_BOOK_COLOR);
@@ -43,10 +43,23 @@ Meteor.methods({
 		colorHexValue,
 		colorIndex,
 	}) {
-		// to do: check and test
-		// user must own color book
-		// values must be valid
-		// color book must exist
+		check(_id, nonEmptyStringCheck);
+		check(colorHexValue, nonEmptyStringCheck);
+		check(colorIndex, Match.Integer);
+
+		if (!Meteor.userId()) {
+			throw new Meteor.Error('edit-color-book-color-not-logged-in', 'Unable to edit color book color because the user is not logged in');
+		}
+
+		const colorBook = ColorBooks.findOne({ _id });
+
+		if (!colorBook) {
+			throw new Meteor.Error('edit-color-book-color-not-found', 'Unable to edit color book color because the color book was not found');
+		}
+
+		if (colorBook.createdBy !== Meteor.userId()) {
+			throw new Meteor.Error('edit-color-book-color-not-owner', 'Unable to edit color book color because it was not created by the current logged in user');
+		}
 
 		// update the value in the nested arrays
 		return ColorBooks.update({ _id }, { '$set': { [`colors.${colorIndex}`]: colorHexValue } });
@@ -57,17 +70,39 @@ Meteor.methods({
 	}) {
 		check(_id, nonEmptyStringCheck);
 		check(name, nonEmptyStringCheck);
-		// to do: check and test
-		// user must own color book
-		// values must be valid
-		// color book must exist
+
+		if (!Meteor.userId()) {
+			throw new Meteor.Error('edit-color-book-name-not-logged-in', 'Unable to edit color book name because the user is not logged in');
+		}
+
+		const colorBook = ColorBooks.findOne({ _id });
+
+		if (!colorBook) {
+			throw new Meteor.Error('edit-color-book-name-not-found', 'Unable to edit color book name because the color book was not found');
+		}
+
+		if (colorBook.createdBy !== Meteor.userId()) {
+			throw new Meteor.Error('edit-color-book-name-not-owner', 'Unable to edit color book name because the user did not create the color book');
+		}
 
 		return ColorBooks.update({ _id }, { '$set': { 'name': name, 'nameSort': name.toLowerCase() } });
 	},
 	removeColorBook(_id) {
-		// to do: check and test
-		// user must own color book
-		// color book must exist
+		check(_id, nonEmptyStringCheck);
+
+		if (!Meteor.userId()) {
+			throw new Meteor.Error('remove-color-book-not-logged-in', 'Unable to remove color book because the user is not logged in');
+		}
+
+		const colorBook = ColorBooks.findOne({ _id });
+
+		if (!colorBook) {
+			throw new Meteor.Error('remove-color-book-not-found', 'Unable to remove color book because the color book was not found');
+		}
+
+		if (colorBook.createdBy !== Meteor.userId()) {
+			throw new Meteor.Error('remove-color-book-not-owner', 'Unable to remove color book because the user did not create the color book');
+		}
 
 		check(_id, String);
 
@@ -140,13 +175,17 @@ Meteor.methods({
 		});
 	},
 	removePattern(_id) {
-		check(_id, String);
+		check(_id, nonEmptyStringCheck);
 
 		if (!Meteor.userId()) {
 			throw new Meteor.Error('remove-pattern-not-logged-in', 'Unable to remove pattern because the user is not logged in');
 		}
 
 		const pattern = Patterns.findOne({ _id });
+
+		if (!pattern) {
+			throw new Meteor.Error('remove-pattern-not-found', 'Unable to remove pattern because the pattern was not found');
+		}
 
 		if (pattern.createdBy !== Meteor.userId()) {
 			throw new Meteor.Error('remove-pattern-not-created-by-user', 'Unable to remove pattern because it was not created by the current logged in user');
@@ -162,10 +201,36 @@ Meteor.methods({
 		tablet,
 		value,
 	}) {
-		// to do: check and test
-		// user must own pattern
-		// values must be valid
-		// pattern must exist
+		const validHolesCheck = Match.Where((x) => {
+			check(x, Match.Integer);
+
+			return x >= 1;
+		});
+
+		const validTabletsCheck = Match.Where((x) => {
+			check(x, Match.Integer);
+
+			return x >= 1 && x <= MAX_TABLETS;
+		});
+
+		check(_id, nonEmptyStringCheck);
+		check(hole, validHolesCheck);
+		check(tablet, validTabletsCheck);
+		check(value, Match.Integer);
+
+		if (!Meteor.userId()) {
+			throw new Meteor.Error('edit-threading-not-logged-in', 'Unable to edit threading because the user is not logged in');
+		}
+
+		const pattern = Patterns.findOne({ _id });
+
+		if (!pattern) {
+			throw new Meteor.Error('edit-threading-not-found', 'Unable to edit threading because the pattern was not found');
+		}
+
+		if (pattern.createdBy !== Meteor.userId()) {
+			throw new Meteor.Error('edit-threading-not-created-by-user', 'Unable to edit threading because pattern was not created by the current logged in user');
+		}
 
 		// update the value in the nested arrays
 		return Patterns.update({ _id }, { '$set': { [`threading.${hole}.${tablet}`]: value } });

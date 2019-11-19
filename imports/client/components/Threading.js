@@ -218,7 +218,7 @@ class Threading extends PureComponent {
 			<div className="controls">
 				{isEditing
 					? <Button color="primary" onClick={this.toggleEditThreading}>Done</Button>
-					: <Button color="primary" onClick={this.toggleEditThreading}>Edit threading</Button>}
+					: <Button color="primary" onClick={this.toggleEditThreading}>Edit threading chart</Button>}
 			</div>
 		);
 
