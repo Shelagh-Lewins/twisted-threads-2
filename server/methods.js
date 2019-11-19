@@ -47,7 +47,7 @@ Meteor.methods({
 		// color book must exist
 
 		// update the value in the nested arrays
-		ColorBooks.update({ _id }, { '$set': { [`colors.${colorIndex}`]: colorHexValue } });
+		return ColorBooks.update({ _id }, { '$set': { [`colors.${colorIndex}`]: colorHexValue } });
 	},
 	addPattern({
 		holes,
@@ -143,7 +143,7 @@ Meteor.methods({
 		// pattern must exist
 
 		// update the value in the nested arrays
-		Patterns.update({ _id }, { '$set': { [`threading.${hole}.${tablet}`]: value } });
+		return Patterns.update({ _id }, { '$set': { [`threading.${hole}.${tablet}`]: value } });
 	},
 	editOrientation({
 		_id,
@@ -158,7 +158,7 @@ Meteor.methods({
 		const newOrientation = pattern.orientations[tablet] === '\\' ? '/' : '\\';
 
 		// update the value in the nested arrays
-		Patterns.update({ _id }, { '$set': { [`orientations.${tablet}`]: newOrientation } });
+		return Patterns.update({ _id }, { '$set': { [`orientations.${tablet}`]: newOrientation } });
 	},
 	editPaletteColor({
 		_id,
@@ -171,7 +171,7 @@ Meteor.methods({
 		// pattern must exist
 
 		// update the value in the nested arrays
-		Patterns.update({ _id }, { '$set': { [`palette.${colorIndex}`]: colorHexValue } });
+		return Patterns.update({ _id }, { '$set': { [`palette.${colorIndex}`]: colorHexValue } });
 	},
 	getPatternCount() {
 		// this is required for pagination

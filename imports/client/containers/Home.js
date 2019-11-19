@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import { addPattern, getPatternCount, setIsLoading } from '../modules/pattern';
 import { getIsAuthenticated, getIsVerified } from '../modules/auth';
 
-import Patterns from '../../collection';
+import { Patterns } from '../../collection';
 import Loading from '../components/Loading';
 import PatternList from '../components/PatternList';
 import AddPatternForm from '../components/AddPatternForm';
@@ -161,6 +161,7 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 			dispatch(setIsLoading(false));
 		},
 	});
+	console.log('Patterns', Patterns);
 
 	return {
 		'patterns': Patterns.find({}, {

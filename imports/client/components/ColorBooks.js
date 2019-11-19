@@ -5,7 +5,7 @@ import ReactDOM from 'react-dom';
 import { Button } from 'reactstrap';
 import { PhotoshopPicker } from 'react-color';
 import PropTypes from 'prop-types';
-import { addColorBook, editColorBookColor } from '../modules/pattern';
+import { setColorBookAdded, colorBookAdded, editColorBookColor } from '../modules/colorBook';
 import AddColorBookForm from './AddColorBookForm';
 import './ColorBooks.scss';
 
@@ -56,6 +56,12 @@ class ColorBooks extends PureComponent {
 
 	componentDidMount() {
 		document.body.appendChild(this.el);
+	}
+
+	componentDidUpdate(prevProps) {
+		if (prevProps.colorBookAdded === '' && props.colorBookAdded !== '') {
+			console.log('new color book', colorBookAdded);
+		}
 	}
 
 	componentWillUnmount() {
@@ -299,10 +305,11 @@ class ColorBooks extends PureComponent {
 }
 
 ColorBooks.propTypes = {
+	'colorBookAdded': PropTypes.string.isRequired,
 	'cancelColorChange': PropTypes.func.isRequired,
 	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,
-	'onSelectColor': PropTypes.func.isRequired,
+	'onSelectColor': PropTypes.func,
 };
 
 export default ColorBooks;
