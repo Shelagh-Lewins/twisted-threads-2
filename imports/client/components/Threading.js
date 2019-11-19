@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import ReactDOM from 'react-dom';
+import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { editOrientation, editPaletteColor, editThreadingCell } from '../modules/pattern';
 import {
@@ -23,6 +24,7 @@ class Threading extends PureComponent {
 		super(props);
 
 		this.state = {
+			'isEditing': false,
 			'selectedColorIndex': 0,
 		};
 
@@ -33,6 +35,17 @@ class Threading extends PureComponent {
 
 		this.selectColor = this.selectColor.bind(this);
 		this.handleEditColor = this.handleEditColor.bind(this);
+
+		// bind onClick functions to provide context
+		const functionsToBind = [
+			'handleEditColor',
+			'selectColor',
+			'toggleEditThreading',
+		];
+
+		functionsToBind.forEach((functionName) => {
+			this[functionName] = this[functionName].bind(this);
+		});
 	}
 
 	componentDidMount() {
@@ -61,6 +74,12 @@ class Threading extends PureComponent {
 	}
 
 	handleClickThreadingCell(rowIndex, tabletIndex) {
+		const { isEditing } = this.state;
+
+		if (!isEditing) {
+			return;
+		}
+
 		const { dispatch, 'pattern': { _id } } = this.props;
 		const { selectedColorIndex } = this.state;
 
@@ -74,6 +93,11 @@ class Threading extends PureComponent {
 
 	handleClickOrientation(tabletIndex) {
 		const { dispatch, 'pattern': { _id } } = this.props;
+		const { isEditing } = this.state;
+
+		if (!isEditing) {
+			return;
+		}
 
 		dispatch(editOrientation({
 			_id,
@@ -81,7 +105,15 @@ class Threading extends PureComponent {
 		}));
 	}
 
-	// TODO improve keyboard handler to only act on space or enter, for threading cell and palette color
+	toggleEditThreading() {
+		const { isEditing } = this.state;
+
+		this.setState({
+			'isEditing': !isEditing,
+		});
+	}
+
+	// TODO improve keyboard handler to only act on space or enter, for threading cell and palette color and color book
 
 	renderCell(colorIndex, rowIndex, tabletIndex) {
 		const { pattern, 'pattern': { palette } } = this.props;
@@ -169,10 +201,20 @@ class Threading extends PureComponent {
 
 	renderChart() {
 		const { pattern } = this.props;
+		const { isEditing } = this.state;
+
+		const controls = (
+			<div className="controls">
+				{isEditing
+					? <Button color="primary" onClick={this.toggleEditThreading}>Done</Button>
+					: <Button color="primary" onClick={this.toggleEditThreading}>Edit threading</Button>}
+			</div>
+		);
 
 		return (
 			<>
 				<h2>Threading chart</h2>
+				{controls}
 				{this.renderTabletLabels()}
 				<ul className="threading-chart">
 					{
@@ -198,6 +240,7 @@ class Threading extends PureComponent {
 				onKeyPress={() => this.handleClickOrientation(tabletIndex)}
 				role="button"
 				tabIndex="0"
+				title={`${value === '/' ? 'Orientation S' : 'Orientation Z'}`}
 			>
 				<span
 					className={`${value === '/' ? 's' : 'z'}`}
@@ -259,11 +302,13 @@ class Threading extends PureComponent {
 	}
 
 	render() {
+		const { isEditing } = this.state;
+
 		return (
 			<div className="threading">
 				{this.renderChart()}
 				{this.renderOrientations()}
-				{this.renderToolbar()}
+				{isEditing && this.renderToolbar()}
 			</div>
 		);
 	}

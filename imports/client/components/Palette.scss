@@ -64,13 +64,6 @@
 		}
 	}
 
-	button {
-		&:focus {
-			outline: 4px dashed $color-toolbar-outline;
-			outline-offset: 2px;
-		}
-	}
-
 	.btn-toolbar {
 		display: inline-block;
 
@@ -86,7 +79,7 @@
 	}
 }
 
-.edit-color-holder {
+.edit-color-books-holder {
 	left: 50%;
 	position: absolute;
 	top: 50%;

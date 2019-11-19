@@ -1,0 +1,44 @@
+@import "../constants/variables";
+
+.color-book {
+	.controls {
+		button {
+			float: right;
+			margin: 8px 0;
+		}
+	}
+
+	.hint {
+		clear: both;
+	}
+
+	.colors {
+		clear: both;
+	}
+
+	.color {
+		border: 1px solid $color-panel-border;
+		display: inline-block;
+		height: 32px;
+		margin-right: 8px;
+		width: 32px;
+
+		&:focus {
+			outline: 2px dashed $color-focus;
+			outline-offset: 2px;
+		}
+
+		&.selected {
+			outline: 4px solid $color-toolbar-outline;
+		}
+	}
+}
+
+.edit-color-book-picker-holder {
+	left: 50%;
+	position: absolute;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 3;
+}
+
