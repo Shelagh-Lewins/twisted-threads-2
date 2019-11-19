@@ -229,7 +229,12 @@ class Threading extends PureComponent {
 	}
 
 	renderToolbar() {
-		const { colorBookAdded, colorBooks, dispatch, 'pattern': { palette } } = this.props;
+		const {
+			colorBookAdded,
+			colorBooks,
+			dispatch,
+			'pattern': { palette },
+		} = this.props;
 		const { selectedColorIndex } = this.state;
 
 		// Toolbar will be reused when editing turning, so Palette is passed as a property (props.children).

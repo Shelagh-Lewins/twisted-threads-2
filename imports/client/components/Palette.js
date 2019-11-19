@@ -202,7 +202,7 @@ class Palette extends PureComponent {
 	}
 
 	renderEditColorPanel() {
-		const { colorBooks, dispatch, handleEditColor } = this.props;
+		const { colorBookAdded, colorBooks, dispatch, handleEditColor } = this.props;
 		const { editMode, newColor } = this.state;
 
 		if (editMode === 'colorPicker') {
@@ -223,6 +223,7 @@ class Palette extends PureComponent {
 		return (
 			ReactDOM.createPortal(
 				<ColorBooks
+					colorBookAdded={colorBookAdded}
 					colorBooks={colorBooks}
 					dispatch={dispatch}
 					onSelectColor={handleEditColor}
@@ -270,18 +271,21 @@ class Palette extends PureComponent {
 	render() {
 		const { isEditing, showEditColorPanel } = this.state;
 
+		const controls = (
+			<div className="controls">
+				{isEditing && this.renderEditOptions()}
+				<div className="toggle">
+					{isEditing
+						? <Button color="secondary" onClick={this.handleClickDone}>Done</Button>
+						: <Button color="secondary" onClick={this.handleClickEdit}>Edit thread colors</Button>}
+				</div>
+			</div>
+		);
+
 		return (
 			<div className={`palette ${isEditing ? 'editing' : ''}`}>
 				{showEditColorPanel && this.renderEditColorPanel()}
-
-				<div className="controls">
-					{isEditing && this.renderEditOptions()}
-					<div className="toggle">
-						{isEditing
-							? <Button color="secondary" onClick={this.handleClickDone}>Done</Button>
-							: <Button color="secondary" onClick={this.handleClickEdit}>Edit thread colors</Button>}
-					</div>
-				</div>
+				{controls}
 				{this.renderEmptyHole()}
 				{this.renderColors()}
 			</div>
@@ -290,6 +294,7 @@ class Palette extends PureComponent {
 }
 
 Palette.propTypes = {
+	'colorBookAdded': PropTypes.string.isRequired,
 	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'handleEditColor': PropTypes.func.isRequired,

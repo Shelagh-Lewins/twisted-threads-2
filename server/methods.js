@@ -4,6 +4,7 @@ import {
 	ALLOWED_HOLES,
 	ALLOWED_PATTERN_TYPES,
 	COLORS_IN_COLOR_BOOK,
+	DEFAULT_COLOR_BOOK_COLOR,
 	DEFAULT_PALETTE,
 	MAX_ROWS,
 	MAX_TABLETS,
@@ -26,7 +27,7 @@ Meteor.methods({
 			throw new Meteor.Error('add-pattern-not-verified', 'Unable to create pattern because the user\'s email address is not verified');
 		}
 
-		const colors = new Array(COLORS_IN_COLOR_BOOK).fill('#ffffff');
+		const colors = new Array(COLORS_IN_COLOR_BOOK).fill(DEFAULT_COLOR_BOOK_COLOR);
 
 		return ColorBooks.insert({
 			name,

@@ -2,6 +2,7 @@ import React from 'react';
 import { Button } from 'reactstrap';
 import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
+import './AddColorBookForm.scss';
 
 const validate = (values) => {
 	const errors = {};
@@ -27,7 +28,8 @@ const AddColorBookForm = (props) => {
 	const { handleCancel } = props;
 
 	return (
-		<form onSubmit={formik.handleSubmit}>
+		<form onSubmit={formik.handleSubmit} className="add-color-book-form">
+			<h2>Create a new color book</h2>
 			<div className="form-group">
 				<label htmlFor="name">
 					Name
@@ -47,8 +49,10 @@ const AddColorBookForm = (props) => {
 					) : null}
 				</label>
 			</div>
-			<Button type="button" color="secondary" onClick={handleCancel}>Cancel</Button>
-			<Button type="submit" color="primary">Add color book</Button>
+			<div className="controls">
+				<Button type="button" color="secondary" onClick={handleCancel}>Cancel</Button>
+				<Button type="submit" color="primary">Add color book</Button>
+			</div>
 		</form>
 	);
 };

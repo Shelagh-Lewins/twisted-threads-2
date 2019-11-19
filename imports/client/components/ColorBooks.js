@@ -5,7 +5,7 @@ import ReactDOM from 'react-dom';
 import { Button } from 'reactstrap';
 import { PhotoshopPicker } from 'react-color';
 import PropTypes from 'prop-types';
-import { setColorBookAdded, colorBookAdded, editColorBookColor } from '../modules/colorBook';
+import { addColorBook, setColorBookAdded, editColorBookColor } from '../modules/colorBook';
 import AddColorBookForm from './AddColorBookForm';
 import './ColorBooks.scss';
 
@@ -19,11 +19,12 @@ class ColorBooks extends PureComponent {
 		super(props);
 
 		const { colorBooks } = props;
+		const selectedColorBook = colorBooks.length > 0 ? colorBooks[0]._id : '';
 
 		this.state = {
 			'isEditing': false,
 			'newColor': '',
-			'selectedColorBook': colorBooks[0]._id,
+			'selectedColorBook': selectedColorBook,
 			'selectedColorIndex': 0,
 			'showAddColorBookForm': false,
 			'showEditColorPanel': false,
@@ -59,8 +60,13 @@ class ColorBooks extends PureComponent {
 	}
 
 	componentDidUpdate(prevProps) {
-		if (prevProps.colorBookAdded === '' && props.colorBookAdded !== '') {
-			console.log('new color book', colorBookAdded);
+		const { colorBookAdded, dispatch } = this.props;
+
+		if (prevProps.colorBookAdded === '' && colorBookAdded !== '') {
+			this.setState({ // eslint-disable-line react/no-did-update-set-state
+				'selectedColorBook': colorBookAdded,
+			});
+			dispatch(setColorBookAdded(''));
 		}
 	}
 
@@ -202,6 +208,7 @@ class ColorBooks extends PureComponent {
 		return (
 			<select
 				className="select-color-book"
+				key="select-color-book"
 				onChange={this.handleChangeColorBook}
 				value={selectedColorBook}
 			>
@@ -224,8 +231,12 @@ class ColorBooks extends PureComponent {
 
 		const colorBook = colorBooks.find((obj) => obj._id === selectedColorBook);
 
+		if (!colorBook) {
+			return; // in case of timing issue when new book created
+		}
+
 		return (
-			<div className="color-book">
+			<div className="color-book" key="color-book">
 				<div className="controls">
 					<div className="toggle">
 						{isEditing
@@ -262,7 +273,7 @@ class ColorBooks extends PureComponent {
 
 	render() {
 		// TO DO hide add color book form behind a + button
-		const { cancelColorChange } = this.props;
+		const { cancelColorChange, colorBooks } = this.props;
 		const { showAddColorBookForm, showEditColorPanel } = this.state;
 		const addButton = (
 			<Button
@@ -286,6 +297,14 @@ class ColorBooks extends PureComponent {
 			</Button>
 		);
 
+		const colorBookElms = colorBooks.length > 0
+			? (
+				[this.renderColorBookSelect(), this.renderColorBook()]
+			)
+			: (
+				<p className="hint">You have no saved color books</p>
+			);
+
 		return (
 			<div className="color-books">
 				{showEditColorPanel && this.renderEditColorPanel()}
@@ -297,8 +316,7 @@ class ColorBooks extends PureComponent {
 						handleSubmit={this.handleClickAddColorBook}
 					/>
 				)}
-				{!showAddColorBookForm && this.renderColorBookSelect()}
-				{!showAddColorBookForm && this.renderColorBook()}
+				{!showAddColorBookForm && colorBookElms}
 			</div>
 		);
 	}
