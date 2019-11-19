@@ -10,13 +10,13 @@ import {
 	MAX_TABLETS,
 } from '../imports/parameters';
 
+const nonEmptyStringCheck = Match.Where((x) => {
+	check(x, String);
+	return x !== '';
+});
+
 Meteor.methods({
 	addColorBook(name) {
-		const nonEmptyStringCheck = Match.Where((x) => {
-			check(x, String);
-			return x !== '';
-		});
-
 		check(name, nonEmptyStringCheck);
 
 		if (!Meteor.userId()) {
@@ -50,6 +50,19 @@ Meteor.methods({
 
 		// update the value in the nested arrays
 		return ColorBooks.update({ _id }, { '$set': { [`colors.${colorIndex}`]: colorHexValue } });
+	},
+	editColorBookName({
+		_id,
+		name,
+	}) {
+		check(_id, nonEmptyStringCheck);
+		check(name, nonEmptyStringCheck);
+		// to do: check and test
+		// user must own color book
+		// values must be valid
+		// color book must exist
+
+		return ColorBooks.update({ _id }, { '$set': { 'name': name } });
 	},
 	removeColorBook(_id) {
 		// to do: check and test

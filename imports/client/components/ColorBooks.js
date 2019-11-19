@@ -143,7 +143,7 @@ class ColorBooks extends PureComponent {
 				onClick={this.handleClickAddButton}
 				title="Add color book"
 			>
-				Add color book
+				+ New
 			</Button>
 		);
 
@@ -180,6 +180,7 @@ class ColorBooks extends PureComponent {
 			<div className="color-books">
 				{!showAddColorBookForm && addButton}
 				{closeButton}
+				{!showAddColorBookForm && <h2>My color books</h2>}
 				{showAddColorBookForm && (
 					<AddColorBookForm
 						handleCancel={this.cancelAddColorBook}

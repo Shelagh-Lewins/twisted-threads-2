@@ -1,5 +1,22 @@
 @import "../constants/variables";
 
+// !important to override Bootstrap styles
+h1 {
+	font-size: 1.8rem !important;
+}
+
+h2 {
+	font-size: 1.6rem !important;
+}
+
+h3 {
+	font-size: 1.4rem !important;
+}
+
+h4 {
+	font-size: 1.2rem !important;
+}
+
 .valid-feedback {
 	color: $color-valid;
 	display: block;

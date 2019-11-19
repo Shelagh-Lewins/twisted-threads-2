@@ -39,7 +39,16 @@ export const editColorBookColor = (data) => (dispatch) => {
 	dispatch(clearErrors());
 	Meteor.call('editColorBookColor', data, (error, result) => {
 		if (error) {
-			return dispatch(logErrors({ 'edit-color-book': error.reason }));
+			return dispatch(logErrors({ 'edit-color-book-color': error.reason }));
+		}
+	});
+};
+
+export const editColorBookName = ({ _id, name }) => (dispatch) => {
+	dispatch(clearErrors());
+	Meteor.call('editColorBookName', { _id, name }, (error, result) => {
+		if (error) {
+			return dispatch(logErrors({ 'edit-color-book-name': error.reason }));
 		}
 	});
 };

@@ -26,7 +26,7 @@ class Palette extends PureComponent {
 		// Color picker is rendered to the body element
 		// so it can be positioned within the viewport
 		this.el = document.createElement('div');
-		this.el.className = 'edit-color-books-holder';
+		this.el.className = 'edit-color-holder';
 
 		// bind onClick functions to provide context
 		const functionsToBind = [

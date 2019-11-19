@@ -76,10 +76,10 @@
 	}
 }
 
-.edit-color-books-holder {
+.edit-color-holder {
 	left: 50%;
 	position: absolute;
-	top: 50%;
-	transform: translate(-50%, -50%);
+	top: 100px;
+	transform: translate(-50%, 0);
 	z-index: 2;
 }

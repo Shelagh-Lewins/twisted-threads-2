@@ -9,8 +9,10 @@
 		}
 
 		button {
+			margin-right: 8px;
+			
 			&:last-child {
-				margin-left: 8px;
+				margin-right: 0;
 			}
 		}
 	}

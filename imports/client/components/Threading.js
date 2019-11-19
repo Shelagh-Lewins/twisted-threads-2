@@ -113,8 +113,6 @@ class Threading extends PureComponent {
 		});
 	}
 
-	// TODO improve keyboard handler to only act on space or enter, for threading cell and palette color and color book
-
 	renderCell(colorIndex, rowIndex, tabletIndex) {
 		const { pattern, 'pattern': { palette } } = this.props;
 
