@@ -129,8 +129,6 @@ class ColorBook extends PureComponent {
 	handleSubmitEditName({ name }) {
 		const { 'colorBook': { _id }, dispatch } = this.props;
 
-		console.log('new name', { _id, name });
-
 		dispatch(editColorBookName({
 			_id,
 			name,

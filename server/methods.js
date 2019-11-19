@@ -62,7 +62,7 @@ Meteor.methods({
 		// values must be valid
 		// color book must exist
 
-		return ColorBooks.update({ _id }, { '$set': { 'name': name } });
+		return ColorBooks.update({ _id }, { '$set': { 'name': name, 'nameSort': name.toLowerCase() } });
 	},
 	removeColorBook(_id) {
 		// to do: check and test

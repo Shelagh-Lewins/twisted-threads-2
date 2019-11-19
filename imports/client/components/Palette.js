@@ -240,6 +240,7 @@ class Palette extends PureComponent {
 	}
 
 	renderEditOptions() {
+		const { handleClickRestoreDefaults } = this.props;
 		const { editMode } = this.state;
 		const options = [
 			{
@@ -268,6 +269,13 @@ class Palette extends PureComponent {
 							</Button>
 						))}
 					</ButtonGroup>
+					<Button
+						className="restore-defaults"
+						color="secondary"
+						onClick={handleClickRestoreDefaults}
+					>
+						Restore defaults
+					</Button>
 				</ButtonToolbar>
 			</>
 		);
@@ -303,6 +311,7 @@ Palette.propTypes = {
 	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'handleEditColor': PropTypes.func.isRequired,
+	'handleClickRestoreDefaults': PropTypes.func.isRequired,
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'selectColor': PropTypes.func.isRequired,
 	'selectedColorIndex': PropTypes.number.isRequired,

@@ -11,7 +11,7 @@ import {
 } from '../modules/svg';
 import Toolbar from './Toolbar';
 import './Threading.scss';
-import { HOLE_LABELS } from '../../parameters';
+import { DEFAULT_PALETTE, HOLE_LABELS } from '../../parameters';
 import Palette from './Palette';
 
 // row and tablet have nothing to identify them except index
@@ -38,6 +38,7 @@ class Threading extends PureComponent {
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
+			'handleClickRestoreDefaults',
 			'handleEditColor',
 			'selectColor',
 			'toggleEditThreading',
@@ -59,6 +60,18 @@ class Threading extends PureComponent {
 	selectColor(index) {
 		this.setState({
 			'selectedColorIndex': index,
+		});
+	}
+
+	handleClickRestoreDefaults() {
+		const { dispatch, 'pattern': { _id } } = this.props;
+
+		DEFAULT_PALETTE.forEach((colorHexValue, index) => {
+			dispatch(editPaletteColor({
+				_id,
+				'colorHexValue': colorHexValue,
+				'colorIndex': index,
+			}));
 		});
 	}
 
@@ -288,6 +301,7 @@ class Threading extends PureComponent {
 						colorBookAdded={colorBookAdded}
 						colorBooks={colorBooks}
 						dispatch={dispatch}
+						handleClickRestoreDefaults={this.handleClickRestoreDefaults}
 						handleEditColor={this.handleEditColor}
 						palette={palette}
 						selectColor={this.selectColor}
