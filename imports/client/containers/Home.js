@@ -1,6 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Col, Container, Row } from 'reactstrap';
+import {
+	Button,
+	Col,
+	Container,
+	Row,
+} from 'reactstrap';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
@@ -22,6 +27,24 @@ import './Home.scss';
 const queryString = require('query-string');
 
 class Home extends Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			'showAddPatternForm': false,
+		};
+
+		// bind onClick functions to provide context
+		const functionsToBind = [
+			'handleClickShowAddPatternForm',
+			'handleCancelShowAddPatternForm',
+		];
+
+		functionsToBind.forEach((functionName) => {
+			this[functionName] = this[functionName].bind(this);
+		});
+	}
+
 	componentDidMount() {
 		this.clearErrors();
 	}
@@ -30,13 +53,32 @@ class Home extends Component {
 		this.clearErrors();
 	}
 
-	handleSubmit = (data, { resetForm }) => {
+	handleSubmitAddPattern = (data, { resetForm }) => {
 		const { dispatch, history } = this.props;
 		const modifiedData = { ...data };
 		modifiedData.holes = parseInt(modifiedData.holes, 10); // select value is string
 
 		dispatch(addPattern(data, history));
 		resetForm();
+
+		this.setState({
+			'showAddPatternForm': false,
+		});
+	}
+
+	handleClickShowAddPatternForm() {
+		console.log('clicked show');
+		console.log('this', this);
+		this.setState({
+			'showAddPatternForm': true,
+		});
+	}
+
+	handleCancelShowAddPatternForm() {
+		console.log('clicked hide');
+		this.setState({
+			'showAddPatternForm': false,
+		});
 	}
 
 	clearErrors() {
@@ -57,6 +99,7 @@ class Home extends Component {
 			patternCount,
 			verified,
 		} = this.props;
+		const { showAddPatternForm } = this.state;
 
 		return (
 			<div>
@@ -77,17 +120,27 @@ class Home extends Component {
 						<Col lg="12">
 							<h1>Welcome</h1>
 							This is the development version of Twisted Threads 2, the online app for tablet weaving.
-							{!isAuthenticated && <p>To get started, please <Link to="/register">Register</Link>.</p>}
+							{!isAuthenticated && <p>To get started, please <Link to="/login">Login</Link>. If you don't already have an account, please <Link to="/register">Register</Link>.</p>}
 							{isAuthenticated && !verified && <p>To create patterns, please verify your email address. You can request a new verification email from your <Link to="/account">Account</Link> page</p>}
 							<hr />
 						</Col>
 					</Row>
-					{verified && (
+					{verified && !showAddPatternForm && (
+						<Button
+							className="show-add-pattern-form"
+							color="primary"
+							onClick={this.handleClickShowAddPatternForm}
+						>
+							New patterrn
+						</Button>
+					)}
+					{showAddPatternForm && (
 						<Row>
 							<Col lg="12">
 								<h1>Create pattern</h1>
 								<AddPatternForm
-									handleSubmit={this.handleSubmit}
+									handleCancel={this.handleSubmitAddPattern}
+									handleSubmit={this.handleCancelShowAddPatternForm}
 								/>
 								<hr />
 							</Col>
@@ -161,7 +214,6 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 			dispatch(setIsLoading(false));
 		},
 	});
-	console.log('Patterns', Patterns);
 
 	return {
 		'patterns': Patterns.find({}, {

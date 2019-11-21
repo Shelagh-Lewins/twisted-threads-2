@@ -55,6 +55,8 @@ const AddPatternForm = (props) => {
 		},
 	});
 
+	const { handleCancel } = props;
+
 	// note firefox doesn't support the 'label' shorthand in option
 	// https://bugzilla.mozilla.org/show_bug.cgi?id=40545#c11
 	const patternTypeOptions = ALLOWED_PATTERN_TYPES.map((type) => (
@@ -175,12 +177,16 @@ const AddPatternForm = (props) => {
 					</label>
 				</Col>
 			</Row>
-			<Button type="submit" color="primary">Create a new pattern</Button>
+			<div className="controls">
+				<Button type="button" color="secondary" onClick={handleCancel}>Cancel</Button>
+				<Button type="submit" color="primary">Create a new pattern</Button>
+			</div>
 		</form>
 	);
 };
 
 AddPatternForm.propTypes = {
+	'handleCancel': PropTypes.func.isRequired,
 	'handleSubmit': PropTypes.func.isRequired,
 };
 
