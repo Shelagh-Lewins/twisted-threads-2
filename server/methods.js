@@ -204,13 +204,13 @@ Meteor.methods({
 		const validHolesCheck = Match.Where((x) => {
 			check(x, Match.Integer);
 
-			return x >= 1;
+			return x >= 0;
 		});
 
 		const validTabletsCheck = Match.Where((x) => {
 			check(x, Match.Integer);
 
-			return x >= 1 && x <= MAX_TABLETS;
+			return x >= 0 && x <= MAX_TABLETS - 1;
 		});
 
 		check(_id, nonEmptyStringCheck);
