@@ -40,7 +40,24 @@ Meteor.methods({
 		// one column per tablet
 		const threading = new Array(holes).fill(new Array(tablets).fill(DEFAULT_COLOR));
 
-		const patternDesign = {};
+		let patternDesign = {};
+		const pick = {
+			'direction': 'f',
+			'numberOfTurns': 1,
+		};
+		const picks = [];
+
+		switch (patternType) {
+			case 'individual':
+				for (let i = 0; i < tablets; i += 1) {
+					picks.push(pick);
+				}
+				patternDesign = { picks };
+				break;
+
+			default:
+				break;
+		}
 
 		// to do pattern design, based on patternType
 		// will be used to calculated picks, then tabletPositions
@@ -55,8 +72,8 @@ Meteor.methods({
 			'isPublic': false,
 			'palette': DEFAULT_PALETTE,
 			'orientations': new Array(tablets).fill('/'),
+			patternDesign,
 			patternType,
-			rows,
 			tablets,
 			threading,
 		});
