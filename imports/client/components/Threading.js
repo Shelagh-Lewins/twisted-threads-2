@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import ReactDOM from 'react-dom';
+// import ReactDOM from 'react-dom';
 import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { editOrientation, editPaletteColor, editThreadingCell } from '../modules/pattern';
@@ -9,7 +9,6 @@ import {
 	SVGForwardEmpty,
 	SVGForwardWarp,
 } from '../modules/svg';
-import Toolbar from './Toolbar';
 import './Threading.scss';
 import { DEFAULT_PALETTE, HOLE_LABELS } from '../../parameters';
 import Palette from './Palette';
@@ -47,14 +46,6 @@ class Threading extends PureComponent {
 		functionsToBind.forEach((functionName) => {
 			this[functionName] = this[functionName].bind(this);
 		});
-	}
-
-	componentDidMount() {
-		document.body.appendChild(this.el);
-	}
-
-	componentWillUnmount() {
-		document.body.removeChild(this.el);
 	}
 
 	selectColor(index) {
@@ -295,21 +286,16 @@ class Threading extends PureComponent {
 		// This also avoids having to pass props through Toolbar to Palette.
 
 		return (
-			ReactDOM.createPortal(
-				<Toolbar>
-					<Palette
-						colorBookAdded={colorBookAdded}
-						colorBooks={colorBooks}
-						dispatch={dispatch}
-						handleClickRestoreDefaults={this.handleClickRestoreDefaults}
-						handleEditColor={this.handleEditColor}
-						palette={palette}
-						selectColor={this.selectColor}
-						selectedColorIndex={selectedColorIndex}
-					/>
-				</Toolbar>,
-				this.el,
-			)
+			<Palette
+				colorBookAdded={colorBookAdded}
+				colorBooks={colorBooks}
+				dispatch={dispatch}
+				handleClickRestoreDefaults={this.handleClickRestoreDefaults}
+				handleEditColor={this.handleEditColor}
+				palette={palette}
+				selectColor={this.selectColor}
+				selectedColorIndex={selectedColorIndex}
+			/>
 		);
 	}
 

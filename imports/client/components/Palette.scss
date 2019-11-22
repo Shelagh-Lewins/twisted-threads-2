@@ -1,7 +1,12 @@
 @import "../constants/variables";
 
 .palette {
+	background: $color-palette-background;
+	border: 1px solid $color-panel-border;
+	border-radius: 4px;
+	padding: 8px;
 	position: relative;
+	width: 100%;
 
 	.color {
 		border: 1px solid $color-panel-border;
@@ -64,7 +69,7 @@
 		}
 
 		&.selected {
-			outline: 4px solid $color-toolbar-outline;
+			outline: 4px solid $color-palette-outline;
 		}
 	}
 

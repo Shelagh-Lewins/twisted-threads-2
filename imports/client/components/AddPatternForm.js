@@ -9,6 +9,7 @@ import {
 	MAX_ROWS,
 	MAX_TABLETS,
 } from '../../parameters';
+import './AddPatternForm.scss';
 
 const validate = (values) => {
 	const errors = {};
@@ -79,109 +80,112 @@ const AddPatternForm = (props) => {
 	));
 
 	return (
-		<form onSubmit={formik.handleSubmit}>
-			<div className="form-group">
-				<label htmlFor="name">
-					Name
-					<input
-						className={`form-control ${formik.touched.name && formik.errors.name ? 'is-invalid' : ''
-						}`}
-						placeholder="Pattern name"
-						id="name"
-						name="name"
-						type="text"
-						onChange={formik.handleChange}
-						onBlur={formik.handleBlur}
-						value={formik.values.name}
-					/>
-					{formik.touched.name && formik.errors.name ? (
-						<div className="invalid-feedback invalid">{formik.errors.name}</div>
-					) : null}
-				</label>
-			</div>
-			<Row className="form-group">
-				<Col lg="6">
-					<label htmlFor="patternType">
-						Pattern type
-						<select
-							className="form-control"
-							id="patternType"
-							name="patternType"
+		<div className="add-pattern-form">
+			<h1>Create pattern</h1>
+			<form onSubmit={formik.handleSubmit}>
+				<div className="form-group">
+					<label htmlFor="name">
+						Name
+						<input
+							className={`form-control ${formik.touched.name && formik.errors.name ? 'is-invalid' : ''
+							}`}
+							placeholder="Pattern name"
+							id="name"
+							name="name"
+							type="text"
 							onChange={formik.handleChange}
 							onBlur={formik.handleBlur}
-							value={formik.values.patternType}
-						>
-							{patternTypeOptions}
-						</select>
+							value={formik.values.name}
+						/>
+						{formik.touched.name && formik.errors.name ? (
+							<div className="invalid-feedback invalid">{formik.errors.name}</div>
+						) : null}
 					</label>
-				</Col>
-				<Col lg="6">
-					<div className="form-group">
-						<label htmlFor="holes">
-							Number of holes in each tablet
+				</div>
+				<Row className="form-group">
+					<Col lg="6">
+						<label htmlFor="patternType">
+							Pattern type
 							<select
 								className="form-control"
-								id="holes"
-								name="holes"
+								id="patternType"
+								name="patternType"
 								onChange={formik.handleChange}
 								onBlur={formik.handleBlur}
-								value={formik.values.holes}
+								value={formik.values.patternType}
 							>
-								{holeOptions}
+								{patternTypeOptions}
 							</select>
 						</label>
-					</div>
-				</Col>
-			</Row>
-			<Row className="form-group">
-				<Col lg="6">
-					<label htmlFor="tablets">
-						Number of tablets
-						<input
-							className={`form-control ${formik.touched.tablets && formik.errors.tablets ? 'is-invalid' : ''
-							}`}
-							placeholder="Number of tablets"
-							id="tablets"
-							max={MAX_TABLETS}
-							min="1"
-							name="tablets"
-							type="number"
-							onChange={formik.handleChange}
-							onBlur={formik.handleBlur}
-							value={formik.values.tablets}
-						/>
-						{formik.touched.tablets && formik.errors.tablets ? (
-							<div className="invalid-feedback invalid">{formik.errors.tablets}</div>
-						) : null}
-					</label>
-				</Col>
-				<Col>
-					<label htmlFor="tablets">
-						Number of rows
-						<input
-							className={`form-control ${formik.touched.rows && formik.errors.rows ? 'is-invalid' : ''
-							}`}
-							placeholder="Number of rows"
-							id="rows"
-							max={MAX_ROWS}
-							min="1"
-							name="rows"
-							type="number"
-							onChange={formik.handleChange}
-							onBlur={formik.handleBlur}
-							value={formik.values.rows}
-						/>
-						{formik.touched.rows && formik.errors.rows ? (
-							<div className="invalid-feedback invalid">{formik.errors.rows}</div>
-						) : null}
-					</label>
-				</Col>
-			</Row>
-			<div className="controls">
-				<Button type="button" color="secondary" onClick={handleCancel}>Cancel</Button>
-				<Button type="submit" color="primary">Create a new pattern</Button>
-			</div>
-		</form>
+					</Col>
+					<Col lg="6">
+						<div className="form-group">
+							<label htmlFor="holes">
+								Number of holes in each tablet
+								<select
+									className="form-control"
+									id="holes"
+									name="holes"
+									onChange={formik.handleChange}
+									onBlur={formik.handleBlur}
+									value={formik.values.holes}
+								>
+									{holeOptions}
+								</select>
+							</label>
+						</div>
+					</Col>
+				</Row>
+				<Row className="form-group">
+					<Col lg="6">
+						<label htmlFor="tablets">
+							Number of tablets
+							<input
+								className={`form-control ${formik.touched.tablets && formik.errors.tablets ? 'is-invalid' : ''
+								}`}
+								placeholder="Number of tablets"
+								id="tablets"
+								max={MAX_TABLETS}
+								min="1"
+								name="tablets"
+								type="number"
+								onChange={formik.handleChange}
+								onBlur={formik.handleBlur}
+								value={formik.values.tablets}
+							/>
+							{formik.touched.tablets && formik.errors.tablets ? (
+								<div className="invalid-feedback invalid">{formik.errors.tablets}</div>
+							) : null}
+						</label>
+					</Col>
+					<Col>
+						<label htmlFor="tablets">
+							Number of rows
+							<input
+								className={`form-control ${formik.touched.rows && formik.errors.rows ? 'is-invalid' : ''
+								}`}
+								placeholder="Number of rows"
+								id="rows"
+								max={MAX_ROWS}
+								min="1"
+								name="rows"
+								type="number"
+								onChange={formik.handleChange}
+								onBlur={formik.handleBlur}
+								value={formik.values.rows}
+							/>
+							{formik.touched.rows && formik.errors.rows ? (
+								<div className="invalid-feedback invalid">{formik.errors.rows}</div>
+							) : null}
+						</label>
+					</Col>
+				</Row>
+				<div className="controls">
+					<Button type="button" color="secondary" onClick={handleCancel}>Cancel</Button>
+					<Button type="submit" color="primary">Create a new pattern</Button>
+				</div>
+			</form>
+		</div>
 	);
 };
 

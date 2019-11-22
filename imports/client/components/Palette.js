@@ -274,7 +274,7 @@ class Palette extends PureComponent {
 						color="secondary"
 						onClick={handleClickRestoreDefaults}
 					>
-						Restore defaults
+						Restore default colors
 					</Button>
 				</ButtonToolbar>
 			</>

@@ -67,15 +67,12 @@ class Home extends Component {
 	}
 
 	handleClickShowAddPatternForm() {
-		console.log('clicked show');
-		console.log('this', this);
 		this.setState({
 			'showAddPatternForm': true,
 		});
 	}
 
 	handleCancelShowAddPatternForm() {
-		console.log('clicked hide');
 		this.setState({
 			'showAddPatternForm': false,
 		});
@@ -101,9 +98,23 @@ class Home extends Component {
 		} = this.props;
 		const { showAddPatternForm } = this.state;
 
+		const addPatternButton = (
+			<Row>
+				<Col lg="12">
+					<Button
+						className="show-add-pattern-form"
+						color="primary"
+						onClick={this.handleClickShowAddPatternForm}
+					>
+						New patterrn
+					</Button>
+				</Col>
+			</Row>
+		);
+
 		return (
 			<div>
-				<Container>
+				<Container className="home">
 					{!isEmpty(errors) && (
 						<Row>
 							<Col lg="12">
@@ -120,33 +131,25 @@ class Home extends Component {
 						<Col lg="12">
 							<h1>Welcome</h1>
 							This is the development version of Twisted Threads 2, the online app for tablet weaving.
-							{!isAuthenticated && <p>To get started, please <Link to="/login">Login</Link>. If you don't already have an account, please <Link to="/register">Register</Link>.</p>}
+							{!isAuthenticated && <p>To get started, please <Link to="/login">Login</Link>. If you don\'t already have an account, please <Link to="/register">Register</Link>.</p>}
 							{isAuthenticated && !verified && <p>To create patterns, please verify your email address. You can request a new verification email from your <Link to="/account">Account</Link> page</p>}
-							<hr />
 						</Col>
 					</Row>
-					{verified && !showAddPatternForm && (
-						<Button
-							className="show-add-pattern-form"
-							color="primary"
-							onClick={this.handleClickShowAddPatternForm}
-						>
-							New patterrn
-						</Button>
-					)}
+					{verified && !showAddPatternForm && addPatternButton}
 					{showAddPatternForm && (
 						<Row>
 							<Col lg="12">
-								<h1>Create pattern</h1>
 								<AddPatternForm
-									handleCancel={this.handleSubmitAddPattern}
-									handleSubmit={this.handleCancelShowAddPatternForm}
+									handleCancel={this.handleCancelShowAddPatternForm}
+									handleSubmit={this.handleSubmitAddPattern}
 								/>
 								<hr />
 							</Col>
 						</Row>
 					)}
-					{!isLoading && patternCount > 0 && (
+					{!isLoading
+						&& patternCount > 0
+						&& !showAddPatternForm && (
 						<>
 							<Row>
 								<Col lg="12">
