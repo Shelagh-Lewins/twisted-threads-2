@@ -4,7 +4,7 @@ import { resetDatabase } from 'meteor/xolvio:cleaner';
 import { assert, expect } from 'chai';
 import { Patterns } from '../../imports/collection';
 import '../publications';
-import '../methods';
+import '../methods/pattern';
 import { stubUser, unwrapUser } from './mockUser';
 import { defaultPatternData } from './testData';
 
@@ -16,7 +16,7 @@ if (Meteor.isServer) {
 		describe('addPattern method', () => {
 			it('cannot create pattern if not logged in', () => {
 				function expectedError() {
-					Meteor.call('addPattern', defaultPatternData);
+					Meteor.call('pattern.add', defaultPatternData);
 				}
 				expect(expectedError).to.throw(Meteor.Error(), 'add-pattern-not-logged-in');
 			});
@@ -29,7 +29,7 @@ if (Meteor.isServer) {
 						}],
 					});
 
-					Meteor.call('addPattern', defaultPatternData);
+					Meteor.call('pattern.add', defaultPatternData);
 				}
 
 				expect(expectedError).to.throw(Meteor.Error(), 'add-pattern-not-verified');
@@ -45,7 +45,7 @@ if (Meteor.isServer) {
 					}],
 				});
 
-				Meteor.call('addPattern', defaultPatternData);
+				Meteor.call('pattern.add', defaultPatternData);
 
 				assert.equal(Patterns.find().fetch().length, 1);
 				unwrapUser();
@@ -56,7 +56,7 @@ if (Meteor.isServer) {
 				const pattern = Factory.create('pattern', { 'name': 'Pattern 1', 'createdBy': 'abc' });
 
 				function expectedError() {
-					Meteor.call('removePattern', pattern._id);
+					Meteor.call('pattern.remove', pattern._id);
 				}
 				expect(expectedError).to.throw(Meteor.Error(), 'remove-pattern-not-logged-in');
 			});
@@ -66,7 +66,7 @@ if (Meteor.isServer) {
 
 					const pattern = Factory.create('pattern', { 'name': 'Pattern 1', 'createdBy': 'abc' });
 
-					Meteor.call('removePattern', pattern._id);
+					Meteor.call('pattern.remove', pattern._id);
 				}
 
 				expect(expectedError).to.throw(Meteor.Error(), 'remove-pattern-not-created-by-user');
@@ -77,7 +77,7 @@ if (Meteor.isServer) {
 				const pattern = Factory.create('pattern', { 'name': 'Pattern 1', 'createdBy': currentUser._id });
 
 				assert.equal(Patterns.find().fetch().length, 1);
-				Meteor.call('removePattern', pattern._id);
+				Meteor.call('pattern.remove', pattern._id);
 				assert.equal(Patterns.find().fetch().length, 0);
 				unwrapUser();
 			});
@@ -96,18 +96,16 @@ if (Meteor.isServer) {
 				Factory.create('pattern', { 'name': 'My Pattern 1', 'createdBy': currentUser._id });
 				Factory.create('pattern', { 'name': 'My Pattern 2', 'createdBy': currentUser._id });
 
-				const result = Meteor.call('getPatternCount');
+				const result = Meteor.call('pattern.getPatternCount');
 				assert.equal(result, 2);
 				unwrapUser();
 			});
 		});
-		describe('sendVerificationEmail method', () => {
-			it('throws an error if the user is not logged in', () => {
-				function expectedError() {
-					Meteor.call('sendVerificationEmail', 'abc');
-				}
-				expect(expectedError).to.throw(Meteor.Error(), 'send-verification-email-not-logged-in');
-			});
-		});
 	});
 }
+
+// TODO
+// editThreadingCell
+// editOrientation
+// editPaletteColor
+// getPatternCount
