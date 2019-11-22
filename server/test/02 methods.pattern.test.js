@@ -82,7 +82,6 @@ if (Meteor.isServer) {
 				unwrapUser();
 			});
 		});
-		// //////////////////
 		describe('editThreadingCell method', () => {
 			it('cannot edit threading cell if not logged in', () => {
 				const pattern = Factory.create('pattern', { 'name': 'Pattern 1', 'createdBy': 'abc' });
@@ -201,7 +200,7 @@ if (Meteor.isServer) {
 
 				unwrapUser();
 			});
-			it('can edit threading cell if user created the pattern', () => {
+			it('can edit tablet orientation if user created the pattern', () => {
 				const currentUser = stubUser();
 				const pattern = Factory.create('pattern', { 'name': 'Pattern 1', 'createdBy': currentUser._id });
 
@@ -219,8 +218,81 @@ if (Meteor.isServer) {
 				unwrapUser();
 			});
 		});
-		// ////////////////
+		describe('editPaletteColor method', () => {
+			it('cannot edit palette color if not logged in', () => {
+				const pattern = Factory.create('pattern', { 'name': 'Pattern 1', 'createdBy': 'abc' });
+
+				function expectedError() {
+					Meteor.call('pattern.editPaletteColor', {
+						'_id': pattern._id,
+						'colorHexValue': '#000',
+						'colorIndex': 1,
+					});
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'edit-palette-color-not-logged-in');
+			});
+			it('cannot edit palette color if did not create the pattern', () => {
+				function expectedError() {
+					stubUser();
+
+					const pattern = Factory.create('pattern', { 'name': 'Pattern 1', 'createdBy': 'abc' });
+
+					Meteor.call('pattern.editPaletteColor', {
+						'_id': pattern._id,
+						'colorHexValue': '#000',
+						'colorIndex': 1,
+					});
+				}
+
+				expect(expectedError).to.throw(Meteor.Error(), 'edit-palette-color-not-created-by-user');
+				unwrapUser();
+			});
+			it('cannot edit palette color if user created the pattern but color is invalid', () => {
+				function expectedError() {
+					const currentUser = stubUser();
+					const pattern = Factory.create('pattern', { 'name': 'Pattern 1', 'createdBy': currentUser._id });
+					Meteor.call('pattern.editPaletteColor', {
+						'_id': pattern._id,
+						'colorHexValue': 4,
+						'colorIndex': 1,
+					});
+				}
+
+				expect(expectedError).to.throw(Meteor.Error(), 'Match error');
+
+				unwrapUser();
+			});
+			it('can edit palette color if user created the pattern', () => {
+				const currentUser = stubUser();
+				const pattern = Factory.create('pattern', { 'name': 'Pattern 1', 'createdBy': currentUser._id });
+
+				assert.equal(Patterns.find().fetch().length, 1);
+
+				Meteor.call('pattern.editPaletteColor', {
+					'_id': pattern._id,
+					'colorHexValue': '#000',
+					'colorIndex': 1,
+				});
+				assert.equal(Patterns.find().fetch().length, 1);
+				const patternUpdated = Patterns.findOne({ '_id': pattern._id });
+
+				assert.equal(patternUpdated.palette[1], '#000');
+
+				unwrapUser();
+			});
+		});
 		describe('getPatternCount method', () => {
+			it('returns 0 when the user is not logged in', () => {
+				// getPatternCount should count the patterns the user can see, for pagination.
+
+				// create patterns owned by other users
+				Factory.create('pattern', { 'name': 'Other Pattern 1', 'createdBy': 'abc' });
+				Factory.create('pattern', { 'name': 'Other Pattern 2', 'createdBy': 'def' });
+				Factory.create('pattern', { 'name': 'Other Pattern 3', 'createdBy': 'ghic' });
+
+				const result = Meteor.call('pattern.getPatternCount');
+				assert.equal(result, 0);
+			});
 			it('returns 2 when the user has 2 patterns in the database', () => {
 				// getPatternCount should count the patterns the user can see, for pagination.
 
@@ -243,7 +315,4 @@ if (Meteor.isServer) {
 }
 
 // TODO
-// editThreadingCell
-// editOrientation
-// editPaletteColor
-// getPatternCount
+// update getPatternCount test when patterns can be public or private
