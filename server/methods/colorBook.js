@@ -49,7 +49,7 @@ Meteor.methods({
 		}
 
 		if (colorBook.createdBy !== Meteor.userId()) {
-			throw new Meteor.Error('edit-color-book-color-not-owner', 'Unable to edit color book color because it was not created by the current logged in user');
+			throw new Meteor.Error('edit-color-book-color-not-created-by-user', 'Unable to edit color book color because it was not created by the current logged in user');
 		}
 
 		// update the value in the nested arrays
@@ -73,7 +73,7 @@ Meteor.methods({
 		}
 
 		if (colorBook.createdBy !== Meteor.userId()) {
-			throw new Meteor.Error('edit-color-book-name-not-owner', 'Unable to edit color book name because the user did not create the color book');
+			throw new Meteor.Error('edit-color-book-name-not-created-by-user', 'Unable to edit color book name because it was not created by the current logged in user');
 		}
 
 		return ColorBooks.update({ _id }, { '$set': { 'name': name, 'nameSort': name.toLowerCase() } });
@@ -92,7 +92,7 @@ Meteor.methods({
 		}
 
 		if (colorBook.createdBy !== Meteor.userId()) {
-			throw new Meteor.Error('remove-color-book-not-owner', 'Unable to remove color book because the user did not create the color book');
+			throw new Meteor.Error('remove-color-book-not-created-by-user', 'Unable to remove color book because it was not created by the current logged in user');
 		}
 
 		check(_id, String);
