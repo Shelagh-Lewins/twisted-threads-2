@@ -118,7 +118,7 @@ export const sendVerificationEmail = (userId) => (dispatch) => {
 	dispatch(clearErrors());
 	dispatch(verificationEmailNotSent());
 
-	Meteor.call('sendVerificationEmail', userId, (error) => {
+	Meteor.call('auth.sendVerificationEmail', userId, (error) => {
 		if (error) {
 			return dispatch(logErrors({ 'send verification email': error.reason }));
 		}
@@ -196,8 +196,13 @@ export const changePassword = ({ oldPassword, newPassword }) => (dispatch) => {
 	dispatch(passwordNotReset());
 
 	Accounts.changePassword(oldPassword, newPassword, (error) => {
+		// different failure cases provide different types of error
+		// not logged in provides message
+		// incorrect password provides reason
+
 		if (error) {
-			return dispatch(logErrors({ 'change password': error.reason }));
+			const message = error.reason || error.message;
+			return dispatch(logErrors({ 'change password': message }));
 		}
 
 		dispatch(passwordChanged());

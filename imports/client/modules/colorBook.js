@@ -26,7 +26,8 @@ export function setColorBookAdded(colorBookId) {
 
 export const addColorBook = (name) => (dispatch) => {
 	dispatch(clearErrors());
-	Meteor.call('addColorBook', name, (error, result) => {
+	Meteor.call('colorBook.add', name, (error, result) => {
+		// Meteor.call('addColorBook', name, (error, result) => {
 		if (error) {
 			return dispatch(logErrors({ 'add-color-book': error.reason }));
 		}
@@ -37,7 +38,7 @@ export const addColorBook = (name) => (dispatch) => {
 
 export const editColorBookColor = (data) => (dispatch) => {
 	dispatch(clearErrors());
-	Meteor.call('editColorBookColor', data, (error, result) => {
+	Meteor.call('colorBook.editColor', data, (error, result) => {
 		if (error) {
 			return dispatch(logErrors({ 'edit-color-book-color': error.reason }));
 		}
@@ -46,7 +47,7 @@ export const editColorBookColor = (data) => (dispatch) => {
 
 export const editColorBookName = ({ _id, name }) => (dispatch) => {
 	dispatch(clearErrors());
-	Meteor.call('editColorBookName', { _id, name }, (error, result) => {
+	Meteor.call('colorBook.editName', { _id, name }, (error, result) => {
 		if (error) {
 			return dispatch(logErrors({ 'edit-color-book-name': error.reason }));
 		}
@@ -55,7 +56,7 @@ export const editColorBookName = ({ _id, name }) => (dispatch) => {
 
 export const removeColorBook = (_id) => (dispatch) => {
 	dispatch(clearErrors());
-	Meteor.call('removeColorBook', _id, (error, result) => {
+	Meteor.call('colorBook.remove', _id, (error, result) => {
 		if (error) {
 			return dispatch(logErrors({ 'edit-color-book': error.reason }));
 		}

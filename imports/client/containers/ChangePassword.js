@@ -64,14 +64,16 @@ class ChangePassword extends Component {
 							</Col>
 						</Row>
 					)}
-					<Row>
-						<Col lg="12">
-							<h1>Change your password</h1>
-							<ChangePasswordForm
-								handleSubmit={this.handleSubmit}
-							/>
-						</Col>
-					</Row>
+					{!passwordChanged && (
+						<Row>
+							<Col lg="12">
+								<h1>Change your password</h1>
+								<ChangePasswordForm
+									handleSubmit={this.handleSubmit}
+								/>
+							</Col>
+						</Row>
+					)}
 				</Container>
 			</div>
 		);

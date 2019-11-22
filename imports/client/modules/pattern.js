@@ -26,7 +26,7 @@ export function setPatternCount(patternCount) {
 	};
 }
 
-export const getPatternCount = () => (dispatch) => Meteor.call('getPatternCount', (error, result) => {
+export const getPatternCount = () => (dispatch) => Meteor.call('pattern.getPatternCount', (error, result) => {
 	dispatch(setPatternCount(result));
 });
 
@@ -50,7 +50,7 @@ export function setIsLoading(isLoading) {
 
 export const addPattern = (data, history) => (dispatch) => {
 	dispatch(clearErrors());
-	Meteor.call('addPattern', data, (error, result) => {
+	Meteor.call('pattern.add', data, (error, result) => {
 		if (error) {
 			return dispatch(logErrors({ 'add-pattern': error.reason }));
 		}
@@ -61,7 +61,7 @@ export const addPattern = (data, history) => (dispatch) => {
 
 export function removePattern(_id) {
 	return () => {
-		Meteor.call('removePattern', _id);
+		Meteor.call('pattern.remove', _id);
 	};
 }
 
@@ -72,7 +72,7 @@ export function editThreadingCell({
 	value,
 }) {
 	return () => {
-		Meteor.call('editThreadingCell', {
+		Meteor.call('pattern.editThreadingCell', {
 			_id,
 			hole,
 			tablet,
@@ -86,7 +86,7 @@ export function editOrientation({
 	tablet,
 }) {
 	return () => {
-		Meteor.call('editOrientation', {
+		Meteor.call('pattern.editOrientation', {
 			_id,
 			tablet,
 		});
@@ -99,7 +99,7 @@ export function editPaletteColor({
 	colorIndex,
 }) {
 	return () => {
-		Meteor.call('editPaletteColor', {
+		Meteor.call('pattern.editPaletteColor', {
 			_id,
 			colorHexValue,
 			colorIndex,
