@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import {
 	ALLOWED_HOLES,
 	ALLOWED_PATTERN_TYPES,
+	DEFAULT_TABLETS,
 	MAX_ROWS,
 	MAX_TABLETS,
 } from '../../parameters';
@@ -47,8 +48,7 @@ const AddPatternForm = (props) => {
 			'holes': 4,
 			'name': '',
 			'patternType': 'individual',
-			'rows': 10,
-			'tablets': 8,
+			'tablets': DEFAULT_TABLETS,
 		},
 		validate,
 		'onSubmit': (values, { resetForm }) => {

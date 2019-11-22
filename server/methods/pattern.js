@@ -40,6 +40,12 @@ Meteor.methods({
 		// one column per tablet
 		const threading = new Array(holes).fill(new Array(tablets).fill(DEFAULT_COLOR));
 
+		const patternDesign = {};
+
+		// to do pattern design, based on patternType
+		// will be used to calculated picks, then tabletPositions
+		// for individual pattern, patternDesign will be simply picks
+
 		return Patterns.insert({
 			name,
 			'nameSort': name.toLowerCase(),
