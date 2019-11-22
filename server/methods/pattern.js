@@ -1,12 +1,16 @@
 import { check } from 'meteor/check';
-import { nonEmptyStringCheck } from '../utils';
+import {
+	nonEmptyStringCheck,
+	validHolesCheck,
+	validRowsCheck,
+	validTabletsCheck,
+	validPaletteIndexCheck,
+	validPatternTypeCheck,
+} from '../utils';
 import { Patterns } from '../../imports/collection';
 import {
-	ALLOWED_HOLES,
-	ALLOWED_PATTERN_TYPES,
+	DEFAULT_COLOR,
 	DEFAULT_PALETTE,
-	MAX_ROWS,
-	MAX_TABLETS,
 } from '../../imports/parameters';
 
 Meteor.methods({
@@ -17,31 +21,6 @@ Meteor.methods({
 		tablets,
 		patternType,
 	}) {
-		const validHolesCheck = Match.Where((x) => {
-			check(x, Match.Integer);
-
-			return ALLOWED_HOLES.indexOf(x) !== -1;
-		});
-
-		const validRowsCheck = Match.Where((x) => {
-			check(x, Match.Integer);
-
-			return x >= 1 && x <= MAX_ROWS;
-		});
-
-		const validTabletsCheck = Match.Where((x) => {
-			check(x, Match.Integer);
-
-			return x >= 1 && x <= MAX_TABLETS;
-		});
-
-		const validPatternTypeCheck = Match.Where((x) => {
-			check(x, String);
-			const allowedType = ALLOWED_PATTERN_TYPES.find((type) => type.name === x);
-
-			return typeof allowedType.name === 'string';
-		});
-
 		check(name, String);
 		check(holes, validHolesCheck);
 		check(rows, validRowsCheck);
@@ -59,7 +38,7 @@ Meteor.methods({
 		// threading is an array of arrays
 		// one row per hole
 		// one column per tablet
-		const threading = new Array(holes).fill(new Array(tablets).fill(3)); // default thread color is different from that selected in palette, so that users will see something happen if they click on the threading chart
+		const threading = new Array(holes).fill(new Array(tablets).fill(DEFAULT_COLOR));
 
 		return Patterns.insert({
 			name,
@@ -103,20 +82,8 @@ Meteor.methods({
 		tablet,
 		value,
 	}) {
-		const validHolesCheck = Match.Where((x) => {
-			check(x, Match.Integer);
-
-			return x >= 0;
-		});
-
-		const validTabletsCheck = Match.Where((x) => {
-			check(x, Match.Integer);
-
-			return x >= 0 && x <= MAX_TABLETS - 1;
-		});
-
 		check(_id, nonEmptyStringCheck);
-		check(hole, validHolesCheck);
+		check(hole, Match.Integer);
 		check(tablet, validTabletsCheck);
 		check(value, Match.Integer);
 
@@ -141,12 +108,23 @@ Meteor.methods({
 		_id,
 		tablet,
 	}) {
-		// to do: check and test
-		// user must own pattern
-		// values must be valid
-		// pattern must exist
+		check(_id, nonEmptyStringCheck);
+		check(tablet, validTabletsCheck);
+
+		if (!Meteor.userId()) {
+			throw new Meteor.Error('edit-orientation-not-logged-in', 'Unable to edit orientation because the user is not logged in');
+		}
 
 		const pattern = Patterns.findOne({ _id });
+
+		if (!pattern) {
+			throw new Meteor.Error('edit-orientation-not-found', 'Unable to edit orientation because the pattern was not found');
+		}
+
+		if (pattern.createdBy !== Meteor.userId()) {
+			throw new Meteor.Error('edit-orientation-not-created-by-user', 'Unable to edit orientation because pattern was not created by the current logged in user');
+		}
+
 		const newOrientation = pattern.orientations[tablet] === '\\' ? '/' : '\\';
 
 		// update the value in the nested arrays
@@ -157,10 +135,23 @@ Meteor.methods({
 		colorHexValue,
 		colorIndex,
 	}) {
-		// to do: check and test
-		// user must own pattern
-		// values must be valid
-		// pattern must exist
+		check(_id, nonEmptyStringCheck);
+		check(colorHexValue, String);
+		check(colorIndex, validPaletteIndexCheck);
+
+		if (!Meteor.userId()) {
+			throw new Meteor.Error('edit-palette-color-not-logged-in', 'Unable to edit palette color because the user is not logged in');
+		}
+
+		const pattern = Patterns.findOne({ _id });
+
+		if (!pattern) {
+			throw new Meteor.Error('edit-palette-color-not-found', 'Unable to edit palette color because the pattern was not found');
+		}
+
+		if (pattern.createdBy !== Meteor.userId()) {
+			throw new Meteor.Error('edit-palette-color-not-created-by-user', 'Unable to edit palette color because pattern was not created by the current logged in user');
+		}
 
 		// update the value in the nested arrays
 		return Patterns.update({ _id }, { '$set': { [`palette.${colorIndex}`]: colorHexValue } });

@@ -27,18 +27,11 @@ const patternsFields = [
 ];
 
 // fields that should be published for individual pattern
-const patternFields = [
-	'_id',
-	'createdAt',
-	'createdBy',
-	'holes',
-	'name',
-	'nameSort',
-	'patternType',
-	'rows',
-	'tablets',
+const patternFields = patternsFields.concat([
+	'orientations',
+	'palette',
 	'threading',
-];
+]);
 
 // it seems not to matter where factories are defined, but keep an eye on this.
 Factory.define('user', Meteor.users, {
@@ -111,7 +104,6 @@ if (Meteor.isServer) {
 
 				// no extra fields are published
 				Object.keys(testPattern).forEach((fieldName) => {
-					console.log('*** field', fieldName);
 					assert.include(patternsFields, fieldName);
 				});
 			});
@@ -178,7 +170,7 @@ if (Meteor.isServer) {
 
 				// no extra fields are published
 				Object.keys(testPattern).forEach((fieldName) => {
-					assert.include(patternsFields, fieldName);
+					assert.include(patternFields, fieldName);
 				});
 			});
 			it('should publish nothing if a different user is logged in', async () => {

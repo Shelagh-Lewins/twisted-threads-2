@@ -8,6 +8,7 @@ export const defaultPatternData = {
 	'isPublic': false,
 	'name': 'Pattern 1',
 	'nameSort': 'pattern 1',
+	'orientations': ['\\', '\\', '\\', '\\', '\\', '\\', '\\', '\\'],
 	'patternType': 'individual',
 	'rows': 6,
 	'tablets': 8,

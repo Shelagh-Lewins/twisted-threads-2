@@ -1,6 +1,10 @@
 import { check } from 'meteor/check';
 import { ColorBooks, Patterns } from '../imports/collection';
 import { ITEMS_PER_PAGE } from '../imports/parameters';
+import {
+	nonEmptyStringCheck,
+	positiveIntegerCheck,
+} from './utils';
 // arrow functions lose "this" context
 /* eslint-disable func-names */
 
@@ -55,11 +59,6 @@ const patternFields = {
 // list of patterns
 Meteor.publish('patterns', function (skip = 0, limit = ITEMS_PER_PAGE) {
 	// this needs to return the same number of patterns as the getPatternCount method, for pagination
-	const positiveIntegerCheck = Match.Where((x) => {
-		check(x, Match.Integer);
-		return x >= 0;
-	});
-
 	check(skip, positiveIntegerCheck);
 
 	// Meteor._sleepForMs(3000); // simulate server delay
@@ -83,11 +82,6 @@ Meteor.publish('patterns', function (skip = 0, limit = ITEMS_PER_PAGE) {
 
 // individual pattern
 Meteor.publish('pattern', function (_id = undefined) {
-	const nonEmptyStringCheck = Match.Where((x) => {
-		check(x, String);
-		return x !== '';
-	});
-
 	check(_id, nonEmptyStringCheck);
 
 	// explicitly return nothing when user is not logged in
