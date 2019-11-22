@@ -8,7 +8,7 @@ import { PublicationCollector } from 'meteor/johanbrook:publication-collector';
 import { resetDatabase } from 'meteor/xolvio:cleaner';
 import { assert } from 'chai';
 import '../publications';
-import { Patterns } from '../../imports/collection';
+import { ColorBooks, Patterns } from '../../imports/collection';
 import { stubUser, unwrapUser } from './mockUser';
 import { defaultPatternData } from './testData';
 
@@ -42,6 +42,10 @@ Factory.define('user', Meteor.users, {
 	}],
 });
 
+Factory.define('colorBook', ColorBooks, {
+	'name': 'A color book',
+});
+
 Factory.define('pattern', Patterns, defaultPatternData);
 
 if (Meteor.isServer) {
@@ -53,6 +57,7 @@ if (Meteor.isServer) {
 
 			this.pattern = Factory.create('pattern', { 'name': 'Pattern 1', 'createdBy': currentUser._id });
 			Factory.create('pattern', { 'name': 'Pattern 2', 'createdBy': currentUser._id });
+			Factory.create('colorBook', { 'name': 'My book', 'createdBy': currentUser._id });
 		});
 		afterEach(() => {
 			unwrapUser();
@@ -181,6 +186,55 @@ if (Meteor.isServer) {
 						this.pattern._id,
 						(collections) => {
 							resolve(collections.patterns.length);
+						});
+				});
+
+				const result = await testPromise;
+
+				assert.equal(result, 0);
+			});
+		});
+		// /////////////////////////
+		describe('publish color books', () => {
+			it('should publish nothing if user not logged in', async () => {
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('colorBooks',
+						(collections) => {
+							resolve(collections.patterns);
+						});
+				});
+
+				const result = await testPromise;
+
+				assert.equal(result, undefined);
+			});
+			it('should publish the document if the user is logged in', async () => {
+				const collector = new PublicationCollector({ 'userId': Meteor.user()._id });
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('colorBooks',
+						this.pattern._id,
+						(collections) => {
+							resolve(collections.colorBooks);
+						});
+				});
+
+				const result = await testPromise;
+
+				assert.equal(result.length, 1);
+
+				// all fields should be published
+				// TODO update this when color books can be made private / public
+			});
+			it('should publish 0 documents if a different user is logged in', async () => {
+				const collector = new PublicationCollector({ 'userId': 'xxx' });
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('colorBooks',
+						(collections) => {
+							resolve(collections.colorBooks.length);
 						});
 				});
 

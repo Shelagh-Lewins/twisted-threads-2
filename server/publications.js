@@ -14,7 +14,7 @@ Meteor.users.deny({ 'update': () => true });
 
 // //////////////////////////
 // Color books
-// list of patterns
+
 Meteor.publish('colorBooks', function () {
 	// Meteor._sleepForMs(3000); // simulate server delay
 

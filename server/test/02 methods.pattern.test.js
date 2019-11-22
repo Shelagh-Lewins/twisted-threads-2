@@ -9,11 +9,11 @@ import { stubUser, unwrapUser } from './mockUser';
 import { defaultPatternData } from './testData';
 
 if (Meteor.isServer) {
-	describe('test methods', () => {
+	describe('test methods for patterns', () => {
 		beforeEach(() => {
 			resetDatabase();
 		});
-		describe('addPattern method', () => {
+		describe('pattern.add method', () => {
 			it('cannot create pattern if not logged in', () => {
 				function expectedError() {
 					Meteor.call('pattern.add', defaultPatternData);
@@ -51,7 +51,7 @@ if (Meteor.isServer) {
 				unwrapUser();
 			});
 		});
-		describe('removePattern method', () => {
+		describe('pattern.remove method', () => {
 			it('cannot remove pattern if not logged in', () => {
 				const pattern = Factory.create('pattern', { 'name': 'Pattern 1', 'createdBy': 'abc' });
 
@@ -82,7 +82,7 @@ if (Meteor.isServer) {
 				unwrapUser();
 			});
 		});
-		describe('editThreadingCell method', () => {
+		describe('pattern.editThreadingCell method', () => {
 			it('cannot edit threading cell if not logged in', () => {
 				const pattern = Factory.create('pattern', { 'name': 'Pattern 1', 'createdBy': 'abc' });
 
@@ -159,7 +159,7 @@ if (Meteor.isServer) {
 				unwrapUser();
 			});
 		});
-		describe('editOrientation method', () => {
+		describe('pattern.editOrientation method', () => {
 			it('cannot edit tablet orientation if not logged in', () => {
 				const pattern = Factory.create('pattern', { 'name': 'Pattern 1', 'createdBy': 'abc' });
 
@@ -218,7 +218,7 @@ if (Meteor.isServer) {
 				unwrapUser();
 			});
 		});
-		describe('editPaletteColor method', () => {
+		describe('pattern.editPaletteColor method', () => {
 			it('cannot edit palette color if not logged in', () => {
 				const pattern = Factory.create('pattern', { 'name': 'Pattern 1', 'createdBy': 'abc' });
 
@@ -281,7 +281,7 @@ if (Meteor.isServer) {
 				unwrapUser();
 			});
 		});
-		describe('getPatternCount method', () => {
+		describe('pattern.getPatternCount method', () => {
 			it('returns 0 when the user is not logged in', () => {
 				// getPatternCount should count the patterns the user can see, for pagination.
 
