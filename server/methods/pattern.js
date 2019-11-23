@@ -7,6 +7,7 @@ import {
 	validPaletteIndexCheck,
 	validPatternTypeCheck,
 } from '../../imports/server/modules/utils';
+import turnTablet from '../../imports/modules/turnTablet';
 import { Patterns } from '../../imports/modules/collection';
 import {
 	DEFAULT_COLOR,
@@ -38,30 +39,50 @@ Meteor.methods({
 		// threading is an array of arrays
 		// one row per hole
 		// one column per tablet
-		const threading = new Array(holes).fill(new Array(tablets).fill(DEFAULT_COLOR));
+		// note that if you use fill to create new Arrays per tablet, it's really just one array! We need to make sure each array is a new entity.
+		const threading = new Array(holes);
+		for (let i = 0; i < holes; i += 1) {
+			threading[i] = new Array(tablets).fill(DEFAULT_COLOR);
+		}
 
+		// pattern design is based on patternType
+		// and will be used to calculated picks, from which the weaving chart and preview will be drawn
+		// 'for individual' pattern, patternDesign is simply picks
 		let patternDesign = {};
-		const pick = {
-			'direction': 'f',
-			'numberOfTurns': 1,
-		};
-		const picks = [];
+
+		const picks = new Array(rows); // construct an empty array to hold the picks
+		for (let i = 0; i < rows; i += 1) {
+			picks[i] = new Array(tablets);
+		}
 
 		switch (patternType) {
 			case 'individual':
+				// weave row 0
 				for (let i = 0; i < tablets; i += 1) {
-					picks.push(pick);
+					picks[0][i] = turnTablet({
+						'direction': 'F',
+						'numberOfTurns': 1, // turns this pick
+						'totalTurns': 0, // total turns for the tablet
+					});
 				}
+
+				// weave rows 1 ->
+				for (let i = 0; i < tablets; i += 1) {
+					for (let j = 1; j < rows; j += 1) {
+						picks[j][i] = turnTablet({
+							'direction': 'F',
+							'numberOfTurns': 1,
+							'totalTurns': picks[j - 1][i].totalTurns,
+						});
+					}
+				}
+
 				patternDesign = { picks };
 				break;
 
 			default:
 				break;
 		}
-
-		// to do pattern design, based on patternType
-		// will be used to calculated picks, then tabletPositions
-		// for individual pattern, patternDesign will be simply picks
 
 		return Patterns.insert({
 			name,

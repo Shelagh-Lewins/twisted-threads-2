@@ -58,7 +58,6 @@ class Home extends Component {
 		const { dispatch, history } = this.props;
 		const modifiedData = { ...data };
 		modifiedData.holes = parseInt(modifiedData.holes, 10); // select value is string
-		console.log('modifiedData', modifiedData);
 
 		dispatch(addPattern(modifiedData, history));
 		resetForm();
