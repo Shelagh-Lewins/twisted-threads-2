@@ -10,7 +10,7 @@ import {
 	SVGForwardWarp,
 } from '../modules/svg';
 import './Threading.scss';
-import { DEFAULT_PALETTE, HOLE_LABELS } from '../../parameters';
+import { DEFAULT_PALETTE, HOLE_LABELS } from '../../modules/parameters';
 import Palette from './Palette';
 
 // row and tablet have nothing to identify them except index

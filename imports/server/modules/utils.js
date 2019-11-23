@@ -3,7 +3,7 @@ import {
 	ALLOWED_PATTERN_TYPES,
 	MAX_ROWS,
 	MAX_TABLETS,
-} from '../imports/parameters';
+} from '../../modules/parameters';
 
 // used to check parameters supplied to methods and publications
 export const nonEmptyStringCheck = Match.Where((x) => {

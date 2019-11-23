@@ -6,7 +6,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import { setIsLoading } from '../modules/pattern';
 
-import { ColorBooks, Patterns } from '../../collection';
+import { ColorBooks, Patterns } from '../../modules/collection';
 import Loading from '../components/Loading';
 import Threading from '../components/Threading';
 import './Pattern.scss';

@@ -6,10 +6,11 @@ import PropTypes from 'prop-types';
 import {
 	ALLOWED_HOLES,
 	ALLOWED_PATTERN_TYPES,
+	DEFAULT_ROWS,
 	DEFAULT_TABLETS,
 	MAX_ROWS,
 	MAX_TABLETS,
-} from '../../parameters';
+} from '../../modules/parameters';
 import './AddPatternForm.scss';
 
 const validate = (values) => {
@@ -45,9 +46,10 @@ const validate = (values) => {
 const AddPatternForm = (props) => {
 	const formik = useFormik({
 		'initialValues': {
-			'holes': 4,
+			'holes': ALLOWED_HOLES[1],
 			'name': '',
 			'patternType': 'individual',
+			'rows': DEFAULT_ROWS,
 			'tablets': DEFAULT_TABLETS,
 		},
 		validate,

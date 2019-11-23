@@ -12,7 +12,7 @@ import PropTypes from 'prop-types';
 import { addPattern, getPatternCount, setIsLoading } from '../modules/pattern';
 import { getIsAuthenticated, getIsVerified } from '../modules/auth';
 
-import { Patterns } from '../../collection';
+import { Patterns } from '../../modules/collection';
 import Loading from '../components/Loading';
 import PatternList from '../components/PatternList';
 import AddPatternForm from '../components/AddPatternForm';
@@ -21,7 +21,7 @@ import { clearErrors } from '../modules/errors';
 import formatErrorMessages from '../modules/formatErrorMessages';
 import FlashMessage from '../components/FlashMessage';
 
-import { ITEMS_PER_PAGE } from '../../parameters';
+import { ITEMS_PER_PAGE } from '../../modules/parameters';
 import './Home.scss';
 
 const queryString = require('query-string');
@@ -36,6 +36,7 @@ class Home extends Component {
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
+			'onCloseFlashMessage',
 			'handleClickShowAddPatternForm',
 			'handleCancelShowAddPatternForm',
 		];
@@ -57,8 +58,9 @@ class Home extends Component {
 		const { dispatch, history } = this.props;
 		const modifiedData = { ...data };
 		modifiedData.holes = parseInt(modifiedData.holes, 10); // select value is string
+		console.log('modifiedData', modifiedData);
 
-		dispatch(addPattern(data, history));
+		dispatch(addPattern(modifiedData, history));
 		resetForm();
 
 		this.setState({

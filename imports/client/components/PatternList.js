@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import PatternSummary from './PatternSummary';
 import Pagination from './Pagination';
 import { changePage } from '../modules/pattern';
-import { ITEMS_PER_PAGE } from '../../parameters';
+import { ITEMS_PER_PAGE } from '../../modules/parameters';
 
 class PatternList extends PureComponent {
 	render() {

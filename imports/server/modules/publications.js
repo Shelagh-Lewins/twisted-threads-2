@@ -1,6 +1,6 @@
 import { check } from 'meteor/check';
-import { ColorBooks, Patterns } from '../imports/collection';
-import { ITEMS_PER_PAGE } from '../imports/parameters';
+import { ColorBooks, Patterns } from '../../modules/collection';
+import { ITEMS_PER_PAGE } from '../../modules/parameters';
 import {
 	nonEmptyStringCheck,
 	positiveIntegerCheck,

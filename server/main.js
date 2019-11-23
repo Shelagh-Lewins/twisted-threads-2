@@ -1,3 +1,6 @@
+import '../imports/modules/collection';
+import '../imports/server/modules/publications';
+
 Meteor.startup(() => {
 	Accounts.config({
 		'sendVerificationEmail': true,

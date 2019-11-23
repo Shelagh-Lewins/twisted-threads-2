@@ -1,10 +1,10 @@
 import { check } from 'meteor/check';
-import { nonEmptyStringCheck } from '../utils';
-import { ColorBooks } from '../../imports/collection';
+import { nonEmptyStringCheck } from '../../imports/server/modules/utils';
+import { ColorBooks } from '../../imports/modules/collection';
 import {
 	COLORS_IN_COLOR_BOOK,
 	DEFAULT_COLOR_BOOK_COLOR,
-} from '../../imports/parameters';
+} from '../../imports/modules/parameters';
 
 Meteor.methods({
 	'colorBook.add': function (name) {

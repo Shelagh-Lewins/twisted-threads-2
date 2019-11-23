@@ -22,9 +22,10 @@ export const DEFAULT_PALETTE = [
 	'#aa8e4b',
 ];
 
-export const MAX_ROWS = 100;
+export const MAX_ROWS = 200;
 export const MAX_TABLETS = 100;
 export const ALLOWED_HOLES = [2, 4, 6]; // permittied number of holes per tablet
+// although the select returns string, these must be number for server side validation
 export const HOLE_LABELS = ['A', 'B', 'C', 'D', 'E', 'F'];
 export const ALLOWED_PATTERN_TYPES = [
 	{ // simulation pattern, woven by turning each tablet individually
@@ -41,6 +42,7 @@ export const ALLOWED_PATTERN_TYPES = [
 ];
 export const DEFAULT_COLOR = 3; // default thread color is different from that selected in palette, so that users will see something happen if they click on the threading chart
 export const DEFAULT_TABLETS = 8;
+export const DEFAULT_ROWS = 10;
 
 export const COLORS_IN_COLOR_BOOK = 24;
 export const DEFAULT_COLOR_BOOK_COLOR = '#aa0000'; // if the default color has no saturation, clicking the vertical color bar in the color picker has no effect, which is confusing.

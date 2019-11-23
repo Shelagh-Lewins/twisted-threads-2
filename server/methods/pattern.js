@@ -6,12 +6,12 @@ import {
 	validTabletsCheck,
 	validPaletteIndexCheck,
 	validPatternTypeCheck,
-} from '../utils';
-import { Patterns } from '../../imports/collection';
+} from '../../imports/server/modules/utils';
+import { Patterns } from '../../imports/modules/collection';
 import {
 	DEFAULT_COLOR,
 	DEFAULT_PALETTE,
-} from '../../imports/parameters';
+} from '../../imports/modules/parameters';
 
 Meteor.methods({
 	'pattern.add': function ({
