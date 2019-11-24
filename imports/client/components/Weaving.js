@@ -3,7 +3,7 @@ import React, { PureComponent } from 'react';
 import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { modulus } from '../modules/weavingUtils';
-import { editOrientation, editPaletteColor, editThreadingCell } from '../modules/pattern';
+import { editWeavingCellDirection } from '../modules/pattern';
 import {
 	SVGBackwardEmpty,
 	SVGBackwardWarp,
@@ -11,13 +11,17 @@ import {
 	SVGForwardWarp,
 } from '../modules/svg';
 import './Threading.scss';
-// import { getPicksFromPattern } from '../modules/weavingUtils';
 import './Weaving.scss';
 
 // row and tablet have nothing to identify them except index
 // note row here indicates hole of the tablet
 // so disable the rule below
 /* eslint-disable react/no-array-index-key */
+
+// the weaving cell is only given button functionality when editing
+// but eslint doesn't pick this up
+/* eslint-disable jsx-a11y/no-noninteractive-tabindex */
+/* eslint-disable jsx-a11y/no-static-element-interactions */
 
 class Weaving extends PureComponent {
 	constructor(props) {
@@ -29,6 +33,7 @@ class Weaving extends PureComponent {
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
+			'handleClickWeavingCell',
 			'toggleEditWeaving',
 		];
 
@@ -39,24 +44,23 @@ class Weaving extends PureComponent {
 
 
 	handleClickWeavingCell(rowIndex, tabletIndex) {
+		const { picksByTablet } = this.props;
 		const { isEditing } = this.state;
-		console.log('clicked');
-		console.log('rowIndex', rowIndex);
-		console.log('tabletIndex', tabletIndex);
 
 		if (!isEditing) {
 			return;
 		}
 
-		/* const { dispatch, 'pattern': { _id } } = this.props;
-		const { selectedColorIndex } = this.state;
+		const currentDirection = picksByTablet[tabletIndex][rowIndex].direction;
 
-		dispatch(editThreadingCell({
+		const { dispatch, 'pattern': { _id } } = this.props;
+
+		dispatch(editWeavingCellDirection({
 			_id,
-			'hole': rowIndex,
+			'row': rowIndex,
 			'tablet': tabletIndex,
-			'value': selectedColorIndex,
-		})); */
+			'direction': currentDirection === 'F' ? 'B' : 'F',
+		}));
 	}
 
 	toggleEditWeaving() {
@@ -77,15 +81,35 @@ class Weaving extends PureComponent {
 			},
 			picksByTablet,
 		} = this.props;
+		const { isEditing } = this.state;
 
 		let svg;
 		const orientation = orientations[tabletIndex];
 		const { direction, totalTurns } = picksByTablet[tabletIndex][rowIndex];
-		const netTurns = modulus(totalTurns + 1, holes);
-		const colorIndex = threading[netTurns][tabletIndex];
+		const netTurns = modulus(totalTurns, holes);
+		let holeToShow;
+
+		if (direction === 'F') {
+			// show thread in position A
+			holeToShow = modulus(holes - netTurns, holes);
+		} else {
+			// show thread in position D
+			holeToShow = modulus(holes - netTurns - 1, holes);
+		}
+
+		const colorIndex = threading[holeToShow][tabletIndex];
+
+		let threadAngle = '/'; // which way does the thread twist?
+		if (direction === 'F') {
+			if (orientation === '\\') {
+				threadAngle = '\\';
+			}
+		} else if (orientation === '/') {
+			threadAngle = '\\';
+		}
 
 		if (colorIndex === -1) { // empty hole
-			svg = orientation === '\\'
+			svg = threadAngle === '\\'
 				? (
 					<SVGBackwardEmpty />
 				)
@@ -93,7 +117,7 @@ class Weaving extends PureComponent {
 					<SVGForwardEmpty	/>
 				);
 		} else { // colored thread
-			svg = orientation === '\\'
+			svg = threadAngle === '\\'
 				? (
 					<SVGBackwardWarp
 						fill={palette[colorIndex]}
@@ -111,11 +135,11 @@ class Weaving extends PureComponent {
 		return (
 			<span
 				className={direction === 'F' ? 'forward' : 'backward'}
-				type="button"
-				onClick={() => this.handleClickWeavingCell(rowIndex, tabletIndex)}
-				onKeyPress={() => this.handleClickWeavingCell(rowIndex, tabletIndex)}
-				role="button"
-				tabIndex="0"
+				type={isEditing ? 'button' : undefined}
+				onClick={isEditing ? () => this.handleClickWeavingCell(rowIndex, tabletIndex) : undefined}
+				onKeyPress={isEditing ? () => this.handleClickWeavingCell(rowIndex, tabletIndex) : undefined}
+				role={isEditing ? 'button' : undefined}
+				tabIndex={isEditing ? '0' : undefined}
 			>
 				{svg}
 			</span>
@@ -135,7 +159,7 @@ class Weaving extends PureComponent {
 								className="cell value"
 								key={`weaving-cell-${rowIndex}-${tabletIndex}`}
 							>
-								{this.renderCell(rowIndex, tabletIndex)}
+								{this.renderCell(rowLabel - 1, tabletIndex)}
 							</li>
 						))
 					}

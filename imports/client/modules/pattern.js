@@ -65,6 +65,24 @@ export function removePattern(_id) {
 	};
 }
 
+// Weaving
+export function editWeavingCellDirection({
+	_id,
+	row,
+	tablet,
+	direction,
+}) {
+	return () => {
+		Meteor.call('pattern.editWeavingCellDirection', {
+			_id,
+			row,
+			tablet,
+			direction,
+		});
+	};
+}
+
+// Threading
 export function editThreadingCell({
 	_id,
 	hole,

@@ -14,6 +14,7 @@ import {
 } from '../../imports/modules/parameters';
 
 Meteor.methods({
+	// overall pattern
 	'pattern.add': function ({
 		holes,
 		name,
@@ -111,6 +112,12 @@ Meteor.methods({
 			_id,
 		});
 	},
+	'pattern.getPatternCount': function () {
+		// this is required for pagination
+		// it needs to return the same number of patterns as the patterns publication in publications.js
+		return Patterns.find({ 'createdBy': Meteor.userId() }).count();
+	},
+	// threading
 	'pattern.editThreadingCell': function ({
 		_id,
 		hole,
@@ -191,9 +198,34 @@ Meteor.methods({
 		// update the value in the nested arrays
 		return Patterns.update({ _id }, { '$set': { [`palette.${colorIndex}`]: colorHexValue } });
 	},
-	'pattern.getPatternCount': function () {
-		// this is required for pagination
-		// it needs to return the same number of patterns as the patterns publication in publications.js
-		return Patterns.find({ 'createdBy': Meteor.userId() }).count();
+	// weaving
+	'pattern.editWeavingCellDirection': function ({
+		_id,
+		row,
+		tablet,
+		direction,
+	}) {
+		check(_id, nonEmptyStringCheck);
+		check(row, Match.Integer);
+		check(tablet, validTabletsCheck);
+		check(direction, String);
+		// TODO check value is 'F' or 'B'
+
+
+		if (!Meteor.userId()) {
+			throw new Meteor.Error('edit-weaving-not-logged-in', 'Unable to edit weaving because the user is not logged in');
+		}
+
+		const pattern = Patterns.findOne({ _id });
+
+		if (!pattern) {
+			throw new Meteor.Error('edit-weaving-not-found', 'Unable to edit weaving because the pattern was not found');
+		}
+
+		if (pattern.createdBy !== Meteor.userId()) {
+			throw new Meteor.Error('edit-weaving-not-created-by-user', 'Unable to edit weaving because pattern was not created by the current logged in user');
+		}
+
+		return Patterns.update({ _id }, { '$set': { [`patternDesign.weavingInstructions.${row}.${tablet}.direction`]: direction } });
 	},
 });

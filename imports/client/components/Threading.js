@@ -18,6 +18,11 @@ import Palette from './Palette';
 // so disable the rule below
 /* eslint-disable react/no-array-index-key */
 
+// the threading cell is only given button functionality when editing
+// but eslint doesn't pick this up
+/* eslint-disable jsx-a11y/no-noninteractive-tabindex */
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+
 class Threading extends PureComponent {
 	constructor(props) {
 		super(props);
@@ -114,6 +119,7 @@ class Threading extends PureComponent {
 
 	renderCell(colorIndex, rowIndex, tabletIndex) {
 		const { 'pattern': { orientations, palette } } = this.props;
+		const { isEditing } = this.state;
 
 		let svg;
 		const orientation = orientations[tabletIndex];
@@ -144,11 +150,11 @@ class Threading extends PureComponent {
 
 		return (
 			<span
-				type="button"
-				onClick={() => this.handleClickThreadingCell(rowIndex, tabletIndex, colorIndex)}
-				onKeyPress={() => this.handleClickThreadingCell(rowIndex, tabletIndex, colorIndex)}
-				role="button"
-				tabIndex="0"
+				type={isEditing ? 'button' : undefined}
+				onClick={isEditing ? () => this.handleClickThreadingCell(rowIndex, tabletIndex) : undefined}
+				onKeyPress={isEditing ? () => this.handleClickThreadingCell(rowIndex, tabletIndex) : undefined}
+				role={isEditing ? 'button' : undefined}
+				tabIndex={isEditing ? '0' : undefined}
 			>
 				{svg}
 			</span>
@@ -230,13 +236,15 @@ class Threading extends PureComponent {
 	}
 
 	renderOrientation(tabletIndex, value) {
+		const { isEditing } = this.state;
+
 		return (
 			<span
-				type="button"
-				onClick={() => this.handleClickOrientation(tabletIndex)}
-				onKeyPress={() => this.handleClickOrientation(tabletIndex)}
-				role="button"
-				tabIndex="0"
+				type={isEditing ? 'button' : undefined}
+				onClick={isEditing ? () => this.handleClickOrientation(tabletIndex) : undefined}
+				onKeyPress={isEditing ? () => this.handleClickOrientation(tabletIndex) : undefined}
+				role={isEditing ? 'button' : undefined}
+				tabIndex={isEditing ? '0' : undefined}
 				title={`${value === '/' ? 'Orientation S' : 'Orientation Z'}`}
 			>
 				<span
