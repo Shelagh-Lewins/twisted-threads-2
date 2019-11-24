@@ -2,8 +2,8 @@
 
 import { resetDatabase } from 'meteor/xolvio:cleaner';
 import { assert, expect } from 'chai';
-import { Patterns } from '../../imports/collection';
-import '../publications';
+import { Patterns } from '../../imports/modules/collection';
+import '../../imports/server/modules/publications';
 import '../methods/pattern';
 import { stubUser, unwrapUser } from './mockUser';
 import { defaultPatternData } from './testData';

@@ -8,6 +8,7 @@ import { setIsLoading } from '../modules/pattern';
 
 import { ColorBooks, Patterns } from '../../modules/collection';
 import Loading from '../components/Loading';
+import Weaving from '../components/Weaving';
 import Threading from '../components/Threading';
 import './Pattern.scss';
 
@@ -38,7 +39,13 @@ class Pattern extends PureComponent {
 				content = (
 					<>
 						<h1>{pattern.name}</h1>
-						{/* if navigating from the home page, the pattern is in MiniMongo before Tracker sets isLoading to true. Since the Home version is just the summary, it doesn't have threading and causes an error. */}
+						{/* if navigating from the home page, the pattern summary is in MiniMongo before Tracker sets isLoading to true. This doesn't include the detail fields so we need to prevent errors. */}
+						{pattern.patternDesign && (
+							<Weaving
+								dispatch={dispatch}
+								pattern={pattern}
+							/>
+						)}
 						{pattern.threading && (
 							<Threading
 								colorBookAdded={colorBookAdded}

@@ -27,11 +27,6 @@ class Threading extends PureComponent {
 			'selectedColorIndex': 0,
 		};
 
-		// Toolbar is rendered to the body element
-		// so it can be positioned within the viewport
-		this.el = document.createElement('div');
-		this.el.className = 'toolbar-holder';
-
 		this.selectColor = this.selectColor.bind(this);
 		this.handleEditColor = this.handleEditColor.bind(this);
 
@@ -202,7 +197,7 @@ class Threading extends PureComponent {
 	}
 
 	renderChart() {
-		const { pattern } = this.props;
+		const { 'pattern': { threading } } = this.props;
 		const { isEditing } = this.state;
 
 		const controls = (
@@ -220,7 +215,7 @@ class Threading extends PureComponent {
 				{this.renderTabletLabels()}
 				<ul className="threading-chart">
 					{
-						pattern.threading.map((row, index) => (
+						threading.map((row, index) => (
 							<li
 								className="row"
 								key={`threading-row-${index}`}
@@ -273,7 +268,7 @@ class Threading extends PureComponent {
 		);
 	}
 
-	renderToolbar() {
+	renderPalette() {
 		const {
 			colorBookAdded,
 			colorBooks,
@@ -281,9 +276,6 @@ class Threading extends PureComponent {
 			'pattern': { palette },
 		} = this.props;
 		const { selectedColorIndex } = this.state;
-
-		// Toolbar will be reused when editing turning, so Palette is passed as a property (props.children).
-		// This also avoids having to pass props through Toolbar to Palette.
 
 		return (
 			<Palette
@@ -306,7 +298,7 @@ class Threading extends PureComponent {
 			<div className="threading">
 				{this.renderChart()}
 				{this.renderOrientations()}
-				{isEditing && this.renderToolbar()}
+				{isEditing && this.renderPalette()}
 			</div>
 		);
 	}

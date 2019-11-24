@@ -57,8 +57,17 @@ Meteor.methods({
 
 		switch (patternType) {
 			case 'individual':
-				// weave row 0
+				// fill in the weaving picks as all Forward 1 turn
 				for (let i = 0; i < tablets; i += 1) {
+					for (let j = 0; j < rows; j += 1) {
+						picks[j][i] = turnTablet({
+							'direction': 'F',
+							'numberOfTurns': 1,
+						});
+					}
+				}
+				// weave row 0
+				/* for (let i = 0; i < tablets; i += 1) {
 					picks[0][i] = turnTablet({
 						'direction': 'F',
 						'numberOfTurns': 1, // turns this pick
@@ -75,7 +84,7 @@ Meteor.methods({
 							'totalTurns': picks[j - 1][i].totalTurns,
 						});
 					}
-				}
+				} */
 
 				patternDesign = { picks };
 				break;

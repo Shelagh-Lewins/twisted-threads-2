@@ -9,6 +9,7 @@ export const defaultPatternData = {
 	'name': 'Pattern 1',
 	'nameSort': 'pattern 1',
 	'orientations': ['\\', '\\', '\\', '\\', '\\', '\\', '\\', '\\'],
+	'patternDesign': '', // not a valid value, just here to test publication
 	'patternType': 'individual',
 	'rows': 6,
 	'tablets': 8,

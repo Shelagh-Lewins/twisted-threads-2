@@ -2,7 +2,7 @@
 
 import { resetDatabase } from 'meteor/xolvio:cleaner';
 import { expect } from 'chai';
-import '../publications';
+import '../../imports/server/modules/publications';
 import '../methods/auth';
 import { stubUser, unwrapUser } from './mockUser';
 

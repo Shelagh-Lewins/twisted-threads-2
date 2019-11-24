@@ -2,11 +2,10 @@
 
 import { resetDatabase } from 'meteor/xolvio:cleaner';
 import { assert, expect } from 'chai';
-import { ColorBooks } from '../../imports/collection';
-import '../publications';
+import { ColorBooks } from '../../imports/modules/collection';
+import '../../imports/server/modules/publications';
 import '../methods/colorBook';
 import { stubUser, unwrapUser } from './mockUser';
-import { defaultColorBookData } from './testData';
 
 if (Meteor.isServer) {
 	describe('test methods for color books', () => {

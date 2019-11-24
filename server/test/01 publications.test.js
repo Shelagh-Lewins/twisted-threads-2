@@ -7,8 +7,8 @@
 import { PublicationCollector } from 'meteor/johanbrook:publication-collector';
 import { resetDatabase } from 'meteor/xolvio:cleaner';
 import { assert } from 'chai';
-import '../publications';
-import { ColorBooks, Patterns } from '../../imports/collection';
+import '../../imports/server/modules/publications';
+import { ColorBooks, Patterns } from '../../imports/modules/collection';
 import { stubUser, unwrapUser } from './mockUser';
 import { defaultPatternData } from './testData';
 
@@ -30,6 +30,7 @@ const patternsFields = [
 const patternFields = patternsFields.concat([
 	'orientations',
 	'palette',
+	'patternDesign',
 	'threading',
 ]);
 
@@ -164,6 +165,7 @@ if (Meteor.isServer) {
 				// the values are correct
 				assert.equal(testPattern.holes, defaultPatternData.holes);
 				assert.equal(testPattern.name, defaultPatternData.name);
+				assert.equal(testPattern.patternDesign, defaultPatternData.patternDesign);
 				assert.equal(testPattern.patternType, defaultPatternData.patternType);
 				assert.equal(testPattern.rows, defaultPatternData.rows);
 				assert.equal(testPattern.tablets, defaultPatternData.tablets);
