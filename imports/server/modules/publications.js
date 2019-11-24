@@ -41,6 +41,8 @@ const patternsFields = {
 	'isPublic': 1,
 	'name': 1,
 	'nameSort': 1,
+	'numberOfRows': 1,
+	'numberOfTablets': 1,
 	'patternType': 1,
 	'rows': 1,
 	'tablets': 1,

@@ -76,6 +76,8 @@ Meteor.methods({
 		return Patterns.insert({
 			name,
 			'nameSort': name.toLowerCase(),
+			'numberOfRows': rows,
+			'numberOfTablets': tablets,
 			'createdAt': new Date(),
 			'createdBy': Meteor.userId(),
 			holes,

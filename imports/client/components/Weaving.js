@@ -11,7 +11,7 @@ import {
 	SVGForwardWarp,
 } from '../modules/svg';
 import './Threading.scss';
-// import { getPicksFromPatternDesign } from '../modules/weavingUtils';
+// import { getPicksFromPattern } from '../modules/weavingUtils';
 import './Weaving.scss';
 
 // row and tablet have nothing to identify them except index
@@ -72,7 +72,7 @@ class Weaving extends PureComponent {
 				palette,
 				threading,
 			},
-			picks,
+			picksByTablet,
 		} = this.props;
 
 		// console.log('rowIndex', rowIndex);
@@ -80,7 +80,7 @@ class Weaving extends PureComponent {
 		// let colorIndex = 0; // TO DO find from number of turns
 		let svg;
 		const orientation = orientations[tabletIndex];
-		const { totalTurns } = picks[rowIndex][tabletIndex];
+		const { totalTurns } = picksByTablet[tabletIndex][rowIndex];
 		const netTurns = modulus(totalTurns + 1, holes);
 		//console.log('totalTurns', totalTurns);
 		//console.log('netTurns', netTurns);
@@ -165,12 +165,12 @@ class Weaving extends PureComponent {
 	}
 
 	renderChart() {
-		const { picks } = this.props;
+		const { 'pattern': { numberOfRows, 'patternDesign': { weavingInstructions } } } = this.props;
 		const { isEditing } = this.state;
 
-		// const picks = getPicksFromPatternDesign({ patternDesign, patternType });
+		// const picks = getPicksFromPattern({ patternDesign, patternType });
 
-		const numberOfRows = picks.length;
+		// const numberOfRows = weavingInstructions[0].length;
 
 		// TO DO derive weaving chart
 		// and check for pattern type
@@ -192,7 +192,7 @@ class Weaving extends PureComponent {
 				{this.renderTabletLabels()}
 				<ul className="weaving-chart">
 					{
-						picks.map((row, index) => (
+						weavingInstructions.map((row, index) => (
 							<li
 								className="row"
 								key={`weaving-row-${index}`}
@@ -248,8 +248,10 @@ class Weaving extends PureComponent {
 
 Weaving.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
+	//'numberOfRows': PropTypes.number.isRequired,
+	//'numberOfTablets': PropTypes.number.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
-	'picks': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'picksByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 export default Weaving;
