@@ -2,6 +2,7 @@
 import { createSelector } from 'reselect';
 
 // /////////////////////////
+// utilities
 // calculate the effect of turning a tablet to weave one pick
 
 // direction: 'F', 'B'
@@ -22,56 +23,17 @@ export const turnTablet = ({ direction, numberOfTurns, totalTurns = 0 }) => (
 // e.g. -5 mod 4 returns 3
 export const modulus = (n, m) => ((n % m) + m) % m;
 
-export const getPicksFromPattern = (({ patternDesign, patternType }) => {
-	// console.log('pattern', pattern);
+// ///////////////////////////
+// provide weaving data to components
+const getPattern = (pattern) => pattern || {};
 
-	let numberOfRows;
-	let numberOfTablets;
-	const picks = [];
-	let weavingInstructions;
+export const getNumberOfRows = (pattern) => pattern.numberOfRows;
 
-	switch (patternType) {
-		case 'individual':
-			// calculate totalTurns for each pick
-			weavingInstructions = patternDesign.weavingInstructions;
-
-			numberOfRows = weavingInstructions.length;
-			numberOfTablets = weavingInstructions[0].length;
-
-			for (let i = 0; i < numberOfRows; i += 1) {
-				picks[i] = [];
-
-				for (let j = 0; j < numberOfTablets; j += 1) {
-					/* picks[i][j] = {
-						'direction': weavingInstructions[i][j].direction,
-						'numberOfTurns': weavingInstructions[i][j].numberOfTurns,
-					}; */
-
-					picks[i][j] = turnTablet({
-						'direction': weavingInstructions[i][j].direction,
-						'numberOfTurns': weavingInstructions[i][j].numberOfTurns,
-						'totalTurns': i === 0
-							? 0
-							: picks[i - 1][j].totalTurns,
-					});
-				}
-			}
-
-			break;
-
-		default:
-			break;
-	}
-
-	return picks;
-});
-
-const getPattern = pattern => pattern || {};
+export const getNumberOfTablets = (pattern) => pattern.numberOfTablets;
 
 export const getWeavingInstructionsForTablet = (pattern, tabletIndex) => {
 	const { numberOfRows, 'patternDesign': { weavingInstructions } } = pattern;
 
-	//const numberOfRows = weavingInstructions.length;
 	const weavingInstructionsForTablet = [];
 
 	for (let i = 0; i < numberOfRows; i += 1) {
@@ -82,9 +44,8 @@ export const getWeavingInstructionsForTablet = (pattern, tabletIndex) => {
 };
 
 const getPicksForTablet = createSelector(
-	[getWeavingInstructionsForTablet],
-	(weavingInstructionsForTablet) => {
-		const numberOfRows = weavingInstructionsForTablet.length;
+	[getWeavingInstructionsForTablet, getNumberOfRows],
+	(weavingInstructionsForTablet, numberOfRows) => {
 		const picks = [];
 
 		for (let i = 0; i < numberOfRows; i += 1) {
@@ -103,45 +64,23 @@ const getPicksForTablet = createSelector(
 	},
 );
 
-// TODO may be more efficient to store numberOfRows, numberOfTablets, as fixed properties so as not to recalculate on array change
-
-export const selectorTest = (pattern) => {
-	// weave by tablet instead of by row
-	console.log('pattern', pattern);
-	if (!pattern.patternDesign) {
-		return;
-	}
-	const { numberOfTablets, 'patternDesign': { weavingInstructions } } = pattern;
-
-	// const numberOfRows = weavingInstructions.length;
-	//const numberOfTablets = weavingInstructions[0].length;
-	const picksByTablet = [];
-
-	for (let j = 0; j < numberOfTablets; j += 1) {
-		const picksForTablet = getPicksForTablet(pattern, j);
-		picksByTablet.push(picksForTablet);
-	}
-
-	return picksByTablet;
-	return getPicksFromPattern(pattern);
-};
-
-/* export const selectorTest = createSelector(
-	[getPattern],
-	(pattern) => {
+export const getPicksByTablet = createSelector(
+	[getPattern, getNumberOfTablets],
+	(pattern, numberOfTablets) => {
 		// weave by tablet instead of by row
-		const { 'patternDesign': { weavingInstructions } } = pattern;
+		// so that an individual tablet can be rewoven
+		// without recalculating other tablets
+		if (!pattern.patternDesign) {
+			return [];
+		}
 
-		const numberOfRows = weavingInstructions.length;
-		const numberOfTablets = weavingInstructions[0].length;
-
+		const picksByTablet = [];
 
 		for (let j = 0; j < numberOfTablets; j += 1) {
-			const weavingInstructionsForTablet = [];
-			for (let i = 0; i < numberOfRows; i += 1) {
-				weavingInstructionsForTablet[j] = weavingInstructions[i][j];
-			}
+			const picksForTablet = getPicksForTablet(pattern, j);
+			picksByTablet.push(picksForTablet);
 		}
-		return getPicksFromPattern(pattern);
+
+		return picksByTablet;
 	},
-); */
+);

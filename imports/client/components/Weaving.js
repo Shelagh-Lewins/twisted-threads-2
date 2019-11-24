@@ -40,6 +40,9 @@ class Weaving extends PureComponent {
 
 	handleClickWeavingCell(rowIndex, tabletIndex) {
 		const { isEditing } = this.state;
+		console.log('clicked');
+		console.log('rowIndex', rowIndex);
+		console.log('tabletIndex', tabletIndex);
 
 		if (!isEditing) {
 			return;
@@ -75,16 +78,10 @@ class Weaving extends PureComponent {
 			picksByTablet,
 		} = this.props;
 
-		// console.log('rowIndex', rowIndex);
-		// console.log('tabletIndex', tabletIndex);
-		// let colorIndex = 0; // TO DO find from number of turns
 		let svg;
 		const orientation = orientations[tabletIndex];
-		const { totalTurns } = picksByTablet[tabletIndex][rowIndex];
+		const { direction, totalTurns } = picksByTablet[tabletIndex][rowIndex];
 		const netTurns = modulus(totalTurns + 1, holes);
-		//console.log('totalTurns', totalTurns);
-		//console.log('netTurns', netTurns);
-		//console.log('holes', holes);
 		const colorIndex = threading[netTurns][tabletIndex];
 
 		if (colorIndex === -1) { // empty hole
@@ -113,6 +110,7 @@ class Weaving extends PureComponent {
 
 		return (
 			<span
+				className={direction === 'F' ? 'forward' : 'backward'}
 				type="button"
 				onClick={() => this.handleClickWeavingCell(rowIndex, tabletIndex)}
 				onKeyPress={() => this.handleClickWeavingCell(rowIndex, tabletIndex)}
@@ -167,10 +165,6 @@ class Weaving extends PureComponent {
 	renderChart() {
 		const { 'pattern': { numberOfRows, 'patternDesign': { weavingInstructions } } } = this.props;
 		const { isEditing } = this.state;
-
-		// const picks = getPicksFromPattern({ patternDesign, patternType });
-
-		// const numberOfRows = weavingInstructions[0].length;
 
 		// TO DO derive weaving chart
 		// and check for pattern type

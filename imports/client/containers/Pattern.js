@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import { setIsLoading } from '../modules/pattern';
-import { getPicksFromPattern, selectorTest } from '../modules/weavingUtils';
+import { getPicksByTablet } from '../modules/weavingUtils';
 
 import { ColorBooks, Patterns } from '../../modules/collection';
 import Loading from '../components/Loading';
@@ -106,8 +106,7 @@ const Tracker = withTracker(({ _id, dispatch }) => {
 			'sort': { 'nameSort': 1 },
 		}).fetch(),
 		'pattern': pattern,
-		'picksByTablet': selectorTest(pattern),
-		// 'picks': getPicksFromPattern(pattern),
+		'picksByTablet': getPicksByTablet(pattern),
 	};
 })(Pattern);
 
