@@ -16,14 +16,18 @@ export const turnTablet = ({ direction, numberOfTurns, totalTurns = 0 }) => (
 	}
 );
 
+// find n modulus m
+// handles negative numbers
+// e.g. -5 mod 4 returns 3
+export const modulus = (n, m) => ((n % m) + m) % m;
+
 export const getPicksFromPatternDesign = (({ patternDesign, patternType }) => {
-	console.log('patternDesign', patternDesign);
+	// console.log('pattern', pattern);
 
 	let numberOfRows;
 	let numberOfTablets;
 	const picks = [];
 	let weavingInstructions;
-
 
 	switch (patternType) {
 		case 'individual':

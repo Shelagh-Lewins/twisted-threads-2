@@ -113,10 +113,10 @@ class Threading extends PureComponent {
 	}
 
 	renderCell(colorIndex, rowIndex, tabletIndex) {
-		const { pattern, 'pattern': { palette } } = this.props;
+		const { 'pattern': { orientations, palette } } = this.props;
 
 		let svg;
-		const orientation = pattern.orientations[tabletIndex];
+		const orientation = orientations[tabletIndex];
 
 		if (colorIndex === -1) { // empty hole
 			svg = orientation === '\\'

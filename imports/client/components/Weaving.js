@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 // import ReactDOM from 'react-dom';
 import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
+import { modulus } from '../modules/weavingUtils';
 import { editOrientation, editPaletteColor, editThreadingCell } from '../modules/pattern';
 import {
 	SVGBackwardEmpty,
@@ -10,7 +11,7 @@ import {
 	SVGForwardWarp,
 } from '../modules/svg';
 import './Threading.scss';
-import { getPicksFromPatternDesign } from '../modules/weavingUtils';
+// import { getPicksFromPatternDesign } from '../modules/weavingUtils';
 import './Weaving.scss';
 
 // row and tablet have nothing to identify them except index
@@ -64,7 +65,51 @@ class Weaving extends PureComponent {
 	}
 
 	renderCell(rowIndex, tabletIndex) {
-		const { pattern, 'pattern': { orientations } } = this.props;
+		const {
+			'pattern': {
+				holes,
+				orientations,
+				palette,
+				threading,
+			},
+			picks,
+		} = this.props;
+
+		// console.log('rowIndex', rowIndex);
+		// console.log('tabletIndex', tabletIndex);
+		// let colorIndex = 0; // TO DO find from number of turns
+		let svg;
+		const orientation = orientations[tabletIndex];
+		const { totalTurns } = picks[rowIndex][tabletIndex];
+		const netTurns = modulus(totalTurns + 1, holes);
+		//console.log('totalTurns', totalTurns);
+		//console.log('netTurns', netTurns);
+		//console.log('holes', holes);
+		const colorIndex = threading[netTurns][tabletIndex];
+
+		if (colorIndex === -1) { // empty hole
+			svg = orientation === '\\'
+				? (
+					<SVGBackwardEmpty />
+				)
+				: (
+					<SVGForwardEmpty	/>
+				);
+		} else { // colored thread
+			svg = orientation === '\\'
+				? (
+					<SVGBackwardWarp
+						fill={palette[colorIndex]}
+						stroke="#000000"
+					/>
+				)
+				: (
+					<SVGForwardWarp
+						fill={palette[colorIndex]}
+						stroke="#000000"
+					/>
+				);
+		}
 
 		return (
 			<span
@@ -74,7 +119,7 @@ class Weaving extends PureComponent {
 				role="button"
 				tabIndex="0"
 			>
-				x
+				{svg}
 			</span>
 		);
 	}
@@ -87,12 +132,12 @@ class Weaving extends PureComponent {
 				<span className="label">{rowLabel}</span>
 				<ul className="weaving-row">
 					{
-						row.map((colorIndex, index) => (
+						row.map((obj, tabletIndex) => (
 							<li
 								className="cell value"
-								key={`weaving-cell-${rowIndex}-${index}`}
+								key={`weaving-cell-${rowIndex}-${tabletIndex}`}
 							>
-								{this.renderCell(colorIndex, rowIndex, index)}
+								{this.renderCell(rowIndex, tabletIndex)}
 							</li>
 						))
 					}
@@ -120,17 +165,17 @@ class Weaving extends PureComponent {
 	}
 
 	renderChart() {
-		const { 'pattern': { patternDesign, patternType } } = this.props;
+		const { picks } = this.props;
 		const { isEditing } = this.state;
 
-		const weaving = getPicksFromPatternDesign({ patternDesign, patternType });
+		// const picks = getPicksFromPatternDesign({ patternDesign, patternType });
 
-		const numberOfRows = weaving.length;
+		const numberOfRows = picks.length;
 
 		// TO DO derive weaving chart
 		// and check for pattern type
 		// console.log('patternDesign', patternDesign);
-		console.log('weaving', weaving);
+		// console.log('picks', picks);
 
 		const controls = (
 			<div className="controls">
@@ -147,7 +192,7 @@ class Weaving extends PureComponent {
 				{this.renderTabletLabels()}
 				<ul className="weaving-chart">
 					{
-						weaving.map((row, index) => (
+						picks.map((row, index) => (
 							<li
 								className="row"
 								key={`weaving-row-${index}`}
@@ -204,6 +249,7 @@ class Weaving extends PureComponent {
 Weaving.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
+	'picks': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 export default Weaving;

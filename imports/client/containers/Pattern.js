@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import { setIsLoading } from '../modules/pattern';
+import { getPicksFromPatternDesign } from '../modules/weavingUtils';
 
 import { ColorBooks, Patterns } from '../../modules/collection';
 import Loading from '../components/Loading';
@@ -30,6 +31,7 @@ class Pattern extends PureComponent {
 			dispatch,
 			isLoading,
 			pattern,
+			picks,
 		} = this.props;
 
 		let content = <Loading />;
@@ -44,6 +46,7 @@ class Pattern extends PureComponent {
 							<Weaving
 								dispatch={dispatch}
 								pattern={pattern}
+								picks={picks}
 							/>
 						)}
 						{pattern.threading && (
@@ -75,6 +78,7 @@ Pattern.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
+	'picks': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
@@ -82,6 +86,7 @@ function mapStateToProps(state, ownProps) {
 		'colorBookAdded': state.colorBook.colorBookAdded,
 		'_id': ownProps.match.params.id, // read the url parameter to find the id of the pattern
 		'isLoading': state.pattern.isLoading,
+		// 'picks': getPicksFromPatternDesign(pattern),
 	};
 }
 
@@ -101,7 +106,8 @@ const Tracker = withTracker(({ _id, dispatch }) => {
 		'colorBooks': ColorBooks.find({}, {
 			'sort': { 'nameSort': 1 },
 		}).fetch(),
-		'pattern': pattern || {},
+		'pattern': pattern,
+		'picks': getPicksFromPatternDesign(pattern),
 	};
 })(Pattern);
 
