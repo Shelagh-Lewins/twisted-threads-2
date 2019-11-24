@@ -7,7 +7,6 @@ import {
 	validPaletteIndexCheck,
 	validPatternTypeCheck,
 } from '../../imports/server/modules/utils';
-import turnTablet from '../../imports/modules/turnTablet';
 import { Patterns } from '../../imports/modules/collection';
 import {
 	DEFAULT_COLOR,
@@ -50,43 +49,24 @@ Meteor.methods({
 		// 'for individual' pattern, patternDesign is simply picks
 		let patternDesign = {};
 
-		const picks = new Array(rows); // construct an empty array to hold the picks
+		const weavingInstructions = new Array(rows); // construct an empty array to hold the picks
 		for (let i = 0; i < rows; i += 1) {
-			picks[i] = new Array(tablets);
+			weavingInstructions[i] = new Array(tablets);
 		}
 
 		switch (patternType) {
 			case 'individual':
-				// fill in the weaving picks as all Forward 1 turn
+				// fill in the weaving instructions as all Forward 1 turn
 				for (let i = 0; i < tablets; i += 1) {
 					for (let j = 0; j < rows; j += 1) {
-						picks[j][i] = turnTablet({
+						weavingInstructions[j][i] = {
 							'direction': 'F',
 							'numberOfTurns': 1,
-						});
+						};
 					}
 				}
-				// weave row 0
-				/* for (let i = 0; i < tablets; i += 1) {
-					picks[0][i] = turnTablet({
-						'direction': 'F',
-						'numberOfTurns': 1, // turns this pick
-						'totalTurns': 0, // total turns for the tablet
-					});
-				}
 
-				// weave rows 1 ->
-				for (let i = 0; i < tablets; i += 1) {
-					for (let j = 1; j < rows; j += 1) {
-						picks[j][i] = turnTablet({
-							'direction': 'F',
-							'numberOfTurns': 1,
-							'totalTurns': picks[j - 1][i].totalTurns,
-						});
-					}
-				} */
-
-				patternDesign = { picks };
+				patternDesign = { weavingInstructions };
 				break;
 
 			default:

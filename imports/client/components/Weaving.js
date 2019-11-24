@@ -10,7 +10,7 @@ import {
 	SVGForwardWarp,
 } from '../modules/svg';
 import './Threading.scss';
-import { DEFAULT_PALETTE, HOLE_LABELS } from '../../modules/parameters';
+import { getPicksFromPatternDesign } from '../modules/weavingUtils';
 import './Weaving.scss';
 
 // row and tablet have nothing to identify them except index
@@ -120,16 +120,17 @@ class Weaving extends PureComponent {
 	}
 
 	renderChart() {
-		const { 'pattern': { patternDesign } } = this.props;
+		const { 'pattern': { patternDesign, patternType } } = this.props;
 		const { isEditing } = this.state;
 
-		const weaving = patternDesign.picks;
+		const weaving = getPicksFromPatternDesign({ patternDesign, patternType });
+
 		const numberOfRows = weaving.length;
 
 		// TO DO derive weaving chart
 		// and check for pattern type
 		// console.log('patternDesign', patternDesign);
-		// console.log('weaving', weaving);
+		console.log('weaving', weaving);
 
 		const controls = (
 			<div className="controls">
