@@ -82,6 +82,20 @@ export function editWeavingCellDirection({
 	};
 }
 
+export function addWeavingRows({
+	_id,
+	insertNRows,
+	insertRowsAt,
+}) {
+	return () => {
+		Meteor.call('pattern.addWeavingRows', {
+			_id,
+			insertNRows,
+			insertRowsAt,
+		});
+	};
+}
+
 // Threading
 export function editThreadingCell({
 	_id,

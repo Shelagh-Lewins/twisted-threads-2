@@ -209,8 +209,7 @@ Meteor.methods({
 		check(row, Match.Integer);
 		check(tablet, validTabletsCheck);
 		check(direction, String);
-		// TODO check value is 'F' or 'B'
-
+		// this applies when editing the weaving chart for an 'individual' type of pattern
 
 		if (!Meteor.userId()) {
 			throw new Meteor.Error('edit-weaving-not-logged-in', 'Unable to edit weaving because the user is not logged in');
@@ -226,6 +225,70 @@ Meteor.methods({
 			throw new Meteor.Error('edit-weaving-not-created-by-user', 'Unable to edit weaving because pattern was not created by the current logged in user');
 		}
 
+		// TODO this isn't tested
+		if (pattern.patternType !== 'individual') {
+			throw new Meteor.Error('edit-weaving-type-not-individual', 'Unable to edit weaving because pattern is not of type \'individual\'');
+		}
+
 		return Patterns.update({ _id }, { '$set': { [`patternDesign.weavingInstructions.${row}.${tablet}.direction`]: direction } });
+	},
+	'pattern.addWeavingRows': function ({
+		_id,
+		insertNRows,
+		insertRowsAt,
+	}) {
+		check(_id, nonEmptyStringCheck);
+		check(insertNRows, Match.Integer);
+		check(insertRowsAt, Match.Integer);
+		// this applies when adding rows to an 'individual' type of pattern
+
+		// TO DO test all
+		// TO DO check not too many rows
+		// check adding at valid position
+
+		if (!Meteor.userId()) {
+			throw new Meteor.Error('add-rows-not-logged-in', 'Unable to add rows because the user is not logged in');
+		}
+
+		const pattern = Patterns.findOne({ _id });
+
+		if (!pattern) {
+			throw new Meteor.Error('add-rows-not-found', 'Unable to add rows because the pattern was not found');
+		}
+
+		if (pattern.createdBy !== Meteor.userId()) {
+			throw new Meteor.Error('add-rows-not-created-by-user', 'Unable to add rows because pattern was not created by the current logged in user');
+		}
+
+		if (pattern.patternType !== 'individual') {
+			throw new Meteor.Error('add-rows-type-not-individual', 'Unable to add rows because pattern is not of type \'individual\'');
+		}
+
+		const newRows = [];
+
+		for (let i = 0; i < insertNRows; i += 1) {
+			const newRow = [];
+
+			for (let j = 0; j < pattern.numberOfTablets; j += 1) {
+				newRow.push({
+					'direction': 'F',
+					'numberOfTurns': 1,
+				});
+			}
+			newRows.push(newRow);
+		}
+
+		const update = {};
+		update.$push = {
+			'patternDesign.weavingInstructions': {
+				'$each': newRows,
+				'$position': insertRowsAt - 1,
+			},
+		};
+		update.$set = {
+			'numberOfRows': pattern.numberOfRows + insertNRows,
+		};
+
+		return Patterns.update({ _id }, update);
 	},
 });

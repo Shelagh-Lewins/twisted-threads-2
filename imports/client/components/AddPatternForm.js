@@ -161,7 +161,7 @@ const AddPatternForm = (props) => {
 						</label>
 					</Col>
 					<Col>
-						<label htmlFor="tablets">
+						<label htmlFor="rows">
 							Number of rows
 							<input
 								className={`form-control ${formik.touched.rows && formik.errors.rows ? 'is-invalid' : ''
@@ -196,4 +196,4 @@ AddPatternForm.propTypes = {
 	'handleSubmit': PropTypes.func.isRequired,
 };
 
-export default connect()(AddPatternForm);
+export default AddPatternForm;

@@ -32,12 +32,23 @@ export const getNumberOfRows = (pattern) => pattern.numberOfRows;
 export const getNumberOfTablets = (pattern) => pattern.numberOfTablets;
 
 export const getWeavingInstructionsForTablet = (pattern, tabletIndex) => {
-	const { numberOfRows, 'patternDesign': { weavingInstructions } } = pattern;
+	const {
+		patternDesign,
+		patternType,
+		numberOfRows,
+	} = pattern;
 
 	const weavingInstructionsForTablet = [];
 
-	for (let i = 0; i < numberOfRows; i += 1) {
-		weavingInstructionsForTablet[i] = weavingInstructions[i][tabletIndex];
+	switch (patternType) {
+		case 'individual':
+			for (let i = 0; i < numberOfRows; i += 1) {
+				weavingInstructionsForTablet[i] = patternDesign.weavingInstructions[i][tabletIndex];
+			}
+			break;
+
+		default:
+			break;
 	}
 
 	return weavingInstructionsForTablet;

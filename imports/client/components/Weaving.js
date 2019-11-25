@@ -3,13 +3,14 @@ import React, { PureComponent } from 'react';
 import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { modulus } from '../modules/weavingUtils';
-import { editWeavingCellDirection } from '../modules/pattern';
+import { addWeavingRows, editWeavingCellDirection } from '../modules/pattern';
 import {
 	SVGBackwardEmpty,
 	SVGBackwardWarp,
 	SVGForwardEmpty,
 	SVGForwardWarp,
 } from '../modules/svg';
+import AddRowsForm from './AddRowsForm';
 import './Threading.scss';
 import './Weaving.scss';
 
@@ -34,6 +35,7 @@ class Weaving extends PureComponent {
 		// bind onClick functions to provide context
 		const functionsToBind = [
 			'handleClickWeavingCell',
+			'handleSubmitAddRows',
 			'toggleEditWeaving',
 		];
 
@@ -60,6 +62,16 @@ class Weaving extends PureComponent {
 			'row': rowIndex,
 			'tablet': tabletIndex,
 			'direction': currentDirection === 'F' ? 'B' : 'F',
+		}));
+	}
+
+	handleSubmitAddRows(data) {
+		const { dispatch, 'pattern': { _id } } = this.props;
+
+		dispatch(addWeavingRows({
+			_id,
+			'insertNRows': parseInt(data.insertNRows, 10),
+			'insertRowsAt': parseInt(data.insertRowsAt, 10),
 		}));
 	}
 
@@ -201,11 +213,6 @@ class Weaving extends PureComponent {
 	renderChart() {
 		const { 'pattern': { numberOfRows, 'patternDesign': { weavingInstructions } } } = this.props;
 
-		// TO DO derive weaving chart
-		// and check for pattern type
-		// console.log('patternDesign', patternDesign);
-		// console.log('picks', picks);
-
 		return (
 			<>
 				{this.renderTabletLabels()}
@@ -225,32 +232,17 @@ class Weaving extends PureComponent {
 		);
 	}
 
-
 	renderToolbar() {
-		return;
-		/* const {
-			colorBookAdded,
-			colorBooks,
-			dispatch,
-			'pattern': { palette },
+		const {
+			'pattern': { numberOfRows },
 		} = this.props;
-		const { selectedColorIndex } = this.state;
-
-		// Toolbar will be reused when editing turning, so Palette is passed as a property (props.children).
-		// This also avoids having to pass props through Toolbar to Palette.
 
 		return (
-			<Palette
-				colorBookAdded={colorBookAdded}
-				colorBooks={colorBooks}
-				dispatch={dispatch}
-				handleClickRestoreDefaults={this.handleClickRestoreDefaults}
-				handleEditColor={this.handleEditColor}
-				palette={palette}
-				selectColor={this.selectColor}
-				selectedColorIndex={selectedColorIndex}
+			<AddRowsForm
+				handleSubmit={this.handleSubmitAddRows}
+				numberOfRows={numberOfRows}
 			/>
-		); */
+		);
 	}
 
 	render() {
@@ -271,8 +263,6 @@ class Weaving extends PureComponent {
 
 Weaving.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
-	//'numberOfRows': PropTypes.number.isRequired,
-	//'numberOfTablets': PropTypes.number.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 	'picksByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
