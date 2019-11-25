@@ -3,7 +3,22 @@
 .threading {
 	clear: both;
 	float: left;
+	margin: 24px 0 8px 0;
 	padding-right: 8px;
+
+	&.editing {
+		.content {
+			background: $color-chart-editing-background;
+			border: 1px solid $color-focus;
+		}
+	}
+
+	.content {
+		border: 1px solid transparent;
+		border-radius: 4px;
+		margin: 8px 0;
+		padding: 8px;
+	}
 
 	ul {
 		font-size: 0;
@@ -33,8 +48,6 @@
 					outline-offset: -2px;
 				}
 			}
-
-
 		}
 
 		.label {

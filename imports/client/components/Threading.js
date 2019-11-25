@@ -115,6 +115,25 @@ class Threading extends PureComponent {
 		this.setState({
 			'isEditing': !isEditing,
 		});
+
+		if (!isEditing) {
+			setTimeout(() => {
+				const element = document.getElementById('palette');
+				element.scrollIntoView();
+			}, 200);
+		}
+	}
+
+	renderControls() {
+		const { isEditing } = this.state;
+
+		return (
+			<div className="controls">
+				{isEditing
+					? <Button color="primary" onClick={this.toggleEditThreading}>Done</Button>
+					: <Button color="primary" onClick={this.toggleEditThreading}>Edit threading chart</Button>}
+			</div>
+		);
 	}
 
 	renderCell(colorIndex, rowIndex, tabletIndex) {
@@ -204,20 +223,9 @@ class Threading extends PureComponent {
 
 	renderChart() {
 		const { 'pattern': { threading } } = this.props;
-		const { isEditing } = this.state;
-
-		const controls = (
-			<div className="controls">
-				{isEditing
-					? <Button color="primary" onClick={this.toggleEditThreading}>Done</Button>
-					: <Button color="primary" onClick={this.toggleEditThreading}>Edit threading chart</Button>}
-			</div>
-		);
 
 		return (
 			<>
-				<h2>Threading chart</h2>
-				{controls}
 				{this.renderTabletLabels()}
 				<ul className="threading-chart">
 					{
@@ -303,10 +311,14 @@ class Threading extends PureComponent {
 		const { isEditing } = this.state;
 
 		return (
-			<div className="threading">
-				{this.renderChart()}
-				{this.renderOrientations()}
-				{isEditing && this.renderPalette()}
+			<div className={`threading ${isEditing ? 'editing' : ''}`}>
+				<h2>Threading chart</h2>
+				{this.renderControls()}
+				<div className="content">
+					{this.renderChart()}
+					{this.renderOrientations()}
+					{isEditing && this.renderPalette()}
+				</div>
 			</div>
 		);
 	}

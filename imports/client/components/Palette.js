@@ -296,11 +296,13 @@ class Palette extends PureComponent {
 		);
 
 		return (
-			<div className={`palette ${isEditing ? 'editing' : ''}`}>
+			<div id="palette" className={`palette ${isEditing ? 'editing' : ''}`}>
 				{showEditColorPanel && this.renderEditColorPanel()}
 				{controls}
-				{this.renderEmptyHole()}
-				{this.renderColors()}
+				<div className="swatches">
+					{this.renderEmptyHole()}
+					{this.renderColors()}
+				</div>
 			</div>
 		);
 	}

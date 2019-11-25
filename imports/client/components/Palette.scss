@@ -1,12 +1,17 @@
 @import "../constants/variables";
 
 .palette {
-	background: $color-palette-background;
-	border: 1px solid $color-panel-border;
-	border-radius: 4px;
-	padding: 8px;
+	margin: 8px 0;
 	position: relative;
 	width: 100%;
+
+	.swatches {
+		background: $color-palette-background;
+		border: 1px solid $color-panel-border;
+		border-radius: 4px;
+		overflow: hidden;
+		padding: 8px 8px 0 8px;
+	}
 
 	.color {
 		border: 1px solid $color-panel-border;
@@ -30,12 +35,25 @@
 		}
 
 		.toggle {
-			float: right;
+			float: left;
+		}
+
+		.btn-toolbar {
+			float: left;
+			margin-right: 8px;
+
+			button {
+				&.selected {
+					background: $color-palette-button-selected;
+					border-color: $color-palette-button-selected;
+				}
+			}
 		}
 	}
 
 	label {
 		font-size: 0;
+		margin-bottom: 0;
 
 		&[for="empty-hole"] {
 			float: left;
@@ -72,22 +90,11 @@
 			outline: 4px solid $color-palette-outline;
 		}
 	}
-
-	.btn-toolbar {
-		display: inline-block;
-
-		button {
-			&.selected {
-				background: $color-palette-button-selected;
-				border-color: $color-palette-button-selected;
-			}
-		}
-	}
 }
 
 .edit-color-holder {
 	left: 50%;
-	position: absolute;
+	position: fixed;
 	top: 100px;
 	transform: translate(-50%, 0);
 	z-index: 2;
