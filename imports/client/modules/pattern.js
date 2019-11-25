@@ -96,6 +96,18 @@ export function addWeavingRows({
 	};
 }
 
+export function removeWeavingRow({
+	_id,
+	rowIndex,
+}) {
+	return () => {
+		Meteor.call('pattern.removeWeavingRow', {
+			_id,
+			rowIndex,
+		});
+	};
+}
+
 // Threading
 export function editThreadingCell({
 	_id,

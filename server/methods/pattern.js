@@ -291,4 +291,50 @@ Meteor.methods({
 
 		return Patterns.update({ _id }, update);
 	},
+	'pattern.removeWeavingRow': function ({
+		_id,
+		rowIndex,
+	}) {
+		check(_id, nonEmptyStringCheck);
+		check(rowIndex, Match.Integer);
+		// this applies when removing a row from an 'individual' type of pattern
+
+		// TO DO test all
+		// check removing at valid position
+		// DO NOT REMOVE LAST ROW
+
+		if (!Meteor.userId()) {
+			throw new Meteor.Error('remove-row-not-logged-in', 'Unable to remove row because the user is not logged in');
+		}
+
+		const pattern = Patterns.findOne({ _id });
+
+		if (!pattern) {
+			throw new Meteor.Error('remove-row-not-found', 'Unable to remove row because the pattern was not found');
+		}
+
+		if (pattern.createdBy !== Meteor.userId()) {
+			throw new Meteor.Error('remove-row-not-created-by-user', 'Unable to remove row because pattern was not created by the current logged in user');
+		}
+
+		if (pattern.patternType !== 'individual') {
+			throw new Meteor.Error('remove-row-type-not-individual', 'Unable to remove row because pattern is not of type \'individual\'');
+		}
+
+		// an element cannot be removed from an array by index
+		// so first we mark the row to remove
+		// then use 'pull'
+
+		Patterns.update({ _id }, { '$set': { [`patternDesign.weavingInstructions.${rowIndex}.${0}.toBeDeleted`]: true } });
+
+		// NOTE if the pull fails, the numberOfRows will then be incorrect
+		// however if the following updates don't take place atomically, the client will likely show errors
+		const update = {};
+		update.$pull = { 'patternDesign.weavingInstructions': { '$elemMatch': { 'toBeDeleted': true } } };
+		update.$set = {
+			'numberOfRows': pattern.numberOfRows - 1,
+		};
+
+		return Patterns.update({ _id }, update);
+	},
 });

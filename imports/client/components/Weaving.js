@@ -3,7 +3,11 @@ import React, { PureComponent } from 'react';
 import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { modulus } from '../modules/weavingUtils';
-import { addWeavingRows, editWeavingCellDirection } from '../modules/pattern';
+import {
+	addWeavingRows,
+	editWeavingCellDirection,
+	removeWeavingRow,
+} from '../modules/pattern';
 import {
 	SVGBackwardEmpty,
 	SVGBackwardWarp,
@@ -34,6 +38,7 @@ class Weaving extends PureComponent {
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
+			'handleClickRemoveRow',
 			'handleClickWeavingCell',
 			'handleSubmitAddRows',
 			'toggleEditWeaving',
@@ -63,6 +68,24 @@ class Weaving extends PureComponent {
 			'tablet': tabletIndex,
 			'direction': currentDirection === 'F' ? 'B' : 'F',
 		}));
+	}
+
+	handleClickRemoveRow(rowIndex) {
+		const {
+			'pattern': { _id },
+			dispatch,
+		} = this.props;
+		const { isEditing } = this.state;
+
+		if (!isEditing) {
+			return;
+		}
+
+		const response = confirm(`Do you want to delete row "${rowIndex + 1}"?`); // eslint-disable-line no-restricted-globals
+
+		if (response === true) {
+			dispatch(removeWeavingRow({ _id, rowIndex }));
+		}
 	}
 
 	handleSubmitAddRows(data) {
@@ -171,6 +194,7 @@ class Weaving extends PureComponent {
 	}
 
 	renderRow(numberOfRows, row, rowIndex) {
+		const { isEditing } = this.state;
 		const rowLabel = numberOfRows - rowIndex;
 
 		return (
@@ -187,6 +211,20 @@ class Weaving extends PureComponent {
 							</li>
 						))
 					}
+					{isEditing && numberOfRows > 1 && (
+						<li className="cell delete">
+							<span
+								title="delete row"
+								type="button"
+								onClick={() => this.handleClickRemoveRow(rowLabel - 1)}
+								onKeyPress={() => this.handleClickRemoveRow(rowLabel - 1)}
+								role="button"
+								tabIndex="0"
+							>
+							X
+							</span>
+						</li>
+					)}
 				</ul>
 			</>
 		);
@@ -228,6 +266,7 @@ class Weaving extends PureComponent {
 						))
 					}
 				</ul>
+				<span className="hint">Click on a chart cell to edit it</span>
 			</>
 		);
 	}

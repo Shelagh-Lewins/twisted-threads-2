@@ -6,17 +6,19 @@ import { removePattern } from '../modules/pattern';
 import './PatternSummary.scss';
 
 function PatternSummary({ name, _id, dispatch }) {
+	const handleClickButtonRemove = function () {
+		const response = confirm(`Do you want to delete the pattern "${name}"?`); // eslint-disable-line no-restricted-globals
+
+		if (response === true) {
+			dispatch(removePattern(_id));
+		}
+	};
+
 	const buttonRemove = (
 		<Button
 			type="button"
 			color="danger"
-			onClick={() => {
-				const response = confirm(`Do you want to delete the pattern "${name}"?`); // eslint-disable-line no-restricted-globals
-
-				if (response === true) {
-					dispatch(removePattern(_id));
-				}
-			}}
+			onClick={() => handleClickButtonRemove(_id)}
 		>
 		X
 		</Button>
