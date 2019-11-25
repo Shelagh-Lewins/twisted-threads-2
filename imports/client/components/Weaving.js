@@ -71,6 +71,18 @@ class Weaving extends PureComponent {
 		});
 	}
 
+	renderControls() {
+		const { isEditing } = this.state;
+
+		return (
+			<div className="controls">
+				{isEditing
+					? <Button color="primary" onClick={this.toggleEditWeaving}>Done</Button>
+					: <Button color="primary" onClick={this.toggleEditWeaving}>Edit weaving chart</Button>}
+			</div>
+		);
+	}
+
 	renderCell(rowIndex, tabletIndex) {
 		const {
 			'pattern': {
@@ -188,25 +200,14 @@ class Weaving extends PureComponent {
 
 	renderChart() {
 		const { 'pattern': { numberOfRows, 'patternDesign': { weavingInstructions } } } = this.props;
-		const { isEditing } = this.state;
 
 		// TO DO derive weaving chart
 		// and check for pattern type
 		// console.log('patternDesign', patternDesign);
 		// console.log('picks', picks);
 
-		const controls = (
-			<div className="controls">
-				{isEditing
-					? <Button color="primary" onClick={this.toggleEditWeaving}>Done</Button>
-					: <Button color="primary" onClick={this.toggleEditWeaving}>Edit weaving chart</Button>}
-			</div>
-		);
-
 		return (
 			<>
-				<h2>Weaving chart</h2>
-				{controls}
 				{this.renderTabletLabels()}
 				<ul className="weaving-chart">
 					{
@@ -256,9 +257,13 @@ class Weaving extends PureComponent {
 		const { isEditing } = this.state;
 
 		return (
-			<div className="weaving">
-				{this.renderChart()}
-				{isEditing && this.renderToolbar()}
+			<div className={`weaving ${isEditing ? 'editing' : ''}`}>
+				<h2>Weaving chart</h2>
+				{this.renderControls()}
+				<div className="content">
+					{this.renderChart()}
+					{isEditing && this.renderToolbar()}
+				</div>
 			</div>
 		);
 	}

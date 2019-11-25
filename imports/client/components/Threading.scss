@@ -95,53 +95,55 @@
 	}
 
 	.orientations {
-		clear: both;
-		margin-left: 32px;
+		ul {
+			clear: both;
+			margin-left: 32px;
 
-		li {
-			display: inline-block;
-			font-size: 0;
-			overflow: hidden;
-			position: relative;
+			li {
+				display: inline-block;
+				font-size: 0;
+				overflow: hidden;
+				position: relative;
 
-			&:focus {
-				outline: 2px dashed $color-focus;
-				outline-offset: -2px;
+				&:focus {
+					outline: 2px dashed $color-focus;
+					outline-offset: -2px;
+				}
+
+				&.value {
+					background: transparent;
+					border: 0;
+				}
 			}
 
-			&.value {
-				background: transparent;
-				border: 0;
+			.z,
+			.s {
+				background-color: $color-orientation;
+				border: 1px solid $color-orientation;
+				border-radius: 8px;
+				height: 10%;
+				left: -2%;
+				position: absolute;
+				right: 0;
+				top: 42%;
+				width: 100%;
 			}
-		}
 
-		.z,
-		.s {
-			background-color: $color-orientation;
-			border: 1px solid $color-orientation;
-			border-radius: 8px;
-			height: 10%;
-			left: -2%;
-			position: absolute;
-			right: 0;
-			top: 42%;
-			width: 100%;
-		}
+			.z {
+				-moz-transform: rotate(45deg);
+				-ms-transform: rotate(45deg);
+				-o-transform: rotate(45deg);
+				-webkit-transform: rotate(45deg);
+				transform: rotate(45deg);
+			}
 
-		.z {
-			-moz-transform: rotate(45deg);
-			-ms-transform: rotate(45deg);
-			-o-transform: rotate(45deg);
-			-webkit-transform: rotate(45deg);
-			transform: rotate(45deg);
-		}
-
-		.s {
-			-moz-transform: rotate(-45deg);
-			-ms-transform: rotate(-45deg);
-			-o-transform: rotate(-45deg);
-			-webkit-transform: rotate(-45deg);
-			transform: rotate(-45deg);
+			.s {
+				-moz-transform: rotate(-45deg);
+				-ms-transform: rotate(-45deg);
+				-o-transform: rotate(-45deg);
+				-webkit-transform: rotate(-45deg);
+				transform: rotate(-45deg);
+			}
 		}
 	}
 

@@ -5,6 +5,20 @@
 	float: left;
 	padding-right: 8px;
 
+	&.editing {
+		.content {
+			background: $color-chart-editing-background;
+			border: 1px solid $color-focus;
+		}
+	}
+
+	.content {
+		border: 1px solid transparent;
+		border-radius: 4px;
+		margin: 8px 0;
+		padding: 8px;
+	}
+
 	ul {
 		font-size: 0;
 		list-style-type: none;

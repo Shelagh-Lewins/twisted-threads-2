@@ -119,7 +119,7 @@ class Threading extends PureComponent {
 		if (!isEditing) {
 			setTimeout(() => {
 				const element = document.getElementById('palette');
-				element.scrollIntoView();
+				element.scrollIntoView({ 'behavior': 'smooth' });
 			}, 200);
 		}
 	}
@@ -266,13 +266,13 @@ class Threading extends PureComponent {
 		const { 'pattern': { orientations } } = this.props;
 
 		return (
-			<>
+			<div className="orientations">
 				<ul className="orientations">
 					{
 						orientations.map((value, tabletIndex) => (
 							<li
 								className="cell value"
-								key={`orientations-${tabletIndex}`}
+								key={`orientation-${tabletIndex}`}
 							>
 								{this.renderOrientation(tabletIndex, orientations[tabletIndex])}
 							</li>
@@ -280,7 +280,7 @@ class Threading extends PureComponent {
 					}
 				</ul>
 				<p className="hint">Slope of line = angle of tablet viewed from above</p>
-			</>
+			</div>
 		);
 	}
 
