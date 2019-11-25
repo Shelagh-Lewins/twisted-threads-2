@@ -300,8 +300,6 @@ Meteor.methods({
 		// this applies when removing a row from an 'individual' type of pattern
 
 		// TO DO test all
-		// check removing at valid position
-		// DO NOT REMOVE LAST ROW
 
 		if (!Meteor.userId()) {
 			throw new Meteor.Error('remove-row-not-logged-in', 'Unable to remove row because the user is not logged in');
@@ -319,6 +317,14 @@ Meteor.methods({
 
 		if (pattern.patternType !== 'individual') {
 			throw new Meteor.Error('remove-row-type-not-individual', 'Unable to remove row because pattern is not of type \'individual\'');
+		}
+
+		if (pattern.numberOfRows === 1) {
+			throw new Meteor.Error('remove-row-last-row', 'Unable to remove row because there is only one row');
+		}
+
+		if (pattern.numberOfRows <= rowIndex) {
+			throw new Meteor.Error('remove-row-invalid-row', 'Unable to remove row because the row does not exist');
 		}
 
 		// an element cannot be removed from an array by index
