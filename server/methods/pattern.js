@@ -10,6 +10,7 @@ import {
 import { Patterns } from '../../imports/modules/collection';
 import {
 	DEFAULT_COLOR,
+	DEFAULT_ORIENTATION,
 	DEFAULT_PALETTE,
 } from '../../imports/modules/parameters';
 
@@ -84,10 +85,10 @@ Meteor.methods({
 			holes,
 			'isPublic': false,
 			'palette': DEFAULT_PALETTE,
-			'orientations': new Array(tablets).fill('/'),
+			'orientations': new Array(tablets).fill(DEFAULT_ORIENTATION),
 			patternDesign,
 			patternType,
-			tablets,
+			// tablets,
 			threading,
 		});
 	},
@@ -339,6 +340,87 @@ Meteor.methods({
 		update.$pull = { 'patternDesign.weavingInstructions': { '$elemMatch': { 'toBeDeleted': true } } };
 		update.$set = {
 			'numberOfRows': pattern.numberOfRows - 1,
+		};
+
+		return Patterns.update({ _id }, update);
+	},
+	'pattern.addTablets': function ({
+		_id,
+		insertNTablets,
+		insertTabletsAt,
+	}) {
+		check(_id, nonEmptyStringCheck);
+		check(insertNTablets, Match.Integer);
+		check(insertTabletsAt, Match.Integer);
+		// this applies when adding tablets to an 'individual' type of pattern
+		// will need to be extended for other types of pattern
+
+		// TO DO test all
+		// TO DO check not too many tablets
+		// check adding at valid position
+
+		if (!Meteor.userId()) {
+			throw new Meteor.Error('add-tablets-not-logged-in', 'Unable to add tablets because the user is not logged in');
+		}
+
+		const pattern = Patterns.findOne({ _id });
+
+		if (!pattern) {
+			throw new Meteor.Error('add-tablets-not-found', 'Unable to add tablets because the pattern was not found');
+		}
+
+		if (pattern.createdBy !== Meteor.userId()) {
+			throw new Meteor.Error('add-tablets-not-created-by-user', 'Unable to add tablets because pattern was not created by the current logged in user');
+		}
+
+		if (pattern.patternType !== 'individual') {
+			throw new Meteor.Error('add-tablets-type-not-individual', 'Unable to add tablets because pattern is not of type \'individual\'');
+		}
+		// TO DO add other pattern types
+		// threading and orientations should be the same
+		// but weaving will be different
+
+		// new picks to be added to each weaving row
+		const newPicks = [];
+
+		for (let j = 0; j < insertNTablets; j += 1) {
+			newPicks.push({
+				'direction': 'F',
+				'numberOfTurns': 1,
+			});
+		}
+
+		// new tablets to be added to each threading row
+		const newTablets = [];
+
+		for (let j = 0; j < insertNTablets; j += 1) {
+			newTablets.push(DEFAULT_COLOR);
+		}
+
+		// new tablets to be added to orientation
+		const newOrientations = [];
+
+		for (let j = 0; j < insertNTablets; j += 1) {
+			newOrientations.push(DEFAULT_ORIENTATION);
+		}
+
+		const update = {};
+		update.$push = {
+			'patternDesign.weavingInstructions.$[]': {
+				'$each': newPicks,
+				'$position': insertTabletsAt - 1,
+			},
+			'threading.$[]': {
+				'$each': newTablets,
+				'$position': insertTabletsAt - 1,
+			},
+			'orientations': {
+				'$each': newOrientations,
+				'$position': insertTabletsAt - 1,
+			},
+		};
+		update.$set = {
+			'numberOfTablets': pattern.numberOfTablets + insertNTablets,
 		};
 
 		return Patterns.update({ _id }, update);

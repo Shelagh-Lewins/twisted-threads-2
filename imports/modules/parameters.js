@@ -43,8 +43,10 @@ export const ALLOWED_PATTERN_TYPES = [
 export const DEFAULT_COLOR = 3; // default thread color is different from that selected in palette, so that users will see something happen if they click on the threading chart
 export const DEFAULT_TABLETS = 8;
 export const DEFAULT_ROWS = 10;
+export const DEFAULT_ORIENTATION = '/';
 
 export const COLORS_IN_COLOR_BOOK = 24;
 export const DEFAULT_COLOR_BOOK_COLOR = '#aa0000'; // if the default color has no saturation, clicking the vertical color bar in the color picker has no effect, which is confusing.
 
 export const MAX_ROWS_TO_ADD = 10; // max number of rows to add at once to an 'individual' pattern
+export const MAX_TABLETS_TO_ADD = 10; // max number of tablets to add at once to an 'individual' pattern

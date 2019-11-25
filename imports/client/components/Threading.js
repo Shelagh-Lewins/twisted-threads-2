@@ -2,13 +2,14 @@ import React, { PureComponent } from 'react';
 // import ReactDOM from 'react-dom';
 import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
-import { editOrientation, editPaletteColor, editThreadingCell } from '../modules/pattern';
+import { addTablets, editOrientation, editPaletteColor, editThreadingCell } from '../modules/pattern';
 import {
 	SVGBackwardEmpty,
 	SVGBackwardWarp,
 	SVGForwardEmpty,
 	SVGForwardWarp,
 } from '../modules/svg';
+import AddTabletsForm from './AddTabletsForm';
 import './Threading.scss';
 import { DEFAULT_PALETTE, HOLE_LABELS } from '../../modules/parameters';
 import Palette from './Palette';
@@ -39,6 +40,7 @@ class Threading extends PureComponent {
 		const functionsToBind = [
 			'handleClickRestoreDefaults',
 			'handleEditColor',
+			'handleSubmitAddTablets',
 			'selectColor',
 			'toggleEditThreading',
 		];
@@ -75,6 +77,18 @@ class Threading extends PureComponent {
 			'colorHexValue': colorHexValue,
 			'colorIndex': selectedColorIndex,
 		}));
+	}
+
+	handleSubmitAddTablets(data, { resetForm }) {
+		const { dispatch, 'pattern': { _id } } = this.props;
+
+		dispatch(addTablets({
+			_id,
+			'insertNTablets': parseInt(data.insertNTablets, 10),
+			'insertTabletsAt': parseInt(data.insertTabletsAt, 10),
+		}));
+		//TODO might need timeout here
+		resetForm();
 	}
 
 	handleClickThreadingCell(rowIndex, tabletIndex) {
@@ -204,10 +218,10 @@ class Threading extends PureComponent {
 	}
 
 	renderTabletLabels() {
-		const { 'pattern': { tablets } } = this.props;
+		const { 'pattern': { numberOfTablets } } = this.props;
 
 		const labels = [];
-		for (let i = 0; i < tablets; i += 1) {
+		for (let i = 0; i < numberOfTablets; i += 1) {
 			labels.push((
 				<li
 					className="cell label"
@@ -284,6 +298,19 @@ class Threading extends PureComponent {
 		);
 	}
 
+	renderToolbar() {
+		const {
+			'pattern': { numberOfTablets },
+		} = this.props;
+
+		return (
+			<AddTabletsForm
+				handleSubmit={this.handleSubmitAddTablets}
+				numberOfTablets={numberOfTablets}
+			/>
+		);
+	}
+
 	renderPalette() {
 		const {
 			colorBookAdded,
@@ -317,6 +344,7 @@ class Threading extends PureComponent {
 				<div className="content">
 					{this.renderChart()}
 					{this.renderOrientations()}
+					{isEditing && this.renderToolbar()}
 					{isEditing && this.renderPalette()}
 				</div>
 			</div>

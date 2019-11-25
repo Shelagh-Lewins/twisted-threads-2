@@ -88,7 +88,7 @@ class Weaving extends PureComponent {
 		}
 	}
 
-	handleSubmitAddRows(data) {
+	handleSubmitAddRows(data, { resetForm }) {
 		const { dispatch, 'pattern': { _id } } = this.props;
 
 		dispatch(addWeavingRows({
@@ -96,6 +96,8 @@ class Weaving extends PureComponent {
 			'insertNRows': parseInt(data.insertNRows, 10),
 			'insertRowsAt': parseInt(data.insertRowsAt, 10),
 		}));
+		//TODO might need timeout here
+		resetForm();
 	}
 
 	toggleEditWeaving() {

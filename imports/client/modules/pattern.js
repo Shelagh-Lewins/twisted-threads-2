@@ -125,6 +125,20 @@ export function editThreadingCell({
 	};
 }
 
+export function addTablets({
+	_id,
+	insertNTablets,
+	insertTabletsAt,
+}) {
+	return () => {
+		Meteor.call('pattern.addTablets', {
+			_id,
+			insertNTablets,
+			insertTabletsAt,
+		});
+	};
+}
+
 export function editOrientation({
 	_id,
 	tablet,
