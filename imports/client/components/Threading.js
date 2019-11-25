@@ -167,8 +167,8 @@ class Threading extends PureComponent {
 
 		return (
 			<>
-				<span className="label">{HOLE_LABELS[labelIndex]}</span>
 				<ul className="threading-row">
+					<li className="cell label"><span>{HOLE_LABELS[labelIndex]}</span></li>
 					{
 						row.map((colorIndex, index) => (
 							<li
@@ -191,7 +191,7 @@ class Threading extends PureComponent {
 		for (let i = 0; i < tablets; i += 1) {
 			labels.push((
 				<li
-					className="label"
+					className="cell label"
 					key={`tablet-label-${i}`}
 				>
 					<span>{i + 1}</span>
@@ -263,7 +263,7 @@ class Threading extends PureComponent {
 					{
 						orientations.map((value, tabletIndex) => (
 							<li
-								className="orientation"
+								className="cell value"
 								key={`orientations-${tabletIndex}`}
 							>
 								{this.renderOrientation(tabletIndex, orientations[tabletIndex])}

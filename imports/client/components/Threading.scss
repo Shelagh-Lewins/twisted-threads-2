@@ -2,9 +2,11 @@
 
 .threading {
 	clear: both;
+	float: left;
+	padding-right: 8px;
 
 	ul {
-		float: left;
+		font-size: 0;
 		list-style-type: none;
 		margin: 0;
 		padding: 0;
@@ -14,20 +16,14 @@
 			padding: 0;
 		}
 
-		.label {
-			display: inline-block;
-			height: 32px;
-			line-height: 32px;
-			text-align: center;
-			width: 32px;
-		}
-
 		.cell {
 			display: inline-block;
+			overflow: hidden;
 
 			span {
-				background: $color-chart-background;
-				border-right: 1px solid $color-chart-border;
+				-moz-appearance: none; /* Mozilla */
+				-webkit-appearance: none; /* WebKit */
+				appearance: none; /* CSS3 */
 				display: inline-block;
 				height: 32px;
 				width: 32px;
@@ -37,19 +33,43 @@
 					outline-offset: -2px;
 				}
 			}
+
+
+		}
+
+		.label {
+			border-right: 1px solid transparent;
+			border-top: 1px solid transparent;
+			font-size: 1rem;
+			line-height: 32px;
+			text-align: center;
+		}
+
+		.value {
+			background: $color-chart-background;
+			border-right: 1px solid $color-chart-border;
+			border-top: 1px solid $color-chart-border;
+
+			&:nth-child(2) {
+				border-left: 1px solid $color-chart-border;
+			}
 		}
 	}
 
 	.row {
-		&:first-child {
+		&:last-child {
 			.threading-row {
-				border-top: 1px solid $color-chart-border;
+				.value {
+					border-bottom: 1px solid $color-chart-border;
+				}
 			}
 		}
 	}
 
 	.tablet-labels {
 		margin-left: 32px;
+		overflow-x: auto;
+		white-space: nowrap;
 	}
 
 	.threading-chart {
@@ -57,18 +77,13 @@
 	}
 
 	.threading-row {
-		border-bottom: 1px solid $color-chart-border;
-		border-left: 1px solid $color-chart-border;
+		overflow-x: auto;
+		white-space: nowrap;
 	}
 
 	.orientations {
-		border-bottom: 1px solid transparent;
-		border-left: 1px solid transparent;
-		border-top: 1px solid transparent;
 		clear: both;
-		font-size: 0;
 		margin-left: 32px;
-		margin-top: 8px;
 
 		li {
 			display: inline-block;
@@ -76,20 +91,14 @@
 			overflow: hidden;
 			position: relative;
 
-			> span {
-				-moz-appearance: none; /* Mozilla */
-				-webkit-appearance: none; /* WebKit */
-				appearance: none; /* CSS3 */
-				background: transparent;
-				border-right: 1px solid transparent;
-				display: inline-block;
-				height: 32px;
-				width: 32px;
+			&:focus {
+				outline: 2px dashed $color-focus;
+				outline-offset: -2px;
+			}
 
-				&:focus {
-					outline: 2px dashed $color-focus;
-					outline-offset: -2px;
-				}
+			&.value {
+				background: transparent;
+				border: 0;
 			}
 		}
 

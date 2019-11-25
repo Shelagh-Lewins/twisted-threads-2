@@ -151,8 +151,8 @@ class Weaving extends PureComponent {
 
 		return (
 			<>
-				<span className="label">{rowLabel}</span>
 				<ul className="weaving-row">
+					<li className="cell label"><span>{rowLabel}</span></li>
 					{
 						row.map((obj, tabletIndex) => (
 							<li
@@ -175,7 +175,7 @@ class Weaving extends PureComponent {
 		for (let i = 0; i < tablets; i += 1) {
 			labels.push((
 				<li
-					className="label"
+					className="cell label"
 					key={`tablet-label-${i}`}
 				>
 					<span>{i + 1}</span>
