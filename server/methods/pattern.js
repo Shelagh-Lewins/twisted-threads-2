@@ -374,29 +374,28 @@ Meteor.methods({
 		check(colorIndex, Match.Integer); // TO DO check this is a valid color
 		check(insertNTablets, Match.Integer);
 		check(insertTabletsAt, Match.Integer);
-		// this applies when adding tablets to an 'individual' type of pattern
-		// will need to be extended for other types of pattern
-		console.log('colorIndex', colorIndex);
+		// this applies when adding tablets to any type of pattern
+
 		// TO DO test all
-		// TO DO check not too many tablets
-		// check adding at valid position
 
 		if (!Meteor.userId()) {
 			throw new Meteor.Error('add-tablets-not-logged-in', 'Unable to add tablets because the user is not logged in');
 		}
 
 		const pattern = Patterns.findOne({ _id });
+		const {
+			createdBy,
+			numberOfRows,
+			numberOfTablets,
+			patternType,
+		} = pattern;
 
 		if (!pattern) {
 			throw new Meteor.Error('add-tablets-not-found', 'Unable to add tablets because the pattern was not found');
 		}
 
-		if (pattern.createdBy !== Meteor.userId()) {
+		if (createdBy !== Meteor.userId()) {
 			throw new Meteor.Error('add-tablets-not-created-by-user', 'Unable to add tablets because pattern was not created by the current logged in user');
-		}
-
-		if (pattern.patternType !== 'individual') {
-			throw new Meteor.Error('add-tablets-type-not-individual', 'Unable to add tablets because pattern is not of type \'individual\'');
 		}
 
 		if (colorIndex >= DEFAULT_PALETTE.length) {
@@ -411,26 +410,12 @@ Meteor.methods({
 			throw new Meteor.Error('add-tablets-too-many-tablets', 'Unable to add tablets because too many tablets being added');
 		}
 
-		if (insertNTablets + pattern.numberOfRows > MAX_ROWS) {
+		if (insertNTablets + numberOfRows > MAX_ROWS) {
 			throw new Meteor.Error('add-tablets-too-many-rows', 'Unable to add tablets because the pattern will have too many tablets');
 		}
 
-		// insertTabletsAt is 1, 2... i.e. position, not index
-		if (insertTabletsAt < 0 || insertTabletsAt > pattern.numberOfTablets) {
+		if (insertTabletsAt < 0 || insertTabletsAt > numberOfTablets) {
 			throw new Meteor.Error('add-tablets-invalid position', 'Unable to add tablets because the position is invalid');
-		}
-		// TO DO add other pattern types
-		// threading and orientations should be the same
-		// but weaving will be different
-
-		// new picks to be added to each weaving row
-		const newPicks = [];
-
-		for (let j = 0; j < insertNTablets; j += 1) {
-			newPicks.push({
-				'direction': DEFAULT_DIRECTION,
-				'numberOfTurns': DEFAULT_NUMBER_OF_TURNS,
-			});
 		}
 
 		// new tablets to be added to each threading row
@@ -448,11 +433,9 @@ Meteor.methods({
 		}
 
 		const update = {};
+
+		// updates for threading and orientation are the same for all pattern types
 		update.$push = {
-			'patternDesign.weavingInstructions.$[]': {
-				'$each': newPicks,
-				'$position': insertTabletsAt,
-			},
 			'threading.$[]': {
 				'$each': newTablets,
 				'$position': insertTabletsAt,
@@ -462,6 +445,32 @@ Meteor.methods({
 				'$position': insertTabletsAt,
 			},
 		};
+
+		// updates for weaving depend on pattern type
+		let newWeaving;
+
+		switch (patternType) {
+			case 'individual':
+				// new picks to be added to each weaving row
+				newWeaving = [];
+
+				for (let j = 0; j < insertNTablets; j += 1) {
+					newWeaving.push({
+						'direction': DEFAULT_DIRECTION,
+						'numberOfTurns': DEFAULT_NUMBER_OF_TURNS,
+					});
+				}
+
+				update.$push['patternDesign.weavingInstructions.$[]'] = {
+					'$each': newWeaving,
+					'$position': insertTabletsAt,
+				};
+				break;
+
+			default:
+				break;
+		}
+
 		update.$set = {
 			'numberOfTablets': pattern.numberOfTablets + insertNTablets,
 		};
@@ -474,7 +483,7 @@ Meteor.methods({
 	}) {
 		check(_id, nonEmptyStringCheck);
 		check(tabletIndex, Match.Integer);
-		// this applies when removing a tablet from an 'individual' type of pattern
+		// this applies when removing a tablet from any type of pattern
 
 		// TO DO test all
 
@@ -483,24 +492,25 @@ Meteor.methods({
 		}
 
 		const pattern = Patterns.findOne({ _id });
+		const {
+			createdBy,
+			numberOfTablets,
+			patternType,
+		} = pattern;
 
 		if (!pattern) {
 			throw new Meteor.Error('remove-tablet-not-found', 'Unable to remove tablet because the pattern was not found');
 		}
 
-		if (pattern.createdBy !== Meteor.userId()) {
+		if (createdBy !== Meteor.userId()) {
 			throw new Meteor.Error('remove-tablet-not-created-by-user', 'Unable to remove tablet because pattern was not created by the current logged in user');
 		}
 
-		if (pattern.patternType !== 'individual') {
-			throw new Meteor.Error('remove-tablet-type-not-individual', 'Unable to remove tablet because pattern is not of type \'individual\'');
-		}
-
-		if (pattern.numberOfTablets === 1) {
+		if (numberOfTablets === 1) {
 			throw new Meteor.Error('remove-tablet-last-tablet', 'Unable to remove tablet because there is only one tablet');
 		}
 
-		if (pattern.numberOfTablets <= tabletIndex) {
+		if (numberOfTablets <= tabletIndex) {
 			throw new Meteor.Error('remove-tablet-invalid-tablet', 'Unable to remove tablet because the tablet does not exist');
 		}
 
@@ -510,24 +520,47 @@ Meteor.methods({
 
 		const update1 = {};
 
+		// updates for threading and orientation are the same for all pattern types
 		update1.$set = {
-			[`patternDesign.weavingInstructions.$[].${tabletIndex}.toBeDeleted`]: true,
 			[`threading.$[].${tabletIndex}`]: 'toBeDeleted',
 			[`orientations.${tabletIndex}`]: 'toBeDeleted',
 		};
 
+		// updates for weaving depend on pattern type
+		switch (patternType) {
+			case 'individual':
+				// new picks to be added to each weaving row
+				update1.$set[`patternDesign.weavingInstructions.$[].${tabletIndex}.toBeDeleted`] = true;
+				break;
+
+			default:
+				break;
+		}
+
 		Patterns.update({ _id }, update1);
 
-		const update = {};
-		update.$pull = {
-			'patternDesign.weavingInstructions.$[]': { 'toBeDeleted': true },
+		const update2 = {};
+
+		// updates for threading and orientation are the same for all pattern types
+		update2.$pull = {
 			'threading.$[]': 'toBeDeleted',
 			'orientations': 'toBeDeleted',
 		};
-		update.$set = {
+		update2.$set = {
 			'numberOfTablets': pattern.numberOfTablets - 1,
 		};
 
-		return Patterns.update({ _id }, update);
+		// updates for weaving depend on pattern type
+		switch (patternType) {
+			case 'individual':
+				// remove picks from each weaving row
+				update2.$pull['patternDesign.weavingInstructions.$[]'] = { 'toBeDeleted': true };
+				break;
+
+			default:
+				break;
+		}
+
+		return Patterns.update({ _id }, update2);
 	},
 });
