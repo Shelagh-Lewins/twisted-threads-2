@@ -39,7 +39,6 @@ const validate = (values, numberOfRows) => {
 
 const AddRowsForm = (props) => {
 	const { numberOfRows } = props;
-
 	const formik = useFormik({
 		'initialValues': {
 			'insertNRows': 1,
@@ -52,6 +51,16 @@ const AddRowsForm = (props) => {
 			props.handleSubmit(values, { resetForm });
 		},
 	});
+
+	// change initial values after removing a row
+	if (numberOfRows + 1 !== formik.initialValues.insertRowsAt) {
+		formik.resetForm({
+			'values': {
+				'insertNRows': 1,
+				'insertRowsAt': numberOfRows + 1,
+			},
+		});
+	}
 
 	// note firefox doesn't support the 'label' shorthand in option
 	// https://bugzilla.mozilla.org/show_bug.cgi?id=40545#c11

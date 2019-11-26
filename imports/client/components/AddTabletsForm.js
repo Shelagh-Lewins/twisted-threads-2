@@ -53,6 +53,16 @@ const AddTabletsForm = (props) => {
 		},
 	});
 
+	// change initial values after removing a tablet
+	if (numberOfTablets + 1 !== formik.initialValues.insertTabletsAt) {
+		formik.resetForm({
+			'values': {
+				'insertNTablets': 1,
+				'insertTabletsAt': numberOfTablets + 1,
+			},
+		});
+	}
+
 	// note firefox doesn't support the 'label' shorthand in option
 	// https://bugzilla.mozilla.org/show_bug.cgi?id=40545#c11
 	return (

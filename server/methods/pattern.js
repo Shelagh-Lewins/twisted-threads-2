@@ -348,10 +348,12 @@ Meteor.methods({
 	},
 	'pattern.addTablets': function ({
 		_id,
+		colorIndex,
 		insertNTablets,
 		insertTabletsAt,
 	}) {
 		check(_id, nonEmptyStringCheck);
+		check(colorIndex, Match.Integer); // TO DO check this is a valid color
 		check(insertNTablets, Match.Integer);
 		check(insertTabletsAt, Match.Integer);
 		// this applies when adding tablets to an 'individual' type of pattern
@@ -378,6 +380,14 @@ Meteor.methods({
 		if (pattern.patternType !== 'individual') {
 			throw new Meteor.Error('add-tablets-type-not-individual', 'Unable to add tablets because pattern is not of type \'individual\'');
 		}
+
+		if (colorIndex >= DEFAULT_PALETTE.length) {
+			throw new Meteor.Error('add-tablets-type-invalid-color', 'Unable to add tablets because an invalid thread color was specified');
+		}
+
+		if (colorIndex < -1) {
+			throw new Meteor.Error('add-tablets-type-invalid-color', 'Unable to add tablets because an invalid thread color was specified');
+		}
 		// TO DO add other pattern types
 		// threading and orientations should be the same
 		// but weaving will be different
@@ -396,7 +406,7 @@ Meteor.methods({
 		const newTablets = [];
 
 		for (let j = 0; j < insertNTablets; j += 1) {
-			newTablets.push(DEFAULT_COLOR);
+			newTablets.push(colorIndex || DEFAULT_COLOR);
 		}
 
 		// new tablets to be added to orientation
@@ -467,17 +477,24 @@ Meteor.methods({
 		// so first we mark the tablet to remove
 		// then use 'pull'
 
-		console.log('tabletIndex', tabletIndex);
-		return;
+		const update1 = {};
 
-		Patterns.update({ _id }, { '$set': { [`patternDesign.weavingInstructions.${rowIndex}.${0}.toBeDeleted`]: true } });
+		update1.$set = {
+			[`patternDesign.weavingInstructions.$[].${tabletIndex}.toBeDeleted`]: true,
+			[`threading.$[].${tabletIndex}`]: 'toBeDeleted',
+			[`orientations.${tabletIndex}`]: 'toBeDeleted',
+		};
 
-		// NOTE if the pull fails, the numberOfRows will then be incorrect
-		// however if the following updates don't take place atomically, the client will likely show errors
+		Patterns.update({ _id }, update1);
+
 		const update = {};
-		update.$pull = { 'patternDesign.weavingInstructions': { '$elemMatch': { 'toBeDeleted': true } } };
+		update.$pull = {
+			'patternDesign.weavingInstructions.$[]': { 'toBeDeleted': true },
+			'threading.$[]': 'toBeDeleted',
+			'orientations': 'toBeDeleted',
+		};
 		update.$set = {
-			'numberOfRows': pattern.numberOfRows - 1,
+			'numberOfTablets': pattern.numberOfTablets - 1,
 		};
 
 		return Patterns.update({ _id }, update);

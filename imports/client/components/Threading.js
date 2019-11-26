@@ -106,11 +106,15 @@ class Threading extends PureComponent {
 
 	handleSubmitAddTablets(data, { resetForm }) {
 		const { dispatch, 'pattern': { _id } } = this.props;
+		const { selectedColorIndex } = this.state;
+
+		console.log('selectedColorIndex', selectedColorIndex);
 
 		dispatch(addTablets({
 			_id,
 			'insertNTablets': parseInt(data.insertNTablets, 10),
 			'insertTabletsAt': parseInt(data.insertTabletsAt, 10),
+			'colorIndex': parseInt(selectedColorIndex, 10),
 		}));
 		// timeout allows new tablet to be added before form is reset
 		// so valid form defaults can be calculated
@@ -372,6 +376,7 @@ class Threading extends PureComponent {
 			<AddTabletsForm
 				handleSubmit={this.handleSubmitAddTablets}
 				numberOfTablets={numberOfTablets}
+				enableReinitialize={true}
 			/>
 		);
 	}
@@ -408,7 +413,7 @@ class Threading extends PureComponent {
 				{this.renderControls()}
 				<div className="content">
 					{this.renderChart()}
-					{this.renderRemoveTabletButtons()}
+					{isEditing && this.renderRemoveTabletButtons()}
 					{this.renderOrientations()}
 					{isEditing && this.renderToolbar()}
 					{isEditing && this.renderPalette()}

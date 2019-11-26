@@ -119,7 +119,7 @@
 			.z,
 			.s {
 				background-color: $color-orientation;
-				border: 1px solid $color-orientation;
+				border-right: 1px solid $color-orientation;
 				border-radius: 8px;
 				height: 10%;
 				left: -2%;
@@ -151,16 +151,18 @@
 		clear: both;
 	}
 
-	.delete-tablet-buttons {
+	.remove-tablet-buttons {
 		ul {
 			clear: both;
 			margin-left: 32px;
 
 			li {
+				border-right: 1px solid transparent;
+				color: $color-weaving-delete;
 				display: inline-block;
-				font-size: 0;
-				overflow: hidden;
-				position: relative;
+				font-size: 1rem;
+				line-height: 32px;
+				text-align: center;
 
 				&:focus {
 					outline: 2px dashed $color-focus;

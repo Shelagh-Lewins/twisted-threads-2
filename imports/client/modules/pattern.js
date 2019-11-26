@@ -127,12 +127,14 @@ export function editThreadingCell({
 
 export function addTablets({
 	_id,
+	colorIndex,
 	insertNTablets,
 	insertTabletsAt,
 }) {
 	return () => {
 		Meteor.call('pattern.addTablets', {
 			_id,
+			colorIndex,
 			insertNTablets,
 			insertTabletsAt,
 		});

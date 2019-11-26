@@ -234,10 +234,10 @@ class Weaving extends PureComponent {
 	}
 
 	renderTabletLabels() {
-		const { 'pattern': { tablets } } = this.props;
+		const { 'pattern': { numberOfTablets } } = this.props;
 
 		const labels = [];
-		for (let i = 0; i < tablets; i += 1) {
+		for (let i = 0; i < numberOfTablets; i += 1) {
 			labels.push((
 				<li
 					className="cell label"
@@ -283,6 +283,7 @@ class Weaving extends PureComponent {
 			<AddRowsForm
 				handleSubmit={this.handleSubmitAddRows}
 				numberOfRows={numberOfRows}
+				enableReinitialize={true}
 			/>
 		);
 	}
