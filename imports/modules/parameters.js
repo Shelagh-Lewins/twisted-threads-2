@@ -44,6 +44,8 @@ export const DEFAULT_COLOR = 3; // default thread color is different from that s
 export const DEFAULT_TABLETS = 8;
 export const DEFAULT_ROWS = 10;
 export const DEFAULT_ORIENTATION = '/';
+export const DEFAULT_DIRECTION = 'F';
+export const DEFAULT_NUMBER_OF_TURNS = 1;
 
 export const COLORS_IN_COLOR_BOOK = 24;
 export const DEFAULT_COLOR_BOOK_COLOR = '#aa0000'; // if the default color has no saturation, clicking the vertical color bar in the color picker has no effect, which is confusing.

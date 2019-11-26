@@ -10,6 +10,8 @@ import {
 import { Patterns } from '../../imports/modules/collection';
 import {
 	DEFAULT_COLOR,
+	DEFAULT_DIRECTION,
+	DEFAULT_NUMBER_OF_TURNS,
 	DEFAULT_ORIENTATION,
 	DEFAULT_PALETTE,
 } from '../../imports/modules/parameters';
@@ -62,8 +64,8 @@ Meteor.methods({
 				for (let i = 0; i < tablets; i += 1) {
 					for (let j = 0; j < rows; j += 1) {
 						weavingInstructions[j][i] = {
-							'direction': 'F',
-							'numberOfTurns': 1,
+							'direction': DEFAULT_DIRECTION,
+							'numberOfTurns': DEFAULT_NUMBER_OF_TURNS,
 						};
 					}
 				}
@@ -272,8 +274,8 @@ Meteor.methods({
 
 			for (let j = 0; j < pattern.numberOfTablets; j += 1) {
 				newRow.push({
-					'direction': 'F',
-					'numberOfTurns': 1,
+					'direction': DEFAULT_DIRECTION,
+					'numberOfTurns': DEFAULT_NUMBER_OF_TURNS,
 				});
 			}
 			newRows.push(newRow);
@@ -385,8 +387,8 @@ Meteor.methods({
 
 		for (let j = 0; j < insertNTablets; j += 1) {
 			newPicks.push({
-				'direction': 'F',
-				'numberOfTurns': 1,
+				'direction': DEFAULT_DIRECTION,
+				'numberOfTurns': DEFAULT_NUMBER_OF_TURNS,
 			});
 		}
 
@@ -421,6 +423,61 @@ Meteor.methods({
 		};
 		update.$set = {
 			'numberOfTablets': pattern.numberOfTablets + insertNTablets,
+		};
+
+		return Patterns.update({ _id }, update);
+	},
+	'pattern.removeTablet': function ({
+		_id,
+		tabletIndex,
+	}) {
+		check(_id, nonEmptyStringCheck);
+		check(tabletIndex, Match.Integer);
+		// this applies when removing a tablet from an 'individual' type of pattern
+
+		// TO DO test all
+
+		if (!Meteor.userId()) {
+			throw new Meteor.Error('remove-tablet-not-logged-in', 'Unable to remove tablet because the user is not logged in');
+		}
+
+		const pattern = Patterns.findOne({ _id });
+
+		if (!pattern) {
+			throw new Meteor.Error('remove-tablet-not-found', 'Unable to remove tablet because the pattern was not found');
+		}
+
+		if (pattern.createdBy !== Meteor.userId()) {
+			throw new Meteor.Error('remove-tablet-not-created-by-user', 'Unable to remove tablet because pattern was not created by the current logged in user');
+		}
+
+		if (pattern.patternType !== 'individual') {
+			throw new Meteor.Error('remove-tablet-type-not-individual', 'Unable to remove tablet because pattern is not of type \'individual\'');
+		}
+
+		if (pattern.numberOfTablets === 1) {
+			throw new Meteor.Error('remove-tablet-last-tablet', 'Unable to remove tablet because there is only one tablet');
+		}
+
+		if (pattern.numberOfTablets <= tabletIndex) {
+			throw new Meteor.Error('remove-tablet-invalid-tablet', 'Unable to remove tablet because the tablet does not exist');
+		}
+
+		// an element cannot be removed from an array by index
+		// so first we mark the tablet to remove
+		// then use 'pull'
+
+		console.log('tabletIndex', tabletIndex);
+		return;
+
+		Patterns.update({ _id }, { '$set': { [`patternDesign.weavingInstructions.${rowIndex}.${0}.toBeDeleted`]: true } });
+
+		// NOTE if the pull fails, the numberOfRows will then be incorrect
+		// however if the following updates don't take place atomically, the client will likely show errors
+		const update = {};
+		update.$pull = { 'patternDesign.weavingInstructions': { '$elemMatch': { 'toBeDeleted': true } } };
+		update.$set = {
+			'numberOfRows': pattern.numberOfRows - 1,
 		};
 
 		return Patterns.update({ _id }, update);

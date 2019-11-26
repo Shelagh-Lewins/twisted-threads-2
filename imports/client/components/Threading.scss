@@ -150,4 +150,28 @@
 	.hint {
 		clear: both;
 	}
+
+	.delete-tablet-buttons {
+		ul {
+			clear: both;
+			margin-left: 32px;
+
+			li {
+				display: inline-block;
+				font-size: 0;
+				overflow: hidden;
+				position: relative;
+
+				&:focus {
+					outline: 2px dashed $color-focus;
+					outline-offset: -2px;
+				}
+
+				&.value {
+					background: transparent;
+					border: 0;
+				}
+			}
+		}
+	}
 }

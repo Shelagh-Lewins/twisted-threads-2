@@ -96,8 +96,9 @@ class Weaving extends PureComponent {
 			'insertNRows': parseInt(data.insertNRows, 10),
 			'insertRowsAt': parseInt(data.insertRowsAt, 10),
 		}));
-		//TODO might need timeout here
-		resetForm();
+		// timeout allows new row to be added before form is reset
+		// so valid form defaults can be calculated
+		setTimeout(() => resetForm(), 200);
 	}
 
 	toggleEditWeaving() {

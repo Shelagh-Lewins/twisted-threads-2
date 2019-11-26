@@ -2,7 +2,13 @@ import React, { PureComponent } from 'react';
 // import ReactDOM from 'react-dom';
 import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
-import { addTablets, editOrientation, editPaletteColor, editThreadingCell } from '../modules/pattern';
+import {
+	addTablets,
+	editOrientation,
+	editPaletteColor,
+	editThreadingCell,
+	removeTablet,
+} from '../modules/pattern';
 import {
 	SVGBackwardEmpty,
 	SVGBackwardWarp,
@@ -38,6 +44,7 @@ class Threading extends PureComponent {
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
+			'handleClickRemoveTablet',
 			'handleClickRestoreDefaults',
 			'handleEditColor',
 			'handleSubmitAddTablets',
@@ -54,6 +61,24 @@ class Threading extends PureComponent {
 		this.setState({
 			'selectedColorIndex': index,
 		});
+	}
+
+	handleClickRemoveTablet(tabletIndex) {
+		const {
+			'pattern': { _id },
+			dispatch,
+		} = this.props;
+		const { isEditing } = this.state;
+
+		if (!isEditing) {
+			return;
+		}
+
+		const response = confirm(`Do you want to delete tablet "${tabletIndex + 1}"?`); // eslint-disable-line no-restricted-globals
+
+		if (response === true) {
+			dispatch(removeTablet({ _id, tabletIndex }));
+		}
 	}
 
 	handleClickRestoreDefaults() {
@@ -87,8 +112,9 @@ class Threading extends PureComponent {
 			'insertNTablets': parseInt(data.insertNTablets, 10),
 			'insertTabletsAt': parseInt(data.insertTabletsAt, 10),
 		}));
-		//TODO might need timeout here
-		resetForm();
+		// timeout allows new tablet to be added before form is reset
+		// so valid form defaults can be calculated
+		setTimeout(() => resetForm(), 200);
 	}
 
 	handleClickThreadingCell(rowIndex, tabletIndex) {
@@ -257,6 +283,45 @@ class Threading extends PureComponent {
 		);
 	}
 
+	renderRemoveTabletButton(tabletIndex) {
+		return (
+			<span
+				type="button"
+				onClick={() => this.handleClickRemoveTablet(tabletIndex)}
+				onKeyPress={() => this.handleClickRemoveTablet(tabletIndex)}
+				role="button"
+				tabIndex="0"
+				title={`Delete tablet ${tabletIndex}`}
+			>
+			X
+			</span>
+		);
+	}
+
+	renderRemoveTabletButtons() {
+		const { 'pattern': { numberOfTablets } } = this.props;
+		const buttons = [];
+		for (let i = 0; i < numberOfTablets; i += 1) {
+			buttons.push(
+				<li
+					className="cell delete"
+					key={`orientation-${i}`}
+				>
+					{this.renderRemoveTabletButton(i)}
+				</li>,
+			);
+		}
+
+		return (
+			<div className="remove-tablet-buttons">
+				<ul className="remove-tablet-buttons">
+					{buttons}
+				</ul>
+				<p className="hint">Slope of line = angle of tablet viewed from above</p>
+			</div>
+		);
+	}
+
 	renderOrientation(tabletIndex, value) {
 		const { isEditing } = this.state;
 
@@ -343,6 +408,7 @@ class Threading extends PureComponent {
 				{this.renderControls()}
 				<div className="content">
 					{this.renderChart()}
+					{this.renderRemoveTabletButtons()}
 					{this.renderOrientations()}
 					{isEditing && this.renderToolbar()}
 					{isEditing && this.renderPalette()}

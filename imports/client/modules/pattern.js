@@ -139,6 +139,19 @@ export function addTablets({
 	};
 }
 
+export function removeTablet({
+	_id,
+	tabletIndex,
+}) {
+	return () => {
+		Meteor.call('pattern.removeTablet', {
+			_id,
+			tabletIndex,
+		});
+	};
+}
+
+// Orientation
 export function editOrientation({
 	_id,
 	tablet,
@@ -151,6 +164,7 @@ export function editOrientation({
 	};
 }
 
+// Palette color
 export function editPaletteColor({
 	_id,
 	colorHexValue,
