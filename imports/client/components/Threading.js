@@ -108,12 +108,10 @@ class Threading extends PureComponent {
 		const { dispatch, 'pattern': { _id } } = this.props;
 		const { selectedColorIndex } = this.state;
 
-		console.log('selectedColorIndex', selectedColorIndex);
-
 		dispatch(addTablets({
 			_id,
 			'insertNTablets': parseInt(data.insertNTablets, 10),
-			'insertTabletsAt': parseInt(data.insertTabletsAt, 10),
+			'insertTabletsAt': parseInt(data.insertTabletsAt - 1, 10),
 			'colorIndex': parseInt(selectedColorIndex, 10),
 		}));
 		// timeout allows new tablet to be added before form is reset

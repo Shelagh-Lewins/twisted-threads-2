@@ -94,7 +94,7 @@ class Weaving extends PureComponent {
 		dispatch(addWeavingRows({
 			_id,
 			'insertNRows': parseInt(data.insertNRows, 10),
-			'insertRowsAt': parseInt(data.insertRowsAt, 10),
+			'insertRowsAt': parseInt(data.insertRowsAt - 1, 10),
 		}));
 		// timeout allows new row to be added before form is reset
 		// so valid form defaults can be calculated

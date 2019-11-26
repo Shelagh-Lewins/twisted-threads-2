@@ -14,6 +14,10 @@ import {
 	DEFAULT_NUMBER_OF_TURNS,
 	DEFAULT_ORIENTATION,
 	DEFAULT_PALETTE,
+	MAX_ROWS,
+	MAX_TABLETS,
+	MAX_ROWS_TO_ADD,
+	MAX_TABLETS_TO_ADD,
 } from '../../imports/modules/parameters';
 
 Meteor.methods({
@@ -246,8 +250,6 @@ Meteor.methods({
 		// this applies when adding rows to an 'individual' type of pattern
 
 		// TO DO test all
-		// TO DO check not too many rows
-		// check adding at valid position
 
 		if (!Meteor.userId()) {
 			throw new Meteor.Error('add-rows-not-logged-in', 'Unable to add rows because the user is not logged in');
@@ -265,6 +267,22 @@ Meteor.methods({
 
 		if (pattern.patternType !== 'individual') {
 			throw new Meteor.Error('add-rows-type-not-individual', 'Unable to add rows because pattern is not of type \'individual\'');
+		}
+
+		if (pattern.patternType !== 'individual') {
+			throw new Meteor.Error('add-rows-type-not-individual', 'Unable to add rows because pattern is not of type \'individual\'');
+		}
+
+		if (insertNRows > MAX_ROWS_TO_ADD) {
+			throw new Meteor.Error('add-rows-too-many-rows', 'Unable to add rows because too many rows being added');
+		}
+
+		if (insertNRows + pattern.numberOfRows > MAX_ROWS) {
+			throw new Meteor.Error('add-rows-too-many-rows', 'Unable to add rows because the pattern will have too many rows');
+		}
+
+		if (insertRowsAt < 0 || insertRowsAt > pattern.numberOfRows) {
+			throw new Meteor.Error('add-rows-invalid position', 'Unable to add rows because the position is invalid');
 		}
 
 		const newRows = [];
@@ -285,7 +303,7 @@ Meteor.methods({
 		update.$push = {
 			'patternDesign.weavingInstructions': {
 				'$each': newRows,
-				'$position': insertRowsAt - 1,
+				'$position': insertRowsAt,
 			},
 		};
 		update.$set = {
@@ -358,7 +376,7 @@ Meteor.methods({
 		check(insertTabletsAt, Match.Integer);
 		// this applies when adding tablets to an 'individual' type of pattern
 		// will need to be extended for other types of pattern
-
+		console.log('colorIndex', colorIndex);
 		// TO DO test all
 		// TO DO check not too many tablets
 		// check adding at valid position
@@ -382,11 +400,24 @@ Meteor.methods({
 		}
 
 		if (colorIndex >= DEFAULT_PALETTE.length) {
-			throw new Meteor.Error('add-tablets-type-invalid-color', 'Unable to add tablets because an invalid thread color was specified');
+			throw new Meteor.Error('add-tablets-invalid-color', 'Unable to add tablets because an invalid thread color was specified');
 		}
 
 		if (colorIndex < -1) {
-			throw new Meteor.Error('add-tablets-type-invalid-color', 'Unable to add tablets because an invalid thread color was specified');
+			throw new Meteor.Error('add-tablets-invalid-color', 'Unable to add tablets because an invalid thread color was specified');
+		}
+
+		if (insertNTablets > MAX_ROWS_TO_ADD) {
+			throw new Meteor.Error('add-tablets-too-many-tablets', 'Unable to add tablets because too many tablets being added');
+		}
+
+		if (insertNTablets + pattern.numberOfRows > MAX_ROWS) {
+			throw new Meteor.Error('add-tablets-too-many-rows', 'Unable to add tablets because the pattern will have too many tablets');
+		}
+
+		// insertTabletsAt is 1, 2... i.e. position, not index
+		if (insertTabletsAt < 0 || insertTabletsAt > pattern.numberOfTablets) {
+			throw new Meteor.Error('add-tablets-invalid position', 'Unable to add tablets because the position is invalid');
 		}
 		// TO DO add other pattern types
 		// threading and orientations should be the same
@@ -406,7 +437,7 @@ Meteor.methods({
 		const newTablets = [];
 
 		for (let j = 0; j < insertNTablets; j += 1) {
-			newTablets.push(colorIndex || DEFAULT_COLOR);
+			newTablets.push(colorIndex);
 		}
 
 		// new tablets to be added to orientation
@@ -420,15 +451,15 @@ Meteor.methods({
 		update.$push = {
 			'patternDesign.weavingInstructions.$[]': {
 				'$each': newPicks,
-				'$position': insertTabletsAt - 1,
+				'$position': insertTabletsAt,
 			},
 			'threading.$[]': {
 				'$each': newTablets,
-				'$position': insertTabletsAt - 1,
+				'$position': insertTabletsAt,
 			},
 			'orientations': {
 				'$each': newOrientations,
-				'$position': insertTabletsAt - 1,
+				'$position': insertTabletsAt,
 			},
 		};
 		update.$set = {
