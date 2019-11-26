@@ -10,10 +10,13 @@ import {
 	removeWeavingRow,
 } from '../modules/pattern';
 import {
+	SVGBackward2,
 	SVGBackwardEmpty,
 	SVGBackwardWarp,
+	SVGForward2,
 	SVGForwardEmpty,
 	SVGForwardWarp,
+	SVGIdle,
 } from '../modules/svg';
 import AddRowsForm from './AddRowsForm';
 import EditWeavingCellForm from './EditWeavingCellForm';
@@ -163,9 +166,10 @@ class Weaving extends PureComponent {
 
 		let svg;
 		const orientation = orientations[tabletIndex];
-		const { direction, totalTurns } = picksByTablet[tabletIndex][rowIndex];
+		const { direction, numberOfTurns, totalTurns } = picksByTablet[tabletIndex][rowIndex];
 		const netTurns = modulus(totalTurns, holes);
 		let holeToShow;
+
 
 		if (direction === 'F') {
 			// show thread in position A
@@ -186,7 +190,18 @@ class Weaving extends PureComponent {
 			threadAngle = '\\';
 		}
 
-		if (colorIndex === -1) { // empty hole
+		// choose the svg graphic to represent this pick on the weaving chart
+		if (numberOfTurns === 0) {
+			svg = <SVGIdle />;
+		} else if (numberOfTurns === 2) {
+			svg = threadAngle === '\\'
+				? (
+					<SVGBackward2 />
+				)
+				: (
+					<SVGForward2	/>
+				);
+		} else if (colorIndex === -1) { // empty hole
 			svg = threadAngle === '\\'
 				? (
 					<SVGBackwardEmpty />
@@ -210,13 +225,23 @@ class Weaving extends PureComponent {
 				);
 		}
 
+		// if not idle, show direction
+		let directionClass = '';
+		if (numberOfTurns !== 0) {
+			if (direction === 'F') {
+				directionClass = 'forward';
+			} else if (direction === 'B') {
+				directionClass = 'backward';
+			}
+		}
+
 		return (
 			<li
 				className="cell value"
 				key={`weaving-cell-${rowIndex}-${tabletIndex}`}
 			>
 				<span
-					className={`${direction === 'F' ? 'forward' : 'backward'} ${isSelected ? 'selected' : undefined}`}
+					className={`${directionClass} ${isSelected ? 'selected' : ''}`}
 					type={isEditing ? 'button' : undefined}
 					onClick={isEditing ? () => this.handleClickWeavingCell(rowIndex, tabletIndex) : undefined}
 					onKeyPress={isEditing ? () => this.handleClickWeavingCell(rowIndex, tabletIndex) : undefined}

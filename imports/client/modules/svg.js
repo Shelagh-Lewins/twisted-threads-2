@@ -153,3 +153,44 @@ SVGVerticalRightWarp.propTypes = {
 	'fill': PropTypes.string.isRequired,
 	'stroke': PropTypes.string.isRequired,
 };
+
+// ///////////////////////////
+// 0, 2, 3 turns
+// idle
+export function SVGIdle() {
+	return (
+		<svg
+			viewBox="0 0 256 256"
+		>
+			<ellipse rx="71.994" ry="72.748" stroke="#000" cy="124.23" cx="130.11" strokeWidth="11.706" fill="none" />
+		</svg>
+	);
+}
+
+// forward 2
+export function SVGForward2() {
+	return (
+		<svg
+			viewBox="0 0 256 256"
+		>
+			<ellipse rx="140.42" transform="rotate(-45)" stroke="#000" ry="70.214" cy="180.72" cx="-.33336" strokeWidth="9.9099" fill="#fff" />
+			<text fontSize="121.92px" xmlSpace="preserve" style={{ 'wordSpacing': '0px', 'letterSpacing': '0px' }} line-height="125%" y="166.81104" x="95.967377" fontFamily="sans-serif" fill="#000000"><tspan id="tspan4182-6-2" y="166.81104" x="95.967377">2</tspan></text>
+		</svg>
+	);
+}
+
+// forward 3
+
+// backward 2
+export function SVGBackward2() {
+	return (
+		<svg
+			viewBox="0 0 256 256"
+		>
+			<ellipse rx="140.42" transform="matrix(-.70711 -.70711 -.70711 .70711 0 0)" stroke="#000" ry="70.214" cy=".33336" cx="-180.72" strokeWidth="9.9099" fill="#fff" />
+			<text fontSize="121.92px" xmlSpace="preserve" style={{ 'wordSpacing': '0px', 'letterSpacing': '0px' }} line-height="125%" y="166.81104" x="95.967377" fontFamily="sans-serif" fill="#000000"><tspan id="tspan4182-6-2" y="166.81104" x="95.967377">2</tspan></text>
+		</svg>
+	);
+}
+
+// backward 3

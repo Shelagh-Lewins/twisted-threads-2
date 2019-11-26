@@ -256,7 +256,7 @@ Meteor.methods({
 		// to do check the row is valid
 		// TO DO check the number of turns is valid
 		// TO DO test all
-console.log('here');
+
 		if (!Meteor.userId()) {
 			throw new Meteor.Error('edit-weaving-not-logged-in', 'Unable to edit weaving because the user is not logged in');
 		}
@@ -274,9 +274,7 @@ console.log('here');
 		if (pattern.patternType !== 'individual') {
 			throw new Meteor.Error('edit-weaving-type-not-individual', 'Unable to edit weaving because pattern is not of type \'individual\'');
 		}
-console.log('row', row);
-console.log('tablet', tablet);
-console.log('numberOfTurns', numberOfTurns);
+
 		return Patterns.update({ _id }, { '$set': { [`patternDesign.weavingInstructions.${row}.${tablet}.numberOfTurns`]: numberOfTurns } });
 	},
 	'pattern.addWeavingRows': function ({
