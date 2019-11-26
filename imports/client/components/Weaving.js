@@ -142,7 +142,7 @@ class Weaving extends PureComponent {
 			},
 			picksByTablet,
 		} = this.props;
-		const { isEditing } = this.state;
+		const { isEditing, selectedCell } = this.state;
 
 		let svg;
 		const orientation = orientations[tabletIndex];
@@ -280,7 +280,6 @@ class Weaving extends PureComponent {
 						))
 					}
 				</ul>
-				<span className="hint">Click on a chart cell to edit it</span>
 			</>
 		);
 	}
@@ -303,6 +302,7 @@ class Weaving extends PureComponent {
 
 		return (
 			<div className="weaving-toolbar">
+				<span className="hint">Click on a chart cell to edit it</span>
 				{selectedCell && (
 					<EditWeavingCellForm
 						direction={pick.direction}

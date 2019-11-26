@@ -37,8 +37,6 @@ const EditWeavingCellForm = (props) => {
 		},
 	});
 
-	// TO DO update form on external cell change
-
 	// note firefox doesn't support the 'label' shorthand in option
 	// https://bugzilla.mozilla.org/show_bug.cgi?id=40545#c11
 	const directionOptions = ALLOWED_DIRECTIONS.map((directionOption) => (
@@ -52,13 +50,13 @@ const EditWeavingCellForm = (props) => {
 	));
 
 	return (
-		<div className="edit-weaving-cell-form">
+		<div className="edit-pattern-form">
 			<h3>Edit weaving cell</h3>
 			<form onSubmit={formik.handleSubmit}>
 				<Row className="form-group">
-					<Col md="6">
+					<Col>
 						<label htmlFor="numberOfTurns">
-							Number of turns
+							Number of turns:
 							<input
 								className={`form-control ${formik.touched.numberOfTurns && formik.errors.numberOfTurns ? 'is-invalid' : ''
 								}`}
@@ -76,10 +74,8 @@ const EditWeavingCellForm = (props) => {
 								<div className="invalid-feedback invalid">{formik.errors.numberOfTurns}</div>
 							) : null}
 						</label>
-					</Col>
-					<Col md="6">
 						<label htmlFor="direction">
-							Direction
+							Direction:
 							<select
 								className="form-control"
 								id="direction"
@@ -91,11 +87,11 @@ const EditWeavingCellForm = (props) => {
 								{directionOptions}
 							</select>
 						</label>
+						<div className="controls">
+							<Button type="submit" color="primary">Update cell</Button>
+						</div>
 					</Col>
 				</Row>
-				<div className="controls">
-					<Button type="submit" color="primary">Update cell</Button>
-				</div>
 			</form>
 		</div>
 	);

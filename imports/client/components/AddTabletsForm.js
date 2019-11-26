@@ -66,13 +66,13 @@ const AddTabletsForm = (props) => {
 	// note firefox doesn't support the 'label' shorthand in option
 	// https://bugzilla.mozilla.org/show_bug.cgi?id=40545#c11
 	return (
-		<div className="add-tablets-form">
+		<div className="edit-pattern-form">
 			<h3>Add tablets to pattern</h3>
 			<form onSubmit={formik.handleSubmit}>
 				<Row className="form-group">
-					<Col md="6">
+					<Col>
 						<label htmlFor="insertNTablets">
-							Number of tablets to add
+							Number of tablets:
 							<input
 								className={`form-control ${formik.touched.insertNTablets && formik.errors.insertNTablets ? 'is-invalid' : ''
 								}`}
@@ -90,10 +90,8 @@ const AddTabletsForm = (props) => {
 								<div className="invalid-feedback invalid">{formik.errors.insertNTablets}</div>
 							) : null}
 						</label>
-					</Col>
-					<Col md="6">
 						<label htmlFor="insertTabletsAt">
-							Add new tablets at position
+							Add tablets at:
 							<input
 								className={`form-control ${formik.touched.insertTabletsAt && formik.errors.insertTabletsAt ? 'is-invalid' : ''
 								}`}
@@ -111,11 +109,11 @@ const AddTabletsForm = (props) => {
 								<div className="invalid-feedback invalid">{formik.errors.tablets}</div>
 							) : null}
 						</label>
+						<div className="controls">
+							<Button type="submit" color="primary">Add tablets</Button>
+						</div>
 					</Col>
 				</Row>
-				<div className="controls">
-					<Button type="submit" color="primary">Add tablets</Button>
-				</div>
 			</form>
 		</div>
 	);

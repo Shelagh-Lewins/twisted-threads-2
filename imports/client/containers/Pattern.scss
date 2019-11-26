@@ -4,4 +4,25 @@
 	background-color: $color-pattern-page-background;
 	min-height: 100vh;
 	position: relative;
+
+	/* forms in edit weaving, threading */
+	.edit-pattern-form {
+		label {
+			width: auto;
+		}
+
+		.form-control {
+			display: inline;
+			margin: 0 8px;
+			width: auto;
+
+			&[type="number"] {
+				width: 6em;
+			}
+		}
+
+		.controls {
+			display: inline;
+		}
+	}
 }

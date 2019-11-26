@@ -65,13 +65,13 @@ const AddRowsForm = (props) => {
 	// note firefox doesn't support the 'label' shorthand in option
 	// https://bugzilla.mozilla.org/show_bug.cgi?id=40545#c11
 	return (
-		<div className="add-rows-form">
+		<div className="edit-pattern-form">
 			<h3>Add rows to pattern</h3>
 			<form onSubmit={formik.handleSubmit}>
 				<Row className="form-group">
-					<Col md="6">
+					<Col>
 						<label htmlFor="insertNRows">
-							Number of rows to add
+							Number of rows:
 							<input
 								className={`form-control ${formik.touched.insertNRows && formik.errors.insertNRows ? 'is-invalid' : ''
 								}`}
@@ -89,10 +89,8 @@ const AddRowsForm = (props) => {
 								<div className="invalid-feedback invalid">{formik.errors.insertNRows}</div>
 							) : null}
 						</label>
-					</Col>
-					<Col md="6">
 						<label htmlFor="insertRowsAt">
-							Add new rows at position
+							Add rows at:on
 							<input
 								className={`form-control ${formik.touched.insertRowsAt && formik.errors.insertRowsAt ? 'is-invalid' : ''
 								}`}
@@ -110,11 +108,11 @@ const AddRowsForm = (props) => {
 								<div className="invalid-feedback invalid">{formik.errors.tablets}</div>
 							) : null}
 						</label>
+						<div className="controls">
+							<Button type="submit" color="primary">Add rows</Button>
+						</div>
 					</Col>
 				</Row>
-				<div className="controls">
-					<Button type="submit" color="primary">Add rows</Button>
-				</div>
 			</form>
 		</div>
 	);
