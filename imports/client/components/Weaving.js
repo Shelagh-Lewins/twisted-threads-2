@@ -15,6 +15,7 @@ import {
 	SVGForwardWarp,
 } from '../modules/svg';
 import AddRowsForm from './AddRowsForm';
+import EditWeavingCellForm from './EditWeavingCellForm';
 import './Threading.scss';
 import './Weaving.scss';
 
@@ -34,6 +35,7 @@ class Weaving extends PureComponent {
 
 		this.state = {
 			'isEditing': false,
+			'selectedCell': undefined,
 		};
 
 		// bind onClick functions to provide context
@@ -41,6 +43,7 @@ class Weaving extends PureComponent {
 			'handleClickRemoveRow',
 			'handleClickWeavingCell',
 			'handleSubmitAddRows',
+			'handleSubmitEditWeavingCellForm',
 			'toggleEditWeaving',
 		];
 
@@ -68,6 +71,10 @@ class Weaving extends PureComponent {
 			'tablet': tabletIndex,
 			'direction': currentDirection === 'F' ? 'B' : 'F',
 		}));
+
+		this.setState({
+			'selectedCell': [rowIndex, tabletIndex],
+		});
 	}
 
 	handleClickRemoveRow(rowIndex) {
@@ -99,6 +106,10 @@ class Weaving extends PureComponent {
 		// timeout allows new row to be added before form is reset
 		// so valid form defaults can be calculated
 		setTimeout(() => resetForm(), 200);
+	}
+
+	handleSubmitEditWeavingCellForm(data) {
+		console.log('handleSubmitEditWeavingCellForm', data);
 	}
 
 	toggleEditWeaving() {
@@ -277,14 +288,35 @@ class Weaving extends PureComponent {
 	renderToolbar() {
 		const {
 			'pattern': { numberOfRows },
+			picksByTablet,
 		} = this.props;
+		const { selectedCell } = this.state;
+
+		let rowIndex;
+		let tabletIndex;
+		let pick;
+
+		if (selectedCell) {
+			[rowIndex, tabletIndex] = selectedCell;
+			pick = picksByTablet[tabletIndex][rowIndex];
+		}
 
 		return (
-			<AddRowsForm
-				handleSubmit={this.handleSubmitAddRows}
-				numberOfRows={numberOfRows}
-				enableReinitialize={true}
-			/>
+			<div className="weaving-toolbar">
+				{selectedCell && (
+					<EditWeavingCellForm
+						direction={pick.direction}
+						enableReinitialize={true}
+						handleSubmit={this.handleSubmitEditWeavingCellForm}
+						numberOfTurns={pick.numberOfTurns}
+					/>
+				)}
+				<AddRowsForm
+					enableReinitialize={true}
+					handleSubmit={this.handleSubmitAddRows}
+					numberOfRows={numberOfRows}
+				/>
+			</div>
 		);
 	}
 

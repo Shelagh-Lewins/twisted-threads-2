@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button, Col, Row } from 'reactstrap';
 import { useFormik } from 'formik';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import {
 	ALLOWED_HOLES,

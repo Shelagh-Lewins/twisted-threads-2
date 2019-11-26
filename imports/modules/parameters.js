@@ -46,6 +46,17 @@ export const DEFAULT_ROWS = 10;
 export const DEFAULT_ORIENTATION = '/';
 export const DEFAULT_DIRECTION = 'F';
 export const DEFAULT_NUMBER_OF_TURNS = 1;
+export const ALLOWED_NUMBER_OF_TURNS = 3; // max turns a tablet can be given in one pick, forward or backward
+export const ALLOWED_DIRECTIONS = [
+	{
+		'displayName': 'Forward',
+		'value': 'F',
+	},
+	{
+		'displayName': 'Backward',
+		'value': 'B',
+	},
+];
 
 export const COLORS_IN_COLOR_BOOK = 24;
 export const DEFAULT_COLOR_BOOK_COLOR = '#aa0000'; // if the default color has no saturation, clicking the vertical color bar in the color picker has no effect, which is confusing.
