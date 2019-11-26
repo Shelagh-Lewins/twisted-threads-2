@@ -3,7 +3,6 @@ import { Button, Col, Row } from 'reactstrap';
 import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
 import {
-	ALLOWED_DIRECTIONS,
 	ALLOWED_NUMBER_OF_TURNS,
 } from '../../modules/parameters';
 
@@ -24,11 +23,10 @@ const validate = (values) => {
 };
 
 const EditWeavingCellForm = (props) => {
-	const { direction, numberOfTurns } = props;
+	const { numberOfTurns } = props;
 
 	const formik = useFormik({
 		'initialValues': {
-			'direction': direction,
 			'numberOfTurns': numberOfTurns,
 		},
 		validate,
@@ -37,21 +35,17 @@ const EditWeavingCellForm = (props) => {
 		},
 	});
 
-	// note firefox doesn't support the 'label' shorthand in option
-	// https://bugzilla.mozilla.org/show_bug.cgi?id=40545#c11
-	const directionOptions = ALLOWED_DIRECTIONS.map((directionOption) => (
-		<option
-			key={`direction-option-${directionOption.displayName}`}
-			label={directionOption.displayName}
-			value={directionOption.displayName}
-		>
-			{directionOption.displayName}
-		</option>
-	));
+	// change initial values after selecting a different cell
+	if (numberOfTurns !== formik.initialValues.numberOfTurns) {
+		formik.resetForm({
+			'values': {
+				numberOfTurns,
+			},
+		});
+	}
 
 	return (
 		<div className="edit-pattern-form">
-			<h3>Edit weaving cell</h3>
 			<form onSubmit={formik.handleSubmit}>
 				<Row className="form-group">
 					<Col>
@@ -74,21 +68,8 @@ const EditWeavingCellForm = (props) => {
 								<div className="invalid-feedback invalid">{formik.errors.numberOfTurns}</div>
 							) : null}
 						</label>
-						<label htmlFor="direction">
-							Direction:
-							<select
-								className="form-control"
-								id="direction"
-								name="direction"
-								onChange={formik.handleChange}
-								onBlur={formik.handleBlur}
-								value={formik.values.direction}
-							>
-								{directionOptions}
-							</select>
-						</label>
 						<div className="controls">
-							<Button type="submit" color="primary">Update cell</Button>
+							<Button type="submit" color="primary">Update number of turns</Button>
 						</div>
 					</Col>
 				</Row>
@@ -98,7 +79,6 @@ const EditWeavingCellForm = (props) => {
 };
 
 EditWeavingCellForm.propTypes = {
-	'direction': PropTypes.string.isRequired,
 	'handleSubmit': PropTypes.func.isRequired,
 	'numberOfTurns': PropTypes.number.isRequired,
 };

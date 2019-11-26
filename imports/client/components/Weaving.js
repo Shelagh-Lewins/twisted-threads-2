@@ -6,6 +6,7 @@ import { modulus } from '../modules/weavingUtils';
 import {
 	addWeavingRows,
 	editWeavingCellDirection,
+	editWeavingCellNumberOfTurns,
 	removeWeavingRow,
 } from '../modules/pattern';
 import {
@@ -51,7 +52,6 @@ class Weaving extends PureComponent {
 			this[functionName] = this[functionName].bind(this);
 		});
 	}
-
 
 	handleClickWeavingCell(rowIndex, tabletIndex) {
 		const { picksByTablet } = this.props;
@@ -109,7 +109,19 @@ class Weaving extends PureComponent {
 	}
 
 	handleSubmitEditWeavingCellForm(data) {
-		console.log('handleSubmitEditWeavingCellForm', data);
+		const { dispatch, 'pattern': { _id } } = this.props;
+		const { selectedCell } = this.state;
+
+		if (!selectedCell) {
+			return;
+		}
+
+		dispatch(editWeavingCellNumberOfTurns({
+			_id,
+			'row': selectedCell[0],
+			'tablet': selectedCell[1],
+			'numberOfTurns': parseInt(data.numberOfTurns, 10),
+		}));
 	}
 
 	toggleEditWeaving() {
@@ -143,6 +155,11 @@ class Weaving extends PureComponent {
 			picksByTablet,
 		} = this.props;
 		const { isEditing, selectedCell } = this.state;
+
+		let isSelected = false;
+		if (selectedCell) {
+			isSelected = rowIndex === selectedCell[0] && tabletIndex === selectedCell[1];
+		}
 
 		let svg;
 		const orientation = orientations[tabletIndex];
@@ -194,16 +211,21 @@ class Weaving extends PureComponent {
 		}
 
 		return (
-			<span
-				className={direction === 'F' ? 'forward' : 'backward'}
-				type={isEditing ? 'button' : undefined}
-				onClick={isEditing ? () => this.handleClickWeavingCell(rowIndex, tabletIndex) : undefined}
-				onKeyPress={isEditing ? () => this.handleClickWeavingCell(rowIndex, tabletIndex) : undefined}
-				role={isEditing ? 'button' : undefined}
-				tabIndex={isEditing ? '0' : undefined}
+			<li
+				className="cell value"
+				key={`weaving-cell-${rowIndex}-${tabletIndex}`}
 			>
-				{svg}
-			</span>
+				<span
+					className={`${direction === 'F' ? 'forward' : 'backward'} ${isSelected ? 'selected' : undefined}`}
+					type={isEditing ? 'button' : undefined}
+					onClick={isEditing ? () => this.handleClickWeavingCell(rowIndex, tabletIndex) : undefined}
+					onKeyPress={isEditing ? () => this.handleClickWeavingCell(rowIndex, tabletIndex) : undefined}
+					role={isEditing ? 'button' : undefined}
+					tabIndex={isEditing ? '0' : undefined}
+				>
+					{svg}
+				</span>
+			</li>
 		);
 	}
 
@@ -215,16 +237,7 @@ class Weaving extends PureComponent {
 			<>
 				<ul className="weaving-row">
 					<li className="cell label"><span>{rowLabel}</span></li>
-					{
-						row.map((obj, tabletIndex) => (
-							<li
-								className="cell value"
-								key={`weaving-cell-${rowIndex}-${tabletIndex}`}
-							>
-								{this.renderCell(rowLabel - 1, tabletIndex)}
-							</li>
-						))
-					}
+					{row.map((obj, tabletIndex) => this.renderCell(rowLabel - 1, tabletIndex))}
 					{isEditing && numberOfRows > 1 && (
 						<li className="cell delete">
 							<span
@@ -305,7 +318,6 @@ class Weaving extends PureComponent {
 				<span className="hint">Click on a chart cell to edit it</span>
 				{selectedCell && (
 					<EditWeavingCellForm
-						direction={pick.direction}
 						enableReinitialize={true}
 						handleSubmit={this.handleSubmitEditWeavingCellForm}
 						numberOfTurns={pick.numberOfTurns}

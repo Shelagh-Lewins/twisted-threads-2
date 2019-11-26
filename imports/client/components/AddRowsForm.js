@@ -66,12 +66,11 @@ const AddRowsForm = (props) => {
 	// https://bugzilla.mozilla.org/show_bug.cgi?id=40545#c11
 	return (
 		<div className="edit-pattern-form">
-			<h3>Add rows to pattern</h3>
 			<form onSubmit={formik.handleSubmit}>
 				<Row className="form-group">
 					<Col>
 						<label htmlFor="insertNRows">
-							Number of rows:
+							Add
 							<input
 								className={`form-control ${formik.touched.insertNRows && formik.errors.insertNRows ? 'is-invalid' : ''
 								}`}
@@ -90,7 +89,7 @@ const AddRowsForm = (props) => {
 							) : null}
 						</label>
 						<label htmlFor="insertRowsAt">
-							Add rows at:on
+							rows at:
 							<input
 								className={`form-control ${formik.touched.insertRowsAt && formik.errors.insertRowsAt ? 'is-invalid' : ''
 								}`}

@@ -82,6 +82,22 @@ export function editWeavingCellDirection({
 	};
 }
 
+export function editWeavingCellNumberOfTurns({
+	_id,
+	row,
+	tablet,
+	numberOfTurns,
+}) {
+	return () => {
+		Meteor.call('pattern.editWeavingCellNumberOfTurns', {
+			_id,
+			row,
+			tablet,
+			numberOfTurns,
+		});
+	};
+}
+
 export function addWeavingRows({
 	_id,
 	insertNRows,

@@ -67,12 +67,11 @@ const AddTabletsForm = (props) => {
 	// https://bugzilla.mozilla.org/show_bug.cgi?id=40545#c11
 	return (
 		<div className="edit-pattern-form">
-			<h3>Add tablets to pattern</h3>
 			<form onSubmit={formik.handleSubmit}>
 				<Row className="form-group">
 					<Col>
 						<label htmlFor="insertNTablets">
-							Number of tablets:
+							Add
 							<input
 								className={`form-control ${formik.touched.insertNTablets && formik.errors.insertNTablets ? 'is-invalid' : ''
 								}`}
@@ -91,7 +90,7 @@ const AddTabletsForm = (props) => {
 							) : null}
 						</label>
 						<label htmlFor="insertTabletsAt">
-							Add tablets at:
+							tablets at:
 							<input
 								className={`form-control ${formik.touched.insertTabletsAt && formik.errors.insertTabletsAt ? 'is-invalid' : ''
 								}`}

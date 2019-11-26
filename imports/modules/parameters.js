@@ -47,6 +47,7 @@ export const DEFAULT_ORIENTATION = '/';
 export const DEFAULT_DIRECTION = 'F';
 export const DEFAULT_NUMBER_OF_TURNS = 1;
 export const ALLOWED_NUMBER_OF_TURNS = 3; // max turns a tablet can be given in one pick, forward or backward
+// not currently using this but maybe will in future
 export const ALLOWED_DIRECTIONS = [
 	{
 		'displayName': 'Forward',

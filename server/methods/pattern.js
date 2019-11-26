@@ -218,6 +218,8 @@ Meteor.methods({
 		check(direction, String);
 		// this applies when editing the weaving chart for an 'individual' type of pattern
 
+		// TO DO check the direction is valid
+
 		if (!Meteor.userId()) {
 			throw new Meteor.Error('edit-weaving-not-logged-in', 'Unable to edit weaving because the user is not logged in');
 		}
@@ -238,6 +240,44 @@ Meteor.methods({
 		}
 
 		return Patterns.update({ _id }, { '$set': { [`patternDesign.weavingInstructions.${row}.${tablet}.direction`]: direction } });
+	},
+	'pattern.editWeavingCellNumberOfTurns': function ({
+		_id,
+		row,
+		tablet,
+		numberOfTurns,
+	}) {
+		check(_id, nonEmptyStringCheck);
+		check(row, Match.Integer);
+		check(tablet, validTabletsCheck);
+		check(numberOfTurns, Match.Integer);
+		// this applies when editing the weaving chart for an 'individual' type of pattern
+
+		// to do check the row is valid
+		// TO DO check the number of turns is valid
+		// TO DO test all
+console.log('here');
+		if (!Meteor.userId()) {
+			throw new Meteor.Error('edit-weaving-not-logged-in', 'Unable to edit weaving because the user is not logged in');
+		}
+
+		const pattern = Patterns.findOne({ _id });
+
+		if (!pattern) {
+			throw new Meteor.Error('edit-weaving-not-found', 'Unable to edit weaving because the pattern was not found');
+		}
+
+		if (pattern.createdBy !== Meteor.userId()) {
+			throw new Meteor.Error('edit-weaving-not-created-by-user', 'Unable to edit weaving because pattern was not created by the current logged in user');
+		}
+
+		if (pattern.patternType !== 'individual') {
+			throw new Meteor.Error('edit-weaving-type-not-individual', 'Unable to edit weaving because pattern is not of type \'individual\'');
+		}
+console.log('row', row);
+console.log('tablet', tablet);
+console.log('numberOfTurns', numberOfTurns);
+		return Patterns.update({ _id }, { '$set': { [`patternDesign.weavingInstructions.${row}.${tablet}.numberOfTurns`]: numberOfTurns } });
 	},
 	'pattern.addWeavingRows': function ({
 		_id,
