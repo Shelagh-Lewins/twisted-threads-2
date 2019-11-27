@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Link, withRouter } from 'react-router-dom';
+import './Navbar.scss';
 
 import { getIsAuthenticated, getUser } from '../modules/auth';
 
@@ -48,7 +49,7 @@ class Navbar extends Component {
 		);
 
 		return (
-			<nav className="navbar navbar-expand-sm navbar-dark bg-dark">
+			<nav className="navbar navbar-expand-sm">
 				<Link className="navbar-brand" to="/">Twisted Threads</Link>
 				<button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" onClick={(e) => { this.showDropdown(e); }}>
 					<span className="navbar-toggler-icon" />

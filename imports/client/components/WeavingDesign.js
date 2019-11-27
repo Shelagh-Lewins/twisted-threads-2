@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-// import ReactDOM from 'react-dom';
 import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { modulus } from '../modules/weavingUtils';
@@ -13,7 +12,7 @@ import ChartSVG from './ChartSVG';
 import AddRowsForm from './AddRowsForm';
 import EditWeavingCellForm from './EditWeavingCellForm';
 import './Threading.scss';
-import './Weaving.scss';
+import './WeavingDesign.scss';
 
 // row and tablet have nothing to identify them except index
 // note row here indicates hole of the tablet
@@ -25,7 +24,7 @@ import './Weaving.scss';
 /* eslint-disable jsx-a11y/no-noninteractive-tabindex */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
-class Weaving extends PureComponent {
+class WeavingDesign extends PureComponent {
 	constructor(props) {
 		super(props);
 
@@ -311,10 +310,10 @@ class Weaving extends PureComponent {
 	}
 }
 
-Weaving.propTypes = {
+WeavingDesign.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 	'picksByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
-export default Weaving;
+export default WeavingDesign;

@@ -1,0 +1,15 @@
+@import "../constants/variables";
+
+.navbar {
+	background: $color-navbar-background;
+	color: $color-navbar-color;
+}
+
+.navbar-brand,
+.nav-link {
+	color: $color-navbar-color;
+
+	&:hover {
+		color: $color-navbar-hover;
+	}
+}

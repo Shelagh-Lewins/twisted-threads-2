@@ -35,9 +35,6 @@ class Threading extends PureComponent {
 			'selectedColorIndex': 0,
 		};
 
-		this.selectColor = this.selectColor.bind(this);
-		this.handleEditColor = this.handleEditColor.bind(this);
-
 		// bind onClick functions to provide context
 		const functionsToBind = [
 			'handleClickRemoveTablet',

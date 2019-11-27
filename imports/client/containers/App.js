@@ -14,6 +14,7 @@ import ForgotPassword from './ForgotPassword';
 import ResetPassword from './ResetPassword';
 import Home from './Home';
 import Pattern from './Pattern';
+import InteractiveWeavingChartPage from './InteractiveWeavingChartPage';
 import DevTools from '../components/DevTools';
 import './App.scss';
 
@@ -35,6 +36,7 @@ function App() {
 						<Route exact path="/reset-password/:token" component={ResetPassword} />
 						<Route exact path="/" component={Home} />
 						<Route exact path="/pattern/:id" component={Pattern} />
+						<Route exact path="/pattern/:id/weaving" component={InteractiveWeavingChartPage} />
 					</div>
 				</div>
 			</Router>

@@ -1,0 +1,102 @@
+@import "../constants/variables";
+
+.weaving-chart-holder {
+	clear: both;
+	float: left;
+	padding-right: 8px;
+
+	&.editing {
+		.content {
+			background: $color-chart-editing-background;
+			border: 1px solid $color-focus;
+		}
+	}
+
+	.content {
+		border: 1px solid transparent;
+		border-radius: 4px;
+		margin: 8px 0;
+		min-width: 600px;
+		padding: 8px;
+	}
+
+	ul {
+		font-size: 0;
+		list-style-type: none;
+		margin: 0;
+		padding: 0;
+
+		li {
+			margin: 0;
+			padding: 0;
+		}
+
+		.cell {
+			display: inline-block;
+			overflow: hidden;
+
+			span {
+
+				display: inline-block;
+				height: 32px;
+				width: 32px;
+
+				&.selected {
+					outline: 2px solid $color-palette-outline;
+					outline-offset: -2px;
+				}
+
+				&.backward {
+					background: $color-weaving-backwards-bg;
+				}
+			}
+		}
+
+		.label {
+			border-right: 1px solid transparent;
+			border-top: 1px solid transparent;
+			font-size: 1rem;
+			line-height: 32px;
+			text-align: center;
+		}
+
+		.value {
+			background: $color-chart-background;
+			border-right: 1px solid $color-chart-border;
+			border-top: 1px solid $color-chart-border;
+
+			&:nth-child(2) {
+				border-left: 1px solid $color-chart-border;
+			}
+		}
+	}
+
+	.row {
+		&:last-child {
+			.weaving-row {
+				.value {
+					border-bottom: 1px solid $color-chart-border;
+				}
+			}
+		}
+	}
+
+	.tablet-labels {
+		margin-left: 32px;
+		overflow-x: auto;
+		white-space: nowrap;
+	}
+
+	.weaving-chart {
+		clear: both;
+	}
+
+	.weaving-row {
+		overflow-x: auto;
+		white-space: nowrap;
+	}
+
+	.hint {
+		clear: both;
+	}
+}

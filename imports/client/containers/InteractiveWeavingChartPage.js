@@ -8,16 +8,32 @@ import PropTypes from 'prop-types';
 import { setIsLoading } from '../modules/pattern';
 import { getPicksByTablet } from '../modules/weavingUtils';
 
-import { ColorBooks, Patterns } from '../../modules/collection';
+import { Patterns } from '../../modules/collection';
 import Loading from '../components/Loading';
-import WeavingDesign from '../components/WeavingDesign';
-import Threading from '../components/Threading';
-import Notation from '../components/Notation';
-import './Pattern.scss';
+import WeavingChart from '../components/WeavingChart';
+import './InteractiveWeavingChartPage.scss';
 
-const bodyClass = 'pattern';
+const bodyClass = 'interactive-weaving-chart-page';
 
-class Pattern extends PureComponent {
+class InteractiveWeavingChartPage extends PureComponent {
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			'selectedRow': 0, // 0 at top, increasing down
+		};
+
+		// bind onClick functions to provide context
+		const functionsToBind = [
+			'handleClickDown',
+			'handleClickUp',
+		];
+
+		functionsToBind.forEach((functionName) => {
+			this[functionName] = this[functionName].bind(this);
+		});
+	}
+
 	componentDidMount() {
 		document.body.classList.add(bodyClass);
 	}
@@ -26,22 +42,37 @@ class Pattern extends PureComponent {
 		document.body.classList.remove(bodyClass);
 	}
 
+	handleClickDown() {
+		const { selectedRow } = this.state;
+
+		this.setState({
+			'selectedRow': selectedRow + 1,
+		});
+	}
+
+	handleClickUp() {
+		const { selectedRow } = this.state;
+
+		this.setState({
+			'selectedRow': selectedRow - 1,
+		});
+	}
+
 	render() {
 		const {
-			colorBookAdded,
-			colorBooks,
 			dispatch,
 			isLoading,
 			pattern,
 			'pattern': { _id },
 			picksByTablet,
 		} = this.props;
+		const { selectedRow } = this.state;
 
 		let content = <Loading />;
 
 		const links = (
 			<div className="links">
-				<Link className="btn btn-primary" to={`/pattern/${_id}/weaving`}>Interactive weaving chart</Link>
+				<Link className="btn btn-primary" to={`/pattern/${_id}`}>Close interactive weaving chart</Link>
 			</div>
 		);
 
@@ -53,21 +84,15 @@ class Pattern extends PureComponent {
 						{links}
 						{/* if navigating from the home page, the pattern summary is in MiniMongo before Tracker sets isLoading to true. This doesn't include the detail fields so we need to prevent errors. */}
 						{pattern.patternDesign && (
-							<WeavingDesign
+							<WeavingChart
 								dispatch={dispatch}
+								handleClickDown={this.handleClickDown}
+								handleClickUp={this.handleClickUp}
 								pattern={pattern}
 								picksByTablet={picksByTablet}
+								selectedRow={selectedRow}
 							/>
 						)}
-						{pattern.threading && (
-							<Threading
-								colorBookAdded={colorBookAdded}
-								colorBooks={colorBooks}
-								dispatch={dispatch}
-								pattern={pattern}
-							/>
-						)}
-						<Notation />
 					</>
 				);
 			} else {
@@ -83,9 +108,7 @@ class Pattern extends PureComponent {
 	}
 }
 
-Pattern.propTypes = {
-	'colorBookAdded': PropTypes.string.isRequired,
-	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
+InteractiveWeavingChartPage.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
@@ -94,7 +117,6 @@ Pattern.propTypes = {
 
 function mapStateToProps(state, ownProps) {
 	return {
-		'colorBookAdded': state.colorBook.colorBookAdded,
 		'_id': ownProps.match.params.id, // read the url parameter to find the id of the pattern
 		'isLoading': state.pattern.isLoading,
 	};
@@ -107,18 +129,13 @@ const Tracker = withTracker(({ _id, dispatch }) => {
 		'onReady': () => dispatch(setIsLoading(false)),
 	});
 
-	Meteor.subscribe('colorBooks');
-
 	const pattern = Patterns.findOne({ _id }) || {};
 
 	// pass database data as props
 	return {
-		'colorBooks': ColorBooks.find({}, {
-			'sort': { 'nameSort': 1 },
-		}).fetch(),
 		'pattern': pattern,
 		'picksByTablet': getPicksByTablet(pattern),
 	};
-})(Pattern);
+})(InteractiveWeavingChartPage);
 
 export default connect(mapStateToProps)(Tracker);
