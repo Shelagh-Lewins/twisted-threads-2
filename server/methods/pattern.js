@@ -16,8 +16,6 @@ import {
 	DEFAULT_PALETTE,
 	MAX_ROWS,
 	MAX_TABLETS,
-	MAX_ROWS_TO_ADD,
-	MAX_TABLETS_TO_ADD,
 } from '../../imports/modules/parameters';
 
 Meteor.methods({
@@ -294,32 +292,34 @@ Meteor.methods({
 		}
 
 		const pattern = Patterns.findOne({ _id });
+		const {
+			createdBy,
+			numberOfRows,
+			numberOfTablets,
+			patternType,
+		} = pattern;
 
 		if (!pattern) {
 			throw new Meteor.Error('add-rows-not-found', 'Unable to add rows because the pattern was not found');
 		}
 
-		if (pattern.createdBy !== Meteor.userId()) {
+		if (createdBy !== Meteor.userId()) {
 			throw new Meteor.Error('add-rows-not-created-by-user', 'Unable to add rows because pattern was not created by the current logged in user');
 		}
 
-		if (pattern.patternType !== 'individual') {
+		if (patternType !== 'individual') {
 			throw new Meteor.Error('add-rows-type-not-individual', 'Unable to add rows because pattern is not of type \'individual\'');
 		}
 
-		if (pattern.patternType !== 'individual') {
+		if (patternType !== 'individual') {
 			throw new Meteor.Error('add-rows-type-not-individual', 'Unable to add rows because pattern is not of type \'individual\'');
 		}
 
-		if (insertNRows > MAX_ROWS_TO_ADD) {
-			throw new Meteor.Error('add-rows-too-many-rows', 'Unable to add rows because too many rows being added');
-		}
-
-		if (insertNRows + pattern.numberOfRows > MAX_ROWS) {
+		if (insertNRows + numberOfRows > MAX_ROWS) {
 			throw new Meteor.Error('add-rows-too-many-rows', 'Unable to add rows because the pattern will have too many rows');
 		}
 
-		if (insertRowsAt < 0 || insertRowsAt > pattern.numberOfRows) {
+		if (insertRowsAt < 0 || insertRowsAt > numberOfRows) {
 			throw new Meteor.Error('add-rows-invalid position', 'Unable to add rows because the position is invalid');
 		}
 
@@ -328,7 +328,7 @@ Meteor.methods({
 		for (let i = 0; i < insertNRows; i += 1) {
 			const newRow = [];
 
-			for (let j = 0; j < pattern.numberOfTablets; j += 1) {
+			for (let j = 0; j < numberOfTablets; j += 1) {
 				newRow.push({
 					'direction': DEFAULT_DIRECTION,
 					'numberOfTurns': DEFAULT_NUMBER_OF_TURNS,
@@ -345,7 +345,7 @@ Meteor.methods({
 			},
 		};
 		update.$set = {
-			'numberOfRows': pattern.numberOfRows + insertNRows,
+			'numberOfRows': numberOfRows + insertNRows,
 		};
 
 		return Patterns.update({ _id }, update);
@@ -423,7 +423,6 @@ Meteor.methods({
 		const pattern = Patterns.findOne({ _id });
 		const {
 			createdBy,
-			numberOfRows,
 			numberOfTablets,
 			patternType,
 		} = pattern;
@@ -444,11 +443,7 @@ Meteor.methods({
 			throw new Meteor.Error('add-tablets-invalid-color', 'Unable to add tablets because an invalid thread color was specified');
 		}
 
-		if (insertNTablets > MAX_ROWS_TO_ADD) {
-			throw new Meteor.Error('add-tablets-too-many-tablets', 'Unable to add tablets because too many tablets being added');
-		}
-
-		if (insertNTablets + numberOfRows > MAX_ROWS) {
+		if (insertNTablets + numberOfTablets > MAX_TABLETS) {
 			throw new Meteor.Error('add-tablets-too-many-rows', 'Unable to add tablets because the pattern will have too many tablets');
 		}
 
