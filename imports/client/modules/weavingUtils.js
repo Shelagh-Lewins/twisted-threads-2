@@ -1,6 +1,8 @@
 // functions used to calculate weaving chart from pattern design
 import { createSelector } from 'reselect';
 
+const tinycolor = require('tinycolor2');
+
 // /////////////////////////
 // utilities
 // calculate the effect of turning a tablet to weave one pick
@@ -98,3 +100,6 @@ export const getPicksByTablet = createSelector(
 
 // a tablet to be deleted has its colorIndex temporarily set to a marker value which causes an error in threading and weaving charts
 export const isValidColorIndex = (colorIndex) => typeof colorIndex === 'number';
+
+// set a text color that will show up against a background
+export const contrastingColor = (color) => (tinycolor(color).isLight() ? '#000' : '#fff');
