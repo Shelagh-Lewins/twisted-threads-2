@@ -83,7 +83,7 @@ class Weaving extends PureComponent {
 			return;
 		}
 
-		const response = confirm(`Do you want to delete row "${rowIndex + 1}"?`); // eslint-disable-line no-restricted-globals
+		const response = confirm(`Do you want to delete row ${rowIndex + 1}?`); // eslint-disable-line no-restricted-globals
 
 		if (response === true) {
 			dispatch(removeWeavingRow({ _id, rowIndex }));

@@ -11,7 +11,11 @@ import {
 	SVGForwardWarp3,
 	SVGIdle,
 } from '../modules/svg';
-import { isValidColorIndex, modulus } from '../modules/weavingUtils';
+import {
+	findPrevColor,
+	isValidColorIndex,
+	modulus,
+} from '../modules/weavingUtils';
 
 export default function ChartSVG({
 	direction,
@@ -40,6 +44,7 @@ export default function ChartSVG({
 	}
 
 	let threadAngle = '/'; // which way does the thread twist?
+
 	if (direction === 'F') {
 		if (orientation === '\\') {
 			threadAngle = '\\';
@@ -48,6 +53,8 @@ export default function ChartSVG({
 		threadAngle = '\\';
 	}
 
+	const threadColor = palette[colorIndex];
+
 	// choose the svg graphic to represent this pick on the weaving chart
 	if (numberOfTurns === 0) {
 		svg = <SVGIdle />;
@@ -55,45 +62,73 @@ export default function ChartSVG({
 		svg = threadAngle === '\\'
 			? (
 				<SVGBackwardWarp
-					fill={palette[colorIndex]}
+					fill={threadColor}
 					stroke="#000000"
 				/>
 			)
 			: (
 				<SVGForwardWarp
-					fill={palette[colorIndex]}
+					fill={threadColor}
 					stroke="#000000"
 				/>
 			);
 	} else if (numberOfTurns === 2) {
+		const prevThreadColor1 = findPrevColor({
+			direction,
+			holes,
+			holeToShow,
+			'offset': 1,
+			palette,
+			tabletIndex,
+			threading,
+		});
+
 		svg = threadAngle === '\\'
 			? (
 				<SVGBackwardWarp2
-					stroke={palette[threading[modulus(holeToShow - 1, holes)][tabletIndex]]}
-					fill={palette[colorIndex]}
-
+					fill={threadColor}
+					stroke={prevThreadColor1}
 				/>
 			)
 			: (
 				<SVGForwardWarp2
-					fill={palette[colorIndex]}
-					stroke={palette[threading[modulus(holeToShow + 1, holes)][tabletIndex]]}
+					fill={threadColor}
+					stroke={prevThreadColor1}
 				/>
 			);
 	} else if (numberOfTurns === 3) {
+		const prevThreadColor1 = findPrevColor({
+			direction,
+			holes,
+			holeToShow,
+			'offset': 1,
+			palette,
+			tabletIndex,
+			threading,
+		});
+		const prevThreadColor2 = findPrevColor({
+			direction,
+			holes,
+			holeToShow,
+			'offset': 2,
+			palette,
+			tabletIndex,
+			threading,
+		});
+
 		svg = threadAngle === '\\'
 			? (
 				<SVGBackwardWarp3
-					fill={palette[colorIndex]}
-					stroke1={palette[threading[modulus(holeToShow - 2, holes)][tabletIndex]]}
-					stroke2={palette[threading[modulus(holeToShow - 1, holes)][tabletIndex]]}
+					fill={threadColor}
+					stroke1={prevThreadColor1}
+					stroke2={prevThreadColor2}
 				/>
 			)
 			: (
 				<SVGForwardWarp3
-					fill={palette[colorIndex]}
-					stroke1={palette[threading[modulus(holeToShow + 2, holes)][tabletIndex]]}
-					stroke2={palette[threading[modulus(holeToShow + 1, holes)][tabletIndex]]}
+					fill={threadColor}
+					stroke1={prevThreadColor1}
+					stroke2={prevThreadColor2}
 				/>
 			);
 	} else if (colorIndex === -1) { // empty hole

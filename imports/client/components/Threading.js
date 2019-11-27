@@ -70,7 +70,7 @@ class Threading extends PureComponent {
 			return;
 		}
 
-		const response = confirm(`Do you want to delete tablet "${tabletIndex + 1}"?`); // eslint-disable-line no-restricted-globals
+		const response = confirm(`Do you want to delete tablet ${tabletIndex + 1}?`); // eslint-disable-line no-restricted-globals
 
 		if (response === true) {
 			dispatch(removeTablet({ _id, tabletIndex }));

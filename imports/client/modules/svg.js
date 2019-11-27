@@ -188,8 +188,8 @@ export function SVGForwardWarp3(props) {
 		<svg
 			viewBox="0 0 256 256"
 		>
-			<ellipse rx="140.42" transform="rotate(-45)" stroke={stroke1} ry="70.214" cy="180.72" cx="-.33336" strokeWidth="30" fill={stroke1} />
-			<ellipse rx="140.42" transform="rotate(-45)" stroke={stroke2} ry="70.214" cy="180.72" cx="-.33336" strokeWidth="15" fill={fill} />
+			<ellipse rx="140.42" transform="rotate(-45)" stroke={stroke2} ry="70.214" cy="180.72" cx="-.33336" strokeWidth="30" fill={stroke2} />
+			<ellipse rx="140.42" transform="rotate(-45)" stroke={stroke1} ry="70.214" cy="180.72" cx="-.33336" strokeWidth="10" fill={fill} />
 			<text fontSize="121.92px" xmlSpace="preserve" style={{ 'wordSpacing': '0px', 'letterSpacing': '0px' }} line-height="125%" y="166.81104" x="95.967377" fontFamily="sans-serif" fill={contrastingColor(fill)}><tspan id="tspan4182-6-2" y="166.81104" x="95.967377">3</tspan></text>
 		</svg>
 	);
@@ -228,8 +228,8 @@ export function SVGBackwardWarp3(props) {
 		<svg
 			viewBox="0 0 256 256"
 		>
-			<ellipse rx="140.42" transform="matrix(-.70711 -.70711 -.70711 .70711 0 0)" stroke={stroke1} ry="70.214" cy=".33336" cx="-180.72" strokeWidth="30" fill={stroke1} />
-			<ellipse rx="140.42" transform="matrix(-.70711 -.70711 -.70711 .70711 0 0)" stroke={stroke2} ry="70.214" cy=".33336" cx="-180.72" strokeWidth="15" fill={fill} />
+			<ellipse rx="140.42" transform="matrix(-.70711 -.70711 -.70711 .70711 0 0)" stroke={stroke2} ry="70.214" cy=".33336" cx="-180.72" strokeWidth="30" fill={stroke2} />
+			<ellipse rx="140.42" transform="matrix(-.70711 -.70711 -.70711 .70711 0 0)" stroke={stroke1} ry="70.214" cy=".33336" cx="-180.72" strokeWidth="10" fill={fill} />
 			<text fontSize="121.92px" xmlSpace="preserve" style={{ 'wordSpacing': '0px', 'letterSpacing': '0px' }} line-height="125%" y="166.81104" x="95.967377" fontFamily="sans-serif" fill={contrastingColor(fill)}><tspan id="tspan4182-6-2" y="166.81104" x="95.967377">3</tspan></text>
 		</svg>
 	);

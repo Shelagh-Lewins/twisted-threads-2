@@ -103,3 +103,20 @@ export const isValidColorIndex = (colorIndex) => typeof colorIndex === 'number';
 
 // set a text color that will show up against a background
 export const contrastingColor = (color) => (tinycolor(color).isLight() ? '#000' : '#fff');
+
+// find the color of a previous thread
+// offset 1 means last thread
+// offset 2 means last but one thread...
+export const findPrevColor = ({
+	direction,
+	holes,
+	holeToShow,
+	offset,
+	palette,
+	tabletIndex,
+	threading,
+}) => {
+	let prevHole1 = direction === 'F' ? holeToShow + offset : holeToShow - offset;
+	prevHole1 = modulus(prevHole1, holes);
+	return palette[threading[prevHole1][tabletIndex]];
+};
