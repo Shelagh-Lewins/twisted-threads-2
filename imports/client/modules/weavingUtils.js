@@ -95,3 +95,6 @@ export const getPicksByTablet = createSelector(
 		return picksByTablet;
 	},
 );
+
+// a tablet to be deleted has its colorIndex temporarily set to a marker value which causes an error in threading and weaving charts
+export const isValidColorIndex = (colorIndex) => typeof colorIndex === 'number';

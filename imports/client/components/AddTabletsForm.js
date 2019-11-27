@@ -6,7 +6,6 @@ import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
 import {
 	MAX_TABLETS,
-	MAX_TABLETS_TO_ADD,
 } from '../../modules/parameters';
 import './AddPatternForm.scss';
 
@@ -16,8 +15,6 @@ const validate = (values, numberOfTablets) => {
 		errors.insertNTablets = 'Required';
 	} else if (values.insertNTablets < 1) {
 		errors.insertNTablets = 'Must be at least 1';
-	} else if (values.insertNTablets > MAX_TABLETS_TO_ADD) {
-		errors.insertNTablets = `Must not be greater than ${MAX_TABLETS_TO_ADD}`;
 	} else if (!Number.isInteger(values.insertNTablets)) {
 		errors.insertNTablets = 'Must be a whole number';
 	} else if (values.insertNTablets > MAX_TABLETS) {

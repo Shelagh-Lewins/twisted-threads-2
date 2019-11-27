@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 // import ReactDOM from 'react-dom';
 import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
+import { modulus } from '../modules/weavingUtils';
 import {
 	addTablets,
 	editOrientation,
@@ -9,12 +10,7 @@ import {
 	editThreadingCell,
 	removeTablet,
 } from '../modules/pattern';
-import {
-	SVGBackwardEmpty,
-	SVGBackwardWarp,
-	SVGForwardEmpty,
-	SVGForwardWarp,
-} from '../modules/svg';
+import ChartSVG from './ChartSVG';
 import AddTabletsForm from './AddTabletsForm';
 import './Threading.scss';
 import { DEFAULT_PALETTE, HOLE_LABELS } from '../../modules/parameters';
@@ -104,7 +100,7 @@ class Threading extends PureComponent {
 		}));
 	}
 
-	handleSubmitAddTablets(data, { resetForm }) {
+	handleSubmitAddTablets(data) {
 		const { dispatch, 'pattern': { _id } } = this.props;
 		const { selectedColorIndex } = this.state;
 
@@ -114,9 +110,6 @@ class Threading extends PureComponent {
 			'insertTabletsAt': parseInt(data.insertTabletsAt - 1, 10),
 			'colorIndex': parseInt(selectedColorIndex, 10),
 		}));
-		// timeout allows new tablet to be added before form is reset
-		// so valid form defaults can be calculated
-		setTimeout(() => resetForm(), 200);
 	}
 
 	handleClickThreadingCell(rowIndex, tabletIndex) {
@@ -179,35 +172,12 @@ class Threading extends PureComponent {
 	}
 
 	renderCell(colorIndex, rowIndex, tabletIndex) {
-		const { 'pattern': { orientations, palette } } = this.props;
+		const {
+			pattern,
+			'pattern': { holes, orientations },
+		} = this.props;
 		const { isEditing } = this.state;
-
-		let svg;
 		const orientation = orientations[tabletIndex];
-
-		if (colorIndex === -1) { // empty hole
-			svg = orientation === '\\'
-				? (
-					<SVGBackwardEmpty />
-				)
-				: (
-					<SVGForwardEmpty	/>
-				);
-		} else { // colored thread
-			svg = orientation === '\\'
-				? (
-					<SVGBackwardWarp
-						fill={palette[colorIndex]}
-						stroke="#000000"
-					/>
-				)
-				: (
-					<SVGForwardWarp
-						fill={palette[colorIndex]}
-						stroke="#000000"
-					/>
-				);
-		}
 
 		return (
 			<span
@@ -217,7 +187,14 @@ class Threading extends PureComponent {
 				role={isEditing ? 'button' : undefined}
 				tabIndex={isEditing ? '0' : undefined}
 			>
-				{svg}
+				<ChartSVG
+					pattern={pattern}
+					direction="F"
+					netTurns={holes - rowIndex /* hole labels run bottom to top, indexes run top to bottom */}
+					numberOfTurns={1}
+					orientation={orientation}
+					tabletIndex={tabletIndex}
+				/>
 			</span>
 		);
 	}

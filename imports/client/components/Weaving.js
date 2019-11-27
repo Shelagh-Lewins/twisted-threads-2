@@ -9,15 +9,7 @@ import {
 	editWeavingCellNumberOfTurns,
 	removeWeavingRow,
 } from '../modules/pattern';
-import {
-	SVGBackward2,
-	SVGBackwardEmpty,
-	SVGBackwardWarp,
-	SVGForward2,
-	SVGForwardEmpty,
-	SVGForwardWarp,
-	SVGIdle,
-} from '../modules/svg';
+import ChartSVG from './ChartSVG';
 import AddRowsForm from './AddRowsForm';
 import EditWeavingCellForm from './EditWeavingCellForm';
 import './Threading.scss';
@@ -98,7 +90,7 @@ class Weaving extends PureComponent {
 		}
 	}
 
-	handleSubmitAddRows(data, { resetForm }) {
+	handleSubmitAddRows(data) {
 		const { dispatch, 'pattern': { _id } } = this.props;
 
 		dispatch(addWeavingRows({
@@ -106,9 +98,6 @@ class Weaving extends PureComponent {
 			'insertNRows': parseInt(data.insertNRows, 10),
 			'insertRowsAt': parseInt(data.insertRowsAt - 1, 10),
 		}));
-		// timeout allows new row to be added before form is reset
-		// so valid form defaults can be calculated
-		setTimeout(() => resetForm(), 200);
 	}
 
 	handleSubmitEditWeavingCellForm(data) {
@@ -149,11 +138,10 @@ class Weaving extends PureComponent {
 
 	renderCell(rowIndex, tabletIndex) {
 		const {
+			pattern,
 			'pattern': {
 				holes,
 				orientations,
-				palette,
-				threading,
 			},
 			picksByTablet,
 		} = this.props;
@@ -164,66 +152,9 @@ class Weaving extends PureComponent {
 			isSelected = rowIndex === selectedCell[0] && tabletIndex === selectedCell[1];
 		}
 
-		let svg;
 		const orientation = orientations[tabletIndex];
 		const { direction, numberOfTurns, totalTurns } = picksByTablet[tabletIndex][rowIndex];
 		const netTurns = modulus(totalTurns, holes);
-		let holeToShow;
-
-
-		if (direction === 'F') {
-			// show thread in position A
-			holeToShow = modulus(holes - netTurns, holes);
-		} else {
-			// show thread in position D
-			holeToShow = modulus(holes - netTurns - 1, holes);
-		}
-
-		const colorIndex = threading[holeToShow][tabletIndex];
-
-		let threadAngle = '/'; // which way does the thread twist?
-		if (direction === 'F') {
-			if (orientation === '\\') {
-				threadAngle = '\\';
-			}
-		} else if (orientation === '/') {
-			threadAngle = '\\';
-		}
-
-		// choose the svg graphic to represent this pick on the weaving chart
-		if (numberOfTurns === 0) {
-			svg = <SVGIdle />;
-		} else if (numberOfTurns === 2) {
-			svg = threadAngle === '\\'
-				? (
-					<SVGBackward2 />
-				)
-				: (
-					<SVGForward2	/>
-				);
-		} else if (colorIndex === -1) { // empty hole
-			svg = threadAngle === '\\'
-				? (
-					<SVGBackwardEmpty />
-				)
-				: (
-					<SVGForwardEmpty	/>
-				);
-		} else { // colored thread
-			svg = threadAngle === '\\'
-				? (
-					<SVGBackwardWarp
-						fill={palette[colorIndex]}
-						stroke="#000000"
-					/>
-				)
-				: (
-					<SVGForwardWarp
-						fill={palette[colorIndex]}
-						stroke="#000000"
-					/>
-				);
-		}
 
 		// if not idle, show direction
 		let directionClass = '';
@@ -248,7 +179,14 @@ class Weaving extends PureComponent {
 					role={isEditing ? 'button' : undefined}
 					tabIndex={isEditing ? '0' : undefined}
 				>
-					{svg}
+					<ChartSVG
+						pattern={pattern}
+						direction={direction}
+						netTurns={netTurns}
+						numberOfTurns={numberOfTurns}
+						orientation={orientation}
+						tabletIndex={tabletIndex}
+					/>
 				</span>
 			</li>
 		);

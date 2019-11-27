@@ -5,7 +5,7 @@ import { Button, Col, Row } from 'reactstrap';
 import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
 import {
-	MAX_ROWS_TO_ADD,
+
 	MAX_ROWS,
 } from '../../modules/parameters';
 import './AddPatternForm.scss';
@@ -16,8 +16,6 @@ const validate = (values, numberOfRows) => {
 		errors.insertNRows = 'Required';
 	} else if (values.insertNRows < 1) {
 		errors.insertNRows = 'Must be at least 1';
-	} else if (values.insertNRows > MAX_ROWS_TO_ADD) {
-		errors.insertNRows = `Must not be greater than ${MAX_ROWS_TO_ADD}`;
 	} else if (!Number.isInteger(values.insertNRows)) {
 		errors.insertNRows = 'Must be a whole number';
 	} else if (values.insertNRows > MAX_ROWS) {
@@ -28,7 +26,7 @@ const validate = (values, numberOfRows) => {
 		errors.insertRowsAt = 'Required';
 	} else if (values.insertRowsAt < 1) {
 		errors.insertRowsAt = 'Must be at least 1';
-	} else if (values.insertRowsAt > numberOfRows) { // TODO replace with current number of rows
+	} else if (values.insertRowsAt > numberOfRows) {
 		errors.insertRowsAt = `Must not be greater than ${MAX_ROWS}`;
 	} else if (!Number.isInteger(values.insertRowsAt)) {
 		errors.insertRowsAt = 'Must be a whole number';
