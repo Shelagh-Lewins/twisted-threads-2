@@ -11,6 +11,7 @@ import { ColorBooks, Patterns } from '../../modules/collection';
 import Loading from '../components/Loading';
 import Weaving from '../components/Weaving';
 import Threading from '../components/Threading';
+import Notation from '../components/Notation';
 import './Pattern.scss';
 
 const bodyClass = 'pattern';
@@ -57,6 +58,7 @@ class Pattern extends PureComponent {
 								pattern={pattern}
 							/>
 						)}
+						<Notation />
 					</>
 				);
 			} else {

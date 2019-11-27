@@ -84,15 +84,16 @@ export default function ChartSVG({
 		svg = threadAngle === '\\'
 			? (
 				<SVGBackwardWarp3
-					stroke={palette[threading[modulus(holeToShow - 1, holes)][tabletIndex]]}
 					fill={palette[colorIndex]}
-
+					stroke1={palette[threading[modulus(holeToShow - 2, holes)][tabletIndex]]}
+					stroke2={palette[threading[modulus(holeToShow - 1, holes)][tabletIndex]]}
 				/>
 			)
 			: (
 				<SVGForwardWarp3
 					fill={palette[colorIndex]}
-					stroke={palette[threading[modulus(holeToShow + 1, holes)][tabletIndex]]}
+					stroke1={palette[threading[modulus(holeToShow + 2, holes)][tabletIndex]]}
+					stroke2={palette[threading[modulus(holeToShow + 1, holes)][tabletIndex]]}
 				/>
 			);
 	} else if (colorIndex === -1) { // empty hole
