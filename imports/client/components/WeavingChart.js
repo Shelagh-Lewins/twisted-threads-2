@@ -1,7 +1,6 @@
 // weaving chart for interactive weaving chart page
 
 import React, { PureComponent } from 'react';
-import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { modulus } from '../modules/weavingUtils';
 import ChartSVG from './ChartSVG';

@@ -72,12 +72,74 @@
 	}
 
 	.row {
+		position: relative;
+
 		&:last-child {
 			.weaving-row {
 				.value {
 					border-bottom: 1px solid $color-chart-border;
 				}
 			}
+		}
+	}
+
+	.highlight {
+		height: 100%;
+		position: absolute;
+		width: 100%;
+
+		.buttons {
+			display: none;
+		}
+
+		.innertube {
+			background: $color-interactive-weaving-chart-highlight;
+			height: 100%;
+			margin-left: 33px;
+		}
+	}
+
+	.selected {
+		z-index: 10;
+
+		.buttons {
+			display: block;
+			height: 146px;
+			left: 50%;
+			margin-left: -9px;
+			position: absolute;
+			top: -56px;
+			width: 50px;
+
+			button {
+				-moz-appearance: none; /* Mozilla */
+				-webkit-appearance: none; /* WebKit */
+				appearance: none; /* CSS3 */
+				background-color: transparent;
+				border: 0;
+				height: 50px;
+				position: absolute;
+				width: 50px;
+
+				&:active {
+					background-position: 0 -50px;
+				}
+			}
+
+			.button-up {
+				background-image: url("/images/up.png");
+				top: 0;
+			}
+
+			.button-down {
+				background-image: url("/images/down.png");
+				bottom: 0;
+			}
+		}
+
+		.innertube {
+			background: transparent;
+			outline: 3px solid $color-interactive-weaving-chart-outline;
 		}
 	}
 
