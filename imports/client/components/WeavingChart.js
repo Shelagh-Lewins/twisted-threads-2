@@ -123,6 +123,10 @@ class WeavingChart extends PureComponent {
 								className={`row ${index === selectedRow ? 'selected' : ''}`}
 								key={`weaving-row-${index}`}
 								onClick={index === selectedRow ? undefined : () => handleClickRow(index)}
+								onKeyPress={index === selectedRow ? undefined : () => handleClickRow(index)}
+								role="button" // eslint-disable-line 
+								tabIndex="0"
+								type="button"
 							>
 								{this.renderRow(numberOfRows, row, index)}
 							</li>

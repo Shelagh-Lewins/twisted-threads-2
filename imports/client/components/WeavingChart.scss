@@ -72,6 +72,9 @@
 	}
 
 	.row {
+		-moz-appearance: none; /* Mozilla */
+		-webkit-appearance: none; /* WebKit */
+		appearance: none; /* CSS3 */
 		position: relative;
 
 		&:last-child {

@@ -44,24 +44,36 @@ class InteractiveWeavingChartPage extends PureComponent {
 	}
 
 	handleClickDown() {
+		const { 'pattern': { numberOfRows } } = this.props;
 		const { selectedRow } = this.state;
 
+		let newRow = selectedRow + 1;
+		if (newRow >= numberOfRows) {
+			newRow = 0;
+		}
+
 		this.setState({
-			'selectedRow': selectedRow + 1,
+			'selectedRow': newRow,
 		});
 	}
 
 	handleClickUp() {
+		const { 'pattern': { numberOfRows } } = this.props;
 		const { selectedRow } = this.state;
 
+		let newRow = selectedRow - 1;
+		if (newRow < 0) {
+			newRow = numberOfRows - 1;
+		}
+
 		this.setState({
-			'selectedRow': selectedRow - 1,
+			'selectedRow': newRow,
 		});
 	}
 
-	handleClickRow(index) {
-		console.log('clicked row', index);
+	// TO DO wrap up and down
 
+	handleClickRow(index) {
 		this.setState({
 			'selectedRow': index,
 		});
