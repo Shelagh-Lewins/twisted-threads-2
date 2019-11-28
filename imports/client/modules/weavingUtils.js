@@ -1,5 +1,6 @@
 // functions used to calculate weaving chart from pattern design
 import { createSelector } from 'reselect';
+import { EMPTY_HOLE_COLOR } from '../../modules/parameters';
 
 const tinycolor = require('tinycolor2');
 
@@ -116,7 +117,14 @@ export const findPrevColor = ({
 	tabletIndex,
 	threading,
 }) => {
-	let prevHole1 = direction === 'F' ? holeToShow + offset : holeToShow - offset;
-	prevHole1 = modulus(prevHole1, holes);
-	return palette[threading[prevHole1][tabletIndex]];
+	let prevHoleIndex = direction === 'F' ? holeToShow + offset : holeToShow - offset;
+	prevHoleIndex = modulus(prevHoleIndex, holes);
+
+	const colorIndex = threading[prevHoleIndex][tabletIndex];
+
+	if (colorIndex === -1) {
+		return EMPTY_HOLE_COLOR;
+	}
+
+	return palette[colorIndex];
 };

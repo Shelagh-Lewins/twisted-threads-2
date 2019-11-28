@@ -16,6 +16,7 @@ import {
 	isValidColorIndex,
 	modulus,
 } from '../modules/weavingUtils';
+import { EMPTY_HOLE_COLOR } from '../../modules/parameters';
 
 export default function ChartSVG({
 	direction,
@@ -43,6 +44,11 @@ export default function ChartSVG({
 		return null;
 	}
 
+	let threadColor = EMPTY_HOLE_COLOR;
+	if (colorIndex !== -1) { // not empty, there is a thread
+		threadColor = palette[colorIndex];
+	}
+
 	let threadAngle = '/'; // which way does the thread twist?
 
 	if (direction === 'F') {
@@ -53,25 +59,33 @@ export default function ChartSVG({
 		threadAngle = '\\';
 	}
 
-	const threadColor = palette[colorIndex];
-
 	// choose the svg graphic to represent this pick on the weaving chart
 	if (numberOfTurns === 0) {
 		svg = <SVGIdle />;
 	} else if (numberOfTurns === 1) {
-		svg = threadAngle === '\\'
-			? (
-				<SVGBackwardWarp
-					fill={threadColor}
-					stroke="#000000"
-				/>
-			)
-			: (
-				<SVGForwardWarp
-					fill={threadColor}
-					stroke="#000000"
-				/>
-			);
+		if (colorIndex === -1) { // empty hole
+			svg = threadAngle === '\\'
+				? (
+					<SVGBackwardEmpty />
+				)
+				: (
+					<SVGForwardEmpty	/>
+				);
+		} else {
+			svg = threadAngle === '\\'
+				? (
+					<SVGBackwardWarp
+						fill={threadColor}
+						stroke="#000000"
+					/>
+				)
+				: (
+					<SVGForwardWarp
+						fill={threadColor}
+						stroke="#000000"
+					/>
+				);
+		}
 	} else if (numberOfTurns === 2) {
 		const prevThreadColor1 = findPrevColor({
 			direction,
@@ -130,14 +144,6 @@ export default function ChartSVG({
 					stroke1={prevThreadColor1}
 					stroke2={prevThreadColor2}
 				/>
-			);
-	} else if (colorIndex === -1) { // empty hole
-		svg = threadAngle === '\\'
-			? (
-				<SVGBackwardEmpty />
-			)
-			: (
-				<SVGForwardEmpty	/>
 			);
 	}
 
