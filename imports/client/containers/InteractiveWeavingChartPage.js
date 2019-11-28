@@ -6,6 +6,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { setIsLoading } from '../modules/pattern';
+import { addRecentPattern } from '../modules/auth';
 import { getPicksByTablet } from '../modules/weavingUtils';
 
 import { Patterns } from '../../modules/collection';
@@ -20,8 +21,10 @@ class InteractiveWeavingChartPage extends PureComponent {
 		super(props);
 
 		this.state = {
-			'selectedRow': 0, // 0 at top, increasing down
+			'gotUser': false, // 0 at top, increasing down
 		};
+
+		// TODO start at saved value, or row 1
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
@@ -36,15 +39,74 @@ class InteractiveWeavingChartPage extends PureComponent {
 	}
 
 	componentDidMount() {
+		const { dispatch, _id } = this.props;
+		dispatch(addRecentPattern({ 'patternId': _id }));
+
 		document.body.classList.add(bodyClass);
+	}
+
+	componentDidUpdate() {
+		const { _id, pattern } = this.props;
+		const { gotUser, selectedRow } = this.state;
+		// console.log('recentPatterns', Meteor.user().profile.recentPatterns);
+
+		// wait for user details to load
+		if (gotUser === false && Meteor.user()) {
+			this.setState({
+				'gotUser': true,
+			});
+
+			const { 'profile': { recentPatterns } } = Meteor.user();
+
+			if (recentPatterns) {
+				const thisRecentPattern = recentPatterns.find((recentPattern) => recentPattern.patternId === _id);
+
+				if (thisRecentPattern && typeof thisRecentPattern.currentWeavingRow !== 'undefined') {
+					this.setState({
+						'selectedRow': thisRecentPattern.currentWeavingRow,
+					});
+				} else {
+					this.setState({
+						'selectedRow': -1, // we want to set to the first row but we may not yet have pattern data to find number of rows
+					});
+				}
+			}
+		}
+
+		// wait for pattern details
+		// and set selectedRow if it has not been provided from profile.recentPatterns
+		// we need number of rows because selectedRow is actually the offset from the top
+		if (pattern && selectedRow === -1) {
+			this.setState({
+				'selectedRow': pattern.numberOfRows - 1,
+			});
+		}
 	}
 
 	componentWillUnmount() {
 		document.body.classList.remove(bodyClass);
 	}
 
+	setSelectedRow(selectedRow) {
+		const {
+			_id,
+			dispatch,
+		} = this.props;
+
+		this.setState({
+			'selectedRow': selectedRow,
+		});
+
+		dispatch(addRecentPattern({
+			'currentWeavingRow': selectedRow,
+			'patternId': _id,
+		}));
+	}
+
 	handleClickDown() {
-		const { 'pattern': { numberOfRows } } = this.props;
+		const {
+			'pattern': { numberOfRows },
+		} = this.props;
 		const { selectedRow } = this.state;
 
 		let newRow = selectedRow + 1;
@@ -52,9 +114,7 @@ class InteractiveWeavingChartPage extends PureComponent {
 			newRow = 0;
 		}
 
-		this.setState({
-			'selectedRow': newRow,
-		});
+		this.setSelectedRow(newRow);
 	}
 
 	handleClickUp() {
@@ -66,15 +126,11 @@ class InteractiveWeavingChartPage extends PureComponent {
 			newRow = numberOfRows - 1;
 		}
 
-		this.setState({
-			'selectedRow': newRow,
-		});
+		this.setSelectedRow(newRow);
 	}
 
 	handleClickRow(index) {
-		this.setState({
-			'selectedRow': index,
-		});
+		this.setSelectedRow(newRow);
 	}
 
 	render() {
@@ -129,6 +185,7 @@ class InteractiveWeavingChartPage extends PureComponent {
 }
 
 InteractiveWeavingChartPage.propTypes = {
+	'_id': PropTypes.string.isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,

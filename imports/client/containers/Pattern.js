@@ -22,6 +22,7 @@ class Pattern extends PureComponent {
 	componentDidMount() {
 		const { dispatch, _id } = this.props;
 		dispatch(addRecentPattern({ 'patternId': _id }));
+
 		document.body.classList.add(bodyClass);
 	}
 
@@ -87,6 +88,7 @@ class Pattern extends PureComponent {
 }
 
 Pattern.propTypes = {
+	'_id': PropTypes.string.isRequired,
 	'colorBookAdded': PropTypes.string.isRequired,
 	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,

@@ -154,7 +154,7 @@ WeavingChart.propTypes = {
 	'handleClickDown': PropTypes.func.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 	'picksByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'selectedRow': PropTypes.number.isRequired,
+	'selectedRow': PropTypes.number,
 };
 
 export default WeavingChart;
