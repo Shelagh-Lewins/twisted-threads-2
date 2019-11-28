@@ -71,8 +71,6 @@ class InteractiveWeavingChartPage extends PureComponent {
 		});
 	}
 
-	// TO DO wrap up and down
-
 	handleClickRow(index) {
 		this.setState({
 			'selectedRow': index,

@@ -6,6 +6,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { setIsLoading } from '../modules/pattern';
+import { addRecentPattern } from '../modules/auth';
 import { getPicksByTablet } from '../modules/weavingUtils';
 
 import { ColorBooks, Patterns } from '../../modules/collection';
@@ -19,6 +20,8 @@ const bodyClass = 'pattern';
 
 class Pattern extends PureComponent {
 	componentDidMount() {
+		const { dispatch, _id } = this.props;
+		dispatch(addRecentPattern({ 'patternId': _id }));
 		document.body.classList.add(bodyClass);
 	}
 

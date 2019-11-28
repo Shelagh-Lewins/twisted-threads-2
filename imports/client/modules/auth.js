@@ -210,6 +210,14 @@ export const changePassword = ({ oldPassword, newPassword }) => (dispatch) => {
 };
 
 // ///////////////////////////
+// record a recently viewed pattern, with weaving chart row if the user has been weaving
+export function addRecentPattern({ currentWeavingRow, patternId }) {
+	return () => {
+		Meteor.call('auth.addRecentPattern', { currentWeavingRow, 'userId': Meteor.userId(), patternId });
+	};
+}
+
+// ///////////////////////////
 // Provide info to UI
 
 export function getUser() {

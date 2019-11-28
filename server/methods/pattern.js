@@ -390,12 +390,12 @@ Meteor.methods({
 		// so first we mark the row to remove
 		// then use 'pull'
 
-		Patterns.update({ _id }, { '$set': { [`patternDesign.weavingInstructions.${rowIndex}.${0}.toBeDeleted`]: true } });
+		Patterns.update({ _id }, { '$set': { [`patternDesign.weavingInstructions.${rowIndex}.${0}.toBeRemoved`]: true } });
 
 		// NOTE if the pull fails, the numberOfRows will then be incorrect
 		// however if the following updates don't take place atomically, the client will likely show errors
 		const update = {};
-		update.$pull = { 'patternDesign.weavingInstructions': { '$elemMatch': { 'toBeDeleted': true } } };
+		update.$pull = { 'patternDesign.weavingInstructions': { '$elemMatch': { 'toBeRemoved': true } } };
 		update.$set = {
 			'numberOfRows': pattern.numberOfRows - 1,
 		};
@@ -555,15 +555,15 @@ Meteor.methods({
 
 		// updates for threading and orientation are the same for all pattern types
 		update1.$set = {
-			[`threading.$[].${tabletIndex}`]: 'toBeDeleted',
-			[`orientations.${tabletIndex}`]: 'toBeDeleted',
+			[`threading.$[].${tabletIndex}`]: 'toBeRemoved',
+			[`orientations.${tabletIndex}`]: 'toBeRemoved',
 		};
 
 		// updates for weaving depend on pattern type
 		switch (patternType) {
 			case 'individual':
 				// new picks to be added to each weaving row
-				update1.$set[`patternDesign.weavingInstructions.$[].${tabletIndex}.toBeDeleted`] = true;
+				update1.$set[`patternDesign.weavingInstructions.$[].${tabletIndex}.toBeRemoved`] = true;
 				break;
 
 			default:
@@ -576,8 +576,8 @@ Meteor.methods({
 
 		// updates for threading and orientation are the same for all pattern types
 		update2.$pull = {
-			'threading.$[]': 'toBeDeleted',
-			'orientations': 'toBeDeleted',
+			'threading.$[]': 'toBeRemoved',
+			'orientations': 'toBeRemoved',
 		};
 		update2.$set = {
 			'numberOfTablets': pattern.numberOfTablets - 1,
@@ -587,7 +587,7 @@ Meteor.methods({
 		switch (patternType) {
 			case 'individual':
 				// remove picks from each weaving row
-				update2.$pull['patternDesign.weavingInstructions.$[]'] = { 'toBeDeleted': true };
+				update2.$pull['patternDesign.weavingInstructions.$[]'] = { 'toBeRemoved': true };
 				break;
 
 			default:
