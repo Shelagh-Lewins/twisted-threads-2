@@ -26,6 +26,7 @@ class InteractiveWeavingChartPage extends PureComponent {
 		// bind onClick functions to provide context
 		const functionsToBind = [
 			'handleClickDown',
+			'handleClickRow',
 			'handleClickUp',
 		];
 
@@ -58,6 +59,14 @@ class InteractiveWeavingChartPage extends PureComponent {
 		});
 	}
 
+	handleClickRow(index) {
+		console.log('clicked row', index);
+
+		this.setState({
+			'selectedRow': index,
+		});
+	}
+
 	render() {
 		const {
 			dispatch,
@@ -87,6 +96,7 @@ class InteractiveWeavingChartPage extends PureComponent {
 							<WeavingChart
 								dispatch={dispatch}
 								handleClickDown={this.handleClickDown}
+								handleClickRow={this.handleClickRow}
 								handleClickUp={this.handleClickUp}
 								pattern={pattern}
 								picksByTablet={picksByTablet}

@@ -105,6 +105,7 @@ class WeavingChart extends PureComponent {
 
 	renderChart() {
 		const {
+			handleClickRow,
 			'pattern': {
 				numberOfRows,
 				'patternDesign': { weavingInstructions },
@@ -121,6 +122,7 @@ class WeavingChart extends PureComponent {
 							<li
 								className={`row ${index === selectedRow ? 'selected' : ''}`}
 								key={`weaving-row-${index}`}
+								onClick={index === selectedRow ? undefined : () => handleClickRow(index)}
 							>
 								{this.renderRow(numberOfRows, row, index)}
 							</li>
@@ -144,6 +146,7 @@ class WeavingChart extends PureComponent {
 
 WeavingChart.propTypes = {
 	'handleClickUp': PropTypes.func.isRequired,
+	'handleClickRow': PropTypes.func.isRequired,
 	'handleClickDown': PropTypes.func.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 	'picksByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
