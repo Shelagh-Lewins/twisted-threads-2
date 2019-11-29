@@ -29,14 +29,13 @@ export default function PatternPreview(props) {
 
 	const cellHeight = 54;
 	const cellWidth = 20;
-	console.log('numberOfTablets', numberOfTablets);
 
 	const numberOfRepeats = 1; // TODO calculate and repeat
 	const viewboxWidth = numberOfTablets * unitWidth;
 	const viewboxHeight = unitHeight * ((numberOfRows + 1) / 2);
 	const viewBox = `0 0 ${viewboxWidth} ${viewboxHeight}`;
 
-	const rowNumberAllocation = 0;
+	const rowNumberAllocation = 0; // TO DO show row numbers
 	const imageHeight = (1 + numberOfRows) * (cellHeight / 2);
 	const totalWidth = cellWidth * (numberOfTablets + rowNumberAllocation);
 
