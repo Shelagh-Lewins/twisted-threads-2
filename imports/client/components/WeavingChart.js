@@ -70,8 +70,8 @@ class WeavingChart extends PureComponent {
 
 		// background images in scss are malformed: the leading / is removed so they become relative and do not point to public/images
 		// https://github.com/meteor/meteor/issues/10247
-		// a dirty solution is to specify background-image with inline style
-		const upUrl = Meteor.absoluteUrl('/images/up.png');
+		// a solution is to specify background-image with inline style
+		const upUrl = Meteor.absoluteUrl('/images/up.png'); // absoluteUrl is recommended, though doesn't seem to be necessary
 		const downUrl = Meteor.absoluteUrl('/images/down.png');
 
 		return (
