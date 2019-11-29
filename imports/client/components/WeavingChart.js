@@ -68,6 +68,12 @@ class WeavingChart extends PureComponent {
 		const { handleClickDown, handleClickUp } = this.props;
 		const rowLabel = numberOfRows - rowIndex;
 
+		// background images in scss are malformed: the leading / is removed so they become relative and do not point to public/images
+		// https://github.com/meteor/meteor/issues/10247
+		// a dirty solution is to specify background-image with inline style
+		const upUrl = Meteor.absoluteUrl('/images/up.png');
+		const downUrl = Meteor.absoluteUrl('/images/down.png');
+
 		return (
 			<>
 				<ul className="weaving-row">
@@ -77,8 +83,22 @@ class WeavingChart extends PureComponent {
 				<div className="highlight">
 					<div className="innertube" />
 					<div className="buttons">
-						<button type="button" className="button-up" onClick={handleClickUp}>Up</button>
-						<button type="button" className="button-down" onClick={handleClickDown}>Down</button>
+						<button
+							type="button"
+							className="button-up"
+							onClick={handleClickUp}
+							style={{ 'backgroundImage': `url('${upUrl}')` }}
+						>
+							Up
+						</button>
+						<button
+							type="button"
+							className="button-down"
+							onClick={handleClickDown}
+							style={{ 'backgroundImage': `url('${downUrl}')` }}
+						>
+							Down
+						</button>
 					</div>
 				</div>
 			</>
