@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import PreviewSVG from './PreviewSVG';
+import { modulus } from '../modules/weavingUtils';
 
 import './PatternPreview.scss';
 
@@ -8,13 +10,18 @@ import './PatternPreview.scss';
 // so disable the rule below
 /* eslint-disable react/no-array-index-key */
 
+// TO DO row numbers, number of turns, tablet numbers, repeats, points where tablets are in original position
+
 export default function PatternPreview(props) {
 	const {
+		pattern,
 		'pattern': {
+			holes,
 			numberOfRows,
 			numberOfTablets,
-			'patternDesign': { weavingInstructions },
+			orientations,
 		},
+		picksByTablet,
 	} = props;
 
 	const unitWidth = 41.560534;
@@ -22,15 +29,15 @@ export default function PatternPreview(props) {
 
 	const cellHeight = 54;
 	const cellWidth = 20;
+	console.log('numberOfTablets', numberOfTablets);
 
-	const numberOfRepeats = 1;
-	const viewboxWidth = numberOfRows * unitWidth;
+	const numberOfRepeats = 1; // TODO calculate and repeat
+	const viewboxWidth = numberOfTablets * unitWidth;
 	const viewboxHeight = unitHeight * ((numberOfRows + 1) / 2);
 	const viewBox = `0 0 ${viewboxWidth} ${viewboxHeight}`;
 
-	const rowNumberAllocation = 2;
+	const rowNumberAllocation = 0;
 	const imageHeight = (1 + numberOfRows) * (cellHeight / 2);
-	// const imageHeight = (1 + numberOfRows) * (cellHeight / 2);
 	const totalWidth = cellWidth * (numberOfTablets + rowNumberAllocation);
 
 	// elements overlap by half their height
@@ -45,35 +52,40 @@ export default function PatternPreview(props) {
 
 	// /////////////
 	const renderCell = function (rowIndex, tabletIndex) {
+		// position the cell's svg path
 		const xOffset = (tabletIndex) * unitWidth;
 		const yOffset = ((numberOfRows - rowIndex - 1) * (unitHeight / 2));
 		const transform = `translate(${xOffset} ${yOffset})`;
-		return (
-			<g key={`prevew-cell-${rowIndex}-${tabletIndex}`} transform={transform}><path d="m0.51 111.54 40.545-55v-55l-40.545 55z" stroke="#444" strokeWidth="1.015" fill="{{color}}" /></g>
-		);
-	};
-
-	const renderRow = function (row, rowIndex) {
-		const rowLabel = numberOfRows - rowIndex;
 
 		return (
-			<g key={`prevew-cell-${rowIndex}`}>
-				{row.map((obj, tabletIndex) => renderCell(rowLabel - 1, tabletIndex))}
+			<g key={`prevew-cell-${rowIndex}-${tabletIndex}`} transform={transform}>
+				<PreviewSVG
+					pattern={pattern}
+					picksByTablet={picksByTablet}
+					rowIndex={rowIndex}
+					tabletIndex={tabletIndex}
+				/>
 			</g>
 		);
 	};
 
+	const rows = [];
+
+	for (let i = 0; i < numberOfRows; i += 1) {
+		const cells = [];
+
+		for (let j = 0; j < numberOfTablets; j += 1) {
+			cells.push(renderCell(numberOfRows - i - 1, j));
+		}
+		rows.push(cells);
+	}
+
 	return (
 		<div className="pattern-preview">
-
 			Pattern preview
 			<div className="preview-holder" style={rotationCorrection}>
 				<svg viewBox={viewBox} shapeRendering="geometricPrecision" width={totalWidth}>
-					{
-						weavingInstructions.map((row, index) => (
-							renderRow(row, index)
-						))
-					}
+					{rows}
 				</svg>
 			</div>
 		</div>
