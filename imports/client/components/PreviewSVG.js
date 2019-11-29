@@ -19,7 +19,6 @@ import {
 	isValidColorIndex,
 	modulus,
 } from '../modules/weavingUtils';
-import { EMPTY_HOLE_COLOR } from '../../modules/parameters';
 
 export default function PreviewSVG({
 	pattern,
@@ -40,6 +39,8 @@ export default function PreviewSVG({
 	const { direction, numberOfTurns, totalTurns } = picksByTablet[tabletIndex][rowIndex];
 	const netTurns = modulus(totalTurns, holes);
 	const orientation = orientations[tabletIndex];
+	const emptyHoleColor = 'transparent'; // transparent to show weft
+	const borderColor = '#444';
 
 	let holeToShow;
 
@@ -57,7 +58,7 @@ export default function PreviewSVG({
 		return null;
 	}
 
-	let threadColor = EMPTY_HOLE_COLOR;
+	let threadColor = emptyHoleColor;
 	if (colorIndex !== -1) { // not empty, there is a thread
 		threadColor = palette[colorIndex];
 	}
@@ -76,144 +77,40 @@ export default function PreviewSVG({
 	console.log('numberOfTurns', numberOfTurns);
 	console.log('rowIndex', rowIndex);
 	console.log('tabletIndex', tabletIndex);
+	let previousDirection;
+	let previousColor1;
+	let reversal = false;
 
-	// console.log('TO DO figure out row 1 when idle, 2 or 3 turns');
-	if (numberOfTurns === 1) {
-		if (direction === 'F') {
-			svg = (
-				<PathForwardWarp
-					fill={threadColor}
-					stroke="#444"
-				/>
-			);
-		} else {
-			svg = (
-				<PathBackwardWarp
-					fill={threadColor}
-					stroke="#444"
-				/>
-			);
+	if (rowIndex !== 0) { // there is a previous row
+		previousDirection = picksByTablet[tabletIndex][rowIndex - 1].direction;
+		const PreviousColorIndex1 = picksByTablet[tabletIndex][rowIndex - 1].color;
+		previousColor1 = emptyHoleColor;
+		if (colorIndex !== -1) { // not empty, there is a thread
+			previousColor1 = palette[PreviousColorIndex1];
 		}
-		if (rowIndex !== 0) { // there is a previous row
-			let reversal = false;
-			const previousDirection = picksByTablet[tabletIndex][rowIndex - 1].direction;
-			console.log('direction', direction);
-			console.log('previous pick', picksByTablet[tabletIndex][rowIndex - 1]);
-			if (direction !== previousDirection) {
-				reversal = true;
-			}
 
-			if (reversal) {
-				console.log('reversal');
-				if (direction === 'F') {
-					svg = (
-						<PathTriangleLeft
-							fill={threadColor}
-							stroke="#444"
-						/>
-					);
-				} else {
-					svg = (
-						<PathTriangleRight
-							fill={threadColor}
-							stroke="#444"
-						/>
-					);
-				}
-			}
+		if (direction !== previousDirection) {
+			reversal = true;
+		}
+	}
+
+	if (numberOfTurns === 0) { // idle
+		const color = previousColor1 || threadColor;
+		svg = direction === 'F'
+			? <PathForwardWarp fill={color} stroke={borderColor}	/>
+			: <PathBackwardWarp fill={color} stroke={borderColor}	/>;
+	} else if (numberOfTurns === 1) {
+		svg = direction === 'F'
+			? <PathForwardWarp fill={threadColor} stroke={borderColor}	/>
+			: <PathBackwardWarp fill={threadColor} stroke={borderColor}	/>;
+
+		if (reversal) {
+			svg = direction === 'F'
+				? <PathTriangleLeft fill={threadColor} stroke={borderColor}	/>
+				: <PathTriangleRight fill={threadColor} stroke={borderColor}	/>;
 		}
 	}
 	// console.log('svg', svg);
-	return svg;
-
-	// choose the svg path to represent this pick on the weaving chart
-	if (numberOfTurns === 0) {
-		svg = <SVGIdle />;
-	} else if (numberOfTurns === 1) {
-		if (colorIndex === -1) { // empty hole
-			svg = threadAngle === '\\'
-				? (
-					<SVGBackwardEmpty />
-				)
-				: (
-					<SVGForwardEmpty	/>
-				);
-		} else {
-			svg = threadAngle === '\\'
-				? (
-					<SVGBackwardWarp
-						fill={threadColor}
-						stroke="#000000"
-					/>
-				)
-				: (
-					<SVGForwardWarp
-						fill={threadColor}
-						stroke="#000000"
-					/>
-				);
-		}
-	} else if (numberOfTurns === 2) {
-		const prevThreadColor1 = findPrevColor({
-			direction,
-			holes,
-			holeToShow,
-			'offset': 1,
-			palette,
-			tabletIndex,
-			threading,
-		});
-
-		svg = threadAngle === '\\'
-			? (
-				<SVGBackwardWarp2
-					fill={threadColor}
-					stroke={prevThreadColor1}
-				/>
-			)
-			: (
-				<SVGForwardWarp2
-					fill={threadColor}
-					stroke={prevThreadColor1}
-				/>
-			);
-	} else if (numberOfTurns === 3) {
-		const prevThreadColor1 = findPrevColor({
-			direction,
-			holes,
-			holeToShow,
-			'offset': 1,
-			palette,
-			tabletIndex,
-			threading,
-		});
-		const prevThreadColor2 = findPrevColor({
-			direction,
-			holes,
-			holeToShow,
-			'offset': 2,
-			palette,
-			tabletIndex,
-			threading,
-		});
-
-		svg = threadAngle === '\\'
-			? (
-				<SVGBackwardWarp3
-					fill={threadColor}
-					stroke1={prevThreadColor1}
-					stroke2={prevThreadColor2}
-				/>
-			)
-			: (
-				<SVGForwardWarp3
-					fill={threadColor}
-					stroke1={prevThreadColor1}
-					stroke2={prevThreadColor2}
-				/>
-			);
-	}
-
 	return svg;
 }
 
