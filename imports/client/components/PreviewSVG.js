@@ -28,7 +28,8 @@ export default function PreviewSVG({
 	rowIndex,
 	tabletIndex,
 }) {
-	if (!picksByTablet) {
+	// picksByTablet are calculated after the pattern data has loaded so can be blank
+	if (!picksByTablet || !picksByTablet[0]) {
 		return;
 	}
 
@@ -45,10 +46,10 @@ export default function PreviewSVG({
 	const borderColor = '#444';
 
 	let holeToShow;
-	let adjustedDirection = direction;
+	let adjustedDirection = direction; // use previous pick if idle
 	let reversal = false;
 
-	// handle effects of previous row
+	// check for idling and reversal
 	if (rowIndex !== 0) { // there is a previous row
 		const previousPick = picksByTablet[tabletIndex][rowIndex - 1];
 
@@ -56,7 +57,6 @@ export default function PreviewSVG({
 			adjustedDirection = previousPick.direction;
 		} else if (direction !== previousPick.direction && previousPick.numberOfTurns !== 0) {
 			// the tablet hasn't idled
-			console.log('reversal');
 			reversal = true;
 		}
 	}
@@ -80,6 +80,16 @@ export default function PreviewSVG({
 		threadColor = palette[colorIndex];
 	}
 
+	let threadAngle = '/'; // which way does the thread twist?
+
+	if (adjustedDirection === 'F') {
+		if (orientation === '\\') {
+			threadAngle = '\\';
+		}
+	} else if (orientation === '/') {
+		threadAngle = '\\';
+	}
+
 // TO DO stroke color as variable
 	let svg;
 	//console.log('numberOfTurns', numberOfTurns);
@@ -94,24 +104,24 @@ export default function PreviewSVG({
 	// TO DO ORIENTATION
 	// idle or single turn, just show current thread
 	if (numberOfTurns === 0 || numberOfTurns === 1) {
-		svg = adjustedDirection === 'F'
-			? <PathForwardWarp fill={threadColor} stroke={borderColor}	/>
-			: <PathBackwardWarp fill={threadColor} stroke={borderColor}	/>;
+		svg = threadAngle === '\\'
+			? <PathBackwardWarp fill={threadColor} stroke={borderColor}	/>
+			: <PathForwardWarp fill={threadColor} stroke={borderColor}	/>;
 
 		if (reversal) {
-			svg = adjustedDirection === 'F'
-				? <PathTriangleLeft fill={threadColor} stroke={borderColor}	/>
-				: <PathTriangleRight fill={threadColor} stroke={borderColor}	/>;
+			svg = threadAngle === '\\'
+				? <PathTriangleRight fill={threadColor} stroke={borderColor}	/>
+				: <PathTriangleLeft fill={threadColor} stroke={borderColor}	/>;
 		}
 	} else if (numberOfTurns === 2) {
-		svg = adjustedDirection === 'F'
-			? <PathForwardWarp2 fill={threadColor} stroke={borderColor}	/>
-			: <PathBackwardWarp2 fill={threadColor} stroke={borderColor}	/>;
+		svg = threadAngle === '\\'
+			? <PathBackwardWarp2 fill={threadColor} stroke={borderColor}	/>
+			: <PathForwardWarp2 fill={threadColor} stroke={borderColor}	/>;
 
 		if (reversal) {
-			svg = adjustedDirection === 'F'
-				? <PathTriangleLeft2 fill={threadColor} stroke={borderColor}	/>
-				: <PathTriangleRight2 fill={threadColor} stroke={borderColor}	/>;
+			svg = threadAngle === '\\'
+				? <PathTriangleRight2 fill={threadColor} stroke={borderColor}	/>
+				: <PathTriangleLeft2 fill={threadColor} stroke={borderColor}	/>;
 		}
 	}
 	// console.log('svg', svg);
