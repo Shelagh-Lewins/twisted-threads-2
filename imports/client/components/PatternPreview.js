@@ -19,16 +19,19 @@ export default function PatternPreview(props) {
 			holes,
 			numberOfRows,
 			numberOfTablets,
-			orientations,
 		},
 		picksByTablet,
 	} = props;
 
+	// pick graphic size in the SVG
 	const unitWidth = 41.560534;
 	const unitHeight = 113.08752;
 
+	// screen pixel size of pick graphic, used to calculate final size of preview holder
 	const cellHeight = 54;
 	const cellWidth = 20;
+
+	// TO DO change preview orientation
 
 	const numberOfRepeats = 1; // TODO calculate and repeat
 	const viewboxWidth = numberOfTablets * unitWidth;
@@ -79,14 +82,52 @@ export default function PatternPreview(props) {
 		rows.push(cells);
 	}
 
+	// total turns
+	const totalTurnCells = [];
+
+	for (let j = 0; j < numberOfTablets; j += 1) {
+		const { totalTurns } = picksByTablet[j][numberOfRows - 1];
+		const startPosition = modulus(totalTurns, holes) === 0; // tablet is back at start position
+
+		totalTurnCells.push(
+			<span
+				className={`${totalTurns === 0 ? 'twist-neutral' : ''} ${startPosition ? 'start-position' : ''}`}
+				key={`preview-total-turns-${j}`}
+				title="Total turns for tablet"
+			>
+				{totalTurns}
+			</span>,
+		);
+	}
+
+	const totalTurns = (
+		<span className="total-turns">
+			{totalTurnCells}
+		</span>
+	);
+
+	// tablet labels
+	const tabletLabelCells = [];
+
+	for (let j = 0; j < numberOfTablets; j += 1) {
+		tabletLabelCells.push(<span key={`preview-tablet-${j}`}>{j + 1}</span>);
+	}
+
+	const tabletLabels = (
+		<span className="tablet-labels">
+			{tabletLabelCells}
+		</span>
+	);
+
 	return (
 		<div className="pattern-preview">
-			Pattern preview
+			{totalTurns}
 			<div className="preview-holder" style={rotationCorrection}>
 				<svg viewBox={viewBox} shapeRendering="geometricPrecision" width={totalWidth}>
 					{rows}
 				</svg>
 			</div>
+			{tabletLabels}
 		</div>
 	);
 }

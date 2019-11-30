@@ -242,7 +242,6 @@ class WeavingDesign extends PureComponent {
 
 		return (
 			<>
-				{this.renderTabletLabels()}
 				<ul className="weaving-chart">
 					{
 						weavingInstructions.map((row, index) => (
@@ -255,6 +254,7 @@ class WeavingDesign extends PureComponent {
 						))
 					}
 				</ul>
+				{this.renderTabletLabels()}
 			</>
 		);
 	}
