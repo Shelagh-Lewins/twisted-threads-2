@@ -1,3 +1,5 @@
+// return the correct SVG for a pick in the pattern preview
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -10,8 +12,10 @@ import {
 	PathForwardWarp3,
 	PathTriangleLeft,
 	PathTriangleLeft2,
-	PathTriangleRight2,
+	PathTriangleLeft3,
 	PathTriangleRight,
+	PathTriangleRight2,
+	PathTriangleRight3,
 	PathVerticalCenterWarp,
 	PathVerticalLeftWarp,
 	PathVerticalRightWarp,
@@ -90,18 +94,8 @@ export default function PreviewSVG({
 		threadAngle = '\\';
 	}
 
-// TO DO stroke color as variable
 	let svg;
-	//console.log('numberOfTurns', numberOfTurns);
-	//console.log('rowIndex', rowIndex);
-	//console.log('tabletIndex', tabletIndex);
 
-	if (numberOfTurns === 0) {
-		console.log('idle');
-		console.log('threadColor', threadColor);
-	}
-
-	// TO DO ORIENTATION
 	// idle or single turn, just show current thread
 	if (numberOfTurns === 0 || numberOfTurns === 1) {
 		svg = threadAngle === '\\'
@@ -123,19 +117,46 @@ export default function PreviewSVG({
 			tabletIndex,
 			threading,
 		});
-		console.log('prevThreadColor1', prevThreadColor1);
-		console.log('threadColor', threadColor);
 		svg = threadAngle === '\\'
-			? <PathBackwardWarp2 fill1={threadColor} fill2={threadColor} stroke={borderColor}	/>
-			: <PathForwardWarp2 fill1={threadColor} fill2={threadColor} stroke={borderColor}	/>;
+			? <PathBackwardWarp2 fill1={prevThreadColor1} fill2={threadColor} stroke={borderColor}	/>
+			: <PathForwardWarp2 fill1={prevThreadColor1} fill2={threadColor} stroke={borderColor}	/>;
 
 		if (reversal) {
 			svg = threadAngle === '\\'
-				? <PathTriangleRight2 fill={prevThreadColor1} stroke={borderColor}	/>
-				: <PathTriangleLeft2 fill={threadColor} stroke={borderColor}	/>;
+				? <PathTriangleRight2 fill1={prevThreadColor1} fill2={threadColor} stroke={borderColor}	/>
+				: <PathTriangleLeft2 fill1={prevThreadColor1} fill2={threadColor} stroke={borderColor}	/>;
+		}
+	} else if (numberOfTurns === 3) {
+		const prevThreadColor1 = findPrevColor({
+			'direction': adjustedDirection,
+			holes,
+			holeToShow,
+			'offset': 1,
+			palette,
+			tabletIndex,
+			threading,
+		});
+		const prevThreadColor2 = findPrevColor({
+			'direction': adjustedDirection,
+			holes,
+			holeToShow,
+			'offset': 2,
+			palette,
+			tabletIndex,
+			threading,
+		});
+
+		svg = threadAngle === '\\'
+			? <PathBackwardWarp3 fill1={prevThreadColor2} fill2={prevThreadColor1} fill3={threadColor} stroke={borderColor}	/>
+			: <PathForwardWarp3 fill1={prevThreadColor2} fill2={prevThreadColor1} fill3={threadColor} stroke={borderColor}	/>;
+
+		if (reversal) {
+			svg = threadAngle === '\\'
+				? <PathTriangleRight3 fill1={prevThreadColor2} fill2={prevThreadColor1} fill3={threadColor} stroke={borderColor}	/>
+				: <PathTriangleLeft3 fill1={prevThreadColor2} fill2={prevThreadColor1} fill3={threadColor} stroke={borderColor}	/>;
 		}
 	}
-	// console.log('svg', svg);
+
 	return svg;
 }
 

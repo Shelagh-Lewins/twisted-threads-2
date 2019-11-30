@@ -71,40 +71,42 @@ PathBackwardWarp2.propTypes = {
 // ///////////////////
 // forward 3 turns
 export function PathForwardWarp3(props) {
-	const { fill, stroke1, stroke2 } = props;
+	const { fill1, fill2, fill3, stroke } = props;
 
 	return (
 		<>
-			<path d="m0.45734 112.16 40.961-55.463v-18.957l-40.961 55.458z" stroke="#444" strokeWidth="1.015" fill={stroke2} />
-			<path d="m0.45734 93.351 40.961-55.458v-18.957l-40.961 55.458z" stroke="#444" strokeWidth="1.015" fill={stroke1} />
-			<path d="m0.45734 75.08 40.961-55.457v-18.957l-40.961 55.458z" stroke="#444" strokeWidth="1.015" fill={fill} />
+			<path d="m0.45734 112.16 40.961-55.463v-18.957l-40.961 55.458z" stroke={stroke} strokeWidth="1.015" fill={fill1} />
+			<path d="m0.45734 93.351 40.961-55.458v-18.957l-40.961 55.458z" stroke={stroke} strokeWidth="1.015" fill={fill2} />
+			<path d="m0.45734 75.08 40.961-55.457v-18.957l-40.961 55.458z" stroke={stroke} strokeWidth="1.015" fill={fill3} />
 		</>
 	);
 }
 
 PathForwardWarp3.propTypes = {
-	'fill': PropTypes.string.isRequired,
-	'stroke1': PropTypes.string.isRequired,
-	'stroke2': PropTypes.string.isRequired,
+	'fill1': PropTypes.string.isRequired,
+	'fill2': PropTypes.string.isRequired,
+	'fill3': PropTypes.string.isRequired,
+	'stroke': PropTypes.string.isRequired,
 };
 
 // backward 3 turns
 export function PathBackwardWarp3(props) {
-	const { fill, stroke1, stroke2 } = props;
+	const { fill1, fill2, fill3, stroke } = props;
 
 	return (
 		<>
-			<path d="m41.418 112.16-40.961-55.463v-18.957l40.961 55.458z" stroke="#444" strokeWidth="1.015" fill={stroke2} />
-			<path d="m41.418 93.351-40.961-55.458v-18.957l40.961 55.458z" stroke="#444" strokeWidth="1.015" fill={stroke1} />
-			<path d="m41.418 75.08-40.961-55.457v-18.957l40.961 55.458z" stroke="#444" strokeWidth="1.015" fill={fill} />
+			<path d="m41.418 112.16-40.961-55.463v-18.957l40.961 55.458z" stroke={stroke} strokeWidth="1.015" fill={fill1} />
+			<path d="m41.418 93.351-40.961-55.458v-18.957l40.961 55.458z" stroke={stroke} strokeWidth="1.015" fill={fill2} />
+			<path d="m41.418 75.08-40.961-55.457v-18.957l40.961 55.458z" stroke={stroke} strokeWidth="1.015" fill={fill3} />
 		</>
 	);
 }
 
 PathBackwardWarp3.propTypes = {
-	'fill': PropTypes.string.isRequired,
-	'stroke1': PropTypes.string.isRequired,
-	'stroke2': PropTypes.string.isRequired,
+	'fill1': PropTypes.string.isRequired,
+	'fill2': PropTypes.string.isRequired,
+	'fill3': PropTypes.string.isRequired,
+	'stroke': PropTypes.string.isRequired,
 };
 
 // /////////////////////////
@@ -159,8 +161,8 @@ export function PathTriangleLeft2(props) {
 
 	return (
 		<>
-			<path d="m 0.3518,28.260067 -4.5e-4,83.399003 30.741,-41.699003 z" stroke={stroke} strokeWidth="1.015" fill={fill1} />
-			<path d="m 0.50225,0.98106746 40.839,54.94699954 0,0.09961 -10.156,13.777 -30.683,-41.286 0,-27.53799954 z" stroke={stroke} strokeWidth="1.015" fill={fill2} />
+			<path d="m 41.341,29.550037 0,83.399003 -30.74,-41.699003 zz" stroke={stroke} strokeWidth="1.015" fill={fill1} />
+			<path d="M 41.189,2.2660366 0.352,57.217037 l -4.4e-4,0.099 10.156,13.777 30.681,-41.285 0,-27.5370004 z" stroke={stroke} strokeWidth="1.015" fill={fill2} />
 		</>
 	);
 }
