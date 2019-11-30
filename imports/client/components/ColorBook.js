@@ -162,9 +162,9 @@ class ColorBook extends PureComponent {
 			name,
 		}));
 
-		this.setState({
+		/* this.setState({
 			'showEditNameForm': false,
-		});
+		}); */
 	}
 
 	cancelColorChange() {

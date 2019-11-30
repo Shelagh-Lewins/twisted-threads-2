@@ -1,5 +1,30 @@
 @import "../constants/variables";
 
 .set-weft-color {
+	margin: 8px 0;
 
+	.text {
+		line-height: 32px;
+		margin-right: 8px;
+		vertical-align: top;
+	}
+
+	.color {
+		-moz-appearance: none; /* Mozilla */
+		-webkit-appearance: none; /* WebKit */
+		appearance: none; /* CSS3 */
+		border: 2px solid $color-weft-picker-border;
+		display: inline-block;
+		height: 32px;
+		vertical-align: bottom;
+		width: 32px;
+	}
+}
+
+.weft-color-picker-holder {
+	left: 50%;
+	position: absolute;
+	top: 100px;
+	transform: translate(-50%, 0);
+	z-index: 3;
 }
