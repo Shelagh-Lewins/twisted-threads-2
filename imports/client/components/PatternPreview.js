@@ -34,11 +34,13 @@ export default function PatternPreview(props) {
 	// TO DO change preview orientation
 
 	const numberOfRepeats = 1; // TODO calculate and repeat
-	const viewboxWidth = numberOfTablets * unitWidth;
+	const rowNumberAllocation = 2; // space allowed for row numbers. 2 for vertical preview
+
+	const viewboxWidth = (numberOfTablets + rowNumberAllocation) * unitWidth;
 	const viewboxHeight = unitHeight * ((numberOfRows + 1) / 2);
 	const viewBox = `0 0 ${viewboxWidth} ${viewboxHeight}`;
 
-	const rowNumberAllocation = 0; // TO DO show row numbers
+
 	const imageHeight = (1 + numberOfRows) * (cellHeight / 2);
 	const totalWidth = cellWidth * (numberOfTablets + rowNumberAllocation);
 
@@ -55,7 +57,7 @@ export default function PatternPreview(props) {
 	// /////////////
 	const renderCell = function (rowIndex, tabletIndex) {
 		// position the cell's svg path
-		const xOffset = (tabletIndex) * unitWidth;
+		const xOffset = tabletIndex * unitWidth;
 		const yOffset = ((numberOfRows - rowIndex - 1) * (unitHeight / 2));
 		const transform = `translate(${xOffset} ${yOffset})`;
 
@@ -71,6 +73,17 @@ export default function PatternPreview(props) {
 		);
 	};
 
+	const renderRowNumber = function (rowIndex) {
+		// position the cell's svg path
+		const xOffset = numberOfTablets * unitWidth;
+		const yOffset = ((numberOfRows - rowIndex - 1) * (unitHeight / 2));
+		const transform = `translate(${xOffset} ${yOffset})`;
+
+		return (
+			<g key={`prevew-row-number-${rowIndex}`} transform={transform}><text x="20" y="35" className="text">{rowIndex + 1}</text></g>
+		);
+	};
+
 	const rows = [];
 
 	for (let i = 0; i < numberOfRows; i += 1) {
@@ -79,6 +92,7 @@ export default function PatternPreview(props) {
 		for (let j = 0; j < numberOfTablets; j += 1) {
 			cells.push(renderCell(numberOfRows - i - 1, j));
 		}
+		cells.push(renderRowNumber(i));
 		rows.push(cells);
 	}
 
@@ -93,14 +107,14 @@ export default function PatternPreview(props) {
 			<span
 				className={`${totalTurns === 0 ? 'twist-neutral' : ''} ${startPosition ? 'start-position' : ''}`}
 				key={`preview-total-turns-${j}`}
-				title="Total turns for tablet"
+				title={`Tablet number ${j + 1}. Total turns: ${totalTurns}`}
 			>
 				{totalTurns}
 			</span>,
 		);
 	}
 
-	const totalTurns = (
+	const totalTurnsDisplay = (
 		<span className="total-turns">
 			{totalTurnCells}
 		</span>
@@ -110,7 +124,14 @@ export default function PatternPreview(props) {
 	const tabletLabelCells = [];
 
 	for (let j = 0; j < numberOfTablets; j += 1) {
-		tabletLabelCells.push(<span key={`preview-tablet-${j}`}>{j + 1}</span>);
+		tabletLabelCells.push(
+			<span
+				key={`preview-tablet-${j}`}
+				title={`tablet ${j + 1}`}
+			>
+				{j + 1}
+			</span>,
+		);
 	}
 
 	const tabletLabels = (
@@ -121,7 +142,7 @@ export default function PatternPreview(props) {
 
 	return (
 		<div className="pattern-preview">
-			{totalTurns}
+			{totalTurnsDisplay}
 			<div className="preview-holder" style={rotationCorrection}>
 				<svg viewBox={viewBox} shapeRendering="geometricPrecision" width={totalWidth}>
 					{rows}

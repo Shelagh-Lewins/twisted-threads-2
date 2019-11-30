@@ -1,7 +1,8 @@
 @import "../constants/variables";
 
 .pattern-preview {
-	margin: 8px 0;
+	margin: 8px 0 8px 0;
+	overflow: hidden;
 
 	.preview-holder {
 		clear: both;
@@ -57,24 +58,13 @@
 		}
 	}
 
-	.row {
-		-moz-appearance: none; /* Mozilla */
-		-webkit-appearance: none; /* WebKit */
-		appearance: none; /* CSS3 */
-		position: relative;
-
-		&:last-child {
-			.weaving-row {
-				.value {
-					border-bottom: 1px solid $color-chart-border;
-				}
-			}
-		}
+	.text {
+		font-size: 30px;
 	}
 
 	.total-turns {
 		float: left;
-		font-size: 0.9rem;
+		font-size: 0.8rem;
 		margin-bottom: 4px;
 
 		span {

@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { setIsLoading } from '../modules/pattern';
 import { addRecentPattern } from '../modules/auth';
-import { getPicksByTablet } from '../modules/weavingUtils';
+import { getPicksByTablet, modulus } from '../modules/weavingUtils';
 
 import { ColorBooks, Patterns } from '../../modules/collection';
 import Loading from '../components/Loading';
@@ -37,6 +37,8 @@ class Pattern extends PureComponent {
 			colorBooks,
 			dispatch,
 			isLoading,
+			numberOfRows,
+			numberOfTablets,
 			pattern,
 			'pattern': { _id },
 			picksByTablet,
@@ -48,6 +50,34 @@ class Pattern extends PureComponent {
 			<div className="links">
 				<Link className="btn btn-primary" to={`/pattern/${_id}/weaving`}>Interactive weaving chart</Link>
 			</div>
+		);
+
+		let patternWillRepeat = true;
+		let patternIsTwistNeutral = true;
+
+		for (let j = 0; j < numberOfTablets; j += 1) {
+			const { totalTurns } = picksByTablet[j][numberOfRows - 1];
+			const startPosition = modulus(totalTurns, holes) === 0; // tablet is back at start position
+
+			if (totalTurns !== 0) {
+				patternIsTwistNeutral = false;
+			}
+
+			if (!startPosition) {
+				patternWillRepeat = false;
+			}
+
+			if (!patternIsTwistNeutral && !patternWillRepeat) {
+				break;
+			}
+		}
+
+		const repeatText = (
+			<span className="hint">{patternWillRepeat ? 'The pattern will repeat' : 'The pattern will not repeat'}</span>
+		);
+
+		const twistNeutralText = (
+			<span className="hint">{patternIsTwistNeutral ? 'The pattern is twist neutral' : 'The pattern is not twist neutral'}</span>
 		);
 
 		if (!isLoading) {
@@ -63,6 +93,8 @@ class Pattern extends PureComponent {
 								picksByTablet={picksByTablet}
 							/>
 						)}
+						{repeatText}
+						{twistNeutralText}
 						{pattern.patternDesign && (
 							<WeavingDesign
 								dispatch={dispatch}
