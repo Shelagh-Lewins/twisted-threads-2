@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import PreviewSVG from './PreviewSVG';
 import { modulus } from '../modules/weavingUtils';
+import { PathWeft } from '../modules/previewPaths';
 
 import './PatternPreview.scss';
 
@@ -19,6 +20,7 @@ export default function PatternPreview(props) {
 			holes,
 			numberOfRows,
 			numberOfTablets,
+			weftColor,
 		},
 		picksByTablet,
 	} = props;
@@ -55,6 +57,24 @@ export default function PatternPreview(props) {
 	};
 
 	// /////////////
+	const wefts = [];
+
+	for (let i = 0; i < numberOfRows; i += 1) {
+		// position the weft
+		const xOffset = 0;
+		const yOffset = ((numberOfRows - i - 1) * (unitHeight / 2));
+		const transform = `translate(${xOffset} ${yOffset})`;
+
+		wefts.push(
+			<g key={`prevew-weft-${i}`} transform={transform}>
+				<PathWeft
+					fill={weftColor}
+					scale={numberOfTablets}
+				/>
+			</g>,
+		);
+	}
+
 	const renderCell = function (rowIndex, tabletIndex) {
 		// position the cell's svg path
 		const xOffset = tabletIndex * unitWidth;
@@ -102,12 +122,20 @@ export default function PatternPreview(props) {
 	for (let j = 0; j < numberOfTablets; j += 1) {
 		const { totalTurns } = picksByTablet[j][numberOfRows - 1];
 		const startPosition = modulus(totalTurns, holes) === 0; // tablet is back at start position
+		let title = `Tablet number ${j + 1}. Total turns: ${totalTurns}`;
+		if (startPosition) {
+			title = `Tablet number ${j + 1} is at start position. Total turns: ${totalTurns}.`;
+		}
+
+		if (totalTurns === 0) {
+			title = `Tablet number ${j + 1} is twist neutral. Total turns: ${totalTurns}.`;
+		}
 
 		totalTurnCells.push(
 			<span
 				className={`${totalTurns === 0 ? 'twist-neutral' : ''} ${startPosition ? 'start-position' : ''}`}
 				key={`preview-total-turns-${j}`}
-				title={`Tablet number ${j + 1}. Total turns: ${totalTurns}`}
+				title={title}
 			>
 				{totalTurns}
 			</span>,
@@ -145,6 +173,7 @@ export default function PatternPreview(props) {
 			{totalTurnsDisplay}
 			<div className="preview-holder" style={rotationCorrection}>
 				<svg viewBox={viewBox} shapeRendering="geometricPrecision" width={totalWidth}>
+					{wefts}
 					{rows}
 				</svg>
 			</div>

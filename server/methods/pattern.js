@@ -14,6 +14,7 @@ import {
 	DEFAULT_NUMBER_OF_TURNS,
 	DEFAULT_ORIENTATION,
 	DEFAULT_PALETTE,
+	DEFAULT_WEFT_COLOR,
 	MAX_ROWS,
 	MAX_TABLETS,
 } from '../../imports/modules/parameters';
@@ -94,6 +95,7 @@ Meteor.methods({
 			patternType,
 			// tablets,
 			threading,
+			'weftColor': DEFAULT_WEFT_COLOR,
 		});
 	},
 	'pattern.remove': function (_id) {

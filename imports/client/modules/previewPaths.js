@@ -4,6 +4,21 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 // ////////////////////////
+// Weft
+export function PathWeft(props) {
+	const { fill, scale } = props;
+
+	return (
+		<path transform={`scale(${scale} 1)`} d="m41.711 79.918h-41.733v-42.689h41.733z" fill={fill} />
+	);
+}
+
+PathWeft.propTypes = {
+	'fill': PropTypes.string.isRequired,
+	'scale': PropTypes.number.isRequired,
+};
+
+// ////////////////////////
 // Single turn, no reversal
 export function PathForwardWarp(props) {
 	const { fill, stroke } = props;

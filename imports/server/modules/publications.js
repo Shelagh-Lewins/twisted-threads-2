@@ -56,6 +56,7 @@ const patternFields = {
 		'palette': 1,
 		'patternDesign': 1,
 		'threading': 1,
+		'weftColor': 1,
 	},
 };
 
