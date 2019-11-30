@@ -114,13 +114,24 @@ export default function PreviewSVG({
 				: <PathTriangleLeft fill={threadColor} stroke={borderColor}	/>;
 		}
 	} else if (numberOfTurns === 2) {
+		const prevThreadColor1 = findPrevColor({
+			'direction': adjustedDirection,
+			holes,
+			holeToShow,
+			'offset': 1,
+			palette,
+			tabletIndex,
+			threading,
+		});
+		console.log('prevThreadColor1', prevThreadColor1);
+		console.log('threadColor', threadColor);
 		svg = threadAngle === '\\'
-			? <PathBackwardWarp2 fill={threadColor} stroke={borderColor}	/>
-			: <PathForwardWarp2 fill={threadColor} stroke={borderColor}	/>;
+			? <PathBackwardWarp2 fill1={threadColor} fill2={threadColor} stroke={borderColor}	/>
+			: <PathForwardWarp2 fill1={threadColor} fill2={threadColor} stroke={borderColor}	/>;
 
 		if (reversal) {
 			svg = threadAngle === '\\'
-				? <PathTriangleRight2 fill={threadColor} stroke={borderColor}	/>
+				? <PathTriangleRight2 fill={prevThreadColor1} stroke={borderColor}	/>
 				: <PathTriangleLeft2 fill={threadColor} stroke={borderColor}	/>;
 		}
 	}

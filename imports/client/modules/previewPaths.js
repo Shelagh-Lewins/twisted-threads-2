@@ -34,35 +34,37 @@ PathBackwardWarp.propTypes = {
 // ///////////////////////////
 // forward 2 turns
 export function PathForwardWarp2(props) {
-	const { fill, stroke } = props;
+	const { fill1, fill2, stroke } = props;
 
 	return (
 		<>
-			<path d="m0.36291 112 40.839-54.951v-27.538l-40.839 54.947z" stroke={stroke} strokeWidth="1.015" fill={stroke} />
-			<path d="m0.36291 83.917 40.839-54.947v-27.538l-40.839 54.947z" stroke={fill} strokeWidth="1.015" fill={fill} />
+			<path d="m0.36291 112 40.839-54.951v-27.538l-40.839 54.947z" stroke={stroke} strokeWidth="1.015" fill={fill1} />
+			<path d="m0.36291 83.917 40.839-54.947v-27.538l-40.839 54.947z" stroke={stroke} strokeWidth="1.015" fill={fill2} />
 		</>
 	);
 }
 
 PathForwardWarp2.propTypes = {
-	'fill': PropTypes.string.isRequired,
+	'fill1': PropTypes.string.isRequired,
+	'fill2': PropTypes.string.isRequired,
 	'stroke': PropTypes.string.isRequired,
 };
 
 // backward 2 turns
 export function PathBackwardWarp2(props) {
-	const { fill, stroke } = props;
+	const { fill1, fill2, stroke } = props;
 
 	return (
 		<>
-			<path d="m41.202 112-40.839-54.951v-27.538l40.839 54.947" stroke={stroke} strokeWidth="1.015" fill={stroke} />
-			<path d="m41.202 83.917-40.839-54.947v-27.538l40.839 54.947z" stroke={fill} strokeWidth="1.015" fill={fill} />
+			<path d="m41.202 112-40.839-54.951v-27.538l40.839 54.947" stroke={stroke} strokeWidth="1.015" fill={fill1} />
+			<path d="m41.202 83.917-40.839-54.947v-27.538l40.839 54.947z" stroke={stroke} strokeWidth="1.015" fill={fill2} />
 		</>
 	);
 }
 
 PathBackwardWarp2.propTypes = {
-	'fill': PropTypes.string.isRequired,
+	'fill1': PropTypes.string.isRequired,
+	'fill2': PropTypes.string.isRequired,
 	'stroke': PropTypes.string.isRequired,
 };
 
