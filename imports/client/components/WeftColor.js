@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { PhotoshopPicker } from 'react-color';
+import { editWeftColor } from '../modules/pattern';
 import './WeftColor.scss';
 
 class WeftColor extends PureComponent {
@@ -37,7 +38,6 @@ class WeftColor extends PureComponent {
 	}
 
 	handleClickColor() {
-		console.log('clicked');
 		const { showColorPicker } = this.state;
 
 		this.setState({
@@ -46,7 +46,7 @@ class WeftColor extends PureComponent {
 	}
 
 	acceptColorChange() {
-		const { dispatch } = this.props;
+		const { _id, dispatch } = this.props;
 		const { newColor } = this.state;
 
 		dispatch(editWeftColor({

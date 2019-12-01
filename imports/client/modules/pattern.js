@@ -175,9 +175,12 @@ export function editOrientation({
 	tablet,
 }) {
 	return () => {
-		Meteor.call('pattern.editOrientation', {
+		Meteor.call('pattern.edit', {
 			_id,
-			tablet,
+			'data': {
+				'type': 'orientation',
+				tablet,
+			},
 		});
 	};
 }
@@ -193,6 +196,22 @@ export function editPaletteColor({
 			_id,
 			colorHexValue,
 			colorIndex,
+		});
+	};
+}
+
+// Orientation
+export function editWeftColor({
+	_id,
+	color,
+}) {
+	return () => {
+		Meteor.call('pattern.edit', {
+			_id,
+			'data': {
+				'type': 'weftColor',
+				color,
+			},
 		});
 	};
 }

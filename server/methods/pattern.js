@@ -19,6 +19,9 @@ import {
 	MAX_TABLETS,
 } from '../../imports/modules/parameters';
 
+// the switch block in editPattern would be very messy otherwise
+/* eslint-disable no-case-declarations */
+
 Meteor.methods({
 	// overall pattern
 	'pattern.add': function ({
@@ -597,5 +600,57 @@ Meteor.methods({
 		}
 
 		return Patterns.update({ _id }, update2);
+	},
+	// /////////////////////
+	// multi-purpose edit pattern method to avoid having to repeat the same permissions checks
+	'pattern.edit': function ({
+		_id,
+		data,
+	}) {
+		check(_id, nonEmptyStringCheck);
+		// check(tablet, validTabletsCheck);
+		check(data, Match.ObjectIncluding({ 'type': String }));
+		// type specifies the update operation
+		// e.g. orientation, weftColor
+		// TO DO check each data type as it comes in
+		const { type } = data;
+
+		if (!Meteor.userId()) {
+			throw new Meteor.Error('edit-pattern-not-logged-in', 'Unable to edit pattern because the user is not logged in');
+		}
+
+		const pattern = Patterns.findOne({ _id });
+		const { numberOfTablets } = pattern;
+
+		if (!pattern) {
+			throw new Meteor.Error('edit-pattern-not-found', 'Unable to edit pattern because the pattern was not found');
+		}
+
+		if (pattern.createdBy !== Meteor.userId()) {
+			throw new Meteor.Error('edit-pattern-not-created-by-user', 'Unable to edit pattern because pattern was not created by the current logged in user');
+		}
+
+		switch (type) {
+			case 'weftColor':
+			// TO DO use tinycolor to check new color is valid
+			// set new color
+				break;
+
+			case 'orientation':
+				const { tablet } = data;
+				check(tablet, validTabletsCheck);
+
+				if (tablet >= numberOfTablets) {
+					throw new Meteor.Error('edit-pattern-invalid-tablet', 'Unable to edit pattern because an invalid tablet number was specified');
+				}
+
+				const newOrientation = pattern.orientations[tablet] === '\\' ? '/' : '\\';
+
+				// update the value in the nested arrays
+				return Patterns.update({ _id }, { '$set': { [`orientations.${tablet}`]: newOrientation } });
+
+			default:
+				break;
+		}
 	},
 });
