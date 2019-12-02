@@ -1,11 +1,13 @@
 @import "../constants/variables";
 
 .set-weft-color {
+	display: inline-block;
 	margin: 8px 0;
+	position: relative;
 
 	.text {
-		line-height: 32px;
-		margin-right: 8px;
+		line-height: 24px;
+		margin: 0 8px;
 		vertical-align: top;
 	}
 
@@ -16,6 +18,8 @@
 		border: 2px solid $color-weft-picker-border;
 		display: inline-block;
 		height: 32px;
+		position: relative;
+		top: -4px;
 		vertical-align: bottom;
 		width: 32px;
 	}

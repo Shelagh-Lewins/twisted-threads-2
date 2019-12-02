@@ -10,6 +10,8 @@
 	}
 
 	&.left {
+		margin-top: -20px;
+
 		.preview-wrapper {
 			-ms-transform: rotate(-90deg);
 			-webkit-transform: rotate(-90deg);
