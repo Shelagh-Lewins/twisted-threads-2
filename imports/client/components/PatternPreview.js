@@ -135,7 +135,7 @@ export default function PatternPreview(props) {
 		const transform = `translate(${xOffset} ${yOffset})`;
 
 		return (
-			<g className="row-number" key={`prevew-row-number-${rowIndex}`} transform={transform}><text x="20" y="35" >{rowIndex + 1}</text></g>
+			<g className="row-number" key={`prevew-row-number-${rowIndex}`} transform={transform}><text x="20" y="35">{rowIndex + 1}</text></g>
 		);
 	};
 
