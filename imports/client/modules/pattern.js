@@ -193,7 +193,7 @@ export function removeTablet({
 	};
 }
 
-// Orientation
+// Tablet orientation
 export function editOrientation({
 	_id,
 	tablet,
@@ -227,7 +227,7 @@ export function editPaletteColor({
 	};
 }
 
-// Orientation
+// Weft Color
 export function editWeftColor({
 	_id,
 	colorHexValue,
@@ -238,6 +238,22 @@ export function editWeftColor({
 			'data': {
 				'type': 'weftColor',
 				colorHexValue,
+			},
+		});
+	};
+}
+
+// Preview orientation
+export function editPreviewOrientation({
+	_id,
+	orientation,
+}) {
+	return () => {
+		Meteor.call('pattern.edit', {
+			_id,
+			'data': {
+				'type': 'previewOrientation',
+				orientation,
 			},
 		});
 	};

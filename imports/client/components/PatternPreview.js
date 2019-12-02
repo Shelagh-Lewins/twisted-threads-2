@@ -20,6 +20,7 @@ export default function PatternPreview(props) {
 			holes,
 			numberOfRows,
 			numberOfTablets,
+			previewOrientation,
 			weftColor,
 		},
 		picksByTablet,
@@ -49,11 +50,46 @@ export default function PatternPreview(props) {
 	// so total height is half their height * number of rows
 	// plus another half height that sticks out the top
 	const totalHeight = imageHeight * numberOfRepeats;
-	const rotationCorrection = {
-		'height': `${totalHeight}px`,
-		'width': `${totalWidth}px`,
-		'position': 'relative',
-	};
+
+	let rotationResize;
+	let rotationOffset;
+	const labelsAllowance = 44;
+	const adjustedHeight = totalHeight + labelsAllowance;
+
+	switch (previewOrientation) {
+		case 'up':
+			rotationResize = {
+				'height': `${adjustedHeight}px`,
+				'width': `${totalWidth}px`,
+			};
+			rotationOffset = {
+
+			};
+			break;
+
+		case 'left':
+			rotationResize = {
+				'height': `${totalWidth}px`,
+				'width': `${adjustedHeight}px`,
+			};
+			rotationOffset = {
+				'top': `${totalWidth}px`,
+			};
+			break;
+
+		case 'right':
+			rotationResize = {
+				'height': `${totalWidth}px`,
+				'width': `${adjustedHeight}px`,
+			};
+			rotationOffset = {
+				'left': `${adjustedHeight}px`,
+			};
+			break;
+
+		default:
+			break;
+	}
 
 	// /////////////
 	const wefts = [];
@@ -173,15 +209,17 @@ export default function PatternPreview(props) {
 	);
 
 	return (
-		<div className="pattern-preview">
-			{totalTurnsDisplay}
-			<div className="preview-holder" style={rotationCorrection}>
-				<svg viewBox={viewBox} shapeRendering="geometricPrecision" width={totalWidth}>
-					{wefts}
-					{rows}
-				</svg>
+		<div className={`pattern-preview ${previewOrientation}`} style={rotationResize}>
+			<div className="preview-wrapper" style={rotationOffset}>
+				{totalTurnsDisplay}
+				<div className="preview-holder">
+					<svg viewBox={viewBox} shapeRendering="geometricPrecision" width={totalWidth}>
+						{wefts}
+						{rows}
+					</svg>
+				</div>
+				{tabletLabels}
 			</div>
-			{tabletLabels}
 		</div>
 	);
 }

@@ -16,6 +16,7 @@ import WeftColor from '../components/WeftColor';
 import PatternPreview from '../components/PatternPreview';
 import Threading from '../components/Threading';
 import Notation from '../components/Notation';
+import PreviewOrientation from '../components/PreviewOrientation';
 import './Pattern.scss';
 
 const bodyClass = 'pattern';
@@ -69,6 +70,7 @@ class Pattern extends PureComponent {
 				name,
 				numberOfRows,
 				numberOfTablets,
+				previewOrientation,
 				weftColor,
 			},
 			picksByTablet,
@@ -118,6 +120,12 @@ class Pattern extends PureComponent {
 						<h1>{name}</h1>
 						{links}
 						{/* if navigating from the home page, the pattern summary is in MiniMongo before Tracker sets isLoading to true. This doesn't include the detail fields so we need to prevent errors. */}
+						<h2>Woven band preview</h2>
+						<PreviewOrientation
+							_id={_id}
+							dispatch={dispatch}
+							previewOrientation={previewOrientation}
+						/>
 						<WeftColor
 							_id={_id}
 							dispatch={dispatch}

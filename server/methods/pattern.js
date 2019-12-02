@@ -9,11 +9,13 @@ import {
 } from '../../imports/server/modules/utils';
 import { Patterns } from '../../imports/modules/collection';
 import {
+	ALLOWED_PREVIEW_ORIENTATIONS,
 	DEFAULT_COLOR,
 	DEFAULT_DIRECTION,
 	DEFAULT_NUMBER_OF_TURNS,
 	DEFAULT_ORIENTATION,
 	DEFAULT_PALETTE,
+	DEFAULT_PREVIEW_ORIENTATION,
 	DEFAULT_WEFT_COLOR,
 	MAX_ROWS,
 	MAX_TABLETS,
@@ -95,6 +97,7 @@ Meteor.methods({
 			holes,
 			'isPublic': false,
 			'palette': DEFAULT_PALETTE,
+			'previewOrientation': DEFAULT_PREVIEW_ORIENTATION,
 			'orientations': new Array(tablets).fill(DEFAULT_ORIENTATION),
 			patternDesign,
 			patternType,
@@ -169,6 +172,7 @@ Meteor.methods({
 		let insertNTablets;
 		let insertTabletsAt;
 		let numberOfTurns;
+		let orientation;
 		let row;
 		let tablet;
 		let value;
@@ -457,6 +461,18 @@ Meteor.methods({
 
 				// update the value in the nested arrays
 				return Patterns.update({ _id }, { '$set': { [`orientations.${tablet}`]: newOrientation } });
+
+			case 'previewOrientation':
+				({ orientation } = data);
+
+				check(orientation, String);
+				const values = ALLOWED_PREVIEW_ORIENTATIONS.map((option) => option.value);
+
+				if (values.indexOf(orientation) === -1) {
+					throw new Meteor.Error('edit-pattern-preview-orientation-invalid', 'Unable to edit pattern because an invalid preview orientation was specified');
+				}
+
+				return Patterns.update({ _id }, { '$set': { 'previewOrientation': orientation } });
 
 			default:
 				break;

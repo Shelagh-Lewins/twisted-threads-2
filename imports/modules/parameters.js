@@ -63,5 +63,20 @@ export const COLORS_IN_COLOR_BOOK = 24;
 export const DEFAULT_COLOR_BOOK_COLOR = '#aa0000'; // if the default color has no saturation, clicking the vertical color bar in the color picker has no effect, which is confusing.
 export const EMPTY_HOLE_COLOR = '#fff'; // used in weaving chart when multiple turns and an empty hole
 export const DEFAULT_WEFT_COLOR = '#999';
+export const DEFAULT_PREVIEW_ORIENTATION = 'up';
+export const ALLOWED_PREVIEW_ORIENTATIONS = [
+	{
+		'text': 'Up',
+		'value': 'up',
+	},
+	{
+		'text': 'Left',
+		'value': 'left',
+	},
+	{
+		'text': 'Right',
+		'value': 'right',
+	},
+];
 
 export const MAX_RECENTS = 50;

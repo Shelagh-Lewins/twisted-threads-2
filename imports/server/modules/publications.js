@@ -55,6 +55,7 @@ const patternFields = {
 		'orientations': 1,
 		'palette': 1,
 		'patternDesign': 1,
+		'previewOrientation': 1,
 		'threading': 1,
 		'weftColor': 1,
 	},

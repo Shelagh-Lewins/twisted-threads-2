@@ -3,6 +3,25 @@
 .pattern-preview {
 	margin: 8px 0 8px 0;
 	overflow: hidden;
+	position: relative;
+
+	.preview-wrapper {
+		position: relative;
+	}
+
+	&.left .preview-wrapper {
+		-ms-transform: rotate(-90deg);
+		-webkit-transform: rotate(-90deg);
+		transform: rotate(-90deg);
+		transform-origin: top left;
+	}
+
+	&.right .preview-wrapper {
+		-ms-transform: rotate(90deg);
+		-webkit-transform: rotate(90deg);
+		transform: rotate(90deg);
+		transform-origin: top left;
+	}
 
 	.preview-holder {
 		clear: both;
