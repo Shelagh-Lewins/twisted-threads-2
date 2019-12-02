@@ -53,7 +53,7 @@ export default function PatternPreview(props) {
 
 	let rotationResize;
 	let rotationOffset;
-	const labelsAllowance = 44;
+	const labelsAllowance = 44; // allow for labels which aren't part of the main svg
 	const adjustedHeight = totalHeight + labelsAllowance;
 
 	switch (previewOrientation) {
@@ -135,7 +135,7 @@ export default function PatternPreview(props) {
 		const transform = `translate(${xOffset} ${yOffset})`;
 
 		return (
-			<g key={`prevew-row-number-${rowIndex}`} transform={transform}><text x="20" y="35" className="text">{rowIndex + 1}</text></g>
+			<g className="row-number" key={`prevew-row-number-${rowIndex}`} transform={transform}><text x="20" y="35" >{rowIndex + 1}</text></g>
 		);
 	};
 

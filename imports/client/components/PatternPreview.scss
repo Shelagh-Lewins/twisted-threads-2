@@ -9,18 +9,56 @@
 		position: relative;
 	}
 
-	&.left .preview-wrapper {
-		-ms-transform: rotate(-90deg);
-		-webkit-transform: rotate(-90deg);
-		transform: rotate(-90deg);
-		transform-origin: top left;
+	&.left {
+		.preview-wrapper {
+			-ms-transform: rotate(-90deg);
+			-webkit-transform: rotate(-90deg);
+			transform: rotate(-90deg);
+			transform-origin: top left;
+		}
+
+		.total-turns,
+		.tablet-labels {
+			span {
+				-ms-transform: rotate(90deg);
+				-webkit-transform: rotate(90deg);
+				transform: rotate(90deg);
+			}
+		}
+
+		.row-number {
+				text {
+				-ms-transform: translate(10px, 10px) rotate(90deg);
+				-webkit-transform: translate(10px, 10px) rotate(90deg);
+				transform: translate(52px, -10px) rotate(90deg);
+			}
+		}
 	}
 
-	&.right .preview-wrapper {
-		-ms-transform: rotate(90deg);
-		-webkit-transform: rotate(90deg);
-		transform: rotate(90deg);
-		transform-origin: top left;
+	&.right {
+		.preview-wrapper{
+			-ms-transform: rotate(90deg);
+			-webkit-transform: rotate(90deg);
+			transform: rotate(90deg);
+			transform-origin: top left;
+		}
+
+		.total-turns,
+		.tablet-labels {
+			span {
+				-ms-transform: rotate(-90deg);
+				-webkit-transform: rotate(-90deg);
+				transform: rotate(-90deg);
+			}
+		}
+
+		.row-number {
+				text {
+				-ms-transform: translate(-10px, -10px) rotate(-90deg);
+				-webkit-transform: translate(-10px, -10px) rotate(-90deg);
+				transform: translate(5px, 70px) rotate(-90deg);
+			}
+		}
 	}
 
 	.preview-holder {
@@ -77,14 +115,17 @@
 		}
 	}
 
-	.text {
-		font-size: 30px;
+	.row-number {
+		text {
+			font-size: 30px;
+		}
 	}
 
 	.total-turns {
 		float: left;
 		font-size: 0.8rem;
 		margin-bottom: 4px;
+		margin-left: 5px;
 
 		span {
 			background: $color-preview-tablet;
@@ -108,7 +149,8 @@
 
 	.tablet-labels {
 		float: left;
-		font-size: 0.9rem;
+		font-size: .9rem;
+		margin-left: 5px;
 
 		span {
 			float: left;
