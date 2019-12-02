@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 // import ReactDOM from 'react-dom';
 import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
-import { modulus } from '../modules/weavingUtils';
+// import { modulus } from '../modules/weavingUtils';
 import {
 	addTablets,
 	editOrientation,
@@ -70,7 +70,7 @@ class Threading extends PureComponent {
 		const response = confirm(`Do you want to delete tablet ${tabletIndex + 1}?`); // eslint-disable-line no-restricted-globals
 
 		if (response === true) {
-			dispatch(removeTablet({ _id, tabletIndex }));
+			dispatch(removeTablet({ _id, 'tablet': tabletIndex }));
 		}
 	}
 

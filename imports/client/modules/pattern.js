@@ -73,11 +73,16 @@ export function editWeavingCellDirection({
 	direction,
 }) {
 	return () => {
-		Meteor.call('pattern.editWeavingCellDirection', {
+		Meteor.call('pattern.edit', {
 			_id,
+			'data': {
+				'type': 'editWeavingCellDirection',
+				row,
+				tablet,
+				direction,
+			},
 			row,
 			tablet,
-			direction,
 		});
 	};
 }
@@ -89,11 +94,14 @@ export function editWeavingCellNumberOfTurns({
 	numberOfTurns,
 }) {
 	return () => {
-		Meteor.call('pattern.editWeavingCellNumberOfTurns', {
+		Meteor.call('pattern.edit', {
 			_id,
-			row,
-			tablet,
-			numberOfTurns,
+			'data': {
+				'type': 'editWeavingCellNumberOfTurns',
+				row,
+				tablet,
+				numberOfTurns,
+			},
 		});
 	};
 }
@@ -104,22 +112,28 @@ export function addWeavingRows({
 	insertRowsAt,
 }) {
 	return () => {
-		Meteor.call('pattern.addWeavingRows', {
+		Meteor.call('pattern.edit', {
 			_id,
-			insertNRows,
-			insertRowsAt,
+			'data': {
+				'type': 'addWeavingRows',
+				insertNRows,
+				insertRowsAt,
+			},
 		});
 	};
 }
 
 export function removeWeavingRow({
 	_id,
-	rowIndex,
+	row,
 }) {
 	return () => {
-		Meteor.call('pattern.removeWeavingRow', {
+		Meteor.call('pattern.edit', {
 			_id,
-			rowIndex,
+			'data': {
+				'type': 'removeWeavingRow',
+				row,
+			},
 		});
 	};
 }
@@ -132,11 +146,14 @@ export function editThreadingCell({
 	value,
 }) {
 	return () => {
-		Meteor.call('pattern.editThreadingCell', {
+		Meteor.call('pattern.edit', {
 			_id,
-			hole,
-			tablet,
-			value,
+			'data': {
+				'type': 'editThreadingCell',
+				hole,
+				tablet,
+				value,
+			},
 		});
 	};
 }
@@ -148,23 +165,30 @@ export function addTablets({
 	insertTabletsAt,
 }) {
 	return () => {
-		Meteor.call('pattern.addTablets', {
+		Meteor.call('pattern.edit', {
 			_id,
-			colorIndex,
-			insertNTablets,
-			insertTabletsAt,
+			'data': {
+				'type': 'addTablets',
+				colorIndex,
+				insertNTablets,
+				insertTabletsAt,
+			},
 		});
 	};
 }
 
 export function removeTablet({
 	_id,
-	tabletIndex,
+	tablet,
 }) {
 	return () => {
-		Meteor.call('pattern.removeTablet', {
+		Meteor.call('pattern.edit', {
 			_id,
-			tabletIndex,
+			tablet,
+			'data': {
+				'type': 'removeTablet',
+				tablet,
+			},
 		});
 	};
 }
@@ -192,10 +216,13 @@ export function editPaletteColor({
 	colorIndex,
 }) {
 	return () => {
-		Meteor.call('pattern.editPaletteColor', {
+		Meteor.call('pattern.edit', {
 			_id,
-			colorHexValue,
-			colorIndex,
+			'data': {
+				'type': 'paletteColor',
+				colorHexValue,
+				colorIndex,
+			},
 		});
 	};
 }
@@ -203,14 +230,14 @@ export function editPaletteColor({
 // Orientation
 export function editWeftColor({
 	_id,
-	color,
+	colorHexValue,
 }) {
 	return () => {
 		Meteor.call('pattern.edit', {
 			_id,
 			'data': {
 				'type': 'weftColor',
-				color,
+				colorHexValue,
 			},
 		});
 	};
@@ -221,7 +248,7 @@ export function editWeftColor({
 const initialPatternState = {
 	'currentPageNumber': 0,
 	'error': null,
-	'isLoading': false,
+	'isLoading': true,
 	'patternCount': 0,
 };
 

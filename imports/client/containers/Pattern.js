@@ -21,11 +21,36 @@ import './Pattern.scss';
 const bodyClass = 'pattern';
 
 class Pattern extends PureComponent {
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			'isReady': false, // picksByTablet has to be calculated after pattern data arrives
+			// if navigating from another page e.g. Home, it is not possible to set state.pattern.isLoading to true before Tracker runs, because setState is asynchronous
+			// so we need something that tells us we are really ready to render
+		};
+	}
+
 	componentDidMount() {
 		const { dispatch, _id } = this.props;
 		dispatch(addRecentPattern({ 'patternId': _id }));
 
 		document.body.classList.add(bodyClass);
+	}
+
+	componentDidUpdate() {
+		const {
+			isLoading,
+			'pattern': { numberOfTablets },
+			picksByTablet,
+		} = this.props;
+		const { isReady } = this.state;
+
+		if (!isLoading && !isReady && picksByTablet && picksByTablet.length === numberOfTablets) {
+			this.setState({
+				'isReady': true,
+			});
+		}
 	}
 
 	componentWillUnmount() {
@@ -37,7 +62,6 @@ class Pattern extends PureComponent {
 			colorBookAdded,
 			colorBooks,
 			dispatch,
-			isLoading,
 			pattern,
 			'pattern': {
 				_id,
@@ -49,45 +73,46 @@ class Pattern extends PureComponent {
 			},
 			picksByTablet,
 		} = this.props;
+		const { isReady } = this.state;
 
 		let content = <Loading />;
 
-		const links = (
-			<div className="links">
-				<Link className="btn btn-primary" to={`/pattern/${_id}/weaving`}>Interactive weaving chart</Link>
-			</div>
-		);
-
-		let patternWillRepeat = true;
-		let patternIsTwistNeutral = true;
-
-		for (let j = 0; j < numberOfTablets; j += 1) {
-			const { totalTurns } = picksByTablet[j][numberOfRows - 1];
-			const startPosition = modulus(totalTurns, holes) === 0; // tablet is back at start position
-
-			if (totalTurns !== 0) {
-				patternIsTwistNeutral = false;
-			}
-
-			if (!startPosition) {
-				patternWillRepeat = false;
-			}
-
-			if (!patternIsTwistNeutral && !patternWillRepeat) {
-				break;
-			}
-		}
-
-		const repeatText = (
-			<span className="hint">{patternWillRepeat ? 'The pattern will repeat' : 'The pattern will not repeat'}</span>
-		);
-
-		const twistNeutralText = (
-			<span className="hint">{patternIsTwistNeutral ? 'The pattern is twist neutral' : 'The pattern is not twist neutral'}</span>
-		);
-
-		if (!isLoading) {
+		if (isReady) {
 			if (name && name !== '') {
+				const links = (
+					<div className="links">
+						<Link className="btn btn-primary" to={`/pattern/${_id}/weaving`}>Interactive weaving chart</Link>
+					</div>
+				);
+
+				let patternWillRepeat = true;
+				let patternIsTwistNeutral = true;
+
+				for (let j = 0; j < numberOfTablets; j += 1) {
+					const { totalTurns } = picksByTablet[j][numberOfRows - 1];
+					const startPosition = modulus(totalTurns, holes) === 0; // tablet is back at start position
+
+					if (totalTurns !== 0) {
+						patternIsTwistNeutral = false;
+					}
+
+					if (!startPosition) {
+						patternWillRepeat = false;
+					}
+
+					if (!patternIsTwistNeutral && !patternWillRepeat) {
+						break;
+					}
+				}
+
+				const repeatText = (
+					<span className="hint">{patternWillRepeat ? 'The pattern will repeat' : 'The pattern will not repeat'}</span>
+				);
+
+				const twistNeutralText = (
+					<span className="hint">{patternIsTwistNeutral ? 'The pattern is twist neutral' : 'The pattern is not twist neutral'}</span>
+				);
+
 				content = (
 					<>
 						<h1>{name}</h1>
@@ -155,7 +180,8 @@ function mapStateToProps(state, ownProps) {
 	};
 }
 
-const Tracker = withTracker(({ _id, dispatch }) => {
+const Tracker = withTracker((props) => {
+	const { _id, dispatch } = props;
 	dispatch(setIsLoading(true));
 
 	Meteor.subscribe('pattern', _id, {
