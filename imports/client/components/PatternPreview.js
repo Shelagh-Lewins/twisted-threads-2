@@ -32,19 +32,18 @@ export default function PatternPreview(props) {
 	// screen pixel size of pick graphic, used to calculate final size of preview holder
 	const cellHeight = 54;
 	const cellWidth = 20;
-
-	// TO DO change preview orientation
+	const weftOverlap = 0.2; // how much the weft sticks out each side
 
 	const numberOfRepeats = 1; // TODO calculate and repeat
 	const rowNumberAllocation = 2; // space allowed for row numbers. 2 for vertical preview
 
-	const viewboxWidth = (numberOfTablets + rowNumberAllocation) * unitWidth;
+	const viewboxWidth = (numberOfTablets + rowNumberAllocation + weftOverlap * 2) * unitWidth;
 	const viewboxHeight = unitHeight * ((numberOfRows + 1) / 2);
 	const viewBox = `0 0 ${viewboxWidth} ${viewboxHeight}`;
 
 
 	const imageHeight = (1 + numberOfRows) * (cellHeight / 2);
-	const totalWidth = cellWidth * (numberOfTablets + rowNumberAllocation);
+	const totalWidth = cellWidth * (numberOfTablets + rowNumberAllocation + weftOverlap * 2);
 
 	// elements overlap by half their height
 	// so total height is half their height * number of rows
@@ -69,7 +68,7 @@ export default function PatternPreview(props) {
 			<g key={`prevew-weft-${i}`} transform={transform}>
 				<PathWeft
 					fill={weftColor}
-					scale={numberOfTablets}
+					scale={numberOfTablets + 2 * weftOverlap}
 				/>
 			</g>,
 		);
@@ -77,7 +76,7 @@ export default function PatternPreview(props) {
 
 	const renderCell = function (rowIndex, tabletIndex) {
 		// position the cell's svg path
-		const xOffset = tabletIndex * unitWidth;
+		const xOffset = (tabletIndex + weftOverlap) * unitWidth;
 		const yOffset = ((numberOfRows - rowIndex - 1) * (unitHeight / 2));
 		const transform = `translate(${xOffset} ${yOffset})`;
 
@@ -95,8 +94,8 @@ export default function PatternPreview(props) {
 
 	const renderRowNumber = function (rowIndex) {
 		// position the cell's svg path
-		const xOffset = numberOfTablets * unitWidth;
-		const yOffset = ((numberOfRows - rowIndex - 1) * (unitHeight / 2));
+		const xOffset = (numberOfTablets + weftOverlap) * unitWidth;
+		const yOffset = ((numberOfRows - rowIndex - 0.5) * (unitHeight / 2));
 		const transform = `translate(${xOffset} ${yOffset})`;
 
 		return (
@@ -112,7 +111,12 @@ export default function PatternPreview(props) {
 		for (let j = 0; j < numberOfTablets; j += 1) {
 			cells.push(renderCell(numberOfRows - i - 1, j));
 		}
-		cells.push(renderRowNumber(i));
+
+		// show row numbers at the point where the pattern is likely to return to home position or repeat
+		// and last row to show number of rows
+		if (modulus(i + 1, holes) === 0 || i === numberOfRows - 1) {
+			cells.push(renderRowNumber(i));
+		}
 		rows.push(cells);
 	}
 
