@@ -36,54 +36,82 @@ export default function PatternPreview(props) {
 	const weftOverlap = 0.2; // how much the weft sticks out each side
 
 	const numberOfRepeats = 1; // TODO calculate and repeat
-	const rowNumberAllocation = 2; // space allowed for row numbers. 2 for vertical preview
+	const widthInUnits = numberOfTablets + (weftOverlap * 2);
+	const heightInUnits = (numberOfRows + 1) / 2;
 
-	const viewboxWidth = (numberOfTablets + rowNumberAllocation + (weftOverlap * 2)) * unitWidth;
-	const viewboxHeight = unitHeight * ((numberOfRows + 1) / 2);
+	const viewboxHeight = unitHeight * heightInUnits;
+	const viewboxWidth = unitWidth * widthInUnits;
 	const viewBox = `0 0 ${viewboxWidth} ${viewboxHeight}`;
-
-
-	const imageHeight = (1 + numberOfRows) * (cellHeight / 2);
-	const totalWidth = cellWidth * (numberOfTablets + rowNumberAllocation + weftOverlap * 2);
+	const imageHeight = cellHeight * heightInUnits;
+	const imageWidth = cellWidth * widthInUnits;
 
 	// elements overlap by half their height
 	// so total height is half their height * number of rows
 	// plus another half height that sticks out the top
 	const totalHeight = imageHeight * numberOfRepeats;
 
-	let rotationResize;
-	let rotationOffset;
-	const labelsAllowance = 44; // allow for labels which aren't part of the main svg
-	const adjustedHeight = totalHeight + labelsAllowance;
+	let previewStyle = {};
+	let holderStyle = {};
+	let wrapperStyle = {};
+	let tabletLabelsStyle = {};
+	let totalTurnsDisplayStyle = {};
+	let rowNumbersStyle = {};
+	const tabletLabelsAllowance = 60; // allow for labels which aren't part of the main svg
+	const tabletLabelsOffset = 10; // push the labels to the side
+	const adjustedHeight = totalHeight + tabletLabelsAllowance;
+	const rowNumbersAllowance = cellWidth * 1.5;
 
+	// corrections for rotation
 	switch (previewOrientation) {
 		case 'up':
-			rotationResize = {
-				'height': `${adjustedHeight}px`,
-				'width': `${totalWidth}px`,
-			};
-			rotationOffset = {
-
+			holderStyle = {
+				'height': `${totalHeight}px`,
+				'width': `${imageWidth}px`,
 			};
 			break;
 
 		case 'left':
-			rotationResize = {
-				'height': `${totalWidth}px`,
+			previewStyle = {
 				'width': `${adjustedHeight}px`,
 			};
-			rotationOffset = {
-				'top': `${totalWidth}px`,
+			holderStyle = {
+				'height': `${imageWidth}px`,
+				'width': `${totalHeight}px`,
+			};
+			wrapperStyle = {
+				'msTransform': `translate(0, ${imageWidth + rowNumbersAllowance}px) rotate(-90deg)`,
+				'WebkitTransform': `translate(0, ${imageWidth + rowNumbersAllowance}px)rotate(-90deg)`,
+				'transform': `translate(0, ${imageWidth + rowNumbersAllowance}px)rotate(-90deg)`,
+				'transformOrigin': 'top left',
+			};
+			tabletLabelsStyle = {
+				'top': `${totalHeight - imageWidth + tabletLabelsOffset}px`,
 			};
 			break;
 
 		case 'right':
-			rotationResize = {
-				'height': `${totalWidth}px`,
+			previewStyle = {
 				'width': `${adjustedHeight}px`,
 			};
-			rotationOffset = {
-				'left': `${adjustedHeight}px`,
+			holderStyle = {
+				'height': `${imageWidth}px`,
+				'width': `${totalHeight}px`,
+				'transform': `translate(0, -${tabletLabelsOffset}px)`,
+			};
+			wrapperStyle = {
+				'msTransform': `translate(${totalHeight + rowNumbersAllowance}px, 0) rotate(90deg)`,
+				'WebkitTransform': `translate(${totalHeight + rowNumbersAllowance}px, 0) rotate(90deg)`,
+				'transform': `translate(${totalHeight + rowNumbersAllowance}px, 0) rotate(90deg)`,
+				'transformOrigin': 'top left',
+			};
+			tabletLabelsStyle = {
+				'top': `${totalHeight - imageWidth - tabletLabelsOffset}px`,
+			};
+			totalTurnsDisplayStyle = {
+				'transform': `translate(0, -${tabletLabelsOffset}px)`,
+			};
+			rowNumbersStyle = {
+				'transform': `translate(0, -${tabletLabelsOffset}px)`,
 			};
 			break;
 
@@ -133,14 +161,15 @@ export default function PatternPreview(props) {
 		const yOffset = ((numberOfRows - rowIndex + 0.5) * (cellHeight / 2));
 
 		return (
-			<span style={{ 'left': xOffset, 'top': yOffset }}>{rowIndex + 1}</span>
+			<span key={`row-number${rowIndex}`} style={{ 'left': xOffset, 'top': yOffset }}>{rowIndex + 1}</span>
 		);
 	};
 
 	const rows = []; // svg elements for picks
 	const rowNumberElms = []; // html elements
+
 	const rowNumbers = (
-		<div className="row-numbers">
+		<div className="row-numbers" style={rowNumbersStyle}>
 			{rowNumberElms}
 		</div>
 	);
@@ -149,7 +178,6 @@ export default function PatternPreview(props) {
 		const cells = [];
 
 		for (let j = 0; j < numberOfTablets; j += 1) {
-			// rowNumberElms.push(renderCell(numberOfRows - i - 1, j));
 			cells.push(renderCell(numberOfRows - i - 1, j));
 		}
 
@@ -190,7 +218,7 @@ export default function PatternPreview(props) {
 	}
 
 	const totalTurnsDisplay = (
-		<span className="total-turns">
+		<span className="total-turns" style={totalTurnsDisplayStyle}>
 			{totalTurnCells}
 		</span>
 	);
@@ -210,18 +238,18 @@ export default function PatternPreview(props) {
 	}
 
 	const tabletLabels = (
-		<span className="tablet-labels">
+		<span className="tablet-labels" style={tabletLabelsStyle}>
 			{tabletLabelCells}
 		</span>
 	);
 
 	return (
-		<div className={`pattern-preview ${previewOrientation}`} style={rotationResize}>
-			<div className="preview-wrapper" style={rotationOffset}>
+		<div className={`pattern-preview ${previewOrientation}`} style={previewStyle}>
+			<div className="preview-wrapper" style={wrapperStyle}>
 				{totalTurnsDisplay}
 				{rowNumbers}
-				<div className="preview-holder">
-					<svg viewBox={viewBox} shapeRendering="geometricPrecision" width={totalWidth}>
+				<div className="preview-holder" style={holderStyle}>
+					<svg viewBox={viewBox} shapeRendering="geometricPrecision" width={imageWidth}>
 						{wefts}
 						{rows}
 					</svg>

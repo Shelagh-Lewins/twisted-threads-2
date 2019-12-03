@@ -2,22 +2,16 @@
 
 .pattern-preview {
 	margin: 8px 0 8px 0;
-	overflow: hidden;
+	overflow-y: hidden;
 	position: relative;
 
 	.preview-wrapper {
+		pointer-events: none;
 		position: relative;
 	}
 
 	&.left {
-		margin-top: -20px;
-
-		.preview-wrapper {
-			-ms-transform: rotate(-90deg);
-			-webkit-transform: rotate(-90deg);
-			transform: rotate(-90deg);
-			transform-origin: top left;
-		}
+		max-width: 800px;
 
 		.total-turns,
 		.tablet-labels {
@@ -39,12 +33,7 @@
 	}
 
 	&.right {
-		.preview-wrapper{
-			-ms-transform: rotate(90deg);
-			-webkit-transform: rotate(90deg);
-			transform: rotate(90deg);
-			transform-origin: top left;
-		}
+		max-width: 800px;
 
 		.total-turns,
 		.tablet-labels {
@@ -52,6 +41,7 @@
 				-ms-transform: rotate(-90deg);
 				-webkit-transform: rotate(-90deg);
 				transform: rotate(-90deg);
+				text-align: center;
 			}
 		}
 
@@ -167,6 +157,7 @@
 		float: left;
 		font-size: .9rem;
 		margin-left: 5px;
+		position: relative;
 
 		span {
 			float: left;
