@@ -7,7 +7,12 @@ import DOMPurify from 'dompurify';
 import { removePattern } from '../modules/pattern';
 import './PatternSummary.scss';
 
-function PatternSummary({ name, _id, dispatch, patternPreview }) {
+function PatternSummary({
+	name,
+	_id,
+	dispatch,
+	patternPreview,
+}) {
 	const handleClickButtonRemove = function () {
 		const response = confirm(`Do you want to delete the pattern "${name}"?`); // eslint-disable-line no-restricted-globals
 
@@ -17,14 +22,21 @@ function PatternSummary({ name, _id, dispatch, patternPreview }) {
 	};
 
 	let clean = '';
-	let patternPreviewElm = <div className="pattern-preview" dangerouslySetInnerHTML={{ '__html': clean }} />;
-
 	if (patternPreview) {
 		clean = DOMPurify.sanitize(patternPreview.data);
-		patternPreviewElm = (
+		/*patternPreviewElm = (
 			<div className="pattern-preview" dangerouslySetInnerHTML={{ '__html': clean }} />
-		);
+		); */
 	}
+	const patternPreviewElm = <div className="innertube" dangerouslySetInnerHTML={{ '__html': clean }} />;
+
+	const patternPreviewHolder = (
+		<div className="pattern-preview">
+			{patternPreviewElm}
+		</div>
+	);
+
+	
 
 	const buttonRemove = (
 		<Button
@@ -41,7 +53,7 @@ function PatternSummary({ name, _id, dispatch, patternPreview }) {
 			<div className="main">
 				<Link to={`/pattern/${_id}`}>
 					<h3>{name}</h3>
-					{patternPreviewElm}
+					{patternPreviewHolder}
 				</Link>
 
 			</div>

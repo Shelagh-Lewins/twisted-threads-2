@@ -7,7 +7,7 @@
 	display: inline;
 	float: left;
 	height: 216px;
-	margin-bottom: 16px;
+	margin: 0 16px 16px 0;
 	padding: 0;
 	position: relative;
 	width: 248px;
@@ -47,15 +47,19 @@
 		position: relative;
 		width: 248px;
 
+		.innertube {
+			height: 100%;
+			position: relative;
+			width: 100%;
+		}
+
 		svg {
-			-ms-transform: rotate(90deg);
-			-webkit-transform: rotate(90deg);
 			bottom: 0;
-			left: -108px;
+			left: -50%;
 			max-height: 248px;
 			max-width: 108px;
 			position: absolute;
-			transform: rotate(90deg);
+			transform: translateX(50%) rotate(90deg);
 			transform-origin: 100% 100%;
 		}
 	}
