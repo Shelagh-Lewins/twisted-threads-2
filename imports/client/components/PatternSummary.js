@@ -21,12 +21,10 @@ function PatternSummary({
 		}
 	};
 
+	// import the preview svg data
 	let clean = '';
 	if (patternPreview) {
 		clean = DOMPurify.sanitize(patternPreview.data);
-		/*patternPreviewElm = (
-			<div className="pattern-preview" dangerouslySetInnerHTML={{ '__html': clean }} />
-		); */
 	}
 	const patternPreviewElm = <div className="innertube" dangerouslySetInnerHTML={{ '__html': clean }} />;
 
@@ -35,8 +33,6 @@ function PatternSummary({
 			{patternPreviewElm}
 		</div>
 	);
-
-	
 
 	const buttonRemove = (
 		<Button
