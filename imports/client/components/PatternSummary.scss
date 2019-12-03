@@ -42,24 +42,18 @@
 
 	.pattern-preview {
 		background-color: $color-pattern-preview-background;
-		height: 108px;
+		height: $summary-preview-height;
 		overflow: hidden;
 		position: relative;
-		width: 248px;
-
-		.innertube {
-			height: 100%;
-			position: relative;
-			width: 100%;
-		}
+		width: $summary-preview-width;
 
 		svg {
 			bottom: 0;
-			left: -50%;
-			max-height: 248px;
-			max-width: 108px;
+			left: -$summary-preview-height;
+			max-height: $summary-preview-width;
+			max-width: $summary-preview-height;
 			position: absolute;
-			transform: translateX(50%) rotate(90deg);
+			transform: rotate(90deg);
 			transform-origin: 100% 100%;
 		}
 	}
