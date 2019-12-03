@@ -28,11 +28,12 @@
 			}
 		}
 
-		.row-number {
-				text {
-				-ms-transform: translate(10px, 10px) rotate(90deg);
-				-webkit-transform: translate(10px, 10px) rotate(90deg);
-				transform: translate(52px, -10px) rotate(90deg);
+		.row-numbers {
+			span {
+				-ms-transform: rotate(90deg);
+				-webkit-transform:  rotate(90deg);
+				transform: rotate(90deg);
+				text-align: center;
 			}
 		}
 	}
@@ -54,12 +55,25 @@
 			}
 		}
 
-		.row-number {
-				text {
-				-ms-transform: translate(-10px, -10px) rotate(-90deg);
-				-webkit-transform: translate(-10px, -10px) rotate(-90deg);
-				transform: translate(5px, 70px) rotate(-90deg);
+		.row-numbers {
+			span {
+				-ms-transform: rotate(-90deg);
+				-webkit-transform: rotate(-90deg);
+				transform: rotate(-90deg);
+				text-align: center;
 			}
+		}
+	}
+
+	.row-numbers {
+		position: relative;
+
+		span {
+			height: 24px;
+			margin-left: 4px;
+			position: absolute;
+			text-align: right;
+			width: 24px;
 		}
 	}
 

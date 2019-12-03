@@ -38,7 +38,7 @@ export default function PatternPreview(props) {
 	const numberOfRepeats = 1; // TODO calculate and repeat
 	const rowNumberAllocation = 2; // space allowed for row numbers. 2 for vertical preview
 
-	const viewboxWidth = (numberOfTablets + rowNumberAllocation + weftOverlap * 2) * unitWidth;
+	const viewboxWidth = (numberOfTablets + rowNumberAllocation + (weftOverlap * 2)) * unitWidth;
 	const viewboxHeight = unitHeight * ((numberOfRows + 1) / 2);
 	const viewBox = `0 0 ${viewboxWidth} ${viewboxHeight}`;
 
@@ -129,31 +129,38 @@ export default function PatternPreview(props) {
 	};
 
 	const renderRowNumber = function (rowIndex) {
-		// position the cell's svg path
-		const xOffset = (numberOfTablets + weftOverlap) * unitWidth;
-		const yOffset = ((numberOfRows - rowIndex - 0.5) * (unitHeight / 2));
-		const transform = `translate(${xOffset} ${yOffset})`;
+		const xOffset = (numberOfTablets + weftOverlap) * cellWidth;
+		const yOffset = ((numberOfRows - rowIndex + 0.5) * (cellHeight / 2));
 
 		return (
-			<g className="row-number" key={`prevew-row-number-${rowIndex}`} transform={transform}><text x="20" y="35">{rowIndex + 1}</text></g>
+			<span style={{ 'left': xOffset, 'top': yOffset }}>{rowIndex + 1}</span>
 		);
 	};
 
-	const rows = [];
+	const rows = []; // svg elements for picks
+	const rowNumberElms = []; // html elements
+	const rowNumbers = (
+		<div className="row-numbers">
+			{rowNumberElms}
+		</div>
+	);
 
 	for (let i = 0; i < numberOfRows; i += 1) {
 		const cells = [];
 
 		for (let j = 0; j < numberOfTablets; j += 1) {
+			// rowNumberElms.push(renderCell(numberOfRows - i - 1, j));
 			cells.push(renderCell(numberOfRows - i - 1, j));
 		}
 
+		rows.push(cells);
+
 		// show row numbers at the point where the pattern is likely to return to home position or repeat
 		// and last row to show number of rows
+		// row numbers are not part of svg, because they are not shown in pattern summary
 		if (modulus(i + 1, holes) === 0 || i === numberOfRows - 1) {
-			cells.push(renderRowNumber(i));
+			rowNumberElms.push(renderRowNumber(i));
 		}
-		rows.push(cells);
 	}
 
 	// total turns
@@ -212,6 +219,7 @@ export default function PatternPreview(props) {
 		<div className={`pattern-preview ${previewOrientation}`} style={rotationResize}>
 			<div className="preview-wrapper" style={rotationOffset}>
 				{totalTurnsDisplay}
+				{rowNumbers}
 				<div className="preview-holder">
 					<svg viewBox={viewBox} shapeRendering="geometricPrecision" width={totalWidth}>
 						{wefts}
