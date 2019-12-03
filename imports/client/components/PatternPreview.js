@@ -1,8 +1,13 @@
+// pattern preview as displayed in pattern detail page
+// with labels and can be rotated
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import PreviewSVG from './PreviewSVG';
 import { modulus } from '../modules/weavingUtils';
 import { PathWeft } from '../modules/previewPaths';
+import { savePatternPreview } from '../modules/patternPreview';
+import '../constants/globals';
 
 import './PatternPreview.scss';
 
@@ -15,8 +20,10 @@ import './PatternPreview.scss';
 
 export default function PatternPreview(props) {
 	const {
+		dispatch,
 		pattern,
 		'pattern': {
+			_id,
 			holes,
 			numberOfRows,
 			numberOfTablets,
@@ -25,6 +32,20 @@ export default function PatternPreview(props) {
 		},
 		picksByTablet,
 	} = props;
+
+	// Update the preview on load and change. Wait until the user pauses before saving the preview
+	// this also gives the preview time to render
+	const savePreviewPattern = function () {
+		const elm = document.getElementById('preview-holder');
+		const data = elm.innerHTML;
+		// console.log('data', data);
+		dispatch(savePatternPreview({ _id, data }));
+	};
+
+	clearTimeout(global.savePatternPreviewTimeout);
+	global.savePatternPreviewTimeout = setTimeout(() => {
+		savePreviewPattern();
+	}, 3000);
 
 	// pick graphic size in the SVG
 	const unitWidth = 41.560534;
@@ -248,7 +269,7 @@ export default function PatternPreview(props) {
 			<div className="preview-wrapper" style={wrapperStyle}>
 				{totalTurnsDisplay}
 				{rowNumbers}
-				<div className="preview-holder" style={holderStyle}>
+				<div id="preview-holder" className="preview-holder" style={holderStyle}>
 					<svg viewBox={viewBox} shapeRendering="geometricPrecision" width={imageWidth}>
 						{wefts}
 						{rows}
@@ -261,6 +282,7 @@ export default function PatternPreview(props) {
 }
 
 PatternPreview.propTypes = {
+	'dispatch': PropTypes.func.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 	'picksByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
 };

@@ -12,7 +12,7 @@ import PropTypes from 'prop-types';
 import { addPattern, getPatternCount, setIsLoading } from '../modules/pattern';
 import { getIsAuthenticated, getIsVerified } from '../modules/auth';
 
-import { Patterns } from '../../modules/collection';
+import { PatternPreviews, Patterns } from '../../modules/collection';
 import Loading from '../components/Loading';
 import PatternList from '../components/PatternList';
 import AddPatternForm from '../components/AddPatternForm';
@@ -25,6 +25,8 @@ import { ITEMS_PER_PAGE } from '../../modules/parameters';
 import './Home.scss';
 
 const queryString = require('query-string');
+
+const bodyClass = 'home';
 
 class Home extends Component {
 	constructor(props) {
@@ -48,6 +50,8 @@ class Home extends Component {
 
 	componentDidMount() {
 		this.clearErrors();
+
+		document.body.classList.add(bodyClass);
 	}
 
 	onCloseFlashMessage() {
@@ -95,6 +99,7 @@ class Home extends Component {
 			isLoading,
 			patterns,
 			patternCount,
+			patternPreviews,
 			verified,
 		} = this.props;
 		const { showAddPatternForm } = this.state;
@@ -115,7 +120,7 @@ class Home extends Component {
 
 		return (
 			<div>
-				<Container className="home">
+				<Container>
 					{!isEmpty(errors) && (
 						<Row>
 							<Col lg="12">
@@ -163,6 +168,7 @@ class Home extends Component {
 								history={history}
 								patternCount={patternCount}
 								patterns={patterns}
+								patternPreviews={patternPreviews}
 							/>
 						</>
 					)}
@@ -212,18 +218,25 @@ function mapStateToProps(state, ownProps) {
 const Tracker = withTracker(({ pageSkip, dispatch }) => {
 	dispatch(setIsLoading(true));
 
+	const patterns = Patterns.find({}, {
+		'sort': { 'nameSort': 1 },
+		'limit': ITEMS_PER_PAGE,
+	}).fetch();
+
 	Meteor.subscribe('patterns', pageSkip, ITEMS_PER_PAGE, {
 		'onReady': () => {
 			dispatch(getPatternCount());
 			dispatch(setIsLoading(false));
+
+			const patternIds = patterns.map((pattern) => pattern._id);
+
+			Meteor.subscribe('patternPreviews', { patternIds });
 		},
 	});
 
 	return {
-		'patterns': Patterns.find({}, {
-			'sort': { 'nameSort': 1 },
-			'limit': ITEMS_PER_PAGE,
-		}).fetch(),
+		patterns,
+		'patternPreviews': PatternPreviews.find().fetch(), // TO DO only subscribe to those for which we have a pattern
 	};
 })(Home);
 

@@ -1,10 +1,17 @@
 @import "../constants/variables";
 
 .pattern-summary {
-	border-bottom: 1px solid $color-panel-border;
-	clear: both;
-	overflow: hidden;
-	padding: 4px 0;
+	background-color: $color-pattern-summary-background;
+	border-radius: 4px;
+	box-shadow: 0 2px 4px 0 $color-pattern-summary-shadow;
+	display: inline;
+	float: left;
+	height: 216px;
+	margin-bottom: 16px;
+	padding: 0;
+	position: relative;
+	width: 248px;
+	/* z-index: 10; */
 
 	a {
 		line-height: 2.4;
@@ -12,5 +19,48 @@
 
 	button {
 		float: right;
+	}
+
+	.main {
+		a {
+			display: block;
+			height: 163px;
+		}
+	}
+
+	h3 {
+		color: #3B5998;
+		cursor: pointer;
+		display: block;
+		font-size: 16px !important;
+		font-weight: bold;
+		overflow: hidden;
+		padding: 8px 8px 2px 8px;
+		text-overflow: ellipsis;
+		white-space: pre-line;
+	}
+
+	.pattern-preview {
+		background-color: $color-pattern-preview-background;
+		height: 108px;
+		overflow: hidden;
+		position: relative;
+		width: 248px;
+
+		svg {
+			-ms-transform: rotate(90deg);
+			-webkit-transform: rotate(90deg);
+			bottom: 0;
+			left: -108px;
+			max-height: 248px;
+			max-width: 108px;
+			position: absolute;
+			transform: rotate(90deg);
+			transform-origin: 100% 100%;
+		}
+	}
+
+	.footer {
+		padding: 8px;
 	}
 }

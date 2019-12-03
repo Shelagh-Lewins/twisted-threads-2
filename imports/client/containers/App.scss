@@ -1,5 +1,9 @@
 @import "../constants/variables";
 
+body {
+	color: $color-text !important;
+}
+
 // !important to override Bootstrap styles
 h1 {
 	border-bottom: 1px solid $color-panel-border;

@@ -1,5 +1,9 @@
 import { check } from 'meteor/check';
-import { ColorBooks, Patterns } from '../../modules/collection';
+import {
+	ColorBooks,
+	Patterns,
+	PatternPreviews,
+} from '../../modules/collection';
 import { ITEMS_PER_PAGE } from '../../modules/parameters';
 import {
 	nonEmptyStringCheck,
@@ -103,5 +107,42 @@ Meteor.publish('pattern', function (_id = undefined) {
 		{
 			'fields': patternFields,
 		},
+	);
+});
+
+// //////////////////////////
+// Pattern previews
+
+Meteor.publish('patternPreviews', function ({ patternIds }) {
+	// explicitly return nothing when user is not logged in
+	// this is so we can test behaviour when user is not logged in: PublicationCollector passes in undefined userId, and find() is inconsistent between Meteor and MongoDB on undefined
+	if (!this.userId) {
+		this.ready();
+		return;
+	}
+
+	if (patternIds.length === 0) {
+		this.ready();
+		return;
+	}
+
+	// find the patterns the user can see
+	// and that are in the array passed in
+	const patterns = Patterns.find(
+		{
+			'createdBy': this.userId,
+			'_id': { '$in': patternIds },
+		},
+		{
+			'fields': {}, // TO DO include isPublic
+		},
+	).fetch();
+
+	// extract their _ids as an array
+	const targetPatternIds = patterns.map((pattern) => pattern._id);
+
+	// find the previews for those patterns
+	return PatternPreviews.find(
+		{ 'patternId': { '$in': targetPatternIds } },
 	);
 });

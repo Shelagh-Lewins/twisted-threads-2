@@ -15,6 +15,7 @@ class PatternList extends PureComponent {
 			history,
 			patternCount,
 			patterns,
+			patternPreviews,
 		} = this.props;
 
 		const pagination = patternCount > ITEMS_PER_PAGE ? (
@@ -34,6 +35,7 @@ class PatternList extends PureComponent {
 							name={pattern.name}
 							_id={pattern._id}
 							dispatch={dispatch}
+							patternPreview={patternPreviews.find((patternPreview) => patternPreview.patternId === pattern._id)}
 						/>
 					))}
 				</Col>
@@ -51,6 +53,7 @@ PatternList.propTypes = {
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'patternCount': PropTypes.number.isRequired,
 	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'patternPreviews': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 export default PatternList;

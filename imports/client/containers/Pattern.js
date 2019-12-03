@@ -133,6 +133,7 @@ class Pattern extends PureComponent {
 						/>
 						{picksByTablet && picksByTablet.length > 0 && (
 							<PatternPreview
+								dispatch={dispatch}
 								pattern={pattern}
 								picksByTablet={picksByTablet}
 							/>
