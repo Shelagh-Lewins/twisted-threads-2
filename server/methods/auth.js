@@ -47,8 +47,10 @@ Meteor.methods({
 			);
 		}
 
+		const { recentPatterns } = Meteor.user().profile;
+
 		// find existing entry, if any
-		const thisRecentPattern = Meteor.user().profile.recentPatterns.find((recentPattern) => recentPattern.patternId === patternId);
+		const thisRecentPattern = recentPatterns.find((recentPattern) => recentPattern.patternId === patternId);
 
 		if (typeof currentWeavingRow !== 'undefined') { // the user is on the Interactive Weaving Chart
 			entry.currentWeavingRow = currentWeavingRow;
@@ -56,14 +58,29 @@ Meteor.methods({
 			entry.currentWeavingRow = thisRecentPattern.currentWeavingRow;
 		}
 
-		// addToSet seems like the obvious way to add elements to an array without duplicates, however I don't think it covers an array of objects where we want to update object properties and ensure the updated object is at the end
+		// addToSet seems like the obvious way to add elements to an array without duplicates, however I don't think it covers an array of objects where we want to update object properties and ensure the updated object is at the end of the array
 
-		Meteor.users.update({ '_id': Meteor.userId(), 'profile.recentPatterns.patternId': patternId },
-			{
-				'$set': { 'profile.recentPatterns.$.patternId': 'toBeRemoved' },
-			});
+		const numberOfRecents = recentPatterns.length;
 
-		// if the pattern is already in recents, remove it
+		// meteor does not support deleting multiple objects from an array
+		// so loop over them, just in case of duplicates
+		// this shouldn't occur but has done in testing
+		for (let i = 0; i < numberOfRecents; i += 1) {
+			const recent = recentPatterns[i];
+
+			if (recent.patternId === patternId) {
+				const update = {};
+				const identifier = `profile.recentPatterns.${i}.patternId`;
+				update[identifier] = 'toBeRemoved';
+
+				Meteor.users.update({ '_id': Meteor.userId() },
+					{
+						'$set': update,
+					});
+			}
+		}
+
+		// if the pattern is already in recents, remove all instances
 		Meteor.users.update({ '_id': Meteor.userId() },
 			{
 				'$pull': { 'profile.recentPatterns': { 'patternId': 'toBeRemoved' } },
