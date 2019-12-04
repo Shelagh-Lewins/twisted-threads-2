@@ -27,7 +27,10 @@ import {
 } from '../modules/weavingUtils';
 
 export default function PreviewSVG({
+	currentRepeat,
+	numberOfRepeats,
 	pattern,
+	patternWillRepeat,
 	picksByTablet,
 	rowIndex,
 	tabletIndex,
@@ -39,6 +42,7 @@ export default function PreviewSVG({
 
 	const {
 		holes,
+		numberOfRows,
 		orientations,
 		palette,
 		threading,
@@ -54,10 +58,19 @@ export default function PreviewSVG({
 	let reversal = false;
 
 	// check for idling and reversal
-	if (rowIndex !== 0) { // there is a previous row
-		const previousPick = picksByTablet[tabletIndex][rowIndex - 1];
+	let previousPick;
 
-		if (numberOfTurns === 0) { // idle tablet, use previous row to judge which thread to show
+	if (rowIndex !== 0) {
+		// there is a previous row
+		previousPick = picksByTablet[tabletIndex][rowIndex - 1];
+	} else if (patternWillRepeat && currentRepeat !== numberOfRepeats) {
+		// first row continues after last row
+		previousPick = picksByTablet[tabletIndex][numberOfRows - 1];
+	}
+
+	if (previousPick) {
+		if (numberOfTurns === 0) {
+			// idle tablet, use previous row to judge which thread to show
 			adjustedDirection = previousPick.direction;
 		} else if (direction !== previousPick.direction && previousPick.numberOfTurns !== 0) {
 			// the tablet hasn't idled
@@ -161,8 +174,11 @@ export default function PreviewSVG({
 }
 
 PreviewSVG.propTypes = {
+	'currentRepeat': PropTypes.number.isRequired,
+	'numberOfRepeats': PropTypes.number.isRequired,
+	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
+	'patternWillRepeat': PropTypes.bool.isRequired,
 	'picksByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'rowIndex': PropTypes.number.isRequired,
 	'tabletIndex': PropTypes.number.isRequired,
-	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 };

@@ -153,17 +153,19 @@ export default function PatternPreview(props) {
 	// render the preview
 	const yOffsetForRow = (rowIndex, repeatOffset) => ((numberOfRows - rowIndex - 1) * (unitHeight / 2)) + repeatOffset;
 
-	const renderCell = function (repeatOffset, rowIndex, tabletIndex) {
+	const renderCell = function (currentRepeat, repeatOffset, rowIndex, tabletIndex) {
 		// position the cell's svg path
 		const xOffset = (tabletIndex + weftOverlap) * unitWidth;
-		// const yOffset1 = ((numberOfRows - rowIndex - 1) * (unitHeight / 2)) + repeatOffset;
 		const yOffset = yOffsetForRow(rowIndex, repeatOffset);
 		const transform = `translate(${xOffset} ${yOffset})`;
 
 		return (
 			<g key={`prevew-cell-${rowIndex}-${tabletIndex}`} transform={transform}>
 				<PreviewSVG
+					currentRepeat={currentRepeat}
+					numberOfRepeats={numberOfRepeats}
 					pattern={pattern}
+					patternWillRepeat={patternWillRepeat}
 					picksByTablet={picksByTablet}
 					rowIndex={rowIndex}
 					tabletIndex={tabletIndex}
@@ -174,7 +176,7 @@ export default function PatternPreview(props) {
 
 	const renderRowNumber = function (currentRepeat, repeatOffset, rowIndex) {
 		const xOffset = (numberOfTablets + weftOverlap) * cellWidth;
-		const yOffset = ((numberOfRows - rowIndex + 0.5) * (cellHeight / 2));
+		const yOffset = (numberOfRows - rowIndex + 0.5) * (cellHeight / 2) + repeatOffset;
 
 		return (
 			<span key={`row-number-${rowIndex + currentRepeat * numberOfRows}`} style={{ 'left': xOffset, 'top': yOffset }}>{rowIndex + 1}</span>
@@ -184,18 +186,24 @@ export default function PatternPreview(props) {
 	const wefts = [];
 	const rows = []; // svg elements for picks
 	const rowNumberElms = []; // html elements
+	const rowNumbers = (
+		<div className="row-numbers" style={rowNumbersStyle}>
+			{rowNumberElms}
+		</div>
+	);
 
 	// for each pattern repeat
 	for (let currentRepeat = 1; currentRepeat <= numberOfRepeats; currentRepeat += 1) {
-		const repeatOffset = currentRepeat === 1 ? 0
+		const svgRepeatOffset = currentRepeat === 1 ? 0
 			: (currentRepeat - 1) * unitHeight * heightInUnits - (unitHeight / 2);
+		const elmRepeatOffset = currentRepeat === 1 ? 0
+			: (currentRepeat - 1) * cellHeight * heightInUnits - (cellHeight / 2);
 
 		// for each row
 		for (let i = 0; i < numberOfRows; i += 1) {
 			// draw the weft
 			const xOffset = 0;
-			// const yOffset = ((numberOfRows - i - 1) * (unitHeight / 2));
-			const yOffset = yOffsetForRow(i, repeatOffset);
+			const yOffset = yOffsetForRow(i, svgRepeatOffset);
 			const transform = `translate(${xOffset} ${yOffset})`;
 
 			wefts.push(
@@ -206,32 +214,25 @@ export default function PatternPreview(props) {
 					/>
 				</g>,
 			);
-			// }
 
-			// for (let i = 0; i < numberOfRows; i += 1) {
 			// draw the weaving cells
 			const cells = [];
 
 			for (let j = 0; j < numberOfTablets; j += 1) {
-				cells.push(renderCell(repeatOffset, numberOfRows - i - 1, j));
+				cells.push(renderCell(currentRepeat, svgRepeatOffset, numberOfRows - i - 1, j));
 			}
 
 			rows.push(cells);
 
-			// show row numbers at the point where the pattern is likely to return to home position or repeat
-			// and last row to show number of rows
-			// row numbers are not part of svg, because they are not shown in pattern summary
-			if (modulus(i + 1, holes) === 0 || i === numberOfRows - 1) {
-				rowNumberElms.push(renderRowNumber(currentRepeat, repeatOffset, i));
+			// show row numbers at the point where all forward turns would bring the tablet home
+			// also first and last row for clarity
+			// row numbers are not part of svg
+			// row numbers are the same on each repeat, to make it clear that the pattern IS repeating
+			if (modulus(i + 1, holes) === 0 || i === numberOfRows - 1 || i + 1 === 1) {
+				rowNumberElms.push(renderRowNumber(currentRepeat, elmRepeatOffset, i));
 			}
 		}
 	}
-
-	const rowNumbers = (
-		<div className="row-numbers" style={rowNumbersStyle}>
-			{rowNumberElms}
-		</div>
-	);
 
 	// total turns
 	const totalTurnCells = [];
