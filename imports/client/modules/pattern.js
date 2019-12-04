@@ -230,14 +230,14 @@ export function editPaletteColor({
 // Weft Color
 export function editWeftColor({
 	_id,
-	colorHexValue,
+	value,
 }) {
 	return () => {
 		Meteor.call('pattern.edit', {
 			_id,
 			'data': {
 				'type': 'weftColor',
-				colorHexValue,
+				value,
 			},
 		});
 	};

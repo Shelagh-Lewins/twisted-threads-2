@@ -17,8 +17,6 @@ import './PatternPreview.scss';
 // so disable the rule below
 /* eslint-disable react/no-array-index-key */
 
-// TO DO row numbers, number of turns, tablet numbers, repeats, points where tablets are in original position
-
 export default function PatternPreview(props) {
 	const {
 		dispatch,
@@ -29,6 +27,7 @@ export default function PatternPreview(props) {
 			holes,
 			numberOfRows,
 			numberOfTablets,
+			palette,
 			previewOrientation,
 			weftColor,
 		},
@@ -217,7 +216,7 @@ export default function PatternPreview(props) {
 			wefts.push(
 				<g key={`preview-weft-${i + currentRepeat * numberOfRows}`} transform={transform}>
 					<PathWeft
-						fill={weftColor}
+						fill={palette[weftColor]}
 						scale={numberOfTablets + 2 * weftOverlap}
 					/>
 				</g>,

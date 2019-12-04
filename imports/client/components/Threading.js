@@ -1,8 +1,6 @@
 import React, { PureComponent } from 'react';
-// import ReactDOM from 'react-dom';
 import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
-// import { modulus } from '../modules/weavingUtils';
 import {
 	addTablets,
 	editOrientation,

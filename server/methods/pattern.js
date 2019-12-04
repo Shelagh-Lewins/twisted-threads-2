@@ -445,13 +445,11 @@ Meteor.methods({
 				return Patterns.update({ _id }, { '$set': { [`palette.${colorIndex}`]: colorHexValue } });
 
 			case 'weftColor':
-				({ colorHexValue } = data);
+				({ value } = data);
 
-				if (!tinycolor(colorHexValue).isValid()) {
-					throw new Meteor.Error('edit-pattern-weft-color-invalid', 'Unable to edit pattern because the new weft color is not a valid color');
-				}
+				check(value, Match.Integer);
 
-				return Patterns.update({ _id }, { '$set': { 'weftColor': colorHexValue } });
+				return Patterns.update({ _id }, { '$set': { 'weftColor': value } });
 
 			case 'orientation':
 				({ tablet } = data);

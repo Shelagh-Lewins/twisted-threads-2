@@ -7,12 +7,12 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { setIsLoading } from '../modules/pattern';
 import { addRecentPattern } from '../modules/auth';
-import { findPatternTwist, getPicksByTablet, modulus } from '../modules/weavingUtils';
+import { findPatternTwist, getPicksByTablet } from '../modules/weavingUtils';
 
 import { ColorBooks, Patterns } from '../../modules/collection';
 import Loading from '../components/Loading';
 import WeavingDesign from '../components/WeavingDesign';
-import WeftColor from '../components/WeftColor';
+import Weft from '../components/Weft';
 import PatternPreview from '../components/PatternPreview';
 import Threading from '../components/Threading';
 import Notation from '../components/Notation';
@@ -68,8 +68,6 @@ class Pattern extends PureComponent {
 				_id,
 				holes,
 				name,
-				numberOfRows,
-				numberOfTablets,
 				previewOrientation,
 				weftColor,
 			},
@@ -108,10 +106,11 @@ class Pattern extends PureComponent {
 							dispatch={dispatch}
 							previewOrientation={previewOrientation}
 						/>
-						<WeftColor
-							_id={_id}
+						<Weft
+							colorBookAdded={colorBookAdded}
+							colorBooks={colorBooks}
 							dispatch={dispatch}
-							weftColor={weftColor}
+							pattern={pattern}
 						/>
 						{picksByTablet && picksByTablet.length > 0 && (
 							<PatternPreview
