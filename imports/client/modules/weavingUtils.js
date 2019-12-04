@@ -1,6 +1,6 @@
 // functions used to calculate weaving chart from pattern design
 import { createSelector } from 'reselect';
-import { EMPTY_HOLE_COLOR } from '../../modules/parameters';
+import { EMPTY_HOLE_COLOR, MAX_PICKS_IN_REPEAT } from '../../modules/parameters';
 
 const tinycolor = require('tinycolor2');
 
@@ -153,4 +153,11 @@ export const findPatternTwist = (holes, picksByTablet) => {
 	}
 
 	return { patternWillRepeat, patternIsTwistNeutral };
+};
+
+export const getNumberOfRepeats = (numberOfRows) => {
+	if (numberOfRows <= MAX_PICKS_IN_REPEAT) {
+		return Math.floor((2 * MAX_PICKS_IN_REPEAT) / numberOfRows);
+	}
+	return 1;
 };

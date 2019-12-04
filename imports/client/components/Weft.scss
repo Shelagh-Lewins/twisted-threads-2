@@ -12,6 +12,16 @@
 		}
 	}
 
+	label {
+		&[for="empty-hole"] {
+			display: none;
+		}
+	}
+
+	.color-holder {
+		margin-left: 0;
+	}
+
 	.content {
 		border: 1px solid transparent;
 		border-radius: 4px;
@@ -21,17 +31,17 @@
 
 	.text {
 		line-height: 24px;
-		margin: 0 8px;
 		vertical-align: top;
 	}
 
-	.color {
+	.weft-color {
 		-moz-appearance: none; /* Mozilla */
 		-webkit-appearance: none; /* WebKit */
 		appearance: none; /* CSS3 */
 		border: 2px solid $color-weft-picker-border;
 		display: inline-block;
 		height: 32px;
+		margin-left: 8px;
 		position: relative;
 		top: -4px;
 		vertical-align: bottom;

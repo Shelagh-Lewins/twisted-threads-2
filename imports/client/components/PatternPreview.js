@@ -4,12 +4,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import PreviewSVG from './PreviewSVG';
-import { modulus } from '../modules/weavingUtils';
+import { getNumberOfRepeats, modulus } from '../modules/weavingUtils';
 import { PathWeft } from '../modules/previewPaths';
 import { savePatternPreview } from '../modules/patternPreview';
 import '../constants/globals';
-import { MAX_PICKS_IN_REPEAT } from '../../modules/parameters';
-
 import './PatternPreview.scss';
 
 // row and tablet have nothing to identify them except index
@@ -53,8 +51,8 @@ export default function PatternPreview(props) {
 	// how many repeats to show
 	let numberOfRepeats = 1;
 
-	if (numberOfRows <= MAX_PICKS_IN_REPEAT && patternWillRepeat) {
-		numberOfRepeats = Math.floor((2 * MAX_PICKS_IN_REPEAT) / numberOfRows);
+	if (patternWillRepeat) {
+		numberOfRepeats = getNumberOfRepeats(numberOfRows);
 	}
 
 	// pick graphic size in the SVG

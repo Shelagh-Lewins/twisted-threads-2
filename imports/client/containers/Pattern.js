@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { setIsLoading } from '../modules/pattern';
 import { addRecentPattern } from '../modules/auth';
-import { findPatternTwist, getPicksByTablet } from '../modules/weavingUtils';
+import { findPatternTwist, getNumberOfRepeats, getPicksByTablet } from '../modules/weavingUtils';
 
 import { ColorBooks, Patterns } from '../../modules/collection';
 import Loading from '../components/Loading';
@@ -68,8 +68,8 @@ class Pattern extends PureComponent {
 				_id,
 				holes,
 				name,
+				numberOfRows,
 				previewOrientation,
-				weftColor,
 			},
 			picksByTablet,
 		} = this.props;
@@ -87,8 +87,14 @@ class Pattern extends PureComponent {
 
 				const { patternIsTwistNeutral, patternWillRepeat } = findPatternTwist(holes, picksByTablet);
 
+				let repeatHint = 'The pattern will not repeat';
+
+				if (patternWillRepeat) {
+					repeatHint = `The pattern will repeat (${getNumberOfRepeats(numberOfRows)} repeats shown)`;
+				}
+
 				const repeatText = (
-					<span className="hint">{patternWillRepeat ? 'The pattern will repeat' : 'The pattern will not repeat'}</span>
+					<span className="hint">{repeatHint}</span>
 				);
 
 				const twistNeutralText = (
@@ -106,12 +112,6 @@ class Pattern extends PureComponent {
 							dispatch={dispatch}
 							previewOrientation={previewOrientation}
 						/>
-						<Weft
-							colorBookAdded={colorBookAdded}
-							colorBooks={colorBooks}
-							dispatch={dispatch}
-							pattern={pattern}
-						/>
 						{picksByTablet && picksByTablet.length > 0 && (
 							<PatternPreview
 								dispatch={dispatch}
@@ -122,6 +122,12 @@ class Pattern extends PureComponent {
 						)}
 						{repeatText}
 						{twistNeutralText}
+						<Weft
+							colorBookAdded={colorBookAdded}
+							colorBooks={colorBooks}
+							dispatch={dispatch}
+							pattern={pattern}
+						/>
 						{pattern.patternDesign && (
 							<WeavingDesign
 								dispatch={dispatch}

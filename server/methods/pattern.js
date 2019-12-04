@@ -291,15 +291,14 @@ Meteor.methods({
 				}
 
 			case 'editThreadingCell':
-				({ hole, tablet, value } = data);
+				({ hole, tablet, colorIndex } = data);
 
 				check(hole, Match.Integer);
 				check(tablet, validTabletsCheck);
-				check(value, Match.Integer);
-				// TO DO check value, hole valid
+				check(colorIndex, validPaletteIndexCheck);
 
 				// update the value in the nested arrays
-				return Patterns.update({ _id }, { '$set': { [`threading.${hole}.${tablet}`]: value } });
+				return Patterns.update({ _id }, { '$set': { [`threading.${hole}.${tablet}`]: colorIndex } });
 
 			case 'addTablets':
 				({ colorIndex, insertNTablets, insertTabletsAt } = data);
@@ -445,11 +444,15 @@ Meteor.methods({
 				return Patterns.update({ _id }, { '$set': { [`palette.${colorIndex}`]: colorHexValue } });
 
 			case 'weftColor':
-				({ value } = data);
+				({ colorIndex } = data);
 
-				check(value, Match.Integer);
+				check(colorIndex, validPaletteIndexCheck);
 
-				return Patterns.update({ _id }, { '$set': { 'weftColor': value } });
+				if (colorIndex === -1) {
+					throw new Meteor.Error('edit-weft-no-empty', 'Unable to edit pattern because empty hole was specified as weft color');
+				}
+
+				return Patterns.update({ _id }, { '$set': { 'weftColor': colorIndex } });
 
 			case 'orientation':
 				({ tablet } = data);

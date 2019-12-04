@@ -121,7 +121,7 @@ class Threading extends PureComponent {
 			_id,
 			'hole': rowIndex,
 			'tablet': tabletIndex,
-			'value': selectedColorIndex,
+			'colorIndex': selectedColorIndex,
 		}));
 	}
 

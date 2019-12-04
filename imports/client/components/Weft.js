@@ -82,7 +82,7 @@ class Weft extends PureComponent {
 
 		dispatch(editWeftColor({
 			_id,
-			'value': selectedColorIndex,
+			'colorIndex': selectedColorIndex,
 		}));
 	}
 
@@ -139,7 +139,7 @@ class Weft extends PureComponent {
 			<label htmlFor="weft-color" className="text">
 				<span className="text">Weft color:</span>
 				<span
-					className="color"
+					className="weft-color"
 					id="weft-color"
 					onClick={isEditing ? this.handleClickWeft : undefined}
 					onKeyPress={isEditing ? this.handleClickWeft : undefined}

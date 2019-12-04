@@ -143,7 +143,7 @@ export function editThreadingCell({
 	_id,
 	hole,
 	tablet,
-	value,
+	colorIndex,
 }) {
 	return () => {
 		Meteor.call('pattern.edit', {
@@ -152,7 +152,7 @@ export function editThreadingCell({
 				'type': 'editThreadingCell',
 				hole,
 				tablet,
-				value,
+				colorIndex,
 			},
 		});
 	};
@@ -230,14 +230,14 @@ export function editPaletteColor({
 // Weft Color
 export function editWeftColor({
 	_id,
-	value,
+	colorIndex,
 }) {
 	return () => {
 		Meteor.call('pattern.edit', {
 			_id,
 			'data': {
 				'type': 'weftColor',
-				value,
+				colorIndex,
 			},
 		});
 	};
