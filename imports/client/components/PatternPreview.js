@@ -8,6 +8,7 @@ import { modulus } from '../modules/weavingUtils';
 import { PathWeft } from '../modules/previewPaths';
 import { savePatternPreview } from '../modules/patternPreview';
 import '../constants/globals';
+import { MAX_PICKS_IN_REPEAT } from '../../modules/parameters';
 
 import './PatternPreview.scss';
 
@@ -22,6 +23,7 @@ export default function PatternPreview(props) {
 	const {
 		dispatch,
 		pattern,
+		patternWillRepeat,
 		'pattern': {
 			_id,
 			holes,
@@ -47,6 +49,8 @@ export default function PatternPreview(props) {
 		savePreviewPattern();
 	}, 3000);
 
+	// ///////////////////////////
+	// calculate sizes and rotations
 	// pick graphic size in the SVG
 	const unitWidth = 41.560534;
 	const unitHeight = 113.08752;
@@ -56,11 +60,16 @@ export default function PatternPreview(props) {
 	const cellWidth = 20;
 	const weftOverlap = 0.2; // how much the weft sticks out each side
 
-	const numberOfRepeats = 1; // TODO calculate and repeat
+	let numberOfRepeats = 1; // TODO calculate and repeat
+
+	if (numberOfRows <= MAX_PICKS_IN_REPEAT && patternWillRepeat) {
+		numberOfRepeats = Math.floor((2 * MAX_PICKS_IN_REPEAT) / numberOfRows);
+	}
+
 	const widthInUnits = numberOfTablets + (weftOverlap * 2);
 	const heightInUnits = (numberOfRows + 1) / 2;
 
-	const viewboxHeight = unitHeight * heightInUnits;
+	const viewboxHeight = unitHeight * heightInUnits * numberOfRepeats;
 	const viewboxWidth = unitWidth * widthInUnits;
 	const viewBox = `0 0 ${viewboxWidth} ${viewboxHeight}`;
 	const imageHeight = cellHeight * heightInUnits;
@@ -141,28 +150,14 @@ export default function PatternPreview(props) {
 	}
 
 	// /////////////
-	const wefts = [];
+	// render the preview
+	const yOffsetForRow = (rowIndex, repeatOffset) => ((numberOfRows - rowIndex - 1) * (unitHeight / 2)) + repeatOffset;
 
-	for (let i = 0; i < numberOfRows; i += 1) {
-		// position the weft
-		const xOffset = 0;
-		const yOffset = ((numberOfRows - i - 1) * (unitHeight / 2));
-		const transform = `translate(${xOffset} ${yOffset})`;
-
-		wefts.push(
-			<g key={`prevew-weft-${i}`} transform={transform}>
-				<PathWeft
-					fill={weftColor}
-					scale={numberOfTablets + 2 * weftOverlap}
-				/>
-			</g>,
-		);
-	}
-
-	const renderCell = function (rowIndex, tabletIndex) {
+	const renderCell = function (repeatOffset, rowIndex, tabletIndex) {
 		// position the cell's svg path
 		const xOffset = (tabletIndex + weftOverlap) * unitWidth;
-		const yOffset = ((numberOfRows - rowIndex - 1) * (unitHeight / 2));
+		// const yOffset1 = ((numberOfRows - rowIndex - 1) * (unitHeight / 2)) + repeatOffset;
+		const yOffset = yOffsetForRow(rowIndex, repeatOffset);
 		const transform = `translate(${xOffset} ${yOffset})`;
 
 		return (
@@ -177,40 +172,66 @@ export default function PatternPreview(props) {
 		);
 	};
 
-	const renderRowNumber = function (rowIndex) {
+	const renderRowNumber = function (currentRepeat, repeatOffset, rowIndex) {
 		const xOffset = (numberOfTablets + weftOverlap) * cellWidth;
 		const yOffset = ((numberOfRows - rowIndex + 0.5) * (cellHeight / 2));
 
 		return (
-			<span key={`row-number${rowIndex}`} style={{ 'left': xOffset, 'top': yOffset }}>{rowIndex + 1}</span>
+			<span key={`row-number-${rowIndex + currentRepeat * numberOfRows}`} style={{ 'left': xOffset, 'top': yOffset }}>{rowIndex + 1}</span>
 		);
 	};
 
+	const wefts = [];
 	const rows = []; // svg elements for picks
 	const rowNumberElms = []; // html elements
+
+	// for each pattern repeat
+	for (let currentRepeat = 1; currentRepeat <= numberOfRepeats; currentRepeat += 1) {
+		const repeatOffset = currentRepeat === 1 ? 0
+			: (currentRepeat - 1) * unitHeight * heightInUnits - (unitHeight / 2);
+
+		// for each row
+		for (let i = 0; i < numberOfRows; i += 1) {
+			// draw the weft
+			const xOffset = 0;
+			// const yOffset = ((numberOfRows - i - 1) * (unitHeight / 2));
+			const yOffset = yOffsetForRow(i, repeatOffset);
+			const transform = `translate(${xOffset} ${yOffset})`;
+
+			wefts.push(
+				<g key={`preview-weft-${i + currentRepeat * numberOfRows}`} transform={transform}>
+					<PathWeft
+						fill={weftColor}
+						scale={numberOfTablets + 2 * weftOverlap}
+					/>
+				</g>,
+			);
+			// }
+
+			// for (let i = 0; i < numberOfRows; i += 1) {
+			// draw the weaving cells
+			const cells = [];
+
+			for (let j = 0; j < numberOfTablets; j += 1) {
+				cells.push(renderCell(repeatOffset, numberOfRows - i - 1, j));
+			}
+
+			rows.push(cells);
+
+			// show row numbers at the point where the pattern is likely to return to home position or repeat
+			// and last row to show number of rows
+			// row numbers are not part of svg, because they are not shown in pattern summary
+			if (modulus(i + 1, holes) === 0 || i === numberOfRows - 1) {
+				rowNumberElms.push(renderRowNumber(currentRepeat, repeatOffset, i));
+			}
+		}
+	}
 
 	const rowNumbers = (
 		<div className="row-numbers" style={rowNumbersStyle}>
 			{rowNumberElms}
 		</div>
 	);
-
-	for (let i = 0; i < numberOfRows; i += 1) {
-		const cells = [];
-
-		for (let j = 0; j < numberOfTablets; j += 1) {
-			cells.push(renderCell(numberOfRows - i - 1, j));
-		}
-
-		rows.push(cells);
-
-		// show row numbers at the point where the pattern is likely to return to home position or repeat
-		// and last row to show number of rows
-		// row numbers are not part of svg, because they are not shown in pattern summary
-		if (modulus(i + 1, holes) === 0 || i === numberOfRows - 1) {
-			rowNumberElms.push(renderRowNumber(i));
-		}
-	}
 
 	// total turns
 	const totalTurnCells = [];
@@ -284,5 +305,6 @@ export default function PatternPreview(props) {
 PatternPreview.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
+	'patternWillRepeat': PropTypes.bool.isRequired,
 	'picksByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
 };

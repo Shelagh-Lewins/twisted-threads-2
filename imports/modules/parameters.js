@@ -78,5 +78,6 @@ export const ALLOWED_PREVIEW_ORIENTATIONS = [
 		'value': 'right',
 	},
 ];
+export const MAX_PICKS_IN_REPEAT = 12;
 
 export const MAX_RECENTS = 50;

@@ -7,7 +7,7 @@ import {
 	validPaletteIndexCheck,
 	validPatternTypeCheck,
 } from '../../imports/server/modules/utils';
-import { Patterns } from '../../imports/modules/collection';
+import { PatternPreviews, Patterns } from '../../imports/modules/collection';
 import {
 	ALLOWED_PREVIEW_ORIENTATIONS,
 	DEFAULT_COLOR,
@@ -123,6 +123,10 @@ Meteor.methods({
 			throw new Meteor.Error('remove-pattern-not-created-by-user', 'Unable to remove pattern because it was not created by the current logged in user');
 		}
 
+		// remove the pattern preview
+		PatternPreviews.remove({ 'patternId': _id });
+
+		// remove the pattern itself
 		return Patterns.remove({
 			_id,
 		});

@@ -1,7 +1,6 @@
 import { check } from 'meteor/check';
 import { PatternPreviews } from '../../imports/modules/collection';
 
-// TO DO delete as part of delete pattern
 Meteor.methods({
 	'patternPreview.save': function ({
 		_id,
