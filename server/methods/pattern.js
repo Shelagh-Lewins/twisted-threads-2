@@ -131,6 +131,47 @@ Meteor.methods({
 			_id,
 		});
 	},
+	'pattern.copy': function (_id) {
+		check(_id, nonEmptyStringCheck);
+		// TO DO write this properly for all pattern types
+
+		if (!Meteor.userId()) {
+			throw new Meteor.Error('copy-pattern-not-logged-in', 'Unable to copy pattern because the user is not logged in');
+		}
+
+		const pattern = Patterns.findOne({ _id });
+
+		if (!pattern) {
+			throw new Meteor.Error('copy-pattern-not-found', 'Unable to copy pattern because the pattern was not found');
+		}
+
+		if (pattern.createdBy !== Meteor.userId()) {
+			throw new Meteor.Error('copy-pattern-not-created-by-user', 'Unable to copy pattern because it was not created by the current logged in user');
+		}
+		// create a new pattern
+		const data = {};
+		const {
+			holes,
+			name,
+			'numberOfRows': rows,
+			'numberOfTablets': tablets,
+			patternType,
+		} = pattern;
+		Object.assign(data, {
+			holes,
+			name,
+			rows,
+			tablets,
+			patternType,
+		});
+
+		data.name += ' (copy)';
+
+		const newPattern = Meteor.call('pattern.add', data);
+		console.log('newPattern', newPattern);
+		// TO DO copy threadiing, weaving, weft, palette, pattern design, orientations, preview orientation
+		return newPattern;
+	},
 	'pattern.getPatternCount': function () {
 		// this is required for pagination
 		// it needs to return the same number of patterns as the patterns publication in publications.js

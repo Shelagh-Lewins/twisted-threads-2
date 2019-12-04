@@ -65,6 +65,17 @@ export function removePattern(_id) {
 	};
 }
 
+export const copyPattern = (_id, history) => (dispatch) => {
+	dispatch(clearErrors());
+	Meteor.call('pattern.copy', _id, (error, result) => {
+		if (error) {
+			return dispatch(logErrors({ 'copy-pattern': error.reason }));
+		}
+
+		history.push(`/pattern/${result}`);
+	});
+};
+
 // Weaving
 export function editWeavingCellDirection({
 	_id,

@@ -1,11 +1,12 @@
 // detail of a single pattern
 
 import React, { PureComponent } from 'react';
+import { Button } from 'reactstrap';
 import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { setIsLoading } from '../modules/pattern';
+import { copyPattern, setIsLoading } from '../modules/pattern';
 import { addRecentPattern } from '../modules/auth';
 import { findPatternTwist, getNumberOfRepeats, getPicksByTablet } from '../modules/weavingUtils';
 
@@ -30,6 +31,15 @@ class Pattern extends PureComponent {
 			// if navigating from another page e.g. Home, it is not possible to set state.pattern.isLoading to true before Tracker runs, because setState is asynchronous
 			// so we need something that tells us we are really ready to render
 		};
+
+		// bind onClick functions to provide context
+		const functionsToBind = [
+			'copyPattern',
+		];
+
+		functionsToBind.forEach((functionName) => {
+			this[functionName] = this[functionName].bind(this);
+		});
 	}
 
 	componentDidMount() {
@@ -56,6 +66,12 @@ class Pattern extends PureComponent {
 
 	componentWillUnmount() {
 		document.body.classList.remove(bodyClass);
+	}
+
+	copyPattern() {
+		const { dispatch, _id, history } = this.props;
+
+		dispatch(copyPattern(_id, history));
 	}
 
 	render() {
@@ -85,6 +101,14 @@ class Pattern extends PureComponent {
 					</div>
 				);
 
+				const menu = (
+					<div className="menu">
+						<Button type="button" color="secondary" onClick={this.copyPattern}>
+							Copy pattern
+						</Button>
+					</div>
+				);
+
 				const { patternIsTwistNeutral, patternWillRepeat } = findPatternTwist(holes, picksByTablet);
 
 				let repeatHint = 'The pattern will not repeat';
@@ -104,6 +128,7 @@ class Pattern extends PureComponent {
 				content = (
 					<>
 						<h1>{name}</h1>
+						{menu}
 						{links}
 						{/* if navigating from the home page, the pattern summary is in MiniMongo before Tracker sets isLoading to true. This doesn't include the detail fields so we need to prevent errors. */}
 						<h2>Woven band</h2>
@@ -164,6 +189,7 @@ Pattern.propTypes = {
 	'colorBookAdded': PropTypes.string.isRequired,
 	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,
+	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 	'picksByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
