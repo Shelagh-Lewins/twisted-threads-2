@@ -40,7 +40,7 @@ export default function PatternPreview(props) {
 	const savePreviewPattern = function () {
 		const elm = document.getElementById('preview-holder');
 		const data = elm.innerHTML;
-		// console.log('data', data);
+
 		dispatch(savePatternPreview({ _id, data }));
 	};
 
@@ -51,6 +51,13 @@ export default function PatternPreview(props) {
 
 	// ///////////////////////////
 	// calculate sizes and rotations
+	// how many repeats to show
+	let numberOfRepeats = 1;
+
+	if (numberOfRows <= MAX_PICKS_IN_REPEAT && patternWillRepeat) {
+		numberOfRepeats = Math.floor((2 * MAX_PICKS_IN_REPEAT) / numberOfRows);
+	}
+
 	// pick graphic size in the SVG
 	const unitWidth = 41.560534;
 	const unitHeight = 113.08752;
@@ -60,25 +67,25 @@ export default function PatternPreview(props) {
 	const cellWidth = 20;
 	const weftOverlap = 0.2; // how much the weft sticks out each side
 
-	let numberOfRepeats = 1; // TODO calculate and repeat
-
-	if (numberOfRows <= MAX_PICKS_IN_REPEAT && patternWillRepeat) {
-		numberOfRepeats = Math.floor((2 * MAX_PICKS_IN_REPEAT) / numberOfRows);
-	}
-
+	// size of svg viewbox and parent element
 	const widthInUnits = numberOfTablets + (weftOverlap * 2);
-	const heightInUnits = (numberOfRows + 1) / 2;
-
-	const viewboxHeight = unitHeight * heightInUnits * numberOfRepeats;
-	const viewboxWidth = unitWidth * widthInUnits;
-	const viewBox = `0 0 ${viewboxWidth} ${viewboxHeight}`;
-	const imageHeight = cellHeight * heightInUnits;
-	const imageWidth = cellWidth * widthInUnits;
+	const heightInUnits = numberOfRows / 2;
 
 	// elements overlap by half their height
 	// so total height is half their height * number of rows
 	// plus another half height that sticks out the top
-	const totalHeight = imageHeight * numberOfRepeats;
+	const getBoundingBox = (pickHeight, pickWidth) => ({
+		'height': pickHeight * heightInUnits * numberOfRepeats + (pickHeight / 2),
+		'width': pickWidth * widthInUnits,
+	});
+
+	// size the svg viewbox
+	const { 'height': viewboxHeight, 'width': viewboxWidth } = getBoundingBox(unitHeight, unitWidth);
+
+	const viewBox = `0 0 ${viewboxWidth} ${viewboxHeight}`;
+
+	// size the container element
+	const { 'height': imageHeight, 'width': imageWidth } = getBoundingBox(cellHeight, cellWidth);
 
 	let previewStyle = {};
 	let holderStyle = {};
@@ -86,16 +93,16 @@ export default function PatternPreview(props) {
 	let tabletLabelsStyle = {};
 	let totalTurnsDisplayStyle = {};
 	let rowNumbersStyle = {};
-	const tabletLabelsAllowance = 60; // allow for labels which aren't part of the main svg
+	const tabletLabelsAllowance = 60; // allow for labels which aren't part of the svg
 	const tabletLabelsOffset = 10; // push the labels to the side
-	const adjustedHeight = totalHeight + tabletLabelsAllowance;
+	const adjustedHeight = imageHeight + tabletLabelsAllowance;
 	const rowNumbersAllowance = cellWidth * 1.5;
 
 	// corrections for rotation
 	switch (previewOrientation) {
 		case 'up':
 			holderStyle = {
-				'height': `${totalHeight}px`,
+				'height': `${imageHeight}px`,
 				'width': `${imageWidth}px`,
 			};
 			break;
@@ -106,7 +113,7 @@ export default function PatternPreview(props) {
 			};
 			holderStyle = {
 				'height': `${imageWidth}px`,
-				'width': `${totalHeight}px`,
+				'width': `${imageHeight}px`,
 			};
 			wrapperStyle = {
 				'msTransform': `translate(0, ${imageWidth + rowNumbersAllowance}px) rotate(-90deg)`,
@@ -115,7 +122,7 @@ export default function PatternPreview(props) {
 				'transformOrigin': 'top left',
 			};
 			tabletLabelsStyle = {
-				'top': `${totalHeight - imageWidth + tabletLabelsOffset}px`,
+				'top': `${imageHeight - imageWidth + tabletLabelsOffset}px`,
 			};
 			break;
 
@@ -125,17 +132,17 @@ export default function PatternPreview(props) {
 			};
 			holderStyle = {
 				'height': `${imageWidth}px`,
-				'width': `${totalHeight}px`,
+				'width': `${imageHeight}px`,
 				'transform': `translate(0, -${tabletLabelsOffset}px)`,
 			};
 			wrapperStyle = {
-				'msTransform': `translate(${totalHeight + rowNumbersAllowance}px, 0) rotate(90deg)`,
-				'WebkitTransform': `translate(${totalHeight + rowNumbersAllowance}px, 0) rotate(90deg)`,
-				'transform': `translate(${totalHeight + rowNumbersAllowance}px, 0) rotate(90deg)`,
+				'msTransform': `translate(${imageHeight + rowNumbersAllowance}px, 0) rotate(90deg)`,
+				'WebkitTransform': `translate(${imageHeight + rowNumbersAllowance}px, 0) rotate(90deg)`,
+				'transform': `translate(${imageHeight + rowNumbersAllowance}px, 0) rotate(90deg)`,
 				'transformOrigin': 'top left',
 			};
 			tabletLabelsStyle = {
-				'top': `${totalHeight - imageWidth - tabletLabelsOffset}px`,
+				'top': `${imageHeight - imageWidth - tabletLabelsOffset}px`,
 			};
 			totalTurnsDisplayStyle = {
 				'transform': `translate(0, -${tabletLabelsOffset}px)`,
@@ -194,10 +201,11 @@ export default function PatternPreview(props) {
 
 	// for each pattern repeat
 	for (let currentRepeat = 1; currentRepeat <= numberOfRepeats; currentRepeat += 1) {
-		const svgRepeatOffset = currentRepeat === 1 ? 0
-			: (currentRepeat - 1) * unitHeight * heightInUnits - (unitHeight / 2);
-		const elmRepeatOffset = currentRepeat === 1 ? 0
-			: (currentRepeat - 1) * cellHeight * heightInUnits - (cellHeight / 2);
+		// offset pattern repeats by half the pick height per row
+		const getOffset = (pickHeight) => (currentRepeat - 1) * pickHeight * (numberOfRows / 2);
+
+		const svgRepeatOffset = getOffset(unitHeight);
+		const elmRepeatOffset = getOffset(cellHeight);
 
 		// for each row
 		for (let i = 0; i < numberOfRows; i += 1) {
