@@ -115,6 +115,9 @@ export default function PatternPreview(props) {
 				'height': `${imageHeight}px`,
 				'width': `${imageWidth}px`,
 			};
+			wrapperStyle = {
+				'width': `${imageWidth}px`,
+			};
 			break;
 
 		case 'left':
@@ -130,6 +133,7 @@ export default function PatternPreview(props) {
 				'WebkitTransform': `translate(0, ${imageWidth + rowNumbersAllowance}px)rotate(-90deg)`,
 				'transform': `translate(0, ${imageWidth + rowNumbersAllowance}px)rotate(-90deg)`,
 				'transformOrigin': 'top left',
+				'width': `${imageWidth}px`,
 			};
 			tabletLabelsStyle = {
 				'top': `${imageHeight - imageWidth + tabletLabelsOffset}px`,
@@ -150,6 +154,7 @@ export default function PatternPreview(props) {
 				'WebkitTransform': `translate(${imageHeight + rowNumbersAllowance}px, 0) rotate(90deg)`,
 				'transform': `translate(${imageHeight + rowNumbersAllowance}px, 0) rotate(90deg)`,
 				'transformOrigin': 'top left',
+				'width': `${imageWidth}px`,
 			};
 			tabletLabelsStyle = {
 				'top': `${imageHeight - imageWidth - tabletLabelsOffset}px`,
