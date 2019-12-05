@@ -121,10 +121,14 @@ class Pattern extends PureComponent {
 
 				const { patternIsTwistNeutral, patternWillRepeat } = findPatternTwist(holes, picksByTablet);
 
-				let repeatHint = 'The pattern will not repeat';
+				let repeatHint = 'The pattern will not repeat.';
 
 				if (patternWillRepeat) {
-					repeatHint = `The pattern will repeat (${getNumberOfRepeats(numberOfRows)} repeats shown)`;
+					if (previewOrientation === 'up') {
+						repeatHint = 'The pattern will repeat. To see repeats, set the woven band orientation to left or right.';
+					} else {
+						repeatHint = `The pattern will repeat (${getNumberOfRepeats(numberOfRows)} repeats shown).`;
+					}
 				}
 
 				const repeatText = (

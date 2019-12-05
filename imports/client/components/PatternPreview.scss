@@ -10,6 +10,12 @@
 		position: relative;
 	}
 
+	&.up {
+		.repeat {
+			display: none;
+		}
+	}
+
 	&.left {
 		max-width: 800px;
 

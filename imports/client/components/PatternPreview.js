@@ -71,10 +71,23 @@ export default function PatternPreview(props) {
 	// elements overlap by half their height
 	// so total height is half their height * number of rows
 	// plus another half height that sticks out the top
-	const getBoundingBox = (pickHeight, pickWidth) => ({
-		'height': pickHeight * heightInUnits * numberOfRepeats + (pickHeight / 2),
-		'width': pickWidth * widthInUnits,
-	});
+
+	// to avoid the page jumping while the user is editing weaving, repeats are only shown if the preview is horizontal
+
+	const hideRepeats = previewOrientation === 'up';
+
+	const getBoundingBox = (pickHeight, pickWidth, hideRepeatsLocal) => {
+		let height = pickHeight * heightInUnits * numberOfRepeats + (pickHeight / 2);
+
+		if (hideRepeatsLocal) {
+			height = pickHeight * heightInUnits + (pickHeight / 2);
+		}
+
+		return {
+			'height': height,
+			'width': pickWidth * widthInUnits,
+		};
+	};
 
 	// size the svg viewbox
 	const { 'height': viewboxHeight, 'width': viewboxWidth } = getBoundingBox(unitHeight, unitWidth);
@@ -82,7 +95,7 @@ export default function PatternPreview(props) {
 	const viewBox = `0 0 ${viewboxWidth} ${viewboxHeight}`;
 
 	// size the container element
-	const { 'height': imageHeight, 'width': imageWidth } = getBoundingBox(cellHeight, cellWidth);
+	const { 'height': imageHeight, 'width': imageWidth } = getBoundingBox(cellHeight, cellWidth, hideRepeats);
 
 	let previewStyle = {};
 	let holderStyle = {};
@@ -164,7 +177,11 @@ export default function PatternPreview(props) {
 		const transform = `translate(${xOffset} ${yOffset})`;
 
 		return (
-			<g key={`prevew-cell-${rowIndex}-${tabletIndex}`} transform={transform}>
+			<g
+				key={`prevew-cell-${rowIndex}-${tabletIndex}`}
+				transform={transform}
+				className={currentRepeat !== 1 ? 'repeat' : ''}
+			>
 				<PreviewSVG
 					currentRepeat={currentRepeat}
 					numberOfRepeats={numberOfRepeats}
@@ -212,7 +229,11 @@ export default function PatternPreview(props) {
 			const transform = `translate(${xOffset} ${yOffset})`;
 
 			wefts.push(
-				<g key={`preview-weft-${i + currentRepeat * numberOfRows}`} transform={transform}>
+				<g
+					key={`preview-weft-${i + currentRepeat * numberOfRows}`}
+					transform={transform}
+					className={currentRepeat !== 1 ? 'repeat' : ''}
+				>
 					<PathWeft
 						fill={palette[weftColor]}
 						scale={numberOfTablets + 2 * weftOverlap}
@@ -234,7 +255,9 @@ export default function PatternPreview(props) {
 			// row numbers are not part of svg
 			// row numbers are the same on each repeat, to make it clear that the pattern IS repeating
 			if (modulus(i + 1, holes) === 0 || i === numberOfRows - 1 || i + 1 === 1) {
-				rowNumberElms.push(renderRowNumber(currentRepeat, elmRepeatOffset, i));
+				if (!hideRepeats || currentRepeat === 1) {
+					rowNumberElms.push(renderRowNumber(currentRepeat, elmRepeatOffset, i));
+				}
 			}
 		}
 	}
