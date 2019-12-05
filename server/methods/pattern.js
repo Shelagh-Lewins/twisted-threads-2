@@ -167,10 +167,22 @@ Meteor.methods({
 
 		data.name += ' (copy)';
 
-		const newPattern = Meteor.call('pattern.add', data);
-		console.log('newPattern', newPattern);
-		// TO DO copy threadiing, weaving, weft, palette, pattern design, orientations, preview orientation
-		return newPattern;
+		const newPatternId = Meteor.call('pattern.add', data);
+
+		Patterns.update({ '_id': newPatternId },
+			{
+				'$set': {
+					'isPublic': pattern.isPublic,
+					'threading': pattern.threading,
+					'orientations': pattern.orientations,
+					'palette': pattern.palette,
+					'patternDesign': pattern.patternDesign,
+					'previewOrentation': pattern.patternDesign,
+					'weftColor': pattern.weftColor,
+				},
+			});
+
+		return newPatternId;
 	},
 	'pattern.getPatternCount': function () {
 		// this is required for pagination
@@ -220,7 +232,6 @@ Meteor.methods({
 		let orientation;
 		let row;
 		let tablet;
-		let value;
 
 		switch (type) {
 			case 'editWeavingCellDirection':
