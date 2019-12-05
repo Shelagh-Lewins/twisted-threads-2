@@ -30,6 +30,7 @@ class Pattern extends PureComponent {
 			'isReady': false, // picksByTablet has to be calculated after pattern data arrives
 			// if navigating from another page e.g. Home, it is not possible to set state.pattern.isLoading to true before Tracker runs, because setState is asynchronous
 			// so we need something that tells us we are really ready to render
+			'gotUser': false, // add to recents after user has loaded
 		};
 
 		// bind onClick functions to provide context
@@ -43,23 +44,32 @@ class Pattern extends PureComponent {
 	}
 
 	componentDidMount() {
-		const { dispatch, _id } = this.props;
-		dispatch(addRecentPattern({ 'patternId': _id }));
-
+		
 		document.body.classList.add(bodyClass);
 	}
 
 	componentDidUpdate() {
 		const {
+			_id,
+			dispatch,
 			isLoading,
 			'pattern': { numberOfTablets },
 			picksByTablet,
 		} = this.props;
-		const { isReady } = this.state;
+
+		const { gotUser, isReady } = this.state;
 
 		if (!isLoading && !isReady && picksByTablet && picksByTablet.length === numberOfTablets) {
 			this.setState({
 				'isReady': true,
+			});
+		}
+
+		// wait for user details to load
+		if (!gotUser && Meteor.user()) {
+			dispatch(addRecentPattern({ 'patternId': _id }));
+			this.setState({
+				'gotUser': true,
 			});
 		}
 	}

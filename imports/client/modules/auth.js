@@ -1,6 +1,7 @@
 // Actions for auth
 // Using actions keeps the UI separated from the server.
 import { logErrors, clearErrors } from './errors';
+import { MAX_RECENTS } from '../../modules/parameters';
 
 const updeep = require('updeep');
 
@@ -212,12 +213,66 @@ export const changePassword = ({ oldPassword, newPassword }) => (dispatch) => {
 // ///////////////////////////
 // record a recently viewed pattern, with weaving chart row if the user has been weaving
 export function addRecentPattern({ currentWeavingRow, patternId }) {
+	if (!Meteor.user()) {
+		return () => {};
+	}
+
+	const newRecentPatterns = updateRecentPatterns({ currentWeavingRow, patternId });
 	return () => {
-		Meteor.call('auth.addRecentPattern', { currentWeavingRow, 'userId': Meteor.userId(), patternId });
+		Meteor.call('auth.setRecentPatterns', { newRecentPatterns, 'userId': Meteor.userId(), patternId });
 	};
 }
 
 // ///////////////////////////
+// update recent patterns. We want to avoid duplicates, and put the most recently edited pattern at the end of the array.
+// Mongo doesn't support the required array operations (update multiple) so it's necessary to loop over the array to ensure no duplicates.
+// Better to do this work on the client
+export function updateRecentPatterns({ currentWeavingRow, patternId }) {
+	// ensure the recent patterns list exists
+	if (!Meteor.user()) {
+		return;
+	}
+
+	const currentRecentPatterns = Meteor.user().profile.recentPatterns || [];
+
+	const newRecentPatterns = [];
+
+	// construct the new entry
+	const newEntry = {
+		patternId,
+		'updatedAt': new Date(),
+	};
+
+	// find existing entry, if any
+	const thisRecentPattern = currentRecentPatterns.find((recentPattern) => recentPattern.patternId === patternId);
+
+	// capture currentWeavingRow from existing entry
+	if (typeof currentWeavingRow !== 'undefined') { // the user is on the Interactive Weaving Chart
+		newEntry.currentWeavingRow = currentWeavingRow;
+	} else if (thisRecentPattern && typeof thisRecentPattern.currentWeavingRow !== 'undefined') { // preserve a previous value, the user may be on the Pattern page
+		newEntry.currentWeavingRow = thisRecentPattern.currentWeavingRow;
+	}
+
+	// exclude any existing entry for this pattern
+	currentRecentPatterns.forEach((entry) => {
+		if (entry.patternId !== patternId) {
+			newRecentPatterns.push(entry);
+		}
+	});
+
+	// newest entry goes at the start of the array
+	newRecentPatterns.unshift(newEntry);
+
+	// if we've reached the limit of how many recents to store
+	// remove the oldest
+	if (newRecentPatterns.length > MAX_RECENTS) {
+		newRecentPatterns.pop();
+	}
+
+	return newRecentPatterns;
+}
+
+
 // Provide info to UI
 
 export function getUser() {

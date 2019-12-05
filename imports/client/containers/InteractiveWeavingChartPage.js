@@ -40,19 +40,15 @@ class InteractiveWeavingChartPage extends PureComponent {
 	}
 
 	componentDidMount() {
-		const { _id, dispatch } = this.props;
-		dispatch(addRecentPattern({ 'patternId': _id }));
-
 		document.body.classList.add(bodyClass);
 	}
 
 	componentDidUpdate() {
-		const { _id, pattern } = this.props;
+		const { _id, dispatch, pattern } = this.props;
 		const { gotUser, selectedRowHasBeenSet } = this.state;
-		// console.log('recentPatterns', Meteor.user().profile.recentPatterns);
 
 		// wait for user details to load
-		if (gotUser === false && Meteor.user()) {
+		if (!gotUser && Meteor.user()) {
 			this.setState({
 				'gotUser': true,
 			});
@@ -61,7 +57,6 @@ class InteractiveWeavingChartPage extends PureComponent {
 		// wait for pattern details
 		// and set selectedRow if it has not been provided from profile.recentPatterns
 		if (pattern && gotUser && !selectedRowHasBeenSet) {
-
 			const { 'pattern': { numberOfRows } } = this.props;
 			const { 'profile': { recentPatterns } } = Meteor.user();
 
@@ -73,15 +68,23 @@ class InteractiveWeavingChartPage extends PureComponent {
 			if (recentPatterns) {
 				const thisRecentPattern = recentPatterns.find((recentPattern) => recentPattern.patternId === _id);
 
-				if (thisRecentPattern && typeof thisRecentPattern.currentWeavingRow !== 'undefined') {
-					selectedRow = numberOfRows - thisRecentPattern.currentWeavingRow;
+				if (thisRecentPattern) {
+					if ((typeof thisRecentPattern.currentWeavingRow !== 'undefined')
+						&& !isNaN(thisRecentPattern.currentWeavingRow)) {
+						selectedRow = numberOfRows - thisRecentPattern.currentWeavingRow;
+					}
 				}
 			}
 
 			this.setState({
-				'selectedRow': selectedRow,
+				selectedRow,
 				'selectedRowHasBeenSet': true,
 			});
+
+			dispatch(addRecentPattern({
+				'currentWeavingRow': this.getCurrentWeavingRow(selectedRow),
+				'patternId': _id,
+			}));
 		}
 	}
 
@@ -89,13 +92,19 @@ class InteractiveWeavingChartPage extends PureComponent {
 		document.body.classList.remove(bodyClass);
 	}
 
+	getCurrentWeavingRow(selectedRow) {
+		// get row number 1...n ascending, from index which is 0...going down the page
+		const {
+			'pattern': { numberOfRows },
+		} = this.props;
+
+		return numberOfRows - selectedRow;
+	}
+
 	setSelectedRow(selectedRow) {
-		console.log('setSelectedRow');
-		console.log('selectedRow', selectedRow);
 		const {
 			_id,
 			dispatch,
-			'pattern': { numberOfRows },
 		} = this.props;
 
 		this.setState({
@@ -103,7 +112,7 @@ class InteractiveWeavingChartPage extends PureComponent {
 		});
 
 		dispatch(addRecentPattern({
-			'currentWeavingRow': numberOfRows - selectedRow, // send row number 1...n ascending, not index which is 0...going down the page
+			'currentWeavingRow': this.getCurrentWeavingRow(selectedRow),
 			'patternId': _id,
 		}));
 	}
