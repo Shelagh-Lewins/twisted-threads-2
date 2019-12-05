@@ -42,20 +42,13 @@
 
 	.pattern-preview {
 		background-color: $color-pattern-preview-background;
+		background-position: center center;
+		background-repeat: no-repeat;
+		background-size: contain;
 		height: $summary-preview-height;
 		overflow: hidden;
 		position: relative;
 		width: $summary-preview-width;
-
-		svg {
-			bottom: 0;
-			left: -$summary-preview-height;
-			max-height: $summary-preview-width;
-			max-width: $summary-preview-height;
-			position: absolute;
-			transform: rotate(90deg);
-			transform-origin: 100% 100%;
-		}
 	}
 
 	.footer {

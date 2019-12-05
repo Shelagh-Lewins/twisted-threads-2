@@ -6,6 +6,7 @@ import DOMPurify from 'dompurify';
 
 import { removePattern } from '../modules/pattern';
 import './PatternSummary.scss';
+import * as url from '../../../test/up.png';
 
 class PatternSummary extends PureComponent {
 	constructor(props) {
@@ -59,7 +60,9 @@ class PatternSummary extends PureComponent {
 			clean = DOMPurify.sanitize(patternPreview.data);
 		}
 
-		const patternPreviewHolder = <div ref={this.myRef} className="pattern-preview" dangerouslySetInnerHTML={{ '__html': clean }} />;
+		const previewStyle = { 'backgroundImage': `url('/patternpreviews/${_id}.png')` };
+
+		const patternPreviewHolder = <div style={previewStyle} ref={this.myRef} className="pattern-preview" />;
 
 		const buttonRemove = (
 			<Button
@@ -67,6 +70,7 @@ class PatternSummary extends PureComponent {
 				color="danger"
 				onClick={() => handleClickButtonRemove(_id)}
 			>
+				<img src={url.default} />
 			X
 			</Button>
 		);
