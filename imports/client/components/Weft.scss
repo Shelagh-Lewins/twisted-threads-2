@@ -9,10 +9,17 @@
 		.content {
 			background: $color-chart-editing-background;
 			border: 1px solid $color-focus;
+			padding: 12px 8px 0 8px;
+		}
+
+		label {
+			margin-bottom: 0.5rem;
 		}
 	}
 
 	label {
+		margin-bottom: 0;
+
 		&[for="empty-hole"] {
 			display: none;
 		}
@@ -25,8 +32,8 @@
 	.content {
 		border: 1px solid transparent;
 		border-radius: 4px;
-		margin: 8px 0;
-		padding: 8px;
+		margin: 8px 8px 0 0;
+		padding: 12px 8px 0 8px;
 	}
 
 	.text {

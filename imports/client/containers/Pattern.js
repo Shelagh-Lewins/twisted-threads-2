@@ -136,7 +136,7 @@ class Pattern extends PureComponent {
 				);
 
 				const twistNeutralText = (
-					<span className="hint">{patternIsTwistNeutral ? 'The pattern is twist neutral' : 'The pattern is not twist neutral'}</span>
+					<span className="hint">{patternIsTwistNeutral ? 'The pattern is twist neutral.' : 'The pattern is not twist neutral.'}</span>
 				);
 
 				content = (
@@ -146,6 +146,14 @@ class Pattern extends PureComponent {
 						{links}
 						{/* if navigating from the home page, the pattern summary is in MiniMongo before Tracker sets isLoading to true. This doesn't include the detail fields so we need to prevent errors. */}
 						<h2>Woven band</h2>
+						{repeatText}
+						{twistNeutralText}
+						<Weft
+							colorBookAdded={colorBookAdded}
+							colorBooks={colorBooks}
+							dispatch={dispatch}
+							pattern={pattern}
+						/>
 						<PreviewOrientation
 							_id={_id}
 							dispatch={dispatch}
@@ -159,14 +167,6 @@ class Pattern extends PureComponent {
 								picksByTablet={picksByTablet}
 							/>
 						)}
-						{repeatText}
-						{twistNeutralText}
-						<Weft
-							colorBookAdded={colorBookAdded}
-							colorBooks={colorBooks}
-							dispatch={dispatch}
-							pattern={pattern}
-						/>
 						{pattern.patternDesign && (
 							<WeavingDesign
 								dispatch={dispatch}

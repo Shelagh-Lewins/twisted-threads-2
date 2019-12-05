@@ -21,18 +21,20 @@ export default function PreviewOrientation({ _id, dispatch, previewOrientation }
 	));
 
 	return (
-		<label htmlFor="previewOrientation" className="preview-orientation">
-			<span className="text">Orientation:</span>
-			<select
-				className="form-control"
-				id="previewOrientation"
-				name="previewOrientation"
-				onChange={handleChangeOrientation}
-				value={previewOrientation}
-			>
-				{optionElms}
-			</select>
-		</label>
+		<div className="preview-orientation">
+			<label htmlFor="previewOrientation">
+				<span className="text">Orientation:</span>
+				<select
+					className="form-control"
+					id="previewOrientation"
+					name="previewOrientation"
+					onChange={handleChangeOrientation}
+					value={previewOrientation}
+				>
+					{optionElms}
+				</select>
+			</label>
+		</div>
 	);
 }
 
