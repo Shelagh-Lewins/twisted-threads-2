@@ -18,11 +18,15 @@ Meteor.methods({
 	}) {
 		check(newRecentPatterns, Match.Where((recentPatterns) => {
 			recentPatterns.forEach((entry) => {
-				/* do your checks and return false if there is a problem */
 				check(entry.patternId, String);
+				check(entry.updatedAt, Match.Where((value) => {
+					if (isNaN(new Date(value).getTime())) {
+						return false;
+					}
+					return true;
+				}));
 				check(entry.currentWeavingRow, Match.Maybe(Number));
 			});
-			// return true if there is no problem
 			return true;
 		}));
 		check(userId, String);
