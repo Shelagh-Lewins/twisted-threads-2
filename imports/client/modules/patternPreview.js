@@ -2,6 +2,7 @@
 
 import * as svg from 'save-svg-as-png';
 import { logErrors, clearErrors } from './errors';
+import { PREVIEW_HEIGHT, PREVIEW_WIDTH } from '../../modules/parameters';
 
 const Jimp = require('jimp');
 
@@ -18,10 +19,9 @@ export function savePatternPreview({ _id, elm }) { // eslint-disable-line import
 			Jimp.read(Buffer.from(base64Image, 'base64'), (err, image) => {
 				if (err) throw err;
 				image
+					.scaleToFit(PREVIEW_HEIGHT, PREVIEW_WIDTH) // resize to double the thumbnail size
 					.rotate(90)
-					.scaleToFit(496, 216) // resize to double the thumbnail size
 					.getBase64(Jimp.AUTO, (err, res) => {
-						// console.log('width', image.bitmap.width);
 						Meteor.call('patternPreview.save', { _id, 'uri': res });
 					});
 			});
