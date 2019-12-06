@@ -190,6 +190,7 @@ Home.propTypes = {
 	'isAuthenticated': PropTypes.bool.isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'patternCount': PropTypes.number.isRequired,
+	'patternPreviews': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'verified': PropTypes.bool.isRequired,
 };

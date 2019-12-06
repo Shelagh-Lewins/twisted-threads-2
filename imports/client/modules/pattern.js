@@ -65,14 +65,6 @@ export function removePattern(_id) {
 	};
 }
 
-/* export function savePreview({ _id, elm }) {
-	return () => {
-		svg.svgAsPngUri(elm).then((uri) => {
-			Meteor.call('pattern.savePreview', { _id, uri });
-		});
-	};
-} */
-
 export const copyPattern = (_id, history) => (dispatch) => {
 	dispatch(clearErrors());
 
@@ -84,6 +76,23 @@ export const copyPattern = (_id, history) => (dispatch) => {
 		history.push(`/pattern/${result}`);
 	});
 };
+
+// Edit pattern
+// Pattern as a whole
+export function editIsPublic({
+	_id,
+	isPublic,
+}) {
+	return () => {
+		Meteor.call('pattern.edit', {
+			_id,
+			'data': {
+				'type': 'editIsPublic',
+				isPublic,
+			},
+		});
+	};
+}
 
 // Weaving
 export function editWeavingCellDirection({

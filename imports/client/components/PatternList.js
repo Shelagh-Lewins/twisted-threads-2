@@ -4,10 +4,25 @@ import PropTypes from 'prop-types';
 
 import PatternSummary from './PatternSummary';
 import Pagination from './Pagination';
-import { changePage } from '../modules/pattern';
+import { changePage, editIsPublic, removePattern } from '../modules/pattern';
 import { ITEMS_PER_PAGE } from '../../modules/parameters';
 
 class PatternList extends PureComponent {
+	onChangeIsPublic = ({ _id, isPublic }) => {
+		const { dispatch } = this.props;
+
+		dispatch(editIsPublic({ _id, isPublic }));
+	};
+
+	handleClickButtonRemove = ({ _id, name }) => {
+		const { dispatch } = this.props;
+		const response = confirm(`Do you want to delete the pattern "${name}"?`); // eslint-disable-line no-restricted-globals
+
+		if (response === true) {
+			dispatch(removePattern(_id));
+		}
+	};
+
 	render() {
 		const {
 			currentPageNumber,
@@ -29,15 +44,20 @@ class PatternList extends PureComponent {
 		return (
 			<Row className="pattern-list">
 				<Col lg="12">
-					{patterns.map((pattern) => (
-						<PatternSummary
-							key={pattern._id}
-							name={pattern.name}
-							_id={pattern._id}
-							dispatch={dispatch}
-							patternPreview={patternPreviews.find((patternPreview) => patternPreview.patternId === pattern._id)}
-						/>
-					))}
+					{patterns.map((pattern) => {
+						const { _id } = pattern;
+
+						return (
+							<PatternSummary
+								key={_id}
+								pattern={pattern}
+								dispatch={dispatch}
+								handleClickButtonRemove={this.handleClickButtonRemove}
+								onChangeIsPublic={this.onChangeIsPublic}
+								patternPreview={patternPreviews.find((patternPreview) => patternPreview.patternId === _id)}
+							/>
+						);
+					})}
 				</Col>
 				<Col lg="12">
 					{pagination}

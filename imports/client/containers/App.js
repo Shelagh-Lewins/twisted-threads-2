@@ -1,6 +1,18 @@
 import React from 'react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
+// fontawesome
+import { library } from '@fortawesome/fontawesome-svg-core';
+import {
+	// faPencilAlt,
+	// faQuestionCircle,
+	// faBell,
+	// faUser,
+	// faFileDownload,
+	faLock,
+	faLockOpen,
+	faTrash,
+} from '@fortawesome/free-solid-svg-icons'; // import the icons you want
 import store from '../modules/store';
 
 import Navbar from '../components/Navbar';
@@ -17,6 +29,8 @@ import Pattern from './Pattern';
 import InteractiveWeavingChartPage from './InteractiveWeavingChartPage';
 import DevTools from '../components/DevTools';
 import './App.scss';
+
+library.add(faLock, faLockOpen, faTrash); // and add them to your library
 
 function App() {
 	return (

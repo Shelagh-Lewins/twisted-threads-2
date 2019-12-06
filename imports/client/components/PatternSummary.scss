@@ -17,8 +17,13 @@
 		line-height: 2.4;
 	}
 
-	button {
+	.controls {
 		float: right;
+
+		.is-public {
+			float: left;
+			margin-right: 8px;
+		}
 	}
 
 	.main {

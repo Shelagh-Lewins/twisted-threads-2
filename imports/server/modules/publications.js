@@ -72,14 +72,25 @@ Meteor.publish('patterns', function (skip = 0, limit = ITEMS_PER_PAGE) {
 
 	// Meteor._sleepForMs(3000); // simulate server delay
 
-	// explicitly return nothing when user is not logged in
-	if (!this.userId) {
-		this.ready();
-		return;
+	if (this.userId) {
+		return Patterns.find(
+			{
+				'$or': [
+					{ 'isPublic': { '$eq': true } },
+					{ 'createdBy': this.userId },
+				],
+			},
+			{
+				'fields': patternsFields,
+				'sort': { 'nameSort': 1 },
+				'skip': skip,
+				'limit': limit,
+			},
+		);
 	}
 
 	return Patterns.find(
-		{ 'createdBy': this.userId },
+		{ 'isPublic': { '$eq': true } },
 		{
 			'fields': patternsFields,
 			'sort': { 'nameSort': 1 },
@@ -93,16 +104,25 @@ Meteor.publish('patterns', function (skip = 0, limit = ITEMS_PER_PAGE) {
 Meteor.publish('pattern', function (_id = undefined) {
 	check(_id, nonEmptyStringCheck);
 
-	// explicitly return nothing when user is not logged in
-	if (!this.userId) {
-		this.ready();
-		return;
+	if (this.userId) {
+		return Patterns.find(
+			{
+				_id,
+				'$or': [
+					{ 'isPublic': { '$eq': true } },
+					{ 'createdBy': this.userId },
+				],
+			},
+			{
+				'fields': patternFields,
+			},
+		);
 	}
 
 	return Patterns.find(
 		{
 			_id,
-			'createdBy': this.userId,
+			'isPublic': { '$eq': true },
 		},
 		{
 			'fields': patternFields,
@@ -114,12 +134,8 @@ Meteor.publish('pattern', function (_id = undefined) {
 // Pattern previews
 
 Meteor.publish('patternPreviews', function ({ patternIds }) {
-	// explicitly return nothing when user is not logged in
+	// we previously explicitly returned nothing when user was not logged in
 	// this is so we can test behaviour when user is not logged in: PublicationCollector passes in undefined userId, and find() is inconsistent between Meteor and MongoDB on undefined
-	if (!this.userId) {
-		this.ready();
-		return;
-	}
 
 	if (patternIds.length === 0) {
 		this.ready();
@@ -130,7 +146,10 @@ Meteor.publish('patternPreviews', function ({ patternIds }) {
 	// and that are in the array passed in
 	const patterns = Patterns.find(
 		{
-			'createdBy': this.userId,
+			'$or': [
+				{ 'isPublic': { '$eq': true } },
+				{ 'createdBy': this.userId },
+			],
 			'_id': { '$in': patternIds },
 		},
 		{

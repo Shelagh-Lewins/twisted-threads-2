@@ -83,3 +83,7 @@ export const PREVIEW_HEIGHT = 108;
 export const MAX_PICKS_IN_REPEAT = 12;
 
 export const MAX_RECENTS = 50;
+
+export const iconColors = {
+	'default': '#7580ac',
+};

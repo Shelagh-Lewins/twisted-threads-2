@@ -1,0 +1,12 @@
+@import "../constants/variables";
+
+.is-public {
+	button {
+		height: 40px;
+		width: 40px;
+	}
+
+	svg {
+		pointer-events: none; // prevent svg from stealing click event without dataset
+	}
+}

@@ -188,7 +188,12 @@ Meteor.methods({
 	'pattern.getPatternCount': function () {
 		// this is required for pagination
 		// it needs to return the same number of patterns as the patterns publication in publications.js
-		return Patterns.find({ 'createdBy': Meteor.userId() }).count();
+		return Patterns.find({
+			'$or': [
+				{ 'isPublic': { '$eq': true } },
+				{ 'createdBy': this.userId },
+			],
+		}).count();
 	},
 	// /////////////////////
 	// multi-purpose edit pattern method to avoid having to repeat the same permissions checks
@@ -225,6 +230,7 @@ Meteor.methods({
 		let colorIndex;
 		let direction;
 		let hole;
+		let isPublic;
 		let insertNRows;
 		let insertRowsAt;
 		let insertNTablets;
@@ -235,6 +241,12 @@ Meteor.methods({
 		let tablet;
 
 		switch (type) {
+			case 'editIsPublic':
+				({ isPublic } = data);
+				check(isPublic, Boolean);
+
+				return Patterns.update({ _id }, { '$set': { 'isPublic': isPublic } });
+
 			case 'editWeavingCellDirection':
 				({ direction, row, tablet } = data);
 				check(direction, String);

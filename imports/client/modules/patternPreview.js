@@ -1,7 +1,6 @@
 // Partial store for PatternPreviews collection in database e.g. actions to call a method to save a pattern preview
 
 import * as svg from 'save-svg-as-png';
-import { logErrors, clearErrors } from './errors';
 import { PREVIEW_HEIGHT, PREVIEW_WIDTH } from '../../modules/parameters';
 
 const Jimp = require('jimp');
