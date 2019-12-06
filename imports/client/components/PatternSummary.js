@@ -6,7 +6,7 @@ import DOMPurify from 'dompurify';
 
 import { removePattern } from '../modules/pattern';
 import './PatternSummary.scss';
-import * as url from '../../../test/up.png';
+// import * as url from '../../../test/up.png';
 
 class PatternSummary extends PureComponent {
 	constructor(props) {
@@ -16,12 +16,12 @@ class PatternSummary extends PureComponent {
 			'gotSVG': false,
 		};
 
-		this.myRef = React.createRef();
+		// this.myRef = React.createRef();
 	}
 
 	componentDidUpdate = () => {
 		// to center the SVG, we need to know its width
-		const { gotSVG } = this.state;
+		/* const { gotSVG } = this.state;
 		const outerElm = this.myRef.current; // preview bounding div
 		const innerElm = outerElm.getElementsByTagName('svg')[0]; // svg
 		if (innerElm && !gotSVG) {
@@ -35,7 +35,7 @@ class PatternSummary extends PureComponent {
 			this.setState({
 				'gotSVG': true,
 			});
-		}
+		} */
 	};
 
 	render() {
@@ -56,13 +56,17 @@ class PatternSummary extends PureComponent {
 
 		// import the preview svg data
 		let clean = '';
+		let previewStyle = {};
+
 		if (patternPreview) {
-			clean = DOMPurify.sanitize(patternPreview.data);
+			// clean = DOMPurify.sanitize(patternPreview.data);
+		// }
+
+			previewStyle = { 'backgroundImage': `url(${patternPreview.uri})` };
 		}
+		const patternPreviewHolder = <div style={previewStyle} className="pattern-preview" />;
 
-		const previewStyle = { 'backgroundImage': `url('/patternpreviews/${_id}.png')` };
-
-		const patternPreviewHolder = <div style={previewStyle} ref={this.myRef} className="pattern-preview" />;
+		// const patternPreviewHolder = <div style={previewStyle} ref={this.myRef} className="pattern-preview" />;
 
 		const buttonRemove = (
 			<Button
@@ -70,7 +74,6 @@ class PatternSummary extends PureComponent {
 				color="danger"
 				onClick={() => handleClickButtonRemove(_id)}
 			>
-				<img src={url.default} />
 			X
 			</Button>
 		);

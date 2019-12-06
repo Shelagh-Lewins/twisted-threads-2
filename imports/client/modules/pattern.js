@@ -1,7 +1,7 @@
 // Partial store for Pattern collection in database e.g. actions to call a method to edit a pattern
 
 // And also for Pattern page state
-import * as svg from 'save-svg-as-png';
+// import * as svg from 'save-svg-as-png';
 import { logErrors, clearErrors } from './errors';
 
 const updeep = require('updeep');
@@ -65,13 +65,13 @@ export function removePattern(_id) {
 	};
 }
 
-export function savePreview({ _id, elm }) {
+/* export function savePreview({ _id, elm }) {
 	return () => {
 		svg.svgAsPngUri(elm).then((uri) => {
 			Meteor.call('pattern.savePreview', { _id, uri });
 		});
 	};
-}
+} */
 
 export const copyPattern = (_id, history) => (dispatch) => {
 	dispatch(clearErrors());
