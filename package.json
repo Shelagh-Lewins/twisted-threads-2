@@ -21,6 +21,7 @@
     "create-react-class": "^15.6.3",
     "dompurify": "^2.0.7",
     "formik": "^2.0.3",
+    "jimp": "^0.9.3",
     "meteor-node-stubs": "^0.4.1",
     "prop-types": "^15.7.2",
     "query-string": "^6.8.3",

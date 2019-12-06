@@ -8,7 +8,7 @@ Meteor.methods({
 	}) {
 		check(_id, String);
 		check(uri, String);
-console.log('method');
+
 		if (!Meteor.userId()) {
 			throw new Meteor.Error('save-preview-not-logged-in', 'Unable to save preview because the user is not logged in');
 		}

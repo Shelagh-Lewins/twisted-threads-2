@@ -3,6 +3,8 @@
 import * as svg from 'save-svg-as-png';
 import { logErrors, clearErrors } from './errors';
 
+const Jimp = require('jimp');
+
 // ///////////////////////////
 // Action that call Meteor methods; these do not change the Store but are located here in order to keep server interactions away from UI
 
@@ -11,25 +13,18 @@ import { logErrors, clearErrors } from './errors';
 export function savePatternPreview({ _id, elm }) { // eslint-disable-line import/prefer-default-export
 	return () => {
 		svg.svgAsPngUri(elm).then((uri) => {
-			Meteor.call('patternPreview.save', { _id, uri });
-		});
-	};
-}
+			const base64Image = uri.split(';base64,').pop();
 
-/* export const savePatternPreview = ({ _id, elm }) => (dispatch) => { // eslint-disable-line import/prefer-default-export
-	console.log('about to call1');
-	dispatch(clearErrors());
-
-	return () => {
-		console.log('about to call2');
-		// convert the svg to a data uri
-		svg.svgAsPngUri(elm).then((uri) => {
-			console.log('uri', uri);
-			Meteor.call('patternPreview.save', { _id, uri }, (error, result) => {
-				if (error) {
-					return dispatch(logErrors({ 'save-pattern-preview': error.reason }));
-				}
+			Jimp.read(Buffer.from(base64Image, 'base64'), (err, image) => {
+				if (err) throw err;
+				image
+					.rotate(90)
+					.scaleToFit(496, 216) // resize to double the thumbnail size
+					.getBase64(Jimp.AUTO, (err, res) => {
+						// console.log('width', image.bitmap.width);
+						Meteor.call('patternPreview.save', { _id, 'uri': res });
+					});
 			});
 		});
 	};
-}; */
+}

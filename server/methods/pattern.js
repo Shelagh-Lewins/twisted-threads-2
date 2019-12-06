@@ -190,37 +190,6 @@ Meteor.methods({
 		// it needs to return the same number of patterns as the patterns publication in publications.js
 		return Patterns.find({ 'createdBy': Meteor.userId() }).count();
 	},
-	'pattern.savePreview': function ({
-		_id,
-		uri,
-	}) {
-		check(_id, String);
-		check(uri, String);
-
-		if (!Meteor.userId()) {
-			throw new Meteor.Error('save-preview-not-logged-in', 'Unable to save preview because the user is not logged in');
-		}
-
-		const pattern = Patterns.findOne({ _id });
-
-		if (!pattern) {
-			throw new Meteor.Error('save-preview-not-found', 'Unable to save preview because the pattern was not found');
-		}
-
-		if (pattern.createdBy !== Meteor.userId()) {
-			throw new Meteor.Error('save-preview-not-created-by-user', 'Unable to save preview because pattern was not created by the current logged in user');
-		}
-		console.log('Meteor.isDevelopment', 'Meteor.isDevelopment');
-		console.log('Meteor.isProduction', 'Meteor.isProduction');
-console.log(__dirname, __dirname);
-		// const path = `${process.env.PWD}/bundle/programs/web.browser/app/images/patternpreviews/${_id}.png`; // working directory when the process was started
-		const path = `../../${__dirname}/web.browser/app/patternpreviews/${_id}.png`;
-
-		/* const base64Image = uri.split(';base64,').pop();
-		fs.writeFile(path, base64Image, { 'encoding': 'base64' }, (err) => {
-			if (err) throw new Meteor.Error('save-preview-write-error', `Unable to save preview: ${err}`);
-		}); */
-	},
 	// /////////////////////
 	// multi-purpose edit pattern method to avoid having to repeat the same permissions checks
 	'pattern.edit': function ({
