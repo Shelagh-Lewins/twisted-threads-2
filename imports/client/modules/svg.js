@@ -151,15 +151,22 @@ SVGVerticalRightWarp.propTypes = {
 // ///////////////////////////
 // 0, 2, 3 turns
 // idle
-export function SVGIdle() {
+export function SVGIdle(props) {
+	const { fill, stroke } = props;
+
 	return (
 		<svg
 			viewBox="0 0 256 256"
 		>
-			<ellipse rx="71.994" ry="72.748" stroke="#000" cy="124.23" cx="130.11" strokeWidth="11.706" fill="none" />
+			<ellipse rx="71.994" ry="72.748" stroke={stroke} cy="124.23" cx="130.11" strokeWidth="11.706" fill={fill} />
 		</svg>
 	);
 }
+
+SVGIdle.propTypes = {
+	'fill': PropTypes.string.isRequired,
+	'stroke': PropTypes.string.isRequired,
+};
 
 // forward 2 turns
 export function SVGForwardWarp2(props) {

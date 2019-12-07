@@ -61,7 +61,12 @@ export default function ChartSVG({
 
 	// choose the svg graphic to represent this pick on the weaving chart
 	if (numberOfTurns === 0) {
-		svg = <SVGIdle />;
+		svg = (
+			<SVGIdle
+				fill={threadColor}
+				stroke="#000000"
+			/>
+		);
 	} else if (numberOfTurns === 1) {
 		if (colorIndex === -1) { // empty hole
 			svg = threadAngle === '\\'

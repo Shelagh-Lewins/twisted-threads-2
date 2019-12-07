@@ -70,7 +70,6 @@ class Palette extends PureComponent {
 
 		this.setState({
 			'isEditing': true,
-			'showEditColorPanel': true,
 		});
 	}
 

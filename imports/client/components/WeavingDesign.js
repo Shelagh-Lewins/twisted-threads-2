@@ -165,6 +165,12 @@ class WeavingDesign extends PureComponent {
 			}
 		}
 
+		let directionForSVG = direction;
+
+		/* if (rowIndex > 0) {
+			directionForSVG = picksByTablet[tabletIndex][rowIndex - 1].direction;
+		} */
+
 		return (
 			<li
 				className="cell value"
@@ -180,7 +186,7 @@ class WeavingDesign extends PureComponent {
 				>
 					<ChartSVG
 						pattern={pattern}
-						direction={direction}
+						direction={directionForSVG}
 						netTurns={netTurns}
 						numberOfTurns={numberOfTurns}
 						orientation={orientation}
