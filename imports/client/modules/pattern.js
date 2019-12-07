@@ -26,7 +26,7 @@ export function setPatternCount(patternCount) {
 	};
 }
 
-export const getPatternCount = () => (dispatch) => Meteor.call('pattern.getPatternCount', (error, result) => {
+export const getPatternCount = (userId) => (dispatch) => Meteor.call('pattern.getPatternCount', userId, (error, result) => {
 	dispatch(setPatternCount(result));
 });
 

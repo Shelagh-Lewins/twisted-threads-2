@@ -104,7 +104,6 @@ class Home extends Component {
 			verified,
 		} = this.props;
 		const { showAddPatternForm } = this.state;
-		console.log('users', users);
 
 		const addPatternButton = (
 			<Row>
@@ -121,62 +120,60 @@ class Home extends Component {
 		);
 
 		return (
-			<div>
-				<Container>
-					{!isEmpty(errors) && (
-						<Row>
-							<Col lg="12">
-								<FlashMessage
-									message={formatErrorMessages(errors)}
-									type="error"
-									onClick={this.onCloseFlashMessage}
-								/>
-							</Col>
-						</Row>
-					)}
-					{isLoading && <Loading />}
+			<Container>
+				{!isEmpty(errors) && (
 					<Row>
 						<Col lg="12">
-							<h1>Welcome</h1>
-							This is the development version of Twisted Threads 2, the online app for tablet weaving. ALL DATA HERE MAY BE DELETED AT ANY TIME.
-							{!isAuthenticated && <p>To get started, please <Link to="/login">Login</Link>. If you don&apos;t already have an account, please <Link to="/register">Register</Link>.</p>}
-							{isAuthenticated && !verified && <p>To create patterns, please verify your email address. You can request a new verification email from your <Link to="/account">Account</Link> page</p>}
+							<FlashMessage
+								message={formatErrorMessages(errors)}
+								type="error"
+								onClick={this.onCloseFlashMessage}
+							/>
 						</Col>
 					</Row>
-					{verified && !showAddPatternForm && addPatternButton}
-					{showAddPatternForm && (
+				)}
+				{isLoading && <Loading />}
+				<Row>
+					<Col lg="12">
+						<h1>Welcome</h1>
+						This is the development version of Twisted Threads 2, the online app for tablet weaving. ALL DATA HERE MAY BE DELETED AT ANY TIME.
+						{!isAuthenticated && <p>To get started, please <Link to="/login">Login</Link>. If you don&apos;t already have an account, please <Link to="/register">Register</Link>.</p>}
+						{isAuthenticated && !verified && <p>To create patterns, please verify your email address. You can request a new verification email from your <Link to="/account">Account</Link> page</p>}
+					</Col>
+				</Row>
+				{verified && !showAddPatternForm && addPatternButton}
+				{showAddPatternForm && (
+					<Row>
+						<Col lg="12">
+							<AddPatternForm
+								handleCancel={this.handleCancelShowAddPatternForm}
+								handleSubmit={this.handleSubmitAddPattern}
+							/>
+							<hr />
+						</Col>
+					</Row>
+				)}
+				{!isLoading
+					&& patternCount > 0
+					&& !showAddPatternForm && (
+					<>
 						<Row>
 							<Col lg="12">
-								<AddPatternForm
-									handleCancel={this.handleCancelShowAddPatternForm}
-									handleSubmit={this.handleSubmitAddPattern}
-								/>
-								<hr />
+								<h2>All patterns</h2>
 							</Col>
 						</Row>
-					)}
-					{!isLoading
-						&& patternCount > 0
-						&& !showAddPatternForm && (
-						<>
-							<Row>
-								<Col lg="12">
-									<h2>My patterns</h2>
-								</Col>
-							</Row>
-							<PatternList
-								currentPageNumber={currentPageNumber}
-								dispatch={dispatch}
-								history={history}
-								patternCount={patternCount}
-								patterns={patterns}
-								patternPreviews={patternPreviews}
-								users={users}
-							/>
-						</>
-					)}
-				</Container>
-			</div>
+						<PatternList
+							currentPageNumber={currentPageNumber}
+							dispatch={dispatch}
+							history={history}
+							patternCount={patternCount}
+							patterns={patterns}
+							patternPreviews={patternPreviews}
+							users={users}
+						/>
+					</>
+				)}
+			</Container>
 		);
 	}
 }
@@ -240,7 +237,7 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 			const userIds = patterns.map((pattern) => pattern.createdBy);
 			const uniqueUsers = [...(new Set(userIds))];
 
-			Meteor.subscribe('users', { 'userIds': uniqueUsers });
+			Meteor.subscribe('users', uniqueUsers);
 		},
 	});
 

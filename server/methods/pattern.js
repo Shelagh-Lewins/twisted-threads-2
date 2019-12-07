@@ -185,13 +185,43 @@ Meteor.methods({
 
 		return newPatternId;
 	},
-	'pattern.getPatternCount': function () {
-		// this is required for pagination
-		// it needs to return the same number of patterns as the patterns publication in publications.js
+	'pattern.getPatternCount': function (userId) {
+		// required for pagination
+		// must return the same number as the relevant publications function
+
+		// by default, will count all patterns the user can see i.e. their own and all public patterns
+
+		// if userId is specified, will count all patterns owned by that user which this user can see
+		check(userId, Match.Maybe(String));
+
+		// if a user is specified, make sure they exist
+		if (userId) {
+			if (!Meteor.users.findOne({ '_id': userId })) {
+				throw new Meteor.Error('get-pattern-count-user-not-found', 'Unable to get pattern count because the specified user did not exist');
+			}
+
+			// return all your own patterns
+			if (userId === Meteor.userId()) {
+				// return;
+
+				return Patterns.find({ 'createdBy': userId }).count();
+			}
+
+			// for another user, return only their public patterns
+			// return Patterns.find({ 'createdBy': userId });
+			return Patterns.find({
+				'$and': [
+					{ 'isPublic': { '$eq': true } },
+					{ 'createdBy': userId },
+				],
+			}).count();
+		}
+
+		// return all patterns visible to this user
 		return Patterns.find({
 			'$or': [
 				{ 'isPublic': { '$eq': true } },
-				{ 'createdBy': this.userId },
+				{ 'createdBy': Meteor.userId() },
 			],
 		}).count();
 	},
@@ -260,8 +290,6 @@ Meteor.methods({
 						'$set': { 'publicPatternsCount': publicPatternsCount },
 					},
 				);
-
-				console.log('count', publicPatternsCount);
 
 				return Patterns.update({ _id }, { '$set': { 'isPublic': isPublic } });
 

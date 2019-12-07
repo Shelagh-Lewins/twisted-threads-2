@@ -167,7 +167,7 @@ Meteor.publish('patternPreviews', function ({ patternIds }) {
 });
 
 // Public information about particular users
-Meteor.publish('users', function ({ userIds }) {
+Meteor.publish('users', function (userIds) {
 	check(userIds, [String]);
 
 	if (userIds.length === 0) {

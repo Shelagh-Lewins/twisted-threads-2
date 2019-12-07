@@ -303,6 +303,7 @@ export function getIsVerified() {
 const initialAuthState = {
 	'error': null,
 	'forgotPasswordEmailSent': false,
+	'isLoading': true,
 	'passwordChanged': false,
 	'passwordReset': false,
 	'verificationEmailSent': false,
