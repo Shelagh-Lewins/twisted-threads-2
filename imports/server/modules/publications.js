@@ -165,3 +165,32 @@ Meteor.publish('patternPreviews', function ({ patternIds }) {
 		{ 'patternId': { '$in': targetPatternIds } },
 	);
 });
+
+// Public information about particular users
+Meteor.publish('users', function ({ userIds }) {
+	check(userIds, [String]);
+
+	if (userIds.length === 0) {
+		this.ready();
+		return;
+	}
+
+	// return those users with public patterns
+	// whose ids are in the array passed in
+	// note that all information is published automatically for the logged in user
+	return Meteor.users.find(
+		{
+			'$or': [
+				{ 'publicPatternsCount': { '$gt': 0 } },
+				{ '_id': { '$in': userIds } },
+			],
+		},
+		{
+			'fields': {
+				'_id': 1,
+				'publicPatternsCount': 1,
+				'username': 1,
+			},
+		},
+	);
+});

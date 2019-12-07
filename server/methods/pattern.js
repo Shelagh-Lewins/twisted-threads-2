@@ -173,7 +173,7 @@ Meteor.methods({
 		Patterns.update({ '_id': newPatternId },
 			{
 				'$set': {
-					'isPublic': pattern.isPublic,
+					'isPublic': false,
 					'threading': pattern.threading,
 					'orientations': pattern.orientations,
 					'palette': pattern.palette,
@@ -244,6 +244,24 @@ Meteor.methods({
 			case 'editIsPublic':
 				({ isPublic } = data);
 				check(isPublic, Boolean);
+
+				// update the user's count of public patterns
+				const publicPatternsCount = Patterns.find(
+					{
+						'$and': [
+							{ 'isPublic': { '$eq': true } },
+							{ 'createdBy': Meteor.userId() },
+						],
+					},
+				).count();
+				Meteor.users.update(
+					{ '_id': Meteor.userId() },
+					{
+						'$set': { 'publicPatternsCount': publicPatternsCount },
+					},
+				);
+
+				console.log('count', publicPatternsCount);
 
 				return Patterns.update({ _id }, { '$set': { 'isPublic': isPublic } });
 

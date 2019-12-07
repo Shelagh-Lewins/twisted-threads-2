@@ -100,9 +100,11 @@ class Home extends Component {
 			patterns,
 			patternCount,
 			patternPreviews,
+			users,
 			verified,
 		} = this.props;
 		const { showAddPatternForm } = this.state;
+		console.log('users', users);
 
 		const addPatternButton = (
 			<Row>
@@ -136,8 +138,8 @@ class Home extends Component {
 					<Row>
 						<Col lg="12">
 							<h1>Welcome</h1>
-							This is the development version of Twisted Threads 2, the online app for tablet weaving.
-							{!isAuthenticated && <p>To get started, please <Link to="/login">Login</Link>. If you don\'t already have an account, please <Link to="/register">Register</Link>.</p>}
+							This is the development version of Twisted Threads 2, the online app for tablet weaving. ALL DATA HERE MAY BE DELETED AT ANY TIME.
+							{!isAuthenticated && <p>To get started, please <Link to="/login">Login</Link>. If you don&apos;t already have an account, please <Link to="/register">Register</Link>.</p>}
 							{isAuthenticated && !verified && <p>To create patterns, please verify your email address. You can request a new verification email from your <Link to="/account">Account</Link> page</p>}
 						</Col>
 					</Row>
@@ -169,6 +171,7 @@ class Home extends Component {
 								patternCount={patternCount}
 								patterns={patterns}
 								patternPreviews={patternPreviews}
+								users={users}
 							/>
 						</>
 					)}
@@ -192,6 +195,7 @@ Home.propTypes = {
 	'patternCount': PropTypes.number.isRequired,
 	'patternPreviews': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'users': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'verified': PropTypes.bool.isRequired,
 };
 
@@ -232,12 +236,18 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 			const patternIds = patterns.map((pattern) => pattern._id);
 
 			Meteor.subscribe('patternPreviews', { patternIds });
+
+			const userIds = patterns.map((pattern) => pattern.createdBy);
+			const uniqueUsers = [...(new Set(userIds))];
+
+			Meteor.subscribe('users', { 'userIds': uniqueUsers });
 		},
 	});
 
 	return {
 		patterns,
-		'patternPreviews': PatternPreviews.find().fetch(), // TO DO only subscribe to those for which we have a pattern
+		'patternPreviews': PatternPreviews.find().fetch(),
+		'users': Meteor.users.find().fetch(),
 	};
 })(Home);
 

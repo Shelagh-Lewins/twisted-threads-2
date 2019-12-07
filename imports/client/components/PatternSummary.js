@@ -19,7 +19,13 @@ class PatternSummary extends PureComponent {
 				},
 			onChangeIsPublic,
 			patternPreview,
+			user,
 		} = this.props;
+
+		let username = '';
+		if (user) {
+			username = user.username;
+		}
 
 		const canEdit = Meteor.userId() === createdBy;
 
@@ -51,6 +57,9 @@ class PatternSummary extends PureComponent {
 
 				</div>
 				<div className="footer">
+					<Link to={`/user/${createdBy}`} className="created-by">
+						{username}
+					</Link>
 					<div className="controls">
 						<IsPublicIndicator
 							canEdit={canEdit}
@@ -68,10 +77,10 @@ class PatternSummary extends PureComponent {
 
 PatternSummary.propTypes = {
 	'handleClickButtonRemove': PropTypes.func.isRequired,
-	'name': PropTypes.string.isRequired,
 	'onChangeIsPublic': PropTypes.func.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any),
 	'patternPreview': PropTypes.objectOf(PropTypes.any),
+	'user': PropTypes.objectOf(PropTypes.any),
 };
 
 export default PatternSummary;

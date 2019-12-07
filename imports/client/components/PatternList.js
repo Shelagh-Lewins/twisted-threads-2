@@ -31,6 +31,7 @@ class PatternList extends PureComponent {
 			patternCount,
 			patterns,
 			patternPreviews,
+			users,
 		} = this.props;
 
 		const pagination = patternCount > ITEMS_PER_PAGE ? (
@@ -45,7 +46,7 @@ class PatternList extends PureComponent {
 			<Row className="pattern-list">
 				<Col lg="12">
 					{patterns.map((pattern) => {
-						const { _id } = pattern;
+						const { _id, createdBy } = pattern;
 
 						return (
 							<PatternSummary
@@ -55,6 +56,7 @@ class PatternList extends PureComponent {
 								handleClickButtonRemove={this.handleClickButtonRemove}
 								onChangeIsPublic={this.onChangeIsPublic}
 								patternPreview={patternPreviews.find((patternPreview) => patternPreview.patternId === _id)}
+								user={users.find((user) => user._id === createdBy)}
 							/>
 						);
 					})}
@@ -74,6 +76,7 @@ PatternList.propTypes = {
 	'patternCount': PropTypes.number.isRequired,
 	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'patternPreviews': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'users': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 export default PatternList;

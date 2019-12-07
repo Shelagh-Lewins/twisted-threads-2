@@ -30,11 +30,12 @@
 		a {
 			display: block;
 			height: 163px;
+			text-decoration: none;
 		}
 	}
 
 	h3 {
-		color: #3B5998;
+		color: $color-summary-name;
 		cursor: pointer;
 		display: block;
 		font-size: 16px !important;
@@ -43,6 +44,10 @@
 		padding: 8px 8px 2px 8px;
 		text-overflow: ellipsis;
 		white-space: pre-line;
+
+		&:hover {
+			text-decoration: none;
+		}
 	}
 
 	.pattern-preview {
@@ -58,5 +63,14 @@
 
 	.footer {
 		padding: 8px;
+	}
+
+	.created-by {
+		color: $color-summary-created-by;
+		font-weight: bold;
+		overflow: hidden;
+		text-decoration: none;
+		text-overflow: ellipsis;
+		white-space: pre-line;
 	}
 }
