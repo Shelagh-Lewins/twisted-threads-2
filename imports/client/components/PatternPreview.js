@@ -22,6 +22,7 @@ export default function PatternPreview(props) {
 		patternWillRepeat,
 		'pattern': {
 			_id,
+			createdBy,
 			holes,
 			numberOfRows,
 			numberOfTablets,
@@ -31,21 +32,28 @@ export default function PatternPreview(props) {
 		},
 		picksByTablet,
 	} = props;
+	const canEdit = createdBy === Meteor.userId();
 
 	// Update the preview on load and change. Wait until the user pauses before saving the preview
 	// this also gives the preview time to render
-	const savePreviewPattern = function () {
-		const elm = document.getElementById('preview-holder').getElementsByTagName('svg')[0];
+	if (canEdit) {
+		const savePreviewPattern = function () {
+			const holder = document.getElementById('preview-holder');
 
-		if (elm) {
-			dispatch(savePatternPreview({ _id, elm }));
-		}
-	};
+			if (holder) { // wait for render
+				const elm = document.getElementById('preview-holder').getElementsByTagName('svg')[0];
 
-	clearTimeout(global.savePatternPreviewTimeout);
-	global.savePatternPreviewTimeout = setTimeout(() => {
-		savePreviewPattern();
-	}, 3000);
+				if (elm) {
+					dispatch(savePatternPreview({ _id, elm }));
+				}
+			}
+		};
+
+		clearTimeout(global.savePatternPreviewTimeout);
+		global.savePatternPreviewTimeout = setTimeout(() => {
+			savePreviewPattern();
+		}, 3000);
+	}
 
 	// ///////////////////////////
 	// calculate sizes and rotations

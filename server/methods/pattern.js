@@ -145,9 +145,15 @@ Meteor.methods({
 			throw new Meteor.Error('copy-pattern-not-found', 'Unable to copy pattern because the pattern was not found');
 		}
 
-		if (pattern.createdBy !== Meteor.userId()) {
+		// you can only copy another user's pattern if it is public
+		if (pattern.createdBy !== Meteor.userId() && !pattern.isPublic) {
 			throw new Meteor.Error('copy-pattern-not-created-by-user', 'Unable to copy pattern because it was not created by the current logged in user');
 		}
+
+		if (!Meteor.user().emails[0].verified) {
+			throw new Meteor.Error('copy-pattern-not-verified', 'Unable to copy pattern because the user\'s email address is not verified');
+		}
+
 		// create a new pattern
 		const data = {};
 		const {

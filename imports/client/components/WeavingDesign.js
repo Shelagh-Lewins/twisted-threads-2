@@ -140,11 +140,10 @@ class WeavingDesign extends PureComponent {
 			pattern,
 			'pattern': {
 				holes,
-				// numberOfRows,
 				orientations,
 			},
 			picksByTablet,
-			// patternWillRepeat,
+
 		} = this.props;
 		const { isEditing, selectedCell } = this.state;
 
@@ -299,12 +298,14 @@ class WeavingDesign extends PureComponent {
 	}
 
 	render() {
+		const { 'pattern': { createdBy } } = this.props;
 		const { isEditing } = this.state;
+		const canEdit = createdBy === Meteor.userId();
 
 		return (
 			<div className={`weaving ${isEditing ? 'editing' : ''}`}>
 				<h2>Weaving chart</h2>
-				{this.renderControls()}
+				{canEdit && this.renderControls()}
 				<div className="content">
 					{this.renderChart()}
 					{isEditing && this.renderToolbar()}
@@ -318,7 +319,6 @@ WeavingDesign.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 	'picksByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'patternWillRepeat': PropTypes.bool.isRequired,
 };
 
 export default WeavingDesign;

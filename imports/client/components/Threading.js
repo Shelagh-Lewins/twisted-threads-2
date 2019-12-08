@@ -375,12 +375,14 @@ class Threading extends PureComponent {
 	}
 
 	render() {
+		const { 'pattern': { createdBy } } = this.props;
 		const { isEditing } = this.state;
+		const canEdit = createdBy === Meteor.userId();
 
 		return (
 			<div className={`threading ${isEditing ? 'editing' : ''}`}>
 				<h2>Threading chart</h2>
-				{this.renderControls()}
+				{canEdit && this.renderControls()}
 				<div className="content">
 					{this.renderChart()}
 					{isEditing && this.renderRemoveTabletButtons()}

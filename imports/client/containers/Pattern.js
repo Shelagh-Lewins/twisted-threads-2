@@ -7,7 +7,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { copyPattern, setIsLoading } from '../modules/pattern';
-import { addRecentPattern } from '../modules/auth';
+import { addRecentPattern, getIsVerified } from '../modules/auth';
 import { findPatternTwist, getNumberOfRepeats, getPicksByTablet } from '../modules/weavingUtils';
 
 import { ColorBooks, Patterns } from '../../modules/collection';
@@ -44,7 +44,6 @@ class Pattern extends PureComponent {
 	}
 
 	componentDidMount() {
-		
 		document.body.classList.add(bodyClass);
 	}
 
@@ -92,14 +91,17 @@ class Pattern extends PureComponent {
 			pattern,
 			'pattern': {
 				_id,
+				createdBy,
 				holes,
 				name,
 				numberOfRows,
 				previewOrientation,
 			},
 			picksByTablet,
+			verified,
 		} = this.props;
 		const { isReady } = this.state;
+		const canEdit = createdBy === Meteor.userId();
 
 		let content = <Loading />;
 
@@ -142,7 +144,7 @@ class Pattern extends PureComponent {
 				content = (
 					<>
 						<h1>{name}</h1>
-						{menu}
+						{verified && menu}
 						{links}
 						{/* if navigating from the home page, the pattern summary is in MiniMongo before Tracker sets isLoading to true. This doesn't include the detail fields so we need to prevent errors. */}
 						<h2>Woven band</h2>
@@ -154,11 +156,13 @@ class Pattern extends PureComponent {
 							dispatch={dispatch}
 							pattern={pattern}
 						/>
-						<PreviewOrientation
-							_id={_id}
-							dispatch={dispatch}
-							previewOrientation={previewOrientation}
-						/>
+						{canEdit && (
+							<PreviewOrientation
+								_id={_id}
+								dispatch={dispatch}
+								previewOrientation={previewOrientation}
+							/>
+						)}
 						{picksByTablet && picksByTablet.length > 0 && (
 							<PatternPreview
 								dispatch={dispatch}
@@ -208,6 +212,7 @@ Pattern.propTypes = {
 	'isLoading': PropTypes.bool.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 	'picksByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'verified': PropTypes.bool.isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
@@ -215,6 +220,7 @@ function mapStateToProps(state, ownProps) {
 		'colorBookAdded': state.colorBook.colorBookAdded,
 		'_id': ownProps.match.params.id, // read the url parameter to find the id of the pattern
 		'isLoading': state.pattern.isLoading,
+		'verified': getIsVerified(), // calling getUser here causes an infinite update loop. But getting just a boolean is OK.
 	};
 }
 

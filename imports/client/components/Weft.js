@@ -153,11 +153,13 @@ class Weft extends PureComponent {
 	}
 
 	render() {
+		const { 'pattern': { createdBy } } = this.props;
 		const { isEditing } = this.state;
+		const canEdit = createdBy === Meteor.userId();
 
 		return (
 			<div className={`weft ${isEditing ? 'editing' : ''}`}>
-				{this.renderControls()}
+				{canEdit && this.renderControls()}
 				<div className="content">
 					{this.renderWeft()}
 					{isEditing && this.renderPalette()}

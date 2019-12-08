@@ -14,8 +14,6 @@ import {
 import {
 	getThread,
 	getPrevColor,
-	// isValidColorIndex,
-	// modulus,
 } from '../modules/weavingUtils';
 import { EMPTY_HOLE_COLOR } from '../../modules/parameters';
 
@@ -46,10 +44,6 @@ export default function ChartSVG({
 		tabletIndex,
 		threading,
 	);
-	//if (rowIndex === 0) {
-			//console.log('*** Chart rowIndex', rowIndex);
-			//console.log('chart svg net turns', netTurns);
-		//}
 
 	// choose the svg graphic to represent this pick on the weaving chart
 	if (numberOfTurns === 0) {

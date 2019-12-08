@@ -3,6 +3,7 @@
 // By using props to populate the UI, we enable time travel and a direct connection with the store.
 
 import React from 'react';
+import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -24,8 +25,7 @@ const IsPublicIndicator = (props) => {
 
 	return (
 		<div className="is-public">
-			<button
-				disabled={!canEdit && 'disabled'}
+			<Button
 				type="button"
 				onClick={onChangeIsPublic}
 				data-targetid={targetId}
@@ -34,7 +34,7 @@ const IsPublicIndicator = (props) => {
 				title={tooltip}
 			>
 				<FontAwesomeIcon icon={['fas', iconName]} style={{ 'color': iconColors.default }} size="1x" />
-			</button>
+			</Button>
 		</div>
 	);
 };

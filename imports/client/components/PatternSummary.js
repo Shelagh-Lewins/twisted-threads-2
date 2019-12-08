@@ -2,9 +2,12 @@ import React, { PureComponent } from 'react';
 import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import './PatternSummary.scss';
 import IsPublicIndicator from './IsPublicIndicator';
+
+import { iconColors } from '../../modules/parameters';
 
 class PatternSummary extends PureComponent {
 	render() {
@@ -40,10 +43,9 @@ class PatternSummary extends PureComponent {
 		const buttonRemove = (
 			<Button
 				type="button"
-				color="danger"
 				onClick={() => handleClickButtonRemove({ _id, name })}
 			>
-			X
+				<FontAwesomeIcon icon={['fas', 'trash']} style={{ 'color': iconColors.default }} size="1x" />
 			</Button>
 		);
 
@@ -60,15 +62,17 @@ class PatternSummary extends PureComponent {
 					<Link to={`/user/${createdBy}`} className="created-by">
 						{username}
 					</Link>
-					<div className="controls">
-						<IsPublicIndicator
-							canEdit={canEdit}
-							isPublic={isPublic}
-							onChangeIsPublic={onChangeIsPublic}
-							targetId={_id}
-						/>
-						{canEdit && buttonRemove}
-					</div>
+					{canEdit && (
+						<div className="controls">
+							<IsPublicIndicator
+								canEdit={canEdit}
+								isPublic={isPublic}
+								onChangeIsPublic={onChangeIsPublic}
+								targetId={_id}
+							/>
+							{buttonRemove}
+						</div>
+					)}
 				</div>
 			</div>
 		);
