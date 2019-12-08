@@ -192,16 +192,24 @@ export const getThread = (
 ) => {
 	let holeToShow;
 
+	// I'm not sure if this is right or whether an idling first row should be adjusted, as in the commented-out code below. This seems to work for Cambridge Diamonds, so leave as is for now.
+	// rowIndex is not used but at this point, leave it in, just in case it's needed in future.
 	// idle first row: tablet has not yet turned.
 	// so go back one hole
-	if (typeof rowIndex !== 'undefined'
+	if (direction === 'F') { // not first row, or not idle
+		// show thread in position A
+		holeToShow = modulus(holes - netTurns, holes);
+	} else {
+		// show thread in position D
+		holeToShow = modulus(holes - netTurns - 1, holes);
+	}
+
+	/* if (typeof rowIndex !== 'undefined'
 		&& rowIndex === 0
 		&& netTurns === 0) {
 		if (direction === 'F') {
-			// show thread in position A
-			holeToShow = modulus(holes - netTurns - 1, holes);
+			holeToShow = modulus(holes - netTurns, holes);
 		} else {
-			// show thread in position D
 			holeToShow = modulus(holes - netTurns, holes);
 		}
 	} else if (direction === 'F') { // not first row, or not idle
@@ -210,7 +218,7 @@ export const getThread = (
 	} else {
 		// show thread in position D
 		holeToShow = modulus(holes - netTurns - 1, holes);
-	}
+	} */
 
 	const colorIndex = threading[holeToShow][tabletIndex];
 

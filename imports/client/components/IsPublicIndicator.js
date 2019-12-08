@@ -12,7 +12,7 @@ import './IsPublicIndicator.scss';
 import { iconColors } from '../../modules/parameters';
 
 const IsPublicIndicator = (props) => {
-	const { canEdit, isPublic, targetId } = props;
+	const { isPublic, targetId } = props;
 	const isPublicData = isPublic ? 'public' : 'private';
 	const iconName = isPublic ? 'lock-open' : 'lock';
 	const tooltip = isPublic ? 'Public pattern: click to make it private' : 'Private pattern: click to make it public';
