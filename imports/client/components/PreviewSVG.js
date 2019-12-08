@@ -21,14 +21,12 @@ import {
 	PathVerticalRightWarp,
 } from '../modules/previewPaths';
 import {
-	findPrevColor,
-	isValidColorIndex,
+	getPrevColor,
+	getThread,
 	modulus,
 } from '../modules/weavingUtils';
 
 export default function PreviewSVG({
-	currentRepeat,
-	numberOfRepeats,
 	pattern,
 	patternWillRepeat,
 	picksByTablet,
@@ -53,59 +51,37 @@ export default function PreviewSVG({
 	const emptyHoleColor = 'transparent'; // transparent to show weft
 	const borderColor = '#444';
 
-	let holeToShow;
-	let adjustedDirection = direction; // use previous pick if idle
 	let reversal = false;
 
-	// check for idling and reversal
+	// check for reversal
 	let previousPick;
 
 	if (rowIndex !== 0) {
 		// there is a previous row
 		previousPick = picksByTablet[tabletIndex][rowIndex - 1];
-	} else if (patternWillRepeat && currentRepeat !== numberOfRepeats) {
-		// first row continues after last row
+	} else if (patternWillRepeat) {
 		previousPick = picksByTablet[tabletIndex][numberOfRows - 1];
 	}
 
-	if (previousPick) {
-		if (numberOfTurns === 0) {
-			// idle tablet, use previous row to judge which thread to show
-			adjustedDirection = previousPick.direction;
-		} else if (direction !== previousPick.direction && previousPick.numberOfTurns !== 0) {
-			// the tablet hasn't idled
-			reversal = true;
-		}
+	if (previousPick && direction !== previousPick.direction) {
+		reversal = true;
 	}
 
-	if (adjustedDirection === 'F') {
-		// show thread in position A
-		holeToShow = modulus(holes - netTurns, holes);
-	} else {
-		// show thread in position D
-		holeToShow = modulus(holes - netTurns - 1, holes);
-	}
-
-	const colorIndex = threading[holeToShow][tabletIndex];
-
-	if (!isValidColorIndex(colorIndex)) {
-		return null;
-	}
-
-	let threadColor = emptyHoleColor;
-	if (colorIndex !== -1) { // not empty, there is a thread
-		threadColor = palette[colorIndex];
-	}
-
-	let threadAngle = '/'; // which way does the thread twist?
-
-	if (adjustedDirection === 'F') {
-		if (orientation === '\\') {
-			threadAngle = '\\';
-		}
-	} else if (orientation === '/') {
-		threadAngle = '\\';
-	}
+	const {
+		holeToShow,
+		threadAngle,
+		threadColor,
+	} = getThread(
+		direction,
+		emptyHoleColor,
+		holes,
+		netTurns,
+		orientation,
+		palette,
+		rowIndex,
+		tabletIndex,
+		threading,
+	);
 
 	let svg;
 
@@ -121,8 +97,8 @@ export default function PreviewSVG({
 				: <PathTriangleLeft fill={threadColor} stroke={borderColor}	/>;
 		}
 	} else if (numberOfTurns === 2) {
-		const prevThreadColor1 = findPrevColor({
-			'direction': adjustedDirection,
+		const prevThreadColor1 = getPrevColor({
+			'direction': direction,
 			holes,
 			holeToShow,
 			'offset': 1,
@@ -140,8 +116,8 @@ export default function PreviewSVG({
 				: <PathTriangleLeft2 fill1={prevThreadColor1} fill2={threadColor} stroke={borderColor}	/>;
 		}
 	} else if (numberOfTurns === 3) {
-		const prevThreadColor1 = findPrevColor({
-			'direction': adjustedDirection,
+		const prevThreadColor1 = getPrevColor({
+			'direction': direction,
 			holes,
 			holeToShow,
 			'offset': 1,
@@ -149,8 +125,8 @@ export default function PreviewSVG({
 			tabletIndex,
 			threading,
 		});
-		const prevThreadColor2 = findPrevColor({
-			'direction': adjustedDirection,
+		const prevThreadColor2 = getPrevColor({
+			'direction': direction,
 			holes,
 			holeToShow,
 			'offset': 2,

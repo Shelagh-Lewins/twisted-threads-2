@@ -140,9 +140,11 @@ class WeavingDesign extends PureComponent {
 			pattern,
 			'pattern': {
 				holes,
+				// numberOfRows,
 				orientations,
 			},
 			picksByTablet,
+			// patternWillRepeat,
 		} = this.props;
 		const { isEditing, selectedCell } = this.state;
 
@@ -157,6 +159,7 @@ class WeavingDesign extends PureComponent {
 
 		// if not idle, show direction
 		let directionClass = '';
+
 		if (numberOfTurns !== 0) {
 			if (direction === 'F') {
 				directionClass = 'forward';
@@ -164,12 +167,6 @@ class WeavingDesign extends PureComponent {
 				directionClass = 'backward';
 			}
 		}
-
-		let directionForSVG = direction;
-
-		/* if (rowIndex > 0) {
-			directionForSVG = picksByTablet[tabletIndex][rowIndex - 1].direction;
-		} */
 
 		return (
 			<li
@@ -186,10 +183,11 @@ class WeavingDesign extends PureComponent {
 				>
 					<ChartSVG
 						pattern={pattern}
-						direction={directionForSVG}
+						direction={direction}
 						netTurns={netTurns}
 						numberOfTurns={numberOfTurns}
 						orientation={orientation}
+						rowIndex={rowIndex}
 						tabletIndex={tabletIndex}
 					/>
 				</span>
@@ -320,6 +318,7 @@ WeavingDesign.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 	'picksByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'patternWillRepeat': PropTypes.bool.isRequired,
 };
 
 export default WeavingDesign;

@@ -21,7 +21,6 @@ import {
 	MAX_TABLETS,
 } from '../../imports/modules/parameters';
 
-const fs = require('fs');
 const tinycolor = require('tinycolor2');
 
 // the switch block in editPattern would be very messy otherwise

@@ -6,7 +6,6 @@ import PropTypes from 'prop-types';
 import PreviewSVG from './PreviewSVG';
 import { getNumberOfRepeats, modulus } from '../modules/weavingUtils';
 import { PathWeft } from '../modules/previewPaths';
-// import { savePreview } from '../modules/pattern';
 import { savePatternPreview } from '../modules/patternPreview';
 import '../constants/globals';
 import './PatternPreview.scss';
@@ -36,15 +35,11 @@ export default function PatternPreview(props) {
 	// Update the preview on load and change. Wait until the user pauses before saving the preview
 	// this also gives the preview time to render
 	const savePreviewPattern = function () {
-		// const elm = document.getElementById('preview-holder');
-		// get the svg element
 		const elm = document.getElementById('preview-holder').getElementsByTagName('svg')[0];
-		// const data = elm.innerHTML;
 
-		// dispatch(savePreview({ _id, elm }));
-		// dispatch(savePreview({ _id, data }));
-		// dispatch(savePatternPreview({ _id, data }));
-		dispatch(savePatternPreview({ _id, elm }));
+		if (elm) {
+			dispatch(savePatternPreview({ _id, elm }));
+		}
 	};
 
 	clearTimeout(global.savePatternPreviewTimeout);

@@ -172,6 +172,7 @@ class Pattern extends PureComponent {
 								dispatch={dispatch}
 								pattern={pattern}
 								picksByTablet={picksByTablet}
+								patternWillRepeat={patternWillRepeat}
 							/>
 						)}
 						{pattern.threading && (

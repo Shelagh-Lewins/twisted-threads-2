@@ -65,8 +65,24 @@ const getPicksForTablet = createSelector(
 		for (let i = 0; i < numberOfRows; i += 1) {
 			const { direction, numberOfTurns } = weavingInstructionsForTablet[i];
 
+			let adjustedDirection = direction;
+
+			// idle tablet
+			if (numberOfTurns === 0) {
+				if (i === 0) {
+					// first row: take direction from the following pick
+					// because idle, forward is the same as forward, idle
+					// will fail if pattern starts with two idles
+					// but that doesn't seem a common scenario
+					adjustedDirection = weavingInstructionsForTablet[i + 1].direction;
+				} else {
+					// use direction of previous row
+					adjustedDirection = picks[i - 1].direction;
+				}
+			}
+
 			picks[i] = turnTablet({
-				'direction': direction,
+				'direction': adjustedDirection,
 				'numberOfTurns': numberOfTurns,
 				'totalTurns': i === 0
 					? 0
@@ -108,7 +124,7 @@ export const contrastingColor = (color) => (tinycolor(color).isLight() ? '#000' 
 // find the color of a previous thread
 // offset 1 means last thread
 // offset 2 means last but one thread...
-export const findPrevColor = ({
+export const getPrevColor = ({
 	direction,
 	holes,
 	holeToShow,
@@ -160,4 +176,67 @@ export const getNumberOfRepeats = (numberOfRows) => {
 		return Math.floor((2 * MAX_PICKS_IN_REPEAT) / numberOfRows);
 	}
 	return 1;
+};
+
+// find the thread to show for a particular pick
+export const getThread = (
+	direction,
+	emptyHoleColor,
+	holes,
+	netTurns,
+	orientation,
+	palette,
+	rowIndex,
+	tabletIndex,
+	threading,
+) => {
+	let holeToShow;
+
+	// idle first row: tablet has not yet turned.
+	// so go back one hole
+	if (typeof rowIndex !== 'undefined'
+		&& rowIndex === 0
+		&& netTurns === 0) {
+		if (direction === 'F') {
+			// show thread in position A
+			holeToShow = modulus(holes - netTurns - 1, holes);
+		} else {
+			// show thread in position D
+			holeToShow = modulus(holes - netTurns, holes);
+		}
+	} else if (direction === 'F') { // not first row, or not idle
+		// show thread in position A
+		holeToShow = modulus(holes - netTurns, holes);
+	} else {
+		// show thread in position D
+		holeToShow = modulus(holes - netTurns - 1, holes);
+	}
+
+	const colorIndex = threading[holeToShow][tabletIndex];
+
+	if (!isValidColorIndex(colorIndex)) {
+		return null;
+	}
+
+	let threadColor = emptyHoleColor;
+	if (colorIndex !== -1) { // not empty, there is a thread
+		threadColor = palette[colorIndex];
+	}
+
+	let threadAngle = '/'; // which way does the thread twist?
+
+	if (direction === 'F') {
+		if (orientation === '\\') {
+			threadAngle = '\\';
+		}
+	} else if (orientation === '/') {
+		threadAngle = '\\';
+	}
+
+	return {
+		colorIndex,
+		holeToShow,
+		threadAngle,
+		threadColor,
+	};
 };

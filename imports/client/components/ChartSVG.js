@@ -12,9 +12,10 @@ import {
 	SVGIdle,
 } from '../modules/svg';
 import {
-	findPrevColor,
-	isValidColorIndex,
-	modulus,
+	getThread,
+	getPrevColor,
+	// isValidColorIndex,
+	// modulus,
 } from '../modules/weavingUtils';
 import { EMPTY_HOLE_COLOR } from '../../modules/parameters';
 
@@ -24,40 +25,31 @@ export default function ChartSVG({
 	numberOfTurns,
 	orientation,
 	pattern,
+	rowIndex,
 	tabletIndex,
 }) {
 	const { holes, palette, threading } = pattern;
 	let svg = null;
-	let holeToShow;
-
-	if (direction === 'F') {
-		// show thread in position A
-		holeToShow = modulus(holes - netTurns, holes);
-	} else {
-		// show thread in position D
-		holeToShow = modulus(holes - netTurns - 1, holes);
-	}
-
-	const colorIndex = threading[holeToShow][tabletIndex];
-
-	if (!isValidColorIndex(colorIndex)) {
-		return null;
-	}
-
-	let threadColor = EMPTY_HOLE_COLOR;
-	if (colorIndex !== -1) { // not empty, there is a thread
-		threadColor = palette[colorIndex];
-	}
-
-	let threadAngle = '/'; // which way does the thread twist?
-
-	if (direction === 'F') {
-		if (orientation === '\\') {
-			threadAngle = '\\';
-		}
-	} else if (orientation === '/') {
-		threadAngle = '\\';
-	}
+	const {
+		colorIndex,
+		holeToShow,
+		threadAngle,
+		threadColor,
+	} = getThread(
+		direction,
+		EMPTY_HOLE_COLOR,
+		holes,
+		netTurns,
+		orientation,
+		palette,
+		rowIndex,
+		tabletIndex,
+		threading,
+	);
+	//if (rowIndex === 0) {
+			//console.log('*** Chart rowIndex', rowIndex);
+			//console.log('chart svg net turns', netTurns);
+		//}
 
 	// choose the svg graphic to represent this pick on the weaving chart
 	if (numberOfTurns === 0) {
@@ -92,7 +84,7 @@ export default function ChartSVG({
 				);
 		}
 	} else if (numberOfTurns === 2) {
-		const prevThreadColor1 = findPrevColor({
+		const prevThreadColor1 = getPrevColor({
 			direction,
 			holes,
 			holeToShow,
@@ -116,7 +108,7 @@ export default function ChartSVG({
 				/>
 			);
 	} else if (numberOfTurns === 3) {
-		const prevThreadColor1 = findPrevColor({
+		const prevThreadColor1 = getPrevColor({
 			direction,
 			holes,
 			holeToShow,
@@ -125,7 +117,7 @@ export default function ChartSVG({
 			tabletIndex,
 			threading,
 		});
-		const prevThreadColor2 = findPrevColor({
+		const prevThreadColor2 = getPrevColor({
 			direction,
 			holes,
 			holeToShow,
@@ -161,5 +153,6 @@ ChartSVG.propTypes = {
 	'numberOfTurns': PropTypes.number.isRequired,
 	'orientation': PropTypes.string.isRequired,
 	'tabletIndex': PropTypes.number.isRequired,
+	'rowIndex': PropTypes.number,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 };
