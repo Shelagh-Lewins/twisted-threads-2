@@ -12,6 +12,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { getPatternCount, setIsLoading } from '../modules/pattern';
+import { editIsPublic, removeColorBook } from '../modules/colorBook';
 
 import { ColorBooks, PatternPreviews, Patterns } from '../../modules/collection';
 import Loading from '../components/Loading';
@@ -20,6 +21,7 @@ import isEmpty from '../modules/isEmpty';
 import { clearErrors } from '../modules/errors';
 import formatErrorMessages from '../modules/formatErrorMessages';
 import FlashMessage from '../components/FlashMessage';
+import ColorBookSummary from '../components/ColorBookSummary';
 
 import { ITEMS_PER_PAGE } from '../../modules/parameters';
 
@@ -49,18 +51,96 @@ class User extends PureComponent {
 		document.body.classList.remove(bodyClass);
 	}
 
-	render() {
+	onChangeColorBookIsPublic = ({ _id, isPublic }) => {
+		const { dispatch } = this.props;
+
+		dispatch(editIsPublic({ _id, isPublic }));
+	};
+
+	handleClickButtonRemoveColorBook = ({ _id, name }) => {
+		const { dispatch } = this.props;
+		const response = confirm(`Do you want to delete the color book "${name}"?`); // eslint-disable-line no-restricted-globals
+
+		if (response === true) {
+			dispatch(removeColorBook(_id));
+		}
+	};
+
+	renderColorBooks() {
 		const {
-			colorBookAdded,
 			colorBooks,
+			dispatch,
+		} = this.props;
+
+		return (
+			<>
+				<Row>
+					<Col lg="12">
+						<h2>Colour Books</h2>
+					</Col>
+				</Row>
+				{colorBooks.length === 0 && (
+					<div>There are no colour books to display</div>
+				)}
+				{colorBooks.length > 0
+				&& colorBooks.map((colorBook) => (
+					<ColorBookSummary
+						colorBook={colorBook}
+						dispatch={dispatch}
+						handleClickButtonRemove={this.handleClickButtonRemoveColorBook}
+						key={`color-book${colorBook.id}`}
+						onChangeIsPublic={this.onChangeColorBookIsPublic}
+					/>
+				))}
+			</>
+		);
+	}
+
+	renderPatterns() {
+		const {
 			currentPageNumber,
 			dispatch,
-			errors,
 			history,
 			isLoading,
 			patterns,
 			patternCount,
 			patternPreviews,
+			user,
+		} = this.props;
+
+		return (
+			<>
+				{!isLoading && (
+					<>
+						<Row>
+							<Col lg="12">
+								<h2>Patterns</h2>
+							</Col>
+						</Row>
+						{patternCount === 0 && (
+							<div>There are no patterns to display</div>
+						)}
+						{patternCount > 0 && (
+							<PatternList
+								currentPageNumber={currentPageNumber}
+								dispatch={dispatch}
+								history={history}
+								patternCount={patternCount}
+								patterns={patterns}
+								patternPreviews={patternPreviews}
+								users={[user]}
+							/>
+						)}
+					</>
+				)}
+			</>
+		);
+	}
+
+	render() {
+		const {
+			errors,
+			isLoading,
 			user,
 		} = this.props;
 
@@ -71,26 +151,8 @@ class User extends PureComponent {
 				content = (
 					<>
 						<h1>{user.username}</h1>
-						{!isLoading
-						&& patternCount > 0
-						&& (
-							<>
-								<Row>
-									<Col lg="12">
-										<h2>Patterns</h2>
-									</Col>
-								</Row>
-								<PatternList
-									currentPageNumber={currentPageNumber}
-									dispatch={dispatch}
-									history={history}
-									patternCount={patternCount}
-									patterns={patterns}
-									patternPreviews={patternPreviews}
-									users={[user]}
-								/>
-							</>
-						)}
+						{this.renderColorBooks()}
+						{this.renderPatterns()}
 					</>
 				);
 			} else {
@@ -118,7 +180,8 @@ class User extends PureComponent {
 }
 
 User.propTypes = {
-	'_id': PropTypes.string.isRequired,
+	// '_id': PropTypes.string.isRequired,
+	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'currentPageNumber': PropTypes.number,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
@@ -165,7 +228,6 @@ const Tracker = withTracker((props) => {
 
 	Meteor.subscribe('patterns', pageSkip, ITEMS_PER_PAGE, {
 		'onReady': () => {
-			console.log('ready, dispatch getPatternCount');
 			dispatch(getPatternCount(_id));
 			dispatch(setIsLoading(false));
 

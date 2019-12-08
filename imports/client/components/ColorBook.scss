@@ -35,8 +35,8 @@
 	.color {
 		border: 1px solid $color-panel-border;
 		display: inline-block;
-		margin-right: 8px;
 		height: 32px;
+		margin-right: 8px;
 		width: 32px;
 
 		&:focus {
@@ -52,9 +52,9 @@
 
 .edit-color-book-picker-holder {
 	left: 50%;
-	position: absolute;
-	top: 50%;
-	transform: translate(-50%, -50%);
+	position: fixed;
+	top: 100px;
+	transform: translate(-50%, 0);
 	z-index: 3;
 }
 

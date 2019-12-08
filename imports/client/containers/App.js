@@ -9,6 +9,7 @@ import {
 	// faBell,
 	// faUser,
 	// faFileDownload,
+	faBookOpen,
 	faLock,
 	faLockOpen,
 	faTrash,
@@ -31,7 +32,12 @@ import InteractiveWeavingChartPage from './InteractiveWeavingChartPage';
 import DevTools from '../components/DevTools';
 import './App.scss';
 
-library.add(faLock, faLockOpen, faTrash); // and add them to your library
+library.add(
+	faBookOpen,
+	faLock,
+	faLockOpen,
+	faTrash,
+); // and add them to your library
 
 function App() {
 	return (

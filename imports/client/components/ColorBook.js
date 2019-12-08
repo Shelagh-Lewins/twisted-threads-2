@@ -142,7 +142,7 @@ class ColorBook extends PureComponent {
 	acceptColorChange() {
 		const { 'colorBook': { _id }, dispatch } = this.props;
 		const { newColor, selectedColorIndex } = this.state;
-
+console.log('HERE!!!');
 		dispatch(editColorBookColor({
 			_id,
 			'colorHexValue': newColor,

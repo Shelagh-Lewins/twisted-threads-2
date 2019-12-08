@@ -36,9 +36,38 @@ export const addColorBook = (name) => (dispatch) => {
 	});
 };
 
-export const editColorBookColor = (data) => (dispatch) => {
+export const editIsPublic = ({
+	_id,
+	isPublic,
+}) => (dispatch) => {
 	dispatch(clearErrors());
-	Meteor.call('colorBook.editColor', data, (error, result) => {
+	Meteor.call('colorBook.edit', {
+		_id,
+		'data': {
+			'type': 'isPublic',
+			isPublic,
+		},
+	}, (error, result) => {
+		if (error) {
+			return dispatch(logErrors({ 'edit-color-book-is-public': error.reason }));
+		}
+	});
+};
+
+export const editColorBookColor = ({
+	_id,
+	colorHexValue,
+	colorIndex,
+}) => (dispatch) => {
+	dispatch(clearErrors());
+	Meteor.call('colorBook.edit', {
+		_id,
+		'data': {
+			'type': 'color',
+			colorHexValue,
+			colorIndex,
+		},
+	}, (error, result) => {
 		if (error) {
 			return dispatch(logErrors({ 'edit-color-book-color': error.reason }));
 		}
@@ -47,7 +76,13 @@ export const editColorBookColor = (data) => (dispatch) => {
 
 export const editColorBookName = ({ _id, name }) => (dispatch) => {
 	dispatch(clearErrors());
-	Meteor.call('colorBook.editName', { _id, name }, (error, result) => {
+	Meteor.call('colorBook.edit', {
+		_id,
+		'data': {
+			'type': 'name',
+			name,
+		},
+	}, (error, result) => {
 		if (error) {
 			return dispatch(logErrors({ 'edit-color-book-name': error.reason }));
 		}
