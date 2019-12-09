@@ -110,8 +110,20 @@ class Palette extends PureComponent {
 	}
 
 	handleClickEditMode(event) {
+		const { editMode, showEditColorPanel } = this.state;
+		const newEditMode = event.target.value;
+		let newShowEditColorPanel = showEditColorPanel;
+
+		// click the current edit mode button; toggle the panel
+		if (newEditMode === editMode) {
+			newShowEditColorPanel = !showEditColorPanel;
+		} else if (!showEditColorPanel) {
+			newShowEditColorPanel = true;
+		}
+
 		this.setState({
-			'editMode': event.target.value,
+			'editMode': newEditMode,
+			'showEditColorPanel': newShowEditColorPanel,
 		});
 	}
 
@@ -227,6 +239,7 @@ class Palette extends PureComponent {
 		return (
 			ReactDOM.createPortal(
 				<ColorBooks
+					canEdit={true /* palette is only shown if user can edit */}
 					colorBookAdded={colorBookAdded}
 					colorBooks={colorBooks}
 					dispatch={dispatch}

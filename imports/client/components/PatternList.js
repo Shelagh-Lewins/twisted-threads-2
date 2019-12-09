@@ -48,9 +48,8 @@ class PatternList extends PureComponent {
 					const { _id, createdBy } = pattern;
 
 					return (
-						<Col lg="6">
+						<Col lg="6" key={`pattern-summary-${_id}`}>
 							<PatternSummary
-								key={_id}
 								pattern={pattern}
 								dispatch={dispatch}
 								handleClickButtonRemove={this.handleClickButtonRemove}

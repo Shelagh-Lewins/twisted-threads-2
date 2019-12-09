@@ -1,7 +1,12 @@
 // detail of a single pattern
 
 import React, { PureComponent } from 'react';
-import { Button, Container } from 'reactstrap';
+import {
+	Button,
+	Col,
+	Container,
+	Row,
+} from 'reactstrap';
 import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Link } from 'react-router-dom';
@@ -18,6 +23,7 @@ import PatternPreview from '../components/PatternPreview';
 import Threading from '../components/Threading';
 import Notation from '../components/Notation';
 import PreviewOrientation from '../components/PreviewOrientation';
+import isEmpty from '../modules/isEmpty';
 import { clearErrors } from '../modules/errors';
 import formatErrorMessages from '../modules/formatErrorMessages';
 import FlashMessage from '../components/FlashMessage';
@@ -98,6 +104,7 @@ class Pattern extends PureComponent {
 			colorBookAdded,
 			colorBooks,
 			dispatch,
+			errors,
 			pattern,
 			'pattern': {
 				_id,
@@ -165,7 +172,6 @@ class Pattern extends PureComponent {
 									</Col>
 								</Row>
 							)}
-							{content}
 						</Container>
 						<h1>{name}</h1>
 						{verified && menu}
@@ -232,6 +238,7 @@ Pattern.propTypes = {
 	'colorBookAdded': PropTypes.string.isRequired,
 	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,
+	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
@@ -244,6 +251,7 @@ function mapStateToProps(state, ownProps) {
 		'colorBookAdded': state.colorBook.colorBookAdded,
 		'_id': ownProps.match.params.id, // read the url parameter to find the id of the pattern
 		'isLoading': state.pattern.isLoading,
+		'errors': state.errors,
 		'verified': getIsVerified(), // calling getUser here causes an infinite update loop. But getting just a boolean is OK.
 	};
 }

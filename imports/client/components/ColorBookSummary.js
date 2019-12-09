@@ -5,6 +5,7 @@ import {
 } from 'reactstrap';
 import PropTypes from 'prop-types';
 import IsPublicIndicator from './IsPublicIndicator';
+import ColorBook from './ColorBook';
 
 import { iconColors } from '../../modules/parameters';
 import './ColorBookSummary.scss';
@@ -16,26 +17,22 @@ function ColorBookSummary({
 	dispatch,
 	handleClickButtonEdit,
 	handleClickButtonRemove,
+	isSelected,
 	onChangeIsPublic,
 }) {
 	const {
 		_id,
 		createdBy,
-		isEditing,
 		isPublic,
 		name,
 	} = colorBook;
+
+	const onSelectColor = () => {
+		// console.log('onSelectColor');
+		// do nothing, there is no pattern palette
+	};
+
 	const canEdit = Meteor.userId() === createdBy;
-console.log('isEditing', isEditing);
-	const buttonEdit = (
-		<Button
-			type="button"
-			onClick={() => handleClickButtonEdit({ _id })}
-			title="Edit colour book"
-		>
-			<FontAwesomeIcon icon={['fas', 'pencil-alt']} style={{ 'color': iconColors.default }} size="1x" />
-		</Button>
-	);
 
 	const buttonRemove = (
 		<Button
@@ -48,20 +45,36 @@ console.log('isEditing', isEditing);
 	);
 
 	return (
-		<div className={`color-book-summary ${isEditing ? 'editing' : ''}`}>
-			<span className="name" title="Color book"><FontAwesomeIcon icon={['fas', 'book-open']} style={{ 'color': iconColors.default }} size="1x" /></span>
-			{name}
+		<div className={`color-book-summary ${isSelected ? 'selected' : ''}`}>
+			<Button
+				className="name"
+				type="button"
+				color="default"
+				onClick={() => handleClickButtonEdit({ _id })}
+			>
+				<span className="name" title="Colour book"><FontAwesomeIcon icon={['fas', 'book-open']} style={{ 'color': iconColors.default }} size="1x" /></span>
+				{name}
+			</Button>
 			{canEdit && (
-				<div className="controls">
+				<div className="header-buttons">
 					<IsPublicIndicator
 						canEdit={canEdit}
 						isPublic={isPublic}
 						onChangeIsPublic={onChangeIsPublic}
 						targetId={_id}
 					/>
-					{buttonEdit}
 					{buttonRemove}
 				</div>
+			)}
+			{isSelected && (
+				<ColorBook
+					canEdit={canEdit}
+					colorBook={colorBook}
+					context="user"
+					dispatch={dispatch}
+					handleClickRemoveColorBook={handleClickButtonRemove}
+					onSelectColor={onSelectColor}
+				/>
 			)}
 		</div>
 	);
@@ -72,6 +85,7 @@ ColorBookSummary.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'handleClickButtonRemove': PropTypes.func.isRequired,
 	'handleClickButtonEdit': PropTypes.func.isRequired,
+	'isSelected': PropTypes.bool.isRequired,
 	'onChangeIsPublic': PropTypes.func.isRequired,
 };
 

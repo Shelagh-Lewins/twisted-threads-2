@@ -58,7 +58,7 @@ Meteor.methods({
 		check(data, Match.ObjectIncluding({ 'type': String }));
 		// type specifies the update operation
 		// e.g. color, isPublic
-console.log('colorbook.edit method');
+
 		const { type } = data;
 
 		if (!Meteor.userId()) {

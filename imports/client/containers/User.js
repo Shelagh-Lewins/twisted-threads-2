@@ -66,7 +66,7 @@ class User extends PureComponent {
 
 	handleClickButtonRemoveColorBook = ({ _id, name }) => {
 		const { dispatch } = this.props;
-		const response = confirm(`Do you want to delete the color book "${name}"?`); // eslint-disable-line no-restricted-globals
+		const response = confirm(`Do you want to delete the colour book "${name}"?`); // eslint-disable-line no-restricted-globals
 
 		if (response === true) {
 			dispatch(removeColorBook(_id));
@@ -80,9 +80,18 @@ class User extends PureComponent {
 	}
 
 	handleClickEditColorBook({ _id }) {
-		console.log('clicked', _id);
+		const { currentColorBook } = this.state;
+
+		let newColorBook;
+
+		if (_id !== currentColorBook) {
+			newColorBook = _id; // select new color book
+		} else {
+			newColorBook = currentColorBook ? null : _id;
+		}
+
 		this.setState({
-			'currentColorBook': _id,
+			'currentColorBook': newColorBook,
 		});
 	}
 
@@ -112,7 +121,7 @@ class User extends PureComponent {
 								dispatch={dispatch}
 								handleClickButtonRemove={this.handleClickButtonRemoveColorBook}
 								handleClickButtonEdit={this.handleClickEditColorBook}
-								isEditing={colorBook._id === currentColorBook}
+								isSelected={colorBook._id === currentColorBook}
 								key={`color-book-${colorBook._id}`}
 								onChangeIsPublic={this.onChangeColorBookIsPublic}
 							/>

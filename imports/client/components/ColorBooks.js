@@ -130,6 +130,7 @@ class ColorBooks extends PureComponent {
 
 	render() {
 		const {
+			canEdit,
 			cancelColorChange,
 			colorBooks,
 			dispatch,
@@ -166,6 +167,7 @@ class ColorBooks extends PureComponent {
 				[
 					this.renderColorBookSelect(),
 					<ColorBook
+						canEdit={canEdit}
 						colorBook={colorBook}
 						dispatch={dispatch}
 						key="color-book"
@@ -195,6 +197,7 @@ class ColorBooks extends PureComponent {
 }
 
 ColorBooks.propTypes = {
+	'canEdit': PropTypes.bool.isRequired,
 	'colorBookAdded': PropTypes.string.isRequired,
 	'cancelColorChange': PropTypes.func.isRequired,
 	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,

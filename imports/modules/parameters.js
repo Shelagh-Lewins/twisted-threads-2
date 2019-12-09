@@ -91,4 +91,5 @@ export const MAX_RECENTS = 50;
 
 export const iconColors = {
 	'default': '#7580ac',
+	'contrast': '#fff',
 };

@@ -3,19 +3,22 @@
 .color-book-summary {
 	background-color: $color-color-book-summary-background;
 	border-radius: 4px;
-	box-shadow: 0 2px 4px 0 #828282;
+	box-shadow: 0 2px 4px 0 $color-pattern-summary-shadow;
 	line-height: 40px;
 	margin-bottom: 16px;
 	overflow: hidden;
 	padding: 8px;
 
 	.name {
+		color: $color-color-book-summary-color;
+		font-weight: bold;
+
 		svg {
 			margin-right: 8px;
 		}
 	}
 
-	.controls {
+	.header-buttons {
 		float: right;
 
 		button {
@@ -26,5 +29,12 @@
 
 	.is-public {
 		display: inline-block;
+		margin-right: 8px;
+	}
+
+	.buttons {
+		.remove {
+			display: none;
+		}
 	}
 }

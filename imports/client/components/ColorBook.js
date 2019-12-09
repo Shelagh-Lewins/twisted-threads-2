@@ -188,7 +188,7 @@ console.log('HERE!!!');
 			<label // eslint-disable-line jsx-a11y/label-has-associated-control
 				htmlFor={identifier}
 				key={identifier}
-				title="Thread color"
+				title="Thread colour"
 			>
 				<span // eslint-disable-line jsx-a11y/control-has-associated-label
 					className={`color ${isEditingColors && (selectedColorIndex === index) ? 'selected' : ''}`}
@@ -222,12 +222,21 @@ console.log('HERE!!!');
 	}
 
 	render() {
-		const { colorBook, handleClickRemoveColorBook } = this.props;
+		const {
+			canEdit,
+			colorBook,
+			context,
+			handleClickRemoveColorBook,
+		} = this.props;
 		const {
 			isEditingColors,
 			isEditingName,
 			showEditColorPanel,
 		} = this.state;
+
+		const defaultHint = context === 'user'
+			? 'A range of colours that can be used in pattern palettes'
+			: 'To assign a colour to the palette, select the colour';
 
 		const controlElm = isEditingColors
 			? (
@@ -235,17 +244,17 @@ console.log('HERE!!!');
 					<div className="buttons">
 						<Button color="secondary" onClick={this.handleClickDone}>Done</Button>
 					</div>
-					<p className="hint">Editing colors: select a color to open a color picker</p>
+					<p className="hint">To open the colour picker, select a colour</p>
 				</>
 			)
 			: (
 				<>
 					<div className="buttons">
-						<Button color="danger" onClick={() => handleClickRemoveColorBook(colorBook._id)}>Delete</Button>
+						<Button color="danger" className="remove" onClick={() => handleClickRemoveColorBook(colorBook._id)}>Delete</Button>
 						<Button color="secondary" onClick={this.handleClickEditName}>Edit name</Button>
-						<Button color="secondary" onClick={this.handleClickEditColors}>Edit colors</Button>
+						<Button color="secondary" onClick={this.handleClickEditColors}>Edit colours</Button>
 					</div>
-					<p className="hint">Select a color to assign it to the threading color palette</p>
+					<p className="hint">{defaultHint}</p>
 				</>
 			);
 
@@ -260,9 +269,11 @@ console.log('HERE!!!');
 		return (
 			<div className="color-book">
 				{!isEditingName && showEditColorPanel && this.renderEditColorPanel()}
-				<div className="controls">
-					{!isEditingName && controlElm}
-				</div>
+				{canEdit && (
+					<div className="controls">
+						{!isEditingName && controlElm}
+					</div>
+				)}
 				<div className="colors">
 					{!isEditingName && colorBook.colors.map((color, index) => this.renderColor(color, index))}
 				</div>
@@ -273,7 +284,9 @@ console.log('HERE!!!');
 }
 
 ColorBook.propTypes = {
+	'canEdit': PropTypes.bool.isRequired,
 	'colorBook': PropTypes.objectOf(PropTypes.any).isRequired,
+	'context': PropTypes.string,
 	'dispatch': PropTypes.func.isRequired,
 	'handleClickRemoveColorBook': PropTypes.func.isRequired,
 	'onSelectColor': PropTypes.func,
