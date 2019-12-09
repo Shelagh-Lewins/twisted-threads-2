@@ -98,6 +98,18 @@ export const removeColorBook = (_id) => (dispatch) => {
 	});
 };
 
+export const copyColorBook = (_id, history) => (dispatch) => {
+	dispatch(clearErrors());
+	Meteor.call('colorBook.copy', _id, (error, result) => {
+		if (error) {
+			return dispatch(logErrors({ 'copy-color-book': error.reason }));
+		}
+		// TO DO navigate to the user's own page
+		console.log('time to navigate');
+		// so they will see the new color book
+	});
+};
+
 // ///////////////////////////
 // default state
 const initialColorBookState = {

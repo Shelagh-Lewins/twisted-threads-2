@@ -6,6 +6,7 @@ import {
 import PropTypes from 'prop-types';
 import IsPublicIndicator from './IsPublicIndicator';
 import ColorBook from './ColorBook';
+import { getIsAuthenticated, getIsVerified } from '../modules/auth';
 
 import { iconColors } from '../../modules/parameters';
 import './ColorBookSummary.scss';
@@ -15,6 +16,7 @@ import './ColorBookSummary.scss';
 function ColorBookSummary({
 	colorBook,
 	dispatch,
+	handleClickButtonCopy,
 	handleClickButtonEdit,
 	handleClickButtonRemove,
 	isSelected,
@@ -32,7 +34,8 @@ function ColorBookSummary({
 		// do nothing, there is no pattern palette
 	};
 
-	const canEdit = Meteor.userId() === createdBy;
+	const canEdit = getIsAuthenticated() && Meteor.userId() === createdBy;
+	const canCopy = getIsVerified();
 
 	const buttonRemove = (
 		<Button
@@ -41,6 +44,16 @@ function ColorBookSummary({
 			title="Remove colour book"
 		>
 			<FontAwesomeIcon icon={['fas', 'trash']} style={{ 'color': iconColors.default }} size="1x" />
+		</Button>
+	);
+
+	const buttonCopy = (
+		<Button
+			type="button"
+			onClick={() => handleClickButtonCopy({ _id, name })}
+			title="Copy colour book"
+		>
+			<FontAwesomeIcon icon={['fas', 'clone']} style={{ 'color': iconColors.default }} size="1x" />
 		</Button>
 	);
 
@@ -55,15 +68,18 @@ function ColorBookSummary({
 				<span className="name" title="Colour book"><FontAwesomeIcon icon={['fas', 'book-open']} style={{ 'color': iconColors.default }} size="1x" /></span>
 				{name}
 			</Button>
-			{canEdit && (
+			{(canEdit || canCopy) && (
 				<div className="header-buttons">
-					<IsPublicIndicator
-						canEdit={canEdit}
-						isPublic={isPublic}
-						onChangeIsPublic={onChangeIsPublic}
-						targetId={_id}
-					/>
-					{buttonRemove}
+					{canEdit && (
+						<IsPublicIndicator
+							canEdit={canEdit}
+							isPublic={isPublic}
+							onChangeIsPublic={onChangeIsPublic}
+							targetId={_id}
+						/>
+					)}
+					{canEdit && buttonRemove}
+					{canCopy && buttonCopy}
 				</div>
 			)}
 			{isSelected && (
@@ -83,6 +99,7 @@ function ColorBookSummary({
 ColorBookSummary.propTypes = {
 	'colorBook': PropTypes.objectOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,
+	'handleClickButtonCopy': PropTypes.func.isRequired,
 	'handleClickButtonRemove': PropTypes.func.isRequired,
 	'handleClickButtonEdit': PropTypes.func.isRequired,
 	'isSelected': PropTypes.bool.isRequired,

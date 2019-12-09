@@ -12,7 +12,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { getPatternCount, setIsLoading } from '../modules/pattern';
-import { editIsPublic, removeColorBook } from '../modules/colorBook';
+import { copyColorBook, editIsPublic, removeColorBook } from '../modules/colorBook';
 
 import { ColorBooks, PatternPreviews, Patterns } from '../../modules/collection';
 import Loading from '../components/Loading';
@@ -41,7 +41,9 @@ class User extends PureComponent {
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
+			'handleClickButtonCopy',
 			'handleClickEditColorBook',
+			'onCloseFlashMessage',
 		];
 
 		functionsToBind.forEach((functionName) => {
@@ -58,18 +60,37 @@ class User extends PureComponent {
 		document.body.classList.remove(bodyClass);
 	}
 
+	onCloseFlashMessage() {
+		this.clearErrors();
+	}
+
 	onChangeColorBookIsPublic = ({ _id, isPublic }) => {
 		const { dispatch } = this.props;
 
 		dispatch(editIsPublic({ _id, isPublic }));
 	};
 
+	handleClickButtonCopy = ({ _id }) => {
+		const { colorBooks, dispatch } = this.props;
+		const thisColorBook = colorBooks.find((colorBook) => colorBook._id === _id);
+
+		if (thisColorBook) {
+			const response = confirm(`Do you want to make a copy of the color book "${thisColorBook.name}"?`); // eslint-disable-line no-restricted-globals
+
+			if (response === true) {
+				console.log('do the thing');
+				dispatch(copyColorBook(_id));
+				// and show a confirmatory message
+			}
+		}
+	};
+
 	handleClickButtonRemoveColorBook = ({ _id, name }) => {
-		const { dispatch } = this.props;
+		const { dispatch, history } = this.props;
 		const response = confirm(`Do you want to delete the colour book "${name}"?`); // eslint-disable-line no-restricted-globals
 
 		if (response === true) {
-			dispatch(removeColorBook(_id));
+			dispatch(removeColorBook(_id, history));
 		}
 	};
 
@@ -119,6 +140,7 @@ class User extends PureComponent {
 							<ColorBookSummary
 								colorBook={colorBook}
 								dispatch={dispatch}
+								handleClickButtonCopy={this.handleClickButtonCopy}
 								handleClickButtonRemove={this.handleClickButtonRemoveColorBook}
 								handleClickButtonEdit={this.handleClickEditColorBook}
 								isSelected={colorBook._id === currentColorBook}
@@ -254,7 +276,6 @@ const Tracker = withTracker((props) => {
 	dispatch(setIsLoading(true));
 
 	Meteor.subscribe('users', [_id]);
-
 	Meteor.subscribe('colorBooks');
 
 	const patterns = Patterns.find({ 'createdBy': _id }, {

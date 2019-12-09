@@ -1,6 +1,7 @@
 @import "../constants/variables";
 
 .flash-message {
+	background: $color-flash-background;
 	border-radius: 8px;
 	padding: 8px;
 

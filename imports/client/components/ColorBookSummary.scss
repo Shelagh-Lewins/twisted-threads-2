@@ -24,12 +24,16 @@
 		button {
 			background-color: transparent;
 			border-color: transparent;
+			margin-left: 8px;
+
+			&:first-child {
+				margin-right: 0;
+			}
 		}
 	}
 
 	.is-public {
 		display: inline-block;
-		margin-right: 8px;
 	}
 
 	.buttons {

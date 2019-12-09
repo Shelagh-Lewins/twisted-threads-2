@@ -9,6 +9,7 @@ import {
 	// faUser,
 	// faFileDownload,
 	faBookOpen,
+	faClone,
 	faLock,
 	faLockOpen,
 	faPencilAlt,
@@ -34,6 +35,7 @@ import './App.scss';
 
 library.add(
 	faBookOpen,
+	faClone,
 	faLock,
 	faLockOpen,
 	faPencilAlt,

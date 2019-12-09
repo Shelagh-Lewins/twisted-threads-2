@@ -15,8 +15,15 @@ class Account extends Component {
 	constructor() {
 		super();
 
-		this.onLogout = this.onLogout.bind(this);
-		this.onSendVerificationEmail = this.onSendVerificationEmail.bind(this);
+		// bind onClick functions to provide context
+		const functionsToBind = [
+			'onLogout',
+			'onSendVerificationEmail',
+		];
+
+		functionsToBind.forEach((functionName) => {
+			this[functionName] = this[functionName].bind(this);
+		});
 	}
 
 	componentDidMount() {

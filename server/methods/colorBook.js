@@ -46,9 +46,46 @@ Meteor.methods({
 			throw new Meteor.Error('remove-color-book-not-created-by-user', 'Unable to remove color book because it was not created by the current logged in user');
 		}
 
-		check(_id, String);
-
 		return ColorBooks.remove({ _id });
+	},
+	'colorBook.copy': function (_id) {
+		console.log('_id', _id);
+		check(_id, nonEmptyStringCheck);
+
+		if (!Meteor.userId()) {
+			throw new Meteor.Error('copy-color-book-not-logged-in', 'Unable to copy color book because the user is not logged in');
+		}
+
+		if (!Meteor.user().emails[0].verified) {
+			throw new Meteor.Error('copy-color-book-not-verified', 'Unable to copy color book because the user\'s email address is not verified');
+		}
+
+		const colorBook = ColorBooks.findOne({ _id });
+
+		if (!colorBook) {
+			throw new Meteor.Error('copy-color-book-not-found', 'Unable to copy color book because the color book was not found');
+		}
+
+		if (colorBook.createdBy !== Meteor.userId()
+			&& !colorBook.isPublic) {
+			throw new Meteor.Error('copy-color-book-not-created-by-user-and-not-public', 'Unable to copy color book because it was not created by the current logged in user and is not public');
+		}
+
+		// create a new color book
+		const { colors } = colorBook;
+		let { name } = colorBook;
+		name = `${name} (copy)`;
+
+		const newColorBookId = Meteor.call('colorBook.add', name);
+
+		ColorBooks.update({ '_id': newColorBookId },
+			{
+				'$set': {
+					'colors': colors,
+				},
+			});
+
+		return newColorBookId;
 	},
 	'colorBook.edit': function ({
 		_id,
