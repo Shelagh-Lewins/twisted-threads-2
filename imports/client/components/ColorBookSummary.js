@@ -36,7 +36,7 @@ function ColorBookSummary({
 
 	return (
 		<div className="color-book-summary">
-			<FontAwesomeIcon icon={['fas', 'book-open']} style={{ 'color': iconColors.default }} size="1x" />
+			<span className="name"><FontAwesomeIcon icon={['fas', 'book-open']} style={{ 'color': iconColors.default }} size="1x" /></span>
 			{name}
 			{canEdit && (
 				<div className="controls">

@@ -16,23 +16,54 @@ import {
 // https://docs.meteor.com/api/accounts.html
 Meteor.users.deny({ 'update': () => true });
 
+// note: if there is ever a need to publish nothing when the user is not logged in, the function should return explicitly like this:
+/*
+if (!this.userId) {
+	this.ready();
+	return;
+}
+*/
+// this is so we can test behaviour when user is not logged in: PublicationCollector passes in undefined userId, and find() is inconsistent between Meteor and MongoDB on undefined
+
+// Meteor._sleepForMs(3000); // simulate server delay in a publish function
+
 // //////////////////////////
 // Color books
 
-Meteor.publish('colorBooks', function () {
-	// Meteor._sleepForMs(3000); // simulate server delay
+const ColorBooksFields = {
+	'colors': 1,
+	'createdAt': 1,
+	'createdBy': 1,
+	'isPublic': 1,
+	'name': 1,
+	'nameSort': 1,
+};
 
-	// explicitly return nothing when user is not logged in
-	// this is so we can test behaviour when user is not logged in: PublicationCollector passes in undefined userId, and find() is inconsistent between Meteor and MongoDB on undefined
-	if (!this.userId) {
-		this.ready();
-		return;
+Meteor.publish('colorBooks', function () {
+	if (this.userId) {
+		return ColorBooks.find(
+			{
+				'$or': [
+					{ 'isPublic': { '$eq': true } },
+					{ 'createdBy': this.userId },
+				],
+			},
+			{
+				'fields': ColorBooksFields,
+				'sort': { 'nameSort': 1 },
+			},
+		);
 	}
 
 	return ColorBooks.find(
-		{ 'createdBy': this.userId },
+		{ 'isPublic': { '$eq': true } },
+		{
+			'fields': ColorBooksFields,
+			'sort': { 'nameSort': 1 },
+		},
 	);
 });
+
 
 // //////////////////////////
 // Patterns

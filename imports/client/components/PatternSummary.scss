@@ -35,7 +35,7 @@
 	}
 
 	h3 {
-		color: $color-summary-name;
+		color: $color-pattern-summary-name;
 		cursor: pointer;
 		display: block;
 		font-size: 16px !important;
@@ -55,10 +55,10 @@
 		background-position: center center;
 		background-repeat: no-repeat;
 		background-size: contain;
-		height: $summary-preview-height;
+		height: $pattern-summary-preview-height;
 		overflow: hidden;
 		position: relative;
-		width: $summary-preview-width;
+		width: $pattern-summary-preview-width;
 	}
 
 	.footer {
@@ -71,7 +71,7 @@
 	}
 
 	.created-by {
-		color: $color-summary-created-by;
+		color: $color-pattern-summary-created-by;
 		font-weight: bold;
 		overflow: hidden;
 		text-decoration: none;

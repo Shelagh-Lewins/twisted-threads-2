@@ -54,6 +54,10 @@ class Home extends Component {
 		document.body.classList.add(bodyClass);
 	}
 
+	componentWillUnmount() {
+		document.body.classList.remove(bodyClass);
+	}
+
 	onCloseFlashMessage() {
 		this.clearErrors();
 	}

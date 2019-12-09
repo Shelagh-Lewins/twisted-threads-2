@@ -1,10 +1,29 @@
 @import "../constants/variables";
 
 .color-book-summary {
+	background-color: $color-color-book-summary-background;
+	border-radius: 4px;
+	box-shadow: 0 2px 4px 0 #828282;
+	line-height: 40px;
+	overflow: hidden;
+	padding: 8px;
+
+	.name {
+		svg {
+			margin-right: 8px;
+		}
+	}
+
 	.controls {
+		float: right;
+
 		button {
 			background-color: transparent;
-	    border-color: transparent;
-	  }
+			border-color: transparent;
+		}
+	}
+
+	.is-public {
+		display: inline-block;
 	}
 }

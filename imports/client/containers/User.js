@@ -25,7 +25,7 @@ import ColorBookSummary from '../components/ColorBookSummary';
 
 import { ITEMS_PER_PAGE } from '../../modules/parameters';
 
-import './Pattern.scss';
+import './User.scss';
 
 const queryString = require('query-string');
 
@@ -82,16 +82,20 @@ class User extends PureComponent {
 				{colorBooks.length === 0 && (
 					<div>There are no colour books to display</div>
 				)}
-				{colorBooks.length > 0
-				&& colorBooks.map((colorBook) => (
-					<ColorBookSummary
-						colorBook={colorBook}
-						dispatch={dispatch}
-						handleClickButtonRemove={this.handleClickButtonRemoveColorBook}
-						key={`color-book${colorBook.id}`}
-						onChangeIsPublic={this.onChangeColorBookIsPublic}
-					/>
-				))}
+				<Row>
+					<Col md="6" className="color-books-user">
+						{colorBooks.length > 0
+						&& colorBooks.map((colorBook) => (
+							<ColorBookSummary
+								colorBook={colorBook}
+								dispatch={dispatch}
+								handleClickButtonRemove={this.handleClickButtonRemoveColorBook}
+								key={`color-book${colorBook.id}`}
+								onChangeIsPublic={this.onChangeColorBookIsPublic}
+							/>
+						))}
+					</Col>
+				</Row>
 			</>
 		);
 	}
