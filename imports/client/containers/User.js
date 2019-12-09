@@ -71,7 +71,7 @@ class User extends PureComponent {
 	};
 
 	handleClickButtonCopy = ({ _id }) => {
-		const { colorBooks, dispatch } = this.props;
+		const { colorBooks, dispatch, history } = this.props;
 		const thisColorBook = colorBooks.find((colorBook) => colorBook._id === _id);
 
 		if (thisColorBook) {
@@ -79,18 +79,19 @@ class User extends PureComponent {
 
 			if (response === true) {
 				console.log('do the thing');
-				dispatch(copyColorBook(_id));
+				dispatch(copyColorBook(_id, history));
 				// and show a confirmatory message
 			}
 		}
 	};
 
 	handleClickButtonRemoveColorBook = ({ _id, name }) => {
-		const { dispatch, history } = this.props;
+		const { dispatch } = this.props;
+
 		const response = confirm(`Do you want to delete the colour book "${name}"?`); // eslint-disable-line no-restricted-globals
 
 		if (response === true) {
-			dispatch(removeColorBook(_id, history));
+			dispatch(removeColorBook(_id));
 		}
 	};
 
@@ -276,7 +277,7 @@ const Tracker = withTracker((props) => {
 	dispatch(setIsLoading(true));
 
 	Meteor.subscribe('users', [_id]);
-	Meteor.subscribe('colorBooks');
+	Meteor.subscribe('colorBooks', _id);
 
 	const patterns = Patterns.find({ 'createdBy': _id }, {
 		'sort': { 'nameSort': 1 },
