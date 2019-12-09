@@ -35,8 +35,14 @@ class User extends PureComponent {
 	constructor(props) {
 		super(props);
 
+		this.state = {
+			'currentColorBook': null,
+		};
+
 		// bind onClick functions to provide context
-		const functionsToBind = [];
+		const functionsToBind = [
+			'handleClickEditColorBook',
+		];
 
 		functionsToBind.forEach((functionName) => {
 			this[functionName] = this[functionName].bind(this);
@@ -45,6 +51,7 @@ class User extends PureComponent {
 
 	componentDidMount() {
 		document.body.classList.add(bodyClass);
+		this.clearErrors();
 	}
 
 	componentWillUnmount() {
@@ -66,11 +73,25 @@ class User extends PureComponent {
 		}
 	};
 
+	clearErrors() {
+		const { dispatch } = this.props;
+
+		dispatch(clearErrors());
+	}
+
+	handleClickEditColorBook({ _id }) {
+		console.log('clicked', _id);
+		this.setState({
+			'currentColorBook': _id,
+		});
+	}
+
 	renderColorBooks() {
 		const {
 			colorBooks,
 			dispatch,
 		} = this.props;
+		const { currentColorBook } = this.state;
 
 		return (
 			<>
@@ -83,14 +104,16 @@ class User extends PureComponent {
 					<div>There are no colour books to display</div>
 				)}
 				<Row>
-					<Col md="6" className="color-books-user">
+					<Col md="12" className="color-books-user">
 						{colorBooks.length > 0
 						&& colorBooks.map((colorBook) => (
 							<ColorBookSummary
 								colorBook={colorBook}
 								dispatch={dispatch}
 								handleClickButtonRemove={this.handleClickButtonRemoveColorBook}
-								key={`color-book${colorBook.id}`}
+								handleClickButtonEdit={this.handleClickEditColorBook}
+								isEditing={colorBook._id === currentColorBook}
+								key={`color-book-${colorBook._id}`}
 								onChangeIsPublic={this.onChangeColorBookIsPublic}
 							/>
 						))}
@@ -237,7 +260,7 @@ const Tracker = withTracker((props) => {
 
 			const patternIds = patterns.map((pattern) => pattern._id);
 
-			Meteor.subscribe('patternPreviews', { patternIds });
+			Meteor.subscribe('patternPreviews', { patternIds }, _id);
 		},
 	});
 

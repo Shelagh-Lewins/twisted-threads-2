@@ -4,7 +4,6 @@ import { Provider } from 'react-redux';
 // fontawesome
 import { library } from '@fortawesome/fontawesome-svg-core';
 import {
-	// faPencilAlt,
 	// faQuestionCircle,
 	// faBell,
 	// faUser,
@@ -12,6 +11,7 @@ import {
 	faBookOpen,
 	faLock,
 	faLockOpen,
+	faPencilAlt,
 	faTrash,
 } from '@fortawesome/free-solid-svg-icons'; // import the icons you want
 import store from '../modules/store';
@@ -36,6 +36,7 @@ library.add(
 	faBookOpen,
 	faLock,
 	faLockOpen,
+	faPencilAlt,
 	faTrash,
 ); // and add them to your library
 

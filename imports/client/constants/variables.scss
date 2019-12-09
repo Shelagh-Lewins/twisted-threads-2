@@ -52,8 +52,12 @@ $color-pattern-summary-background: #fff;
 $color-pattern-summary-shadow: rgba(130, 130, 130, 1);
 $color-pattern-preview-background: #333;
 
-$pattern-summary-preview-height: 108px;
-$pattern-summary-preview-width: 248px;
+/* $pattern-summary-preview-height, $pattern-summary-preview-width
+must match
+PREVIEW_WIDTH, PREVIEW_HEIGHT
+in parameters.js */
+$pattern-summary-preview-height: 112px;
+$pattern-summary-preview-width: 270px;
 $color-pattern-summary-name: #3b5998;
 $color-pattern-summary-created-by: #999;
 

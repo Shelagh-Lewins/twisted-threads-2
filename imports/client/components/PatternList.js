@@ -44,11 +44,11 @@ class PatternList extends PureComponent {
 
 		return (
 			<Row className="pattern-list">
-				<Col lg="12">
-					{patterns.map((pattern) => {
-						const { _id, createdBy } = pattern;
+				{patterns.map((pattern) => {
+					const { _id, createdBy } = pattern;
 
-						return (
+					return (
+						<Col lg="6">
 							<PatternSummary
 								key={_id}
 								pattern={pattern}
@@ -58,9 +58,9 @@ class PatternList extends PureComponent {
 								patternPreview={patternPreviews.find((patternPreview) => patternPreview.patternId === _id)}
 								user={users.find((user) => user._id === createdBy)}
 							/>
-						);
-					})}
-				</Col>
+						</Col>
+					);
+				})}
 				<Col lg="12">
 					{pagination}
 				</Col>

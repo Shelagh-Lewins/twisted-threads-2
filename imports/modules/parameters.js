@@ -78,8 +78,13 @@ export const ALLOWED_PREVIEW_ORIENTATIONS = [
 		'value': 'right',
 	},
 ];
-export const PREVIEW_WIDTH = 248;
-export const PREVIEW_HEIGHT = 108;
+
+// PREVIEW_WIDTH, PREVIEW_HEIGHT must match
+// $pattern-summary-preview-height, $pattern-summary-preview-width
+// in variables.scss
+export const PREVIEW_WIDTH = 270;
+export const PREVIEW_HEIGHT = 112;
+export const PREVIEW_SCALE = 2;
 export const MAX_PICKS_IN_REPEAT = 12;
 
 export const MAX_RECENTS = 50;

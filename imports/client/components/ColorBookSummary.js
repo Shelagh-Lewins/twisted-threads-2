@@ -14,29 +14,42 @@ import './ColorBookSummary.scss';
 function ColorBookSummary({
 	colorBook,
 	dispatch,
+	handleClickButtonEdit,
 	handleClickButtonRemove,
 	onChangeIsPublic,
 }) {
 	const {
 		_id,
 		createdBy,
+		isEditing,
 		isPublic,
 		name,
 	} = colorBook;
 	const canEdit = Meteor.userId() === createdBy;
+console.log('isEditing', isEditing);
+	const buttonEdit = (
+		<Button
+			type="button"
+			onClick={() => handleClickButtonEdit({ _id })}
+			title="Edit colour book"
+		>
+			<FontAwesomeIcon icon={['fas', 'pencil-alt']} style={{ 'color': iconColors.default }} size="1x" />
+		</Button>
+	);
 
 	const buttonRemove = (
 		<Button
 			type="button"
 			onClick={() => handleClickButtonRemove({ _id, name })}
+			title="Remove colour book"
 		>
 			<FontAwesomeIcon icon={['fas', 'trash']} style={{ 'color': iconColors.default }} size="1x" />
 		</Button>
 	);
 
 	return (
-		<div className="color-book-summary">
-			<span className="name"><FontAwesomeIcon icon={['fas', 'book-open']} style={{ 'color': iconColors.default }} size="1x" /></span>
+		<div className={`color-book-summary ${isEditing ? 'editing' : ''}`}>
+			<span className="name" title="Color book"><FontAwesomeIcon icon={['fas', 'book-open']} style={{ 'color': iconColors.default }} size="1x" /></span>
 			{name}
 			{canEdit && (
 				<div className="controls">
@@ -46,6 +59,7 @@ function ColorBookSummary({
 						onChangeIsPublic={onChangeIsPublic}
 						targetId={_id}
 					/>
+					{buttonEdit}
 					{buttonRemove}
 				</div>
 			)}
@@ -57,6 +71,7 @@ ColorBookSummary.propTypes = {
 	'colorBook': PropTypes.objectOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'handleClickButtonRemove': PropTypes.func.isRequired,
+	'handleClickButtonEdit': PropTypes.func.isRequired,
 	'onChangeIsPublic': PropTypes.func.isRequired,
 };
 

@@ -1,6 +1,6 @@
 import { check } from 'meteor/check';
 import { PatternPreviews, Patterns } from '../../imports/modules/collection';
-import { PREVIEW_HEIGHT, PREVIEW_WIDTH } from '../../imports/modules/parameters';
+import { PREVIEW_HEIGHT, PREVIEW_SCALE, PREVIEW_WIDTH } from '../../imports/modules/parameters';
 
 const Jimp = require('jimp');
 
@@ -38,8 +38,8 @@ Meteor.methods({
 				if (!error) {
 					if (result.bitmap.width > 0
 					&& result.bitmap.height > 0
-					&& result.bitmap.width <= PREVIEW_WIDTH * 1.1
-					&& result.bitmap.height <= PREVIEW_HEIGHT * 1.1) {
+					&& result.bitmap.width <= PREVIEW_WIDTH * PREVIEW_SCALE * 1.1
+					&& result.bitmap.height <= PREVIEW_HEIGHT * PREVIEW_SCALE * 1.1) {
 						// image is of acceptable size
 						future1.return();
 					} else {

@@ -1,7 +1,7 @@
 // detail of a single pattern
 
 import React, { PureComponent } from 'react';
-import { Button } from 'reactstrap';
+import { Button, Container } from 'reactstrap';
 import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Link } from 'react-router-dom';
@@ -18,6 +18,9 @@ import PatternPreview from '../components/PatternPreview';
 import Threading from '../components/Threading';
 import Notation from '../components/Notation';
 import PreviewOrientation from '../components/PreviewOrientation';
+import { clearErrors } from '../modules/errors';
+import formatErrorMessages from '../modules/formatErrorMessages';
+import FlashMessage from '../components/FlashMessage';
 import './Pattern.scss';
 
 const bodyClass = 'pattern';
@@ -45,6 +48,7 @@ class Pattern extends PureComponent {
 
 	componentDidMount() {
 		document.body.classList.add(bodyClass);
+		this.clearErrors();
 	}
 
 	componentDidUpdate() {
@@ -81,6 +85,12 @@ class Pattern extends PureComponent {
 		const { dispatch, _id, history } = this.props;
 
 		dispatch(copyPattern(_id, history));
+	}
+
+	clearErrors() {
+		const { dispatch } = this.props;
+
+		dispatch(clearErrors());
 	}
 
 	render() {
@@ -143,6 +153,20 @@ class Pattern extends PureComponent {
 
 				content = (
 					<>
+						<Container>
+							{!isEmpty(errors) && (
+								<Row>
+									<Col lg="12">
+										<FlashMessage
+											message={formatErrorMessages(errors)}
+											type="error"
+											onClick={this.onCloseFlashMessage}
+										/>
+									</Col>
+								</Row>
+							)}
+							{content}
+						</Container>
 						<h1>{name}</h1>
 						{verified && menu}
 						{links}

@@ -39,7 +39,31 @@ const ColorBooksFields = {
 	'nameSort': 1,
 };
 
-Meteor.publish('colorBooks', function () {
+Meteor.publish('colorBooks', function (userId) {
+	check(userId, Match.Maybe(nonEmptyStringCheck));
+
+	// color books created by a particular user
+	if (userId) {
+		return ColorBooks.find(
+			{
+				'$and': [
+					{
+						'$or': [
+							{ 'isPublic': { '$eq': true } },
+							{ 'createdBy': this.userId },
+						],
+					},
+					{ 'createdBy': userId },
+				],
+			},
+			{
+				'fields': ColorBooksFields,
+				'sort': { 'nameSort': 1 },
+			},
+		);
+	}
+
+	// all color books the user can see
 	if (this.userId) {
 		return ColorBooks.find(
 			{
