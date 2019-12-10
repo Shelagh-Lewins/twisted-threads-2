@@ -221,6 +221,7 @@ class ColorBook extends PureComponent {
 		const {
 			canEdit,
 			colorBook,
+			'colorBook': { _id, name },
 			context,
 			handleClickRemoveColorBook,
 		} = this.props;
@@ -246,7 +247,7 @@ class ColorBook extends PureComponent {
 			: (
 				<>
 					<div className="buttons">
-						<Button color="danger" className="remove" onClick={() => handleClickRemoveColorBook(colorBook._id)}>Delete</Button>
+						<Button color="danger" className="remove" onClick={() => handleClickRemoveColorBook({ _id, name })}>Delete</Button>
 						<Button color="secondary" onClick={this.handleClickEditName}>Edit name</Button>
 						<Button color="secondary" onClick={this.handleClickEditColors}>Edit colours</Button>
 					</div>
@@ -256,7 +257,7 @@ class ColorBook extends PureComponent {
 
 		const editNameForm = (
 			<EditColorBookNameForm
-				name={colorBook.name}
+				name={name}
 				handleCancel={this.handleCancelEditName}
 				handleSubmit={this.handleSubmitEditName}
 			/>

@@ -11,13 +11,11 @@ import { getIsAuthenticated, getIsVerified } from '../modules/auth';
 import { iconColors } from '../../modules/parameters';
 import './ColorBookSummary.scss';
 
-// isPublic, edit, delete, details, copy
-
 function ColorBookSummary({
 	colorBook,
 	dispatch,
 	handleClickButtonCopy,
-	handleClickButtonEdit,
+	handleClickButtonSelect,
 	handleClickButtonRemove,
 	isSelected,
 	onChangeIsPublic,
@@ -37,16 +35,6 @@ function ColorBookSummary({
 	const canEdit = getIsAuthenticated() && Meteor.userId() === createdBy;
 	const canCopy = getIsVerified();
 
-	const buttonRemove = (
-		<Button
-			type="button"
-			onClick={() => handleClickButtonRemove({ _id, name })}
-			title="Remove colour book"
-		>
-			<FontAwesomeIcon icon={['fas', 'trash']} style={{ 'color': iconColors.default }} size="1x" />
-		</Button>
-	);
-
 	const buttonCopy = (
 		<Button
 			type="button"
@@ -63,7 +51,7 @@ function ColorBookSummary({
 				className="name"
 				type="button"
 				color="default"
-				onClick={() => handleClickButtonEdit({ _id })}
+				onClick={() => handleClickButtonSelect({ _id })}
 			>
 				<span className="name" title="Colour book"><FontAwesomeIcon icon={['fas', 'book-open']} style={{ 'color': iconColors.default }} size="1x" /></span>
 				{name}
@@ -78,7 +66,6 @@ function ColorBookSummary({
 							targetId={_id}
 						/>
 					)}
-					{canEdit && buttonRemove}
 					{canCopy && buttonCopy}
 				</div>
 			)}
@@ -101,7 +88,7 @@ ColorBookSummary.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'handleClickButtonCopy': PropTypes.func.isRequired,
 	'handleClickButtonRemove': PropTypes.func.isRequired,
-	'handleClickButtonEdit': PropTypes.func.isRequired,
+	'handleClickButtonSelect': PropTypes.func.isRequired,
 	'isSelected': PropTypes.bool.isRequired,
 	'onChangeIsPublic': PropTypes.func.isRequired,
 };

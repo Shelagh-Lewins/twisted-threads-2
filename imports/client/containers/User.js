@@ -42,7 +42,7 @@ class User extends PureComponent {
 		// bind onClick functions to provide context
 		const functionsToBind = [
 			'handleClickButtonCopy',
-			'handleClickEditColorBook',
+			'handleClickSelectColorBook',
 			'onCloseFlashMessage',
 		];
 
@@ -101,7 +101,7 @@ class User extends PureComponent {
 		dispatch(clearErrors());
 	}
 
-	handleClickEditColorBook({ _id }) {
+	handleClickSelectColorBook({ _id }) {
 		const { currentColorBook } = this.state;
 
 		let newColorBook;
@@ -143,7 +143,7 @@ class User extends PureComponent {
 								dispatch={dispatch}
 								handleClickButtonCopy={this.handleClickButtonCopy}
 								handleClickButtonRemove={this.handleClickButtonRemoveColorBook}
-								handleClickButtonEdit={this.handleClickEditColorBook}
+								handleClickButtonSelect={this.handleClickSelectColorBook}
 								isSelected={colorBook._id === currentColorBook}
 								key={`color-book-${colorBook._id}`}
 								onChangeIsPublic={this.onChangeColorBookIsPublic}

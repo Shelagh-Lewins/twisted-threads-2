@@ -74,10 +74,9 @@ class ColorBooks extends PureComponent {
 		});
 	}
 
-	handleClickRemoveColorBook(_id) {
+	handleClickRemoveColorBook({ _id, name }) {
 		const { colorBooks, dispatch } = this.props;
-		const colorBook = colorBooks.find((obj) => obj._id === _id);
-		const response = confirm(`Do you want to delete the color book "${colorBook.name}"?`); // eslint-disable-line no-restricted-globals
+		const response = confirm(`Do you want to delete the color book "${name}"?`); // eslint-disable-line no-restricted-globals
 
 		if (response === true) {
 			// deselect the removed color book
