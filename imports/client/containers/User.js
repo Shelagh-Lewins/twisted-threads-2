@@ -9,10 +9,15 @@ import {
 } from 'reactstrap';
 import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { getPatternCount, setIsLoading } from '../modules/pattern';
-import { copyColorBook, editIsPublic, removeColorBook } from '../modules/colorBook';
+import {
+	addColorBook,
+	copyColorBook,
+	editIsPublic,
+	removeColorBook,
+} from '../modules/colorBook';
+import { getIsVerified } from '../modules/auth';
 
 import { ColorBooks, PatternPreviews, Patterns } from '../../modules/collection';
 import Loading from '../components/Loading';
@@ -22,6 +27,7 @@ import { clearErrors } from '../modules/errors';
 import formatErrorMessages from '../modules/formatErrorMessages';
 import FlashMessage from '../components/FlashMessage';
 import ColorBookSummary from '../components/ColorBookSummary';
+import AddColorBookForm from '../components/AddColorBookForm';
 
 import { ITEMS_PER_PAGE } from '../../modules/parameters';
 
@@ -36,11 +42,14 @@ class User extends PureComponent {
 		super(props);
 
 		this.state = {
-			'currentColorBook': null,
+			'selectedColorBook': null,
+			'showAddColorBookForm': false,
 		};
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
+			'handleClickAddButton',
+			'handleClickAddColorBook',
 			'handleClickButtonCopy',
 			'handleClickSelectColorBook',
 			'onCloseFlashMessage',
@@ -78,9 +87,7 @@ class User extends PureComponent {
 			const response = confirm(`Do you want to make a copy of the color book "${thisColorBook.name}"?`); // eslint-disable-line no-restricted-globals
 
 			if (response === true) {
-				console.log('do the thing');
 				dispatch(copyColorBook(_id, history));
-				// and show a confirmatory message
 			}
 		}
 	};
@@ -95,6 +102,30 @@ class User extends PureComponent {
 		}
 	};
 
+	// show the form to add a new color book
+	handleClickAddButton() {
+		this.setState({
+			'showAddColorBookForm': true,
+		});
+	}
+
+	// actually add a new color book
+	handleClickAddColorBook({ name }) {
+		const { dispatch } = this.props;
+
+		dispatch(addColorBook(name));
+		this.setState({
+			'showAddColorBookForm': false,
+		});
+	}
+
+	// hide the add color book form and take no action
+	cancelAddColorBook() {
+		this.setState({
+			'showAddColorBookForm': false,
+		});
+	}
+
 	clearErrors() {
 		const { dispatch } = this.props;
 
@@ -102,18 +133,18 @@ class User extends PureComponent {
 	}
 
 	handleClickSelectColorBook({ _id }) {
-		const { currentColorBook } = this.state;
+		const { selectedColorBook } = this.state;
 
 		let newColorBook;
 
-		if (_id !== currentColorBook) {
+		if (_id !== selectedColorBook) {
 			newColorBook = _id; // select new color book
 		} else {
-			newColorBook = currentColorBook ? null : _id;
+			newColorBook = selectedColorBook ? null : _id;
 		}
 
 		this.setState({
-			'currentColorBook': newColorBook,
+			'selectedColorBook': newColorBook,
 		});
 	}
 
@@ -122,13 +153,35 @@ class User extends PureComponent {
 			colorBooks,
 			dispatch,
 		} = this.props;
-		const { currentColorBook } = this.state;
+		const { selectedColorBook, showAddColorBookForm } = this.state;
+
+		const canCreate = getIsVerified();
+
+		const addButton = (
+			<Button
+				className="add"
+				color="secondary"
+				onClick={this.handleClickAddButton}
+				title="Add color book"
+			>
+				+ New
+			</Button>
+		);
 
 		return (
 			<>
 				<Row>
 					<Col lg="12">
 						<h2>Colour Books</h2>
+						<div className="add-controls">
+							{canCreate && !showAddColorBookForm && addButton}
+							{canCreate && showAddColorBookForm && (
+								<AddColorBookForm
+									handleCancel={this.cancelAddColorBook}
+									handleSubmit={this.handleClickAddColorBook}
+								/>
+							)}
+						</div>
 					</Col>
 				</Row>
 				{colorBooks.length === 0 && (
@@ -144,7 +197,7 @@ class User extends PureComponent {
 								handleClickButtonCopy={this.handleClickButtonCopy}
 								handleClickButtonRemove={this.handleClickButtonRemoveColorBook}
 								handleClickButtonSelect={this.handleClickSelectColorBook}
-								isSelected={colorBook._id === currentColorBook}
+								isSelected={colorBook._id === selectedColorBook}
 								key={`color-book-${colorBook._id}`}
 								onChangeIsPublic={this.onChangeColorBookIsPublic}
 							/>

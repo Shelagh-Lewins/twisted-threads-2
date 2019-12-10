@@ -30,7 +30,6 @@ const EditColorBookNameForm = (props) => {
 
 	return (
 		<form onSubmit={formik.handleSubmit} className="add-color-book-form">
-			<h2>Edit color book name</h2>
 			<div className="form-group">
 				<label htmlFor="name">
 					Name

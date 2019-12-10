@@ -104,12 +104,10 @@ export const copyColorBook = (_id, history) => (dispatch) => {
 		if (error) {
 			return dispatch(logErrors({ 'copy-color-book': error.reason }));
 		}
-		// TO DO navigate to the user's own page
-		//console.log('history 2', history);
+
 		const currentPath = history.location.pathname;
-		//console.log('current', currentPath);
 		const userPage = `/user/${Meteor.userId()}`;
-		//console.log('usersPage', userPage);
+
 		if (currentPath !== userPage) {
 			history.push(userPage);
 		}
