@@ -3,20 +3,28 @@ import { Container, Row, Col } from 'reactstrap';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { forgotPassword } from '../modules/auth';
-import isEmpty from '../modules/isEmpty';
-import { clearErrors } from '../modules/errors';
-import formatErrorMessages from '../modules/formatErrorMessages';
-import FlashMessage from '../components/FlashMessage';
+import { forgotPassword, forgotPasswordEmailNotSent } from '../modules/auth';
+import PageWrapper from '../components/PageWrapper';
 import ForgotPasswordForm from '../components/ForgotPasswordForm';
 
 class ForgotPassword extends Component {
-	componentDidMount() {
-		this.clearErrors();
+	constructor() {
+		super();
+
+		// bind onClick functions to provide context
+		const functionsToBind = [
+			'onCloseFlashMessage',
+		];
+
+		functionsToBind.forEach((functionName) => {
+			this[functionName] = this[functionName].bind(this);
+		});
 	}
 
 	onCloseFlashMessage() {
-		this.clearErrors();
+		const { dispatch } = this.props;
+
+		dispatch(forgotPasswordEmailNotSent());
 	}
 
 	handleSubmit = ({ email }) => {
@@ -27,40 +35,32 @@ class ForgotPassword extends Component {
 		}));
 	}
 
-	clearErrors() {
-		const { dispatch } = this.props;
-
-		dispatch(clearErrors());
-	}
-
 	render() {
-		const { errors, forgotPasswordEmailSent } = this.props;
+		const {
+			dispatch,
+			errors,
+			forgotPasswordEmailSent,
+		} = this.props;
+
+		let message = null;
+		let onClick = this.onCloseFlashMessage;
+		let type = null;
+
+		if (forgotPasswordEmailSent) {
+			message = 'A reset password email has been sent';
+			onClick = this.onCloseFlashMessage;
+			type = 'success';
+		}
 
 		return (
-			<div>
+			<PageWrapper
+				dispatch={dispatch}
+				errors={errors}
+				message={message}
+				onClick={onClick}
+				type={type}
+			>
 				<Container>
-					{forgotPasswordEmailSent && (
-						<Row>
-							<Col lg="12">
-								<FlashMessage
-									message="A reset password email has been sent"
-									type="success"
-									onClick={this.onCloseFlashMessage}
-								/>
-							</Col>
-						</Row>
-					)}
-					<Row>
-						<Col lg="12">
-							{!isEmpty(errors) && (
-								<FlashMessage
-									message={formatErrorMessages(errors)}
-									type="error"
-									onClick={this.onCloseFlashMessage}
-								/>
-							)}
-						</Col>
-					</Row>
 					<Row>
 						<Col lg="12">
 							<h1>Forgot your password?</h1>
@@ -71,7 +71,7 @@ class ForgotPassword extends Component {
 						</Col>
 					</Row>
 				</Container>
-			</div>
+			</PageWrapper>
 		);
 	}
 }

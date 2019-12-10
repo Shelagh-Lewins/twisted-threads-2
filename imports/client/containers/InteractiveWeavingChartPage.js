@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import PageWrapper from '../components/PageWrapper';
 import { setIsLoading } from '../modules/pattern';
 import { addRecentPattern } from '../modules/auth';
 import { getPicksByTablet } from '../modules/weavingUtils';
@@ -150,6 +151,7 @@ class InteractiveWeavingChartPage extends PureComponent {
 	render() {
 		const {
 			dispatch,
+			errors,
 			isLoading,
 			pattern,
 			'pattern': { _id },
@@ -191,9 +193,12 @@ class InteractiveWeavingChartPage extends PureComponent {
 		}
 
 		return (
-			<div>
+			<PageWrapper
+				dispatch={dispatch}
+				errors={errors}
+			>
 				{content}
-			</div>
+			</PageWrapper>
 		);
 	}
 }

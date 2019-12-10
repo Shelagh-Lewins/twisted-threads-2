@@ -5,18 +5,12 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
 import { login } from '../modules/auth';
-import isEmpty from '../modules/isEmpty';
 import { clearErrors } from '../modules/errors';
-import formatErrorMessages from '../modules/formatErrorMessages';
-import FlashMessage from '../components/FlashMessage';
+import PageWrapper from '../components/PageWrapper';
 import LoginForm from '../components/LoginForm';
 
 class Login extends Component {
 	componentDidMount() {
-		this.clearErrors();
-	}
-
-	onCloseFlashMessage() {
 		this.clearErrors();
 	}
 
@@ -37,22 +31,14 @@ class Login extends Component {
 	}
 
 	render() {
-		const { errors } = this.props;
+		const { dispatch, errors } = this.props;
 
 		return (
-			<div>
+			<PageWrapper
+				dispatch={dispatch}
+				errors={errors}
+			>
 				<Container>
-					{!isEmpty(errors) && (
-						<Row>
-							<Col lg="12">
-								<FlashMessage
-									message={formatErrorMessages(errors)}
-									type="error"
-									onClick={this.onCloseFlashMessage}
-								/>
-							</Col>
-						</Row>
-					)}
 					<Row>
 						<Col lg="12">
 							<h1>Login</h1>
@@ -67,7 +53,7 @@ class Login extends Component {
 						</Col>
 					</Row>
 				</Container>
-			</div>
+			</PageWrapper>
 		);
 	}
 }

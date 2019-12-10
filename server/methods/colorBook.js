@@ -49,7 +49,6 @@ Meteor.methods({
 		return ColorBooks.remove({ _id });
 	},
 	'colorBook.copy': function (_id) {
-		console.log('_id', _id);
 		check(_id, nonEmptyStringCheck);
 
 		if (!Meteor.userId()) {

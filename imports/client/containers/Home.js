@@ -9,17 +9,13 @@ import {
 import { withTracker } from 'meteor/react-meteor-data';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import PageWrapper from '../components/PageWrapper';
 import { addPattern, getPatternCount, setIsLoading } from '../modules/pattern';
 import { getIsAuthenticated, getIsVerified } from '../modules/auth';
-
 import { PatternPreviews, Patterns } from '../../modules/collection';
 import Loading from '../components/Loading';
 import PatternList from '../components/PatternList';
 import AddPatternForm from '../components/AddPatternForm';
-import isEmpty from '../modules/isEmpty';
-import { clearErrors } from '../modules/errors';
-import formatErrorMessages from '../modules/formatErrorMessages';
-import FlashMessage from '../components/FlashMessage';
 
 import { ITEMS_PER_PAGE } from '../../modules/parameters';
 import './Home.scss';
@@ -38,7 +34,6 @@ class Home extends Component {
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
-			'onCloseFlashMessage',
 			'handleClickShowAddPatternForm',
 			'handleCancelShowAddPatternForm',
 		];
@@ -49,17 +44,11 @@ class Home extends Component {
 	}
 
 	componentDidMount() {
-		this.clearErrors();
-
 		document.body.classList.add(bodyClass);
 	}
 
 	componentWillUnmount() {
 		document.body.classList.remove(bodyClass);
-	}
-
-	onCloseFlashMessage() {
-		this.clearErrors();
 	}
 
 	handleSubmitAddPattern = (data, { resetForm }) => {
@@ -85,12 +74,6 @@ class Home extends Component {
 		this.setState({
 			'showAddPatternForm': false,
 		});
-	}
-
-	clearErrors() {
-		const { dispatch } = this.props;
-
-		dispatch(clearErrors());
 	}
 
 	render() {
@@ -124,60 +107,54 @@ class Home extends Component {
 		);
 
 		return (
-			<Container>
-				{!isEmpty(errors) && (
+			<PageWrapper
+				dispatch={dispatch}
+				errors={errors}
+			>
+				<Container>
+					{isLoading && <Loading />}
 					<Row>
 						<Col lg="12">
-							<FlashMessage
-								message={formatErrorMessages(errors)}
-								type="error"
-								onClick={this.onCloseFlashMessage}
-							/>
+							<h1>Welcome</h1>
+							This is the development version of Twisted Threads 2, the online app for tablet weaving. ALL DATA HERE MAY BE DELETED AT ANY TIME.
+							{!isAuthenticated && <p>To get started, please <Link to="/login">Login</Link>. If you don&apos;t already have an account, please <Link to="/register">Register</Link>.</p>}
+							{isAuthenticated && !verified && <p>To create patterns, please verify your email address. You can request a new verification email from your <Link to="/account">Account</Link> page</p>}
 						</Col>
 					</Row>
-				)}
-				{isLoading && <Loading />}
-				<Row>
-					<Col lg="12">
-						<h1>Welcome</h1>
-						This is the development version of Twisted Threads 2, the online app for tablet weaving. ALL DATA HERE MAY BE DELETED AT ANY TIME.
-						{!isAuthenticated && <p>To get started, please <Link to="/login">Login</Link>. If you don&apos;t already have an account, please <Link to="/register">Register</Link>.</p>}
-						{isAuthenticated && !verified && <p>To create patterns, please verify your email address. You can request a new verification email from your <Link to="/account">Account</Link> page</p>}
-					</Col>
-				</Row>
-				{verified && !showAddPatternForm && addPatternButton}
-				{showAddPatternForm && (
-					<Row>
-						<Col lg="12">
-							<AddPatternForm
-								handleCancel={this.handleCancelShowAddPatternForm}
-								handleSubmit={this.handleSubmitAddPattern}
-							/>
-							<hr />
-						</Col>
-					</Row>
-				)}
-				{!isLoading
-					&& patternCount > 0
-					&& !showAddPatternForm && (
-					<>
+					{verified && !showAddPatternForm && addPatternButton}
+					{showAddPatternForm && (
 						<Row>
 							<Col lg="12">
-								<h2>All patterns</h2>
+								<AddPatternForm
+									handleCancel={this.handleCancelShowAddPatternForm}
+									handleSubmit={this.handleSubmitAddPattern}
+								/>
+								<hr />
 							</Col>
 						</Row>
-						<PatternList
-							currentPageNumber={currentPageNumber}
-							dispatch={dispatch}
-							history={history}
-							patternCount={patternCount}
-							patterns={patterns}
-							patternPreviews={patternPreviews}
-							users={users}
-						/>
-					</>
-				)}
-			</Container>
+					)}
+					{!isLoading
+						&& patternCount > 0
+						&& !showAddPatternForm && (
+						<>
+							<Row>
+								<Col lg="12">
+									<h2>All patterns</h2>
+								</Col>
+							</Row>
+							<PatternList
+								currentPageNumber={currentPageNumber}
+								dispatch={dispatch}
+								history={history}
+								patternCount={patternCount}
+								patterns={patterns}
+								patternPreviews={patternPreviews}
+								users={users}
+							/>
+						</>
+					)}
+				</Container>
+			</PageWrapper>
 		);
 	}
 }

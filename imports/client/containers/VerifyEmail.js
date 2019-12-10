@@ -2,74 +2,58 @@
 // it retrieves a token from the url and attempts to verify the email address
 
 import React, { Component } from 'react';
-import { Container, Row, Col } from 'reactstrap';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import isEmpty from '../modules/isEmpty';
-import { clearErrors } from '../modules/errors';
 import { verifyEmail } from '../modules/auth';
-import formatErrorMessages from '../modules/formatErrorMessages';
-import FlashMessage from '../components/FlashMessage';
+import PageWrapper from '../components/PageWrapper';
 
 class VerifyEmail extends Component {
+	constructor() {
+		super();
+
+		// bind onClick functions to provide context
+		const functionsToBind = [
+			'onCloseFlashMessage',
+
+		];
+
+		functionsToBind.forEach((functionName) => {
+			this[functionName] = this[functionName].bind(this);
+		});
+	}
+
 	componentDidMount() {
 		const { dispatch, token } = this.props;
-		this.clearErrors();
 
 		dispatch(verifyEmail(token));
 	}
 
 	onCloseFlashMessage() {
-		this.clearErrors();
-	}
-
-	clearErrors() {
-		const { dispatch } = this.props;
-
-		dispatch(clearErrors());
+		// no action
 	}
 
 	render() {
-		const { emailVerified, errors } = this.props;
+		const { dispatch, emailVerified, errors } = this.props;
 
-		let showFlashMessage = false;
-		let message;
-		let type;
+		let message = null;
+		let onClick = this.onCloseFlashMessage;
+		let type = null;
 
-		if (!isEmpty(errors)) {
-			showFlashMessage = true;
-			message = formatErrorMessages(errors);
-			type = 'error';
-		} else if (emailVerified) {
-			showFlashMessage = true;
+		if (emailVerified) {
 			message = 'Your email address has been verified';
+			onClick = this.onCloseFlashMessage;
 			type = 'success';
 		}
 
 		return (
-			<div>
-				<Container>
-					{showFlashMessage && (
-						<Row>
-							<Col lg="12">
-								<FlashMessage
-									message={message}
-									type={type}
-									onClick={this.onCloseFlashMessage}
-								/>
-							</Col>
-						</Row>
-					)}
-					{!showFlashMessage && (
-						<Row>
-							<Col lg="12">
-								<p>Verifying email address...</p>
-							</Col>
-						</Row>
-					)}
-				</Container>
-			</div>
+			<PageWrapper
+				dispatch={dispatch}
+				errors={errors}
+				message={message}
+				onClick={onClick}
+				type={type}
+			/>
 		);
 	}
 }

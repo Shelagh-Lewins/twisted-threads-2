@@ -3,20 +3,16 @@ import { Container, Row, Col } from 'reactstrap';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { resetPassword } from '../modules/auth';
-import isEmpty from '../modules/isEmpty';
-import { clearErrors } from '../modules/errors';
-import formatErrorMessages from '../modules/formatErrorMessages';
-import FlashMessage from '../components/FlashMessage';
+import { passwordNotReset, resetPassword } from '../modules/auth';
+
+import PageWrapper from '../components/PageWrapper';
 import ResetPasswordForm from '../components/ResetPasswordForm';
 
 class ResetPassword extends Component {
-	componentDidMount() {
-		this.clearErrors();
-	}
-
 	onCloseFlashMessage() {
-		this.clearErrors();
+		const { dispatch } = this.props;
+
+		dispatch(passwordNotReset());
 	}
 
 	handleSubmit = ({ password }) => {
@@ -28,42 +24,28 @@ class ResetPassword extends Component {
 		}));
 	}
 
-	clearErrors() {
-		const { dispatch } = this.props;
-
-		dispatch(clearErrors());
-	}
-
 	render() {
-		const { errors, passwordReset } = this.props;
-		let showFlashMessage = false;
-		let message;
-		let type;
+		const { dispatch, errors, passwordReset } = this.props;
 
-		if (!isEmpty(errors)) {
-			showFlashMessage = true;
-			message = formatErrorMessages(errors);
-			type = 'error';
-		} else if (passwordReset) {
-			showFlashMessage = true;
+		let message = null;
+		let onClick = this.onCloseFlashMessage;
+		let type = null;
+
+		if (passwordReset) {
 			message = 'Your password has been reset';
+			onClick = this.onCloseFlashMessage;
 			type = 'success';
 		}
 
 		return (
-			<div>
+			<PageWrapper
+				dispatch={dispatch}
+				errors={errors}
+				message={message}
+				onClick={onClick}
+				type={type}
+			>
 				<Container>
-					{showFlashMessage && (
-						<Row>
-							<Col lg="12">
-								<FlashMessage
-									message={message}
-									type={type}
-									onClick={this.onCloseFlashMessage}
-								/>
-							</Col>
-						</Row>
-					)}
 					<Row>
 						<Col lg="12">
 							<h1>Reset your password</h1>
@@ -73,7 +55,7 @@ class ResetPassword extends Component {
 						</Col>
 					</Row>
 				</Container>
-			</div>
+			</PageWrapper>
 		);
 	}
 }

@@ -4,21 +4,10 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { register } from '../modules/auth';
-import isEmpty from '../modules/isEmpty';
-import { clearErrors } from '../modules/errors';
-import formatErrorMessages from '../modules/formatErrorMessages';
-import FlashMessage from '../components/FlashMessage';
+import PageWrapper from '../components/PageWrapper';
 import RegisterForm from '../components/RegisterForm';
 
 class Register extends Component {
-	componentDidMount() {
-		this.clearErrors();
-	}
-
-	onCloseFlashMessage() {
-		this.clearErrors();
-	}
-
 	handleSubmit = ({ email, username, password }) => {
 		const { dispatch, history } = this.props;
 
@@ -30,29 +19,15 @@ class Register extends Component {
 		}));
 	}
 
-	clearErrors() {
-		const { dispatch } = this.props;
-
-		dispatch(clearErrors());
-	}
-
 	render() {
-		const { errors } = this.props;
+		const { dispatch, errors } = this.props;
 
 		return (
-			<div>
+			<PageWrapper
+				dispatch={dispatch}
+				errors={errors}
+			>
 				<Container>
-					{!isEmpty(errors) && (
-						<Row>
-							<Col lg="12">
-								<FlashMessage
-									message={formatErrorMessages(errors)}
-									type="error"
-									onClick={this.onCloseFlashMessage}
-								/>
-							</Col>
-						</Row>
-					)}
 					<Row>
 						<Col lg="12">
 							<h1>Create an account</h1>
@@ -62,7 +37,7 @@ class Register extends Component {
 						</Col>
 					</Row>
 				</Container>
-			</div>
+			</PageWrapper>
 		);
 	}
 }

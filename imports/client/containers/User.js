@@ -18,14 +18,11 @@ import {
 	removeColorBook,
 } from '../modules/colorBook';
 import { getIsVerified } from '../modules/auth';
-
 import { ColorBooks, PatternPreviews, Patterns } from '../../modules/collection';
+
 import Loading from '../components/Loading';
 import PatternList from '../components/PatternList';
-import isEmpty from '../modules/isEmpty';
-import { clearErrors } from '../modules/errors';
-import formatErrorMessages from '../modules/formatErrorMessages';
-import FlashMessage from '../components/FlashMessage';
+import PageWrapper from '../components/PageWrapper';
 import ColorBookSummary from '../components/ColorBookSummary';
 import AddColorBookForm from '../components/AddColorBookForm';
 
@@ -52,7 +49,6 @@ class User extends PureComponent {
 			'handleClickAddColorBook',
 			'handleClickButtonCopy',
 			'handleClickSelectColorBook',
-			'onCloseFlashMessage',
 		];
 
 		functionsToBind.forEach((functionName) => {
@@ -62,15 +58,10 @@ class User extends PureComponent {
 
 	componentDidMount() {
 		document.body.classList.add(bodyClass);
-		this.clearErrors();
 	}
 
 	componentWillUnmount() {
 		document.body.classList.remove(bodyClass);
-	}
-
-	onCloseFlashMessage() {
-		this.clearErrors();
 	}
 
 	onChangeColorBookIsPublic = ({ _id, isPublic }) => {
@@ -124,12 +115,6 @@ class User extends PureComponent {
 		this.setState({
 			'showAddColorBookForm': false,
 		});
-	}
-
-	clearErrors() {
-		const { dispatch } = this.props;
-
-		dispatch(clearErrors());
 	}
 
 	handleClickSelectColorBook({ _id }) {
@@ -251,6 +236,7 @@ class User extends PureComponent {
 
 	render() {
 		const {
+			dispatch,
 			errors,
 			isLoading,
 			user,
@@ -273,26 +259,19 @@ class User extends PureComponent {
 		}
 
 		return (
-			<Container>
-				{!isEmpty(errors) && (
-					<Row>
-						<Col lg="12">
-							<FlashMessage
-								message={formatErrorMessages(errors)}
-								type="error"
-								onClick={this.onCloseFlashMessage}
-							/>
-						</Col>
-					</Row>
-				)}
-				{content}
-			</Container>
+			<PageWrapper
+				dispatch={dispatch}
+				errors={errors}
+			>
+				<Container>
+					{content}
+				</Container>
+			</PageWrapper>
 		);
 	}
 }
 
 User.propTypes = {
-	// '_id': PropTypes.string.isRequired,
 	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'currentPageNumber': PropTypes.number,
 	'dispatch': PropTypes.func.isRequired,

@@ -3,20 +3,32 @@ import { Container, Row, Col } from 'reactstrap';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { changePassword } from '../modules/auth';
-import isEmpty from '../modules/isEmpty';
-import { clearErrors } from '../modules/errors';
-import formatErrorMessages from '../modules/formatErrorMessages';
-import FlashMessage from '../components/FlashMessage';
+import {
+	changePassword,
+	getIsAuthenticated,
+	passwordNotChanged,
+} from '../modules/auth';
+import PageWrapper from '../components/PageWrapper';
 import ChangePasswordForm from '../components/ChangePasswordForm';
 
 class ChangePassword extends Component {
-	componentDidMount() {
-		this.clearErrors();
+	constructor() {
+		super();
+
+		// bind onClick functions to provide context
+		const functionsToBind = [
+			'onCloseFlashMessage',
+		];
+
+		functionsToBind.forEach((functionName) => {
+			this[functionName] = this[functionName].bind(this);
+		});
 	}
 
 	onCloseFlashMessage() {
-		this.clearErrors();
+		const { dispatch } = this.props;
+
+		dispatch(passwordNotChanged());
 	}
 
 	handleSubmit = ({ newPassword, oldPassword }) => {
@@ -28,43 +40,29 @@ class ChangePassword extends Component {
 		}));
 	}
 
-	clearErrors() {
-		const { dispatch } = this.props;
-
-		dispatch(clearErrors());
-	}
-
 	render() {
-		const { errors, passwordChanged } = this.props;
-		let showFlashMessage = false;
-		let message;
-		let type;
+		const { dispatch, errors, passwordChanged } = this.props;
 
-		if (!isEmpty(errors)) {
-			showFlashMessage = true;
-			message = formatErrorMessages(errors);
-			type = 'error';
-		} else if (passwordChanged) {
-			showFlashMessage = true;
+		let message = null;
+		let onClick = this.onCloseFlashMessage;
+		let type = null;
+
+		if (passwordChanged) {
 			message = 'Your password has been changed';
+			onClick = this.onCloseFlashMessage;
 			type = 'success';
 		}
 
 		return (
-			<div>
+			<PageWrapper
+				dispatch={dispatch}
+				errors={errors}
+				message={message}
+				onClick={onClick}
+				type={type}
+			>
 				<Container>
-					{showFlashMessage && (
-						<Row>
-							<Col lg="12">
-								<FlashMessage
-									message={message}
-									type={type}
-									onClick={this.onCloseFlashMessage}
-								/>
-							</Col>
-						</Row>
-					)}
-					{!passwordChanged && (
+					{getIsAuthenticated() && (
 						<Row>
 							<Col lg="12">
 								<h1>Change your password</h1>
@@ -74,8 +72,9 @@ class ChangePassword extends Component {
 							</Col>
 						</Row>
 					)}
+					{!getIsAuthenticated() && 'Log in to access this page'}
 				</Container>
-			</div>
+			</PageWrapper>
 		);
 	}
 }

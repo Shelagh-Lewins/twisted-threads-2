@@ -1,12 +1,7 @@
 // detail of a single pattern
 
 import React, { PureComponent } from 'react';
-import {
-	Button,
-	Col,
-	Container,
-	Row,
-} from 'reactstrap';
+import { Button } from 'reactstrap';
 import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Link } from 'react-router-dom';
@@ -16,6 +11,7 @@ import { addRecentPattern, getIsVerified } from '../modules/auth';
 import { findPatternTwist, getNumberOfRepeats, getPicksByTablet } from '../modules/weavingUtils';
 
 import { ColorBooks, Patterns } from '../../modules/collection';
+import PageWrapper from '../components/PageWrapper';
 import Loading from '../components/Loading';
 import WeavingDesign from '../components/WeavingDesign';
 import Weft from '../components/Weft';
@@ -23,10 +19,6 @@ import PatternPreview from '../components/PatternPreview';
 import Threading from '../components/Threading';
 import Notation from '../components/Notation';
 import PreviewOrientation from '../components/PreviewOrientation';
-import isEmpty from '../modules/isEmpty';
-import { clearErrors } from '../modules/errors';
-import formatErrorMessages from '../modules/formatErrorMessages';
-import FlashMessage from '../components/FlashMessage';
 import './Pattern.scss';
 
 const bodyClass = 'pattern';
@@ -54,7 +46,6 @@ class Pattern extends PureComponent {
 
 	componentDidMount() {
 		document.body.classList.add(bodyClass);
-		this.clearErrors();
 	}
 
 	componentDidUpdate() {
@@ -91,12 +82,6 @@ class Pattern extends PureComponent {
 		const { dispatch, _id, history } = this.props;
 
 		dispatch(copyPattern(_id, history));
-	}
-
-	clearErrors() {
-		const { dispatch } = this.props;
-
-		dispatch(clearErrors());
 	}
 
 	render() {
@@ -160,19 +145,6 @@ class Pattern extends PureComponent {
 
 				content = (
 					<>
-						<Container>
-							{!isEmpty(errors) && (
-								<Row>
-									<Col lg="12">
-										<FlashMessage
-											message={formatErrorMessages(errors)}
-											type="error"
-											onClick={this.onCloseFlashMessage}
-										/>
-									</Col>
-								</Row>
-							)}
-						</Container>
 						<h1>{name}</h1>
 						{verified && menu}
 						{links}
@@ -226,9 +198,12 @@ class Pattern extends PureComponent {
 		}
 
 		return (
-			<div>
+			<PageWrapper
+				dispatch={dispatch}
+				errors={errors}
+			>
 				{content}
-			</div>
+			</PageWrapper>
 		);
 	}
 }
