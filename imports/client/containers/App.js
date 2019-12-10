@@ -49,7 +49,7 @@ function App() {
 				<div className="app-container">
 					<Navbar />
 					<div className="main-container">
-						<DevTools />
+						{process.env.NODE_ENV === 'development' && <DevTools />}
 						<Route exact path="/login" component={Login} />
 						<Route exact path="/register" component={Register} />
 						<Route exact path="/welcome" component={Welcome} />
