@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 
 import { register } from '../modules/auth';
 import PageWrapper from '../components/PageWrapper';
-import RegisterForm from '../components/RegisterForm';
+import RegisterForm from '../forms/RegisterForm';
 
 class Register extends Component {
 	handleSubmit = ({ email, username, password }) => {

@@ -13,11 +13,11 @@ import { getPicksByTablet } from '../modules/weavingUtils';
 import { Patterns } from '../../modules/collection';
 import Loading from '../components/Loading';
 import WeavingChart from '../components/WeavingChart';
-import './InteractiveWeavingChartPage.scss';
+import './InteractiveWeavingChart.scss';
 
-const bodyClass = 'interactive-weaving-chart-page';
+const bodyClass = 'interactive-weaving-chart';
 
-class InteractiveWeavingChartPage extends PureComponent {
+class InteractiveWeavingChart extends PureComponent {
 	constructor(props) {
 		super(props);
 
@@ -25,8 +25,6 @@ class InteractiveWeavingChartPage extends PureComponent {
 			'gotUser': false, // 0 at top, increasing down
 			'selectedRowHasBeenSet': false, // ensure we only load selectedRow from database once
 		};
-
-		// TODO start at saved value, or row 1
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
@@ -203,9 +201,10 @@ class InteractiveWeavingChartPage extends PureComponent {
 	}
 }
 
-InteractiveWeavingChartPage.propTypes = {
+InteractiveWeavingChart.propTypes = {
 	'_id': PropTypes.string.isRequired,
 	'dispatch': PropTypes.func.isRequired,
+	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 	'picksByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
@@ -214,6 +213,7 @@ InteractiveWeavingChartPage.propTypes = {
 function mapStateToProps(state, ownProps) {
 	return {
 		'_id': ownProps.match.params.id, // read the url parameter to find the id of the pattern
+		'errors': state.errors,
 		'isLoading': state.pattern.isLoading,
 	};
 }
@@ -232,6 +232,6 @@ const Tracker = withTracker(({ _id, dispatch }) => {
 		'pattern': pattern,
 		'picksByTablet': getPicksByTablet(pattern),
 	};
-})(InteractiveWeavingChartPage);
+})(InteractiveWeavingChart);
 
 export default connect(mapStateToProps)(Tracker);

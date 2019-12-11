@@ -4,7 +4,7 @@ import { Button } from 'reactstrap';
 import { PhotoshopPicker } from 'react-color';
 import PropTypes from 'prop-types';
 import { editColorBookColor, editColorBookName } from '../modules/colorBook';
-import EditColorBookNameForm from './EditColorBookNameForm';
+import EditColorBookNameForm from '../forms/EditColorBookNameForm';
 import './ColorBook.scss';
 
 class ColorBook extends PureComponent {

@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import { passwordNotReset, resetPassword } from '../modules/auth';
 
 import PageWrapper from '../components/PageWrapper';
-import ResetPasswordForm from '../components/ResetPasswordForm';
+import ResetPasswordForm from '../forms/ResetPasswordForm';
 
 class ResetPassword extends Component {
 	onCloseFlashMessage() {

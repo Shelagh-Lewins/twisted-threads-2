@@ -4,7 +4,7 @@ import React, { PureComponent } from 'react';
 import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { addColorBook, removeColorBook, setColorBookAdded } from '../modules/colorBook';
-import AddColorBookForm from './AddColorBookForm';
+import AddColorBookForm from '../forms/AddColorBookForm';
 import ColorBook from './ColorBook';
 import './ColorBooks.scss';
 

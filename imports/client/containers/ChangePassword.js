@@ -9,7 +9,7 @@ import {
 	passwordNotChanged,
 } from '../modules/auth';
 import PageWrapper from '../components/PageWrapper';
-import ChangePasswordForm from '../components/ChangePasswordForm';
+import ChangePasswordForm from '../forms/ChangePasswordForm';
 
 class ChangePassword extends Component {
 	constructor() {

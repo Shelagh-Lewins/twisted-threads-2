@@ -15,7 +15,7 @@ import { getIsAuthenticated, getIsVerified } from '../modules/auth';
 import { PatternPreviews, Patterns } from '../../modules/collection';
 import Loading from '../components/Loading';
 import PatternList from '../components/PatternList';
-import AddPatternForm from '../components/AddPatternForm';
+import AddPatternForm from '../forms/AddPatternForm';
 
 import { ITEMS_PER_PAGE } from '../../modules/parameters';
 import './Home.scss';

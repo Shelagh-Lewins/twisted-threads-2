@@ -9,7 +9,7 @@ import {
 	removeTablet,
 } from '../modules/pattern';
 import ChartSVG from './ChartSVG';
-import AddTabletsForm from './AddTabletsForm';
+import AddTabletsForm from '../forms/AddTabletsForm';
 import './Threading.scss';
 import { DEFAULT_PALETTE, HOLE_LABELS } from '../../modules/parameters';
 import Palette from './Palette';

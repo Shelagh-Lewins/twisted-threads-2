@@ -24,7 +24,7 @@ import Loading from '../components/Loading';
 import PatternList from '../components/PatternList';
 import PageWrapper from '../components/PageWrapper';
 import ColorBookSummary from '../components/ColorBookSummary';
-import AddColorBookForm from '../components/AddColorBookForm';
+import AddColorBookForm from '../forms/AddColorBookForm';
 
 import { ITEMS_PER_PAGE } from '../../modules/parameters';
 

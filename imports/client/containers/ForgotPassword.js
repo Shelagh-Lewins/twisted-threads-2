@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 
 import { forgotPassword, forgotPasswordEmailNotSent } from '../modules/auth';
 import PageWrapper from '../components/PageWrapper';
-import ForgotPasswordForm from '../components/ForgotPasswordForm';
+import ForgotPasswordForm from '../forms/ForgotPasswordForm';
 
 class ForgotPassword extends Component {
 	constructor() {

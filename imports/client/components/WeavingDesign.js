@@ -9,8 +9,8 @@ import {
 	removeWeavingRow,
 } from '../modules/pattern';
 import ChartSVG from './ChartSVG';
-import AddRowsForm from './AddRowsForm';
-import EditWeavingCellForm from './EditWeavingCellForm';
+import AddRowsForm from '../forms/AddRowsForm';
+import EditWeavingCellForm from '../forms/EditWeavingCellForm';
 import './Threading.scss';
 import './WeavingDesign.scss';
 

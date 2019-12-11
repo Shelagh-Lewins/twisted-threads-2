@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { login } from '../modules/auth';
 import { clearErrors } from '../modules/errors';
 import PageWrapper from '../components/PageWrapper';
-import LoginForm from '../components/LoginForm';
+import LoginForm from '../forms/LoginForm';
 
 class Login extends Component {
 	componentDidMount() {
