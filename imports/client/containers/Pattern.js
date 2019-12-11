@@ -110,9 +110,12 @@ class Pattern extends PureComponent {
 		if (isReady) {
 			if (name && name !== '') {
 				const links = (
-					<div className="links">
-						<Link className="btn btn-primary" to={`/pattern/${_id}/weaving`}>Interactive weaving chart</Link>
-					</div>
+					<>
+						<div className="links">
+							<Link className="btn btn-secondary" to={`/pattern/${_id}/print-view`}>Printer-friendly pattern</Link>
+							<Link className="btn btn-secondary" to={`/pattern/${_id}/weaving`}>Interactive weaving chart</Link>
+						</div>
+					</>
 				);
 
 				const menu = (

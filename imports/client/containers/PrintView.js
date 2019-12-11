@@ -12,6 +12,7 @@ import { getPicksByTablet } from '../modules/weavingUtils';
 import { Patterns } from '../../modules/collection';
 import Loading from '../components/Loading';
 import WeavingChartPrint from '../components/WeavingChartPrint';
+import ThreadingPrint from '../components/WeavingChartPrint';
 import './PrintView.scss';
 
 const bodyClass = 'print-view';
@@ -69,10 +70,15 @@ class PrintView extends PureComponent {
 						{links}
 						{/* if navigating from the home page, the pattern summary is in MiniMongo before Tracker sets isLoading to true. This doesn't include the detail fields so we need to prevent errors. */}
 						{pattern.patternDesign && (
-							<WeavingChartPrint
-								pattern={pattern}
-								picksByTablet={picksByTablet}
-							/>
+							<>
+								<WeavingChartPrint
+									pattern={pattern}
+									picksByTablet={picksByTablet}
+								/>
+								<ThreadingPrint
+									pattern={pattern}
+								/>
+							</>
 						)}
 					</>
 				);

@@ -43,29 +43,39 @@ library.add(
 	faTrash,
 ); // and add them to your library
 
+const PrintViewContainer = () => (
+	<div className="app-container">
+		<Route exact path="/pattern/:id/print-view" component={WeavingPrintView} />
+	</div>
+);
+
+const DefaultContainer = () => (
+	<div className="app-container">
+		<Navbar />
+		<div className="main-container">
+			{process.env.NODE_ENV === 'development' && <DevTools />}
+			<Route exact path="/login" component={Login} />
+			<Route exact path="/register" component={Register} />
+			<Route exact path="/welcome" component={Welcome} />
+			<Route exact path="/account" component={Account} />
+			<Route exact path="/verify-email/:token" component={VerifyEmail} />
+			<Route exact path="/change-password" component={ChangePassword} />
+			<Route exact path="/forgot-password" component={ForgotPassword} />
+			<Route exact path="/reset-password/:token" component={ResetPassword} />
+			<Route exact path="/" component={Home} />
+			<Route exact path="/pattern/:id" component={Pattern} />
+			<Route exact path="/pattern/:id/weaving" component={InteractiveWeavingChart} />
+			<Route exact path="/user/:id" component={User} />
+		</div>
+	</div>
+);
+
 function App() {
 	return (
 		<Provider store={store}>
 			<Router>
-				<div className="app-container">
-					<Navbar />
-					<div className="main-container">
-						{process.env.NODE_ENV === 'development' && <DevTools />}
-						<Route exact path="/login" component={Login} />
-						<Route exact path="/register" component={Register} />
-						<Route exact path="/welcome" component={Welcome} />
-						<Route exact path="/account" component={Account} />
-						<Route exact path="/verify-email/:token" component={VerifyEmail} />
-						<Route exact path="/change-password" component={ChangePassword} />
-						<Route exact path="/forgot-password" component={ForgotPassword} />
-						<Route exact path="/reset-password/:token" component={ResetPassword} />
-						<Route exact path="/" component={Home} />
-						<Route exact path="/pattern/:id" component={Pattern} />
-						<Route exact path="/pattern/:id/weaving" component={InteractiveWeavingChart} />
-						<Route exact path="/pattern/:id/print-view" component={WeavingPrintView} />
-						<Route exact path="/user/:id" component={User} />
-					</div>
-				</div>
+				<Route exact path="/pattern/:id/print-view" component={PrintViewContainer}/>
+				<Route component={DefaultContainer}/>
 			</Router>
 		</Provider>
 	);
