@@ -30,6 +30,7 @@ import Home from './Home';
 import Pattern from './Pattern';
 import User from './User';
 import InteractiveWeavingChart from './InteractiveWeavingChart';
+import WeavingPrintView from './PrintView';
 import DevTools from '../components/DevTools';
 import './App.scss';
 
@@ -61,6 +62,7 @@ function App() {
 						<Route exact path="/" component={Home} />
 						<Route exact path="/pattern/:id" component={Pattern} />
 						<Route exact path="/pattern/:id/weaving" component={InteractiveWeavingChart} />
+						<Route exact path="/pattern/:id/print-view" component={WeavingPrintView} />
 						<Route exact path="/user/:id" component={User} />
 					</div>
 				</div>
