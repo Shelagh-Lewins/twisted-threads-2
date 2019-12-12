@@ -17,18 +17,12 @@ import { HOLE_LABELS } from '../../modules/parameters';
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
 class ThreadingPrint extends PureComponent {
-	selectColor(index) {
-		this.setState({
-			'selectedColorIndex': index,
-		});
-	}
-
 	renderCell(colorIndex, rowIndex, tabletIndex) {
 		const {
 			pattern,
 			'pattern': { holes, orientations },
 		} = this.props;
-		const { isEditing } = this.state;
+
 		const orientation = orientations[tabletIndex];
 
 		return (
@@ -141,13 +135,9 @@ class ThreadingPrint extends PureComponent {
 	}
 
 	render() {
-		const { 'pattern': { createdBy } } = this.props;
-		const canEdit = createdBy === Meteor.userId();
-
 		return (
 			<div className="threading">
 				<h2>Threading chart</h2>
-				{canEdit && this.renderControls()}
 				<div className="content">
 					{this.renderChart()}
 					{this.renderOrientations()}

@@ -12,7 +12,7 @@ import { getPicksByTablet } from '../modules/weavingUtils';
 import { Patterns } from '../../modules/collection';
 import Loading from '../components/Loading';
 import WeavingChartPrint from '../components/WeavingChartPrint';
-import ThreadingPrint from '../components/WeavingChartPrint';
+import ThreadingPrint from '../components/ThreadingPrint';
 import './PrintView.scss';
 
 const bodyClass = 'print-view';
