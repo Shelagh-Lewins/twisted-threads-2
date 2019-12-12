@@ -3,7 +3,6 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import PageWrapper from '../components/PageWrapper';
 import { setIsLoading } from '../modules/pattern';
@@ -58,7 +57,7 @@ class PrintView extends PureComponent {
 
 		const links = (
 			<div className="links">
-				<Link className="btn btn-primary" to={`/pattern/${_id}`}>Close interactive weaving chart</Link>
+				<p>{`Printed from ${Meteor.absoluteUrl()}pattern/${_id}`}</p>
 			</div>
 		);
 

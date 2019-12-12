@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Provider } from 'react-redux';
 // fontawesome
 import { library } from '@fortawesome/fontawesome-svg-core';
@@ -44,13 +44,13 @@ library.add(
 ); // and add them to your library
 
 const PrintViewContainer = () => (
-	<div className="app-container">
+	<div className="app-container-1">
 		<Route exact path="/pattern/:id/print-view" component={WeavingPrintView} />
 	</div>
 );
 
 const DefaultContainer = () => (
-	<div className="app-container">
+	<div className="app-container-2">
 		<Navbar />
 		<div className="main-container">
 			{process.env.NODE_ENV === 'development' && <DevTools />}
@@ -74,8 +74,10 @@ function App() {
 	return (
 		<Provider store={store}>
 			<Router>
-				<Route exact path="/pattern/:id/print-view" component={PrintViewContainer}/>
-				<Route component={DefaultContainer}/>
+				<Switch>
+					<Route exact path="/pattern/:id/print-view" component={PrintViewContainer} />
+					<Route component={DefaultContainer} />
+				</Switch>
 			</Router>
 		</Provider>
 	);

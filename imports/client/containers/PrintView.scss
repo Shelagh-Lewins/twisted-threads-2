@@ -1,5 +1,22 @@
 @import "../constants/variables";
 
-.print-view {
+body {
+	&.print-view {
+		background-color: $color-print-background;
+		color: $color-print-color !important;
+		float: left;
+		height: auto;
+		overflow: auto;
+		padding: 16px;
+		width: auto;
+	}
+}
 
+.print-view {
+	h1 {
+		border: 0;
+		font-size: 20px !important;
+		font-weight: bold;
+		text-align: center;
+	}
 }
