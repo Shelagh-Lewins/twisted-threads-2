@@ -62,7 +62,7 @@ const DefaultContainer = () => (
 			<Route exact path="/forgot-password" component={ForgotPassword} />
 			<Route exact path="/reset-password/:token" component={ResetPassword} />
 			<Route exact path="/" component={Home} />
-			<Route exact path="/pattern/:id" component={Pattern} />
+			<Route exact path="/pattern/:id/:tab?" component={Pattern} />
 			<Route exact path="/pattern/:id/weaving" component={InteractiveWeavingChart} />
 			<Route exact path="/user/:id" component={User} />
 		</div>

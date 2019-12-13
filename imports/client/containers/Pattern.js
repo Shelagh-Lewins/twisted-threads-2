@@ -102,15 +102,34 @@ class Pattern extends PureComponent {
 				previewOrientation,
 			},
 			picksByTablet,
+			tab,
 			verified,
 		} = this.props;
 		const { isReady } = this.state;
-		const canEdit = createdBy === Meteor.userId();
 
 		let content = <Loading />;
 
 		if (isReady) {
 			if (name && name !== '') {
+				const canEdit = createdBy === Meteor.userId();
+
+				const tabs = (
+					<div className="main-tabs">
+						<ul>
+							<li className={`design ${tab === 'design' ? 'selected' : ''}`}>
+								<Link to={`/pattern/${_id}/design`}>
+								Pattern design
+								</Link>
+							</li>
+							<li className={`description ${tab === 'description' ? 'selected' : ''}`}>
+								<Link to={`/pattern/${_id}/description`}>
+								Description
+								</Link>
+							</li>
+						</ul>
+					</div>
+				);
+
 				const links = (
 					<>
 						<div className="links">
@@ -151,6 +170,7 @@ class Pattern extends PureComponent {
 				content = (
 					<>
 						<h1>{name}</h1>
+						{tabs}
 						<p>{`Created by: ${createdByUser.username}`}</p>
 						<p>{`Pattern type: ${patternType}`}</p>
 						{verified && menu}
@@ -228,6 +248,7 @@ Pattern.propTypes = {
 	'isLoading': PropTypes.bool.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 	'picksByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'tab': PropTypes.string.isRequired,
 	'verified': PropTypes.bool.isRequired,
 };
 
@@ -237,6 +258,7 @@ function mapStateToProps(state, ownProps) {
 		'_id': ownProps.match.params.id, // read the url parameter to find the id of the pattern
 		'isLoading': state.pattern.isLoading,
 		'errors': state.errors,
+		'tab': ownProps.match.params.tab || 'design',
 		'verified': getIsVerified(), // calling getUser here causes an infinite update loop. But getting just a boolean is OK.
 	};
 }
