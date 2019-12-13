@@ -9,6 +9,65 @@
 		clear: both;
 	}
 
+	.main-tabs {
+		clear: both;
+
+		ul {
+			text-align: left;
+			font-size: 0;
+			margin: 16px 0 0 0;
+			padding: 0;
+			padding-left: 20px;
+			list-style-type: none;
+		}
+
+		li {
+			margin: 0;
+			margin-right: 2px;
+			padding: 0;
+			display: inline;
+
+			&.selected {
+				a {
+					background: $color-pattern-page-background;
+					border-color: $color-tab-border;
+					color: $color-text;
+					z-index: 3;
+				}
+			}
+		}
+
+		a {
+			background: $color-tab-inactive-background;
+			padding: 0 10px;
+			display: inline-block;
+			font-size: 16px;
+			line-height: 32px;
+			text-decoration: none;
+			color: $color-tab-inactive-color;			
+			outline: none;
+			border: 1px solid $color-tab-border;
+			border-bottom: none;
+			border-radius: 5px 5px 0 0;
+			position: relative;
+			cursor: pointer;
+		}
+
+		.keyline {
+			border: none;
+			border-top: 1px solid $color-tab-border;
+			border-radius: 0;
+			background-color: $color-pattern-page-background;
+			position: relative;
+			padding: 0;
+			margin: 0;
+			outline: none;
+			margin-top: -1px;
+			font-size: 1px;
+			max-width: 600px;
+		}
+	}
+
 	/* forms in edit weaving, threading */
 	.edit-pattern-form {
 		label {

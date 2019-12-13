@@ -127,6 +127,7 @@ class Pattern extends PureComponent {
 								</Link>
 							</li>
 						</ul>
+						<div className="keyline" />
 					</div>
 				);
 
