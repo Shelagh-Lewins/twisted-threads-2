@@ -93,8 +93,8 @@ class PrintView extends PureComponent {
 							X
 							</Button>
 							<h2>Check your print settings</h2>
-							<p>Look at the print preview to see if your browser is set up to print background colours.</p>
-							<p>If you&apos;re not sure how to change the print settings, try searching the web for instructions, for example &quot;Firefox print background color&quot; or &quot;Internet Explorer 10 print background color&quot;.</p>
+							<p>Look at the print preview before printing. If you do not see a background colour on any square, your browser is probably not set up to print background colours.</p>
+							<p>If you&apos;re not sure how to change the print settings, try searching the web for instructions, for example &quot;Firefox print background color&quot; or &quot;Chrome print background color&quot;.</p>
 							<p>Important! After printing your pattern, you may want to change the settings back so you won&apos;t waste ink when printing standard web pages.</p>
 						</div>
 					</div>

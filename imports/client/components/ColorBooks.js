@@ -76,7 +76,7 @@ class ColorBooks extends PureComponent {
 
 	handleClickRemoveColorBook({ _id, name }) {
 		const { colorBooks, dispatch } = this.props;
-		const response = confirm(`Do you want to delete the color book "${name}"?`); // eslint-disable-line no-restricted-globals
+		const response = confirm(`Do you want to delete the colour book "${name}"?`); // eslint-disable-line no-restricted-globals
 
 		if (response === true) {
 			// deselect the removed color book
@@ -142,7 +142,7 @@ class ColorBooks extends PureComponent {
 				className="add"
 				color="secondary"
 				onClick={this.handleClickAddButton}
-				title="Add color book"
+				title="Add colour book"
 			>
 				+ New
 			</Button>
@@ -175,14 +175,14 @@ class ColorBooks extends PureComponent {
 					/>]
 			)
 			: (
-				<p className="hint">You have no saved color books</p>
+				<p className="hint">You have no saved colour books</p>
 			);
 
 		return (
 			<div className="color-books">
 				{!showAddColorBookForm && addButton}
 				{closeButton}
-				{!showAddColorBookForm && <h2>My color books</h2>}
+				{!showAddColorBookForm && <h2>My colour books</h2>}
 				{showAddColorBookForm && (
 					<AddColorBookForm
 						handleCancel={this.cancelAddColorBook}

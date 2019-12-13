@@ -9,12 +9,17 @@
 		font-weight: bold;
 	}
 
+	p {
+		clear: both;
+	}
+
 	.item {
 		float: left;
-		margin-bottom: 16px
+		margin-bottom: 16px;
 	}
 
 	.cell {
+		background: $color-chart-background;
 		border: 1px solid $color-chart-border;
 		display: inline-block;
 		font-size: 0;
