@@ -5,6 +5,10 @@
 	min-height: 100vh;
 	position: relative;
 
+	h2 {
+		clear: both;
+	}
+
 	/* forms in edit weaving, threading */
 	.edit-pattern-form {
 		label {

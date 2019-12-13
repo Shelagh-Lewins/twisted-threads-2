@@ -176,6 +176,7 @@ class Pattern extends PureComponent {
 								picksByTablet={picksByTablet}
 							/>
 						)}
+						<h2>Weaving chart</h2>
 						{pattern.patternDesign && (
 							<WeavingDesign
 								dispatch={dispatch}
@@ -184,6 +185,7 @@ class Pattern extends PureComponent {
 								patternWillRepeat={patternWillRepeat}
 							/>
 						)}
+						<h2>Threading chart</h2>
 						{pattern.threading && (
 							<Threading
 								colorBookAdded={colorBookAdded}

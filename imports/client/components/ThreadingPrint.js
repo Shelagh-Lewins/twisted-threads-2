@@ -137,7 +137,6 @@ class ThreadingPrint extends PureComponent {
 	render() {
 		return (
 			<div className="threading">
-				<h2>Threading chart</h2>
 				<div className="content">
 					{this.renderChart()}
 					{this.renderOrientations()}

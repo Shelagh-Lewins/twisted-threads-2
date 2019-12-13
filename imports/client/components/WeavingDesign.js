@@ -304,7 +304,6 @@ class WeavingDesign extends PureComponent {
 
 		return (
 			<div className={`weaving ${isEditing ? 'editing' : ''}`}>
-				<h2>Weaving chart</h2>
 				{canEdit && this.renderControls()}
 				<div className="content">
 					{this.renderChart()}

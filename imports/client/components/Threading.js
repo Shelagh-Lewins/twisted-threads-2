@@ -381,7 +381,6 @@ class Threading extends PureComponent {
 
 		return (
 			<div className={`threading ${isEditing ? 'editing' : ''}`}>
-				<h2>Threading chart</h2>
 				{canEdit && this.renderControls()}
 				<div className="content">
 					{this.renderChart()}

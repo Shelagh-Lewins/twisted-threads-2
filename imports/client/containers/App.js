@@ -5,7 +5,6 @@ import { Provider } from 'react-redux';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import {
 	// faQuestionCircle,
-	// faBell,
 	// faUser,
 	// faFileDownload,
 	faBookOpen,
