@@ -1,3 +1,32 @@
+@import "../constants/variables";
+
 .notation {
 	clear: both;
+
+	h3 {
+		clear: both;
+		font-size: 16px !important;
+		font-weight: bold;
+	}
+
+	.item {
+		float: left;
+		margin-bottom: 16px
+	}
+
+	.cell {
+		border: 1px solid $color-chart-border;
+		display: inline-block;
+		font-size: 0;
+		height: 32px;
+		line-height: 32px;
+		margin: 0 8px 0 8px;
+		overflow: hidden;
+		vertical-align: middle;
+		width: 32px;
+
+		&.backward {
+			background: $color-weaving-backwards-bg;
+		}
+	}
 }

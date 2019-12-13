@@ -43,13 +43,13 @@ library.add(
 ); // and add them to your library
 
 const PrintViewContainer = () => (
-	<div className="app-container-1">
+	<div className="app-container">
 		<Route exact path="/pattern/:id/print-view" component={WeavingPrintView} />
 	</div>
 );
 
 const DefaultContainer = () => (
-	<div className="app-container-2">
+	<div className="app-container">
 		<Navbar />
 		<div className="main-container">
 			{process.env.NODE_ENV === 'development' && <DevTools />}

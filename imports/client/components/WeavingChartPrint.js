@@ -125,7 +125,7 @@ class WeavingChartPrint extends PureComponent {
 
 	render() {
 		return (
-			<div className="weaving">
+			<div className="weaving-chart-print">
 				<div className="content">
 					{this.renderChart()}
 				</div>

@@ -8,7 +8,7 @@ body {
 		height: auto;
 		overflow: auto;
 		padding: 16px;
-		width: auto;
+		width: 100%;
 	}
 }
 
@@ -24,5 +24,32 @@ body {
 		clear: both;
 		font-size: 20px !important;
 		font-weight: bold;
+	}
+
+	.print-hint {
+		display: block;
+		left: 50%;
+		max-width: 500px;
+		position: fixed;
+		top: 24px;
+		width: 90%;
+		z-index: 210;
+
+		.innertube {
+			background: $color-print-background;
+			border-radius: 4px;
+			box-shadow: 0 2px 4px 0 $color-pattern-summary-shadow;
+			left: -50%;
+			padding: 16px 24px 16px 16px;
+			position: relative;
+		}
+
+		h2 {
+			text-align: center;
+		}
+
+		button {
+			float: right;
+		}
 	}
 }

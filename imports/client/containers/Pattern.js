@@ -88,6 +88,7 @@ class Pattern extends PureComponent {
 		const {
 			colorBookAdded,
 			colorBooks,
+			createdByUser,
 			dispatch,
 			errors,
 			pattern,
@@ -97,6 +98,7 @@ class Pattern extends PureComponent {
 				holes,
 				name,
 				numberOfRows,
+				patternType,
 				previewOrientation,
 			},
 			picksByTablet,
@@ -149,6 +151,8 @@ class Pattern extends PureComponent {
 				content = (
 					<>
 						<h1>{name}</h1>
+						<p>{`Created by: ${createdByUser.username}`}</p>
+						<p>{`Pattern type: ${patternType}`}</p>
 						{verified && menu}
 						{links}
 						{/* if navigating from the home page, the pattern summary is in MiniMongo before Tracker sets isLoading to true. This doesn't include the detail fields so we need to prevent errors. */}
@@ -217,6 +221,7 @@ Pattern.propTypes = {
 	'_id': PropTypes.string.isRequired,
 	'colorBookAdded': PropTypes.string.isRequired,
 	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'createdByUser': PropTypes.objectOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
@@ -236,23 +241,27 @@ function mapStateToProps(state, ownProps) {
 	};
 }
 
-const Tracker = withTracker((props) => {
-	const { _id, dispatch } = props;
+const Tracker = withTracker(({ _id, dispatch }) => {
+	let pattern = {};
 	dispatch(setIsLoading(true));
 
 	Meteor.subscribe('pattern', _id, {
-		'onReady': () => dispatch(setIsLoading(false)),
+		'onReady': () => {
+			dispatch(setIsLoading(false));
+			pattern = Patterns.findOne({ _id });
+			const { createdBy } = pattern;
+			Meteor.subscribe('users', [createdBy]);
+		},
 	});
 
 	Meteor.subscribe('colorBooks');
-
-	const pattern = Patterns.findOne({ _id }) || {};
 
 	// pass database data as props
 	return {
 		'colorBooks': ColorBooks.find({}, {
 			'sort': { 'nameSort': 1 },
 		}).fetch(),
+		'createdByUser': Meteor.users.findOne({ '_id': pattern.createdBy }) || {},
 		'pattern': pattern,
 		'picksByTablet': getPicksByTablet(pattern),
 	};

@@ -1,6 +1,7 @@
 // printer-friendly view
 
 import React, { PureComponent } from 'react';
+import { Button } from 'reactstrap';
 import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
@@ -13,6 +14,7 @@ import Loading from '../components/Loading';
 import PatternPreview from '../components/PatternPreview';
 import WeavingChartPrint from '../components/WeavingChartPrint';
 import ThreadingPrint from '../components/ThreadingPrint';
+import Notation from '../components/Notation';
 import './PrintView.scss';
 
 const bodyClass = 'print-view';
@@ -22,13 +24,12 @@ class PrintView extends PureComponent {
 		super(props);
 
 		this.state = {
-			// 'gotUser': false, // 0 at top, increasing down
-			// 'selectedRowHasBeenSet': false, // ensure we only load selectedRow from database once
+			'showPrintHint': true,
 		};
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
-			// 'handleClickDown',
+			'onClickClose',
 		];
 
 		functionsToBind.forEach((functionName) => {
@@ -44,6 +45,12 @@ class PrintView extends PureComponent {
 		document.body.classList.remove(bodyClass);
 	}
 
+	onClickClose() {
+		this.setState({
+			'showPrintHint': false,
+		});
+	}
+
 	render() {
 		const {
 			dispatch,
@@ -52,20 +59,22 @@ class PrintView extends PureComponent {
 			pattern,
 			'pattern': {
 				_id,
-				createdBy,
 				holes,
 				name,
+				patternType,
 			},
 			picksByTablet,
+			createdByUser,
 		} = this.props;
+		const { showPrintHint } = this.state;
 
 		let content = <Loading />;
-		const user = Meteor.users.findOne({ '_id': createdBy }) || {};
 
 		const info = (
 			<div className="links">
-				<p>{`Printed from ${Meteor.absoluteUrl()}pattern/${_id}`}</p>
-				<p>{`Created by ${user.username}`}</p>
+				<p>{`Printed from: ${Meteor.absoluteUrl()}pattern/${_id}`}</p>
+				<p>{`Created by: ${createdByUser.username}`}</p>
+				<p>{`Pattern type: ${patternType}`}</p>
 			</div>
 		);
 
@@ -73,20 +82,42 @@ class PrintView extends PureComponent {
 			if (name && name !== '') {
 				const { patternWillRepeat } = findPatternTwist(holes, picksByTablet);
 
+				const printHint = (
+					<div className="print-hint">
+						<div className="innertube">
+							<Button
+								type="button"
+								className="close"
+								onClick={this.onClickClose}
+							>
+							X
+							</Button>
+							<h2>Check your print settings</h2>
+							<p>Look at the print preview to see if your browser is set up to print background colours.</p>
+							<p>If you&apos;re not sure how to change the print settings, try searching the web for instructions, for example &quot;Firefox print background color&quot; or &quot;Internet Explorer 10 print background color&quot;.</p>
+							<p>Important! After printing your pattern, you may want to change the settings back so you won&apos;t waste ink when printing standard web pages.</p>
+						</div>
+					</div>
+				);
+
 				content = (
 					<>
+						{showPrintHint && printHint}
 						<h1>{pattern.name}</h1>
 						{info}
 						{/* if navigating from the home page, the pattern summary is in MiniMongo before Tracker sets isLoading to true. This doesn't include the detail fields so we need to prevent errors. */}
 						{pattern.patternDesign && (
 							<>
 								{picksByTablet && picksByTablet.length > 0 && (
-									<PatternPreview
-										dispatch={dispatch}
-										pattern={pattern}
-										patternWillRepeat={patternWillRepeat}
-										picksByTablet={picksByTablet}
-									/>
+									<>
+										<h2>Woven band</h2>
+										<PatternPreview
+											dispatch={dispatch}
+											pattern={pattern}
+											patternWillRepeat={patternWillRepeat}
+											picksByTablet={picksByTablet}
+										/>
+									</>
 								)}
 								<h2>Weaving chart</h2>
 								<WeavingChartPrint
@@ -97,6 +128,7 @@ class PrintView extends PureComponent {
 								<ThreadingPrint
 									pattern={pattern}
 								/>
+								<Notation />
 							</>
 						)}
 					</>
@@ -124,6 +156,7 @@ PrintView.propTypes = {
 	'isLoading': PropTypes.bool.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 	'picksByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'createdByUser': PropTypes.objectOf(PropTypes.any).isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
@@ -134,9 +167,8 @@ function mapStateToProps(state, ownProps) {
 	};
 }
 
-let pattern = {};
-
 const Tracker = withTracker(({ _id, dispatch }) => {
+	let pattern = {};
 	dispatch(setIsLoading(true));
 
 	Meteor.subscribe('pattern', _id, {
@@ -150,6 +182,7 @@ const Tracker = withTracker(({ _id, dispatch }) => {
 
 	// pass database data as props
 	return {
+		'createdByUser': Meteor.users.findOne({ '_id': pattern.createdBy }) || {},
 		'pattern': pattern,
 		'picksByTablet': getPicksByTablet(pattern),
 	};
