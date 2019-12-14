@@ -1,13 +1,13 @@
 // detail of a single pattern
 
 import React, { PureComponent } from 'react';
-import { Button } from 'reactstrap';
+// import { Button } from 'reactstrap';
 import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { copyPattern, setIsLoading } from '../modules/pattern';
-import { addRecentPattern, getIsVerified } from '../modules/auth';
+import { setIsLoading } from '../modules/pattern';
+import { addRecentPattern } from '../modules/auth';
 import { findPatternTwist, getNumberOfRepeats, getPicksByTablet } from '../modules/weavingUtils';
 
 import { ColorBooks, Patterns } from '../../modules/collection';
@@ -23,20 +23,18 @@ import './Pattern.scss';
 
 const bodyClass = 'pattern';
 
+/* eslint-disable no-case-declarations */
+
 class Pattern extends PureComponent {
 	constructor(props) {
 		super(props);
 
 		this.state = {
-			'isReady': false, // picksByTablet has to be calculated after pattern data arrives
-			// if navigating from another page e.g. Home, it is not possible to set state.pattern.isLoading to true before Tracker runs, because setState is asynchronous
-			// so we need something that tells us we are really ready to render
 			'gotUser': false, // add to recents after user has loaded
 		};
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
-			'copyPattern',
 		];
 
 		functionsToBind.forEach((functionName) => {
@@ -52,18 +50,9 @@ class Pattern extends PureComponent {
 		const {
 			_id,
 			dispatch,
-			isLoading,
-			'pattern': { numberOfTablets },
-			picksByTablet,
 		} = this.props;
 
-		const { gotUser, isReady } = this.state;
-
-		if (!isLoading && !isReady && picksByTablet && picksByTablet.length === numberOfTablets) {
-			this.setState({
-				'isReady': true,
-			});
-		}
+		const { gotUser } = this.state;
 
 		// wait for user details to load
 		if (!gotUser && Meteor.user()) {
@@ -78,77 +67,36 @@ class Pattern extends PureComponent {
 		document.body.classList.remove(bodyClass);
 	}
 
-	copyPattern() {
-		const { dispatch, _id, history } = this.props;
-
-		dispatch(copyPattern(_id, history));
-	}
-
-	render() {
+	renderTabs() {
 		const {
 			colorBookAdded,
 			colorBooks,
 			createdByUser,
 			dispatch,
-			errors,
 			pattern,
 			'pattern': {
 				_id,
 				createdBy,
 				holes,
-				name,
 				numberOfRows,
 				patternType,
 				previewOrientation,
 			},
 			picksByTablet,
 			tab,
-			verified,
 		} = this.props;
-		const { isReady } = this.state;
 
-		let content = <Loading />;
+		const canEdit = createdBy === Meteor.userId();
 
-		if (isReady) {
-			if (name && name !== '') {
-				const canEdit = createdBy === Meteor.userId();
+		let tabContent;
 
-				const tabs = (
-					<div className="main-tabs">
-						<ul>
-							<li className={`design ${tab === 'design' ? 'selected' : ''}`}>
-								<Link to={`/pattern/${_id}/design`}>
-								Pattern design
-								</Link>
-							</li>
-							<li className={`description ${tab === 'description' ? 'selected' : ''}`}>
-								<Link to={`/pattern/${_id}/description`}>
-								Description
-								</Link>
-							</li>
-						</ul>
-						<div className="keyline" />
-					</div>
-				);
-
-				const links = (
-					<>
-						<div className="links">
-							<Link className="btn btn-secondary" to={`/pattern/${_id}/print-view`}>Printer-friendly pattern</Link>
-							<Link className="btn btn-secondary" to={`/pattern/${_id}/weaving`}>Interactive weaving chart</Link>
-						</div>
-					</>
-				);
-
-				const menu = (
-					<div className="menu">
-						<Button type="button" color="secondary" onClick={this.copyPattern}>
-							Copy pattern
-						</Button>
-					</div>
-				);
-
+		switch (tab) {
+			case 'design':
 				const { patternIsTwistNeutral, patternWillRepeat } = findPatternTwist(holes, picksByTablet);
+
+				const twistNeutralText = (
+					<span className="hint">{patternIsTwistNeutral ? 'The pattern is twist neutral.' : 'The pattern is not twist neutral.'}</span>
+				);
 
 				let repeatHint = 'The pattern will not repeat.';
 
@@ -164,19 +112,8 @@ class Pattern extends PureComponent {
 					<span className="hint">{repeatHint}</span>
 				);
 
-				const twistNeutralText = (
-					<span className="hint">{patternIsTwistNeutral ? 'The pattern is twist neutral.' : 'The pattern is not twist neutral.'}</span>
-				);
-
-				content = (
+				tabContent = (
 					<>
-						<h1>{name}</h1>
-						{tabs}
-						<p>{`Created by: ${createdByUser.username}`}</p>
-						<p>{`Pattern type: ${patternType}`}</p>
-						{verified && menu}
-						{links}
-						{/* if navigating from the home page, the pattern summary is in MiniMongo before Tracker sets isLoading to true. This doesn't include the detail fields so we need to prevent errors. */}
 						<h2>Woven band</h2>
 						{repeatText}
 						{twistNeutralText}
@@ -222,6 +159,73 @@ class Pattern extends PureComponent {
 						<Notation />
 					</>
 				);
+				break;
+
+			case 'description':
+				tabContent = (
+					<>
+						<p>{`Pattern type: ${patternType}`}</p>
+						<p>{`Created by: ${createdByUser.username}`}</p>
+					</>
+				);
+				break;
+
+			default:
+				break;
+		}
+
+		return tabContent;
+	}
+
+	render() {
+		const {
+			dispatch,
+			errors,
+			isLoading,
+			pattern,
+			tab,
+		} = this.props;
+
+		let content = <Loading />;
+
+		if (!isLoading) {
+			if (pattern) {
+				const { _id, name } = pattern;
+
+				const tabs = (
+					<div className="main-tabs">
+						<ul>
+							<li className={`design ${tab === 'design' ? 'selected' : ''}`}>
+								<Link to={`/pattern/${_id}/design`}>
+								Pattern design
+								</Link>
+							</li>
+							<li className={`description ${tab === 'description' ? 'selected' : ''}`}>
+								<Link to={`/pattern/${_id}/description`}>
+								Description
+								</Link>
+							</li>
+						</ul>
+					</div>
+				);
+
+				const links = (
+					<>
+						<div className="links">
+							<Link className="btn btn-primary" to={`/pattern/${_id}/print-view`}>Printer-friendly pattern</Link>
+							<Link className="btn btn-primary" to={`/pattern/${_id}/weaving`}>Interactive weaving chart</Link>
+						</div>
+					</>
+				);
+
+				content = (
+					<>
+						<h1>{name}</h1>
+						{links}
+						{tabs}
+						{this.renderTabs()}
+					</>
+				);
 			} else {
 				content = <p>Either this pattern does not exist or you do not have permission to view it</p>;
 			}
@@ -242,15 +246,13 @@ Pattern.propTypes = {
 	'_id': PropTypes.string.isRequired,
 	'colorBookAdded': PropTypes.string.isRequired,
 	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'createdByUser': PropTypes.objectOf(PropTypes.any).isRequired,
+	'createdByUser': PropTypes.objectOf(PropTypes.any),
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
-	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isLoading': PropTypes.bool.isRequired,
-	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
+	'pattern': PropTypes.objectOf(PropTypes.any),
 	'picksByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'tab': PropTypes.string.isRequired,
-	'verified': PropTypes.bool.isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
@@ -260,20 +262,32 @@ function mapStateToProps(state, ownProps) {
 		'isLoading': state.pattern.isLoading,
 		'errors': state.errors,
 		'tab': ownProps.match.params.tab || 'design',
-		'verified': getIsVerified(), // calling getUser here causes an infinite update loop. But getting just a boolean is OK.
 	};
 }
 
 const Tracker = withTracker(({ _id, dispatch }) => {
-	let pattern = {};
+	let pattern;
+	let createdByUser;
+
 	dispatch(setIsLoading(true));
 
 	Meteor.subscribe('pattern', _id, {
 		'onReady': () => {
-			dispatch(setIsLoading(false));
 			pattern = Patterns.findOne({ _id });
-			const { createdBy } = pattern;
-			Meteor.subscribe('users', [createdBy]);
+
+			if (pattern) {
+				// if pattern exists
+				const { createdBy } = pattern;
+
+				Meteor.subscribe('users', [createdBy], {
+					'onReady': () => {
+						dispatch(setIsLoading(false));
+						createdByUser = Meteor.users.findOne({ '_id': createdBy });
+					},
+				});
+			} else {
+				dispatch(setIsLoading(false));
+			}
 		},
 	});
 
@@ -284,9 +298,9 @@ const Tracker = withTracker(({ _id, dispatch }) => {
 		'colorBooks': ColorBooks.find({}, {
 			'sort': { 'nameSort': 1 },
 		}).fetch(),
-		'createdByUser': Meteor.users.findOne({ '_id': pattern.createdBy }) || {},
+		'createdByUser': createdByUser,
 		'pattern': pattern,
-		'picksByTablet': getPicksByTablet(pattern),
+		'picksByTablet': getPicksByTablet(pattern || {}),
 	};
 })(Pattern);
 

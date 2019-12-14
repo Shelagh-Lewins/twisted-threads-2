@@ -44,6 +44,7 @@ class PatternSummary extends PureComponent {
 			<Button
 				type="button"
 				onClick={() => handleClickButtonRemove({ _id, name })}
+				title="Delete pattern"
 			>
 				<FontAwesomeIcon icon={['fas', 'trash']} style={{ 'color': iconColors.default }} size="1x" />
 			</Button>

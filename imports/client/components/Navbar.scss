@@ -3,13 +3,28 @@
 .navbar {
 	background: $color-navbar-background;
 	color: $color-navbar-color;
+
+	.pattern-menu {
+		button {
+			background-color: transparent;
+			border-color: transparent;
+
+			&:focus {
+				outline: 1px dotted $color-navbar-focus;
+			}
+		}
+	}
+
+	.button-text {
+		margin-left: 8px;
+	}
 }
 
 .navbar-brand,
 .nav-link {
-	color: $color-navbar-color;
+	color: $color-navbar-color !important;
 
 	&:hover {
-		color: $color-navbar-hover;
+		color: $color-navbar-hover !important;
 	}
 }

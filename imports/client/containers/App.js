@@ -33,6 +33,9 @@ import WeavingPrintView from './PrintView';
 import DevTools from '../components/DevTools';
 import './App.scss';
 
+// for optional url parameter with specified options, use regex: https://stackoverflow.com/questions/47369023/react-router-v4-allow-only-certain-parameters-in-url
+// this allows pattern/id/tabname and pattern/id/weaving with different components
+
 library.add(
 	faBookOpen,
 	faClone,
@@ -62,7 +65,7 @@ const DefaultContainer = () => (
 			<Route exact path="/forgot-password" component={ForgotPassword} />
 			<Route exact path="/reset-password/:token" component={ResetPassword} />
 			<Route exact path="/" component={Home} />
-			<Route exact path="/pattern/:id/:tab?" component={Pattern} />
+			<Route exact path="/pattern/:id/:tab(design|description)?" component={Pattern} />
 			<Route exact path="/pattern/:id/weaving" component={InteractiveWeavingChart} />
 			<Route exact path="/user/:id" component={User} />
 		</div>

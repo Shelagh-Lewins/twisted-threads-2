@@ -59,9 +59,11 @@ export const addPattern = (data, history) => (dispatch) => {
 	});
 };
 
-export function removePattern(_id) {
+export function removePattern(_id, history) {
 	return () => {
 		Meteor.call('pattern.remove', _id);
+
+		history.push(`/`);
 	};
 }
 
