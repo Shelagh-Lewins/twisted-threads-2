@@ -99,7 +99,9 @@ function App() {
 	);
 }
 
-export const withDatabase = withTracker(({ dispatch, location }) => {
+export const withDatabase = withTracker((props) => {
+	const { dispatch, location } = props;
+
 	let pattern = {};
 	let createdBy;
 	let patternIdParam;
@@ -107,15 +109,30 @@ export const withDatabase = withTracker(({ dispatch, location }) => {
 	dispatch(setIsLoading(true));
 
 	// provide information for any pattern page
+	// using context allows us to send data to the page component and the Navbar with a single subscription
 	if (location) {
-		const match = matchPath(location.pathname, {
+		// Navbar always needs to know about user
+		const values = {
+			'isAuthenticated': getIsAuthenticated(),
+			'username': getUser().username,
+			'verified': getIsVerified(),
+		};
+
+		const matchPattern = matchPath(location.pathname, {
 			'path': '/pattern/:id',
 			'exact': false,
 			'strict': false,
 		});
 
-		if (match) {
-			patternIdParam = match.params.id;
+		const matchHome = matchPath(location.pathname, {
+			'path': '/',
+			'exact': false,
+			'strict': false,
+		});
+
+		if (matchPattern) {
+			// on any pattern route, page component and Navbar need pattern data
+			patternIdParam = matchPattern.params.id;
 
 			if (patternIdParam) {
 				Meteor.subscribe('pattern', patternIdParam, {
@@ -131,23 +148,29 @@ export const withDatabase = withTracker(({ dispatch, location }) => {
 
 				Meteor.subscribe('colorBooks');
 			}
+
+			pattern = Patterns.findOne({ '_id': patternIdParam }) || {};
+
+			values.colorBooks = ColorBooks.find({}, {
+				'sort': { 'nameSort': 1 },
+			}).fetch();
+			values.createdByUser = Meteor.users.findOne({ '_id': createdBy });
+			values.pattern = pattern;
+			values.patternId = pattern._id; // passed separately in case pattern doesn't exist
 		}
+
+		if (matchHome) {
+			// console.log('home page');
+			// it would be nice to pass data to Home page here
+			// for consistency
+			// however, Home needs component properties for pagination
+			// to know what patterns to subscribe to
+			// this could probably be done via Redux state
+			// but the current code is DRY so leave it for now
+		}
+
+		return values;
 	}
-
-	pattern = Patterns.findOne({ '_id': patternIdParam }) || {};
-
-	return {
-		'colorBooks': ColorBooks.find({}, {
-			'sort': { 'nameSort': 1 },
-		}).fetch(),
-		// 'createdBy': pattern.createdBy,
-		'createdByUser': Meteor.users.findOne({ '_id': createdBy }),
-		'isAuthenticated': getIsAuthenticated(),
-		'pattern': pattern,
-		'patternId': pattern._id, // passed separately from URL in case pattern doesn't exist
-		'username': getUser().username,
-		'verified': getIsVerified(),
-	};
 });
 
 // put the database data into the provider as 'value', a magic property name
@@ -157,6 +180,7 @@ function ProviderInner({
 	createdByUser,
 	isAuthenticated,
 	pattern,
+	patternId,
 	username,
 	verified,
 }) {
@@ -166,7 +190,7 @@ function ProviderInner({
 			createdByUser,
 			isAuthenticated,
 			pattern,
-			'patternId': pattern._id,
+			patternId,
 			username,
 			verified,
 		}}
@@ -176,6 +200,7 @@ function ProviderInner({
 	);
 }
 
+// all props are optional because they vary with route
 ProviderInner.propTypes = {
 	'children': PropTypes.oneOfType([
 		PropTypes.element,
@@ -184,15 +209,12 @@ ProviderInner.propTypes = {
 	]).isRequired,
 	'colorBooks': PropTypes.arrayOf(PropTypes.any),
 	'createdByUser': PropTypes.objectOf(PropTypes.any),
-	'isAuthenticated': PropTypes.bool.isRequired,
+	'isAuthenticated': PropTypes.bool,
 	'pattern': PropTypes.objectOf(PropTypes.any),
+	'patternId': PropTypes.string,
 	'username': PropTypes.string,
-	'verified': PropTypes.bool.isRequired,
+	'verified': PropTypes.bool,
 };
-
-// const mapStateToProps = (state, ownProps) => ({
-	// 'location': ownProps.location,
-// });
 
 // withRouter gives us location
 // connect gives us dispatch
