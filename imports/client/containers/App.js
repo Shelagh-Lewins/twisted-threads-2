@@ -1,6 +1,14 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import { Provider } from 'react-redux';
+import PropTypes from 'prop-types';
+import {
+	matchPath,
+	BrowserRouter as Router,
+	Route,
+	Switch,
+	withRouter,
+} from 'react-router-dom';
+import { connect, Provider } from 'react-redux';
+
 // fontawesome
 import { library } from '@fortawesome/fontawesome-svg-core';
 import {
@@ -14,8 +22,12 @@ import {
 	faPencilAlt,
 	faTrash,
 } from '@fortawesome/free-solid-svg-icons'; // import the icons you want
+import { withTracker } from 'meteor/react-meteor-data';
+import { Patterns } from '../../modules/collection';
 import store from '../modules/store';
-
+import { getIsAuthenticated, getIsVerified, getUser } from '../modules/auth';
+import { setIsLoading } from '../modules/pattern';
+import AppContext from '../modules/appContext';
 import Navbar from '../components/Navbar';
 import Login from './Login';
 import Register from './Register';
@@ -53,7 +65,7 @@ const PrintViewContainer = () => (
 
 const DefaultContainer = () => (
 	<div className="app-container">
-		<Navbar />
+		<Navbar	/>
 		<div className="main-container">
 			{process.env.NODE_ENV === 'development' && <DevTools />}
 			<Route exact path="/login" component={Login} />
@@ -76,13 +88,102 @@ function App() {
 	return (
 		<Provider store={store}>
 			<Router>
-				<Switch>
-					<Route exact path="/pattern/:id/print-view" component={PrintViewContainer} />
-					<Route component={DefaultContainer} />
-				</Switch>
+				<DatabaseProvider>
+					<Switch>
+						<Route exact path="/pattern/:id/print-view" component={PrintViewContainer} />
+						<Route component={DefaultContainer} />
+					</Switch>
+				</DatabaseProvider>
 			</Router>
 		</Provider>
 	);
 }
+
+export const withDatabase = withTracker(({ dispatch, location }) => {
+	let pattern = {};
+	let createdBy;
+	let patternIdParam;
+
+	dispatch(setIsLoading(true));
+
+	// provide information for any pattern page
+	if (location) {
+		const match = matchPath(location.pathname, {
+			'path': '/pattern/:id',
+			'exact': false,
+			'strict': false,
+		});
+
+		if (match) {
+			patternIdParam = match.params.id;
+
+			if (patternIdParam) {
+				Meteor.subscribe('pattern', patternIdParam, {
+					'onReady': () => {
+						pattern = Patterns.findOne({ '_id': patternIdParam }) || {}; // in case pattern doesn't exist or cannot be viewed
+
+						createdBy = pattern.createdBy;
+						Meteor.subscribe('users', [createdBy], {
+							'onReady': () => dispatch(setIsLoading(false)),
+						});
+					},
+				});
+			}
+		}
+	}
+
+	pattern = Patterns.findOne({ '_id': patternIdParam }) || {};
+
+	return {
+		'isAuthenticated': getIsAuthenticated(),
+		'pattern': pattern,
+		'createdBy': pattern.createdBy,
+		'patternId': pattern._id,
+		'username': getUser().username,
+		'verified': getIsVerified(),
+	};
+});
+
+// put the database data into the provider as 'value', a magic property name
+function ProviderInner({
+	children,
+	isAuthenticated,
+	pattern,
+	username,
+	verified,
+}) {
+	return (
+		<AppContext.Provider value={{
+			'createdBy': pattern.createdBy,
+			isAuthenticated,
+			pattern,
+			'patternId': pattern._id,
+			username,
+			verified,
+		}}
+		>
+			{children}
+		</AppContext.Provider>
+	);
+}
+
+ProviderInner.propTypes = {
+	'children': PropTypes.oneOfType([
+		PropTypes.element,
+		PropTypes.arrayOf(PropTypes.element),
+		PropTypes.node,
+	]).isRequired,
+	'isAuthenticated': PropTypes.bool.isRequired,
+	'pattern': PropTypes.objectOf(PropTypes.any),
+	'username': PropTypes.string,
+	'verified': PropTypes.bool.isRequired,
+};
+
+// const mapStateToProps = (state, ownProps) => ({
+	// 'location': ownProps.location,
+// });
+
+export const DatabaseProvider = withRouter(connect()(withDatabase(ProviderInner)));
+export const DatabaseConsumer = AppContext.Consumer;
 
 export default App;

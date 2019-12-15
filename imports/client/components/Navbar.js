@@ -4,15 +4,11 @@ import React, { Component } from 'react';
 import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { withTracker } from 'meteor/react-meteor-data';
-import { Link, matchPath, withRouter } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { copyPattern, removePattern } from '../modules/pattern';
-import { Patterns } from '../../modules/collection';
-
+import AppContext from '../modules/appContext';
 import './Navbar.scss';
-
-import { getIsAuthenticated, getIsVerified, getUser } from '../modules/auth';
 import { iconColors } from '../../modules/parameters';
 
 class Navbar extends Component {
@@ -23,9 +19,9 @@ class Navbar extends Component {
 		};
 	}
 
-	handleClickButtonRemove = ({ _id }) => {
-		const { dispatch, history, pattern } = this.props;
-		const response = confirm(`Do you want to delete the pattern ${pattern.name}?`); // eslint-disable-line no-restricted-globals
+	handleClickButtonRemove = ({ _id, name }) => {
+		const { dispatch, history } = this.props;
+		const response = confirm(`Do you want to delete the pattern ${name}?`); // eslint-disable-line no-restricted-globals
 
 		if (response === true) {
 			dispatch(removePattern(_id, history));
@@ -47,23 +43,26 @@ class Navbar extends Component {
 
 	render() {
 		const {
+			isLoading,
+		} = this.props;
+
+		const {
 			createdBy,
-			// gotUser,
 			isAuthenticated,
-			// 'pattern': { createdBy },
+			pattern,
 			patternId,
 			username,
 			verified,
-		} = this.props;
-// console.log('**patternId', patternId);
+		} = this.context;
+
 		let isOwner = false;
-// console.log('gotUser', gotUser);
+
 		if (patternId && Meteor.user()) {
-			// console.log('createdBy', createdBy);
 			isOwner = createdBy === Meteor.user()._id;
 		}
-// console.log('isOwner', isOwner);
-		const showPatternMenu = patternId && (verified || isOwner);
+
+		const showPatternMenu = !isLoading && patternId && (verified || isOwner);
+
 		let patternMenu;
 
 		if (showPatternMenu) {
@@ -81,7 +80,7 @@ class Navbar extends Component {
 			const buttonRemove = (
 				<Button
 					type="button"
-					onClick={() => this.handleClickButtonRemove({ '_id': patternId })}
+					onClick={() => this.handleClickButtonRemove({ '_id': patternId, 'name': pattern.name })}
 					title="Delete pattern"
 				>
 					<FontAwesomeIcon icon={['fas', 'trash']} style={{ 'color': iconColors.contrast }} size="1x" />
@@ -130,61 +129,17 @@ class Navbar extends Component {
 	}
 }
 
+Navbar.contextType = AppContext;
+
 Navbar.propTypes = {
-	'createdBy': PropTypes.string, // force update on id change e.g. if copy pattern
 	'dispatch': PropTypes.func.isRequired,
-	// 'gotUser': PropTypes.bool.isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
-	'isAuthenticated': PropTypes.bool.isRequired,
-	'pattern': PropTypes.objectOf(PropTypes.any),
-	'patternId': PropTypes.string, // force update on id change e.g. if copy pattern
-	'username': PropTypes.string,
-	'verified': PropTypes.bool.isRequired,
+	'isLoading': PropTypes.bool.isRequired,
 };
 
 const mapStateToProps = (state, ownProps) => ({
+	'isLoading': state.pattern.isLoading,
 	'location': ownProps.location,
-	'verified': getIsVerified(),
 });
 
-// withTracker makes checks of user status reactive
-const Tracker = withTracker(({ location }) => {
-	// props.match is not global. Instead we have to use matchPath to find url and params in Navbar
-	console.log('*** location', location);
-	const match = matchPath(location.pathname, {
-		'path': '/pattern/:id',
-		'exact': false,
-		'strict': false,
-	});
-console.log('*** match', match);
-	let pattern = {};
-	let createdBy;
-	let patternIdParam;
-	// let gotUser = false;
-
-	if (match) {
-		patternIdParam = match.params.id;
-
-		if (patternIdParam) {
-			Meteor.subscribe('pattern', patternIdParam, {
-				'onReady': () => {
-					pattern = Patterns.findOne({ '_id': patternIdParam }) || {}; // in case pattern doesn't exist or cannot be viewed
-					createdBy = pattern.createdBy;
-					Meteor.subscribe('users', [createdBy]);
-				},
-			});
-		}
-	}
-	// console.log('gotUser in tracker', gotUser);
-
-	return {
-		// 'gotUser': gotUser,
-		'isAuthenticated': getIsAuthenticated(),
-		'pattern': pattern,
-		'createdBy': createdBy,
-		'patternId': pattern._id,
-		'username': getUser().username,
-	};
-})(Navbar);
-
-export default withRouter(connect(mapStateToProps)(Tracker));
+export default withRouter(connect(mapStateToProps)(Navbar));
