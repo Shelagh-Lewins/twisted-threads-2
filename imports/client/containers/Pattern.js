@@ -1,16 +1,13 @@
 // detail of a single pattern
 
 import React, { PureComponent } from 'react';
-// import { Button } from 'reactstrap';
 import { connect } from 'react-redux';
-import { withTracker } from 'meteor/react-meteor-data';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { setIsLoading } from '../modules/pattern';
-import { addRecentPattern } from '../modules/auth';
-import { findPatternTwist, getNumberOfRepeats, getPicksByTablet } from '../modules/weavingUtils';
 
-import { ColorBooks, Patterns } from '../../modules/collection';
+import { addRecentPattern } from '../modules/auth';
+import AppContext from '../modules/appContext';
+import { findPatternTwist, getNumberOfRepeats, getPicksByTablet } from '../modules/weavingUtils';
 import PageWrapper from '../components/PageWrapper';
 import Loading from '../components/Loading';
 import WeavingDesign from '../components/WeavingDesign';
@@ -48,15 +45,16 @@ class Pattern extends PureComponent {
 
 	componentDidUpdate() {
 		const {
-			_id,
 			dispatch,
 		} = this.props;
 
 		const { gotUser } = this.state;
+		const { patternId } = this.context;
 
 		// wait for user details to load
-		if (!gotUser && Meteor.user()) {
-			dispatch(addRecentPattern({ 'patternId': _id }));
+		if (!gotUser && Meteor.user() && patternId) {
+			dispatch(addRecentPattern({ patternId }));
+
 			this.setState({
 				'gotUser': true,
 			});
@@ -67,24 +65,26 @@ class Pattern extends PureComponent {
 		document.body.classList.remove(bodyClass);
 	}
 
-	renderTabs() {
+	renderTabs({
+		colorBooks,
+		createdByUser,
+		pattern,
+		picksByTablet,
+	}) {
 		const {
 			colorBookAdded,
-			colorBooks,
-			createdByUser,
 			dispatch,
-			pattern,
-			'pattern': {
-				_id,
-				createdBy,
-				holes,
-				numberOfRows,
-				patternType,
-				previewOrientation,
-			},
-			picksByTablet,
 			tab,
 		} = this.props;
+
+		const {
+			_id,
+			createdBy,
+			holes,
+			numberOfRows,
+			patternType,
+			previewOrientation,
+		} = pattern;
 
 		const canEdit = createdBy === Meteor.userId();
 
@@ -182,9 +182,16 @@ class Pattern extends PureComponent {
 			dispatch,
 			errors,
 			isLoading,
-			pattern,
 			tab,
 		} = this.props;
+
+		const {
+			colorBooks,
+			createdByUser,
+			pattern,
+		} = this.context;
+
+		const picksByTablet = getPicksByTablet(pattern || {});
 
 		let content = <Loading />;
 
@@ -223,7 +230,12 @@ class Pattern extends PureComponent {
 						<h1>{name}</h1>
 						{links}
 						{tabs}
-						{this.renderTabs()}
+						{this.renderTabs({
+							colorBooks,
+							createdByUser,
+							pattern,
+							picksByTablet,
+						})}
 					</>
 				);
 			} else {
@@ -242,66 +254,23 @@ class Pattern extends PureComponent {
 	}
 }
 
+Pattern.contextType = AppContext;
+
 Pattern.propTypes = {
-	'_id': PropTypes.string.isRequired,
 	'colorBookAdded': PropTypes.string.isRequired,
-	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'createdByUser': PropTypes.objectOf(PropTypes.any),
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isLoading': PropTypes.bool.isRequired,
-	'pattern': PropTypes.objectOf(PropTypes.any),
-	'picksByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'tab': PropTypes.string.isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
 	return {
 		'colorBookAdded': state.colorBook.colorBookAdded,
-		'_id': ownProps.match.params.id, // read the url parameter to find the id of the pattern
 		'isLoading': state.pattern.isLoading,
 		'errors': state.errors,
 		'tab': ownProps.match.params.tab || 'design',
 	};
 }
 
-const Tracker = withTracker(({ _id, dispatch }) => {
-	let pattern;
-	let createdByUser;
-
-	dispatch(setIsLoading(true));
-
-	Meteor.subscribe('pattern', _id, {
-		'onReady': () => {
-			pattern = Patterns.findOne({ _id });
-
-			if (pattern) {
-				// if pattern exists
-				const { createdBy } = pattern;
-
-				Meteor.subscribe('users', [createdBy], {
-					'onReady': () => {
-						dispatch(setIsLoading(false));
-						createdByUser = Meteor.users.findOne({ '_id': createdBy });
-					},
-				});
-			} else {
-				dispatch(setIsLoading(false));
-			}
-		},
-	});
-
-	Meteor.subscribe('colorBooks');
-
-	// pass database data as props
-	return {
-		'colorBooks': ColorBooks.find({}, {
-			'sort': { 'nameSort': 1 },
-		}).fetch(),
-		'createdByUser': createdByUser,
-		'pattern': pattern,
-		'picksByTablet': getPicksByTablet(pattern || {}),
-	};
-})(Pattern);
-
-export default connect(mapStateToProps)(Tracker);
+export default connect(mapStateToProps)(Pattern);

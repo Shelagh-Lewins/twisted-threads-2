@@ -23,7 +23,7 @@ import {
 	faTrash,
 } from '@fortawesome/free-solid-svg-icons'; // import the icons you want
 import { withTracker } from 'meteor/react-meteor-data';
-import { Patterns } from '../../modules/collection';
+import { ColorBooks, Patterns } from '../../modules/collection';
 import store from '../modules/store';
 import { getIsAuthenticated, getIsVerified, getUser } from '../modules/auth';
 import { setIsLoading } from '../modules/pattern';
@@ -128,6 +128,8 @@ export const withDatabase = withTracker(({ dispatch, location }) => {
 						});
 					},
 				});
+
+				Meteor.subscribe('colorBooks');
 			}
 		}
 	}
@@ -135,10 +137,14 @@ export const withDatabase = withTracker(({ dispatch, location }) => {
 	pattern = Patterns.findOne({ '_id': patternIdParam }) || {};
 
 	return {
+		'colorBooks': ColorBooks.find({}, {
+			'sort': { 'nameSort': 1 },
+		}).fetch(),
+		// 'createdBy': pattern.createdBy,
+		'createdByUser': Meteor.users.findOne({ '_id': createdBy }),
 		'isAuthenticated': getIsAuthenticated(),
 		'pattern': pattern,
-		'createdBy': pattern.createdBy,
-		'patternId': pattern._id,
+		'patternId': pattern._id, // passed separately from URL in case pattern doesn't exist
 		'username': getUser().username,
 		'verified': getIsVerified(),
 	};
@@ -147,6 +153,8 @@ export const withDatabase = withTracker(({ dispatch, location }) => {
 // put the database data into the provider as 'value', a magic property name
 function ProviderInner({
 	children,
+	colorBooks,
+	createdByUser,
 	isAuthenticated,
 	pattern,
 	username,
@@ -154,7 +162,8 @@ function ProviderInner({
 }) {
 	return (
 		<AppContext.Provider value={{
-			'createdBy': pattern.createdBy,
+			colorBooks,
+			createdByUser,
 			isAuthenticated,
 			pattern,
 			'patternId': pattern._id,
@@ -173,6 +182,8 @@ ProviderInner.propTypes = {
 		PropTypes.arrayOf(PropTypes.element),
 		PropTypes.node,
 	]).isRequired,
+	'colorBooks': PropTypes.arrayOf(PropTypes.any),
+	'createdByUser': PropTypes.objectOf(PropTypes.any),
 	'isAuthenticated': PropTypes.bool.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any),
 	'username': PropTypes.string,
@@ -183,6 +194,8 @@ ProviderInner.propTypes = {
 	// 'location': ownProps.location,
 // });
 
+// withRouter gives us location
+// connect gives us dispatch
 export const DatabaseProvider = withRouter(connect()(withDatabase(ProviderInner)));
 export const DatabaseConsumer = AppContext.Consumer;
 

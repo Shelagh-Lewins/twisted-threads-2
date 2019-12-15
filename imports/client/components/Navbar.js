@@ -47,7 +47,6 @@ class Navbar extends Component {
 		} = this.props;
 
 		const {
-			createdBy,
 			isAuthenticated,
 			pattern,
 			patternId,
@@ -58,7 +57,7 @@ class Navbar extends Component {
 		let isOwner = false;
 
 		if (patternId && Meteor.user()) {
-			isOwner = createdBy === Meteor.user()._id;
+			isOwner = pattern.createdBy === Meteor.user()._id;
 		}
 
 		const showPatternMenu = !isLoading && patternId && (verified || isOwner);
