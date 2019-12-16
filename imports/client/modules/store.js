@@ -1,15 +1,20 @@
 import { applyMiddleware, createStore, compose } from 'redux';
-// import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProduction';
 import thunk from 'redux-thunk';
-
 import { createLogger } from 'redux-logger';
 import rootReducer from './rootReducer';
 import DevTools from '../components/DevTools';
 
 const logger = createLogger();
 
+const middleware = [thunk];
+
+// redux-logger to record all Redux actions
+if (process.env.NODE_ENV === 'development') {
+	middleware.push(logger);
+}
+
 const enhancers = [
-	applyMiddleware(thunk, logger),
+	applyMiddleware(...middleware),
 ];
 
 // in development only, add DevTools as React components

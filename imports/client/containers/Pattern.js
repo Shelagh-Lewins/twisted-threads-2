@@ -196,6 +196,7 @@ class Pattern extends PureComponent {
 		let content = <Loading />;
 
 		if (!isLoading) {
+			console.log('Pattern', pattern);
 			if (pattern) {
 				const { _id, name } = pattern;
 

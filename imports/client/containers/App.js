@@ -102,9 +102,11 @@ function App() {
 export const withDatabase = withTracker((props) => {
 	const { dispatch, location } = props;
 
-	let pattern = {};
+	let pattern;
 	let createdBy;
 	let patternIdParam;
+	let createdByUser;
+	let colorBooks;
 
 	dispatch(setIsLoading(true));
 
@@ -137,26 +139,40 @@ export const withDatabase = withTracker((props) => {
 			if (patternIdParam) {
 				Meteor.subscribe('pattern', patternIdParam, {
 					'onReady': () => {
-						pattern = Patterns.findOne({ '_id': patternIdParam }) || {}; // in case pattern doesn't exist or cannot be viewed
+						pattern = Patterns.findOne({ '_id': patternIdParam });
+console.log('subscribed pattern', pattern);
+						// check pattern is found
+						if (pattern) {
+							createdBy = pattern.createdBy;
 
-						createdBy = pattern.createdBy;
-						Meteor.subscribe('users', [createdBy], {
-							'onReady': () => dispatch(setIsLoading(false)),
-						});
+							Meteor.subscribe('users', [createdBy], {
+								'onReady': () => {
+									createdByUser = Meteor.users.findOne({ '_id': createdBy });
+									dispatch(setIsLoading(false));
+									console.log('createdByUser', createdByUser);
+									values.createdByUser = createdByUser;
+									values.pattern = pattern;
+								},
+							});
+
+							Meteor.subscribe('colorBooks', createdBy);
+
+							colorBooks = ColorBooks.find({ 'createdBy': createdBy }, {
+								'sort': { 'nameSort': 1 },
+							}).fetch();
+						} else {
+							dispatch(setIsLoading(false));
+						}
 					},
 				});
-
-				Meteor.subscribe('colorBooks');
 			}
-
-			pattern = Patterns.findOne({ '_id': patternIdParam }) || {};
-
-			values.colorBooks = ColorBooks.find({}, {
-				'sort': { 'nameSort': 1 },
-			}).fetch();
-			values.createdByUser = Meteor.users.findOne({ '_id': createdBy });
-			values.pattern = pattern;
-			values.patternId = pattern._id; // passed separately in case pattern doesn't exist
+console.log('loaded pattern', pattern);
+			if (pattern) {
+				values.colorBooks = colorBooks;
+				// values.createdByUser = createdByUser;
+				// values.pattern = pattern;
+			}
+			values.patternId = patternIdParam; // passed separately in case pattern isn't found
 		}
 
 		if (matchHome) {

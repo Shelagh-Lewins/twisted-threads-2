@@ -56,7 +56,7 @@ class Navbar extends Component {
 
 		let isOwner = false;
 
-		if (patternId && Meteor.user()) {
+		if (patternId && pattern && Meteor.user()) {
 			isOwner = pattern.createdBy === Meteor.user()._id;
 		}
 
