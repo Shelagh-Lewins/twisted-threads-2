@@ -2,9 +2,9 @@ import React, { PureComponent } from 'react';
 import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import EditableTextForm from '../forms/EditableTextForm';
-const ReactMarkdown = require('react-markdown');
-
 import './EditableText.scss';
+
+const ReactMarkdown = require('react-markdown');
 
 class EditableText extends PureComponent {
 	constructor(props) {
