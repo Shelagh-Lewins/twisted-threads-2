@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 
 const validate = (optional, values) => {
 	const errors = {};
-console.log('validate', values);
+
 	if (!values.fieldValue && !optional) {
 		errors.fieldValue = 'Required';
 	}

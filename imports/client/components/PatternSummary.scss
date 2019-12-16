@@ -6,7 +6,6 @@
 	box-shadow: 0 2px 4px 0 $color-pattern-summary-shadow;
 	display: inline;
 	float: left;
-	height: 216px;
 	margin: 0 0 16px 0;
 	padding: 0;
 	position: relative;
@@ -29,7 +28,7 @@
 	.main {
 		a {
 			display: block;
-			height: 163px;
+			hoverflow: hidden;
 			text-decoration: none;
 		}
 	}
@@ -40,14 +39,26 @@
 		display: block;
 		font-size: 16px !important;
 		font-weight: bold;
+		height: 30px;
 		overflow: hidden;
 		padding: 8px 8px 2px 8px;
 		text-overflow: ellipsis;
-		white-space: pre-line;
+		white-space: nowrap;
 
 		&:hover {
 			text-decoration: none;
 		}
+	}
+
+	.description {
+		color: $color-pattern-summary-description;
+		display: block;
+		font-size: 14px;
+		height: 32px;
+		line-height: 1.2;
+		margin: 0 8px 4px 8px;
+		overflow: hidden;
+		white-space: pre-line;
 	}
 
 	.pattern-preview {
@@ -61,8 +72,30 @@
 		width: $pattern-summary-preview-width;
 	}
 
+	.tablets {
+		background: $color-pattern-summary-tablets-background;
+		border-radius: 4px;
+		color: $color-pattern-summmary-tablets;
+		font-size: 14px;
+		left: 8px;
+		line-height: 1.2;
+		padding: 4px;
+		position: absolute;
+		top: 84px;
+		z-index: 2;
+
+		.icon {
+			background: url("images/tablet_white.svg") transparent no-repeat right 0 top 0;
+			background-size: 16px 16px;
+			float: left;
+			height: 16px;
+			margin-right: 8px;
+			width: 16px;
+		}
+	}
+
 	.footer {
-		padding: 8px;
+		padding: 0 8px 8px 8px;
 
 		button {
 			background-color: transparent;

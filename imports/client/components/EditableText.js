@@ -120,15 +120,19 @@ class EditableText extends PureComponent {
 							type={type}
 							fieldValue={fieldValue}
 						/>
-						<span className="hint">You can use <a href="https://github.github.com/gfm/" target="_blank">Markdown</a> to format text. For example:
-							<ul>
-								<li>*italic*</li>
-								<li>**bold**</li>
-								<li>[a link](http://example.com)</li>
-								<li>* shopping list</li>
-								<li>1. numbered list.</li>
-							</ul>
-						</span>
+						{type === 'textarea' && (
+							<>
+								<span className="hint">You can use <a href="https://github.github.com/gfm/" target="_blank">Markdown</a> to format text. For example:
+									<ul>
+										<li>*italic*</li>
+										<li>**bold**</li>
+										<li>[a link](http://example.com)</li>
+										<li>* shopping list</li>
+										<li>1. numbered list.</li>
+									</ul>
+								</span>
+							</>
+						)}
 					</>
 				)}
 			</>

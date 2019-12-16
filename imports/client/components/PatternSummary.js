@@ -17,7 +17,9 @@ class PatternSummary extends PureComponent {
 				{
 					_id,
 					createdBy,
+					description,
 					name,
+					numberOfTablets,
 					isPublic,
 				},
 			onChangeIsPublic,
@@ -55,6 +57,10 @@ class PatternSummary extends PureComponent {
 				<div className="main">
 					<Link to={`/pattern/${_id}`}>
 						<h3>{name}</h3>
+						<div className="description">{description}</div>
+						<div className="tablets">
+							<span className="icon"></span>{numberOfTablets}
+						</div>
 						{patternPreviewHolder}
 					</Link>
 

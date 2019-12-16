@@ -107,6 +107,7 @@ class Pattern extends PureComponent {
 			description,
 			holes,
 			numberOfRows,
+			numberOfTablets,
 			patternType,
 			previewOrientation,
 			threadingNotes,
@@ -210,7 +211,10 @@ class Pattern extends PureComponent {
 				tabContent = (
 					<div className="tab-content">
 						<p>{`Pattern type: ${patternType}`}</p>
-						<p>{`Created by: ${createdByUser.username}`}</p>
+						<p>Created by: <Link to={`/user/${createdBy}`} className="created-by">
+						{createdByUser.username}</Link>
+						</p>
+						<p>Number of tablets: {numberOfTablets}</p>
 						<EditableText
 							canEdit={canEdit}
 							fieldName="description"

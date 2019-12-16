@@ -96,6 +96,7 @@ Meteor.publish('colorBooks', function (userId) {
 const patternsFields = {
 	'createdAt': 1,
 	'createdBy': 1,
+	'description': 1,
 	'holes': 1,
 	'isPublic': 1,
 	'name': 1,
@@ -111,7 +112,6 @@ const patternsFields = {
 const patternFields = {
 	...patternsFields,
 	...{
-		'description': 1,
 		'orientations': 1,
 		'palette': 1,
 		'patternDesign': 1,

@@ -329,7 +329,7 @@ const Tracker = withTracker((props) => {
 
 	// pass database data as props
 	return {
-		'colorBooks': ColorBooks.find({}, {
+		'colorBooks': ColorBooks.find({ 'createdBy': _id }, {
 			'sort': { 'nameSort': 1 },
 		}).fetch(),
 		patterns,

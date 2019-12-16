@@ -162,8 +162,10 @@ export const withDatabase = withTracker((props) => {
 				values.createdByUser = Meteor.users.findOne({ '_id': pattern.createdBy });
 				values.pattern = pattern;
 
-				// wait for user data to load
-				if (values.createdByUser) {
+				// make sure full individual pattern data are loaded
+				// if you navigate from a user page, the pattern summary detail will already by loaded
+				// but not the full details
+				if (pattern.patternDesign) {
 					dispatch(setIsLoading(false));
 				}
 			}
