@@ -88,6 +88,7 @@ Meteor.methods({
 		}
 
 		return Patterns.insert({
+			'description': '',
 			name,
 			'nameSort': name.toLowerCase(),
 			'numberOfRows': rows,
@@ -103,6 +104,8 @@ Meteor.methods({
 			patternType,
 			// tablets,
 			threading,
+			'threadingNotes': '',
+			'weavingNotes': '',
 			'weftColor': DEFAULT_WEFT_COLOR,
 		});
 	},
@@ -240,7 +243,6 @@ Meteor.methods({
 		check(data, Match.ObjectIncluding({ 'type': String }));
 		// type specifies the update operation
 		// e.g. orientation, weftColor
-
 		const { type } = data;
 
 		if (!Meteor.userId()) {
@@ -264,6 +266,7 @@ Meteor.methods({
 		let colorHexValue;
 		let colorIndex;
 		let direction;
+		let fieldName;
 		let hole;
 		let isPublic;
 		let insertNRows;
@@ -274,6 +277,7 @@ Meteor.methods({
 		let orientation;
 		let row;
 		let tablet;
+		let fieldValue;
 
 		switch (type) {
 			case 'editIsPublic':
@@ -300,7 +304,7 @@ Meteor.methods({
 
 			case 'editWeavingCellDirection':
 				({ direction, row, tablet } = data);
-				check(direction, String);
+				check(direction, nonEmptyStringCheck);
 				check(row, Match.Integer);
 				check(tablet, validTabletsCheck);
 
@@ -594,6 +598,28 @@ Meteor.methods({
 				}
 
 				return Patterns.update({ _id }, { '$set': { 'previewOrientation': orientation } });
+
+			case 'editTextField':
+				({ fieldName, fieldValue } = data);
+				check(fieldName, nonEmptyStringCheck);
+
+				const optionalFields = [
+					'description',
+					'threadingNotes',
+					'weavingNotes',
+				];
+
+				if (optionalFields.indexOf(fieldName) === -1) {
+					check(fieldValue, nonEmptyStringCheck);
+				} else {
+					check(fieldValue, String);
+				}
+
+				// update the user's count of public patterns
+				const update3 = {};
+				update3[fieldName] = fieldValue;
+
+				return Patterns.update({ _id }, { '$set': update3 });
 
 			default:
 				break;

@@ -59,9 +59,12 @@ class PrintView extends PureComponent {
 			pattern,
 			'pattern': {
 				_id,
+				description,
 				holes,
 				name,
 				patternType,
+				threadingNotes,
+				weavingNotes,
 			},
 			picksByTablet,
 			createdByUser,
@@ -75,6 +78,12 @@ class PrintView extends PureComponent {
 				<p>{`Printed from: ${Meteor.absoluteUrl()}pattern/${_id}`}</p>
 				<p>{`Created by: ${createdByUser.username}`}</p>
 				<p>{`Pattern type: ${patternType}`}</p>
+				{description && description !== '' && (
+					<>
+						<div>{description}</div>
+						<br />
+					</>
+				)}
 			</div>
 		);
 
@@ -124,10 +133,24 @@ class PrintView extends PureComponent {
 									pattern={pattern}
 									picksByTablet={picksByTablet}
 								/>
+								{weavingNotes && weavingNotes !== '' && (
+									<>
+										<h2>Weaving notes</h2>
+										<div>{weavingNotes}</div>
+										<br />
+									</>
+								)}
 								<h2>Threading chart</h2>
 								<ThreadingPrint
 									pattern={pattern}
 								/>
+								{threadingNotes && threadingNotes !== '' && (
+									<>
+										<h2>Threading notes</h2>
+										<div>{threadingNotes}</div>
+										<br />
+									</>
+								)}
 								<Notation />
 							</>
 						)}

@@ -111,11 +111,14 @@ const patternsFields = {
 const patternFields = {
 	...patternsFields,
 	...{
+		'description': 1,
 		'orientations': 1,
 		'palette': 1,
 		'patternDesign': 1,
 		'previewOrientation': 1,
 		'threading': 1,
+		'threadingNotes': 1,
+		'weavingNotes': 1,
 		'weftColor': 1,
 	},
 };

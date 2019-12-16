@@ -30,8 +30,7 @@
 			content: "&nbps;";
 			display: block;
 			font-size: 1px;
-			margin: 0;
-			margin-top: -1px;
+			margin: -1px 0 8px 0;
 			max-width: 600px;
 			outline: none;
 			padding: 0;
@@ -74,19 +73,12 @@
 				outline-offset: -4px;
 			}
 		}
+	}
 
-		.keyline {
-			background-color: $color-pattern-page-background;
-			border: 0;
-			border-radius: 0;
-			border-top: 1px solid $color-tab-border;
-			font-size: 1px;
-			margin: 0;
-			margin-top: -1px;
-			max-width: 600px;
-			outline: none;
-			padding: 0;
-			position: relative;
+	.tab-content {
+		h2 {
+			font-size: 20px;
+			font-weight: bold;
 		}
 	}
 

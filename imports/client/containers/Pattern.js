@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import { addRecentPattern } from '../modules/auth';
+import { editTextField } from '../modules/pattern';
 import AppContext from '../modules/appContext';
 import { findPatternTwist, getNumberOfRepeats, getPicksByTablet } from '../modules/weavingUtils';
 import PageWrapper from '../components/PageWrapper';
@@ -16,6 +17,7 @@ import PatternPreview from '../components/PatternPreview';
 import Threading from '../components/Threading';
 import Notation from '../components/Notation';
 import PreviewOrientation from '../components/PreviewOrientation';
+import EditableText from '../components/EditableText';
 import './Pattern.scss';
 
 const bodyClass = 'pattern';
@@ -32,6 +34,7 @@ class Pattern extends PureComponent {
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
+			'onClickEditableTextSave',
 		];
 
 		functionsToBind.forEach((functionName) => {
@@ -44,10 +47,7 @@ class Pattern extends PureComponent {
 	}
 
 	componentDidUpdate() {
-		const {
-			dispatch,
-		} = this.props;
-
+		const { dispatch } = this.props;
 		const { gotUser } = this.state;
 		const { patternId } = this.context;
 
@@ -65,7 +65,31 @@ class Pattern extends PureComponent {
 		document.body.classList.remove(bodyClass);
 	}
 
-	renderTabs({
+	onClickEditableTextSave({ fieldValue, fieldName }) {
+		const { dispatch } = this.props;
+		const { patternId } = this.context;
+
+		dispatch(editTextField({ '_id': patternId, fieldValue, fieldName }));
+	}
+
+	// title and any other elements above tabs
+	renderHeader({ pattern }) {
+		const { createdBy, name } = pattern;
+		const canEdit = createdBy === Meteor.userId();
+
+		return (
+			<EditableText
+				canEdit={canEdit}
+				fieldName="name"
+				onClickSave={this.onClickEditableTextSave}
+				title="Name"
+				type="input"
+				fieldValue={name}
+			/>
+		);
+	}
+
+	renderTabContent({
 		colorBooks,
 		createdByUser,
 		pattern,
@@ -80,10 +104,13 @@ class Pattern extends PureComponent {
 		const {
 			_id,
 			createdBy,
+			description,
 			holes,
 			numberOfRows,
 			patternType,
 			previewOrientation,
+			threadingNotes,
+			weavingNotes,
 		} = pattern;
 
 		const canEdit = createdBy === Meteor.userId();
@@ -113,7 +140,7 @@ class Pattern extends PureComponent {
 				);
 
 				tabContent = (
-					<>
+					<div className="tab-content">
 						<h2>Woven band</h2>
 						{repeatText}
 						{twistNeutralText}
@@ -147,6 +174,15 @@ class Pattern extends PureComponent {
 								patternWillRepeat={patternWillRepeat}
 							/>
 						)}
+						<EditableText
+							canEdit={canEdit}
+							fieldName="weavingNotes"
+							onClickSave={this.onClickEditableTextSave}
+							optional={true}
+							title="Weaving notes"
+							type="textarea"
+							fieldValue={weavingNotes}
+						/>
 						<h2>Threading chart</h2>
 						{pattern.threading && (
 							<Threading
@@ -156,17 +192,35 @@ class Pattern extends PureComponent {
 								pattern={pattern}
 							/>
 						)}
+						<EditableText
+							canEdit={canEdit}
+							fieldName="threadingNotes"
+							onClickSave={this.onClickEditableTextSave}
+							optional={true}
+							title="Threading notes"
+							type="textarea"
+							fieldValue={threadingNotes}
+						/>
 						<Notation />
-					</>
+					</div>
 				);
 				break;
 
 			case 'description':
 				tabContent = (
-					<>
+					<div className="tab-content">
 						<p>{`Pattern type: ${patternType}`}</p>
 						<p>{`Created by: ${createdByUser.username}`}</p>
-					</>
+						<EditableText
+							canEdit={canEdit}
+							fieldName="description"
+							onClickSave={this.onClickEditableTextSave}
+							optional={true}
+							title="Description"
+							type="textarea"
+							fieldValue={description}
+						/>
+					</div>
 				);
 				break;
 
@@ -197,7 +251,7 @@ class Pattern extends PureComponent {
 
 		if (!isLoading) {
 			if (pattern) {
-				const { _id, name } = pattern;
+				const { _id } = pattern;
 
 				const tabs = (
 					<div className="main-tabs">
@@ -227,10 +281,10 @@ class Pattern extends PureComponent {
 
 				content = (
 					<>
-						<h1>{name}</h1>
+						{this.renderHeader({ pattern })}
 						{links}
 						{tabs}
-						{this.renderTabs({
+						{this.renderTabContent({
 							colorBooks,
 							createdByUser,
 							pattern,

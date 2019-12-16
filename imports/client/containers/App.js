@@ -142,11 +142,7 @@ export const withDatabase = withTracker((props) => {
 						if (pattern) {
 							const { createdBy } = pattern;
 
-							Meteor.subscribe('users', [createdBy], {
-								'onReady': () => {
-									dispatch(setIsLoading(false));
-								},
-							});
+							Meteor.subscribe('users', [createdBy]);
 
 							Meteor.subscribe('colorBooks', createdBy);
 						} else {
@@ -165,6 +161,11 @@ export const withDatabase = withTracker((props) => {
 				}).fetch();
 				values.createdByUser = Meteor.users.findOne({ '_id': pattern.createdBy });
 				values.pattern = pattern;
+
+				// wait for user data to load
+				if (values.createdByUser) {
+					dispatch(setIsLoading(false));
+				}
 			}
 			values.patternId = patternIdParam; // passed separately in case pattern isn't found
 		}

@@ -1,0 +1,57 @@
+@import "../constants/variables";
+
+.editable-text {
+	clear: both;
+	margin-bottom: 8px;
+
+	.controls {
+		float: right;
+
+		button {
+			margin-right: 8px;
+
+			&:last-child {
+				margin-right: 0;
+			}
+		}
+	}
+
+	h2 {
+		clear: none !important;
+		float: left;
+	}
+
+	form {
+		clear: both;
+		overflow: hidden;
+	}
+
+	label {
+		font-size: 0;
+	}
+
+	.field-value {
+		clear: both;
+	}
+
+	.hint {
+		background-color: $color-hint-background;
+		border: 1px solid $color-panel-border;
+		border-radius: 4px;
+		color: $color-hint;
+		display: block;
+		font-size: 90%;
+		margin-top: 8px;
+		padding: 8px;
+
+		a {
+			color: $color-hint;
+			font-size: 100%;
+			text-decoration: underline;
+		}
+
+		ul {
+			list-style: none;
+		}
+	}
+}

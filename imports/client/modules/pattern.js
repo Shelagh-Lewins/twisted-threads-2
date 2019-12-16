@@ -290,6 +290,24 @@ export function editPreviewOrientation({
 	};
 }
 
+// editable text fields like name, description
+export function editTextField({
+	_id,
+	fieldName,
+	fieldValue,
+}) {
+	return () => {
+		Meteor.call('pattern.edit', {
+			_id,
+			'data': {
+				fieldName,
+				fieldValue,
+				'type': 'editTextField',
+			},
+		});
+	};
+}
+
 // ///////////////////////////
 // default state
 const initialPatternState = {
