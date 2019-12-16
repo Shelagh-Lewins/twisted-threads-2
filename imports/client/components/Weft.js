@@ -120,6 +120,7 @@ class Weft extends PureComponent {
 				colorBookAdded={colorBookAdded}
 				colorBooks={colorBooks}
 				dispatch={dispatch}
+				elementId="weft-palette"
 				handleClickRestoreDefaults={this.handleClickRestoreDefaults}
 				handleEditColor={this.handleEditColor}
 				palette={palette}

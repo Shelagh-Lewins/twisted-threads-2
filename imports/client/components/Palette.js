@@ -294,6 +294,7 @@ class Palette extends PureComponent {
 	}
 
 	render() {
+		const { elementId } = this.props;
 		const { isEditing, showEditColorPanel } = this.state;
 
 		const controls = (
@@ -308,7 +309,7 @@ class Palette extends PureComponent {
 		);
 
 		return (
-			<div id="palette" className={`palette ${isEditing ? 'editing' : ''}`}>
+			<div id={elementId} className={`palette ${isEditing ? 'editing' : ''}`}>
 				{showEditColorPanel && this.renderEditColorPanel()}
 				{controls}
 				<div className="swatches">
@@ -324,6 +325,7 @@ Palette.propTypes = {
 	'colorBookAdded': PropTypes.string.isRequired,
 	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,
+	'elementId': PropTypes.string.isRequired,
 	'handleEditColor': PropTypes.func.isRequired,
 	'handleClickRestoreDefaults': PropTypes.func.isRequired,
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,

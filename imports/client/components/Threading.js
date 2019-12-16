@@ -25,6 +25,8 @@ import Palette from './Palette';
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
 class Threading extends PureComponent {
+	paletteId = 'threading-palette';
+
 	constructor(props) {
 		super(props);
 
@@ -148,7 +150,7 @@ class Threading extends PureComponent {
 
 		if (!isEditing) {
 			setTimeout(() => {
-				const element = document.getElementById('palette');
+				const element = document.getElementById(this.paletteId);
 				element.scrollIntoView({ 'behavior': 'smooth' });
 			}, 200);
 		}
@@ -365,6 +367,7 @@ class Threading extends PureComponent {
 				colorBookAdded={colorBookAdded}
 				colorBooks={colorBooks}
 				dispatch={dispatch}
+				elementId={this.paletteId}
 				handleClickRestoreDefaults={this.handleClickRestoreDefaults}
 				handleEditColor={this.handleEditColor}
 				palette={palette}
