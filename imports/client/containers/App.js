@@ -103,10 +103,7 @@ export const withDatabase = withTracker((props) => {
 	const { dispatch, location } = props;
 
 	let pattern;
-	let createdBy;
 	let patternIdParam;
-	let createdByUser;
-	let colorBooks;
 
 	dispatch(setIsLoading(true));
 
@@ -140,37 +137,34 @@ export const withDatabase = withTracker((props) => {
 				Meteor.subscribe('pattern', patternIdParam, {
 					'onReady': () => {
 						pattern = Patterns.findOne({ '_id': patternIdParam });
-console.log('subscribed pattern', pattern);
+
 						// check pattern is found
 						if (pattern) {
-							createdBy = pattern.createdBy;
+							const { createdBy } = pattern;
 
 							Meteor.subscribe('users', [createdBy], {
 								'onReady': () => {
-									createdByUser = Meteor.users.findOne({ '_id': createdBy });
 									dispatch(setIsLoading(false));
-									console.log('createdByUser', createdByUser);
-									values.createdByUser = createdByUser;
-									values.pattern = pattern;
 								},
 							});
 
 							Meteor.subscribe('colorBooks', createdBy);
-
-							colorBooks = ColorBooks.find({ 'createdBy': createdBy }, {
-								'sort': { 'nameSort': 1 },
-							}).fetch();
 						} else {
 							dispatch(setIsLoading(false));
 						}
 					},
 				});
 			}
-console.log('loaded pattern', pattern);
+
+			// we must find pattern here or the tracker doesn't update when the subscription is loaded
+			pattern = Patterns.findOne({ '_id': patternIdParam });
+
 			if (pattern) {
-				values.colorBooks = colorBooks;
-				// values.createdByUser = createdByUser;
-				// values.pattern = pattern;
+				values.colorBooks = ColorBooks.find({ 'createdBy': pattern.createdBy }, {
+					'sort': { 'nameSort': 1 },
+				}).fetch();
+				values.createdByUser = Meteor.users.findOne({ '_id': pattern.createdBy });
+				values.pattern = pattern;
 			}
 			values.patternId = patternIdParam; // passed separately in case pattern isn't found
 		}
