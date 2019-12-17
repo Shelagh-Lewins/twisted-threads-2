@@ -1,5 +1,7 @@
 import '../imports/modules/collection';
 import '../imports/server/modules/publications';
+import '../imports/server/modules/aws';
+import '../imports/server/modules/slingshot';
 
 Meteor.startup(() => {
 	Accounts.config({

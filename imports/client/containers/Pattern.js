@@ -19,11 +19,14 @@ import Threading from '../components/Threading';
 import Notation from '../components/Notation';
 import PreviewOrientation from '../components/PreviewOrientation';
 import EditableText from '../components/EditableText';
+import DropzoneUploader from '../components/DropzoneUploader';
+// import '../../modules/slingshot';
 import './Pattern.scss';
 
 const bodyClass = 'pattern';
 
 /* eslint-disable no-case-declarations */
+
 
 class Pattern extends PureComponent {
 	constructor(props) {
@@ -65,6 +68,29 @@ class Pattern extends PureComponent {
 
 	componentWillUnmount() {
 		document.body.classList.remove(bodyClass);
+	}
+
+	onUploadFileChange(event) {
+		const file = event.target.files[0];
+		console.log('selected');
+		console.log('file', file);
+
+		const uploader = new Slingshot.Upload("myImageUploads");
+console.log('uploader', uploader);
+		uploader.send(file, function (error, downloadUrl) {
+			if (error) {
+				// Log service detailed response.
+				console.log('error', error);
+				if (uploader.xhr) {
+				console.error('Error uploading', uploader.xhr.response);
+			}
+				alert (error);
+			}
+			else {
+				console.log('uploaded', downloadUrl);
+				// Meteor.users.update(Meteor.userId(), {$push: {"profile.files": downloadUrl}});
+			}
+		});
 	}
 
 	onClickEditableTextSave({ fieldValue, fieldName }) {
@@ -263,6 +289,15 @@ class Pattern extends PureComponent {
 							title="Description"
 							type="textarea"
 							fieldValue={description}
+						/>
+						<h2>Images</h2>
+						{/* <DropzoneUploader
+							patternId={pattern._id} */}
+						<input
+							type="file"
+							className="uploadFile"
+							id="uploadFile"
+							onChange={this.onUploadFileChange}
 						/>
 					</div>
 				);
