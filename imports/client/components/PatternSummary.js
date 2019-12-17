@@ -59,7 +59,8 @@ class PatternSummary extends PureComponent {
 						<h3>{name}</h3>
 						<div className="description">{description}</div>
 						<div className="tablets">
-							<span className="icon"></span>{numberOfTablets}
+							<span className="icon" />
+							{numberOfTablets}
 						</div>
 						{patternPreviewHolder}
 					</Link>
