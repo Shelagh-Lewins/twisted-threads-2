@@ -124,4 +124,13 @@
 			margin-right: 8px;
 		}
 	}
+
+	.pattern-is-public {
+		clear: both;
+		overflow: hidden;
+
+		button {
+			float: right;
+		}
+	}
 }

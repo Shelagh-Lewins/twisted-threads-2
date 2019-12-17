@@ -40,7 +40,6 @@ const IsPublicIndicator = (props) => {
 };
 
 IsPublicIndicator.propTypes = {
-	'canEdit': PropTypes.bool.isRequired,
 	'isPublic': PropTypes.bool.isRequired,
 	'onChangeIsPublic': PropTypes.func.isRequired,
 	'targetId': PropTypes.string.isRequired,

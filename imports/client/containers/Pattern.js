@@ -1,12 +1,13 @@
 // detail of a single pattern
 
 import React, { PureComponent } from 'react';
+import { Button } from 'reactstrap';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import { addRecentPattern } from '../modules/auth';
-import { editTextField } from '../modules/pattern';
+import { editIsPublic, editTextField } from '../modules/pattern';
 import AppContext from '../modules/appContext';
 import { findPatternTwist, getNumberOfRepeats, getPicksByTablet } from '../modules/weavingUtils';
 import PageWrapper from '../components/PageWrapper';
@@ -34,6 +35,7 @@ class Pattern extends PureComponent {
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
+			'onChangeIsPublic',
 			'onClickEditableTextSave',
 		];
 
@@ -72,6 +74,14 @@ class Pattern extends PureComponent {
 		dispatch(editTextField({ '_id': patternId, fieldValue, fieldName }));
 	}
 
+	onChangeIsPublic = () => {
+		const { dispatch } = this.props;
+		const { pattern } = this.context;
+		const { _id, isPublic } = pattern;
+
+		dispatch(editIsPublic({ _id, 'isPublic': !isPublic }));
+	};
+
 	// title and any other elements above tabs
 	renderHeader({ pattern }) {
 		const { createdBy, name } = pattern;
@@ -86,6 +96,35 @@ class Pattern extends PureComponent {
 				type="input"
 				fieldValue={name}
 			/>
+		);
+	}
+
+	renderIsPublic() {
+		const { pattern } = this.context;
+		const { isPublic } = pattern;
+
+		const hintText = isPublic
+			? 'Public: people can see this pattern but they can\'t edit it.'
+			: 'Private: nobody else can see this pattern.';
+
+		const buttonText = isPublic
+			? 'Make pattern private'
+			: 'Make pattern public';
+
+		return (
+			<>
+				<div className="pattern-is-public">
+					<Button
+						type="button"
+						onClick={this.onChangeIsPublic}
+						className="btn btn-default"
+					>
+						{buttonText}
+					</Button>
+					<span className="text"><p>{hintText}</p></span>
+				</div>
+				<div className="clearing" />
+			</>
 		);
 	}
 
@@ -214,6 +253,7 @@ class Pattern extends PureComponent {
 						<p>Created by: <Link to={`/user/${createdBy}`} className="created-by">
 						{createdByUser.username}</Link>
 						</p>
+						{canEdit && this.renderIsPublic()}
 						<p>Number of tablets: {numberOfTablets}</p>
 						<EditableText
 							canEdit={canEdit}
