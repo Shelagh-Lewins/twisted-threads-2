@@ -93,3 +93,13 @@ export const iconColors = {
 	'default': '#7580ac',
 	'contrast': '#fff',
 };
+
+export const ROLE_LIMITS = {
+	'default': {
+		'numberOfPatternImages': 0,
+	},
+	'verified': {
+		'numberOfPatternImages': 20,
+	},
+};
+export const NUMBER_OF_ACTIONS_LOGGED = 10;

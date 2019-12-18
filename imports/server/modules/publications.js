@@ -1,8 +1,9 @@
 import { check } from 'meteor/check';
 import {
 	ColorBooks,
-	Patterns,
+	PatternImages,
 	PatternPreviews,
+	Patterns,
 } from '../../modules/collection';
 import { ITEMS_PER_PAGE } from '../../modules/parameters';
 import {
@@ -184,6 +185,7 @@ Meteor.publish('pattern', function (_id = undefined) {
 		},
 		{
 			'fields': patternFields,
+			'limit': 1,
 		},
 	);
 });
@@ -250,5 +252,25 @@ Meteor.publish('users', function (userIds) {
 				'username': 1,
 			},
 		},
+	);
+});
+
+// Pattern Images that have been uploaded by the pattern's owner
+// Show images for a particular pattern
+Meteor.publish('patternImages', function (patternId) {
+	check(patternId, Match.Maybe(nonEmptyStringCheck));
+
+	const pattern = Patterns.findOne(
+		{ '_id': patternId },
+		{ 'fields': { 'createdBy': 1, 'isPublic': 1 } },
+	);
+
+	if (!pattern.isPublic && pattern.createdBy !== this.userId) {
+		return;
+	}
+
+	return PatternImages.find(
+		{ patternId },
+		{ 'limit': 1 },
 	);
 });

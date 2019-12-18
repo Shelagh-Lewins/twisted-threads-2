@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { useDropzone } from 'react-dropzone';
-import { clearErrors, logErrors } from '../modules/errors';
+// import { clearErrors } from '../modules/errors';
+import { uploadPatternImage } from '../modules/patternImages';
 
 const baseStyle = {
 	'flex': 1,
@@ -32,14 +33,16 @@ const rejectStyle = {
 };
 
 function ImageUploader(props) {
-	const { dispatch } = props;
+	const { patternId, dispatch } = props;
 
 	const onFileChange = (files) => {
-		dispatch(clearErrors());
-
 		const file = files[0];
 
-		const uploader = new Slingshot.Upload('myImageUploads');
+		// dispatch(clearErrors());
+		dispatch(uploadPatternImage({ dispatch, patternId, file }));
+
+		return;
+		const uploader = new Slingshot.Upload('myImageUploads', patternId);
 
 		uploader.send(file, (error, downloadUrl) => {
 			if (error) {
@@ -90,6 +93,7 @@ function ImageUploader(props) {
 }
 
 ImageUploader.propTypes = {
+	'patternId': PropTypes.string.isRequired,
 	'dispatch': PropTypes.func.isRequired,
 };
 

@@ -273,6 +273,7 @@ class Pattern extends PureComponent {
 							patternId={pattern._id}
 						/> */}
 						<ImageUploader
+							patternId={pattern._id}
 							dispatch={dispatch}
 						/>
 					</div>
