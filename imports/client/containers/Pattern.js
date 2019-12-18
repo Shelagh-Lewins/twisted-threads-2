@@ -272,7 +272,9 @@ class Pattern extends PureComponent {
 						{/* <DropzoneUploader
 							patternId={pattern._id}
 						/> */}
-						<ImageUploader />
+						<ImageUploader
+							dispatch={dispatch}
+						/>
 					</div>
 				);
 				break;
