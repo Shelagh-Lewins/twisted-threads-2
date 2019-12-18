@@ -15,6 +15,7 @@ const callWithPromise = (method, myParameters) => {
 
 const DropzoneUploader = ({ patternId }) => {
 	const getUploadParams = async ({ meta }) => {
+		console.log('meta', meta);
 		const signedUrl = await callWithPromise('getUploadParams', { 'key': `test/${patternId}/${meta.name}` });
 		console.log('signedUrl in client', signedUrl);
 		return { 'url': signedUrl };

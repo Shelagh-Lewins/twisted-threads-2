@@ -17,7 +17,8 @@
 		"browser": true
 	},
 	"globals": {
-		"Factory": true
+		"Factory": true,
+		"Slingshot": true
 	},
 	"rules": {
 		"array-callback-return": [
