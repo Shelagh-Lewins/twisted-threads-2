@@ -20,6 +20,17 @@ class TagInput extends PureComponent {
 				{ id: 6, name: "Apricots" }
 			]
 		}
+
+		// bind onClick functions to provide context
+		const functionsToBind = [
+			'handleDelete',
+			'handleAddition',
+			'handleValidate',
+		];
+
+		functionsToBind.forEach((functionName) => {
+			this[functionName] = this[functionName].bind(this);
+		});
 	}
 
 	handleDelete(i) {
@@ -35,15 +46,34 @@ class TagInput extends PureComponent {
 		this.setState({ tags })
 	}
 
+	handleValidate(tag) {
+		console.log('validate', tag);
+		return tag.name.length >= 5;
+	}
+
 	render() {
 		return (
 			<ReactTags
 				allowNew={true}
+				classNames={{
+					'root': 'react-tags',
+					'rootFocused': 'is-focused',
+					'selected': 'selected',
+					'selectedTag': 'selected-tag',
+					'selectedTagName': 'selected-tag-name',
+					'search': 'search',
+					'searchInput': 'search-input',
+					'suggestions': 'suggestions',
+					'suggestionActive': 'is-active',
+					'suggestionDisabled': 'is-disabled',
+				}}
 				tags={this.state.tags}
 				suggestions={this.state.suggestions}
-				handleDelete={this.handleDelete.bind(this)}
-				handleAddition={this.handleAddition.bind(this)} />
-		)
+				handleDelete={this.handleDelete}
+				handleAddition={this.handleAddition}
+				handleValidate={this.handleValidate}
+			/>
+		);
 	}
 }
 

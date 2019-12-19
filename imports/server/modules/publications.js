@@ -4,6 +4,7 @@ import {
 	PatternImages,
 	PatternPreviews,
 	Patterns,
+	Tags,
 } from '../../modules/collection';
 import { ITEMS_PER_PAGE } from '../../modules/parameters';
 import {
@@ -271,3 +272,6 @@ Meteor.publish('patternImages', function (patternId) {
 
 	return PatternImages.find({ patternId });
 });
+
+// all tags are public
+Meteor.publish('tags', () => Tags.find());

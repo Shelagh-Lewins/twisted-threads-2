@@ -12,3 +12,6 @@ export const ActionsLog = new Mongo.Collection('ActionsLog');
 
 // images uploaded by users for specific patterns
 export const PatternImages = new Mongo.Collection('PatternImages');
+
+// tags on patterns
+export const Tags = new Mongo.Collection('Tags');
