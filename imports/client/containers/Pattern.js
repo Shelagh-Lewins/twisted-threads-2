@@ -22,6 +22,7 @@ import Notation from '../components/Notation';
 import PreviewOrientation from '../components/PreviewOrientation';
 import EditableText from '../components/EditableText';
 import ImageUploader from '../components/ImageUploader';
+import TagInput from '../components/TagInput';
 import { iconColors } from '../../modules/parameters';
 import './Pattern.scss';
 
@@ -81,7 +82,6 @@ class Pattern extends PureComponent {
 		const { dispatch } = this.props;
 		const { selectedPatternImage } = this.state;
 
-		console.log('clicked', fieldValue);
 		dispatch(editPatternImageCaption({ '_id': selectedPatternImage, fieldValue }));
 	}
 
@@ -276,6 +276,12 @@ class Pattern extends PureComponent {
 		);
 	}
 
+	renderTagInput() {
+		return (
+			<TagInput />
+		);
+	}
+
 	renderTabContent({
 		colorBooks,
 		createdByUser,
@@ -404,6 +410,7 @@ class Pattern extends PureComponent {
 						</p>
 						{canEdit && this.renderIsPublic()}
 						<p>Number of tablets: {numberOfTablets}</p>
+						{this.renderTagInput()}
 						<EditableText
 							canEdit={canEdit}
 							fieldName="description"
