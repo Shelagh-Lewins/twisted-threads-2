@@ -49,11 +49,12 @@ class EditableText extends PureComponent {
 	}
 
 	renderControls() {
+		const { editButtonText } = this.props;
 		const { isEditing } = this.state;
 
 		return (
 			<div className="controls">
-				{!isEditing && <Button color="secondary" onClick={this.onClickEdit}>Edit</Button>}
+				{!isEditing && <Button color="secondary" onClick={this.onClickEdit}>{editButtonText || 'Edit'}</Button>}
 			</div>
 		);
 	}
@@ -99,6 +100,7 @@ class EditableText extends PureComponent {
 	renderContent() {
 		const {
 			canEdit,
+			editButtonText,
 			optional,
 			title,
 			type,
@@ -113,6 +115,7 @@ class EditableText extends PureComponent {
 				{isEditing && (
 					<>
 						<EditableTextForm
+							editButtonText={editButtonText}
 							handleCancel={this.onClickCancel}
 							handleSubmit={this.onClickSave}
 							optional={optional}
@@ -155,6 +158,7 @@ class EditableText extends PureComponent {
 
 EditableText.propTypes = {
 	'canEdit': PropTypes.bool.isRequired,
+	'editButtonText': PropTypes.string,
 	'fieldName': PropTypes.string.isRequired,
 	'onClickSave': PropTypes.func.isRequired,
 	'optional': PropTypes.bool,

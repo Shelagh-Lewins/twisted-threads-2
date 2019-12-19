@@ -143,6 +143,7 @@
 			background-position: center center;
 			background-repeat: no-repeat;
 			background-size: cover;
+			cursor: pointer;
 			height: 150px;
 			width: 150px;
 
@@ -155,6 +156,59 @@
 		button {
 			svg {
 				pointer-events: none;
+			}
+		}
+
+		&.selected {
+			align-items: center;
+			background-color: $color-pattern-image-background;
+			display: flex;
+			height: 100vh;
+			justify-content: center;
+			left: 0;
+			position: fixed;
+			top: 0;
+			width: 100vw;
+			z-index: 4;
+
+			button {
+				&.close-image {
+					position: absolute;
+					right: 8px;
+					top: 8px;
+				}
+			}
+
+			.full-size {
+				background-position: center center;
+				background-repeat: no-repeat;
+				background-size: contain;
+				height: 100%;
+				padding: 8px;
+				width: 100%;
+			}
+		}
+
+		.caption {
+			background-color: $color-pattern-image-caption-bg;
+			border-radius: 4px;
+			bottom: 8px;
+			min-height: 60px;
+			overflow: hidden;
+			padding: 8px;
+			position: absolute;
+			width: 80%;
+
+			.field-value {
+				clear: none;
+			}
+
+			h2 {
+				color: $color-pattern-image-color;
+				display: inline;
+				font-size: 1rem !important;
+				font-weight: normal;
+				max-height: 100px;
 			}
 		}
 	}

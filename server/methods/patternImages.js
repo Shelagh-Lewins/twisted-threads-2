@@ -2,8 +2,8 @@ import { check } from 'meteor/check';
 import { nonEmptyStringCheck } from '../../imports/server/modules/utils';
 import { PatternImages, Patterns } from '../../imports/modules/collection';
 
+const Jimp = require('jimp');
 const AWS = require('aws-sdk');
-
 const moment = require('moment');
 
 Meteor.methods({
@@ -42,20 +42,37 @@ Meteor.methods({
 			imageId = PatternImages.insert({
 				'url': downloadUrl,
 				'key': key,
+				'caption': '',
 				'createdAt': moment().valueOf(), // current time
 				'patternId': _id,
 			});
-			return imageId;
+			// return imageId;
+		} else {
+			// uploading a new version of an existing file, just update "created_at"
+			// this is just here in case we add an "update existing picture" function. The generated keys ought to be unique otherwise.
+			imageId = PatternImages.findOne({ 'key': key }, { 'fields': { '_id': 1 } });
+			PatternImages.update({ '_id': imageId },
+				{
+					'$set': {
+						'createdAt': moment().valueOf(),
+					},
+				});
 		}
-		// uploading a new version of an existing file, just update "created_at"
-		// this is just here in case we add an "update existing picture" function. The generated keys ought to be unique otherwise.
-		imageId = PatternImages.findOne({ 'key': key }, { 'fields': { '_id': 1 } });
-		PatternImages.update({ '_id': imageId },
-			{
-				'$set': {
-					'createdAt': moment().valueOf(),
-				},
-			});
+
+		// find the image height and width
+		const image = new Jimp(downloadUrl, Meteor.bindEnvironment((error, image) => {
+			if (!error) {
+				const { height, width } = image.bitmap;
+
+				PatternImages.update({ '_id': imageId },
+					{
+						'$set': {
+							'height': height,
+							'width': width,
+						},
+					});
+			}
+		}));
 
 		return imageId;
 	},
@@ -93,7 +110,7 @@ Meteor.methods({
 		});
 
 		const params = {
-			'Bucket': process.env.AWS_BUCKET, 
+			'Bucket': process.env.AWS_BUCKET,
 			'Key': patternImage.key,
 		};
 
@@ -102,5 +119,30 @@ Meteor.methods({
 				PatternImages.remove({ _id });
 			}
 		}));
+	},
+	'patternImages.editCaption': function ({ _id, fieldValue }) {
+		check(_id, nonEmptyStringCheck);
+		check(fieldValue, String);
+
+		if (!Meteor.userId()) {
+			throw new Meteor.Error('edit-pattern-image-not-logged-in', 'Unable to edit pattern image because the user is not logged in');
+		}
+
+		if (!Meteor.user().emails[0].verified) {
+			throw new Meteor.Error('edit-pattern-image-not-verified', 'Unable to edit pattern image because the user\'s email address is not verified');
+		}
+
+		const patternImage = PatternImages.findOne({ _id });
+
+		if (!patternImage) {
+			throw new Meteor.Error('edit-pattern-image-not-found', 'Unable to edit pattern image because the pattern image was not found');
+		}
+
+		PatternImages.update({ _id },
+			{
+				'$set': {
+					'caption': fieldValue,
+				},
+			});
 	},
 });

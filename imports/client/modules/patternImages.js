@@ -37,25 +37,31 @@ export function uploadPatternImage({ dispatch, patternId, file }) { // eslint-di
 
 		const uploader = new Slingshot.Upload('myImageUploads', { patternId });
 		let computation = 0;
+		console.log('file', file);
 
-		uploader.send(file, (error, downloadUrl) => {
-			computation.stop(); // Stop progress tracking on upload finish
+		try {
+			uploader.send(file, (error, downloadUrl) => {
+				computation.stop(); // Stop progress tracking on upload finish
 
-			if (error) {
-				if (uploader.xhr) {
-					dispatch(logErrors({ 'image-upload': uploader.xhr.response }));
-				}
-				dispatch(logErrors({ 'image-upload': error.reason }));
-			} else {
-				dispatch(updateImageUploadPreview(null));
-
-				Meteor.call('patternImages.add', { '_id': patternId, downloadUrl }, (error, result) => {
-					if (error) {
-						return dispatch(logErrors({ 'add-pattern-image': error.reason }));
+				if (error) {
+					if (uploader.xhr) {
+						dispatch(logErrors({ 'image-upload': uploader.xhr.response }));
 					}
-				});
-			}
-		});
+					dispatch(logErrors({ 'image-upload': error.reason }));
+				} else {
+					dispatch(updateImageUploadPreview(null));
+
+					Meteor.call('patternImages.add', { '_id': patternId, downloadUrl }, (error, result) => {
+						if (error) {
+							return dispatch(logErrors({ 'add-pattern-image': error.reason }));
+						}
+					});
+				}
+			});
+		} catch (error) {
+			console.log('caught', error);
+			dispatch(logErrors({ 'image-upload': `error uploading image: ${error.message}` }));
+		}
 
 		dispatch(updateImageUploadPreview(uploader.url));
 
@@ -69,9 +75,14 @@ export function uploadPatternImage({ dispatch, patternId, file }) { // eslint-di
 }
 
 export function removePatternImage(_id) { // eslint-disable-line import/prefer-default-export
-	console.log('_id', _id);
 	return () => {
 		Meteor.call('patternImages.remove', { _id });
+	};
+}
+
+export function editPatternImageCaption({ _id, fieldValue }) { // eslint-disable-line import/prefer-default-export
+	return () => {
+		Meteor.call('patternImages.editCaption', { _id, fieldValue });
 	};
 }
 

@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
 
 import { addRecentPattern } from '../modules/auth';
 import { editIsPublic, editTextField } from '../modules/pattern';
-import { removePatternImage } from '../modules/patternImages';
+import { editPatternImageCaption, removePatternImage } from '../modules/patternImages';
 import AppContext from '../modules/appContext';
 import { findPatternTwist, getNumberOfRepeats, getPicksByTablet } from '../modules/weavingUtils';
 import PageWrapper from '../components/PageWrapper';
@@ -42,6 +42,8 @@ class Pattern extends PureComponent {
 		const functionsToBind = [
 			'onChangeIsPublic',
 			'onClickEditableTextSave',
+			'onClickEditCaptionSave',
+			'onClickPatternImageThumbnail',
 			'onRemovePatternImage',
 			'onToggleImageUploader',
 		];
@@ -66,6 +68,7 @@ class Pattern extends PureComponent {
 
 			this.setState({
 				'gotUser': true,
+				'selectedPatternImage': null,
 				'showImageUploader': false,
 			});
 		}
@@ -73,6 +76,14 @@ class Pattern extends PureComponent {
 
 	componentWillUnmount() {
 		document.body.classList.remove(bodyClass);
+	}
+
+	onClickEditCaptionSave({ fieldValue }) {
+		const { dispatch } = this.props;
+		const { selectedPatternImage } = this.state;
+
+		console.log('clicked', fieldValue);
+		dispatch(editPatternImageCaption({ '_id': selectedPatternImage, fieldValue }));
 	}
 
 	onClickEditableTextSave({ fieldValue, fieldName }) {
@@ -90,11 +101,17 @@ class Pattern extends PureComponent {
 		dispatch(editIsPublic({ _id, 'isPublic': !isPublic }));
 	};
 
+	onClickPatternImageThumbnail(_id) {
+		this.setState({
+			'selectedPatternImage': _id,
+		});
+	}
+
 	onRemovePatternImage(event) {
 		const { dispatch } = this.props;
 		const patternImageId = event.target.value;
-console.log('onRemove says target', event.target);
-console.log('onRemove says value', event.target.value);
+		event.stopPropagation();
+
 		const response = confirm('Do you want to delete this image?'); // eslint-disable-line no-restricted-globals
 
 		if (response === true) {
@@ -186,13 +203,62 @@ console.log('onRemove says value', event.target.value);
 	}
 
 	renderImages({ canEdit, patternImages }) {
+		const { selectedPatternImage } = this.state;
+
+		if (typeof selectedPatternImage === 'string') {
+			const patternImage = patternImages.find((image) => image._id === selectedPatternImage);
+
+			const {
+				caption,
+				height,
+				url,
+				width,
+			} = patternImage;
+
+			return (
+				<div className="pattern-images selected">
+					<Button
+						className="btn btn-secondary close-image"
+						onClick={() => this.onClickPatternImageThumbnail(null)}
+						title="Close"
+					>
+						X
+					</Button>
+					<div
+						className="full-size"
+						style={{
+							'backgroundImage': `url(${url})`,
+							'maxHeight': height,
+							'maxWidth': width,
+						}}
+					/>
+					<div className="caption">
+						<div className="text">
+							<EditableText
+								canEdit={canEdit}
+								editButtonText="Edit caption"
+								fieldName="caption"
+								onClickSave={this.onClickEditCaptionSave}
+								title="Caption"
+								type="input"
+								fieldValue={caption}
+							/>
+						</div>
+					</div>
+				</div>
+			);
+		}
 		return (
 			<div className="pattern-images">
 				{patternImages.map((patternImage) => (
 					<div
 						className="thumbnail"
 						key={patternImage._id}
+						onClick={() => this.onClickPatternImageThumbnail(patternImage._id)}
+						onKeyPress={() => this.onClickPatternImageThumbnail(patternImage._id)}
+						role="button"
 						style={{ 'backgroundImage': `url(${patternImage.url})` }}
+						tabIndex="0"
 					>
 						<div className="controls">
 							{canEdit && (
@@ -330,7 +396,7 @@ console.log('onRemove says value', event.target.value);
 				);
 				break;
 
-			case 'description':
+			case 'info':
 				tabContent = (
 					<div className="tab-content">
 						<p>{`Pattern type: ${patternType}`}</p>
@@ -396,9 +462,9 @@ console.log('onRemove says value', event.target.value);
 								Pattern design
 								</Link>
 							</li>
-							<li className={`description ${tab === 'description' ? 'selected' : ''}`}>
-								<Link to={`/pattern/${_id}/description`}>
-								Description
+							<li className={`info ${tab === 'info' ? 'selected' : ''}`}>
+								<Link to={`/pattern/${_id}/info`}>
+								Pattern info
 								</Link>
 							</li>
 						</ul>

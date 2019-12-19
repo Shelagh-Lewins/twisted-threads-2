@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
 // import { clearErrors } from '../modules/errors';
 import { uploadPatternImage } from '../modules/patternImages';
+import { logErrors } from '../modules/errors';
 import './ImageUploader.scss';
 
 const baseStyle = {
@@ -45,11 +46,13 @@ function ImageUploader(props) {
 		patternId,
 	} = props;
 
-	const onFileChange = (files) => {
+	const onFileAccept = (files) => {
 		const file = files[0];
 
 		dispatch(uploadPatternImage({ dispatch, patternId, file }));
 	};
+
+	const onFileReject = () => dispatch(logErrors({ 'add-pattern-image': 'file was not accepted. Check it is not larger than 2MB.' }));
 
 	const {
 		getRootProps,
@@ -61,7 +64,8 @@ function ImageUploader(props) {
 		'accept': 'image/*',
 		'maxSize': 5000000,
 		'multiple': false,
-		'onDrop': (acceptedFiles) => onFileChange(acceptedFiles),
+		'onDropAccepted': (acceptedFiles) => onFileAccept(acceptedFiles),
+		'onDropRejected': (acceptedFiles) => onFileReject(acceptedFiles),
 	});
 
 	const style = useMemo(() => ({
@@ -88,6 +92,7 @@ function ImageUploader(props) {
 					</Button>
 					<input {...getInputProps() /* eslint-disable-line react/jsx-props-no-spreading */} />
 					<p>Drag and drop a file here, or click to select a file</p>
+					<p>Max file size 2MB</p>
 					{imageUploadPreviewUrl && (
 						<div className="upload-preview" style={{ 'backgroundImage': `url(${imageUploadPreviewUrl})` }} />
 					)}
