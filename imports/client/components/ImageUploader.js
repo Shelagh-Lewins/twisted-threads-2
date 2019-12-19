@@ -52,7 +52,7 @@ function ImageUploader(props) {
 		dispatch(uploadPatternImage({ dispatch, patternId, file }));
 	};
 
-	const onFileReject = () => dispatch(logErrors({ 'add-pattern-image': 'file was not accepted. Check it is not larger than 2MB.' }));
+	const onFileReject = () => dispatch(logErrors({ 'add-pattern-image': 'File was not accepted. Check it is not larger than 2MB.' }));
 
 	const {
 		getRootProps,
@@ -115,7 +115,7 @@ ImageUploader.propTypes = {
 	'patternId': PropTypes.string.isRequired,
 };
 
-function mapStateToProps(state, ownProps) {
+function mapStateToProps(state) {
 	return {
 		'imageUploadPreviewUrl': state.patternImages.imageUploadPreviewUrl,
 		'imageUploadProgress': state.patternImages.imageUploadProgress,

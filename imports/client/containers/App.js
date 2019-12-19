@@ -167,7 +167,7 @@ export const withDatabase = withTracker((props) => {
 				// if you navigate from a user page, the pattern summary detail will already by loaded
 				// but not the full details, causing an error
 				// keep an eye on this! It needs to check fields that are not loaded on the Home page but exist in the full pattern
-				if (values.createdByUser && pattern.weftColor) {
+				if (values.createdByUser && pattern.patternDesign) {
 					dispatch(setIsLoading(false));
 				}
 			}

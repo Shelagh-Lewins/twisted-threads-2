@@ -37,7 +37,6 @@ export function uploadPatternImage({ dispatch, patternId, file }) { // eslint-di
 
 		const uploader = new Slingshot.Upload('myImageUploads', { patternId });
 		let computation = 0;
-		console.log('file', file);
 
 		try {
 			uploader.send(file, (error, downloadUrl) => {
@@ -59,7 +58,6 @@ export function uploadPatternImage({ dispatch, patternId, file }) { // eslint-di
 				}
 			});
 		} catch (error) {
-			console.log('caught', error);
 			dispatch(logErrors({ 'image-upload': `error uploading image: ${error.message}` }));
 		}
 
