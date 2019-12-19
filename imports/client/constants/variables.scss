@@ -61,7 +61,7 @@ $color-pattern-summary-description: #333;
 $color-pattern-summary-shadow: rgba(130, 130, 130, 1);
 $color-pattern-preview-background: #333;
 $color-pattern-summmary-tablets: #fff;
-$color-pattern-summary-tablets-background: rgba(51, 51, 51, 0.6);
+$color-pattern-summary-tablets-background: rgba(51, 51, 51, .6);
 
 $pattern-summary-preview-height: 112px;
 $pattern-summary-preview-width: 270px;
@@ -73,3 +73,6 @@ $color-color-book-summary-background: #fff;
 
 $color-print-background: #fff;
 $color-print-color: #000;
+
+$color-progress-border: #999;
+$color-progress-slider: #ccc;

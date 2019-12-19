@@ -7,7 +7,7 @@ import {
 	validPaletteIndexCheck,
 	validPatternTypeCheck,
 } from '../../imports/server/modules/utils';
-import { PatternPreviews, Patterns } from '../../imports/modules/collection';
+import { PatternImages, PatternPreviews, Patterns } from '../../imports/modules/collection';
 import {
 	ALLOWED_PREVIEW_ORIENTATIONS,
 	DEFAULT_COLOR,
@@ -103,7 +103,6 @@ Meteor.methods({
 			'orientations': new Array(tablets).fill(DEFAULT_ORIENTATION),
 			patternDesign,
 			patternType,
-			// tablets,
 			threading,
 			'threadingNotes': '',
 			'weavingNotes': '',
@@ -129,6 +128,20 @@ Meteor.methods({
 
 		// remove the pattern preview
 		PatternPreviews.remove({ 'patternId': _id });
+
+		const patternImages = PatternImages.find({ 'patternId': _id }).fetch();
+
+		// remove all pattern images
+		patternImages.forEach((patternImage) => {
+			// remove from Amazon S3
+			Meteor.call('patternImages.remove', { '_id': patternImage._id }, (error, result) => {
+				if (error) {
+					throw new Meteor.Error('remove-pattern-S3-error', `Unable to remove pattern image from S3: ${error}`);
+				}
+
+				PatternImages.remove({ '_id': patternImage._id }); // remove from local collection
+			});
+		});
 
 		// remove the pattern itself
 		return Patterns.remove({
@@ -182,12 +195,15 @@ Meteor.methods({
 		Patterns.update({ '_id': newPatternId },
 			{
 				'$set': {
+					'description': pattern.description,
 					'isPublic': false,
 					'threading': pattern.threading,
 					'orientations': pattern.orientations,
 					'palette': pattern.palette,
 					'patternDesign': pattern.patternDesign,
 					'previewOrentation': pattern.patternDesign,
+					'threadingNotes': pattern.threadingNotes,
+					'weavingNotes': pattern.weavingNotes,
 					'weftColor': pattern.weftColor,
 				},
 			});
@@ -616,9 +632,13 @@ Meteor.methods({
 					check(fieldValue, String);
 				}
 
-				// update the user's count of public patterns
 				const update3 = {};
 				update3[fieldName] = fieldValue;
+
+				// if the pattern name changes, we must also update nameSort
+				if (fieldName === 'name') {
+					update3.nameSort = fieldValue.toLowerCase();
+				}
 
 				return Patterns.update({ _id }, { '$set': update3 });
 

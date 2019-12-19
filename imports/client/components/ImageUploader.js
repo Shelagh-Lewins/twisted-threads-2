@@ -1,8 +1,11 @@
 import React, { useMemo } from 'react';
+import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
 // import { clearErrors } from '../modules/errors';
 import { uploadPatternImage } from '../modules/patternImages';
+import './ImageUploader.scss';
 
 const baseStyle = {
 	'flex': 1,
@@ -17,6 +20,7 @@ const baseStyle = {
 	'backgroundColor': '#fafafa',
 	'color': '#999',
 	'outline': 'none',
+	'position': 'relative',
 	'transition': 'border .24s ease-in-out',
 };
 
@@ -33,29 +37,20 @@ const rejectStyle = {
 };
 
 function ImageUploader(props) {
-	const { patternId, dispatch } = props;
+	const {
+		dispatch,
+		imageUploadPreviewUrl,
+		imageUploadProgress,
+		onClose,
+		patternId,
+	} = props;
 
 	const onFileChange = (files) => {
 		const file = files[0];
 
-		// dispatch(clearErrors());
 		dispatch(uploadPatternImage({ dispatch, patternId, file }));
-
-		return;
-		const uploader = new Slingshot.Upload('myImageUploads', patternId);
-
-		uploader.send(file, (error, downloadUrl) => {
-			if (error) {
-				if (uploader.xhr) {
-					dispatch(logErrors({ 'image-upload': uploader.xhr.response }));
-				}
-				dispatch(logErrors({ 'image-upload': error.reason }));
-			} else {
-				console.log('uploaded to:', downloadUrl);
-				// To DO add the image url to the collection so it can be displayed and updated
-			}
-		});
 	};
+
 	const {
 		getRootProps,
 		getInputProps,
@@ -84,17 +79,42 @@ function ImageUploader(props) {
 		<div className="image-uploader dropzone">
 			<div className="container">
 				<div {...getRootProps({ style }) /* eslint-disable-line react/jsx-props-no-spreading */}>
+					<Button
+						className="btn btn-default close"
+						onClick={onClose}
+						title="Close"
+					>
+						X
+					</Button>
 					<input {...getInputProps() /* eslint-disable-line react/jsx-props-no-spreading */} />
 					<p>Drag and drop a file here, or click to select a file</p>
+					{imageUploadPreviewUrl && (
+						<div className="upload-preview" style={{ 'backgroundImage': `url(${imageUploadPreviewUrl})` }} />
+					)}
 				</div>
+				{imageUploadPreviewUrl && (
+					<div className="upload-progress-bar">
+						<div className="slider" style={{ 'width': `${imageUploadProgress}%` }} />
+					</div>
+				)}
 			</div>
 		</div>
 	);
 }
 
 ImageUploader.propTypes = {
-	'patternId': PropTypes.string.isRequired,
 	'dispatch': PropTypes.func.isRequired,
+	'imageUploadPreviewUrl': PropTypes.string,
+	'imageUploadProgress': PropTypes.number.isRequired,
+	'onClose': PropTypes.func.isRequired,
+	'patternId': PropTypes.string.isRequired,
 };
 
-export default ImageUploader;
+function mapStateToProps(state, ownProps) {
+	return {
+		'imageUploadPreviewUrl': state.patternImages.imageUploadPreviewUrl,
+		'imageUploadProgress': state.patternImages.imageUploadProgress,
+	};
+}
+
+export default connect(mapStateToProps)(ImageUploader);

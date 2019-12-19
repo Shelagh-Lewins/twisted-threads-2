@@ -133,4 +133,29 @@
 			float: right;
 		}
 	}
+
+	.pattern-images {
+		display: flex;
+		justify-content: space-evenly;
+		padding: 8px;
+
+		.thumbnail {
+			background-position: center center;
+			background-repeat: no-repeat;
+			background-size: cover;
+			height: 150px;
+			width: 150px;
+
+			button {
+				float: right;
+				margin: 8px;
+			}
+		}
+
+		button {
+			svg {
+				pointer-events: none;
+			}
+		}
+	}
 }

@@ -4,10 +4,12 @@ import React, { PureComponent } from 'react';
 import { Button } from 'reactstrap';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
 
 import { addRecentPattern } from '../modules/auth';
 import { editIsPublic, editTextField } from '../modules/pattern';
+import { removePatternImage } from '../modules/patternImages';
 import AppContext from '../modules/appContext';
 import { findPatternTwist, getNumberOfRepeats, getPicksByTablet } from '../modules/weavingUtils';
 import PageWrapper from '../components/PageWrapper';
@@ -21,13 +23,12 @@ import PreviewOrientation from '../components/PreviewOrientation';
 import EditableText from '../components/EditableText';
 import DropzoneUploader from '../components/DropzoneUploader';
 import ImageUploader from '../components/ImageUploader';
-// import '../../modules/slingshot';
+import { iconColors } from '../../modules/parameters';
 import './Pattern.scss';
 
 const bodyClass = 'pattern';
 
 /* eslint-disable no-case-declarations */
-
 
 class Pattern extends PureComponent {
 	constructor(props) {
@@ -41,6 +42,8 @@ class Pattern extends PureComponent {
 		const functionsToBind = [
 			'onChangeIsPublic',
 			'onClickEditableTextSave',
+			'onRemovePatternImage',
+			'onToggleImageUploader',
 		];
 
 		functionsToBind.forEach((functionName) => {
@@ -63,6 +66,7 @@ class Pattern extends PureComponent {
 
 			this.setState({
 				'gotUser': true,
+				'showImageUploader': false,
 			});
 		}
 	}
@@ -85,6 +89,27 @@ class Pattern extends PureComponent {
 
 		dispatch(editIsPublic({ _id, 'isPublic': !isPublic }));
 	};
+
+	onRemovePatternImage(event) {
+		const { dispatch } = this.props;
+		const patternImageId = event.target.value;
+console.log('onRemove says target', event.target);
+console.log('onRemove says value', event.target.value);
+		const response = confirm('Do you want to delete this image?'); // eslint-disable-line no-restricted-globals
+
+		if (response === true) {
+			dispatch(removePatternImage(patternImageId));
+		}
+	}
+
+	onToggleImageUploader(event) {
+		event.stopPropagation(); // don't process click on parent, it will open the file picker
+		const { showImageUploader } = this.state;
+
+		this.setState({
+			'showImageUploader': !showImageUploader,
+		});
+	}
 
 	// title and any other elements above tabs
 	renderHeader({ pattern }) {
@@ -132,9 +157,64 @@ class Pattern extends PureComponent {
 		);
 	}
 
+	renderImageUploader(patternId) {
+		const { dispatch } = this.props;
+		const { showImageUploader } = this.state;
+
+		return (
+			<div className="image-uploader-wrapper">
+				{!showImageUploader && (
+					<Button
+						type="button"
+						onClick={this.onToggleImageUploader}
+						title="Add images"
+					>
+						Add images
+					</Button>
+				)}
+				{showImageUploader && (
+					<>
+						<ImageUploader
+							patternId={patternId}
+							dispatch={dispatch}
+							onClose={this.onToggleImageUploader}
+						/>
+					</>
+				)}
+			</div>
+		);
+	}
+
+	renderImages({ canEdit, patternImages }) {
+		return (
+			<div className="pattern-images">
+				{patternImages.map((patternImage) => (
+					<div
+						className="thumbnail"
+						key={patternImage._id}
+						style={{ 'backgroundImage': `url(${patternImage.url})` }}
+					>
+						<div className="controls">
+							{canEdit && (
+								<Button
+									onClick={this.onRemovePatternImage}
+									title="Delete image"
+									value={patternImage._id}
+								>
+									<FontAwesomeIcon icon={['fas', 'trash']} style={{ 'color': iconColors.contrast }} size="1x" />
+								</Button>
+							)}
+						</div>
+					</div>
+				))}
+			</div>
+		);
+	}
+
 	renderTabContent({
 		colorBooks,
 		createdByUser,
+		patternImages,
 		pattern,
 		picksByTablet,
 	}) {
@@ -255,7 +335,7 @@ class Pattern extends PureComponent {
 					<div className="tab-content">
 						<p>{`Pattern type: ${patternType}`}</p>
 						<p>Created by: <Link to={`/user/${createdBy}`} className="created-by">
-						{createdByUser.username}</Link>
+							{createdByUser.username}</Link>
 						</p>
 						{canEdit && this.renderIsPublic()}
 						<p>Number of tablets: {numberOfTablets}</p>
@@ -272,10 +352,8 @@ class Pattern extends PureComponent {
 						{/* <DropzoneUploader
 							patternId={pattern._id}
 						/> */}
-						<ImageUploader
-							patternId={pattern._id}
-							dispatch={dispatch}
-						/>
+						{canEdit && this.renderImageUploader(pattern._id)}
+						{patternImages.length > 0 && this.renderImages({ canEdit, patternImages })}
 					</div>
 				);
 				break;
@@ -298,6 +376,7 @@ class Pattern extends PureComponent {
 		const {
 			colorBooks,
 			createdByUser,
+			patternImages,
 			pattern,
 		} = this.context;
 
@@ -344,6 +423,7 @@ class Pattern extends PureComponent {
 							colorBooks,
 							createdByUser,
 							pattern,
+							patternImages,
 							picksByTablet,
 						})}
 					</>

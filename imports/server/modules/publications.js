@@ -258,7 +258,7 @@ Meteor.publish('users', function (userIds) {
 // Pattern Images that have been uploaded by the pattern's owner
 // Show images for a particular pattern
 Meteor.publish('patternImages', function (patternId) {
-	check(patternId, Match.Maybe(nonEmptyStringCheck));
+	check(patternId, nonEmptyStringCheck);
 
 	const pattern = Patterns.findOne(
 		{ '_id': patternId },
@@ -269,8 +269,5 @@ Meteor.publish('patternImages', function (patternId) {
 		return;
 	}
 
-	return PatternImages.find(
-		{ patternId },
-		{ 'limit': 1 },
-	);
+	return PatternImages.find({ patternId });
 });

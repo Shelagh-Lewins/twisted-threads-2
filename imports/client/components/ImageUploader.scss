@@ -1,0 +1,38 @@
+@import "../constants/variables";
+
+.image-uploader {
+	.upload-progress-bar {
+		border: 1px solid $color-progress-border;
+		bottom: 8px;
+		height: 10px;
+		left: 50%;
+		margin-left: -75px;
+		position: absolute;
+		width: 150px;
+	}
+
+	.slider {
+		background: $color-progress-slider;
+		height: 100%;
+	}
+
+	*:focus {
+		outline: 2px dashed $color-focus !important;
+		outline-offset: 2px;
+	}
+
+	.upload-preview {
+		background-position: center center;
+		background-repeat: no-repeat;
+		background-size: cover;
+		border: 1px solid $color-progress-border;
+		height: 100px;
+		width: 100px;
+	}
+
+	.close {
+		position: absolute;
+		right: 8px;
+		top: 8px;
+	}
+}

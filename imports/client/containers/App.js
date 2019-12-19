@@ -23,7 +23,7 @@ import {
 	faTrash,
 } from '@fortawesome/free-solid-svg-icons'; // import the icons you want
 import { withTracker } from 'meteor/react-meteor-data';
-import { ColorBooks, Patterns } from '../../modules/collection';
+import { ColorBooks, PatternImages, Patterns } from '../../modules/collection';
 import store from '../modules/store';
 import { getIsAuthenticated, getIsVerified, getUser } from '../modules/auth';
 import { setIsLoading } from '../modules/pattern';
@@ -143,8 +143,8 @@ export const withDatabase = withTracker((props) => {
 							const { createdBy } = pattern;
 
 							Meteor.subscribe('users', [createdBy]);
-
 							Meteor.subscribe('colorBooks', createdBy);
+							Meteor.subscribe('patternImages', pattern._id);
 						} else {
 							dispatch(setIsLoading(false));
 						}
@@ -161,11 +161,13 @@ export const withDatabase = withTracker((props) => {
 				}).fetch();
 				values.createdByUser = Meteor.users.findOne({ '_id': pattern.createdBy });
 				values.pattern = pattern;
+				values.patternImages = PatternImages.find({ 'patternId': pattern._id }).fetch();
 
-				// make sure full individual pattern data are loaded
+				// make sure full individual pattern data are loaded and the user who owns it
 				// if you navigate from a user page, the pattern summary detail will already by loaded
-				// but not the full details
-				if (pattern.patternDesign) {
+				// but not the full details, causing an error
+				// keep an eye on this! It needs to check fields that are not loaded on the Home page but exist in the full pattern
+				if (values.createdByUser && pattern.weftColor) {
 					dispatch(setIsLoading(false));
 				}
 			}
@@ -194,6 +196,7 @@ function ProviderInner({
 	isAuthenticated,
 	pattern,
 	patternId,
+	patternImages,
 	username,
 	verified,
 }) {
@@ -204,6 +207,7 @@ function ProviderInner({
 			isAuthenticated,
 			pattern,
 			patternId,
+			patternImages,
 			username,
 			verified,
 		}}
@@ -225,6 +229,7 @@ ProviderInner.propTypes = {
 	'isAuthenticated': PropTypes.bool,
 	'pattern': PropTypes.objectOf(PropTypes.any),
 	'patternId': PropTypes.string,
+	'patternImages': PropTypes.arrayOf(PropTypes.any),
 	'username': PropTypes.string,
 	'verified': PropTypes.bool,
 };

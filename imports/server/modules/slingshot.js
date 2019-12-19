@@ -1,7 +1,7 @@
 // slingshot image uploader
 // puts files in an AWS (Amazon Web Services) bucket
 import { ActionsLog, PatternImages, Patterns } from '../../modules/collection';
-import { NUMBER_OF_ACTIONS_LOGGED, ROLE_LIMITS } from '../../modules/parameters';
+import { NUMBER_OF_ACTIONS_LOGGED, PATTERN_IMAGES_KEY, ROLE_LIMITS } from '../../modules/parameters';
 import getActionsLogId from './actionsLog';
 
 const moment = require('moment');
@@ -44,8 +44,8 @@ if (Meteor.isServer) {
 			const count = PatternImages.find({ patternId }).count();
 
 			// TO DO check verified, premium users
-			if (count > ROLE_LIMITS.verified.numberOfPatternImages) {
-				throw new Meteor.Error('upload-file-limit-reachedr', 'Unable to upload file because the user has uploaded the maximum number of images allowed');
+			if (count > ROLE_LIMITS.verified.numberOfImagesPerPattern) {
+				throw new Meteor.Error('upload-file-limit-reachedr', 'Unable to upload file because the user has uploaded the maximum number of images allowed for this pattern');
 			}
 
 			// check for too many image uploads too fast
@@ -114,8 +114,12 @@ if (Meteor.isServer) {
 			const parts = file.name.split('.'); // find the file extension
 			const extension = parts.pop();
 			let name = parts.join(''); // find the name
+
+			name = name.replace(/\s/g, '_'); // replace spaces with underscore
+
 			name = `${name.slice(0, 30)}-${moment().valueOf().toString()}.${extension}`; // use the first 30 chars of the name, plus timestamp, plus file extension, to make a meaningful name that is unique to this user
-			return `${Meteor.userId()}/${name}`;
+
+			return `${PATTERN_IMAGES_KEY}${Meteor.userId()}/${name}`;
 		},
 	});
 }
