@@ -21,7 +21,6 @@ import Threading from '../components/Threading';
 import Notation from '../components/Notation';
 import PreviewOrientation from '../components/PreviewOrientation';
 import EditableText from '../components/EditableText';
-import DropzoneUploader from '../components/DropzoneUploader';
 import ImageUploader from '../components/ImageUploader';
 import { iconColors } from '../../modules/parameters';
 import './Pattern.scss';

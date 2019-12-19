@@ -20,7 +20,6 @@ import {
 	MAX_ROWS,
 	MAX_TABLETS,
 } from '../../imports/modules/parameters';
-import getSignedUrl from '../../imports/server/modules/aws';
 
 const tinycolor = require('tinycolor2');
 
@@ -645,10 +644,5 @@ Meteor.methods({
 			default:
 				break;
 		}
-	},
-	'getUploadParams': function ({ key }) {
-		const signedUrl = getSignedUrl(key);
-		console.log('signedUrl on server', signedUrl);
-		return signedUrl;
 	},
 });
