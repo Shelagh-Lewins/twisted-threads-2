@@ -2,7 +2,7 @@
 // puts files in an AWS (Amazon Web Services) bucket
 import { ActionsLog, PatternImages, Patterns } from '../../modules/collection';
 import { NUMBER_OF_ACTIONS_LOGGED, PATTERN_IMAGES_KEY, ROLE_LIMITS } from '../../modules/parameters';
-import getActionsLogId from './actionsLog';
+import updateActionsLog from './actionsLog';
 
 const moment = require('moment');
 
@@ -39,6 +39,8 @@ if (Meteor.isServer) {
 			if (pattern.createdBy !== this.userId) {
 				throw new Meteor.Error('upload-file-not-owner', 'Unable to upload file because the pattern was not created by the current logged in user');
 			}
+
+			return updateActionsLog('imageUploaded');
 
 			// check user hasn't exceeded their image allocation
 			const count = PatternImages.find({ patternId }).count();
