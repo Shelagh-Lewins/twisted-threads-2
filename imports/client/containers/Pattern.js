@@ -298,15 +298,6 @@ class Pattern extends PureComponent {
 			});
 		}
 
-		console.log('tagObjects', tagObjects);
-		console.log('tagSuggestions', tagSuggestions);
-
-		// remove any selected tags from the list of suggestions
-		/* const filteredTagSuggestions = [...allTags];
-		tags.forEach((tag) => {
-			if filteredTagSuggestions.
-		} */
-
 		return (
 			<TagInput
 				tagSuggestions={tagSuggestions}

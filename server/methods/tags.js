@@ -116,9 +116,15 @@ Meteor.methods({
 			throw new Meteor.Error('remove-tag-not-assigned', 'Unable to remove tag because the tag is not assigned to the pattern');
 		}
 
+		// Remove the tag from the pattern
 		Patterns.update(
 			{ '_id': patternId },
 			{ '$pull': { 'tags': tagId } },
 		);
+
+		// Delete unused tag
+		if (Patterns.find({ 'tags': tagId }).count() === 0) {
+			Tags.remove({ '_id': tagId });
+		}
 	},
 });

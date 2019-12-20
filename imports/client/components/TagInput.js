@@ -10,9 +10,9 @@ class TagInput extends PureComponent {
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
-			'handleDelete',
-			'handleAddition',
-			'handleValidate',
+			'onDelete',
+			'onAddition',
+			'onValidate',
 		];
 
 		functionsToBind.forEach((functionName) => {
@@ -20,7 +20,7 @@ class TagInput extends PureComponent {
 		});
 	}
 
-	handleDelete(i) {
+	onDelete(i) {
 		const { dispatch, patternId, tags } = this.props;
 
 		const tagId = tags[i]._id;
@@ -28,7 +28,7 @@ class TagInput extends PureComponent {
 		dispatch(removeTagFromPattern({ patternId, tagId }));
 	}
 
-	handleAddition(tag) {
+	onAddition(tag) {
 		const { dispatch, patternId } = this.props;
 		const { '_id': tagId, name } = tag;
 
@@ -41,7 +41,7 @@ class TagInput extends PureComponent {
 		}
 	}
 
-	handleValidate(tag) {
+	onValidate(tag) { // eslint-disable-line class-methods-use-this
 		return tag.name.length >= 3;
 	}
 
@@ -65,9 +65,9 @@ class TagInput extends PureComponent {
 				}}
 				tags={tags}
 				suggestions={tagSuggestions}
-				handleDelete={this.handleDelete}
-				handleAddition={this.handleAddition}
-				handleValidate={this.handleValidate}
+				onDelete={this.onDelete}
+				onAddition={this.onAddition}
+				onValidate={this.onValidate}
 			/>
 		);
 	}
