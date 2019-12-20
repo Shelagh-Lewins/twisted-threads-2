@@ -23,7 +23,7 @@ import {
 	faTrash,
 } from '@fortawesome/free-solid-svg-icons'; // import the icons you want
 import { withTracker } from 'meteor/react-meteor-data';
-import { ColorBooks, PatternImages, Patterns } from '../../modules/collection';
+import { ColorBooks, PatternImages, Patterns, Tags } from '../../modules/collection';
 import store from '../modules/store';
 import { getIsAuthenticated, getIsVerified, getUser } from '../modules/auth';
 import { setIsLoading } from '../modules/pattern';
@@ -112,6 +112,7 @@ export const withDatabase = withTracker((props) => {
 	if (location) {
 		// Navbar always needs to know about user
 		const values = {
+			'allTags': [],
 			'isAuthenticated': getIsAuthenticated(),
 			'username': getUser().username,
 			'verified': getIsVerified(),
@@ -145,6 +146,7 @@ export const withDatabase = withTracker((props) => {
 							Meteor.subscribe('users', [createdBy]);
 							Meteor.subscribe('colorBooks', createdBy);
 							Meteor.subscribe('patternImages', pattern._id);
+							Meteor.subscribe('tags');
 						} else {
 							dispatch(setIsLoading(false));
 						}
@@ -162,6 +164,7 @@ export const withDatabase = withTracker((props) => {
 				values.createdByUser = Meteor.users.findOne({ '_id': pattern.createdBy });
 				values.pattern = pattern;
 				values.patternImages = PatternImages.find({ 'patternId': pattern._id }).fetch();
+				values.allTags = Tags.find().fetch();
 
 				// make sure full individual pattern data are loaded and the user who owns it
 				// if you navigate from a user page, the pattern summary detail will already by loaded
@@ -190,6 +193,7 @@ export const withDatabase = withTracker((props) => {
 
 // put the database data into the provider as 'value', a magic property name
 function ProviderInner({
+	allTags,
 	children,
 	colorBooks,
 	createdByUser,
@@ -202,6 +206,7 @@ function ProviderInner({
 }) {
 	return (
 		<AppContext.Provider value={{
+			allTags,
 			colorBooks,
 			createdByUser,
 			isAuthenticated,

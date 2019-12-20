@@ -1,19 +1,23 @@
-.react-tags {
-	border: 1px solid #D1D1D1;
-	border-radius: 1px;
-	position: relative;
-	padding: 6px 0 0 6px;
+@import "../constants/variables";
 
-	/* shared font styles */
+.react-tags {
+	background: $color-tags-background;
+	border: 1px solid $color-tags-border;
+	border-radius: 1px;
+	color: $color-text;
+	cursor: text;
 	font-size: 1em;
 	line-height: 1.2;
+	margin-bottom: 8px;
+	padding: 6px 0 0 6px;
+	position: relative;
 
-	/* clicking anywhere will focus the input */
-	cursor: text;
-
+	button {
+		color: $color-text;
+	}
 
 	.is-focused {
-		border-color: #B1B1B1;
+		border-color: $color-tags-border;
 	}
 
 	.selected {
@@ -21,59 +25,57 @@
 	}
 
 	.selected-tag {
-		display: inline-block;
-		box-sizing: border-box;
-		margin: 0 6px 6px 0;
-		padding: 6px 8px;
-		border: 1px solid #D1D1D1;
+		background: $color-tags-selected;
+		border: 1px solid $color-tags-border;
 		border-radius: 2px;
-		background: #F1F1F1;
-
-		/* match the font styles */
+		box-sizing: border-box;
+		display: inline-block;
 		font-size: inherit;
 		line-height: inherit;
+		margin: 0 6px 6px 0;
+		padding: 6px 8px;
 
-		:after {
+		&::after {
+			color: $color-tags-after;
 			content: "\2715";
-			color: #AAA;
 			margin-left: 8px;
 		}
 
-		:hover,
-		:focus {
-			border-color: #B1B1B1;
+		&:hover,
+		&:focus {
+			border-color: $color-tags-hover-border;
 		}
 	}
 
 	.search {
 		display: inline-block;
 
-		/* match tag layout */
+		// match tag layout
 		padding: 7px 2px;
 		margin-bottom: 6px;
 
-		/* prevent autoresize overflowing the container */
+		// prevent autoresize overflowing the container
 		max-width: 100%;
 	}
 
 	@media screen and (min-width: 30em) {
 		.search {
-			/* this will become the offsetParent for suggestions */
+			// this will become the offsetParent for suggestions
 			position: relative;
 		}
 	}
 
 	input {
-		/* prevent autoresize overflowing the container */
+		// prevent autoresize overflowing the container
 		max-width: 100%;
 
-		/* remove styles and layout from this element */
+		// remove styles and layout from this element
 		margin: 0;
 		padding: 0;
 		border: 0;
 		outline: none;
 
-		/* match the font styles */
+		// match the font styles
 		font-size: inherit;
 		line-height: inherit;
 	}
@@ -92,14 +94,14 @@
 			margin: 4px -1px;
 			padding: 0;
 			list-style: none;
-			background: white;
-			border: 1px solid #D1D1D1;
+			background: $color-tags-background;
+			border: 1px solid $color-tags-border;
 			border-radius: 2px;
-			box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+			box-shadow: 0 2px 6px $color-tags-shadow;
 		}
 
 		li {
-			border-bottom: 1px solid #ddd;
+			border-bottom: 1px solid $color-tags-border;
 			padding: 6px 8px;
 
 			mark {
@@ -111,15 +113,15 @@
 
 		:hover {
 			cursor: pointer;
-			background: #eee;
+			background: $color-tags-hover;
 		}
 
 		.is-active {
-			background: #b7cfe0;
+			background: $color-tags-bg-active;
 		}
 
 		.is-disabled {
-			opacity: 0.5;
+			opacity: .5;
 			cursor: auto;
 		}
 	}

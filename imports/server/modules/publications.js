@@ -118,6 +118,7 @@ const patternFields = {
 		'palette': 1,
 		'patternDesign': 1,
 		'previewOrientation': 1,
+		'tags': 1,
 		'threading': 1,
 		'threadingNotes': 1,
 		'weavingNotes': 1,

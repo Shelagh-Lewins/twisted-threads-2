@@ -277,8 +277,43 @@ class Pattern extends PureComponent {
 	}
 
 	renderTagInput() {
+		const { dispatch } = this.props;
+		const { pattern, allTags } = this.context;
+		const { _id, tags } = pattern;
+
+		const tagObjects = [];
+		let tagSuggestions = [];
+
+		if (allTags) {
+			// only suggest tags that have not been selected
+			tagSuggestions = allTags.filter((tag) => tags.indexOf(tag._id) === -1);
+
+			// build the list of tag objects from the array of tag ids
+			tags.forEach((patternTagId) => {
+				const tagObject = allTags.find((allTag) => patternTagId === allTag._id);
+
+				if (tagObject) {
+					tagObjects.push(tagObject);
+				}
+			});
+		}
+
+		console.log('tagObjects', tagObjects);
+		console.log('tagSuggestions', tagSuggestions);
+
+		// remove any selected tags from the list of suggestions
+		/* const filteredTagSuggestions = [...allTags];
+		tags.forEach((tag) => {
+			if filteredTagSuggestions.
+		} */
+
 		return (
-			<TagInput />
+			<TagInput
+				tagSuggestions={tagSuggestions}
+				dispatch={dispatch}
+				patternId={_id}
+				tags={tagObjects}
+			/>
 		);
 	}
 
@@ -410,7 +445,7 @@ class Pattern extends PureComponent {
 						</p>
 						{canEdit && this.renderIsPublic()}
 						<p>Number of tablets: {numberOfTablets}</p>
-						{this.renderTagInput()}
+						{canEdit && this.renderTagInput()}
 						<EditableText
 							canEdit={canEdit}
 							fieldName="description"
@@ -421,9 +456,6 @@ class Pattern extends PureComponent {
 							fieldValue={description}
 						/>
 						<h2>Images</h2>
-						{/* <DropzoneUploader
-							patternId={pattern._id}
-						/> */}
 						{canEdit && this.renderImageUploader(pattern._id)}
 						{patternImages.length > 0 && this.renderImages({ canEdit, patternImages })}
 					</div>

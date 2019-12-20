@@ -1,25 +1,12 @@
 import React, { PureComponent } from 'react';
 import ReactTags from 'react-tag-autocomplete';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { assignTagToPattern, addTag, removeTagFromPattern } from '../modules/tags';
 import './TagInput.scss';
 
 class TagInput extends PureComponent {
 	constructor(props) {
 		super(props);
-
-		this.state = {
-			tags: [
-				{ id: 1, name: "Apples" },
-				{ id: 2, name: "Pears" }
-			],
-			suggestions: [
-				{ id: 3, name: "Bananas" },
-				{ id: 4, name: "Mangos" },
-				{ id: 5, name: "Lemons" },
-				{ id: 6, name: "Apricots" }
-			]
-		}
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
@@ -34,24 +21,33 @@ class TagInput extends PureComponent {
 	}
 
 	handleDelete(i) {
-		console.log('delete', i);
-		const tags = this.state.tags.slice(0)
-		tags.splice(i, 1)
-		this.setState({ tags })
+		const { dispatch, patternId, tags } = this.props;
+
+		const tagId = tags[i]._id;
+
+		dispatch(removeTagFromPattern({ patternId, tagId }));
 	}
 
 	handleAddition(tag) {
-		console.log('addition', tag);
-		const tags = [].concat(this.state.tags, tag)
-		this.setState({ tags })
+		const { dispatch, patternId } = this.props;
+		const { '_id': tagId, name } = tag;
+
+		if (tagId) {
+			// user selected an existing tag
+			dispatch(assignTagToPattern({ patternId, tagId }));
+		} else {
+			// user has entered a new tag
+			dispatch(addTag({ patternId, name }));
+		}
 	}
 
 	handleValidate(tag) {
-		console.log('validate', tag);
-		return tag.name.length >= 5;
+		return tag.name.length >= 3;
 	}
 
 	render() {
+		const { tagSuggestions, tags } = this.props;
+
 		return (
 			<ReactTags
 				allowNew={true}
@@ -67,8 +63,8 @@ class TagInput extends PureComponent {
 					'suggestionActive': 'is-active',
 					'suggestionDisabled': 'is-disabled',
 				}}
-				tags={this.state.tags}
-				suggestions={this.state.suggestions}
+				tags={tags}
+				suggestions={tagSuggestions}
 				handleDelete={this.handleDelete}
 				handleAddition={this.handleAddition}
 				handleValidate={this.handleValidate}
@@ -77,10 +73,11 @@ class TagInput extends PureComponent {
 	}
 }
 
-function mapStateToProps(state, ownProps) {
-	return {
-		
-	};
-}
+TagInput.propTypes = {
+	'tagSuggestions': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'dispatch': PropTypes.func.isRequired,
+	'patternId': PropTypes.string.isRequired,
+	'tags': PropTypes.arrayOf(PropTypes.any).isRequired,
+};
 
-export default connect(mapStateToProps)(TagInput);
+export default TagInput;
