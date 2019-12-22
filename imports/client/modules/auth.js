@@ -224,15 +224,13 @@ export function setUserCanCreateColorBook(result) {
 }
 
 export const checkUserCanCreateColorBook = () => (dispatch) => {
-	// clearErrors here causes an infinite loop of onReady
-
 	Meteor.call('auth.checkUserCanCreateColorBook', (error, result) => {
 		if (error) {
 			dispatch(setUserCanCreateColorBook(false));
 			return dispatch(logErrors({ 'check-create-color-book': error.reason }));
 		}
 
-		dispatch(setUserCanCreateColorBook(true));
+		dispatch(setUserCanCreateColorBook(result.value));
 	});
 };
 
@@ -246,14 +244,12 @@ export function setUserCanCreatePattern(result) {
 
 export const checkUserCanCreatePattern = () => (dispatch) => {
 	Meteor.call('auth.checkUserCanCreatePattern', (error, result) => {
-
-		if (error) {
-
+		if (result.error) {
 			dispatch(setUserCanCreatePattern(false));
-			return dispatch(logErrors({ 'check-create-pattern': error.reason }));
+			return dispatch(logErrors({ 'check-can-create-pattern': error.reason }));
 		}
 
-		dispatch(setUserCanCreatePattern(true));
+		dispatch(setUserCanCreatePattern(result.value));
 	});
 };
 
@@ -271,7 +267,7 @@ export const checkUserCanAddPatternImage = ({ patternId }) => (dispatch) => {
 			dispatch(setUserCanAddPatternImage(false));
 			return dispatch(logErrors({ 'check-add-pattern-image': error.reason }));
 		}
-		dispatch(setUserCanAddPatternImage(true));
+		dispatch(setUserCanAddPatternImage(result.value));
 	});
 };
 
@@ -346,6 +342,20 @@ export function getUser() {
 
 export function getIsAuthenticated() {
 	return Boolean(Meteor.userId());
+}
+
+// is the user logged in AND has a verified email address?
+// direct check used on Accounts page to show resend verification email link
+export function getIsVerified() {
+	if (!Meteor.user()) {
+		return false;
+	}
+
+	if (!Meteor.user().emails[0]) {
+		return false;
+	}
+
+	return Meteor.user().emails[0].verified;
 }
 
 // ///////////////////////////

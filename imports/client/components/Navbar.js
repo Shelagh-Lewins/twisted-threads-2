@@ -44,6 +44,7 @@ class Navbar extends Component {
 	render() {
 		const {
 			isLoading,
+			userCanCreatePattern,
 		} = this.props;
 
 		const {
@@ -51,7 +52,6 @@ class Navbar extends Component {
 			pattern,
 			patternId,
 			username,
-			verified,
 		} = this.context;
 
 		let isOwner = false;
@@ -60,7 +60,7 @@ class Navbar extends Component {
 			isOwner = pattern.createdBy === Meteor.user()._id;
 		}
 
-		const showPatternMenu = !isLoading && patternId && (verified || isOwner);
+		const showPatternMenu = !isLoading && patternId && (userCanCreatePattern || isOwner);
 
 		let patternMenu;
 
@@ -134,11 +134,13 @@ Navbar.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isLoading': PropTypes.bool.isRequired,
+	'userCanCreatePattern': PropTypes.bool.isRequired,
 };
 
 const mapStateToProps = (state, ownProps) => ({
 	'isLoading': state.pattern.isLoading,
 	'location': ownProps.location,
+	'userCanCreatePattern': state.auth.userCanCreatePattern,
 });
 
 export default withRouter(connect(mapStateToProps)(Navbar));
