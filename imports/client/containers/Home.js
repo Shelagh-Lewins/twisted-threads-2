@@ -11,7 +11,7 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import PageWrapper from '../components/PageWrapper';
 import { addPattern, getPatternCount, setIsLoading } from '../modules/pattern';
-import { getIsAuthenticated, getIsVerified } from '../modules/auth';
+import { checkUserCanCreatePattern, getIsAuthenticated } from '../modules/auth';
 import { PatternPreviews, Patterns } from '../../modules/collection';
 import Loading from '../components/Loading';
 import PatternList from '../components/PatternList';
@@ -87,8 +87,9 @@ class Home extends Component {
 			patterns,
 			patternCount,
 			patternPreviews,
+			userCanCreatePattern,
 			users,
-			verified,
+			//verified,
 		} = this.props;
 		const { showAddPatternForm } = this.state;
 
@@ -118,10 +119,10 @@ class Home extends Component {
 							<h1>Welcome</h1>
 							This is the development version of Twisted Threads 2, the online app for tablet weaving. ALL DATA HERE MAY BE DELETED AT ANY TIME.
 							{!isAuthenticated && <p>To get started, please <Link to="/login">Login</Link>. If you don&apos;t already have an account, please <Link to="/register">Register</Link>.</p>}
-							{isAuthenticated && !verified && <p>To create patterns, please verify your email address. You can request a new verification email from your <Link to="/account">Account</Link> page</p>}
+							{isAuthenticated && !userCanCreatePattern && <p>To create patterns, please verify your email address. You can request a new verification email from your <Link to="/account">Account</Link> page</p>}
 						</Col>
 					</Row>
-					{verified && !showAddPatternForm && addPatternButton}
+					{userCanCreatePattern && !showAddPatternForm && addPatternButton}
 					{showAddPatternForm && (
 						<Row>
 							<Col lg="12">
@@ -174,7 +175,8 @@ Home.propTypes = {
 	'patternPreviews': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'users': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'verified': PropTypes.bool.isRequired,
+	'userCanCreatePattern': PropTypes.bool.isRequired,
+	//'verified': PropTypes.bool.isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
@@ -194,7 +196,8 @@ function mapStateToProps(state, ownProps) {
 		'isLoading': state.pattern.isLoading,
 		'pageSkip': (currentPageNumber - 1) * ITEMS_PER_PAGE,
 		'patternCount': state.pattern.patternCount,
-		'verified': getIsVerified(), // calling getUser here causes an infinite update loop. But getting just a boolean is OK.
+		'userCanCreatePattern': state.auth.userCanCreatePattern,
+		//'verified': getIsVerified(), // calling getUser here causes an infinite update loop. But getting just a boolean is OK.
 	};
 }
 
@@ -209,6 +212,7 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 	Meteor.subscribe('patterns', pageSkip, ITEMS_PER_PAGE, {
 		'onReady': () => {
 			dispatch(getPatternCount());
+			dispatch(checkUserCanCreatePattern());
 			dispatch(setIsLoading(false));
 
 			const patternIds = patterns.map((pattern) => pattern._id);

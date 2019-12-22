@@ -12,7 +12,11 @@ Meteor.methods({
 		check(_id, nonEmptyStringCheck);
 		check(downloadUrl, nonEmptyStringCheck);
 
-		checkUserCanAddPatternImage(_id);
+		const { error, result } = checkUserCanAddPatternImage(_id);
+
+		if (error) {
+			throw error;
+		}
 
 		// Find the key by stripping out the first part of the image url
 		const bucket = process.env.AWS_BUCKET;

@@ -42,7 +42,11 @@ Meteor.methods({
 		check(tablets, validTabletsCheck);
 		check(patternType, validPatternTypeCheck);
 
-		checkUserCanCreatePattern();
+		const { error, result } = checkUserCanCreatePattern();
+
+		if (error) {
+			throw error;
+		}
 
 		// threading is an array of arrays
 		// one row per hole
@@ -147,7 +151,11 @@ Meteor.methods({
 		check(_id, nonEmptyStringCheck);
 		// TO DO write this properly for all pattern types
 
-		checkUserCanCreatePattern();
+		const { error, result } = checkUserCanCreatePattern();
+
+		if (error) {
+			throw error;
+		}
 
 		const pattern = Patterns.findOne({ _id });
 

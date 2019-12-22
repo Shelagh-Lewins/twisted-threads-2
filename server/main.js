@@ -21,7 +21,7 @@ Meteor.startup(() => {
 		return `Hello ${user.username},\n\nTo reset your password on Twisted Threads, please click the link below.:\n\n ${urlWithoutHash}`;
 	};
 
-	// ensure user rolese exist
+	// ensure user roles exist
 	ROLES.forEach((role) => {
 		Roles.createRole(role, { 'unlessExists': true });
 	});

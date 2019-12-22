@@ -23,9 +23,20 @@ import {
 	faTrash,
 } from '@fortawesome/free-solid-svg-icons'; // import the icons you want
 import { withTracker } from 'meteor/react-meteor-data';
-import { ColorBooks, PatternImages, Patterns, Tags } from '../../modules/collection';
+import {
+	ColorBooks,
+	PatternImages,
+	Patterns,
+	Tags,
+} from '../../modules/collection';
 import store from '../modules/store';
-import { getIsAuthenticated, getIsVerified, getUser } from '../modules/auth';
+import {
+	checkUserCanCreateColorBook,
+	checkUserCanCreatePattern,
+	checkUserCanAddPatternImage,
+	getIsAuthenticated,
+	getUser,
+} from '../modules/auth';
 import { setIsLoading } from '../modules/pattern';
 import AppContext from '../modules/appContext';
 import Navbar from '../components/Navbar';
@@ -101,11 +112,16 @@ function App() {
 
 export const withDatabase = withTracker((props) => {
 	const { dispatch, location } = props;
-
 	let pattern;
 	let patternIdParam;
 
 	dispatch(setIsLoading(true));
+
+	const { '_id': userId, username } = getUser();
+
+	if (userId) {
+		dispatch(checkUserCanCreatePattern());
+	}
 
 	// provide information for any pattern page
 	// using context allows us to send data to the page component and the Navbar with a single subscription
@@ -114,8 +130,7 @@ export const withDatabase = withTracker((props) => {
 		const values = {
 			'allTags': [],
 			'isAuthenticated': getIsAuthenticated(),
-			'username': getUser().username,
-			'verified': getIsVerified(),
+			'username': username,
 		};
 
 		const matchPattern = matchPath(location.pathname, {
@@ -144,8 +159,12 @@ export const withDatabase = withTracker((props) => {
 							const { createdBy } = pattern;
 
 							Meteor.subscribe('users', [createdBy]);
-							Meteor.subscribe('colorBooks', createdBy);
-							Meteor.subscribe('patternImages', pattern._id);
+							Meteor.subscribe('colorBooks', createdBy, {
+								'onReady': () => dispatch(checkUserCanCreateColorBook()),
+							});
+							Meteor.subscribe('patternImages', pattern._id, {
+								'onReady': () => dispatch(checkUserCanAddPatternImage({ 'patternId': patternIdParam })),
+							});
 							Meteor.subscribe('tags');
 						} else {
 							dispatch(setIsLoading(false));
@@ -202,7 +221,6 @@ function ProviderInner({
 	patternId,
 	patternImages,
 	username,
-	verified,
 }) {
 	return (
 		<AppContext.Provider value={{
@@ -214,7 +232,6 @@ function ProviderInner({
 			patternId,
 			patternImages,
 			username,
-			verified,
 		}}
 		>
 			{children}
@@ -224,6 +241,7 @@ function ProviderInner({
 
 // all props are optional because they vary with route
 ProviderInner.propTypes = {
+	'allTags': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'children': PropTypes.oneOfType([
 		PropTypes.element,
 		PropTypes.arrayOf(PropTypes.element),
@@ -236,7 +254,6 @@ ProviderInner.propTypes = {
 	'patternId': PropTypes.string,
 	'patternImages': PropTypes.arrayOf(PropTypes.any),
 	'username': PropTypes.string,
-	'verified': PropTypes.bool,
 };
 
 // withRouter gives us location

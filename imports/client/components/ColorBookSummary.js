@@ -6,7 +6,7 @@ import {
 import PropTypes from 'prop-types';
 import IsPublicIndicator from './IsPublicIndicator';
 import ColorBook from './ColorBook';
-import { getIsAuthenticated, getIsVerified } from '../modules/auth';
+import { getIsAuthenticated } from '../modules/auth';
 
 import { iconColors } from '../../modules/parameters';
 import './ColorBookSummary.scss';
@@ -19,6 +19,7 @@ function ColorBookSummary({
 	handleClickButtonRemove,
 	isSelected,
 	onChangeIsPublic,
+	userCanCreateColorBook,
 }) {
 	const {
 		_id,
@@ -33,7 +34,7 @@ function ColorBookSummary({
 	};
 
 	const canEdit = getIsAuthenticated() && Meteor.userId() === createdBy;
-	const canCopy = getIsVerified();
+	const canCopy = userCanCreateColorBook;
 
 	const buttonCopy = (
 		<Button
@@ -91,6 +92,7 @@ ColorBookSummary.propTypes = {
 	'handleClickButtonSelect': PropTypes.func.isRequired,
 	'isSelected': PropTypes.bool.isRequired,
 	'onChangeIsPublic': PropTypes.func.isRequired,
+	'userCanCreateColorBook': PropTypes.bool.isRequired,
 };
 
 export default ColorBookSummary;

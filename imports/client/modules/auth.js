@@ -29,8 +29,12 @@ export const PASSWORD_NOT_RESET = 'PASSWORD_NOT_RESET';
 export const PASSWORD_CHANGED = 'PASSWORD_CHANGED';
 export const PASSWORD_NOT_CHANGED = 'PASSWORD_NOT_CHANGED';
 
+export const SET_USER_CAN_CREATE_COLOR_BOOK = 'SET_USER_CAN_CREATE_COLOR_BOOK';
+export const SET_USER_CAN_CREATE_PATTERN = 'SET_USER_CAN_CREATE_PATTERN';
+export const SET_USER_CAN_ADD_PATTERN_IMAGE = 'SET_USER_CAN_ADD_PATTERN_IMAGE';
+
 // ///////////////////////////
-// Action that call Meteor methods; these do not change the Store but are located here in order to keep server interactions away from UI
+// Action that call Meteor methods; these may not change the Store but are located here in order to keep server interactions away from UI
 
 export const register = ({
 	email,
@@ -210,6 +214,67 @@ export const changePassword = ({ oldPassword, newPassword }) => (dispatch) => {
 	});
 };
 
+// user permissions
+// color book
+export function setUserCanCreateColorBook(result) {
+	return {
+		'type': 'SET_USER_CAN_CREATE_COLOR_BOOK',
+		'payload': result,
+	};
+}
+
+export const checkUserCanCreateColorBook = () => (dispatch) => {
+	// clearErrors here causes an infinite loop of onReady
+
+	Meteor.call('auth.checkUserCanCreateColorBook', (error, result) => {
+		if (error) {
+			dispatch(setUserCanCreateColorBook(false));
+			return dispatch(logErrors({ 'check-create-color-book': error.reason }));
+		}
+
+		dispatch(setUserCanCreateColorBook(true));
+	});
+};
+
+// pattern
+export function setUserCanCreatePattern(result) {
+	return {
+		'type': 'SET_USER_CAN_CREATE_PATTERN',
+		'payload': result,
+	};
+}
+
+export const checkUserCanCreatePattern = () => (dispatch) => {
+	Meteor.call('auth.checkUserCanCreatePattern', (error, result) => {
+
+		if (error) {
+
+			dispatch(setUserCanCreatePattern(false));
+			return dispatch(logErrors({ 'check-create-pattern': error.reason }));
+		}
+
+		dispatch(setUserCanCreatePattern(true));
+	});
+};
+
+// pattern image
+export function setUserCanAddPatternImage(result) {
+	return {
+		'type': 'SET_USER_CAN_ADD_PATTERN_IMAGE',
+		'payload': result,
+	};
+}
+
+export const checkUserCanAddPatternImage = ({ patternId }) => (dispatch) => {
+	Meteor.call('auth.checkUserCanAddPatternImage', { patternId }, (error, result) => {
+		if (error) {
+			dispatch(setUserCanAddPatternImage(false));
+			return dispatch(logErrors({ 'check-add-pattern-image': error.reason }));
+		}
+		dispatch(setUserCanAddPatternImage(true));
+	});
+};
+
 // ///////////////////////////
 // record a recently viewed pattern, with weaving chart row if the user has been weaving
 export function addRecentPattern({ currentWeavingRow, patternId }) {
@@ -283,19 +348,6 @@ export function getIsAuthenticated() {
 	return Boolean(Meteor.userId());
 }
 
-// is the user logged in AND has a verified email address?
-export function getIsVerified() {
-	if (!Meteor.user()) {
-		return false;
-	}
-
-	if (!Meteor.user().emails[0]) {
-		return false;
-	}
-
-	return Meteor.user().emails[0].verified;
-}
-
 // ///////////////////////////
 // State
 
@@ -306,6 +358,9 @@ const initialAuthState = {
 	'isLoading': true,
 	'passwordChanged': false,
 	'passwordReset': false,
+	'userCanCreateColorBook': false,
+	'userCanCreatePattern': false,
+	'userCanAddPatternImage': false,
 	'verificationEmailSent': false,
 	'emailVerified': false,
 };
@@ -351,6 +406,18 @@ export default function auth(state = initialAuthState, action) {
 
 		case PASSWORD_NOT_CHANGED: {
 			return updeep({ 'passwordChanged': false }, state);
+		}
+
+		case SET_USER_CAN_CREATE_COLOR_BOOK: {
+			return updeep({ 'userCanCreateColorBook': action.payload }, state);
+		}
+
+		case SET_USER_CAN_CREATE_PATTERN: {
+			return updeep({ 'userCanCreatePattern': action.payload }, state);
+		}
+
+		case SET_USER_CAN_ADD_PATTERN_IMAGE: {
+			return updeep({ 'userCanAddPatternImage': action.payload }, state);
 		}
 
 		default:

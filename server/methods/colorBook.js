@@ -10,7 +10,11 @@ Meteor.methods({
 	'colorBook.add': function (name) {
 		check(name, nonEmptyStringCheck);
 
-		checkUserCanCreateColorBook();
+		const { error, result } = checkUserCanCreateColorBook();
+
+		if (error) {
+			throw error;
+		}
 
 		const colors = new Array(COLORS_IN_COLOR_BOOK).fill(DEFAULT_COLOR_BOOK_COLOR);
 
@@ -45,7 +49,11 @@ Meteor.methods({
 	'colorBook.copy': function (_id) {
 		check(_id, nonEmptyStringCheck);
 
-		checkUserCanCreateColorBook();
+		const { error, result } = checkUserCanCreateColorBook();
+
+		if (error) {
+			throw error;
+		}
 
 		const colorBook = ColorBooks.findOne({ _id });
 

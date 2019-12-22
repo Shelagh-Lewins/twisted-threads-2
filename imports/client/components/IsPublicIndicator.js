@@ -15,7 +15,7 @@ const IsPublicIndicator = (props) => {
 	const { isPublic, targetId } = props;
 	const isPublicData = isPublic ? 'public' : 'private';
 	const iconName = isPublic ? 'lock-open' : 'lock';
-	const tooltip = isPublic ? 'Public pattern: click to make it private' : 'Private pattern: click to make it public';
+	const tooltip = isPublic ? 'Public: click to make it private' : 'Private: click to make it public';
 
 	function onChangeIsPublic(e) {
 		// map from button data to true / false

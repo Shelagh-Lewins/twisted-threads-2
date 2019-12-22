@@ -1,6 +1,9 @@
 import { check } from 'meteor/check';
 import { MAX_RECENTS } from '../../imports/modules/parameters';
 import {
+	checkUserCanCreateColorBook,
+	checkUserCanCreatePattern,
+	checkUserCanAddPatternImage,
 	nonEmptyStringCheck,
 } from '../../imports/server/modules/utils';
 import updateActionsLog from '../../imports/server/modules/actionsLog';
@@ -56,5 +59,16 @@ Meteor.methods({
 			{ '_id': Meteor.userId() },
 			{ '$set': { 'profile.recentPatterns': recentPatterns } },
 		);
+	},
+	'auth.checkUserCanCreateColorBook': function () {
+		return checkUserCanCreateColorBook();
+	},
+	'auth.checkUserCanCreatePattern': function () {
+		return checkUserCanCreatePattern();
+	},
+	'auth.checkUserCanAddPatternImage': function ({ patternId }) {
+		check(patternId, nonEmptyStringCheck);
+
+		return checkUserCanAddPatternImage(patternId);
 	},
 });

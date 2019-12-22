@@ -17,8 +17,11 @@ import {
 	editIsPublic,
 	removeColorBook,
 } from '../modules/colorBook';
-import { getIsVerified } from '../modules/auth';
+
 import { ColorBooks, PatternPreviews, Patterns } from '../../modules/collection';
+import {
+	checkUserCanCreateColorBook,
+} from '../modules/auth';
 
 import Loading from '../components/Loading';
 import PatternList from '../components/PatternList';
@@ -135,12 +138,13 @@ class User extends PureComponent {
 
 	renderColorBooks() {
 		const {
+			userCanCreateColorBook,
 			colorBooks,
 			dispatch,
 		} = this.props;
 		const { selectedColorBook, showAddColorBookForm } = this.state;
 
-		const canCreate = getIsVerified();
+		const canCreate = userCanCreateColorBook;
 
 		const addButton = (
 			<Button
@@ -177,6 +181,7 @@ class User extends PureComponent {
 						{colorBooks.length > 0
 						&& colorBooks.map((colorBook) => (
 							<ColorBookSummary
+								userCanCreateColorBook={userCanCreateColorBook}
 								colorBook={colorBook}
 								dispatch={dispatch}
 								handleClickButtonCopy={this.handleClickButtonCopy}
@@ -282,6 +287,7 @@ User.propTypes = {
 	'patternPreviews': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'user': PropTypes.objectOf(PropTypes.any).isRequired,
+	'userCanCreateColorBook': PropTypes.bool.isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
@@ -296,6 +302,7 @@ function mapStateToProps(state, ownProps) {
 
 	return {
 		'_id': ownProps.match.params.id, // read the url parameter to find the id of the pattern
+		'userCanCreateColorBook': state.auth.userCanCreateColorBook,
 		'currentPageNumber': currentPageNumber, // read the url parameter to find the currentPage
 		'errors': state.errors,
 		'isLoading': state.pattern.isLoading,
@@ -309,7 +316,9 @@ const Tracker = withTracker((props) => {
 	dispatch(setIsLoading(true));
 
 	Meteor.subscribe('users', [_id]);
-	Meteor.subscribe('colorBooks', _id);
+	Meteor.subscribe('colorBooks', _id, {
+		'onReady': () => dispatch(checkUserCanCreateColorBook()),
+	});
 
 	const patterns = Patterns.find({ 'createdBy': _id }, {
 		'sort': { 'nameSort': 1 },
