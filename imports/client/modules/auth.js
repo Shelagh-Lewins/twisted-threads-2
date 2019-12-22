@@ -244,7 +244,7 @@ export function setUserCanCreatePattern(result) {
 
 export const checkUserCanCreatePattern = () => (dispatch) => {
 	Meteor.call('auth.checkUserCanCreatePattern', (error, result) => {
-		if (result.error) {
+		if (error) {
 			dispatch(setUserCanCreatePattern(false));
 			return dispatch(logErrors({ 'check-can-create-pattern': error.reason }));
 		}

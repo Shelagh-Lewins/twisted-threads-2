@@ -52,7 +52,7 @@ export default function PatternPreview(props) {
 		clearTimeout(global.savePatternPreviewTimeout);
 		global.savePatternPreviewTimeout = setTimeout(() => {
 			savePreviewPattern();
-		}, 3000);
+		}, 1500);
 	}
 
 	// ///////////////////////////

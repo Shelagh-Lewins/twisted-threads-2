@@ -53,7 +53,7 @@ export const validPaletteIndexCheck = Match.Where((x) => {
 // this may be a new pattern, or a copy
 export const checkUserCanCreatePattern = () => {
 	let error;
-console.log('can create pattern?');
+
 	// user must be logged in
 	if (!Meteor.userId()) {
 		error = new Meteor.Error('create-pattern-not-logged-in', 'Unable to create pattern because the user is not logged in');
