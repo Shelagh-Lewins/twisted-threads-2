@@ -1,6 +1,7 @@
 import '../imports/modules/collection';
 import '../imports/server/modules/publications';
 import '../imports/server/modules/slingshot';
+import { ROLES } from '../imports/modules/parameters';
 
 Meteor.startup(() => {
 	Accounts.config({
@@ -19,6 +20,34 @@ Meteor.startup(() => {
 		const urlWithoutHash = url.replace('#/', '');
 		return `Hello ${user.username},\n\nTo reset your password on Twisted Threads, please click the link below.:\n\n ${urlWithoutHash}`;
 	};
+
+	// ensure user rolese exist
+	ROLES.forEach((role) => {
+		Roles.createRole(role, { 'unlessExists': true });
+	});
+
+	// make sure the current user has correct role based on whether their email address is verified
+	Meteor.users.find().observeChanges({
+		'changed': function (_id) {
+			console.log('observeChanges', _id);
+			const user = Meteor.users.findOne({ _id });
+			if (!user) {
+				return;
+			}
+
+			try {
+				if (user.emails[0].verified) {
+					Roles.addUsersToRoles(_id, ['verified']);
+				} else {
+					Roles.removeUsersFromRoles(_id, ['verified']);
+				}
+			} catch (err) {
+				console.log(`error checking roles for user ${_id}`);
+			}
+			console.log('roles', Roles.getRolesForUser(_id));
+			console.log('verified:', Roles.userIsInRole(_id, 'verified'));
+		},
+	});
 });
 
 Accounts.onCreateUser((options, user) => {
@@ -26,5 +55,9 @@ Accounts.onCreateUser((options, user) => {
 	// We still want the default hook's 'profile' behavior.
 	newUser.profile = options.profile || {};
 	newUser.profile.nameSort = user.username.toLowerCase();
+
+	// assign the user the default role
+	Roles.addUsersToRoles(newUser._id, 'registered');
+
 	return newUser;
 });

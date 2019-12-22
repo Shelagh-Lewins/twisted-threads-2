@@ -19,6 +19,7 @@ import {
 	DEFAULT_WEFT_COLOR,
 	MAX_ROWS,
 	MAX_TABLETS,
+	ROLE_LIMITS,
 } from '../../imports/modules/parameters';
 
 const tinycolor = require('tinycolor2');
@@ -45,9 +46,16 @@ Meteor.methods({
 			throw new Meteor.Error('add-pattern-not-logged-in', 'Unable to create pattern because the user is not logged in');
 		}
 
-		if (!Meteor.user().emails[0].verified) {
+		/* if (!Meteor.user().emails[0].verified) {
 			throw new Meteor.Error('add-pattern-not-verified', 'Unable to create pattern because the user\'s email address is not verified');
-		}
+		} */
+
+		// check the user has not created too many patterns
+		const numberOfPatterns = Patterns.find({ 'createdBy': Meteor.userId() });
+
+		/* if (numberOfPatterns > 10) {
+			throw new Meteor.Error('add-pattern-not-verified', 'Unable to create pattern because the user\'s email address is not verified');
+		} */
 
 		// threading is an array of arrays
 		// one row per hole

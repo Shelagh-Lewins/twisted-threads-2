@@ -18,6 +18,7 @@
 	},
 	"globals": {
 		"Factory": true,
+		"Roles": true,
 		"Slingshot": true
 	},
 	"rules": {

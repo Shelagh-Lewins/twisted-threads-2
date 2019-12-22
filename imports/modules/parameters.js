@@ -94,11 +94,23 @@ export const iconColors = {
 	'contrast': '#fff',
 };
 
+export const ROLES = [
+	'registered',
+	'verified',
+	'premium',
+];
+
 export const ROLE_LIMITS = {
-	'default': {
+	'registered': {
+		'maxPatternsPerUser': 10,
 		'numberOfImagesPerPattern': 0,
 	},
 	'verified': {
+		'maxPatternsPerUser': 100,
+		'numberOfImagesPerPattern': 5,
+	},
+	'premium': {
+		'maxPatternsPerUser': 300,
 		'numberOfImagesPerPattern': 10,
 	},
 };
