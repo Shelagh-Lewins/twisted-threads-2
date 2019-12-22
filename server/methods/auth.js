@@ -3,6 +3,7 @@ import { MAX_RECENTS } from '../../imports/modules/parameters';
 import {
 	nonEmptyStringCheck,
 } from '../../imports/server/modules/utils';
+import updateActionsLog from '../../imports/server/modules/actionsLog';
 
 Meteor.methods({
 	'auth.sendVerificationEmail': function (userId) {
@@ -11,6 +12,8 @@ Meteor.methods({
 		if (userId !== Meteor.userId()) {
 			throw new Meteor.Error('send-verification-email-not-logged-in', 'Unable to send verification email because the user is not logged in');
 		}
+
+		updateActionsLog('verificationEmailSent');
 
 		return Accounts.sendVerificationEmail(userId);
 	},
