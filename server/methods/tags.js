@@ -13,6 +13,9 @@ Meteor.methods({
 		check(patternId, nonEmptyStringCheck);
 		check(name, nonEmptyStringCheck);
 
+		// ensure all tags are lower case
+		const processedName = name.toLowerCase();
+
 		if (!Meteor.userId()) {
 			throw new Meteor.Error('add-tag-not-logged-in', 'Unable to create tag because the user is not logged in');
 		}
@@ -28,13 +31,13 @@ Meteor.methods({
 		}
 
 		// check the name does not already exist
-		const existing = Tags.find({ 'name': name });
+		const existing = Tags.find({ 'name': processedName });
 		if (existing.count() > 0) {
 			throw new Meteor.Error('add-tag-already-exists', 'Unable to add tag because a tag with that name already exists');
 		}
 
 		const tagId = Tags.insert({
-			'name': name,
+			'name': processedName,
 		});
 
 		if (!pattern.tags) {
