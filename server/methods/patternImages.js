@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import { nonEmptyStringCheck } from '../../imports/server/modules/utils';
+import { checkUserCanAddPatternImage, nonEmptyStringCheck } from '../../imports/server/modules/utils';
 import { PatternImages, Patterns } from '../../imports/modules/collection';
 
 const Jimp = require('jimp');
@@ -12,23 +12,7 @@ Meteor.methods({
 		check(_id, nonEmptyStringCheck);
 		check(downloadUrl, nonEmptyStringCheck);
 
-		if (!Meteor.userId()) {
-			throw new Meteor.Error('add-pattern-image-not-logged-in', 'Unable to add pattern image because the user is not logged in');
-		}
-
-		if (!Meteor.user().emails[0].verified) {
-			throw new Meteor.Error('add-pattern-image-not-verified', 'Unable to add pattern image because the user\'s email address is not verified');
-		}
-
-		const pattern = Patterns.findOne({ _id });
-
-		if (!pattern) {
-			throw new Meteor.Error('add-pattern-image-not-found', 'Unable to add pattern image because the pattern was not found');
-		}
-
-		if (pattern.createdBy !== Meteor.userId()) {
-			throw new Meteor.Error('add-pattern-image-not-created-by-user', 'Unable to add pattern image because the pattern was not created by the current logged in user');
-		}
+		checkUserCanAddPatternImage(_id);
 
 		// Find the key by stripping out the first part of the image url
 		const bucket = process.env.AWS_BUCKET;
@@ -60,7 +44,7 @@ Meteor.methods({
 		}
 
 		// find the image height and width
-		const image = new Jimp(downloadUrl, Meteor.bindEnvironment((error, image) => {
+		Jimp(downloadUrl, Meteor.bindEnvironment((error, image) => {
 			if (!error) {
 				const { height, width } = image.bitmap;
 
@@ -82,10 +66,6 @@ Meteor.methods({
 
 		if (!Meteor.userId()) {
 			throw new Meteor.Error('remove-pattern-image-not-logged-in', 'Unable to remove pattern image because the user is not logged in');
-		}
-
-		if (!Meteor.user().emails[0].verified) {
-			throw new Meteor.Error('remove-pattern-image-not-verified', 'Unable to remove pattern image because the user\'s email address is not verified');
 		}
 
 		const patternImage = PatternImages.findOne({ _id });
@@ -128,14 +108,20 @@ Meteor.methods({
 			throw new Meteor.Error('edit-pattern-image-not-logged-in', 'Unable to edit pattern image because the user is not logged in');
 		}
 
-		if (!Meteor.user().emails[0].verified) {
-			throw new Meteor.Error('edit-pattern-image-not-verified', 'Unable to edit pattern image because the user\'s email address is not verified');
-		}
-
 		const patternImage = PatternImages.findOne({ _id });
 
 		if (!patternImage) {
 			throw new Meteor.Error('edit-pattern-image-not-found', 'Unable to edit pattern image because the pattern image was not found');
+		}
+
+		const pattern = Patterns.findOne({ '_id': patternImage.patternId });
+
+		if (!pattern) {
+			throw new Meteor.Error('edit-pattern-image-not-found', 'Unable to edit pattern image because the pattern was not found');
+		}
+
+		if (pattern.createdBy !== Meteor.userId()) {
+			throw new Meteor.Error('edit-pattern-image-not-created-by-user', 'Unable to edit pattern image because the pattern was not created by the current logged in user');
 		}
 
 		PatternImages.update({ _id },

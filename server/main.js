@@ -29,7 +29,6 @@ Meteor.startup(() => {
 	// make sure the current user has correct role based on whether their email address is verified
 	Meteor.users.find().observeChanges({
 		'changed': function (_id) {
-			console.log('observeChanges', _id);
 			const user = Meteor.users.findOne({ _id });
 			if (!user) {
 				return;
@@ -44,8 +43,6 @@ Meteor.startup(() => {
 			} catch (err) {
 				console.log(`error checking roles for user ${_id}`);
 			}
-			console.log('roles', Roles.getRolesForUser(_id));
-			console.log('verified:', Roles.userIsInRole(_id, 'verified'));
 		},
 	});
 });

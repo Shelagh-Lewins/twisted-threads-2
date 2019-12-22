@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import { nonEmptyStringCheck } from '../../imports/server/modules/utils';
+import { checkUserCanCreateColorBook, nonEmptyStringCheck } from '../../imports/server/modules/utils';
 import { ColorBooks } from '../../imports/modules/collection';
 import {
 	COLORS_IN_COLOR_BOOK,
@@ -10,13 +10,7 @@ Meteor.methods({
 	'colorBook.add': function (name) {
 		check(name, nonEmptyStringCheck);
 
-		if (!Meteor.userId()) {
-			throw new Meteor.Error('add-color-book-not-logged-in', 'Unable to create color book because the user is not logged in');
-		}
-
-		if (!Meteor.user().emails[0].verified) {
-			throw new Meteor.Error('add-color-book-not-verified', 'Unable to create color book because the user\'s email address is not verified');
-		}
+		checkUserCanCreateColorBook();
 
 		const colors = new Array(COLORS_IN_COLOR_BOOK).fill(DEFAULT_COLOR_BOOK_COLOR);
 
@@ -51,13 +45,7 @@ Meteor.methods({
 	'colorBook.copy': function (_id) {
 		check(_id, nonEmptyStringCheck);
 
-		if (!Meteor.userId()) {
-			throw new Meteor.Error('copy-color-book-not-logged-in', 'Unable to copy color book because the user is not logged in');
-		}
-
-		if (!Meteor.user().emails[0].verified) {
-			throw new Meteor.Error('copy-color-book-not-verified', 'Unable to copy color book because the user\'s email address is not verified');
-		}
+		checkUserCanCreateColorBook();
 
 		const colorBook = ColorBooks.findOne({ _id });
 

@@ -1,9 +1,11 @@
+import { ColorBooks, PatternImages, Patterns } from '../../modules/collection';
 import {
 	ALLOWED_HOLES,
 	ALLOWED_PATTERN_TYPES,
 	DEFAULT_PALETTE,
 	MAX_ROWS,
 	MAX_TABLETS,
+	ROLE_LIMITS,
 } from '../../modules/parameters';
 
 // used to check parameters supplied to methods and publications
@@ -46,3 +48,105 @@ export const validPaletteIndexCheck = Match.Where((x) => {
 	check(x, Match.Integer);
 	return x >= -1 && x < DEFAULT_PALETTE.length; // -1 is empty hole, 0 + are colors
 });
+
+// check whether the current logged in user can create a pattern
+// this may be a new pattern, or a copy
+export const checkUserCanCreatePattern = () => {
+	// user must be logged in
+	if (!Meteor.userId()) {
+		throw new Meteor.Error('create-pattern-not-logged-in', 'Unable to create pattern because the user is not logged in');
+	}
+
+	// user must have role 'registered', which is automatically assigned when account is created
+	if (!Roles.userIsInRole(Meteor.userId(), 'registered')) {
+		throw new Meteor.Error('create-pattern-not-logged-in', 'Unable to create pattern because the user does not have role \'registered\'');
+	}
+
+	// user must not have reached the limit on number of patterns
+	const numberOfPatterns = Patterns.find({ 'createdBy': Meteor.userId() }).count();
+
+	const limits = [];
+	Roles.getRolesForUser(Meteor.userId()).forEach((role) => {
+		if (ROLE_LIMITS[role]) {
+			limits.push(ROLE_LIMITS[role].maxPatternsPerUser);
+		}
+	});
+
+	const limit = Math.max(...limits); // user can create the largest number of patterns of any role they have
+
+	if (numberOfPatterns >= limit) {
+		throw new Meteor.Error('create-pattern-too-many-patterns', 'Unable to create pattern because the user has reached the pattern limit');
+	}
+	return true;
+};
+
+// check whether the current logged in user can add an image to a pattern
+export const checkUserCanAddPatternImage = (patternId) => {
+	// user must be logged in
+	if (!Meteor.userId()) {
+		throw new Meteor.Error('add-pattern-image-not-logged-in', 'Unable to add pattern image because the user is not logged in');
+	}
+
+	// user must have role 'registered', which is automatically assigned when account is created
+	if (!Roles.userIsInRole(Meteor.userId(), 'registered')) {
+		throw new Meteor.Error('add-pattern-image-not-logged-in', 'Unable to add pattern image because the user does not have role \'registered\'');
+	}
+
+	const pattern = Patterns.findOne({ '_id': patternId });
+
+	if (!pattern) {
+		throw new Meteor.Error('add-pattern-image-not-found', 'Unable to add pattern image because the pattern was not found');
+	}
+
+	if (pattern.createdBy !== Meteor.userId()) {
+		throw new Meteor.Error('add-pattern-image-not-created-by-user', 'Unable to add pattern image because the pattern was not created by the current logged in user');
+	}
+
+	// user must not have reached the limit on number of images for this pattern
+	const numberOfImages = PatternImages.find({ patternId }).count();
+
+	const limits = [];
+	Roles.getRolesForUser(Meteor.userId()).forEach((role) => {
+		if (ROLE_LIMITS[role]) {
+			limits.push(ROLE_LIMITS[role].maxImagesPerPattern);
+		}
+	});
+
+	const limit = Math.max(...limits); // user can create the largest number of images of any role they have
+
+	if (numberOfImages >= limit) {
+		throw new Meteor.Error('add-image-too-many-images', 'Unable to add image because the user has reached the image limit for the pattern');
+	}
+	return true;
+};
+
+// check whether the current logged in user can create a color book
+// this may be a new color book, or a copy
+export const checkUserCanCreateColorBook = () => {
+	// user must be logged in
+	if (!Meteor.userId()) {
+		throw new Meteor.Error('create-color-book-not-logged-in', 'Unable to create color book because the user is not logged in');
+	}
+
+	// user must have role 'registered', which is automatically assigned when account is created
+	if (!Roles.userIsInRole(Meteor.userId(), 'registered')) {
+		throw new Meteor.Error('create-color-book-not-logged-in', 'Unable to create color book because the user does not have role \'registered\'');
+	}
+
+	// user must not have reached the limit on number of color books
+	const numberOfColorBooks = ColorBooks.find({ 'createdBy': Meteor.userId() }).count();
+
+	const limits = [];
+	Roles.getRolesForUser(Meteor.userId()).forEach((role) => {
+		if (ROLE_LIMITS[role]) {
+			limits.push(ROLE_LIMITS[role].maxColorBooksPerUser);
+		}
+	});
+
+	const limit = Math.max(...limits); // user can create the largest number of color books of any role they have
+
+	if (numberOfColorBooks >= limit) {
+		throw new Meteor.Error('create-color-book-too-many-color books', 'Unable to create color book because the user has reached the color book limit');
+	}
+	return true;
+};

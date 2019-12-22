@@ -1,5 +1,6 @@
 import { check } from 'meteor/check';
 import {
+	checkUserCanCreatePattern,
 	nonEmptyStringCheck,
 	validHolesCheck,
 	validRowsCheck,
@@ -19,7 +20,6 @@ import {
 	DEFAULT_WEFT_COLOR,
 	MAX_ROWS,
 	MAX_TABLETS,
-	ROLE_LIMITS,
 } from '../../imports/modules/parameters';
 
 const tinycolor = require('tinycolor2');
@@ -42,20 +42,7 @@ Meteor.methods({
 		check(tablets, validTabletsCheck);
 		check(patternType, validPatternTypeCheck);
 
-		if (!Meteor.userId()) {
-			throw new Meteor.Error('add-pattern-not-logged-in', 'Unable to create pattern because the user is not logged in');
-		}
-
-		/* if (!Meteor.user().emails[0].verified) {
-			throw new Meteor.Error('add-pattern-not-verified', 'Unable to create pattern because the user\'s email address is not verified');
-		} */
-
-		// check the user has not created too many patterns
-		const numberOfPatterns = Patterns.find({ 'createdBy': Meteor.userId() });
-
-		/* if (numberOfPatterns > 10) {
-			throw new Meteor.Error('add-pattern-not-verified', 'Unable to create pattern because the user\'s email address is not verified');
-		} */
+		checkUserCanCreatePattern();
 
 		// threading is an array of arrays
 		// one row per hole
@@ -160,9 +147,7 @@ Meteor.methods({
 		check(_id, nonEmptyStringCheck);
 		// TO DO write this properly for all pattern types
 
-		if (!Meteor.userId()) {
-			throw new Meteor.Error('copy-pattern-not-logged-in', 'Unable to copy pattern because the user is not logged in');
-		}
+		checkUserCanCreatePattern();
 
 		const pattern = Patterns.findOne({ _id });
 
@@ -173,10 +158,6 @@ Meteor.methods({
 		// you can only copy another user's pattern if it is public
 		if (pattern.createdBy !== Meteor.userId() && !pattern.isPublic) {
 			throw new Meteor.Error('copy-pattern-not-created-by-user', 'Unable to copy pattern because it was not created by the current logged in user');
-		}
-
-		if (!Meteor.user().emails[0].verified) {
-			throw new Meteor.Error('copy-pattern-not-verified', 'Unable to copy pattern because the user\'s email address is not verified');
 		}
 
 		// create a new pattern

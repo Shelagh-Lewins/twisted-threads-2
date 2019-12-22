@@ -60,7 +60,7 @@ export const ALLOWED_DIRECTIONS = [
 ];
 
 export const COLORS_IN_COLOR_BOOK = 24;
-export const DEFAULT_COLOR_BOOK_COLOR = '#aa0000'; // if the default color has no saturation, clicking the vertical color bar in the color picker has no effect, which is confusing.
+export const DEFAULT_COLOR_BOOK_COLOR = '#aaa'; // if the default color has no saturation, clicking the vertical color bar in the color picker has no effect, which is confusing.
 export const EMPTY_HOLE_COLOR = '#fff'; // used in weaving chart when multiple turns and an empty hole
 export const DEFAULT_WEFT_COLOR = 3;
 export const DEFAULT_PREVIEW_ORIENTATION = 'right';
@@ -102,16 +102,19 @@ export const ROLES = [
 
 export const ROLE_LIMITS = {
 	'registered': {
+		'maxColorBooksPerUser': 1,
 		'maxPatternsPerUser': 10,
-		'numberOfImagesPerPattern': 0,
+		'maxImagesPerPattern': 0,
 	},
 	'verified': {
+		'maxColorBooksPerUser': 5,
 		'maxPatternsPerUser': 100,
-		'numberOfImagesPerPattern': 5,
+		'maxImagesPerPattern': 5,
 	},
 	'premium': {
+		'maxColorBooksPerUser': 20,
 		'maxPatternsPerUser': 300,
-		'numberOfImagesPerPattern': 10,
+		'maxImagesPerPattern': 10,
 	},
 };
 export const NUMBER_OF_ACTIONS_LOGGED = 10;
