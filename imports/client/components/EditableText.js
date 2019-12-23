@@ -164,7 +164,7 @@ EditableText.propTypes = {
 	'optional': PropTypes.bool,
 	'title': PropTypes.string.isRequired,
 	'type': PropTypes.string.isRequired,
-	'fieldValue': PropTypes.string.isRequired,
+	'fieldValue': PropTypes.string,
 };
 
 export default EditableText;

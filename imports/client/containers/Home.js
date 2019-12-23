@@ -89,7 +89,6 @@ class Home extends Component {
 			patternPreviews,
 			userCanCreatePattern,
 			users,
-			//verified,
 		} = this.props;
 		const { showAddPatternForm } = this.state;
 
@@ -176,7 +175,6 @@ Home.propTypes = {
 	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'users': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'userCanCreatePattern': PropTypes.bool.isRequired,
-	//'verified': PropTypes.bool.isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
@@ -197,7 +195,6 @@ function mapStateToProps(state, ownProps) {
 		'pageSkip': (currentPageNumber - 1) * ITEMS_PER_PAGE,
 		'patternCount': state.pattern.patternCount,
 		'userCanCreatePattern': state.auth.userCanCreatePattern,
-		//'verified': getIsVerified(), // calling getUser here causes an infinite update loop. But getting just a boolean is OK.
 	};
 }
 

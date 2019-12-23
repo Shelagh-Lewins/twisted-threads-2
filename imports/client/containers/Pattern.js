@@ -36,6 +36,8 @@ class Pattern extends PureComponent {
 
 		this.state = {
 			'gotUser': false, // add to recents after user has loaded
+			'selectedPatternImage': null,
+			'showImageUploader': false,
 		};
 
 		// bind onClick functions to provide context
@@ -68,9 +70,21 @@ class Pattern extends PureComponent {
 
 			this.setState({
 				'gotUser': true,
-				'selectedPatternImage': null,
-				'showImageUploader': false,
 			});
+		}
+
+		// in case the selected image was deleted in another browser window
+		if (typeof selectedPatternImage === 'string') {
+			const { selectedPatternImage } = this.state;
+			const { patternImages } = this.context;
+
+			const patternImage = patternImages.find((image) => image._id === selectedPatternImage);
+
+			if (!patternImage) {
+				this.setState({
+					'selectedPatternImage': null,
+				});
+			}
 		}
 	}
 
@@ -206,6 +220,10 @@ class Pattern extends PureComponent {
 
 		if (typeof selectedPatternImage === 'string') {
 			const patternImage = patternImages.find((image) => image._id === selectedPatternImage);
+
+			if (!patternImage) {
+				return;
+			}
 
 			const {
 				caption,
@@ -446,7 +464,7 @@ class Pattern extends PureComponent {
 							type="textarea"
 							fieldValue={description}
 						/>
-						<h2>Images</h2>
+						{(canEdit || patternImages.length > 0) && <h2>Images</h2>}
 						{canEdit && this.renderImageUploader(pattern._id)}
 						{patternImages.length > 0 && this.renderImages({ canEdit, patternImages })}
 					</div>

@@ -106,8 +106,6 @@ const patternsFields = {
 	'numberOfRows': 1,
 	'numberOfTablets': 1,
 	'patternType': 1,
-	'rows': 1,
-	'tablets': 1,
 };
 
 // additional fields for individual pattern
@@ -215,7 +213,7 @@ Meteor.publish('patternPreviews', function ({ patternIds }) {
 			'_id': { '$in': patternIds },
 		},
 		{
-			'fields': {}, // TO DO include isPublic
+			'fields': {},
 		},
 	).fetch();
 
@@ -266,6 +264,10 @@ Meteor.publish('patternImages', function (patternId) {
 		{ '_id': patternId },
 		{ 'fields': { 'createdBy': 1, 'isPublic': 1 } },
 	);
+
+	if (!pattern) {
+		return;
+	}
 
 	if (!pattern.isPublic && pattern.createdBy !== this.userId) {
 		return;

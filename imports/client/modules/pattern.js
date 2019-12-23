@@ -63,7 +63,9 @@ export function removePattern(_id, history) {
 	return () => {
 		Meteor.call('pattern.remove', _id);
 
-		history.push(`/`);
+		if (history) { // if deleting from Home page, no need to redirect
+			history.push(`/`);
+		}
 	};
 }
 

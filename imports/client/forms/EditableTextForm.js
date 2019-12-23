@@ -87,13 +87,17 @@ const EditableTextForm = (props) => {
 	);
 };
 
+EditableTextForm.defaultProps = {
+	'fieldValue': '',
+};
+
 EditableTextForm.propTypes = {
 	'handleCancel': PropTypes.func.isRequired,
 	'handleSubmit': PropTypes.func.isRequired,
 	'optional': PropTypes.bool,
 	'title': PropTypes.string.isRequired,
 	'type': PropTypes.string.isRequired,
-	'fieldValue': PropTypes.string.isRequired,
+	'fieldValue': PropTypes.string,
 };
 
 export default EditableTextForm;

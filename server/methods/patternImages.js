@@ -48,7 +48,7 @@ Meteor.methods({
 		}
 
 		// find the image height and width
-		Jimp(downloadUrl, Meteor.bindEnvironment((error, image) => {
+		const newImage = new Jimp(downloadUrl, Meteor.bindEnvironment((error, image) => {
 			if (!error) {
 				const { height, width } = image.bitmap;
 
