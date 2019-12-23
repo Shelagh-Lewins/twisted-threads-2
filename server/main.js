@@ -1,4 +1,5 @@
 import '../imports/modules/collection';
+import { Patterns } from '../imports/modules/collection';
 import '../imports/server/modules/publications';
 import '../imports/server/modules/slingshot';
 import { ROLES } from '../imports/modules/parameters';
@@ -45,6 +46,9 @@ Meteor.startup(() => {
 			}
 		},
 	});
+
+	// create text indexes for search
+	Patterns._ensureIndex({ 'name': 'text' });
 });
 
 Accounts.onCreateUser((options, user) => {

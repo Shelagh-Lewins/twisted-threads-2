@@ -8,6 +8,7 @@ import { Link, withRouter } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { copyPattern, removePattern } from '../modules/pattern';
 import AppContext from '../modules/appContext';
+import Search from './Search';
 import './Navbar.scss';
 import { iconColors } from '../../modules/parameters';
 
@@ -43,7 +44,9 @@ class Navbar extends Component {
 
 	render() {
 		const {
+			dispatch,
 			isLoading,
+			searchResults,
 			userCanCreatePattern,
 		} = this.props;
 
@@ -116,6 +119,10 @@ class Navbar extends Component {
 		return (
 			<nav className="navbar navbar-expand-sm navbar-dark">
 				<Link className="navbar-brand" to="/">Twisted Threads</Link>
+				<Search
+					dispatch={dispatch}
+					searchResults={searchResults}
+				/>
 				<button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" onClick={(e) => { this.showDropdown(e); }}>
 					<span className="navbar-toggler-icon" />
 				</button>
@@ -134,12 +141,14 @@ Navbar.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isLoading': PropTypes.bool.isRequired,
+	'searchResults': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'userCanCreatePattern': PropTypes.bool.isRequired,
 };
 
 const mapStateToProps = (state, ownProps) => ({
 	'isLoading': state.pattern.isLoading,
 	'location': ownProps.location,
+	'searchResults': state.search.searchResults,
 	'userCanCreatePattern': state.auth.userCanCreatePattern,
 });
 

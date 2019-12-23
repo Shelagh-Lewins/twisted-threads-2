@@ -1,0 +1,11 @@
+@import "../constants/variables";
+$rw-font-path: "~/fonts";
+$rw-img-path: "~/img";
+
+.search {
+	.rw-i-caret-down {
+		&::before {
+			content: "\e801";
+		}
+	}
+}
