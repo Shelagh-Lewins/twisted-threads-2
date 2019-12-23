@@ -88,13 +88,11 @@ const updateActionsLog = function (action) {
 	const updatedActionsLog = ActionsLog.findOne({ 'userId': userId })[action];
 
 	if (updatedActionsLog.length > NUMBER_OF_ACTIONS_LOGGED) {
-		const update = {};
-		update.$pop = {
-			[action]: 1,
-		};
-
-		ActionsLog.update({ '_id': actionsLogId },
-			update);
+		ActionsLog.update(
+			{ '_id': actionsLogId },
+			{ '$pop': { [action]: 1 } },
+			{ 'bypassCollection2': true }, // collection2 causes an error on pop operation
+		);
 	}
 
 	return true;

@@ -117,5 +117,5 @@ export const ROLE_LIMITS = {
 		'maxImagesPerPattern': 10,
 	},
 };
-export const NUMBER_OF_ACTIONS_LOGGED = 10;
+export const NUMBER_OF_ACTIONS_LOGGED = 20;
 export const PATTERN_IMAGES_KEY = 'test/'; // this is a pseudo-folder that namespaces the pattern images. In the current live version it would be '' but here we are namespacing for testing.
