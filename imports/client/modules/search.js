@@ -7,6 +7,7 @@ const updeep = require('updeep');
 // Action creators
 
 export const SET_IS_SEARCHING = 'SET_IS_SEARCHING';
+export const SET_SEARCH_TERM = 'SET_SEARCH_TERM';
 export const SEARCH_COMPLETE = 'SEARCH_COMPLETE';
 export const CLEAR_SEARCH_RESULTS = 'CLEAR_SEARCH_RESULTS';
 
@@ -17,6 +18,13 @@ export function setIsSearching(isSearching) {
 	return {
 		'type': 'SET_IS_SEARCHING',
 		'payload': isSearching,
+	};
+}
+
+export function setSearchTerm(searchTerm) {
+	return {
+		'type': 'SET_SEARCH_TERM',
+		'payload': searchTerm,
 	};
 }
 
@@ -45,14 +53,15 @@ export const searchStart = (searchTerm) => (dispatch) => {
 	}
 
 	dispatch(setIsSearching(true));
-	console.log('search term', searchTerm);
-	Meteor.call('search.searchStart', searchTerm, (error, result) => {
+
+	Meteor.call('search.searchStart', { searchTerm, 'limit': 10 }, (error, result) => {
 		dispatch(setIsSearching(false));
+		dispatch(setSearchTerm(searchTerm));
 
 		if (error) {
 			return dispatch(logErrors({ 'search': error.reason }));
 		}
-console.log('result', result);
+// console.log('result', result);
 		dispatch(searchComplete(result));
 	});
 };
@@ -64,6 +73,7 @@ console.log('result', result);
 const initialSearchState = {
 	'isSearching': false,
 	'searchResults': [],
+	'searchTerm': '',
 };
 
 // state updates
@@ -73,12 +83,19 @@ export default function auth(state = initialSearchState, action) {
 			return updeep({ 'isSearching': action.payload }, state);
 		}
 
+		case SET_SEARCH_TERM: {
+			return updeep({ 'searchTerm': action.payload }, state);
+		}
+
 		case SEARCH_COMPLETE: {
 			return updeep({ 'searchResults': action.payload }, state);
 		}
 
 		case CLEAR_SEARCH_RESULTS: {
-			return updeep({ 'searchResults': updeep.constant([]) }, state);
+			return updeep({
+				'searchResults': updeep.constant([]),
+				'searchTerm': '',
+			}, state);
 		}
 
 		default:

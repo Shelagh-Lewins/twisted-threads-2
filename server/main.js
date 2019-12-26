@@ -46,9 +46,6 @@ Meteor.startup(() => {
 			}
 		},
 	});
-
-	// create text indexes for search
-	Patterns._ensureIndex({ 'name': 'text' });
 });
 
 Accounts.onCreateUser((options, user) => {

@@ -6,7 +6,11 @@ import { searchStart } from '../modules/search';
 import 'react-widgets/dist/css/react-widgets.css';
 
 function Search(props) {
-	const { dispatch, searchResults } = props;
+	const {
+		dispatch,
+		searchResults,
+		searchTerm,
+	} = props;
 
 	const onChange = (value) => {
 		clearTimeout(global.searchTimeout);
@@ -19,22 +23,11 @@ function Search(props) {
 		console.log('select', value);
 	};
 
-	const data = [
-		{
-			'_id': '1',
-			'name': 'bob',
-		},
-		{
-			'_id': '2',
-			'name': 'alice',
-		},
-	];
-
 	return (
 		<div className="search">
 			<Combobox
 				data={searchResults}
-				messages={{ 'emptyList': 'nothing found' }}
+				messages={{ 'emptyList': `no results found for ${searchTerm}` }}
 				onChange={onChange}
 				onSelect={onSelect}
 				textField="name"
@@ -47,6 +40,7 @@ function Search(props) {
 Search.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'searchResults': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'searchTerm': PropTypes.string.isRequired,
 };
 
 export default Search;

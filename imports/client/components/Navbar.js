@@ -47,6 +47,7 @@ class Navbar extends Component {
 			dispatch,
 			isLoading,
 			searchResults,
+			searchTerm,
 			userCanCreatePattern,
 		} = this.props;
 
@@ -122,6 +123,7 @@ class Navbar extends Component {
 				<Search
 					dispatch={dispatch}
 					searchResults={searchResults}
+					searchTerm={searchTerm}
 				/>
 				<button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" onClick={(e) => { this.showDropdown(e); }}>
 					<span className="navbar-toggler-icon" />
@@ -142,6 +144,7 @@ Navbar.propTypes = {
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'searchResults': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'searchTerm': PropTypes.string.isRequired,
 	'userCanCreatePattern': PropTypes.bool.isRequired,
 };
 
@@ -149,6 +152,7 @@ const mapStateToProps = (state, ownProps) => ({
 	'isLoading': state.pattern.isLoading,
 	'location': ownProps.location,
 	'searchResults': state.search.searchResults,
+	'searchTerm': state.search.searchTerm,
 	'userCanCreatePattern': state.auth.userCanCreatePattern,
 });
 
