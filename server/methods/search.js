@@ -1,6 +1,8 @@
 import { check } from 'meteor/check';
+import { Promise } from 'meteor/promise';
 import { nonEmptyStringCheck } from '../../imports/server/modules/utils';
 import { Patterns } from '../../imports/modules/collection';
+
 
 /*
 The challenge with search is to return on partial matches and to exclude any pattern the user should not see
@@ -21,7 +23,50 @@ Meteor.methods({
 
 		const searchString = `${searchTerm.toLowerCase()}`;
 
-		const query = {
+		const pipeline = [
+			{
+				'$match': {
+					'nameSort': {
+						'$regex': searchString,
+					},
+				},
+			},
+			{
+				'$lookup': {
+					'from': 'users',
+					'localField': 'createdBy',
+					'foreignField': '_id',
+					'as': 'users',
+				},
+			},
+			{
+				'$addFields': {
+					'user': { '$arrayElemAt': ['$users', 0] },
+				},
+			},
+			{
+				'$project': {
+					'username': '$user.username',
+					'name': 1,
+					'numberOfTablets': 1,
+					'_id': 1,
+				},
+			},
+		];
+
+		const options = {};
+
+		const result1 = Promise.await(Patterns.rawCollection().aggregate(pipeline, options));
+
+		//console.log('result 1', result1);
+
+		const result2 = Promise.await(result1.toArray());
+
+		console.log('result2', result2);
+
+		return result2;
+
+		/* const query = {
 			'nameSort': {
 				'$regex': searchString,
 			},
@@ -42,12 +87,12 @@ Meteor.methods({
 			{
 				'fields': {
 					'name': 1,
-					'createdBy': 1,
+					'createdBy': 1, // TODO get username
 					'numberOfTablets': 1,
 				},
 				'limit': limit,
 			},
-		).fetch();
+		).fetch(); */
 		//console.log('limit', limit);
 		//console.log('results', result);
 // TO DO search on tags also
