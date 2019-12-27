@@ -1,8 +1,9 @@
 import React from 'react';
 import { Combobox } from 'react-widgets';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import './Search.scss';
-import { searchStart } from '../modules/search';
+import { searchStart, setSearchTerm } from '../modules/search';
 import 'react-widgets/dist/css/react-widgets.css';
 
 function Search(props) {
@@ -15,15 +16,43 @@ function Search(props) {
 
 	const onChange = (value) => {
 		clearTimeout(global.searchTimeout);
-		global.searchTimeout = setTimeout(() => {
-			dispatch(searchStart(value));
-		}, 500);
+
+		if (typeof value !== 'object') {
+			// user has entered a search term
+			// don't fire if they've selected a search result
+			global.searchTimeout = setTimeout(() => {
+				dispatch(searchStart(value));
+			}, 500);
+		}
 	};
-//TO DO don't show dropdown while searching
+
 	const onSelect = (value) => {
 		console.log('select', value);
 	};
 
+	const ListItem = ({ item }) => {
+		const {
+			_id,
+			createdBy,
+			name,
+			numberOfTablets,
+		} = item;
+
+		return (
+			<Link to={`/pattern/${_id}`}>
+				<span className="main_icon" />
+				<div>
+					<span className="name">{name}</span>
+					<span className="tablets-count" title={`${numberOfTablets} tablets`}>
+						<span className="icon" />
+						{numberOfTablets}
+					</span>
+					<span className="created-by" title="Created by {createdBy}"><span className="icon" />{createdBy}</span>
+				</div>
+			</Link>
+		);
+	};
+//TO DO hide dropdown when empty input or searching
 	let message = 'Enter a search term...';
 
 	if (isSearching) {
@@ -37,6 +66,7 @@ function Search(props) {
 			<Combobox
 				busy={isSearching}
 				data={searchResults}
+				itemComponent={ListItem}
 				messages={{
 					'emptyList': message,
 				}}
