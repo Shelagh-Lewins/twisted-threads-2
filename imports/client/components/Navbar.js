@@ -46,6 +46,7 @@ class Navbar extends Component {
 		const {
 			dispatch,
 			isLoading,
+			isSearching,
 			searchResults,
 			searchTerm,
 			userCanCreatePattern,
@@ -122,6 +123,7 @@ class Navbar extends Component {
 				<Link className="navbar-brand" to="/">Twisted Threads</Link>
 				<Search
 					dispatch={dispatch}
+					isSearching={isSearching}
 					searchResults={searchResults}
 					searchTerm={searchTerm}
 				/>
@@ -143,6 +145,7 @@ Navbar.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isLoading': PropTypes.bool.isRequired,
+	'isSearching': PropTypes.bool.isRequired,
 	'searchResults': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'searchTerm': PropTypes.string.isRequired,
 	'userCanCreatePattern': PropTypes.bool.isRequired,
@@ -150,6 +153,7 @@ Navbar.propTypes = {
 
 const mapStateToProps = (state, ownProps) => ({
 	'isLoading': state.pattern.isLoading,
+	'isSearching': state.search.isSearching,
 	'location': ownProps.location,
 	'searchResults': state.search.searchResults,
 	'searchTerm': state.search.searchTerm,
