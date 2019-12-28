@@ -142,9 +142,9 @@ Meteor.methods({
 
 		const users = Promise.await(Meteor.users.rawCollection().aggregate(usersPipeline).toArray());
 
-		console.log('users', users);
+		//console.log('users', users);
 
-		return patterns;
+		return patterns.concat(users);
 
 // search for users
 // show pretty results

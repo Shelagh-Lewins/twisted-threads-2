@@ -56,20 +56,46 @@ function Search(props) {
 			createdBy,
 			name,
 			numberOfTablets,
+			type,
 		} = item;
 
-		return (
-			<Link to={`/pattern/${_id}`}>
-				<span className="main-icon" />
-				<div>
-					<span className="name">{name}</span>
-					<span className="tablets-count" title={`${numberOfTablets} tablets`}>
-						<span className="icon" />
-						{numberOfTablets}
-					</span>
-					<span className="created-by" title="Created by {createdBy}"><span className="icon" />{createdBy}</span>
-				</div>
-			</Link>
+		let element;
+
+		switch (type) {
+			case 'pattern':
+				element = (
+					<Link to={`/pattern/${_id}`} className="pattern">
+						<span className="main-icon" />
+						<div>
+							<span className="name">{name}</span>
+							<span className="tablets-count" title={`${numberOfTablets} tablets`}>
+								<span className="icon" />
+								{numberOfTablets}
+							</span>
+							<span className="created-by" title="Created by {createdBy}"><span className="icon" />{createdBy}</span>
+						</div>
+					</Link>
+				);
+				break;
+
+			case 'user':
+				element = (
+					<Link to={`/user/${_id}`} className="user">
+						<span className="main-icon" />
+						<div>
+							<span className="name">{username}</span>
+							<span className="tablets-count" title={`${numberOfTablets} tablets`}>
+								<span className="icon" />
+								{numberOfTablets}
+							</span>
+							<span className="created-by" title="Created by {createdBy}"><span className="icon" />{createdBy}</span>
+						</div>
+					</Link>
+				);
+				break;
+
+			default:
+				break;
 		);
 	};
 //TO DO hide dropdown when empty input or searching
