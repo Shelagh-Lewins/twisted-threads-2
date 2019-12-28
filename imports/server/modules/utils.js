@@ -162,3 +162,21 @@ export const checkUserCanCreateColorBook = () => {
 		'value': !error,
 	};
 };
+
+export const updatePublicPatternsCount = (_id) => {
+	const publicPatternsCount = Patterns.find(
+		{
+			'$and': [
+				{ 'isPublic': { '$eq': true } },
+				{ 'createdBy': _id },
+			],
+		},
+	).count();
+
+	Meteor.users.update(
+		{ _id },
+		{
+			'$set': { 'publicPatternsCount': publicPatternsCount },
+		},
+	);
+};

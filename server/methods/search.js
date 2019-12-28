@@ -26,21 +26,23 @@ Meteor.methods({
 
 		const searchString = `${searchTerm.toLowerCase()}`;
 
+		// find patterns by name, tag
+
 		// only return patterns the user is allowed to see
-		const filter = {};
+		const patternsFilter = {};
 
 		if (Meteor.userId()) {
-			filter.$or = [
+			patternsFilter.$or = [
 				{ 'isPublic': { '$eq': true } },
 				{ 'createdBy': this.userId },
 			];
 		} else {
-			filter.isPublic = { '$eq': true };
+			patternsFilter.isPublic = { '$eq': true };
 		}
 
-		const patternPipeline = [
+		const patternsPipeline = [
 			{
-				'$match': filter,
+				'$match': patternsFilter,
 			},
 			// find the username of the pattern's owner
 			{
@@ -101,11 +103,46 @@ Meteor.methods({
 			{ '$limit': limit },
 		];
 //TO DO limit
-		const options = {};
 
-		const patterns = Promise.await(Patterns.rawCollection().aggregate(patternPipeline, options).toArray());
+		const patterns = Promise.await(Patterns.rawCollection().aggregate(patternsPipeline).toArray());
 
 		console.log('patterns', patterns);
+
+		// find users by name, but only if they have public patterns
+
+		const usersFilter = {
+			'$and': [
+				{
+					'$or': [
+						{ 'publicPatternsCount': { '$gt': 0 } },
+						{ '_id': Meteor.userId() },
+					],
+				},
+				{
+					'username': {
+						'$regex': searchString,
+					},
+				},
+			],
+		};
+
+		const usersPipeline = [
+			{
+				'$match': usersFilter,
+			},
+			{
+				'$project': {
+					'_id': 1,
+					'type': 'user',
+					'username': 1,
+				},
+			},
+			{ '$limit': limit },
+		];
+
+		const users = Promise.await(Meteor.users.rawCollection().aggregate(usersPipeline).toArray());
+
+		console.log('users', users);
 
 		return patterns;
 

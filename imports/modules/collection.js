@@ -30,3 +30,25 @@ PatternImages.attachSchema(PatternImagesSchema);
 // tags on patterns
 export const Tags = new Mongo.Collection('tags');
 Tags.attachSchema(TagsSchema);
+
+// Search indexes
+/* import { Index, MongoDBEngine } from 'meteor/easy:search';
+// On Client and Server
+
+export const PatternsIndex = new Index({
+	'collection': Patterns,
+	'fields': ['nameSort'],
+	'engine': new MongoDBEngine(),
+	selector(searchDefinition, options, aggregation) {
+		// retrieve the default selector
+		const selector = this.defaultConfiguration()
+			.selector(searchObject, options, aggregation);
+
+		// options.search.userId contains the userId of the logged in user
+		console.log('selector', selector);
+		selector.createdBy = options.search.userId;
+
+		return selector;
+	},
+	// 'permission': (options) => options.userId, // only allow searching when the user is logged in
+}); */

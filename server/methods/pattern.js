@@ -2,6 +2,7 @@ import { check } from 'meteor/check';
 import {
 	checkUserCanCreatePattern,
 	nonEmptyStringCheck,
+	updatePublicPatternsCount,
 	validHolesCheck,
 	validRowsCheck,
 	validTabletsCheck,
@@ -86,7 +87,7 @@ Meteor.methods({
 				break;
 		}
 
-		return Patterns.insert({
+		const patternId = Patterns.insert({
 			'description': '',
 			name,
 			'nameSort': name.toLowerCase(),
@@ -107,6 +108,11 @@ Meteor.methods({
 			'weavingNotes': '',
 			'weftColor': DEFAULT_WEFT_COLOR,
 		});
+
+		// update the user's count of public patterns
+		updatePublicPatternsCount(Meteor.userId());
+
+		return patternId;
 	},
 	'pattern.remove': function (_id) {
 		check(_id, nonEmptyStringCheck);
@@ -143,9 +149,12 @@ Meteor.methods({
 		});
 
 		// remove the pattern itself
-		return Patterns.remove({
-			_id,
-		});
+		const removed = Patterns.remove({ _id });
+
+		// update the user's count of public patterns
+		updatePublicPatternsCount(Meteor.userId());
+
+		return removed;
 	},
 	'pattern.copy': function (_id) {
 		check(_id, nonEmptyStringCheck);
@@ -299,23 +308,13 @@ Meteor.methods({
 				({ isPublic } = data);
 				check(isPublic, Boolean);
 
-				// update the user's count of public patterns
-				const publicPatternsCount = Patterns.find(
-					{
-						'$and': [
-							{ 'isPublic': { '$eq': true } },
-							{ 'createdBy': Meteor.userId() },
-						],
-					},
-				).count();
-				Meteor.users.update(
-					{ '_id': Meteor.userId() },
-					{
-						'$set': { 'publicPatternsCount': publicPatternsCount },
-					},
-				);
+				// update the pattern
+				Patterns.update({ _id }, { '$set': { 'isPublic': isPublic } });
 
-				return Patterns.update({ _id }, { '$set': { 'isPublic': isPublic } });
+				// update the user's count of public patterns
+				updatePublicPatternsCount(Meteor.userId());
+
+				return;
 
 			case 'editWeavingCellDirection':
 				({ direction, row, tablet } = data);

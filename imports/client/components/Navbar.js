@@ -12,6 +12,16 @@ import Search from './Search';
 import './Navbar.scss';
 import { iconColors } from '../../modules/parameters';
 
+/* import { PatternsIndex } from '../../modules/collection';
+
+// On Client
+Tracker.autorun(function () {
+	const cursor = PatternsIndex.search('n') // search all docs that contain "Marie" in the name or score field
+
+	console.log('***', cursor.fetch()) // log found documents with default search limit
+	console.log(cursor.count()) // log count of all found documents
+}); */
+
 class Navbar extends Component {
 	constructor(props) {
 		super(props);
