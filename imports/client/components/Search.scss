@@ -8,4 +8,54 @@ $rw-img-path: "~/img";
 			content: "\e801";
 		}
 	}
+
+	li {
+		float: left;
+		line-height: 1;
+		width: 100%;
+
+		&.rw-list-option {
+			padding: 0;
+		}
+
+		a {
+			color: #424A6C;
+			float: left;
+			text-decoration: none;
+			width: 100%;
+
+			&:focus {
+				background-color: #A8E1FF;
+			}
+
+			div {
+				margin-left: 56px;
+			}
+		}
+
+		&.rw-state-focus {
+			background-color: #A8E1FF;
+		}
+
+		.main-icon {
+			background: url("/images/pattern_placeholder.png") #FFFFFF no-repeat left top;
+
+			height: 40px;
+			float: left;
+			margin: 4px 8px 4px 8px;
+			width: 40px;
+			
+		}
+
+		.name,
+		.username {
+			display: block;
+			/*white-space: nowrap; */
+			/*overflow: hidden;*/
+			/*text-overflow: ellipsis;*/
+			font-size: 95%;
+			font-weight: bold;
+			margin: 7px 8px 0 0;
+		}
+	}
 }

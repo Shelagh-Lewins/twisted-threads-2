@@ -30,6 +30,26 @@ function Search(props) {
 		console.log('select', value);
 	};
 
+	const GroupHeading = ({ item }) => {
+		// note 'item' here is actually the group property
+		let text;
+
+		switch (item) {
+			case 'pattern':
+				text = 'Patterns';
+				break;
+
+			case 'user':
+				text = 'Users';
+				break;
+
+			default:
+				break;
+		}
+
+		return <span className="group-header">{text}</span>;
+	};
+
 	const ListItem = ({ item }) => {
 		const {
 			_id,
@@ -40,7 +60,7 @@ function Search(props) {
 
 		return (
 			<Link to={`/pattern/${_id}`}>
-				<span className="main_icon" />
+				<span className="main-icon" />
 				<div>
 					<span className="name">{name}</span>
 					<span className="tablets-count" title={`${numberOfTablets} tablets`}>
@@ -66,6 +86,8 @@ function Search(props) {
 			<Combobox
 				busy={isSearching}
 				data={searchResults}
+				groupBy="type"
+				groupComponent={GroupHeading}
 				itemComponent={ListItem}
 				messages={{
 					'emptyList': message,

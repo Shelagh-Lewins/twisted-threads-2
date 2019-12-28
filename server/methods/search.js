@@ -38,7 +38,7 @@ Meteor.methods({
 			filter.isPublic = { '$eq': true };
 		}
 
-		const pipeline = [
+		const patternPipeline = [
 			{
 				'$match': filter,
 			},
@@ -63,6 +63,7 @@ Meteor.methods({
 					'numberOfTablets': 1,
 					'nameSort': 1,
 					'tags': 1,
+					'type': 'pattern',
 					'username': '$user.username',
 				},
 			},
@@ -97,55 +98,20 @@ Meteor.methods({
 					],
 				},
 			},
+			{ '$limit': limit },
 		];
 //TO DO limit
 		const options = {};
 
-		const result = Promise.await(Patterns.rawCollection().aggregate(pipeline, options)).toArray();
+		const patterns = Promise.await(Patterns.rawCollection().aggregate(patternPipeline, options).toArray());
 
-		//console.log('result 1', result1);
+		console.log('patterns', patterns);
 
-		//const result2 = Promise.await(result1.toArray());
+		return patterns;
 
-		console.log('result', result);
-
-		return result;
-
-		/* const query = {
-			'nameSort': {
-				'$regex': searchString,
-			},
-		};
-
-		// only return patterns the user should see
-		if (Meteor.userId()) {
-			query.$or = [
-				{ 'isPublic': { '$eq': true } },
-				{ 'createdBy': this.userId },
-			];
-		} else {
-			query.isPublic = { '$eq': true };
-		}
-
-		const result = Patterns.find(
-			query,
-			{
-				'fields': {
-					'name': 1,
-					'createdBy': 1, // TODO get username
-					'numberOfTablets': 1,
-				},
-				'limit': limit,
-			},
-		).fetch(); */
-		//console.log('limit', limit);
-		//console.log('results', result);
-// TO DO search on tags also
-// aggregate?
 // search for users
 // show pretty results
 // link to pattern /user
 // show more
-		return result;
 	},
 });

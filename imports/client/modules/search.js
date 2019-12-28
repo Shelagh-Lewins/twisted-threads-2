@@ -1,5 +1,6 @@
 // Partial store for search
 import { clearErrors, logErrors } from './errors';
+import { SEARCH_LIMIT } from '../../modules/parameters';
 
 const updeep = require('updeep');
 
@@ -44,7 +45,7 @@ export function clearSearchResults() {
 // ///////////////////////////
 // Action that call Meteor methods
 
-export const searchStart = (searchTerm) => (dispatch) => {
+export const searchStart = (searchTerm) => (dispatch, getState) => {
 	dispatch(clearErrors());
 	dispatch(clearSearchResults());
 
@@ -54,7 +55,10 @@ export const searchStart = (searchTerm) => (dispatch) => {
 
 	dispatch(setIsSearching(true));
 
-	Meteor.call('search.searchStart', { searchTerm, 'limit': 10 }, (error, result) => {
+	const { searchLimit } = getState().search;
+	// console.log('limit', searchLimit);
+
+	Meteor.call('search.searchStart', { searchTerm, searchLimit }, (error, result) => {
 		dispatch(setIsSearching(false));
 		dispatch(setSearchTerm(searchTerm));
 
@@ -72,6 +76,7 @@ export const searchStart = (searchTerm) => (dispatch) => {
 // default state
 const initialSearchState = {
 	'isSearching': false,
+	'searchLimit': SEARCH_LIMIT,
 	'searchResults': [],
 	'searchTerm': '',
 };
