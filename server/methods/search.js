@@ -13,8 +13,11 @@ MongoDB full text search only matches whole words
 
 Below is a regex search which matches partial words but is executed on the server and will not be cheap
 
-Because nameSort is lower case, we can convert the searchTerm to lower case also to get a case-insensitive search
-nameSort is indexed, though that probably doesn't help
+Because nameSort and tags are lower case, we can convert the searchTerm to lower case also to get a case-insensitive search, presumably more cheaply than using the case-insensitive option
+
+The aggregation allows us to pull in tags and search on those also
+
+And to return the username of the pattern's creator
 */
 
 Meteor.methods({
@@ -23,14 +26,23 @@ Meteor.methods({
 
 		const searchString = `${searchTerm.toLowerCase()}`;
 
+		// only return patterns the user is allowed to see
+		const filter = {};
+
+		if (Meteor.userId()) {
+			filter.$or = [
+				{ 'isPublic': { '$eq': true } },
+				{ 'createdBy': this.userId },
+			];
+		} else {
+			filter.isPublic = { '$eq': true };
+		}
+
 		const pipeline = [
 			{
-				'$match': {
-					'nameSort': {
-						'$regex': searchString,
-					},
-				},
+				'$match': filter,
 			},
+			// find the username of the pattern's owner
 			{
 				'$lookup': {
 					'from': 'users',
@@ -46,25 +58,58 @@ Meteor.methods({
 			},
 			{
 				'$project': {
-					'username': '$user.username',
+					'_id': 1,
 					'name': 1,
 					'numberOfTablets': 1,
-					'_id': 1,
+					'nameSort': 1,
+					'tags': 1,
+					'username': '$user.username',
+				},
+			},
+			// add tags
+			{
+				'$lookup': {
+					'from': 'tags',
+					'localField': 'tags',
+					'foreignField': '_id',
+					'as': 'tagObjects',
+				},
+			},
+			{
+				'$addFields': {
+					'tagTexts': '$tagObjects.name',
+				},
+			},
+			// search nameSort and tags
+			{
+				'$match': {
+					'$or': [
+						{
+							'nameSort': {
+								'$regex': searchString,
+							},
+						},
+						{
+							'tagTexts': {
+								'$regex': searchString,
+							},
+						},
+					],
 				},
 			},
 		];
-
+//TO DO limit
 		const options = {};
 
-		const result1 = Promise.await(Patterns.rawCollection().aggregate(pipeline, options));
+		const result = Promise.await(Patterns.rawCollection().aggregate(pipeline, options)).toArray();
 
 		//console.log('result 1', result1);
 
-		const result2 = Promise.await(result1.toArray());
+		//const result2 = Promise.await(result1.toArray());
 
-		console.log('result2', result2);
+		console.log('result', result);
 
-		return result2;
+		return result;
 
 		/* const query = {
 			'nameSort': {
