@@ -38,13 +38,22 @@ $rw-img-path: "~/img";
 		}
 
 		.main-icon {
-			background: url("/images/pattern_placeholder.png") #FFFFFF no-repeat left top;
-
-			height: 40px;
 			float: left;
+			height: 40px;
 			margin: 4px 8px 4px 8px;
 			width: 40px;
-			
+		}
+
+		.search-result-pattern {
+			.main-icon {
+				background: url("/images/pattern_placeholder.png") no-repeat left top;
+			}
+		}
+
+		.search-result-user {
+			.main-icon {
+				background: url("/images/user_placeholder.png") no-repeat left top;
+			}
 		}
 
 		.name,

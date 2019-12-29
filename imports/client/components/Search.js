@@ -56,6 +56,7 @@ function Search(props) {
 			createdBy,
 			name,
 			numberOfTablets,
+			username,
 			type,
 		} = item;
 
@@ -64,7 +65,7 @@ function Search(props) {
 		switch (type) {
 			case 'pattern':
 				element = (
-					<Link to={`/pattern/${_id}`} className="pattern">
+					<Link to={`/pattern/${_id}`} className="search-result-pattern">
 						<span className="main-icon" />
 						<div>
 							<span className="name">{name}</span>
@@ -80,15 +81,10 @@ function Search(props) {
 
 			case 'user':
 				element = (
-					<Link to={`/user/${_id}`} className="user">
+					<Link to={`/user/${_id}`} className="search-result-user">
 						<span className="main-icon" />
 						<div>
 							<span className="name">{username}</span>
-							<span className="tablets-count" title={`${numberOfTablets} tablets`}>
-								<span className="icon" />
-								{numberOfTablets}
-							</span>
-							<span className="created-by" title="Created by {createdBy}"><span className="icon" />{createdBy}</span>
 						</div>
 					</Link>
 				);
@@ -96,7 +92,8 @@ function Search(props) {
 
 			default:
 				break;
-		);
+		}
+		return element;
 	};
 //TO DO hide dropdown when empty input or searching
 	let message = 'Enter a search term...';
@@ -110,6 +107,7 @@ function Search(props) {
 	return (
 		<div className="search">
 			<Combobox
+			open={true}
 				busy={isSearching}
 				data={searchResults}
 				groupBy="type"
