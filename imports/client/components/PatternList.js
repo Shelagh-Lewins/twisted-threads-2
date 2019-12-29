@@ -59,7 +59,6 @@ class PatternList extends PureComponent {
 							}
 						});
 					}
-					console.log('tagTexts', tagTexts);
 
 					return (
 						<Col lg="6" key={`pattern-summary-${_id}`}>
