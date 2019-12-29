@@ -35,6 +35,7 @@ $rw-img-path: "~/img";
 		}
 
 		.main-icon {
+			background: no-repeat left top / 40px 40px;
 			float: left;
 			height: 40px;
 			margin: 4px 8px 4px 8px;
@@ -43,7 +44,7 @@ $rw-img-path: "~/img";
 
 		.search-result-pattern {
 			.main-icon {
-				background: url("/images/pattern_placeholder.png") no-repeat left top;
+				background-image: url("/images/search_pattern.png");
 			}
 
 			.tablets-count,
@@ -72,13 +73,14 @@ $rw-img-path: "~/img";
 
 		.search-result-user {
 			.main-icon {
-				background: url("/images/user_placeholder.png") no-repeat left top;
+				background-image: url("/images/search_user.png");
 			}
 		}
 
 		.created-by {
 			.icon {
 				background: url("../images/created_by.png") transparent no-repeat left top;
+				background-size: 16px 16px;
 			}
 		}
 

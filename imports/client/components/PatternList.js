@@ -31,6 +31,7 @@ class PatternList extends PureComponent {
 			patternCount,
 			patterns,
 			patternPreviews,
+			tags,
 			users,
 		} = this.props;
 
@@ -45,7 +46,20 @@ class PatternList extends PureComponent {
 		return (
 			<Row className="pattern-list">
 				{patterns.map((pattern) => {
-					const { _id, createdBy } = pattern;
+					const { _id, createdBy, 'tags': patternTags } = pattern;
+
+					const tagTexts = [];
+
+					// ensure tags subscription is ready
+					if (patternTags && tags && tags.length > 0) {
+						patternTags.forEach((patternTag) => {
+							const tagObject = tags.find((tag) => tag._id === patternTag);
+							if (tagObject && tagObject.name) {
+								tagTexts.push(tagObject.name);
+							}
+						});
+					}
+					console.log('tagTexts', tagTexts);
 
 					return (
 						<Col lg="6" key={`pattern-summary-${_id}`}>
@@ -55,6 +69,7 @@ class PatternList extends PureComponent {
 								handleClickButtonRemove={this.handleClickButtonRemove}
 								onChangeIsPublic={this.onChangeIsPublic}
 								patternPreview={patternPreviews.find((patternPreview) => patternPreview.patternId === _id)}
+								tagTexts={tagTexts}
 								user={users.find((user) => user._id === createdBy)}
 							/>
 						</Col>
@@ -75,6 +90,7 @@ PatternList.propTypes = {
 	'patternCount': PropTypes.number.isRequired,
 	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'patternPreviews': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'tags': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'users': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 

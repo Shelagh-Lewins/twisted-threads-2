@@ -1,9 +1,8 @@
 import React from 'react';
 import { Combobox } from 'react-widgets';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
 import './Search.scss';
-import { searchStart, setSearchTerm } from '../modules/search';
+import { searchStart } from '../modules/search';
 import 'react-widgets/dist/css/react-widgets.css';
 
 function Search(props) {

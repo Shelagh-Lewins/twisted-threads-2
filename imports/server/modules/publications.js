@@ -106,6 +106,7 @@ const patternsFields = {
 	'numberOfRows': 1,
 	'numberOfTablets': 1,
 	'patternType': 1,
+	'tags': 1,
 };
 
 // additional fields for individual pattern
@@ -116,7 +117,6 @@ const patternFields = {
 		'palette': 1,
 		'patternDesign': 1,
 		'previewOrientation': 1,
-		'tags': 1,
 		'threading': 1,
 		'threadingNotes': 1,
 		'weavingNotes': 1,

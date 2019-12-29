@@ -12,7 +12,7 @@ import PropTypes from 'prop-types';
 import PageWrapper from '../components/PageWrapper';
 import { addPattern, getPatternCount, setIsLoading } from '../modules/pattern';
 import { checkUserCanCreatePattern, getIsAuthenticated } from '../modules/auth';
-import { PatternPreviews, Patterns } from '../../modules/collection';
+import { PatternPreviews, Patterns, Tags } from '../../modules/collection';
 import Loading from '../components/Loading';
 import PatternList from '../components/PatternList';
 import AddPatternForm from '../forms/AddPatternForm';
@@ -87,6 +87,7 @@ class Home extends Component {
 			patterns,
 			patternCount,
 			patternPreviews,
+			tags,
 			userCanCreatePattern,
 			users,
 		} = this.props;
@@ -149,6 +150,7 @@ class Home extends Component {
 								patternCount={patternCount}
 								patterns={patterns}
 								patternPreviews={patternPreviews}
+								tags={tags}
 								users={users}
 							/>
 						</>
@@ -173,6 +175,7 @@ Home.propTypes = {
 	'patternCount': PropTypes.number.isRequired,
 	'patternPreviews': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'tags': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'users': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'userCanCreatePattern': PropTypes.bool.isRequired,
 };
@@ -206,6 +209,8 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 		'limit': ITEMS_PER_PAGE,
 	}).fetch();
 
+	Meteor.subscribe('tags');
+
 	Meteor.subscribe('patterns', pageSkip, ITEMS_PER_PAGE, {
 		'onReady': () => {
 			dispatch(getPatternCount());
@@ -226,6 +231,7 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 	return {
 		patterns,
 		'patternPreviews': PatternPreviews.find().fetch(),
+		'tags': Tags.find().fetch(),
 		'users': Meteor.users.find().fetch(),
 	};
 })(Home);

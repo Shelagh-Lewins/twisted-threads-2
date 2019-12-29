@@ -85,35 +85,35 @@
 	}
 
 	.suggestions {
+		background: $color-tags-background;
+		border: 1px solid $color-tags-border;
+		border-radius: 2px;
+		box-shadow: 0 2px 6px $color-tags-shadow;
+		left: 0;
 		position: absolute;
 		top: 100%;
-		left: 0;
 		width: 100%;
 
 		ul {
+			list-style: none;
 			margin: 4px -1px;
 			padding: 0;
-			list-style: none;
-			background: $color-tags-background;
-			border: 1px solid $color-tags-border;
-			border-radius: 2px;
-			box-shadow: 0 2px 6px $color-tags-shadow;
 		}
 
 		li {
-			border-bottom: 1px solid $color-tags-border;
+			float: left;
 			padding: 6px 8px;
 
 			mark {
-				text-decoration: underline;
 				background: none;
 				font-weight: 600;
+				text-decoration: underline;
 			}
 		}
 
 		:hover {
-			cursor: pointer;
 			background: $color-tags-hover;
+			cursor: pointer;
 		}
 
 		.is-active {
@@ -121,8 +121,8 @@
 		}
 
 		.is-disabled {
-			opacity: .5;
 			cursor: auto;
+			opacity: .5;
 		}
 	}
 

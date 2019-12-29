@@ -72,20 +72,47 @@
 		width: $pattern-summary-preview-width;
 	}
 
-	.tablets {
-		background: $color-pattern-summary-tablets-background;
-		border-radius: 4px;
-		color: $color-pattern-summmary-tablets;
-		font-size: 14px;
+	.info {
 		left: 8px;
-		line-height: 1.2;
-		padding: 4px;
 		position: absolute;
 		top: 84px;
 		z-index: 2;
+	}
+
+	.tags {
+		background: $color-pattern-summary-tablets-background;
+		border-radius: 4px;
+		color: $color-pattern-summmary-tablets;
+		float: left;
+		font-size: 14px;
+		line-height: 1.2;
+		padding: 4px;
+
+		.tag {
+			&::after {
+				content: ", ";
+			}
+
+			&:last-child {
+				&::after {
+					content: "";
+				}
+			}
+		}
+	}
+
+	.tablets {
+		background: $color-pattern-summary-tablets-background;
+		border-radius: 4px;
+		clear: both;
+		color: $color-pattern-summmary-tablets;
+		float: left;
+		font-size: 14px;
+		line-height: 1.2;
+		padding: 4px;
 
 		.icon {
-			background: url("images/tablet_white.svg") transparent no-repeat right 0 top 0;
+			background: url("../images/tablet_white.svg") transparent no-repeat right 0 top 0;
 			background-size: 16px 16px;
 			float: left;
 			height: 16px;
