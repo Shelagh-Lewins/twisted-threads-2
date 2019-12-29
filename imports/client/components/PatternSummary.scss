@@ -137,5 +137,14 @@
 		text-decoration: none;
 		text-overflow: ellipsis;
 		white-space: pre-line;
+
+		.icon {
+			background: url("../images/created_by.png") transparent no-repeat left top;
+			background-size: 16px 16px;
+			display: inline-block;
+			height: 16px;
+			margin: 0 4px 0 0;
+			width: 16px;
+		}
 	}
 }

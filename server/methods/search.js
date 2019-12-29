@@ -102,14 +102,12 @@ Meteor.methods({
 			},
 			{ '$limit': limit },
 		];
-//TO DO limit
 
 		const patterns = Promise.await(Patterns.rawCollection().aggregate(patternsPipeline).toArray());
 
-		console.log('patterns', patterns);
+		// console.log('patterns', patterns);
 
 		// find users by name, but only if they have public patterns
-
 		const usersFilter = {
 			'$and': [
 				{
@@ -147,13 +145,8 @@ Meteor.methods({
 
 		const users = Promise.await(Meteor.users.rawCollection().aggregate(usersPipeline).toArray());
 
-		//console.log('users', users);
+		// console.log('users', users);
 
 		return patterns.concat(users);
-
-// search for users
-// show pretty results
-// link to pattern /user
-// show more
 	},
 });

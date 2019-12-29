@@ -103,7 +103,7 @@ export const ROLES = [
 export const ROLE_LIMITS = {
 	'registered': {
 		'maxColorBooksPerUser': 1,
-		'maxPatternsPerUser': 10,
+		'maxPatternsPerUser': 1,
 		'maxImagesPerPattern': 0,
 	},
 	'verified': {

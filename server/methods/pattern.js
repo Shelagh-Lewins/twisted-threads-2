@@ -151,6 +151,9 @@ Meteor.methods({
 		// remove the pattern itself
 		const removed = Patterns.remove({ _id });
 
+		// Delete unused tags
+		Meteor.call('tags.removeUnused', pattern.tags);
+
 		// update the user's count of public patterns
 		updatePublicPatternsCount(Meteor.userId());
 

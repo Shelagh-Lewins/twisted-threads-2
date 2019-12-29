@@ -126,8 +126,23 @@ Meteor.methods({
 		);
 
 		// Delete unused tag
-		if (Patterns.find({ 'tags': tagId }).count() === 0) {
-			Tags.remove({ '_id': tagId });
+		Meteor.call('tags.removeUnused', tagId);
+	},
+	'tags.removeUnused': function (tagIds) {
+		// remove any tags that are no longer referenced
+		check(tagIds, Match.OneOf([nonEmptyStringCheck], nonEmptyStringCheck));
+
+		let ids = [];
+		if (typeof tagIds === 'string') {
+			ids.push(tagIds);
+		} else {
+			ids = [...tagIds];
 		}
+
+		ids.forEach((tagId) => {
+			if (Patterns.find({ 'tags': tagId }).count() === 0) {
+				Tags.remove({ '_id': tagId });
+			}
+		});
 	},
 });

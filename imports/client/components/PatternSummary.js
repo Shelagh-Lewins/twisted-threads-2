@@ -76,7 +76,7 @@ function PatternSummary(props) {
 
 			</div>
 			<div className="footer">
-				<Link to={`/user/${createdBy}`} className="created-by">
+				<Link to={`/user/${createdBy}`} className="created-by"><span className="icon" />
 					{username}
 				</Link>
 				{canEdit && (
