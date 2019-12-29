@@ -18,15 +18,12 @@ $rw-img-path: "~/img";
 			padding: 0;
 		}
 
-		a {
-			color: #424A6C;
+		.search-result-pattern,
+		.search-result-user {
+			color: $color-text;
 			float: left;
 			text-decoration: none;
 			width: 100%;
-
-			&:focus {
-				background-color: #A8E1FF;
-			}
 
 			div {
 				margin-left: 56px;
@@ -34,7 +31,7 @@ $rw-img-path: "~/img";
 		}
 
 		&.rw-state-focus {
-			background-color: #A8E1FF;
+			background-color: $color-search-focus-background;
 		}
 
 		.main-icon {
@@ -48,11 +45,40 @@ $rw-img-path: "~/img";
 			.main-icon {
 				background: url("/images/pattern_placeholder.png") no-repeat left top;
 			}
+
+			.tablets-count,
+			.created-by {
+				color: $color-search-info;
+				float: left;
+				font-size: 85%;
+				line-height: 1.5;
+				margin: 4px 16px 0 0;
+
+				.icon {
+					float: left;
+					height: 16px;
+					margin: 0 4px 0 0;
+					width: 16px;
+				}
+			}
+
+			.tablets-count {
+				.icon {
+					background: url("../images/tablet_count.svg") transparent no-repeat left top;
+					background-size: 16px 16px;
+				}
+			}
 		}
 
 		.search-result-user {
 			.main-icon {
 				background: url("/images/user_placeholder.png") no-repeat left top;
+			}
+		}
+
+		.created-by {
+			.icon {
+				background: url("../images/created_by.png") transparent no-repeat left top;
 			}
 		}
 

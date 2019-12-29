@@ -55,6 +55,7 @@ class Navbar extends Component {
 	render() {
 		const {
 			dispatch,
+			history,
 			isLoading,
 			isSearching,
 			searchResults,
@@ -133,6 +134,7 @@ class Navbar extends Component {
 				<Link className="navbar-brand" to="/">Twisted Threads</Link>
 				<Search
 					dispatch={dispatch}
+					history={history}
 					isSearching={isSearching}
 					searchResults={searchResults}
 					searchTerm={searchTerm}

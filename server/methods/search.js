@@ -131,10 +131,15 @@ Meteor.methods({
 				'$match': usersFilter,
 			},
 			{
+				'$addFields': {
+					'name': '$username',
+				},
+			},
+			{
 				'$project': {
 					'_id': 1,
 					'type': 'user',
-					'username': 1,
+					'name': 1,
 				},
 			},
 			{ '$limit': limit },

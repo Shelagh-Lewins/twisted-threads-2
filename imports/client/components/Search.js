@@ -9,6 +9,7 @@ import 'react-widgets/dist/css/react-widgets.css';
 function Search(props) {
 	const {
 		dispatch,
+		history,
 		isSearching,
 		searchResults,
 		searchTerm,
@@ -27,6 +28,22 @@ function Search(props) {
 	};
 
 	const onSelect = (value) => {
+		const { _id, type } = value;
+		let url;
+
+		switch (type) {
+			case 'pattern':
+				url = `/pattern/${_id}`;
+				break;
+
+			case 'user':
+				url = `/user/${_id}`;
+				break;
+
+			default:
+				break;
+		}
+		history.push(url);
 		console.log('select', value);
 	};
 
@@ -65,7 +82,7 @@ function Search(props) {
 		switch (type) {
 			case 'pattern':
 				element = (
-					<Link to={`/pattern/${_id}`} className="search-result-pattern">
+					<span className="search-result-pattern">
 						<span className="main-icon" />
 						<div>
 							<span className="name">{name}</span>
@@ -73,20 +90,20 @@ function Search(props) {
 								<span className="icon" />
 								{numberOfTablets}
 							</span>
-							<span className="created-by" title="Created by {createdBy}"><span className="icon" />{createdBy}</span>
+							<span className="created-by" title="Created by {createdBy}"><span className="icon" />{username}</span>
 						</div>
-					</Link>
+					</span>
 				);
 				break;
 
 			case 'user':
 				element = (
-					<Link to={`/user/${_id}`} className="search-result-user">
+					<span className="search-result-user">
 						<span className="main-icon" />
 						<div>
-							<span className="name">{username}</span>
+							<span className="name">{name}</span>
 						</div>
-					</Link>
+					</span>
 				);
 				break;
 
@@ -95,7 +112,7 @@ function Search(props) {
 		}
 		return element;
 	};
-//TO DO hide dropdown when empty input or searching
+
 	let message = 'Enter a search term...';
 
 	if (isSearching) {
@@ -107,7 +124,6 @@ function Search(props) {
 	return (
 		<div className="search">
 			<Combobox
-			open={true}
 				busy={isSearching}
 				data={searchResults}
 				groupBy="type"
@@ -127,6 +143,7 @@ function Search(props) {
 
 Search.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
+	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isSearching': PropTypes.bool.isRequired,
 	'searchResults': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'searchTerm': PropTypes.string.isRequired,
