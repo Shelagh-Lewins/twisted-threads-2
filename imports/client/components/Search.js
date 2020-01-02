@@ -167,13 +167,19 @@ function mapStateToProps(state, ownProps) {
 
 const Tracker = withTracker(({ dispatch }) => {
 	const state = store.getState();
-	const cursor = PatternsIndex.search(getSearchTerm(state)); // search is a reactive data source
-	console.log('*** PatternsIndex', PatternsIndex);
-	console.log('*** cursor count', cursor.count());
-	dispatch(setIsSearching(false));
+	const searchTerm = getSearchTerm(state);
+	let results = [];
+
+	if (searchTerm) {
+		const cursor = PatternsIndex.search(searchTerm); // search is a reactive data source
+		// console.log('*** PatternsIndex', PatternsIndex);
+		results = cursor.fetch();
+		console.log('*** cursor count', cursor.count());
+		dispatch(setIsSearching(false));
+	}
 
 	return {
-		'searchResults': cursor.fetch(),
+		'searchResults': results,
 	};
 })(Search);
 

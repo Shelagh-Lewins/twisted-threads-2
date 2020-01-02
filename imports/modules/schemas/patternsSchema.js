@@ -87,6 +87,7 @@ const PatternsSchema = new SimpleSchema({
 	'tags': {
 		'type': Array,
 		'label': 'Tags',
+		'index': 1,
 	},
 	'tags.$': {
 		'type': String,

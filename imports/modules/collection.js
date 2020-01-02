@@ -37,14 +37,6 @@ Tags.attachSchema(TagsSchema);
 
 // Search indexes
 // On Client and Server
-
-// works
-/* export const PatternsIndex = new Index({
-	'collection': Patterns,
-	'fields': ['nameSort'],
-	'engine': new MinimongoEngine(),
-}); */
-
 export const PatternsIndex = new Index({
 	'collection': Patterns,
 	'fields': ['nameSort'],
@@ -52,10 +44,30 @@ export const PatternsIndex = new Index({
 		'selector': function (searchObject, options, aggregation) {
 			const selector = this.defaultConfiguration().selector(searchObject, options, aggregation);
 
-			// selector.createdBy = options.search.userId;
-			// console.log('index selector', JSON.stringify(selector));
-			console.log('*** aggregation', aggregation);
+			selector.createdBy = options.search.userId;
+			//TO DO add public patterns
+			//To DO is it meaningful to index the tags field, given it's an array?
+			// find patterns by tag also
+			// this is not as good as being able to build the foreign tag fields into the index
+			// but there are likely to be fewer tags than patterns, and it should be quicker than doing the whole search as an aggregated regex. There is just one search to find matching tagIds.
+			const searchTerm = searchObject.nameSort;
+			const matchingTags = Tags.find({ 'name': { '$regex': searchTerm } }).fetch();
+			//console.log('matchingTags', matchingTags);
+			const matchingTagIds = matchingTags.map((tag) => tag._id);
+			//console.log('matchingTagIds', matchingTagIds);
+			//console.log('*** options', options);
+			//const tags = Tags.find({ 'name': options.search });
+			selector.$or.push({ 'tags': { '$in': matchingTagIds } });
+			console.log('*** index selector', JSON.stringify(selector));
 			return selector;
+		},
+		'beforePublish': (action, doc) => {
+			if (doc.tags) {
+				console.log('tags', doc.tags);
+				doc.tagTexts = doc.tags.map((tagId) => Tags.findOne({ '_id': tagId }).name);
+				console.log('tagTexts', doc.tagTexts);
+			}
+			return doc;
 		},
 		'transform': (doc) => {
 			doc.type = 'pattern';
