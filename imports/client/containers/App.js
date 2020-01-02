@@ -33,10 +33,14 @@ import {
 import store from '../modules/store';
 import {
 	checkUserCanCreateColorBook,
-	checkUserCanCreatePattern,
+	// checkUserCanCreatePattern,
 	checkUserCanAddPatternImage,
-	getIsAuthenticated,
-	getUser,
+	getIsVerified,
+	getNumberOfPatterns,
+	getUserId,
+	getUsername,
+	setNumberOfPatterns,
+	setUser,
 } from '../modules/auth';
 import { setIsLoading } from '../modules/pattern';
 import AppContext from '../modules/appContext';
@@ -119,11 +123,37 @@ export const withDatabase = withTracker((props) => {
 
 	dispatch(setIsLoading(true));
 
-	const { '_id': userId, username } = getUser();
+	// provide information about the user
+	const state = store.getState();
+	const userId = getUserId(state);
+	const isVerified = getIsVerified(state);
 
-	if (userId) {
-		dispatch(checkUserCanCreatePattern());
+	// check for login, logout, change of email verifiction status. Update record of user in state.auth if there is a change.
+	const MeteorUserId = Meteor.user() ? Meteor.user()._id : undefined; // Meteor.userId() can load before Meteor.user(), causing a double update
+	let MeteorIsVerified = false;
+	let numberOfPatterns = 0;
+
+	if (Meteor.user()) {
+		if (Meteor.user().emails[0]) {
+			if (Meteor.user().emails[0].verified) {
+				MeteorIsVerified = true;
+			}
+		}
+
+		// check for change in number of patterns the user has created
+		numberOfPatterns = Patterns.find({ 'createdBy': Meteor.userId() }).count();
+		// console.log('*** numberOfPatterns', numberOfPatterns);
+		// console.log('from store', getNumberOfPatterns(state));
+		if (numberOfPatterns !== getNumberOfPatterns(state)) {
+			dispatch(setNumberOfPatterns(numberOfPatterns));
+		}
 	}
+
+	if (userId !== MeteorUserId
+		|| isVerified !== MeteorIsVerified) {
+		dispatch(setUser(Meteor.user()));
+	}
+	const username = getUsername(store.getState());
 
 	// provide information for any pattern page
 	// using context allows us to send data to the page component and the Navbar with a single subscription
@@ -131,7 +161,6 @@ export const withDatabase = withTracker((props) => {
 		// Navbar always needs to know about user
 		const values = {
 			'allTags': [],
-			'isAuthenticated': getIsAuthenticated(),
 			'username': username,
 		};
 
@@ -218,7 +247,6 @@ function ProviderInner({
 	children,
 	colorBooks,
 	createdByUser,
-	isAuthenticated,
 	pattern,
 	patternId,
 	patternImages,
@@ -229,7 +257,6 @@ function ProviderInner({
 			allTags,
 			colorBooks,
 			createdByUser,
-			isAuthenticated,
 			pattern,
 			patternId,
 			patternImages,
@@ -251,7 +278,6 @@ ProviderInner.propTypes = {
 	]).isRequired,
 	'colorBooks': PropTypes.arrayOf(PropTypes.any),
 	'createdByUser': PropTypes.objectOf(PropTypes.any),
-	'isAuthenticated': PropTypes.bool,
 	'pattern': PropTypes.objectOf(PropTypes.any),
 	'patternId': PropTypes.string,
 	'patternImages': PropTypes.arrayOf(PropTypes.any),

@@ -1,5 +1,6 @@
 // Partial store for search
 import { clearErrors, logErrors } from './errors';
+import { createSelector } from 'reselect';
 import { SEARCH_LIMIT } from '../../modules/parameters';
 import { PatternsIndex } from '../../modules/collection';
 
@@ -17,6 +18,7 @@ export const CLEAR_SEARCH_RESULTS = 'CLEAR_SEARCH_RESULTS';
 // and export them so other reducers can use them
 
 export function setIsSearching(isSearching) {
+	console.log('isSearching', isSearching);
 	return {
 		'type': 'SET_IS_SEARCHING',
 		'payload': isSearching,
@@ -48,6 +50,7 @@ export function clearSearchResults() {
 
 export const searchStart = (searchTerm) => (dispatch, getState) => {
 	dispatch(clearErrors());
+	dispatch(setIsSearching(true));
 	dispatch(clearSearchResults());
 
 	if (!searchTerm || searchTerm === '') {
@@ -55,19 +58,10 @@ export const searchStart = (searchTerm) => (dispatch, getState) => {
 	}
 
 	dispatch(setSearchTerm(searchTerm));
-	dispatch(setIsSearching(true));
-	/* console.log('search for', searchTerm);
-	const cursor = PatternsIndex.search(searchTerm);
+	
+	console.log('*** search for', searchTerm);
 
-	console.log('cursor', cursor.fetch()); // log found documents with default search limit
-	console.log('count', cursor.count()); // log count of all found documents
-
-	dispatch(searchComplete(cursor.fetch()));
-	dispatch(setIsSearching(false));
-
-	return; */
-
-	const { searchLimit } = getState().search;
+	/*const { searchLimit } = getState().search;
 	// console.log('limit', searchLimit);
 
 	Meteor.call('search.searchStart', { searchTerm, searchLimit }, (error, result) => {
@@ -78,8 +72,12 @@ export const searchStart = (searchTerm) => (dispatch, getState) => {
 		}
 // console.log('result', result);
 		dispatch(searchComplete(result));
-	});
+	}); */
 };
+
+// Provide info to UI
+// Selectors
+export const getSearchTerm = (state) => state.search.searchTerm;
 
 // ///////////////////////////
 // State
@@ -96,6 +94,7 @@ const initialSearchState = {
 export default function auth(state = initialSearchState, action) {
 	switch (action.type) {
 		case SET_IS_SEARCHING: {
+			console.log('payload', action.payload);
 			return updeep({ 'isSearching': action.payload }, state);
 		}
 

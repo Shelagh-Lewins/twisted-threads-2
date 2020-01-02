@@ -52,8 +52,13 @@ function PatternSummary(props) {
 		</Button>
 	);
 
-	const tags = tagTexts.map((text) => (
-		<span className="tag">{text}</span>
+	const tags = tagTexts.map((text, index) => (
+		<span
+			className="tag"
+			key={`tag-${index}`} // eslint-disable-line react/no-array-index-key
+		>
+			{text}
+		</span>
 	));
 
 	return (

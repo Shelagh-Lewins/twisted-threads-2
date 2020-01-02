@@ -278,3 +278,14 @@ Meteor.publish('patternImages', function (patternId) {
 
 // all tags are public
 Meteor.publish('tags', () => Tags.find());
+
+// //////////////////////////
+// Roles
+
+Meteor.publish(null, function () {
+	if (this.userId) {
+		return Meteor.roleAssignment.find({ 'user._id': this.userId });
+	}
+
+	this.ready();
+});

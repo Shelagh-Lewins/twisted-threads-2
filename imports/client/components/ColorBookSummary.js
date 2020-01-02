@@ -6,7 +6,6 @@ import {
 import PropTypes from 'prop-types';
 import IsPublicIndicator from './IsPublicIndicator';
 import ColorBook from './ColorBook';
-import { getIsAuthenticated } from '../modules/auth';
 
 import { iconColors } from '../../modules/parameters';
 import './ColorBookSummary.scss';
@@ -17,6 +16,7 @@ function ColorBookSummary({
 	handleClickButtonCopy,
 	handleClickButtonSelect,
 	handleClickButtonRemove,
+	isAuthenticated,
 	isSelected,
 	onChangeIsPublic,
 	userCanCreateColorBook,
@@ -33,7 +33,7 @@ function ColorBookSummary({
 		// do nothing, there is no pattern palette
 	};
 
-	const canEdit = getIsAuthenticated() && Meteor.userId() === createdBy;
+	const canEdit = isAuthenticated && Meteor.userId() === createdBy;
 	const canCopy = userCanCreateColorBook;
 
 	const buttonCopy = (
@@ -90,6 +90,7 @@ ColorBookSummary.propTypes = {
 	'handleClickButtonCopy': PropTypes.func.isRequired,
 	'handleClickButtonRemove': PropTypes.func.isRequired,
 	'handleClickButtonSelect': PropTypes.func.isRequired,
+	'isAuthenticated': PropTypes.bool.isRequired,
 	'isSelected': PropTypes.bool.isRequired,
 	'onChangeIsPublic': PropTypes.func.isRequired,
 	'userCanCreateColorBook': PropTypes.bool.isRequired,

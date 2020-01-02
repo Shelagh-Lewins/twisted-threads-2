@@ -1,9 +1,17 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { Combobox } from 'react-widgets';
+import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import './Search.scss';
-import { searchStart } from '../modules/search';
+import store from '../modules/store';
+import {
+	getSearchTerm,
+	searchStart,
+	setIsSearching,
+} from '../modules/search';
 import 'react-widgets/dist/css/react-widgets.css';
+import { PatternsIndex } from '../../modules/collection';
 
 function Search(props) {
 	const {
@@ -152,4 +160,21 @@ Search.propTypes = {
 	'searchTerm': PropTypes.string.isRequired,
 };
 
-export default Search;
+function mapStateToProps(state, ownProps) {
+	return {
+	};
+}
+
+const Tracker = withTracker(({ dispatch }) => {
+	const state = store.getState();
+	const cursor = PatternsIndex.search(getSearchTerm(state)); // search is a reactive data source
+	console.log('*** PatternsIndex', PatternsIndex);
+	console.log('*** cursor count', cursor.count());
+	dispatch(setIsSearching(false));
+
+	return {
+		'searchResults': cursor.fetch(),
+	};
+})(Search);
+
+export default connect(mapStateToProps)(Tracker);

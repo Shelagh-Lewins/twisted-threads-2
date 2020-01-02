@@ -12,7 +12,7 @@ import PropTypes from 'prop-types';
 import PageWrapper from '../components/PageWrapper';
 import { addPattern, getPatternCount, setIsLoading } from '../modules/pattern';
 import {
-	checkUserCanCreatePattern,
+	getCanCreatePattern,
 	getIsAuthenticated,
 	getIsVerified,
 } from '../modules/auth';
@@ -82,6 +82,7 @@ class Home extends Component {
 
 	render() {
 		const {
+			canCreatePattern,
 			currentPageNumber,
 			dispatch,
 			errors,
@@ -93,7 +94,6 @@ class Home extends Component {
 			patternCount,
 			patternPreviews,
 			tags,
-			userCanCreatePattern,
 			users,
 		} = this.props;
 		const { showAddPatternForm } = this.state;
@@ -124,11 +124,11 @@ class Home extends Component {
 							<h1>Welcome</h1>
 							This is the development version of Twisted Threads 2, the online app for tablet weaving. ALL DATA HERE MAY BE DELETED AT ANY TIME.
 							{!isAuthenticated && <p>To get started, please <Link to="/login">Login</Link>. If you don&apos;t already have an account, please <Link to="/register">Register</Link>.</p>}
-							{isAuthenticated && !userCanCreatePattern && !isVerified && <p>To create more patterns, please verify your email address. You can request a new verification email from your <Link to="/account">Account</Link> page</p>}
-							{isAuthenticated && !userCanCreatePattern && isVerified && <p>To create more patterns, please get in touch with the developer of Twisted Threads via the <a href="https://www.facebook.com/groups/927805953974190/">Twisted Threads Facebook group</a>.</p>}
+							{isAuthenticated && !canCreatePattern && !isVerified && <p>To create more patterns, please verify your email address. You can request a new verification email from your <Link to="/account">Account</Link> page</p>}
+							{isAuthenticated && !canCreatePattern && isVerified && <p>To create more patterns, please get in touch with the developer of Twisted Threads via the <a href="https://www.facebook.com/groups/927805953974190/">Twisted Threads Facebook group</a>.</p>}
 						</Col>
 					</Row>
-					{userCanCreatePattern && !showAddPatternForm && addPatternButton}
+					{canCreatePattern && !showAddPatternForm && addPatternButton}
 					{showAddPatternForm && (
 						<Row>
 							<Col lg="12">
@@ -172,6 +172,7 @@ Home.defaultProps = {
 };
 
 Home.propTypes = {
+	'canCreatePattern': PropTypes.bool.isRequired,
 	'currentPageNumber': PropTypes.number,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
@@ -184,7 +185,6 @@ Home.propTypes = {
 	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'tags': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'users': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'userCanCreatePattern': PropTypes.bool.isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
@@ -198,14 +198,14 @@ function mapStateToProps(state, ownProps) {
 	}
 
 	return {
+		'canCreatePattern': getCanCreatePattern(state),
 		'currentPageNumber': currentPageNumber, // read the url parameter to find the currentPage
 		'errors': state.errors,
-		'isAuthenticated': getIsAuthenticated(),
+		'isAuthenticated': getIsAuthenticated(state),
 		'isLoading': state.pattern.isLoading,
-		'isVerified': getIsVerified(),
+		'isVerified': getIsVerified(state),
 		'pageSkip': (currentPageNumber - 1) * ITEMS_PER_PAGE,
 		'patternCount': state.pattern.patternCount,
-		'userCanCreatePattern': state.auth.userCanCreatePattern,
 	};
 }
 
@@ -222,7 +222,6 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 	Meteor.subscribe('patterns', pageSkip, ITEMS_PER_PAGE, {
 		'onReady': () => {
 			dispatch(getPatternCount());
-			dispatch(checkUserCanCreatePattern());
 			dispatch(setIsLoading(false));
 
 			const patternIds = patterns.map((pattern) => pattern._id);

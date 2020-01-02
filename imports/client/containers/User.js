@@ -21,6 +21,7 @@ import {
 import { ColorBooks, PatternPreviews, Patterns } from '../../modules/collection';
 import {
 	checkUserCanCreateColorBook,
+	getIsAuthenticated,
 } from '../modules/auth';
 
 import Loading from '../components/Loading';
@@ -141,6 +142,7 @@ class User extends PureComponent {
 			userCanCreateColorBook,
 			colorBooks,
 			dispatch,
+			isAuthenticated,
 		} = this.props;
 		const { selectedColorBook, showAddColorBookForm } = this.state;
 
@@ -187,6 +189,7 @@ class User extends PureComponent {
 								handleClickButtonCopy={this.handleClickButtonCopy}
 								handleClickButtonRemove={this.handleClickButtonRemoveColorBook}
 								handleClickButtonSelect={this.handleClickSelectColorBook}
+								isAuthenticated={isAuthenticated}
 								isSelected={colorBook._id === selectedColorBook}
 								key={`color-book-${colorBook._id}`}
 								onChangeIsPublic={this.onChangeColorBookIsPublic}
@@ -282,6 +285,7 @@ User.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
+	'isAuthenticated': PropTypes.bool.isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'patternCount': PropTypes.number.isRequired,
 	'patternPreviews': PropTypes.arrayOf(PropTypes.any).isRequired,
@@ -305,6 +309,7 @@ function mapStateToProps(state, ownProps) {
 		'userCanCreateColorBook': state.auth.userCanCreateColorBook,
 		'currentPageNumber': currentPageNumber, // read the url parameter to find the currentPage
 		'errors': state.errors,
+		'isAuthenticated': getIsAuthenticated(state),
 		'isLoading': state.pattern.isLoading,
 		'pageSkip': (currentPageNumber - 1) * ITEMS_PER_PAGE,
 		'patternCount': state.pattern.patternCount,

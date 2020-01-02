@@ -41,7 +41,12 @@ class ChangePassword extends Component {
 	}
 
 	render() {
-		const { dispatch, errors, passwordChanged } = this.props;
+		const {
+			dispatch,
+			errors,
+			isAuthenticated,
+			passwordChanged,
+		} = this.props;
 
 		let message = null;
 		let onClick = this.onCloseFlashMessage;
@@ -62,7 +67,7 @@ class ChangePassword extends Component {
 				type={type}
 			>
 				<Container>
-					{getIsAuthenticated() && (
+					{isAuthenticated && (
 						<Row>
 							<Col lg="12">
 								<h1>Change your password</h1>
@@ -72,7 +77,7 @@ class ChangePassword extends Component {
 							</Col>
 						</Row>
 					)}
-					{!getIsAuthenticated() && 'Log in to access this page'}
+					{!isAuthenticated && 'Log in to access this page'}
 				</Container>
 			</PageWrapper>
 		);
@@ -82,11 +87,13 @@ class ChangePassword extends Component {
 ChangePassword.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
+	'isAuthenticated': PropTypes.bool.isRequired,
 	'passwordChanged': PropTypes.bool.isRequired,
 };
 
 const mapStateToProps = (state) => ({
 	'errors': state.errors,
+	'isAuthenticated': getIsAuthenticated(state),
 	'passwordChanged': state.auth.passwordChanged,
 });
 

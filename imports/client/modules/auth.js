@@ -1,7 +1,11 @@
 // Actions for auth
 // Using actions keeps the UI separated from the server.
+import { createSelector } from 'reselect';
 import { logErrors, clearErrors } from './errors';
-import { MAX_RECENTS } from '../../modules/parameters';
+import {
+	MAX_RECENTS,
+	ROLE_LIMITS,
+} from '../../modules/parameters';
 
 const updeep = require('updeep');
 
@@ -30,8 +34,11 @@ export const PASSWORD_CHANGED = 'PASSWORD_CHANGED';
 export const PASSWORD_NOT_CHANGED = 'PASSWORD_NOT_CHANGED';
 
 export const SET_USER_CAN_CREATE_COLOR_BOOK = 'SET_USER_CAN_CREATE_COLOR_BOOK';
-export const SET_USER_CAN_CREATE_PATTERN = 'SET_USER_CAN_CREATE_PATTERN';
+// export const SET_USER_CAN_CREATE_PATTERN = 'SET_USER_CAN_CREATE_PATTERN';
 export const SET_USER_CAN_ADD_PATTERN_IMAGE = 'SET_USER_CAN_ADD_PATTERN_IMAGE';
+
+export const SET_USER = 'SET_USER';
+export const SET_NUMBER_OF_PATTERNS = 'SET_NUMBER_OF_PATTERNS';
 
 // ///////////////////////////
 // Action that call Meteor methods; these may not change the Store but are located here in order to keep server interactions away from UI
@@ -234,25 +241,6 @@ export const checkUserCanCreateColorBook = () => (dispatch) => {
 	});
 };
 
-// pattern
-export function setUserCanCreatePattern(result) {
-	return {
-		'type': 'SET_USER_CAN_CREATE_PATTERN',
-		'payload': result,
-	};
-}
-
-export const checkUserCanCreatePattern = () => (dispatch) => {
-	Meteor.call('auth.checkUserCanCreatePattern', (error, result) => {
-		if (error) {
-			dispatch(setUserCanCreatePattern(false));
-			return dispatch(logErrors({ 'check-can-create-pattern': error.reason }));
-		}
-
-		dispatch(setUserCanCreatePattern(result.value));
-	});
-};
-
 // pattern image
 export function setUserCanAddPatternImage(result) {
 	return {
@@ -270,6 +258,21 @@ export const checkUserCanAddPatternImage = ({ patternId }) => (dispatch) => {
 		dispatch(setUserCanAddPatternImage(result.value));
 	});
 };
+
+// track user status
+export function setUser(result) {
+	return {
+		'type': 'SET_USER',
+		'payload': result,
+	};
+}
+
+export function setNumberOfPatterns(result) {
+	return {
+		'type': 'SET_NUMBER_OF_PATTERNS',
+		'payload': result,
+	};
+}
 
 // ///////////////////////////
 // record a recently viewed pattern, with weaving chart row if the user has been weaving
@@ -335,6 +338,7 @@ export function updateRecentPatterns({ currentWeavingRow, patternId }) {
 
 
 // Provide info to UI
+// Selectors
 //TODO
 // checkUserCanCreateColorBook
 // checkUserCanCreatePattern
@@ -342,27 +346,103 @@ export function updateRecentPatterns({ currentWeavingRow, patternId }) {
 // use selectors
 // remove all methods and actions
 
-export function getUser() {
-	return Meteor.user() || {};
-}
+const getUser = (state) => state.auth.user;
 
-export function getIsAuthenticated() {
-	return Boolean(Meteor.userId());
-}
+export const getUserId = createSelector(
+	[getUser],
+	(user) => {
+		if (user) {
+			return user._id;
+		}
+		return undefined;
+	},
+);
+
+export const getUsername = createSelector(
+	[getUser],
+	(user) => {
+		if (user) {
+			return user.username;
+		}
+		return undefined;
+	},
+);
+
+export const getNumberOfPatterns = (state) => state.auth.numberOfPatterns;
+
+export const getUserRoles = createSelector(
+	[getUserId],
+	(userId) => {
+		if (!userId) {
+			return [];
+		}
+
+		return Roles.getRolesForUser(userId);
+	},
+);
+
+export const getIsAuthenticated = createSelector(
+	[getUserId],
+	(userId) => Boolean(userId),
+);
 
 // is the user logged in AND has a verified email address?
-// direct check used on Accounts page to show resend verification email link
-export function getIsVerified() {
-	if (!Meteor.user()) {
-		return false;
-	}
+// used on Accounts page to show resend verification email link
+export const getIsVerified = createSelector(
+	[getUser],
+	(user) => {
+		if (!user) {
+			return false;
+		}
 
-	if (!Meteor.user().emails[0]) {
-		return false;
-	}
+		if (!user.emails[0]) {
+			return false;
+		}
+		return user.emails[0].verified;
+	},
+);
 
-	return Meteor.user().emails[0].verified;
-}
+export const getUserEmail = createSelector(
+	[getUser],
+	(user) => {
+		if (!user) {
+			return undefined;
+		}
+
+		if (!user.emails[0]) {
+			return undefined;
+		}
+		return user.emails[0].address;
+	},
+);
+
+export const getCanCreatePattern = createSelector(
+	[getUserRoles, getNumberOfPatterns],
+	(userRoles, numberOfPatterns) => {
+		console.log('getCanCreatePattern selector', userRoles);
+		if (userRoles.length === 0) {
+			return false;
+		}
+
+		// user must not have reached the limit on number of patterns
+		// const numberOfPatterns = Patterns.find({ 'createdBy': userId }).count();
+
+		const limits = [];
+		userRoles.forEach((role) => {
+			if (ROLE_LIMITS[role]) {
+				limits.push(ROLE_LIMITS[role].maxPatternsPerUser);
+			}
+		});
+
+		const limit = Math.max(...limits); // user can create the largest number of patterns of any role they have
+
+		if (numberOfPatterns < limit) {
+			return true;
+		}
+
+		return false;
+	},
+);
 
 // ///////////////////////////
 // State
@@ -372,13 +452,14 @@ const initialAuthState = {
 	'error': null,
 	'forgotPasswordEmailSent': false,
 	'isLoading': true,
+	'numberOfPatterns': 0,
 	'passwordChanged': false,
 	'passwordReset': false,
 	'userCanCreateColorBook': false,
-	'userCanCreatePattern': false,
 	'userCanAddPatternImage': false,
 	'verificationEmailSent': false,
 	'emailVerified': false,
+	'user': null,
 };
 
 // state updates
@@ -428,12 +509,16 @@ export default function auth(state = initialAuthState, action) {
 			return updeep({ 'userCanCreateColorBook': action.payload }, state);
 		}
 
-		case SET_USER_CAN_CREATE_PATTERN: {
-			return updeep({ 'userCanCreatePattern': action.payload }, state);
-		}
-
 		case SET_USER_CAN_ADD_PATTERN_IMAGE: {
 			return updeep({ 'userCanAddPatternImage': action.payload }, state);
+		}
+
+		case SET_USER: {
+			return updeep({ 'user': action.payload }, state);
+		}
+
+		case SET_NUMBER_OF_PATTERNS: {
+			return updeep({ 'numberOfPatterns': action.payload }, state);
 		}
 
 		default:

@@ -6,20 +6,24 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Link, withRouter } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+	getCanCreatePattern,
+	getIsAuthenticated,
+} from '../modules/auth';
 import { copyPattern, removePattern } from '../modules/pattern';
 import AppContext from '../modules/appContext';
 import Search from './Search';
 import './Navbar.scss';
 import { iconColors } from '../../modules/parameters';
 
-/* import { PatternsIndex } from '../../modules/collection';
+import { PatternsIndex } from '../../modules/collection';
 
 // On Client
-Tracker.autorun(function () {
-	const cursor = PatternsIndex.search('n') // search all docs that contain "Marie" in the name or score field
+/* Tracker.autorun(() => {
+	const cursor = PatternsIndex.search('n'); // search all docs that contain "n" in the name
 
-	console.log('***', cursor.fetch()) // log found documents with default search limit
-	console.log(cursor.count()) // log count of all found documents
+	console.log('*** search for n', cursor.fetch()); // log found documents with default search limit
+	console.log('search count', cursor.count()); // log count of all found documents
 }); */
 
 class Navbar extends Component {
@@ -54,17 +58,18 @@ class Navbar extends Component {
 
 	render() {
 		const {
+			canCreatePattern,
 			dispatch,
 			history,
+			isAuthenticated,
 			isLoading,
 			isSearching,
-			searchResults,
+			//searchResults,
 			searchTerm,
-			userCanCreatePattern,
+			
 		} = this.props;
 
 		const {
-			isAuthenticated,
 			pattern,
 			patternId,
 			username,
@@ -76,7 +81,7 @@ class Navbar extends Component {
 			isOwner = pattern.createdBy === Meteor.user()._id;
 		}
 
-		const showPatternMenu = !isLoading && patternId && (userCanCreatePattern || isOwner);
+		const showPatternMenu = !isLoading && patternId && (canCreatePattern || isOwner);
 
 		let patternMenu;
 
@@ -136,7 +141,6 @@ class Navbar extends Component {
 					dispatch={dispatch}
 					history={history}
 					isSearching={isSearching}
-					searchResults={searchResults}
 					searchTerm={searchTerm}
 				/>
 				<button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" onClick={(e) => { this.showDropdown(e); }}>
@@ -154,22 +158,24 @@ class Navbar extends Component {
 Navbar.contextType = AppContext;
 
 Navbar.propTypes = {
+	'canCreatePattern': PropTypes.bool.isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
+	'isAuthenticated': PropTypes.bool.isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'isSearching': PropTypes.bool.isRequired,
-	'searchResults': PropTypes.arrayOf(PropTypes.any).isRequired,
+	//'searchResults': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'searchTerm': PropTypes.string.isRequired,
-	'userCanCreatePattern': PropTypes.bool.isRequired,
 };
 
 const mapStateToProps = (state, ownProps) => ({
+	'canCreatePattern': getCanCreatePattern(state),
+	'isAuthenticated': getIsAuthenticated(state),
 	'isLoading': state.pattern.isLoading,
 	'isSearching': state.search.isSearching,
 	'location': ownProps.location,
-	'searchResults': state.search.searchResults,
+	//'searchResults': state.search.searchResults,
 	'searchTerm': state.search.searchTerm,
-	'userCanCreatePattern': state.auth.userCanCreatePattern,
 });
 
 export default withRouter(connect(mapStateToProps)(Navbar));

@@ -6,15 +6,16 @@ import {
 	Col,
 } from 'reactstrap';
 import { connect } from 'react-redux';
-import { withTracker } from 'meteor/react-meteor-data';
-import { Link, withRouter } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import PageWrapper from '../components/PageWrapper';
 import {
 	getIsAuthenticated,
 	getIsVerified,
-	getUser,
+	getUserEmail,
+	getUserId,
+	getUsername,
 	logout,
 	sendVerificationEmail,
 	verificationEmailNotSent,
@@ -51,22 +52,25 @@ class Account extends Component {
 	}
 
 	onSendVerificationEmail() {
-		const { dispatch, user, history } = this.props;
+		const { dispatch, userId, history } = this.props;
 
-		dispatch(sendVerificationEmail(user._id, history));
+		dispatch(sendVerificationEmail(userId, history));
 	}
 
 	render() {
 		const {
 			dispatch,
 			errors,
-			user,
+			isAuthenticated,
+			isVerified,
+			userEmail,
+			username,
 			verificationEmailSent,
 		} = this.props;
 
 		let emailStatus;
-		if (user.emails) {
-			emailStatus = getIsVerified()
+		if (userEmail) {
+			emailStatus = isVerified
 				? <div><p>Status: verified</p></div>
 				: (
 					<div>
@@ -103,16 +107,16 @@ class Account extends Component {
 				type={type}
 			>
 				<Container>
-					{getIsAuthenticated() && (
+					{isAuthenticated && (
 						<>
 							<Row>
 								<Col lg="12">
-									<h1>Account: {user.username}</h1>
+									<h1>Account: {username}</h1>
 								</Col>
 							</Row>
 							<Row>
 								<Col lg="12">
-									{user.emails && <p>Email address: {user.emails[0].address}</p>}
+									{userEmail && <p>Email address: {userEmail}</p>}
 									{emailStatus}
 									<hr />
 								</Col>
@@ -138,7 +142,7 @@ class Account extends Component {
 							</Row>
 						</>
 					)}
-					{!getIsAuthenticated() && 'Log in to access this page'}
+					{!isAuthenticated && 'Log in to access this page'}
 				</Container>
 			</PageWrapper>
 		);
@@ -149,18 +153,22 @@ Account.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
-	'user': PropTypes.objectOf(PropTypes.any).isRequired,
+	'isAuthenticated': PropTypes.bool.isRequired,
+	'isVerified': PropTypes.bool.isRequired,
+	'userEmail': PropTypes.string,
+	'userId': PropTypes.string,
+	'username': PropTypes.string,
 	'verificationEmailSent': PropTypes.bool.isRequired,
 };
 
 const mapStateToProps = (state) => ({
 	'errors': state.errors,
+	'isAuthenticated': getIsAuthenticated(state),
+	'isVerified': getIsVerified(state),
+	'userEmail': getUserEmail(state),
+	'userId': getUserId(state),
+	'username': getUsername(state),
 	'verificationEmailSent': state.auth.verificationEmailSent,
 });
 
-// withTracker makes checks of user status reactive
-const Tracker = withTracker(() => ({
-	'user': getUser(),
-}))(Account);
-
-export default withRouter(connect(mapStateToProps)(Tracker));
+export default connect(mapStateToProps)(Account);

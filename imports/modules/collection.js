@@ -53,8 +53,13 @@ export const PatternsIndex = new Index({
 			const selector = this.defaultConfiguration().selector(searchObject, options, aggregation);
 
 			// selector.createdBy = options.search.userId;
-			console.log('index selector', JSON.stringify(selector));
+			// console.log('index selector', JSON.stringify(selector));
+			console.log('*** aggregation', aggregation);
 			return selector;
+		},
+		'transform': (doc) => {
+			doc.type = 'pattern';
+			return doc;
 		},
 	}),
 	'permission': () => {
