@@ -1,6 +1,7 @@
 // Partial store for search
 import { clearErrors, logErrors } from './errors';
 import { SEARCH_LIMIT } from '../../modules/parameters';
+import { PatternsIndex } from '../../modules/collection';
 
 const updeep = require('updeep');
 
@@ -53,14 +54,24 @@ export const searchStart = (searchTerm) => (dispatch, getState) => {
 		return;
 	}
 
+	dispatch(setSearchTerm(searchTerm));
 	dispatch(setIsSearching(true));
+	/* console.log('search for', searchTerm);
+	const cursor = PatternsIndex.search(searchTerm);
+
+	console.log('cursor', cursor.fetch()); // log found documents with default search limit
+	console.log('count', cursor.count()); // log count of all found documents
+
+	dispatch(searchComplete(cursor.fetch()));
+	dispatch(setIsSearching(false));
+
+	return; */
 
 	const { searchLimit } = getState().search;
 	// console.log('limit', searchLimit);
 
 	Meteor.call('search.searchStart', { searchTerm, searchLimit }, (error, result) => {
 		dispatch(setIsSearching(false));
-		dispatch(setSearchTerm(searchTerm));
 
 		if (error) {
 			return dispatch(logErrors({ 'search': error.reason }));

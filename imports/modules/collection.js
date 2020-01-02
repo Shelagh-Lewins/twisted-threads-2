@@ -1,4 +1,8 @@
 // Runs on both client and server
+// search index
+import { Index, MongoDBEngine, MinimongoEngine } from 'meteor/easy:search';
+
+// schemas
 import PatternsSchema from './schemas/patternsSchema';
 import ColorBooksSchema from './schemas/colorBooksSchema';
 import PatternPreviewsSchema from './schemas/patternPreviewsSchema';
@@ -32,23 +36,28 @@ export const Tags = new Mongo.Collection('tags');
 Tags.attachSchema(TagsSchema);
 
 // Search indexes
-/* import { Index, MongoDBEngine } from 'meteor/easy:search';
 // On Client and Server
+
+// works
+/* export const PatternsIndex = new Index({
+	'collection': Patterns,
+	'fields': ['nameSort'],
+	'engine': new MinimongoEngine(),
+}); */
 
 export const PatternsIndex = new Index({
 	'collection': Patterns,
 	'fields': ['nameSort'],
-	'engine': new MongoDBEngine(),
-	selector(searchDefinition, options, aggregation) {
-		// retrieve the default selector
-		const selector = this.defaultConfiguration()
-			.selector(searchObject, options, aggregation);
+	'engine': new MongoDBEngine({
+		'selector': function (searchObject, options, aggregation) {
+			const selector = this.defaultConfiguration().selector(searchObject, options, aggregation);
 
-		// options.search.userId contains the userId of the logged in user
-		console.log('selector', selector);
-		selector.createdBy = options.search.userId;
-
-		return selector;
+			// selector.createdBy = options.search.userId;
+			console.log('index selector', JSON.stringify(selector));
+			return selector;
+		},
+	}),
+	'permission': () => {
+		return true;
 	},
-	// 'permission': (options) => options.userId, // only allow searching when the user is logged in
-}); */
+});

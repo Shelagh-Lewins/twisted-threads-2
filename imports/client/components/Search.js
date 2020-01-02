@@ -18,6 +18,7 @@ function Search(props) {
 		clearTimeout(global.searchTimeout);
 
 		if (typeof value !== 'object' && value.length >= 2) {
+		//if (typeof value !== 'object') {
 			// user has entered a search term
 			// at least 2 characters
 			// don't fire if they've selected a search result
@@ -108,6 +109,8 @@ function Search(props) {
 				break;
 
 			default:
+			//TO DO review this, it is a fallback in case type not present
+				element = <span className="name">{name}</span>;
 				break;
 		}
 		return element;

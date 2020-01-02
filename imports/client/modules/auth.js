@@ -335,6 +335,12 @@ export function updateRecentPatterns({ currentWeavingRow, patternId }) {
 
 
 // Provide info to UI
+//TODO
+// checkUserCanCreateColorBook
+// checkUserCanCreatePattern
+// checkUserCanAddPatternImage
+// use selectors
+// remove all methods and actions
 
 export function getUser() {
 	return Meteor.user() || {};
