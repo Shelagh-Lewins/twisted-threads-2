@@ -18,7 +18,12 @@ import {
 	removeColorBook,
 } from '../modules/colorBook';
 
-import { ColorBooks, PatternPreviews, Patterns } from '../../modules/collection';
+import {
+	ColorBooks,
+	PatternPreviews,
+	Patterns,
+	Tags,
+} from '../../modules/collection';
 import {
 	checkUserCanCreateColorBook,
 	getIsAuthenticated,
@@ -210,6 +215,7 @@ class User extends PureComponent {
 			patterns,
 			patternCount,
 			patternPreviews,
+			tags,
 			user,
 		} = this.props;
 
@@ -233,6 +239,7 @@ class User extends PureComponent {
 								patternCount={patternCount}
 								patterns={patterns}
 								patternPreviews={patternPreviews}
+								tags={tags}
 								users={[user]}
 							/>
 						)}
@@ -290,6 +297,7 @@ User.propTypes = {
 	'patternCount': PropTypes.number.isRequired,
 	'patternPreviews': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'tags': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'user': PropTypes.objectOf(PropTypes.any).isRequired,
 	'userCanCreateColorBook': PropTypes.bool.isRequired,
 };
@@ -348,6 +356,7 @@ const Tracker = withTracker((props) => {
 		}).fetch(),
 		patterns,
 		'patternPreviews': PatternPreviews.find().fetch(),
+		'tags': Tags.find().fetch(),
 		'user': Meteor.users.findOne({ _id }) || {}, // to avoid error when subscription not ready
 	};
 })(User);

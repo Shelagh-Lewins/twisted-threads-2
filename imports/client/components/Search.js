@@ -6,12 +6,15 @@ import PropTypes from 'prop-types';
 import './Search.scss';
 import store from '../modules/store';
 import {
+	getPatternSearchLimit,
 	getSearchTerm,
 	searchStart,
 	setIsSearching,
+	showMorePatterns,
 } from '../modules/search';
 import 'react-widgets/dist/css/react-widgets.css';
-import { PatternsIndex } from '../../modules/collection';
+import { PatternsIndex, UsersIndex } from '../../modules/collection';
+import { SEARCH_MORE } from '../../modules/parameters';
 
 function Search(props) {
 	const {
@@ -26,7 +29,6 @@ function Search(props) {
 		clearTimeout(global.searchTimeout);
 
 		if (typeof value !== 'object' && value.length >= 2) {
-		//if (typeof value !== 'object') {
 			// user has entered a search term
 			// at least 2 characters
 			// don't fire if they've selected a search result
@@ -37,7 +39,7 @@ function Search(props) {
 	};
 
 	const onSelect = (value) => {
-		const { _id, type } = value;
+		const { '__originalId': _id, type } = value;
 		let url;
 
 		switch (type) {
@@ -49,11 +51,14 @@ function Search(props) {
 				url = `/user/${_id}`;
 				break;
 
+			case 'showMorePatterns':
+				dispatch(showMorePatterns());
+				break;
+
 			default:
 				break;
 		}
 		history.push(url);
-		console.log('select', value);
 	};
 
 	const GroupHeading = ({ item }) => {
@@ -99,7 +104,7 @@ function Search(props) {
 								<span className="icon" />
 								{numberOfTablets}
 							</span>
-							<span className="created-by" title="Created by {createdBy}"><span className="icon" />{username}</span>
+							<span className="created-by" title={`Created by ${createdBy}`}><span className="icon" />{username}</span>
 						</div>
 					</span>
 				);
@@ -114,6 +119,10 @@ function Search(props) {
 						</div>
 					</span>
 				);
+				break;
+
+			case 'showMorePatterns':
+				element = <span className="show-more-patterns">Show more patterns</span>;
 				break;
 
 			default:
@@ -168,18 +177,40 @@ function mapStateToProps(state, ownProps) {
 const Tracker = withTracker(({ dispatch }) => {
 	const state = store.getState();
 	const searchTerm = getSearchTerm(state);
-	let results = [];
+	const patternSearchLimit = getPatternSearchLimit(state);
+	let patternsResults = [];
+	let usersResults = [];
+	//let canShowMorePatterns = false;
+	console.log('*** tracker. patternSeachLimit', patternSearchLimit);
 
 	if (searchTerm) {
-		const cursor = PatternsIndex.search(searchTerm); // search is a reactive data source
-		// console.log('*** PatternsIndex', PatternsIndex);
-		results = cursor.fetch();
-		console.log('*** cursor count', cursor.count());
+		// search for patterns
+		const patternsCursor = PatternsIndex.search(searchTerm, { 'limit': patternSearchLimit + SEARCH_MORE }); // search is a reactive data source
+		// server returns extra results for 'show more'
+		patternsResults = patternsCursor.fetch();
+		console.log('*** patternCursor count', patternsCursor.count());
+		// hide the 'more' results'
+		patternsResults = patternsResults.slice(0, patternSearchLimit);
+
+		if (patternsResults.length < patternsCursor.count()) {
+			canShowMorePatterns = true;
+			patternsResults.push({
+				'name': 'Show more patterns',
+				'type': 'showMorePatterns',
+			});
+		}
+
+		// search for users
+		const usersCursor = UsersIndex.search(searchTerm, { 'limit': 10 }); // search is a reactive data source
+		usersResults = usersCursor.fetch();
+		console.log('*** usersCursor count', usersCursor.count());
+
 		dispatch(setIsSearching(false));
 	}
 
 	return {
-		'searchResults': results,
+		//'canShowMorePatterns': canShowMorePatterns,
+		'searchResults': patternsResults.concat(usersResults),
 	};
 })(Search);
 

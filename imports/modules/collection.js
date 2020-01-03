@@ -45,22 +45,15 @@ export const PatternsIndex = new Index({
 			const selector = this.defaultConfiguration().selector(searchObject, options, aggregation);
 
 			selector.createdBy = options.search.userId;
-			//TODO what fields to return
-			//TO DO limit, sort
-			//TO DO add username of pattern owner
-			//TO DO investigate __originalId
-			console.log('aggregation', aggregation);
 
 			// find patterns by tag also
 			// this is not as good as being able to build the foreign tag fields into the index
 			// but there are likely to be fewer tags than patterns, and it should be quicker than doing the whole search as an aggregated regex. There is just one search to find matching tagIds.
 			const searchTerm = searchObject.nameSort;
 			const matchingTags = Tags.find({ 'name': { '$regex': searchTerm } }).fetch();
-
 			const matchingTagIds = matchingTags.map((tag) => tag._id);
-
 			selector.$or.push({ 'tags': { '$in': matchingTagIds } });
-			console.log('*** index selector', JSON.stringify(selector));
+
 			const newSelector = {
 				'$and': [
 					{
@@ -79,16 +72,56 @@ export const PatternsIndex = new Index({
 		},
 		'fields': (searchObject, options) => ({
 			'_id': 1,
+			'createdBy': 1,
 			'name': 1,
 			'numberOfTablets': 1,
 			'nameSort': 1,
 		}),
+		'sort': () => ({ 'nameSort': 1 }),
 		'transform': (doc) => {
 			doc.type = 'pattern';
+			doc.username = Meteor.users.findOne({ '_id': doc.createdBy }).username;
 			return doc;
 		},
 	}),
-	'permission': () => {
-		return true;
-	},
+	'permission': () => true,
+});
+
+export const UsersIndex = new Index({
+	'collection': Meteor.users,
+	'fields': ['username'],
+	'engine': new MongoDBEngine({
+		'selector': function (searchObject, options, aggregation) {
+			const selector = this.defaultConfiguration().selector(searchObject, options, aggregation);
+
+			const newSelector = {
+				// only return users with public patterns
+				// or the current user
+				'$and': [
+					{
+						'$or': [
+							{ 'publicPatternsCount': { '$gt': 0 } },
+							{ '_id': options.search.userId },
+						],
+					},
+					{
+						'$or': selector.$or,
+					},
+				],
+			};
+
+			return newSelector;
+		},
+		'fields': (searchObject, options) => ({
+			'_id': 1,
+			'username': 1,
+		}),
+		'sort': () => ({ 'username': 1 }),
+		'transform': (doc) => {
+			doc.type = 'user';
+			doc.name = doc.username;
+			return doc;
+		},
+	}),
+	'permission': () => true,
 });

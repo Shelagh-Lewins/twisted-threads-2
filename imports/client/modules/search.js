@@ -1,8 +1,7 @@
 // Partial store for search
 import { clearErrors, logErrors } from './errors';
 import { createSelector } from 'reselect';
-import { SEARCH_LIMIT } from '../../modules/parameters';
-import { PatternsIndex } from '../../modules/collection';
+import { SEARCH_LIMIT, SEARCH_MORE } from '../../modules/parameters';
 
 const updeep = require('updeep');
 
@@ -13,12 +12,12 @@ export const SET_IS_SEARCHING = 'SET_IS_SEARCHING';
 export const SET_SEARCH_TERM = 'SET_SEARCH_TERM';
 export const SEARCH_COMPLETE = 'SEARCH_COMPLETE';
 export const CLEAR_SEARCH_RESULTS = 'CLEAR_SEARCH_RESULTS';
+export const SET_PATTERN_SEARCH_LIMIT = 'SET_PATTERN_SEARCH_LIMIT';
 
 // define action types so they are visible
 // and export them so other reducers can use them
 
 export function setIsSearching(isSearching) {
-	console.log('isSearching', isSearching);
 	return {
 		'type': 'SET_IS_SEARCHING',
 		'payload': isSearching,
@@ -45,9 +44,7 @@ export function clearSearchResults() {
 	};
 }
 
-// ///////////////////////////
-// Action that call Meteor methods
-
+// Start search
 export const searchStart = (searchTerm) => (dispatch, getState) => {
 	dispatch(clearErrors());
 	dispatch(setIsSearching(true));
@@ -58,8 +55,6 @@ export const searchStart = (searchTerm) => (dispatch, getState) => {
 	}
 
 	dispatch(setSearchTerm(searchTerm));
-	
-	console.log('*** search for', searchTerm);
 
 	/*const { searchLimit } = getState().search;
 	// console.log('limit', searchLimit);
@@ -75,9 +70,24 @@ export const searchStart = (searchTerm) => (dispatch, getState) => {
 	}); */
 };
 
+export function setPatternSearchLimit(patternSearchLimit) {
+	return {
+		'type': 'SET_PATTERN_SEARCH_LIMIT',
+		'payload': patternSearchLimit,
+	};
+}
+
+export const showMorePatterns = () => (dispatch, getState) => {
+					console.log('show more!');
+	const { patternSearchLimit } = getState().search;
+	dispatch(setPatternSearchLimit(patternSearchLimit + SEARCH_MORE));
+};
+
 // Provide info to UI
 // Selectors
 export const getSearchTerm = (state) => state.search.searchTerm;
+
+export const getPatternSearchLimit = (state) => state.search.patternSearchLimit;
 
 // ///////////////////////////
 // State
@@ -85,7 +95,7 @@ export const getSearchTerm = (state) => state.search.searchTerm;
 // default state
 const initialSearchState = {
 	'isSearching': false,
-	'searchLimit': SEARCH_LIMIT,
+	'patternSearchLimit': SEARCH_LIMIT,
 	'searchResults': [],
 	'searchTerm': '',
 };
@@ -94,7 +104,6 @@ const initialSearchState = {
 export default function auth(state = initialSearchState, action) {
 	switch (action.type) {
 		case SET_IS_SEARCHING: {
-			console.log('payload', action.payload);
 			return updeep({ 'isSearching': action.payload }, state);
 		}
 
@@ -111,6 +120,10 @@ export default function auth(state = initialSearchState, action) {
 				'searchResults': updeep.constant([]),
 				'searchTerm': '',
 			}, state);
+		}
+
+		case SET_PATTERN_SEARCH_LIMIT: {
+			return updeep({ 'patternSearchLimit': action.payload }, state);
 		}
 
 		default:
