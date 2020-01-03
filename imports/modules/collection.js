@@ -45,30 +45,44 @@ export const PatternsIndex = new Index({
 			const selector = this.defaultConfiguration().selector(searchObject, options, aggregation);
 
 			selector.createdBy = options.search.userId;
-			//TO DO add public patterns
-			//To DO is it meaningful to index the tags field, given it's an array?
+			//TODO what fields to return
+			//TO DO limit, sort
+			//TO DO add username of pattern owner
+			//TO DO investigate __originalId
+			console.log('aggregation', aggregation);
+
 			// find patterns by tag also
 			// this is not as good as being able to build the foreign tag fields into the index
 			// but there are likely to be fewer tags than patterns, and it should be quicker than doing the whole search as an aggregated regex. There is just one search to find matching tagIds.
 			const searchTerm = searchObject.nameSort;
 			const matchingTags = Tags.find({ 'name': { '$regex': searchTerm } }).fetch();
-			//console.log('matchingTags', matchingTags);
+
 			const matchingTagIds = matchingTags.map((tag) => tag._id);
-			//console.log('matchingTagIds', matchingTagIds);
-			//console.log('*** options', options);
-			//const tags = Tags.find({ 'name': options.search });
+
 			selector.$or.push({ 'tags': { '$in': matchingTagIds } });
 			console.log('*** index selector', JSON.stringify(selector));
-			return selector;
+			const newSelector = {
+				'$and': [
+					{
+						'$or': [
+							{ 'isPublic': { '$eq': true } },
+							{ 'createdBy': options.search.userId },
+						],
+					},
+					{
+						'$or': selector.$or,
+					},
+				],
+			};
+
+			return newSelector;
 		},
-		'beforePublish': (action, doc) => {
-			if (doc.tags) {
-				console.log('tags', doc.tags);
-				doc.tagTexts = doc.tags.map((tagId) => Tags.findOne({ '_id': tagId }).name);
-				console.log('tagTexts', doc.tagTexts);
-			}
-			return doc;
-		},
+		'fields': (searchObject, options) => ({
+			'_id': 1,
+			'name': 1,
+			'numberOfTablets': 1,
+			'nameSort': 1,
+		}),
 		'transform': (doc) => {
 			doc.type = 'pattern';
 			return doc;
