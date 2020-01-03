@@ -4,6 +4,7 @@ import { Combobox } from 'react-widgets';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import './Search.scss';
+import { ReactiveVar } from 'meteor/reactive-var';
 import store from '../modules/store';
 import {
 	getPatternSearchLimit,
@@ -15,6 +16,7 @@ import {
 import 'react-widgets/dist/css/react-widgets.css';
 import { PatternsIndex, UsersIndex } from '../../modules/collection';
 import { SEARCH_MORE } from '../../modules/parameters';
+import ReactDOM from "react-dom";
 
 function Search(props) {
 	const {
@@ -53,12 +55,32 @@ function Search(props) {
 
 			case 'showMorePatterns':
 				dispatch(showMorePatterns());
+				Search.updateMe.set(true);
+				Search._combobox._values.open = true; // keep the list open
+				//Search._combobox.inner.handleSelect('');
 				break;
 
 			default:
 				break;
 		}
 		history.push(url);
+
+		console.log('*** ref', Search._combobox);
+		console.log('state', Search._combobox.inner.state);
+		//Search._combobox._values.value = '';
+		//Search._combobox.inner.state.accessors.text('');
+		/* console.log('*** ref ***', Search._combobox._values.value);
+
+		const node = ReactDOM.findDOMNode(Search._combobox);
+		console.log('node', node);
+
+		setTimeout(() => {
+			const input1 = node.getElementsByTagName('input')[0];
+			console.log('input', input1.value);
+			input1.setAttribute('value', searchTerm);
+			const input2 = node.getElementsByTagName('input')[0];
+			console.log('input2', input2.value);
+		}, 2000); */
 	};
 
 	const GroupHeading = ({ item }) => {
@@ -144,6 +166,7 @@ function Search(props) {
 	return (
 		<div className="search">
 			<Combobox
+				ref={(c) => Search._combobox = c}
 				busy={isSearching}
 				data={searchResults}
 				groupBy="type"
@@ -161,6 +184,9 @@ function Search(props) {
 	);
 }
 
+// without this, withTracker doesn't update when 'show more' is clicked
+Search.updateMe = new ReactiveVar(false);
+
 Search.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
@@ -175,12 +201,13 @@ function mapStateToProps(state, ownProps) {
 }
 
 const Tracker = withTracker(({ dispatch }) => {
+	console.log('updateMe', Search.updateMe.get());
 	const state = store.getState();
 	const searchTerm = getSearchTerm(state);
 	const patternSearchLimit = getPatternSearchLimit(state);
 	let patternsResults = [];
 	let usersResults = [];
-	//let canShowMorePatterns = false;
+
 	console.log('*** tracker. patternSeachLimit', patternSearchLimit);
 
 	if (searchTerm) {
@@ -193,7 +220,6 @@ const Tracker = withTracker(({ dispatch }) => {
 		patternsResults = patternsResults.slice(0, patternSearchLimit);
 
 		if (patternsResults.length < patternsCursor.count()) {
-			canShowMorePatterns = true;
 			patternsResults.push({
 				'name': 'Show more patterns',
 				'type': 'showMorePatterns',
@@ -207,9 +233,9 @@ const Tracker = withTracker(({ dispatch }) => {
 
 		dispatch(setIsSearching(false));
 	}
+	Search.updateMe.set('false');
 
 	return {
-		//'canShowMorePatterns': canShowMorePatterns,
 		'searchResults': patternsResults.concat(usersResults),
 	};
 })(Search);
