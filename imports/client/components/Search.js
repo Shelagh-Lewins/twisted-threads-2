@@ -30,9 +30,8 @@ function Search(props) {
 	const onChange = (value) => {
 		clearTimeout(global.searchTimeout);
 
-		if (typeof value !== 'object' && value.length >= 2) {
+		if (typeof value !== 'object') {
 			// user has entered a search term
-			// at least 2 characters
 			// don't fire if they've selected a search result
 			global.searchTimeout = setTimeout(() => {
 				dispatch(searchStart(value));
