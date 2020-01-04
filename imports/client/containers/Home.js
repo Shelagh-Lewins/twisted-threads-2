@@ -228,8 +228,6 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 
 	const handle = Meteor.subscribe('patterns', pageSkip, ITEMS_PER_PAGE, {
 		'onReady': () => {
-			dispatch(getPatternCount());
-
 			const patternIds = patterns.map((pattern) => pattern._id);
 
 			Meteor.subscribe('patternPreviews', { patternIds });
@@ -242,6 +240,7 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 	});
 
 	if (isLoading && handle.ready()) {
+		dispatch(getPatternCount());
 		dispatch(setIsLoading(false));
 	} else if (!isLoading && !handle.ready()) {
 		dispatch(setIsLoading(true));
