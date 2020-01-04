@@ -16,16 +16,6 @@ import Search from './Search';
 import './Navbar.scss';
 import { iconColors } from '../../modules/parameters';
 
-import { PatternsIndex } from '../../modules/collection';
-
-// On Client
-/* Tracker.autorun(() => {
-	const cursor = PatternsIndex.search('n'); // search all docs that contain "n" in the name
-
-	console.log('*** search for n', cursor.fetch()); // log found documents with default search limit
-	console.log('search count', cursor.count()); // log count of all found documents
-}); */
-
 class Navbar extends Component {
 	constructor(props) {
 		super(props);

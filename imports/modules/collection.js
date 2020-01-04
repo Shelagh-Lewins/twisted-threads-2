@@ -1,6 +1,6 @@
 // Runs on both client and server
 // search index
-import { Index, MongoDBEngine, MinimongoEngine } from 'meteor/easy:search';
+import { Index, MongoDBEngine } from 'meteor/easy:search';
 
 // schemas
 import PatternsSchema from './schemas/patternsSchema';
@@ -43,8 +43,6 @@ export const PatternsIndex = new Index({
 	'engine': new MongoDBEngine({
 		'selector': function (searchObject, options, aggregation) {
 			const selector = this.defaultConfiguration().selector(searchObject, options, aggregation);
-
-			selector.createdBy = options.search.userId;
 
 			// find patterns by tag also
 			// this is not as good as being able to build the foreign tag fields into the index
