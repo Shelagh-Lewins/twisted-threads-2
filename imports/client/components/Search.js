@@ -184,7 +184,7 @@ function Search(props) {
 	);
 }
 
-// without this, withTracker doesn't update when 'show more' is clicked
+// force withTracker to update when 'show more' is clicked
 Search.updateMe = new ReactiveVar(false);
 
 Search.propTypes = {

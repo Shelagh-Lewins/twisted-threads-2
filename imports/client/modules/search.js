@@ -55,19 +55,6 @@ export const searchStart = (searchTerm) => (dispatch, getState) => {
 	}
 
 	dispatch(setSearchTerm(searchTerm));
-
-	/*const { searchLimit } = getState().search;
-	// console.log('limit', searchLimit);
-
-	Meteor.call('search.searchStart', { searchTerm, searchLimit }, (error, result) => {
-		dispatch(setIsSearching(false));
-
-		if (error) {
-			return dispatch(logErrors({ 'search': error.reason }));
-		}
-// console.log('result', result);
-		dispatch(searchComplete(result));
-	}); */
 };
 
 export function setPatternSearchLimit(patternSearchLimit) {
