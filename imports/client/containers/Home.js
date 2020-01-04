@@ -208,7 +208,7 @@ function mapStateToProps(state, ownProps) {
 		'currentPageNumber': currentPageNumber, // read the url parameter to find the currentPage
 		'errors': state.errors,
 		'isAuthenticated': getIsAuthenticated(state),
-		'isLoading': state.pattern.isLoading,
+		'isLoading': getIsLoading(state),
 		'isVerified': getIsVerified(state),
 		'pageSkip': (currentPageNumber - 1) * ITEMS_PER_PAGE,
 		'patternCount': state.pattern.patternCount,

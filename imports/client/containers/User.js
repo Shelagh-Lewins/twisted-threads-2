@@ -30,7 +30,7 @@ import {
 	Tags,
 } from '../../modules/collection';
 import {
-	checkUserCanCreateColorBook,
+	getCanCreateColorBook,
 	getIsAuthenticated,
 } from '../modules/auth';
 
@@ -149,14 +149,14 @@ class User extends PureComponent {
 
 	renderColorBooks() {
 		const {
-			userCanCreateColorBook,
+			canCreateColorBook,
 			colorBooks,
 			dispatch,
 			isAuthenticated,
 		} = this.props;
 		const { selectedColorBook, showAddColorBookForm } = this.state;
 
-		const canCreate = userCanCreateColorBook;
+		const canCreate = canCreateColorBook;
 
 		const addButton = (
 			<Button
@@ -193,7 +193,7 @@ class User extends PureComponent {
 						{colorBooks.length > 0
 						&& colorBooks.map((colorBook) => (
 							<ColorBookSummary
-								userCanCreateColorBook={userCanCreateColorBook}
+								canCreateColorBook={canCreateColorBook}
 								colorBook={colorBook}
 								dispatch={dispatch}
 								handleClickButtonCopy={this.handleClickButtonCopy}
@@ -304,7 +304,7 @@ User.propTypes = {
 	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'tags': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'user': PropTypes.objectOf(PropTypes.any).isRequired,
-	'userCanCreateColorBook': PropTypes.bool.isRequired,
+	'canCreateColorBook': PropTypes.bool.isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
@@ -319,7 +319,7 @@ function mapStateToProps(state, ownProps) {
 
 	return {
 		'_id': ownProps.match.params.id, // read the url parameter to find the id of the pattern
-		'userCanCreateColorBook': state.auth.userCanCreateColorBook,
+		'canCreateColorBook': getCanCreateColorBook(state),
 		'currentPageNumber': currentPageNumber, // read the url parameter to find the currentPage
 		'errors': state.errors,
 		'isAuthenticated': getIsAuthenticated(state),
@@ -335,9 +335,7 @@ const Tracker = withTracker((props) => {
 	const isLoading = getIsLoading(state);
 
 	Meteor.subscribe('users', [_id]);
-	Meteor.subscribe('colorBooks', _id, {
-		'onReady': () => dispatch(checkUserCanCreateColorBook()),
-	});
+	Meteor.subscribe('colorBooks', _id);
 
 	const patterns = Patterns.find({ 'createdBy': _id }, {
 		'sort': { 'nameSort': 1 },

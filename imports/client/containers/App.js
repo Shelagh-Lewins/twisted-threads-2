@@ -32,20 +32,20 @@ import {
 } from '../../modules/collection';
 import store from '../modules/store';
 import {
-	checkUserCanCreateColorBook,
 	checkUserCanAddPatternImage,
-	getIsVerified,
+	getNumberOfColorBooks,
 	getNumberOfPatterns,
+	getUserRoles,
 	getUserId,
 	getUsername,
+	setNumberOfColorBooks,
 	setNumberOfPatterns,
 	setUser,
+	setUserRoles,
 } from '../modules/auth';
 import {
 	getIsLoading,
-	getIsSubscribed,
 	setIsLoading,
-	setIsSubscribed,
 } from '../modules/pattern';
 import AppContext from '../modules/appContext';
 import Navbar from '../components/Navbar';
@@ -129,33 +129,39 @@ export const withDatabase = withTracker((props) => {
 	const state = store.getState();
 	const userId = getUserId(state);
 
-	// manage loading and subscriptions to avoid unnecessary actions
+	// check for changes to avoid unnecessary store updates
+	const userRoles = Roles.getRolesForUser(userId);
+
+	if (JSON.stringify(userRoles) !== JSON.stringify(getUserRoles(state))) {
+		dispatch(setUserRoles(userRoles));
+	}
+
 	const isLoading = getIsLoading(state);
-	const isVerified = getIsVerified(state);
 
 	// check for login, logout, change of email verifiction status. Update record of user in state.auth if there is a change.
 	const MeteorUserId = Meteor.user() ? Meteor.user()._id : undefined; // Meteor.userId() can load before Meteor.user(), causing a double update
-	let MeteorIsVerified = false;
+
 	let numberOfPatterns = 0;
+	let numberOfColorBooks = 0;
 
 	if (Meteor.user()) {
-		if (Meteor.user().emails[0]) {
-			if (Meteor.user().emails[0].verified) {
-				MeteorIsVerified = true;
-			}
-		}
-
+		// change in the database must trigger a change in the numbers in the Redux store
 		// check for change in number of patterns the user has created
 		numberOfPatterns = Patterns.find({ 'createdBy': Meteor.userId() }).count();
-		// console.log('*** numberOfPatterns', numberOfPatterns);
-		// console.log('from store', getNumberOfPatterns(state));
+
 		if (numberOfPatterns !== getNumberOfPatterns(state)) {
 			dispatch(setNumberOfPatterns(numberOfPatterns));
 		}
+
+		// check for change in the number of color books the user has created
+		numberOfColorBooks = ColorBooks.find({ 'createdBy': Meteor.userId() }).count();
+
+		if (numberOfColorBooks !== getNumberOfColorBooks(state)) {
+			dispatch(setNumberOfColorBooks(numberOfColorBooks));
+		}
 	}
 
-	if (userId !== MeteorUserId
-		|| isVerified !== MeteorIsVerified) {
+	if (userId !== MeteorUserId) {
 		dispatch(setUser(Meteor.user()));
 	}
 	const username = getUsername(store.getState());
@@ -195,9 +201,7 @@ export const withDatabase = withTracker((props) => {
 							const { createdBy } = pattern;
 
 							Meteor.subscribe('users', [createdBy]);
-							Meteor.subscribe('colorBooks', createdBy, {
-								'onReady': () => dispatch(checkUserCanCreateColorBook()),
-							});
+							Meteor.subscribe('colorBooks', createdBy);
 							Meteor.subscribe('patternImages', pattern._id, {
 								'onReady': () => dispatch(checkUserCanAddPatternImage({ 'patternId': patternIdParam })),
 							});

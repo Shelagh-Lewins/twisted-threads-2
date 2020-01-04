@@ -128,7 +128,7 @@ export const checkUserCanAddPatternImage = (patternId) => {
 
 // check whether the current logged in user can create a color book
 // this may be a new color book, or a copy
-export const checkUserCanCreateColorBook = () => {
+export const checkCanCreateColorBook = () => {
 	// user must be logged in
 	let error;
 

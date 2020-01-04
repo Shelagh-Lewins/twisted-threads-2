@@ -355,6 +355,7 @@ class Threading extends PureComponent {
 
 	renderPalette() {
 		const {
+			canCreateColorBook,
 			colorBookAdded,
 			colorBooks,
 			dispatch,
@@ -364,6 +365,7 @@ class Threading extends PureComponent {
 
 		return (
 			<Palette
+				canCreateColorBook={canCreateColorBook}
 				colorBookAdded={colorBookAdded}
 				colorBooks={colorBooks}
 				dispatch={dispatch}
@@ -398,6 +400,7 @@ class Threading extends PureComponent {
 }
 
 Threading.propTypes = {
+	'canCreateColorBook': PropTypes.bool.isRequired,
 	'colorBookAdded': PropTypes.string.isRequired,
 	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,

@@ -154,7 +154,6 @@ Navbar.propTypes = {
 	'isAuthenticated': PropTypes.bool.isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'isSearching': PropTypes.bool.isRequired,
-	//'searchResults': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'searchTerm': PropTypes.string.isRequired,
 };
 
@@ -164,7 +163,6 @@ const mapStateToProps = (state, ownProps) => ({
 	'isLoading': state.pattern.isLoading,
 	'isSearching': state.search.isSearching,
 	'location': ownProps.location,
-	//'searchResults': state.search.searchResults,
 	'searchTerm': state.search.searchTerm,
 });
 

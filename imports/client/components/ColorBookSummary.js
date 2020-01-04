@@ -19,7 +19,7 @@ function ColorBookSummary({
 	isAuthenticated,
 	isSelected,
 	onChangeIsPublic,
-	userCanCreateColorBook,
+	canCreateColorBook,
 }) {
 	const {
 		_id,
@@ -34,7 +34,7 @@ function ColorBookSummary({
 	};
 
 	const canEdit = isAuthenticated && Meteor.userId() === createdBy;
-	const canCopy = userCanCreateColorBook;
+	const canCopy = canCreateColorBook;
 
 	const buttonCopy = (
 		<Button
@@ -93,7 +93,7 @@ ColorBookSummary.propTypes = {
 	'isAuthenticated': PropTypes.bool.isRequired,
 	'isSelected': PropTypes.bool.isRequired,
 	'onChangeIsPublic': PropTypes.func.isRequired,
-	'userCanCreateColorBook': PropTypes.bool.isRequired,
+	'canCreateColorBook': PropTypes.bool.isRequired,
 };
 
 export default ColorBookSummary;

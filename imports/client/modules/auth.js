@@ -33,12 +33,14 @@ export const PASSWORD_NOT_RESET = 'PASSWORD_NOT_RESET';
 export const PASSWORD_CHANGED = 'PASSWORD_CHANGED';
 export const PASSWORD_NOT_CHANGED = 'PASSWORD_NOT_CHANGED';
 
-export const SET_USER_CAN_CREATE_COLOR_BOOK = 'SET_USER_CAN_CREATE_COLOR_BOOK';
-// export const SET_USER_CAN_CREATE_PATTERN = 'SET_USER_CAN_CREATE_PATTERN';
+//export const SET_USER_CAN_CREATE_COLOR_BOOK = 'SET_USER_CAN_CREATE_COLOR_BOOK';
+
 export const SET_USER_CAN_ADD_PATTERN_IMAGE = 'SET_USER_CAN_ADD_PATTERN_IMAGE';
 
 export const SET_USER = 'SET_USER';
 export const SET_NUMBER_OF_PATTERNS = 'SET_NUMBER_OF_PATTERNS';
+export const SET_NUMBER_OF_COLOR_BOOKS = 'SET_NUMBER_OF_COLOR_BOOKS';
+export const SET_USER_ROLES = 'SET_USER_ROLES';
 
 // ///////////////////////////
 // Action that call Meteor methods; these may not change the Store but are located here in order to keep server interactions away from UI
@@ -222,25 +224,6 @@ export const changePassword = ({ oldPassword, newPassword }) => (dispatch) => {
 };
 
 // user permissions
-// color book
-export function setUserCanCreateColorBook(result) {
-	return {
-		'type': 'SET_USER_CAN_CREATE_COLOR_BOOK',
-		'payload': result,
-	};
-}
-
-export const checkUserCanCreateColorBook = () => (dispatch) => {
-	Meteor.call('auth.checkUserCanCreateColorBook', (error, result) => {
-		if (error) {
-			dispatch(setUserCanCreateColorBook(false));
-			return dispatch(logErrors({ 'check-create-color-book': error.reason }));
-		}
-
-		dispatch(setUserCanCreateColorBook(result.value));
-	});
-};
-
 // pattern image
 export function setUserCanAddPatternImage(result) {
 	return {
@@ -270,6 +253,20 @@ export function setUser(result) {
 export function setNumberOfPatterns(result) {
 	return {
 		'type': 'SET_NUMBER_OF_PATTERNS',
+		'payload': result,
+	};
+}
+
+export function setNumberOfColorBooks(result) {
+	return {
+		'type': 'SET_NUMBER_OF_COLOR_BOOKS',
+		'payload': result,
+	};
+}
+
+export function setUserRoles(result) {
+	return {
+		'type': 'SET_USER_ROLES',
 		'payload': result,
 	};
 }
@@ -340,7 +337,7 @@ export function updateRecentPatterns({ currentWeavingRow, patternId }) {
 // Provide info to UI
 // Selectors
 //TODO
-// checkUserCanCreateColorBook
+// checkCanCreateColorBook
 // checkUserCanCreatePattern
 // checkUserCanAddPatternImage
 // use selectors
@@ -370,16 +367,9 @@ export const getUsername = createSelector(
 
 export const getNumberOfPatterns = (state) => state.auth.numberOfPatterns;
 
-export const getUserRoles = createSelector(
-	[getUserId],
-	(userId) => {
-		if (!userId) {
-			return [];
-		}
+export const getNumberOfColorBooks = (state) => state.auth.numberOfColorBooks;
 
-		return Roles.getRolesForUser(userId);
-	},
-);
+export const getUserRoles = (state) => state.auth.userRoles;
 
 export const getIsAuthenticated = createSelector(
 	[getUserId],
@@ -424,7 +414,6 @@ export const getCanCreatePattern = createSelector(
 		}
 
 		// user must not have reached the limit on number of patterns
-		// const numberOfPatterns = Patterns.find({ 'createdBy': userId }).count();
 
 		const limits = [];
 		userRoles.forEach((role) => {
@@ -443,6 +432,31 @@ export const getCanCreatePattern = createSelector(
 	},
 );
 
+export const getCanCreateColorBook = createSelector(
+	[getUserRoles, getNumberOfColorBooks],
+	(userRoles, numberOfColorBooks) => {
+		if (userRoles.length === 0) {
+			return false;
+		}
+
+		// user must not have reached the limit on number of color books
+		const limits = [];
+		userRoles.forEach((role) => {
+			if (ROLE_LIMITS[role]) {
+				limits.push(ROLE_LIMITS[role].maxColorBooksPerUser);
+			}
+		});
+
+		const limit = Math.max(...limits); // user can create the largest number of color books of any role they have
+
+		if (numberOfColorBooks < limit) {
+			return true;
+		}
+
+		return false;
+	},
+);
+
 // ///////////////////////////
 // State
 
@@ -451,14 +465,15 @@ const initialAuthState = {
 	'error': null,
 	'forgotPasswordEmailSent': false,
 	'isLoading': true,
+	'numberOfColorBooks': 0,
 	'numberOfPatterns': 0,
 	'passwordChanged': false,
 	'passwordReset': false,
-	'userCanCreateColorBook': false,
 	'userCanAddPatternImage': false,
 	'verificationEmailSent': false,
 	'emailVerified': false,
 	'user': null,
+	'userRoles': [],
 };
 
 // state updates
@@ -504,10 +519,6 @@ export default function auth(state = initialAuthState, action) {
 			return updeep({ 'passwordChanged': false }, state);
 		}
 
-		case SET_USER_CAN_CREATE_COLOR_BOOK: {
-			return updeep({ 'userCanCreateColorBook': action.payload }, state);
-		}
-
 		case SET_USER_CAN_ADD_PATTERN_IMAGE: {
 			return updeep({ 'userCanAddPatternImage': action.payload }, state);
 		}
@@ -518,6 +529,14 @@ export default function auth(state = initialAuthState, action) {
 
 		case SET_NUMBER_OF_PATTERNS: {
 			return updeep({ 'numberOfPatterns': action.payload }, state);
+		}
+
+		case SET_NUMBER_OF_COLOR_BOOKS: {
+			return updeep({ 'numberOfColorBooks': action.payload }, state);
+		}
+
+		case SET_USER_ROLES: {
+			return updeep({ 'userRoles': action.payload }, state);
 		}
 
 		default:

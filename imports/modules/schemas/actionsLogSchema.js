@@ -22,13 +22,13 @@ const ActionsLogSchema = new SimpleSchema({
 		'label': 'User id',
 		'index': 1,
 	},
-	'verificationEmail': {
+	'verificationEmailSent': {
 		'type': Array,
-		'label': 'Verification email',
+		'label': 'Verification email sent',
 	},
-	'verificationEmail.$': {
+	'verificationEmailSent.$': {
 		'type': Date,
-		'label': 'Verification email timestamp',
+		'label': 'Verification email sent timestamp',
 	},
 });
 

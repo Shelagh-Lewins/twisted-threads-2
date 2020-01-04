@@ -108,6 +108,7 @@ class Weft extends PureComponent {
 
 	renderPalette() {
 		const {
+			canCreateColorBook,
 			colorBookAdded,
 			colorBooks,
 			dispatch,
@@ -117,6 +118,7 @@ class Weft extends PureComponent {
 
 		return (
 			<Palette
+				canCreateColorBook={canCreateColorBook}
 				colorBookAdded={colorBookAdded}
 				colorBooks={colorBooks}
 				dispatch={dispatch}
@@ -171,6 +173,7 @@ class Weft extends PureComponent {
 }
 
 Weft.propTypes = {
+	'canCreateColorBook': PropTypes.bool.isRequired,
 	'colorBookAdded': PropTypes.string.isRequired,
 	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,

@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import { checkUserCanCreateColorBook, nonEmptyStringCheck } from '../../imports/server/modules/utils';
+import { checkCanCreateColorBook, nonEmptyStringCheck } from '../../imports/server/modules/utils';
 import { ColorBooks } from '../../imports/modules/collection';
 import {
 	COLORS_IN_COLOR_BOOK,
@@ -10,7 +10,7 @@ Meteor.methods({
 	'colorBook.add': function (name) {
 		check(name, nonEmptyStringCheck);
 
-		const { error, result } = checkUserCanCreateColorBook();
+		const { error, result } = checkCanCreateColorBook();
 
 		if (error) {
 			throw error;

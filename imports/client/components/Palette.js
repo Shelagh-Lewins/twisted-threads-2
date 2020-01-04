@@ -214,6 +214,7 @@ class Palette extends PureComponent {
 
 	renderEditColorPanel() {
 		const {
+			canCreateColorBook,
 			colorBookAdded,
 			colorBooks,
 			dispatch,
@@ -239,6 +240,7 @@ class Palette extends PureComponent {
 		return (
 			ReactDOM.createPortal(
 				<ColorBooks
+					canCreateColorBook={canCreateColorBook}
 					canEdit={true /* palette is only shown if user can edit */}
 					colorBookAdded={colorBookAdded}
 					colorBooks={colorBooks}
@@ -322,6 +324,7 @@ class Palette extends PureComponent {
 }
 
 Palette.propTypes = {
+	'canCreateColorBook': PropTypes.bool.isRequired,
 	'colorBookAdded': PropTypes.string.isRequired,
 	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,

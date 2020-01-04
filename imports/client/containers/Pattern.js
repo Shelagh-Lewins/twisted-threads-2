@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
 
-import { addRecentPattern } from '../modules/auth';
+import { addRecentPattern, getCanCreateColorBook,} from '../modules/auth';
 import {
 	editIsPublic,
 	editTextField,
@@ -338,6 +338,7 @@ class Pattern extends PureComponent {
 		picksByTablet,
 	}) {
 		const {
+			canCreateColorBook,
 			colorBookAdded,
 			dispatch,
 			tab,
@@ -388,6 +389,7 @@ class Pattern extends PureComponent {
 						{repeatText}
 						{twistNeutralText}
 						<Weft
+							canCreateColorBook={canCreateColorBook}
 							colorBookAdded={colorBookAdded}
 							colorBooks={colorBooks}
 							dispatch={dispatch}
@@ -429,6 +431,7 @@ class Pattern extends PureComponent {
 						<h2>Threading chart</h2>
 						{pattern.threading && (
 							<Threading
+								canCreateColorBook={canCreateColorBook}
 								colorBookAdded={colorBookAdded}
 								colorBooks={colorBooks}
 								dispatch={dispatch}
@@ -564,6 +567,7 @@ class Pattern extends PureComponent {
 Pattern.contextType = AppContext;
 
 Pattern.propTypes = {
+	'canCreateColorBook': PropTypes.bool.isRequired,
 	'colorBookAdded': PropTypes.string.isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
@@ -573,6 +577,7 @@ Pattern.propTypes = {
 
 function mapStateToProps(state, ownProps) {
 	return {
+		'canCreateColorBook': getCanCreateColorBook(state),
 		'colorBookAdded': state.colorBook.colorBookAdded,
 		'isLoading': getIsLoading(state),
 		'errors': state.errors,

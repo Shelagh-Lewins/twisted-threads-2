@@ -129,6 +129,7 @@ class ColorBooks extends PureComponent {
 
 	render() {
 		const {
+			canCreateColorBook,
 			canEdit,
 			cancelColorChange,
 			colorBooks,
@@ -180,7 +181,7 @@ class ColorBooks extends PureComponent {
 
 		return (
 			<div className="color-books">
-				{!showAddColorBookForm && addButton}
+				{canCreateColorBook && !showAddColorBookForm && addButton}
 				{closeButton}
 				{!showAddColorBookForm && <h2>My colour books</h2>}
 				{showAddColorBookForm && (
@@ -196,6 +197,7 @@ class ColorBooks extends PureComponent {
 }
 
 ColorBooks.propTypes = {
+	'canCreateColorBook': PropTypes.bool.isRequired,
 	'canEdit': PropTypes.bool.isRequired,
 	'colorBookAdded': PropTypes.string.isRequired,
 	'cancelColorChange': PropTypes.func.isRequired,
