@@ -32,13 +32,14 @@ import {
 } from '../../modules/collection';
 import store from '../modules/store';
 import {
-	checkUserCanAddPatternImage,
 	getNumberOfColorBooks,
+	getNumberOfPatternImages,
 	getNumberOfPatterns,
 	getUserRoles,
 	getUserId,
 	getUsername,
 	setNumberOfColorBooks,
+	setNumberOfPatternImages,
 	setNumberOfPatterns,
 	setUser,
 	setUserRoles,
@@ -143,6 +144,7 @@ export const withDatabase = withTracker((props) => {
 
 	let numberOfPatterns = 0;
 	let numberOfColorBooks = 0;
+	let numberOfPatternImages = 0;
 
 	if (Meteor.user()) {
 		// change in the database must trigger a change in the numbers in the Redux store
@@ -202,13 +204,17 @@ export const withDatabase = withTracker((props) => {
 
 							Meteor.subscribe('users', [createdBy]);
 							Meteor.subscribe('colorBooks', createdBy);
-							Meteor.subscribe('patternImages', pattern._id, {
-								'onReady': () => dispatch(checkUserCanAddPatternImage({ 'patternId': patternIdParam })),
-							});
+							Meteor.subscribe('patternImages', pattern._id);
 							Meteor.subscribe('tags');
 						}
 					},
 				});
+
+				numberOfPatternImages = PatternImages.find({ 'patternId': patternIdParam }).count();
+
+				if (numberOfPatternImages !== getNumberOfPatternImages(state)) {
+					dispatch(setNumberOfPatternImages(numberOfPatternImages));
+				}
 
 				// we must find pattern here or the tracker doesn't update when the subscription is loaded
 				pattern = Patterns.findOne({ '_id': patternIdParam });

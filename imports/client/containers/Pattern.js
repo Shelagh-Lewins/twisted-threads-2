@@ -6,8 +6,11 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
-
-import { addRecentPattern, getCanCreateColorBook,} from '../modules/auth';
+import {
+	addRecentPattern,
+	getCanAddPatternImage,
+	getCanCreateColorBook,
+} from '../modules/auth';
 import {
 	editIsPublic,
 	editTextField,
@@ -338,6 +341,7 @@ class Pattern extends PureComponent {
 		picksByTablet,
 	}) {
 		const {
+			canAddPatternImage,
 			canCreateColorBook,
 			colorBookAdded,
 			dispatch,
@@ -472,7 +476,7 @@ class Pattern extends PureComponent {
 							fieldValue={description}
 						/>
 						{(canEdit || patternImages.length > 0) && <h2>Images</h2>}
-						{canEdit && this.renderImageUploader(pattern._id)}
+						{canAddPatternImage && canEdit && this.renderImageUploader(pattern._id)}
 						{patternImages.length > 0 && this.renderImages({ canEdit, patternImages })}
 					</div>
 				);
@@ -567,6 +571,7 @@ class Pattern extends PureComponent {
 Pattern.contextType = AppContext;
 
 Pattern.propTypes = {
+	'canAddPatternImage': PropTypes.bool.isRequired,
 	'canCreateColorBook': PropTypes.bool.isRequired,
 	'colorBookAdded': PropTypes.string.isRequired,
 	'dispatch': PropTypes.func.isRequired,
@@ -577,6 +582,7 @@ Pattern.propTypes = {
 
 function mapStateToProps(state, ownProps) {
 	return {
+		'canAddPatternImage': getCanAddPatternImage(state),
 		'canCreateColorBook': getCanCreateColorBook(state),
 		'colorBookAdded': state.colorBook.colorBookAdded,
 		'isLoading': getIsLoading(state),

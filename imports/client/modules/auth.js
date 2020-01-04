@@ -41,6 +41,7 @@ export const SET_USER = 'SET_USER';
 export const SET_NUMBER_OF_PATTERNS = 'SET_NUMBER_OF_PATTERNS';
 export const SET_NUMBER_OF_COLOR_BOOKS = 'SET_NUMBER_OF_COLOR_BOOKS';
 export const SET_USER_ROLES = 'SET_USER_ROLES';
+export const SET_NUMBER_OF_PATTERN_IMAGES = 'SET_NUMBER_OF_PATTERN_IMAGES';
 
 // ///////////////////////////
 // Action that call Meteor methods; these may not change the Store but are located here in order to keep server interactions away from UI
@@ -223,25 +224,6 @@ export const changePassword = ({ oldPassword, newPassword }) => (dispatch) => {
 	});
 };
 
-// user permissions
-// pattern image
-export function setUserCanAddPatternImage(result) {
-	return {
-		'type': 'SET_USER_CAN_ADD_PATTERN_IMAGE',
-		'payload': result,
-	};
-}
-
-export const checkUserCanAddPatternImage = ({ patternId }) => (dispatch) => {
-	Meteor.call('auth.checkUserCanAddPatternImage', { patternId }, (error, result) => {
-		if (error) {
-			dispatch(setUserCanAddPatternImage(false));
-			return dispatch(logErrors({ 'check-add-pattern-image': error.reason }));
-		}
-		dispatch(setUserCanAddPatternImage(result.value));
-	});
-};
-
 // track user status
 export function setUser(result) {
 	return {
@@ -264,23 +246,17 @@ export function setNumberOfColorBooks(result) {
 	};
 }
 
-export function setUserRoles(result) {
+export function setNumberOfPatternImages(result) {
 	return {
-		'type': 'SET_USER_ROLES',
+		'type': 'SET_NUMBER_OF_PATTERN_IMAGES',
 		'payload': result,
 	};
 }
 
-// ///////////////////////////
-// record a recently viewed pattern, with weaving chart row if the user has been weaving
-export function addRecentPattern({ currentWeavingRow, patternId }) {
-	if (!Meteor.user()) {
-		return () => {};
-	}
-
-	const newRecentPatterns = updateRecentPatterns({ currentWeavingRow, patternId });
-	return () => {
-		Meteor.call('auth.setRecentPatterns', { newRecentPatterns, 'userId': Meteor.userId(), patternId });
+export function setUserRoles(result) {
+	return {
+		'type': 'SET_USER_ROLES',
+		'payload': result,
 	};
 }
 
@@ -333,6 +309,17 @@ export function updateRecentPatterns({ currentWeavingRow, patternId }) {
 	return newRecentPatterns;
 }
 
+// record a recently viewed pattern, with weaving chart row if the user has been weaving
+export function addRecentPattern({ currentWeavingRow, patternId }) {
+	if (!Meteor.user()) {
+		return () => {};
+	}
+
+	const newRecentPatterns = updateRecentPatterns({ currentWeavingRow, patternId });
+	return () => {
+		Meteor.call('auth.setRecentPatterns', { newRecentPatterns, 'userId': Meteor.userId(), patternId });
+	};
+}
 
 // Provide info to UI
 // Selectors
@@ -368,6 +355,8 @@ export const getUsername = createSelector(
 export const getNumberOfPatterns = (state) => state.auth.numberOfPatterns;
 
 export const getNumberOfColorBooks = (state) => state.auth.numberOfColorBooks;
+
+export const getNumberOfPatternImages = (state) => state.auth.numberOfPatternImages;
 
 export const getUserRoles = (state) => state.auth.userRoles;
 
@@ -457,6 +446,31 @@ export const getCanCreateColorBook = createSelector(
 	},
 );
 
+export const getCanAddPatternImage = createSelector(
+	[getUserRoles, getNumberOfPatternImages],
+	(userRoles, numberOfPatternImages) => {
+		if (userRoles.length === 0) {
+			return false;
+		}
+
+		// user must not have reached the limit on number of color books
+		const limits = [];
+		userRoles.forEach((role) => {
+			if (ROLE_LIMITS[role]) {
+				limits.push(ROLE_LIMITS[role].maxImagesPerPattern);
+			}
+		});
+
+		const limit = Math.max(...limits); // user can create the largest number of color books of any role they have
+
+		if (numberOfPatternImages < limit) {
+			return true;
+		}
+
+		return false;
+	},
+);
+
 // ///////////////////////////
 // State
 
@@ -466,6 +480,7 @@ const initialAuthState = {
 	'forgotPasswordEmailSent': false,
 	'isLoading': true,
 	'numberOfColorBooks': 0,
+	'numberOfPatternImages': 0,
 	'numberOfPatterns': 0,
 	'passwordChanged': false,
 	'passwordReset': false,
@@ -529,6 +544,10 @@ export default function auth(state = initialAuthState, action) {
 
 		case SET_NUMBER_OF_PATTERNS: {
 			return updeep({ 'numberOfPatterns': action.payload }, state);
+		}
+
+		case SET_NUMBER_OF_PATTERN_IMAGES: {
+			return updeep({ 'numberOfPatternImages': action.payload }, state);
 		}
 
 		case SET_NUMBER_OF_COLOR_BOOKS: {
