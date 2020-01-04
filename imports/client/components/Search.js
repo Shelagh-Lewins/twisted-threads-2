@@ -201,21 +201,21 @@ function mapStateToProps(state, ownProps) {
 }
 
 const Tracker = withTracker(({ dispatch }) => {
-	console.log('updateMe', Search.updateMe.get());
+	//console.log('updateMe', Search.updateMe.get());
 	const state = store.getState();
 	const searchTerm = getSearchTerm(state);
 	const patternSearchLimit = getPatternSearchLimit(state);
 	let patternsResults = [];
 	let usersResults = [];
 
-	console.log('*** tracker. patternSeachLimit', patternSearchLimit);
+	//console.log('*** tracker. patternSeachLimit', patternSearchLimit);
 
 	if (searchTerm) {
 		// search for patterns
 		const patternsCursor = PatternsIndex.search(searchTerm, { 'limit': patternSearchLimit + SEARCH_MORE }); // search is a reactive data source
 		// server returns extra results for 'show more'
 		patternsResults = patternsCursor.fetch();
-		console.log('*** patternCursor count', patternsCursor.count());
+		//console.log('*** patternCursor count', patternsCursor.count());
 		// hide the 'more' results'
 		patternsResults = patternsResults.slice(0, patternSearchLimit);
 
@@ -229,7 +229,7 @@ const Tracker = withTracker(({ dispatch }) => {
 		// search for users
 		const usersCursor = UsersIndex.search(searchTerm, { 'limit': 10 }); // search is a reactive data source
 		usersResults = usersCursor.fetch();
-		console.log('*** usersCursor count', usersCursor.count());
+		//console.log('*** usersCursor count', usersCursor.count());
 
 		dispatch(setIsSearching(false));
 	}

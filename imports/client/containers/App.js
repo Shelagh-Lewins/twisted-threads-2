@@ -33,7 +33,6 @@ import {
 import store from '../modules/store';
 import {
 	checkUserCanCreateColorBook,
-	// checkUserCanCreatePattern,
 	checkUserCanAddPatternImage,
 	getIsVerified,
 	getNumberOfPatterns,
@@ -42,7 +41,12 @@ import {
 	setNumberOfPatterns,
 	setUser,
 } from '../modules/auth';
-import { setIsLoading } from '../modules/pattern';
+import {
+	getIsLoading,
+	getIsSubscribed,
+	setIsLoading,
+	setIsSubscribed,
+} from '../modules/pattern';
 import AppContext from '../modules/appContext';
 import Navbar from '../components/Navbar';
 import Login from './Login';
@@ -121,11 +125,12 @@ export const withDatabase = withTracker((props) => {
 	let pattern;
 	let patternIdParam;
 
-	dispatch(setIsLoading(true));
-
 	// provide information about the user
 	const state = store.getState();
 	const userId = getUserId(state);
+
+	// manage loading and subscriptions to avoid unnecessary actions
+	const isLoading = getIsLoading(state);
 	const isVerified = getIsVerified(state);
 
 	// check for login, logout, change of email verifiction status. Update record of user in state.auth if there is a change.
@@ -181,7 +186,7 @@ export const withDatabase = withTracker((props) => {
 			patternIdParam = matchPattern.params.id;
 
 			if (patternIdParam) {
-				Meteor.subscribe('pattern', patternIdParam, {
+				const handle = Meteor.subscribe('pattern', patternIdParam, {
 					'onReady': () => {
 						pattern = Patterns.findOne({ '_id': patternIdParam });
 
@@ -197,34 +202,37 @@ export const withDatabase = withTracker((props) => {
 								'onReady': () => dispatch(checkUserCanAddPatternImage({ 'patternId': patternIdParam })),
 							});
 							Meteor.subscribe('tags');
-						} else {
-							dispatch(setIsLoading(false));
 						}
 					},
 				});
-			}
 
-			// we must find pattern here or the tracker doesn't update when the subscription is loaded
-			pattern = Patterns.findOne({ '_id': patternIdParam });
+				// we must find pattern here or the tracker doesn't update when the subscription is loaded
+				pattern = Patterns.findOne({ '_id': patternIdParam });
+	//console.log('tracker gets pattern again', pattern);
+	//console.log('id', patternIdParam);
+	//console.log('all patterns', Patterns.find().fetch());
+				if (pattern) {
+					values.colorBooks = ColorBooks.find({ 'createdBy': pattern.createdBy }, {
+						'sort': { 'nameSort': 1 },
+					}).fetch();
+					values.createdByUser = Meteor.users.findOne({ '_id': pattern.createdBy });
+					values.pattern = pattern;
+					values.patternImages = PatternImages.find({ 'patternId': pattern._id }).fetch();
+					values.allTags = Tags.find().fetch();
 
-			if (pattern) {
-				values.colorBooks = ColorBooks.find({ 'createdBy': pattern.createdBy }, {
-					'sort': { 'nameSort': 1 },
-				}).fetch();
-				values.createdByUser = Meteor.users.findOne({ '_id': pattern.createdBy });
-				values.pattern = pattern;
-				values.patternImages = PatternImages.find({ 'patternId': pattern._id }).fetch();
-				values.allTags = Tags.find().fetch();
-
-				// make sure full individual pattern data are loaded and the user who owns it
-				// if you navigate from a user page, the pattern summary detail will already by loaded
-				// but not the full details, causing an error
-				// keep an eye on this! It needs to check fields that are not loaded on the Home page but exist in the full pattern
-				if (values.createdByUser && pattern.patternDesign) {
-					dispatch(setIsLoading(false));
+					// make sure full individual pattern data are loaded and the user who owns it
+					// if you navigate from a user page, the pattern summary detail will already by loaded
+					// but not the full details, causing an error
+					// only dispatch the action if there will be a change
+					// which can be because of switching to a different pattern
+					if (isLoading && handle.ready()) {
+						dispatch(setIsLoading(false));
+					} else if (!isLoading && !handle.ready()) {
+						dispatch(setIsLoading(true));
+					}
 				}
+				values.patternId = patternIdParam; // passed separately in case pattern isn't found
 			}
-			values.patternId = patternIdParam; // passed separately in case pattern isn't found
 		}
 
 		if (matchHome) {

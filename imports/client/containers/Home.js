@@ -10,7 +10,13 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import PageWrapper from '../components/PageWrapper';
-import { addPattern, getPatternCount, setIsLoading } from '../modules/pattern';
+import store from '../modules/store';
+import {
+	addPattern,
+	getIsLoading,
+	getPatternCount,
+	setIsLoading,
+} from '../modules/pattern';
 import {
 	getCanCreatePattern,
 	getIsAuthenticated,
@@ -210,7 +216,8 @@ function mapStateToProps(state, ownProps) {
 }
 
 const Tracker = withTracker(({ pageSkip, dispatch }) => {
-	dispatch(setIsLoading(true));
+	const state = store.getState();
+	const isLoading = getIsLoading(state);
 
 	const patterns = Patterns.find({}, {
 		'sort': { 'nameSort': 1 },
@@ -219,10 +226,9 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 
 	Meteor.subscribe('tags');
 
-	Meteor.subscribe('patterns', pageSkip, ITEMS_PER_PAGE, {
+	const handle = Meteor.subscribe('patterns', pageSkip, ITEMS_PER_PAGE, {
 		'onReady': () => {
 			dispatch(getPatternCount());
-			dispatch(setIsLoading(false));
 
 			const patternIds = patterns.map((pattern) => pattern._id);
 
@@ -234,6 +240,12 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 			Meteor.subscribe('users', uniqueUsers);
 		},
 	});
+
+	if (isLoading && handle.ready()) {
+		dispatch(setIsLoading(false));
+	} else if (!isLoading && !handle.ready()) {
+		dispatch(setIsLoading(true));
+	}
 
 	return {
 		patterns,

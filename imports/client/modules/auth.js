@@ -419,7 +419,6 @@ export const getUserEmail = createSelector(
 export const getCanCreatePattern = createSelector(
 	[getUserRoles, getNumberOfPatterns],
 	(userRoles, numberOfPatterns) => {
-		console.log('getCanCreatePattern selector', userRoles);
 		if (userRoles.length === 0) {
 			return false;
 		}

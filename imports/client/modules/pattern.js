@@ -46,6 +46,12 @@ export function setIsLoading(isLoading) {
 }
 
 // ///////////////////////////
+// Provide information to the UI
+export const getIsSubscribed = (state) => state.pattern.isSubscribed;
+
+export const getIsLoading = (state) => state.pattern.isLoading;
+
+// ///////////////////////////
 // Action that call Meteor methods; these do not change the Store but are located here in order to keep server interactions away from UI
 
 export const addPattern = (data, history) => (dispatch) => {

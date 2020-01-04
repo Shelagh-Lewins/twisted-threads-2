@@ -71,7 +71,6 @@ export const showMorePatterns = () => (dispatch, getState) => {
 };
 
 // Provide info to UI
-// Selectors
 export const getSearchTerm = (state) => state.search.searchTerm;
 
 export const getPatternSearchLimit = (state) => state.search.patternSearchLimit;

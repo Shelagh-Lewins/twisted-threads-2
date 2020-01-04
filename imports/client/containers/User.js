@@ -10,7 +10,12 @@ import {
 import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
-import { getPatternCount, setIsLoading } from '../modules/pattern';
+import store from '../modules/store';
+import {
+	getIsLoading,
+	getPatternCount,
+	setIsLoading,
+} from '../modules/pattern';
 import {
 	addColorBook,
 	copyColorBook,
@@ -326,7 +331,8 @@ function mapStateToProps(state, ownProps) {
 
 const Tracker = withTracker((props) => {
 	const { _id, dispatch, pageSkip } = props;
-	dispatch(setIsLoading(true));
+	const state = store.getState();
+	const isLoading = getIsLoading(state);
 
 	Meteor.subscribe('users', [_id]);
 	Meteor.subscribe('colorBooks', _id, {
@@ -338,16 +344,21 @@ const Tracker = withTracker((props) => {
 		'limit': ITEMS_PER_PAGE,
 	}).fetch();
 
-	Meteor.subscribe('patterns', pageSkip, ITEMS_PER_PAGE, {
+	const handle = Meteor.subscribe('patterns', pageSkip, ITEMS_PER_PAGE, {
 		'onReady': () => {
 			dispatch(getPatternCount(_id));
-			dispatch(setIsLoading(false));
 
 			const patternIds = patterns.map((pattern) => pattern._id);
 
 			Meteor.subscribe('patternPreviews', { patternIds }, _id);
 		},
 	});
+
+	if (isLoading && handle.ready()) {
+		dispatch(setIsLoading(false));
+	} else if (!isLoading && !handle.ready()) {
+		dispatch(setIsLoading(true));
+	}
 
 	// pass database data as props
 	return {

@@ -6,7 +6,11 @@ import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import PageWrapper from '../components/PageWrapper';
-import { setIsLoading } from '../modules/pattern';
+import store from '../modules/store';
+import {
+	getIsLoading,
+	setIsLoading,
+} from '../modules/pattern';
 import { findPatternTwist, getPicksByTablet } from '../modules/weavingUtils';
 
 import { Patterns } from '../../modules/collection';
@@ -191,10 +195,11 @@ function mapStateToProps(state, ownProps) {
 }
 
 const Tracker = withTracker(({ _id, dispatch }) => {
+	const state = store.getState();
+	const isLoading = getIsLoading(state);
 	let pattern = {};
-	dispatch(setIsLoading(true));
 
-	Meteor.subscribe('pattern', _id, {
+	const handle = Meteor.subscribe('pattern', _id, {
 		'onReady': () => {
 			dispatch(setIsLoading(false));
 			pattern = Patterns.findOne({ _id });
@@ -202,6 +207,12 @@ const Tracker = withTracker(({ _id, dispatch }) => {
 			Meteor.subscribe('users', [createdBy]);
 		},
 	});
+
+	if (isLoading && handle.ready()) {
+		dispatch(setIsLoading(false));
+	} else if (!isLoading && !handle.ready()) {
+		dispatch(setIsLoading(true));
+	}
 
 	// pass database data as props
 	return {

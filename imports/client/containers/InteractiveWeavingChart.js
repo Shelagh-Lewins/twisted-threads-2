@@ -6,7 +6,11 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import PageWrapper from '../components/PageWrapper';
-import { setIsLoading } from '../modules/pattern';
+import store from '../modules/store';
+import {
+	getIsLoading,
+	setIsLoading,
+} from '../modules/pattern';
 import { addRecentPattern } from '../modules/auth';
 import { getPicksByTablet } from '../modules/weavingUtils';
 
@@ -47,7 +51,7 @@ class InteractiveWeavingChart extends PureComponent {
 		const { gotUser, selectedRowHasBeenSet } = this.state;
 
 		// wait for user details to load
-		if (!gotUser && Meteor.user()) {
+		if (!gotUser && (Meteor.user() || Meteor.user() === null)) { // when user is not logged in, Meteor.user() is null after subscription has loaded
 			this.setState({
 				'gotUser': true,
 			});
@@ -55,35 +59,37 @@ class InteractiveWeavingChart extends PureComponent {
 
 		// wait for pattern details
 		// and set selectedRow if it has not been provided from profile.recentPatterns
-		if (pattern && gotUser && !selectedRowHasBeenSet) {
+		if (pattern.numberOfRows && gotUser && !selectedRowHasBeenSet) {
 			const { 'pattern': { numberOfRows } } = this.props;
-			const { 'profile': { recentPatterns } } = Meteor.user();
-
-			// currentWeavingRow is stored in recentPatterns as 'natural' row number, 1 +
-			// selectedRow starts with 0 at the last row, because that's how the HTML rows are constructed
-
 			let selectedRow = numberOfRows - 1; // row 1 as default
 
-			if (recentPatterns) {
-				const thisRecentPattern = recentPatterns.find((recentPattern) => recentPattern.patternId === _id);
+			if (Meteor.user()) { // user is logged in
+				const { 'profile': { recentPatterns } } = Meteor.user();
 
-				if (thisRecentPattern) {
-					if ((typeof thisRecentPattern.currentWeavingRow !== 'undefined')
-						&& !isNaN(thisRecentPattern.currentWeavingRow)) {
-						selectedRow = numberOfRows - thisRecentPattern.currentWeavingRow;
+				// currentWeavingRow is stored in recentPatterns as 'natural' row number, 1 +
+				// selectedRow starts with 0 at the last row, because that's how the HTML rows are constructed
+
+				if (recentPatterns) {
+					const thisRecentPattern = recentPatterns.find((recentPattern) => recentPattern.patternId === _id);
+
+					if (thisRecentPattern) {
+						if ((typeof thisRecentPattern.currentWeavingRow !== 'undefined')
+							&& !isNaN(thisRecentPattern.currentWeavingRow)) {
+							selectedRow = numberOfRows - thisRecentPattern.currentWeavingRow;
+						}
 					}
 				}
+
+				dispatch(addRecentPattern({
+					'currentWeavingRow': this.getCurrentWeavingRow(selectedRow),
+					'patternId': _id,
+				}));
 			}
 
 			this.setState({
 				selectedRow,
 				'selectedRowHasBeenSet': true,
 			});
-
-			dispatch(addRecentPattern({
-				'currentWeavingRow': this.getCurrentWeavingRow(selectedRow),
-				'patternId': _id,
-			}));
 		}
 	}
 
@@ -219,13 +225,20 @@ function mapStateToProps(state, ownProps) {
 }
 
 const Tracker = withTracker(({ _id, dispatch }) => {
-	dispatch(setIsLoading(true));
+	const state = store.getState();
+	const isLoading = getIsLoading(state);
 
-	Meteor.subscribe('pattern', _id, {
+	const handle = Meteor.subscribe('pattern', _id, {
 		'onReady': () => dispatch(setIsLoading(false)),
 	});
 
 	const pattern = Patterns.findOne({ _id }) || {};
+
+	if (isLoading && handle.ready()) {
+		dispatch(setIsLoading(false));
+	} else if (!isLoading && !handle.ready()) {
+		dispatch(setIsLoading(true));
+	}
 
 	// pass database data as props
 	return {

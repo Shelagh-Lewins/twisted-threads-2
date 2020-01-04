@@ -8,7 +8,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
 
 import { addRecentPattern } from '../modules/auth';
-import { editIsPublic, editTextField } from '../modules/pattern';
+import {
+	editIsPublic,
+	editTextField,
+	getIsLoading,
+} from '../modules/pattern';
 import { editPatternImageCaption, removePatternImage } from '../modules/patternImages';
 import AppContext from '../modules/appContext';
 import { findPatternTwist, getNumberOfRepeats, getPicksByTablet } from '../modules/weavingUtils';
@@ -570,7 +574,7 @@ Pattern.propTypes = {
 function mapStateToProps(state, ownProps) {
 	return {
 		'colorBookAdded': state.colorBook.colorBookAdded,
-		'isLoading': state.pattern.isLoading,
+		'isLoading': getIsLoading(state),
 		'errors': state.errors,
 		'tab': ownProps.match.params.tab || 'design',
 	};
