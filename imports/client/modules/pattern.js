@@ -143,6 +143,13 @@ export function editIsPublic({
 }
 
 // Weaving
+export function someAction() {
+	return (dispatch, getState) => {
+		//const {items} = getState().otherReducer;
+		console.log('test', getStat());
+		//dispatch(anotherAction(items));
+	}
+}
 export function editWeavingCellDirection({
 	_id,
 	row,

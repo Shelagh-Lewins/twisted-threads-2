@@ -28,7 +28,7 @@ export default function ChartSVG(props) {
 		tabletIndex,
 		threadingForTablet,
 	} = props;
-	
+
 	let svg = null;
 
 	const {
@@ -148,6 +148,7 @@ ChartSVG.propTypes = {
 	'netTurns': PropTypes.number.isRequired,
 	'numberOfTurns': PropTypes.number.isRequired,
 	'orientation': PropTypes.string.isRequired,
+	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'tabletIndex': PropTypes.number.isRequired,
 	'threadingForTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
 };

@@ -130,7 +130,6 @@ export const getPrevColor = ({
 	holeToShow,
 	offset,
 	palette,
-	tabletIndex,
 	threadingForTablet,
 }) => {
 	let prevHoleIndex = direction === 'F' ? holeToShow + offset : holeToShow - offset;
@@ -189,8 +188,7 @@ export const getThread = ({
 	threadingForTablet,
 }) => {
 	let holeToShow;
-//console.log('in getThread');
-//console.log('threadingForTablet', threadingForTablet);
+
 	// I'm not sure if this is right or whether an idling first row should be adjusted, as in the commented-out code below. This seems to work for Cambridge Diamonds, so leave as is for now.
 	// idle first row: tablet has not yet turned.
 	// so go back one hole
@@ -201,9 +199,9 @@ export const getThread = ({
 		// show thread in position D
 		holeToShow = modulus(holes - netTurns - 1, holes);
 	}
-//console.log('holeToShow', holeToShow);
+
 	const colorIndex = threadingForTablet[holeToShow];
-//console.log('colorIndex', colorIndex);
+
 	if (!isValidColorIndex(colorIndex)) {
 		return null;
 	}

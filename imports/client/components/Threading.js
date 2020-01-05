@@ -8,7 +8,7 @@ import {
 	editThreadingCell,
 	removeTablet,
 } from '../modules/pattern';
-import ChartSVG from './ChartSVG';
+import ThreadingChartCell from './ThreadingChartCell';
 import AddTabletsForm from '../forms/AddTabletsForm';
 import './Threading.scss';
 import { DEFAULT_PALETTE, HOLE_LABELS } from '../../modules/parameters';
@@ -169,12 +169,7 @@ class Threading extends PureComponent {
 	}
 
 	renderCell(colorIndex, rowIndex, tabletIndex) {
-		const {
-			pattern,
-			'pattern': { holes, orientations },
-		} = this.props;
 		const { isEditing } = this.state;
-		const orientation = orientations[tabletIndex];
 
 		return (
 			<span
@@ -184,12 +179,8 @@ class Threading extends PureComponent {
 				role={isEditing ? 'button' : undefined}
 				tabIndex={isEditing ? '0' : undefined}
 			>
-				<ChartSVG
-					pattern={pattern}
-					direction="F"
-					netTurns={holes - rowIndex /* hole labels run bottom to top, indexes run top to bottom */}
-					numberOfTurns={1}
-					orientation={orientation}
+				<ThreadingChartCell
+					rowIndex={rowIndex}
 					tabletIndex={tabletIndex}
 				/>
 			</span>
@@ -380,9 +371,8 @@ class Threading extends PureComponent {
 	}
 
 	render() {
-		const { 'pattern': { createdBy } } = this.props;
+		const { canEdit } = this.props;
 		const { isEditing } = this.state;
-		const canEdit = createdBy === Meteor.userId();
 
 		return (
 			<div className={`threading ${isEditing ? 'editing' : ''}`}>
@@ -401,6 +391,7 @@ class Threading extends PureComponent {
 
 Threading.propTypes = {
 	'canCreateColorBook': PropTypes.bool.isRequired,
+	'canEdit': PropTypes.bool.isRequired,
 	'colorBookAdded': PropTypes.string.isRequired,
 	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,

@@ -421,6 +421,20 @@ export const getCanCreatePattern = createSelector(
 	},
 );
 
+export const canEditPattern = createSelector(
+	[getUser],
+	(user) => {
+		if (!user) {
+			return false;
+		}
+
+		if (!user.emails[0]) {
+			return false;
+		}
+		return user.emails[0].verified;
+	},
+);
+
 export const getCanCreateColorBook = createSelector(
 	[getUserRoles, getNumberOfColorBooks],
 	(userRoles, numberOfColorBooks) => {
@@ -453,7 +467,7 @@ export const getCanAddPatternImage = createSelector(
 			return false;
 		}
 
-		// user must not have reached the limit on number of color books
+		// user must not have reached the limit on number of pattern
 		const limits = [];
 		userRoles.forEach((role) => {
 			if (ROLE_LIMITS[role]) {

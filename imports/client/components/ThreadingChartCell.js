@@ -10,59 +10,37 @@ import {
 	getPick,
 	getThreadingForTablet,
 } from '../modules/pattern';
-import {
-	modulus,
-} from '../modules/weavingUtils';
 
-class WeavingChartCell extends PureComponent {
+class ThreadingChartCell extends PureComponent {
 	render() {
 		const {
 			holes,
 			orientation,
 			palette,
-			pick,
+			rowIndex,
 			tabletIndex,
 			threadingForTablet,
 		} = this.props;
 
-		const { direction, numberOfTurns, totalTurns } = pick;
-
-		const netTurns = modulus(totalTurns, holes);
-
-		// if not idle, show direction
-		let directionClass = '';
-		if (numberOfTurns !== 0) {
-			if (direction === 'F') {
-				directionClass = 'forward';
-			} else if (direction === 'B') {
-				directionClass = 'backward';
-			}
-		}
-
 		return (
-			<span
-				className={directionClass}
-			>
-				<ChartSVG
-					direction={direction}
-					holes={holes}
-					netTurns={netTurns}
-					numberOfTurns={numberOfTurns}
-					orientation={orientation}
-					palette={palette}
-					tabletIndex={tabletIndex}
-					threadingForTablet={threadingForTablet}
-				/>
-			</span>
+			<ChartSVG
+				direction="F"
+				holes={holes}
+				netTurns={holes - rowIndex /* hole labels run bottom to top, indexes run top to bottom */}
+				numberOfTurns={1}
+				orientation={orientation}
+				palette={palette}
+				tabletIndex={tabletIndex}
+				threadingForTablet={threadingForTablet}
+			/>
 		);
 	}
 }
 
-WeavingChartCell.propTypes = {
+ThreadingChartCell.propTypes = {
 	'orientation': PropTypes.string.isRequired,
 	'holes': PropTypes.number.isRequired,
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'pick': PropTypes.objectOf(PropTypes.any),
 	'rowIndex': PropTypes.number.isRequired, // eslint-disable-line react/no-unused-prop-types
 	'tabletIndex': PropTypes.number.isRequired,
 	'threadingForTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
@@ -80,4 +58,4 @@ function mapStateToProps(state, ownProps) {
 	};
 }
 
-export default connect(mapStateToProps)(WeavingChartCell);
+export default connect(mapStateToProps)(ThreadingChartCell);

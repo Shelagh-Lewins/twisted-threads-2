@@ -433,15 +433,17 @@ class Pattern extends PureComponent {
 							fieldValue={weavingNotes}
 						/>
 						<h2>Threading chart</h2>
-						{/*pattern.threading && (
+						{pattern.threading && (
 							<Threading
 								canCreateColorBook={canCreateColorBook}
+								canEdit={canEdit}
 								colorBookAdded={colorBookAdded}
 								colorBooks={colorBooks}
 								dispatch={dispatch}
+								patternId={pattern._id}
 								pattern={pattern}
 							/>
-						)*/}
+						)}
 						<EditableText
 							canEdit={canEdit}
 							fieldName="threadingNotes"

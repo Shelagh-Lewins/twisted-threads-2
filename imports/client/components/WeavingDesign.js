@@ -1,12 +1,12 @@
 import React, { PureComponent } from 'react';
 import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
-import { modulus } from '../modules/weavingUtils';
 import {
 	addWeavingRows,
 	editWeavingCellDirection,
 	editWeavingCellNumberOfTurns,
 	removeWeavingRow,
+	someAction,
 } from '../modules/pattern';
 import WeavingChartCell from './WeavingChartCell';
 import AddRowsForm from '../forms/AddRowsForm';
@@ -58,7 +58,7 @@ class WeavingDesign extends PureComponent {
 		const currentDirection = picksByTablet[tabletIndex][rowIndex].direction;
 
 		const { dispatch, 'pattern': { _id } } = this.props;
-
+dispatch(someAction());
 		dispatch(editWeavingCellDirection({
 			_id,
 			'row': rowIndex,
@@ -136,35 +136,11 @@ class WeavingDesign extends PureComponent {
 	}
 
 	renderCell(rowIndex, tabletIndex) {
-		const {
-			pattern,
-			'pattern': {
-				holes,
-				orientations,
-			},
-			picksByTablet,
-
-		} = this.props;
 		const { isEditing, selectedCell } = this.state;
 
 		let isSelected = false;
 		if (selectedCell) {
 			isSelected = rowIndex === selectedCell[0] && tabletIndex === selectedCell[1];
-		}
-
-		const orientation = orientations[tabletIndex];
-		const { direction, numberOfTurns, totalTurns } = picksByTablet[tabletIndex][rowIndex];
-		const netTurns = modulus(totalTurns, holes);
-
-		// if not idle, show direction
-		let directionClass = '';
-
-		if (numberOfTurns !== 0) {
-			if (direction === 'F') {
-				directionClass = 'forward';
-			} else if (direction === 'B') {
-				directionClass = 'backward';
-			}
 		}
 
 		return (
