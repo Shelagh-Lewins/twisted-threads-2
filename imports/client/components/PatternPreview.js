@@ -3,7 +3,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import PreviewSVG from './PreviewSVG';
+import PreviewCell from './PreviewCell';
 import { getNumberOfRepeats, modulus } from '../modules/weavingUtils';
 import { PathWeft } from '../modules/previewPaths';
 import { savePatternPreview } from '../modules/patternPreview';
@@ -18,15 +18,14 @@ import './PatternPreview.scss';
 export default function PatternPreview(props) {
 	const {
 		dispatch,
-		pattern,
 		patternWillRepeat,
 		'pattern': {
 			_id,
 			createdBy,
-			holes,
-			numberOfRows,
-			numberOfTablets,
-			palette,
+			holes, //
+			numberOfRows, //
+			numberOfTablets, //
+			palette, //
 			previewOrientation,
 			weftColor,
 		},
@@ -189,19 +188,17 @@ export default function PatternPreview(props) {
 		const xOffset = (tabletIndex + weftOverlap) * unitWidth;
 		const yOffset = yOffsetForRow(rowIndex, repeatOffset);
 		const transform = `translate(${xOffset} ${yOffset})`;
-//console.log('preview. rowIndex', rowIndex);
+
 		return (
 			<g
 				key={`prevew-cell-${rowIndex}-${tabletIndex}`}
 				transform={transform}
 				className={currentRepeat !== 1 ? 'repeat' : ''}
 			>
-				<PreviewSVG
+				<PreviewCell
 					currentRepeat={currentRepeat}
 					numberOfRepeats={numberOfRepeats}
-					pattern={pattern}
 					patternWillRepeat={patternWillRepeat}
-					picksByTablet={picksByTablet}
 					rowIndex={rowIndex}
 					tabletIndex={tabletIndex}
 				/>

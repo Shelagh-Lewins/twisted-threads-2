@@ -27,27 +27,24 @@ import {
 } from '../modules/weavingUtils';
 
 export default function PreviewSVG({
-	pattern,
+	holes,
+	numberOfRows,
+	orientation,
+	palette,
 	patternWillRepeat,
-	picksByTablet,
+	picksForTablet,
 	rowIndex,
 	tabletIndex,
+	threadingForTablet,
 }) {
 	// picksByTablet are calculated after the pattern data has loaded so can be blank
-	if (!picksByTablet || !picksByTablet[0]) {
+	if (!picksForTablet) {
 		return;
 	}
 
-	const {
-		holes,
-		numberOfRows,
-		orientations,
-		palette,
-		threading,
-	} = pattern;
-	const { direction, numberOfTurns, totalTurns } = picksByTablet[tabletIndex][rowIndex];
+	const { direction, numberOfTurns, totalTurns } = picksForTablet[rowIndex];
+
 	const netTurns = modulus(totalTurns, holes);
-	const orientation = orientations[tabletIndex];
 	const emptyHoleColor = 'transparent'; // transparent to show weft
 	const borderColor = '#444';
 
@@ -58,9 +55,9 @@ export default function PreviewSVG({
 
 	if (rowIndex !== 0) {
 		// there is a previous row
-		previousPick = picksByTablet[tabletIndex][rowIndex - 1];
+		previousPick = picksForTablet[rowIndex - 1];
 	} else if (patternWillRepeat) {
-		previousPick = picksByTablet[tabletIndex][numberOfRows - 1];
+		previousPick = picksForTablet[numberOfRows - 1];
 	}
 
 	if (previousPick && direction !== previousPick.direction) {
@@ -78,8 +75,7 @@ export default function PreviewSVG({
 		netTurns,
 		orientation,
 		palette,
-		tabletIndex,
-		threading,
+		threadingForTablet,
 	});
 
 	let svg;
@@ -103,7 +99,7 @@ export default function PreviewSVG({
 			'offset': 1,
 			palette,
 			tabletIndex,
-			threading,
+			threadingForTablet,
 		});
 		svg = threadAngle === '\\'
 			? <PathBackwardWarp2 fill1={prevThreadColor1} fill2={threadColor} stroke={borderColor}	/>
@@ -122,7 +118,7 @@ export default function PreviewSVG({
 			'offset': 1,
 			palette,
 			tabletIndex,
-			threading,
+			threadingForTablet,
 		});
 		const prevThreadColor2 = getPrevColor({
 			'direction': direction,
@@ -131,7 +127,7 @@ export default function PreviewSVG({
 			'offset': 2,
 			palette,
 			tabletIndex,
-			threading,
+			threadingForTablet,
 		});
 
 		svg = threadAngle === '\\'
@@ -151,9 +147,9 @@ export default function PreviewSVG({
 PreviewSVG.propTypes = {
 	'currentRepeat': PropTypes.number.isRequired,
 	'numberOfRepeats': PropTypes.number.isRequired,
-	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
+	// 'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 	'patternWillRepeat': PropTypes.bool.isRequired,
-	'picksByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'picksForTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'rowIndex': PropTypes.number.isRequired,
 	'tabletIndex': PropTypes.number.isRequired,
 };

@@ -406,14 +406,14 @@ class Pattern extends PureComponent {
 								previewOrientation={previewOrientation}
 							/>
 						)}
-						{/*picksByTablet && picksByTablet.length > 0 && (
+						{picksByTablet && picksByTablet.length > 0 && (
 							<PatternPreview
 								dispatch={dispatch}
 								pattern={pattern}
 								patternWillRepeat={patternWillRepeat}
 								picksByTablet={picksByTablet}
 							/>
-						*/}
+						)}
 						<h2>Weaving chart</h2>
 						{pattern.patternDesign && (
 							<WeavingDesign

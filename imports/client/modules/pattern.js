@@ -79,6 +79,8 @@ export const getIsLoading = (state) => state.pattern.isLoading;
 
 export const getPick = (state, rowIndex, tabletIndex) => state.pattern.picks[tabletIndex][rowIndex];
 
+export const getPicksForTablet = (state, tabletIndex) => state.pattern.picks[tabletIndex];
+
 export const getHoles = (state) => state.pattern.holes;
 
 export const getPalette = (state) => state.pattern.palette;

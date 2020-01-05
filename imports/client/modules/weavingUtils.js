@@ -220,7 +220,7 @@ export const getThread = ({
 	} else if (orientation === '/') {
 		threadAngle = '\\';
 	}
-
+//console.log('get thread 3');
 	return {
 		colorIndex,
 		holeToShow,
