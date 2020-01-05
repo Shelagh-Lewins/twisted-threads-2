@@ -189,7 +189,7 @@ export default function PatternPreview(props) {
 		const xOffset = (tabletIndex + weftOverlap) * unitWidth;
 		const yOffset = yOffsetForRow(rowIndex, repeatOffset);
 		const transform = `translate(${xOffset} ${yOffset})`;
-
+//console.log('preview. rowIndex', rowIndex);
 		return (
 			<g
 				key={`prevew-cell-${rowIndex}-${tabletIndex}`}

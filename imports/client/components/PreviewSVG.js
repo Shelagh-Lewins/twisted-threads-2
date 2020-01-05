@@ -71,17 +71,16 @@ export default function PreviewSVG({
 		holeToShow,
 		threadAngle,
 		threadColor,
-	} = getThread(
+	} = getThread({
 		direction,
 		emptyHoleColor,
 		holes,
 		netTurns,
 		orientation,
 		palette,
-		rowIndex,
 		tabletIndex,
 		threading,
-	);
+	});
 
 	let svg;
 

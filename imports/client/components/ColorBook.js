@@ -289,5 +289,4 @@ ColorBook.propTypes = {
 	'onSelectColor': PropTypes.func,
 };
 
-
 export default ColorBook;

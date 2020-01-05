@@ -47,6 +47,7 @@ import {
 import {
 	getIsLoading,
 	setIsLoading,
+	savePatternData,
 } from '../modules/pattern';
 import AppContext from '../modules/appContext';
 import Navbar from '../components/Navbar';
@@ -218,9 +219,7 @@ export const withDatabase = withTracker((props) => {
 
 				// we must find pattern here or the tracker doesn't update when the subscription is loaded
 				pattern = Patterns.findOne({ '_id': patternIdParam });
-	//console.log('tracker gets pattern again', pattern);
-	//console.log('id', patternIdParam);
-	//console.log('all patterns', Patterns.find().fetch());
+
 				if (pattern) {
 					values.colorBooks = ColorBooks.find({ 'createdBy': pattern.createdBy }, {
 						'sort': { 'nameSort': 1 },
@@ -236,6 +235,7 @@ export const withDatabase = withTracker((props) => {
 					// only dispatch the action if there will be a change
 					// which can be because of switching to a different pattern
 					if (isLoading && handle.ready()) {
+						dispatch(savePatternData(pattern));
 						dispatch(setIsLoading(false));
 					} else if (!isLoading && !handle.ready()) {
 						dispatch(setIsLoading(true));

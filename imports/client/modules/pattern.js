@@ -3,6 +3,7 @@
 // And also for Pattern page state
 // import * as svg from 'save-svg-as-png';
 import { logErrors, clearErrors } from './errors';
+import { getPicksByTablet } from './weavingUtils';
 
 const updeep = require('updeep');
 
@@ -14,6 +15,7 @@ const updeep = require('updeep');
 export const GET_PATTERN_COUNT = 'GET_PATTERN_COUNT';
 export const SET_PATTERN_COUNT = 'SET_PATTERN_COUNT';
 export const SET_ISLOADING = 'SET_ISLOADING';
+export const SET_PATTERN_DATA = 'SET_PATTERN_DATA';
 
 // ////////////////////////////
 // Actions that change the Store
@@ -46,10 +48,46 @@ export function setIsLoading(isLoading) {
 }
 
 // ///////////////////////////
+// NEW put pattern in store
+
+// save pattern data in store for calculating charts
+export function setPatternData({ picks, patternObj }) {
+	return {
+		'type': 'SET_PATTERN_DATA',
+		'payload': {
+			picks,
+			'holes': patternObj.holes,
+			'orientations': patternObj.orientations,
+			'palette': patternObj.palette,
+			'threading': patternObj.threading,
+		},
+	};
+}
+
+// calculate weaving picks from pattern data
+export const savePatternData = (patternObj) => (dispatch) => {
+	const picks = getPicksByTablet(patternObj || {});
+
+	dispatch(setPatternData({ picks, patternObj }));
+};
+
+// ///////////////////////////
 // Provide information to the UI
 export const getIsSubscribed = (state) => state.pattern.isSubscribed;
 
 export const getIsLoading = (state) => state.pattern.isLoading;
+
+export const getPick = (state, rowIndex, tabletIndex) => state.pattern.picks[tabletIndex][rowIndex];
+
+export const getHoles = (state) => state.pattern.holes;
+
+export const getPalette = (state) => state.pattern.palette;
+
+//TO DO rework as selectors
+export const getThreadingForTablet = (state, tabletIndex) => state.pattern.threading.map((threadingRow) => threadingRow[tabletIndex]);
+
+export const getOrientationForTablet = (state, tabletIndex) => state.pattern.orientations[tabletIndex];
+
 
 // ///////////////////////////
 // Action that call Meteor methods; these do not change the Store but are located here in order to keep server interactions away from UI
@@ -321,8 +359,12 @@ export function editTextField({
 const initialPatternState = {
 	'currentPageNumber': 0,
 	'error': null,
+	'holes': 0,
 	'isLoading': true,
+	'palette': [],
 	'patternCount': 0,
+	'picks': [],
+	'threading': [],
 };
 
 // state updates
@@ -334,6 +376,17 @@ export default function pattern(state = initialPatternState, action) {
 
 		case SET_ISLOADING: {
 			return updeep({ 'isLoading': action.payload }, state);
+		}
+
+		case SET_PATTERN_DATA: {
+			//console.log('SET_PATTERN_DATA', action.payload);
+			return updeep({
+				'picks': action.payload.picks,
+				'holes': action.payload.holes,
+				'orientations': action.payload.orientations,
+				'palette': action.payload.palette,
+				'threading': action.payload.threading,
+			}, state);
 		}
 
 		default:

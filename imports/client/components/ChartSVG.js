@@ -17,33 +17,34 @@ import {
 } from '../modules/weavingUtils';
 import { EMPTY_HOLE_COLOR } from '../../modules/parameters';
 
-export default function ChartSVG({
-	direction,
-	netTurns,
-	numberOfTurns,
-	orientation,
-	pattern,
-	rowIndex,
-	tabletIndex,
-}) {
-	const { holes, palette, threading } = pattern;
+export default function ChartSVG(props) {
+	const {
+		direction,
+		holes,
+		netTurns,
+		numberOfTurns,
+		orientation,
+		palette,
+		tabletIndex,
+		threadingForTablet,
+	} = props;
+	
 	let svg = null;
+
 	const {
 		colorIndex,
 		holeToShow,
 		threadAngle,
 		threadColor,
-	} = getThread(
+	} = getThread({
 		direction,
 		EMPTY_HOLE_COLOR,
 		holes,
 		netTurns,
 		orientation,
 		palette,
-		rowIndex,
-		tabletIndex,
-		threading,
-	);
+		threadingForTablet,
+	});
 
 	// choose the svg graphic to represent this pick on the weaving chart
 	if (numberOfTurns === 0) {
@@ -85,7 +86,7 @@ export default function ChartSVG({
 			'offset': 1,
 			palette,
 			tabletIndex,
-			threading,
+			threadingForTablet,
 		});
 
 		svg = threadAngle === '\\'
@@ -109,7 +110,7 @@ export default function ChartSVG({
 			'offset': 1,
 			palette,
 			tabletIndex,
-			threading,
+			threadingForTablet,
 		});
 		const prevThreadColor2 = getPrevColor({
 			direction,
@@ -118,7 +119,7 @@ export default function ChartSVG({
 			'offset': 2,
 			palette,
 			tabletIndex,
-			threading,
+			threadingForTablet,
 		});
 
 		svg = threadAngle === '\\'
@@ -143,10 +144,10 @@ export default function ChartSVG({
 
 ChartSVG.propTypes = {
 	'direction': PropTypes.string.isRequired,
+	'holes': PropTypes.number.isRequired,
 	'netTurns': PropTypes.number.isRequired,
 	'numberOfTurns': PropTypes.number.isRequired,
 	'orientation': PropTypes.string.isRequired,
 	'tabletIndex': PropTypes.number.isRequired,
-	'rowIndex': PropTypes.number,
-	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
+	'threadingForTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
 };

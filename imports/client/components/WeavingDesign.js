@@ -8,7 +8,7 @@ import {
 	editWeavingCellNumberOfTurns,
 	removeWeavingRow,
 } from '../modules/pattern';
-import ChartSVG from './ChartSVG';
+import WeavingChartCell from './WeavingChartCell';
 import AddRowsForm from '../forms/AddRowsForm';
 import EditWeavingCellForm from '../forms/EditWeavingCellForm';
 import './Threading.scss';
@@ -173,19 +173,14 @@ class WeavingDesign extends PureComponent {
 				key={`weaving-cell-${rowIndex}-${tabletIndex}`}
 			>
 				<span
-					className={`${directionClass} ${isSelected ? 'selected' : ''}`}
+					className={`${isSelected ? 'selected' : ''}`}
 					type={isEditing ? 'button' : undefined}
 					onClick={isEditing ? () => this.handleClickWeavingCell(rowIndex, tabletIndex) : undefined}
 					onKeyPress={isEditing ? () => this.handleClickWeavingCell(rowIndex, tabletIndex) : undefined}
 					role={isEditing ? 'button' : undefined}
 					tabIndex={isEditing ? '0' : undefined}
 				>
-					<ChartSVG
-						pattern={pattern}
-						direction={direction}
-						netTurns={netTurns}
-						numberOfTurns={numberOfTurns}
-						orientation={orientation}
+					<WeavingChartCell
 						rowIndex={rowIndex}
 						tabletIndex={tabletIndex}
 					/>

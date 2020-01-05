@@ -131,12 +131,12 @@ export const getPrevColor = ({
 	offset,
 	palette,
 	tabletIndex,
-	threading,
+	threadingForTablet,
 }) => {
 	let prevHoleIndex = direction === 'F' ? holeToShow + offset : holeToShow - offset;
 	prevHoleIndex = modulus(prevHoleIndex, holes);
 
-	const colorIndex = threading[prevHoleIndex][tabletIndex];
+	const colorIndex = threadingForTablet[prevHoleIndex];
 
 	if (colorIndex === -1) {
 		return EMPTY_HOLE_COLOR;
@@ -179,21 +179,19 @@ export const getNumberOfRepeats = (numberOfRows) => {
 };
 
 // find the thread to show for a particular pick
-export const getThread = (
+export const getThread = ({
 	direction,
 	emptyHoleColor,
 	holes,
 	netTurns,
 	orientation,
 	palette,
-	rowIndex,
-	tabletIndex,
-	threading,
-) => {
+	threadingForTablet,
+}) => {
 	let holeToShow;
-
+//console.log('in getThread');
+//console.log('threadingForTablet', threadingForTablet);
 	// I'm not sure if this is right or whether an idling first row should be adjusted, as in the commented-out code below. This seems to work for Cambridge Diamonds, so leave as is for now.
-	// rowIndex is not used but at this point, leave it in, just in case it's needed in future.
 	// idle first row: tablet has not yet turned.
 	// so go back one hole
 	if (direction === 'F') { // not first row, or not idle
@@ -203,25 +201,9 @@ export const getThread = (
 		// show thread in position D
 		holeToShow = modulus(holes - netTurns - 1, holes);
 	}
-
-	/* if (typeof rowIndex !== 'undefined'
-		&& rowIndex === 0
-		&& netTurns === 0) {
-		if (direction === 'F') {
-			holeToShow = modulus(holes - netTurns, holes);
-		} else {
-			holeToShow = modulus(holes - netTurns, holes);
-		}
-	} else if (direction === 'F') { // not first row, or not idle
-		// show thread in position A
-		holeToShow = modulus(holes - netTurns, holes);
-	} else {
-		// show thread in position D
-		holeToShow = modulus(holes - netTurns - 1, holes);
-	} */
-
-	const colorIndex = threading[holeToShow][tabletIndex];
-
+//console.log('holeToShow', holeToShow);
+	const colorIndex = threadingForTablet[holeToShow];
+//console.log('colorIndex', colorIndex);
 	if (!isValidColorIndex(colorIndex)) {
 		return null;
 	}

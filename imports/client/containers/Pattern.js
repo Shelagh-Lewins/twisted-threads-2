@@ -406,14 +406,14 @@ class Pattern extends PureComponent {
 								previewOrientation={previewOrientation}
 							/>
 						)}
-						{picksByTablet && picksByTablet.length > 0 && (
+						{/*picksByTablet && picksByTablet.length > 0 && (
 							<PatternPreview
 								dispatch={dispatch}
 								pattern={pattern}
 								patternWillRepeat={patternWillRepeat}
 								picksByTablet={picksByTablet}
 							/>
-						)}
+						*/}
 						<h2>Weaving chart</h2>
 						{pattern.patternDesign && (
 							<WeavingDesign
@@ -433,7 +433,7 @@ class Pattern extends PureComponent {
 							fieldValue={weavingNotes}
 						/>
 						<h2>Threading chart</h2>
-						{pattern.threading && (
+						{/*pattern.threading && (
 							<Threading
 								canCreateColorBook={canCreateColorBook}
 								colorBookAdded={colorBookAdded}
@@ -441,7 +441,7 @@ class Pattern extends PureComponent {
 								dispatch={dispatch}
 								pattern={pattern}
 							/>
-						)}
+						)*/}
 						<EditableText
 							canEdit={canEdit}
 							fieldName="threadingNotes"

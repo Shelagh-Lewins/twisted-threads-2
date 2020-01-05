@@ -3,7 +3,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { modulus } from '../modules/weavingUtils';
-import ChartSVG from './ChartSVG';
+import WeavingChartCell from './WeavingChartCell';
 
 import './Threading.scss';
 import './WeavingChart.scss';
@@ -23,43 +23,23 @@ class WeavingChart extends PureComponent {
 		const {
 			pattern,
 			'pattern': {
-				holes,
 				orientations,
 			},
-			picksByTablet,
 		} = this.props;
 
 		const orientation = orientations[tabletIndex];
-		const { direction, numberOfTurns, totalTurns } = picksByTablet[tabletIndex][rowIndex];
-		const netTurns = modulus(totalTurns, holes);
-
-		// if not idle, show direction
-		let directionClass = '';
-		if (numberOfTurns !== 0) {
-			if (direction === 'F') {
-				directionClass = 'forward';
-			} else if (direction === 'B') {
-				directionClass = 'backward';
-			}
-		}
 
 		return (
 			<li
 				className="cell value"
 				key={`weaving-cell-${rowIndex}-${tabletIndex}`}
 			>
-				<span
-					className={directionClass}
-				>
-					<ChartSVG
-						pattern={pattern}
-						direction={direction}
-						netTurns={netTurns}
-						numberOfTurns={numberOfTurns}
-						orientation={orientation}
-						tabletIndex={tabletIndex}
-					/>
-				</span>
+				<WeavingChartCell
+					pattern={pattern}
+					orientation={orientation}
+					rowIndex={rowIndex}
+					tabletIndex={tabletIndex}
+				/>
 			</li>
 		);
 	}
