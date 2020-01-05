@@ -4,9 +4,7 @@ import PropTypes from 'prop-types';
 import PreviewSVG from './PreviewSVG';
 
 import {
-	getHoles,
 	getOrientationForTablet,
-	getPalette,
 	getPicksForTablet,
 	getThreadingForTablet,
 } from '../modules/pattern';
@@ -60,9 +58,7 @@ function mapStateToProps(state, ownProps) {
 	const { tabletIndex } = ownProps;
 
 	return {
-		'holes': getHoles(state),
 		'orientation': getOrientationForTablet(state, tabletIndex),
-		'palette': getPalette(state),
 		'picksForTablet': getPicksForTablet(state, tabletIndex),
 		'threadingForTablet': getThreadingForTablet(state, tabletIndex),
 	};

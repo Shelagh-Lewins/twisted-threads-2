@@ -20,23 +20,14 @@ import './WeavingChart.scss';
 
 class WeavingChart extends PureComponent {
 	renderCell(rowIndex, tabletIndex) {
-		const {
-			pattern,
-			'pattern': {
-				orientations,
-			},
-		} = this.props;
-
-		const orientation = orientations[tabletIndex];
-
+		const { holes, palette } = this.props;
+		
 		return (
 			<li
 				className="cell value"
 				key={`weaving-cell-${rowIndex}-${tabletIndex}`}
 			>
 				<WeavingChartCell
-					pattern={pattern}
-					orientation={orientation}
 					rowIndex={rowIndex}
 					tabletIndex={tabletIndex}
 				/>

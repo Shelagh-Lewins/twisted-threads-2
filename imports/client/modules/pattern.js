@@ -57,6 +57,8 @@ export function setPatternData({ picks, patternObj }) {
 		'payload': {
 			picks,
 			'holes': patternObj.holes,
+			'numberOfRows': patternObj.numberOfRows,
+			'numberOfTablets': patternObj.numberOfTablets,
 			'orientations': patternObj.orientations,
 			'palette': patternObj.palette,
 			'threading': patternObj.threading,
@@ -76,6 +78,10 @@ export const savePatternData = (patternObj) => (dispatch) => {
 export const getIsSubscribed = (state) => state.pattern.isSubscribed;
 
 export const getIsLoading = (state) => state.pattern.isLoading;
+
+export const getNumberOfRows = (state) => state.pattern.numberOfRows || 0;
+
+export const getNumberOfTablets = (state) => state.pattern.numberOfTablets || 0;
 
 export const getPick = (state, rowIndex, tabletIndex) => state.pattern.picks[tabletIndex][rowIndex];
 
@@ -145,27 +151,21 @@ export function editIsPublic({
 }
 
 // Weaving
-export function someAction() {
-	return (dispatch, getState) => {
-		//const {items} = getState().otherReducer;
-		console.log('test', getStat());
-		//dispatch(anotherAction(items));
-	}
-}
 export function editWeavingCellDirection({
 	_id,
 	row,
 	tablet,
-	direction,
 }) {
-	return () => {
+	return (dispatch, getState) => {
+		const currentDirection = getState().pattern.picks[tablet][row].direction;
+
 		Meteor.call('pattern.edit', {
 			_id,
 			'data': {
 				'type': 'editWeavingCellDirection',
 				row,
 				tablet,
-				direction,
+				'direction': currentDirection === 'F' ? 'B' : 'F',
 			},
 			row,
 			tablet,
@@ -392,6 +392,8 @@ export default function pattern(state = initialPatternState, action) {
 			return updeep({
 				'picks': action.payload.picks,
 				'holes': action.payload.holes,
+				'numberOfRows': action.payload.numberOfRows,
+				'numberOfTablets': action.payload.numberOfTablets,
 				'orientations': action.payload.orientations,
 				'palette': action.payload.palette,
 				'threading': action.payload.threading,

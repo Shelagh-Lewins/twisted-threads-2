@@ -18,14 +18,14 @@ import './PatternPreview.scss';
 export default function PatternPreview(props) {
 	const {
 		dispatch,
+		holes,
+		numberOfRows,
+		numberOfTablets,
 		patternWillRepeat,
+		palette,
 		'pattern': {
 			_id,
 			createdBy,
-			holes, //
-			numberOfRows, //
-			numberOfTablets, //
-			palette, //
 			previewOrientation,
 			weftColor,
 		},
@@ -197,7 +197,9 @@ export default function PatternPreview(props) {
 			>
 				<PreviewCell
 					currentRepeat={currentRepeat}
+					holes={holes}
 					numberOfRepeats={numberOfRepeats}
+					palette={palette}
 					patternWillRepeat={patternWillRepeat}
 					rowIndex={rowIndex}
 					tabletIndex={tabletIndex}
@@ -344,6 +346,10 @@ export default function PatternPreview(props) {
 
 PatternPreview.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
+	'holes': PropTypes.number.isRequired,
+	'numberOfRows': PropTypes.number.isRequired,
+	'numberOfTablets': PropTypes.number.isRequired,
+	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 	'patternWillRepeat': PropTypes.bool.isRequired,
 	'picksByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,

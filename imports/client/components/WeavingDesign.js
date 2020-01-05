@@ -6,11 +6,10 @@ import {
 	editWeavingCellDirection,
 	editWeavingCellNumberOfTurns,
 	removeWeavingRow,
-	someAction,
 } from '../modules/pattern';
 import WeavingChartCell from './WeavingChartCell';
 import AddRowsForm from '../forms/AddRowsForm';
-import EditWeavingCellForm from '../forms/EditWeavingCellForm';
+import EditWeavingCellFormWrapper from './EditWeavingCellFormWrapper';
 import './Threading.scss';
 import './WeavingDesign.scss';
 
@@ -48,22 +47,17 @@ class WeavingDesign extends PureComponent {
 	}
 
 	handleClickWeavingCell(rowIndex, tabletIndex) {
-		const { picksByTablet } = this.props;
+		const { dispatch, 'pattern': { _id } } = this.props;
 		const { isEditing } = this.state;
 
 		if (!isEditing) {
 			return;
 		}
 
-		const currentDirection = picksByTablet[tabletIndex][rowIndex].direction;
-
-		const { dispatch, 'pattern': { _id } } = this.props;
-dispatch(someAction());
 		dispatch(editWeavingCellDirection({
 			_id,
 			'row': rowIndex,
 			'tablet': tabletIndex,
-			'direction': currentDirection === 'F' ? 'B' : 'F',
 		}));
 
 		this.setState({
@@ -136,6 +130,7 @@ dispatch(someAction());
 	}
 
 	renderCell(rowIndex, tabletIndex) {
+		const { holes, palette } = this.props;
 		const { isEditing, selectedCell } = this.state;
 
 		let isSelected = false;
@@ -157,6 +152,8 @@ dispatch(someAction());
 					tabIndex={isEditing ? '0' : undefined}
 				>
 					<WeavingChartCell
+						holes={holes}
+						palette={palette}
 						rowIndex={rowIndex}
 						tabletIndex={tabletIndex}
 					/>
@@ -165,7 +162,8 @@ dispatch(someAction());
 		);
 	}
 
-	renderRow(numberOfRows, row, rowIndex) {
+	renderRow(row, rowIndex) {
+		const { numberOfRows } = this.props;
 		const { isEditing } = this.state;
 		const rowLabel = numberOfRows - rowIndex;
 
@@ -194,7 +192,7 @@ dispatch(someAction());
 	}
 
 	renderTabletLabels() {
-		const { 'pattern': { numberOfTablets } } = this.props;
+		const { numberOfTablets } = this.props;
 
 		const labels = [];
 		for (let i = 0; i < numberOfTablets; i += 1) {
@@ -212,7 +210,7 @@ dispatch(someAction());
 	}
 
 	renderChart() {
-		const { 'pattern': { numberOfRows, 'patternDesign': { weavingInstructions } } } = this.props;
+		const { 'pattern': { 'patternDesign': { weavingInstructions } } } = this.props;
 
 		return (
 			<>
@@ -223,7 +221,7 @@ dispatch(someAction());
 								className="row"
 								key={`weaving-row-${index}`}
 							>
-								{this.renderRow(numberOfRows, row, index)}
+								{this.renderRow(row, index)}
 							</li>
 						))
 					}
@@ -235,28 +233,25 @@ dispatch(someAction());
 
 	renderToolbar() {
 		const {
-			'pattern': { numberOfRows },
-			picksByTablet,
+			numberOfRows,
 		} = this.props;
 		const { selectedCell } = this.state;
 
 		let rowIndex;
 		let tabletIndex;
-		let pick;
 
 		if (selectedCell) {
 			[rowIndex, tabletIndex] = selectedCell;
-			pick = picksByTablet[tabletIndex][rowIndex];
 		}
 
 		return (
 			<div className="weaving-toolbar">
 				<span className="hint">Click on a chart cell to edit it</span>
 				{selectedCell && (
-					<EditWeavingCellForm
-						enableReinitialize={true}
+					<EditWeavingCellFormWrapper
 						handleSubmit={this.handleSubmitEditWeavingCellForm}
-						numberOfTurns={pick.numberOfTurns}
+						rowIndex={rowIndex}
+						tabletIndex={tabletIndex}
 					/>
 				)}
 				<AddRowsForm
@@ -287,8 +282,11 @@ dispatch(someAction());
 
 WeavingDesign.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
+	'holes': PropTypes.number.isRequired,
+	'numberOfRows': PropTypes.number.isRequired,
+	'numberOfTablets': PropTypes.number.isRequired,
+	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
-	'picksByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 export default WeavingDesign;

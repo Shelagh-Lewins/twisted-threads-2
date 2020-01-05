@@ -9,6 +9,7 @@ import {
 	removeTablet,
 } from '../modules/pattern';
 import ThreadingChartCell from './ThreadingChartCell';
+import OrientationCell from './OrientationCell';
 import AddTabletsForm from '../forms/AddTabletsForm';
 import './Threading.scss';
 import { DEFAULT_PALETTE, HOLE_LABELS } from '../../modules/parameters';
@@ -37,6 +38,7 @@ class Threading extends PureComponent {
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
+			'handleClickOrientation',
 			'handleClickRemoveTablet',
 			'handleClickRestoreDefaults',
 			'handleEditColor',
@@ -57,10 +59,7 @@ class Threading extends PureComponent {
 	}
 
 	handleClickRemoveTablet(tabletIndex) {
-		const {
-			'pattern': { _id },
-			dispatch,
-		} = this.props;
+		const { dispatch, 'patternId': _id } = this.props;
 		const { isEditing } = this.state;
 
 		if (!isEditing) {
@@ -75,7 +74,7 @@ class Threading extends PureComponent {
 	}
 
 	handleClickRestoreDefaults() {
-		const { dispatch, 'pattern': { _id } } = this.props;
+		const { dispatch, 'patternId': _id } = this.props;
 
 		DEFAULT_PALETTE.forEach((colorHexValue, index) => {
 			dispatch(editPaletteColor({
@@ -87,7 +86,7 @@ class Threading extends PureComponent {
 	}
 
 	handleEditColor(colorHexValue) {
-		const { dispatch, 'pattern': { _id } } = this.props;
+		const { dispatch, 'patternId': _id } = this.props;
 		const { selectedColorIndex } = this.state;
 
 		dispatch(editPaletteColor({
@@ -98,7 +97,7 @@ class Threading extends PureComponent {
 	}
 
 	handleSubmitAddTablets(data) {
-		const { dispatch, 'pattern': { _id } } = this.props;
+		const { dispatch, 'patternId': _id } = this.props;
 		const { selectedColorIndex } = this.state;
 
 		dispatch(addTablets({
@@ -116,7 +115,7 @@ class Threading extends PureComponent {
 			return;
 		}
 
-		const { dispatch, 'pattern': { _id } } = this.props;
+		const { dispatch, 'patternId': _id } = this.props;
 		const { selectedColorIndex } = this.state;
 
 		dispatch(editThreadingCell({
@@ -128,7 +127,7 @@ class Threading extends PureComponent {
 	}
 
 	handleClickOrientation(tabletIndex) {
-		const { dispatch, 'pattern': { _id } } = this.props;
+		const { dispatch, 'patternId': _id } = this.props;
 		const { isEditing } = this.state;
 
 		if (!isEditing) {
@@ -168,7 +167,8 @@ class Threading extends PureComponent {
 		);
 	}
 
-	renderCell(colorIndex, rowIndex, tabletIndex) {
+	renderCell(rowIndex, tabletIndex) {
+		const { holes, palette } = this.props;
 		const { isEditing } = this.state;
 
 		return (
@@ -180,6 +180,8 @@ class Threading extends PureComponent {
 				tabIndex={isEditing ? '0' : undefined}
 			>
 				<ThreadingChartCell
+					holes={holes}
+					palette={palette}
 					rowIndex={rowIndex}
 					tabletIndex={tabletIndex}
 				/>
@@ -187,31 +189,34 @@ class Threading extends PureComponent {
 		);
 	}
 
-	renderRow(row, rowIndex) {
-		const { 'pattern': { holes } } = this.props;
+	renderRow(rowIndex) {
+		const { holes, numberOfTablets } = this.props;
 		const labelIndex = holes - rowIndex - 1;
+
+		const cells = [];
+		for (let i = 0; i < numberOfTablets; i += 1) {
+			cells.push(
+				<li
+					className="cell value"
+					key={`threading-cell-${rowIndex}-${i}`}
+				>
+					{this.renderCell(rowIndex, i)}
+				</li>,
+			);
+		}
 
 		return (
 			<>
 				<ul className="threading-row">
 					<li className="cell label"><span>{HOLE_LABELS[labelIndex]}</span></li>
-					{
-						row.map((colorIndex, index) => (
-							<li
-								className="cell value"
-								key={`threading-cell-${rowIndex}-${index}`}
-							>
-								{this.renderCell(colorIndex, rowIndex, index)}
-							</li>
-						))
-					}
+					{cells}
 				</ul>
 			</>
 		);
 	}
 
 	renderTabletLabels() {
-		const { 'pattern': { numberOfTablets } } = this.props;
+		const { numberOfTablets } = this.props;
 
 		const labels = [];
 		for (let i = 0; i < numberOfTablets; i += 1) {
@@ -229,22 +234,24 @@ class Threading extends PureComponent {
 	}
 
 	renderChart() {
-		const { 'pattern': { threading } } = this.props;
+		const { holes } = this.props;
+		const rows = [];
+		for (let i = 0; i < holes; i += 1) {
+			rows.push(
+				<li
+					className="row"
+					key={`threading-row-${i}`}
+				>
+					{this.renderRow(i)}
+				</li>,
+			);
+		}
 
 		return (
 			<>
 				{this.renderTabletLabels()}
 				<ul className="threading-chart">
-					{
-						threading.map((row, index) => (
-							<li
-								className="row"
-								key={`threading-row-${index}`}
-							>
-								{this.renderRow(row, index)}
-							</li>
-						))
-					}
+					{rows}
 				</ul>
 			</>
 		);
@@ -266,7 +273,7 @@ class Threading extends PureComponent {
 	}
 
 	renderRemoveTabletButtons() {
-		const { 'pattern': { numberOfTablets } } = this.props;
+		const { numberOfTablets } = this.props;
 		const buttons = [];
 		for (let i = 0; i < numberOfTablets; i += 1) {
 			buttons.push(
@@ -289,41 +296,36 @@ class Threading extends PureComponent {
 		);
 	}
 
-	renderOrientation(tabletIndex, value) {
+	renderOrientation(tabletIndex) {
 		const { isEditing } = this.state;
 
 		return (
-			<span
-				type={isEditing ? 'button' : undefined}
-				onClick={isEditing ? () => this.handleClickOrientation(tabletIndex) : undefined}
-				onKeyPress={isEditing ? () => this.handleClickOrientation(tabletIndex) : undefined}
-				role={isEditing ? 'button' : undefined}
-				tabIndex={isEditing ? '0' : undefined}
-				title={`${value === '/' ? 'Orientation S' : 'Orientation Z'}`}
-			>
-				<span
-					className={`${value === '/' ? 's' : 'z'}`}
-				/>
-			</span>
+			<OrientationCell
+				handleClickOrientation={this.handleClickOrientation}
+				isEditing={isEditing}
+				tabletIndex={tabletIndex}
+			/>
 		);
 	}
 
 	renderOrientations() {
-		const { 'pattern': { orientations } } = this.props;
+		const { numberOfTablets } = this.props;
+		const orientations = [];
+		for (let i = 0; i < numberOfTablets; i += 1) {
+			orientations.push(
+				<li
+					className="cell value"
+					key={`orientation-${i}`}
+				>
+					{this.renderOrientation(i)}
+				</li>,
+			);
+		}
 
 		return (
 			<div className="orientations">
 				<ul className="orientations">
-					{
-						orientations.map((value, tabletIndex) => (
-							<li
-								className="cell value"
-								key={`orientation-${tabletIndex}`}
-							>
-								{this.renderOrientation(tabletIndex, orientations[tabletIndex])}
-							</li>
-						))
-					}
+					{orientations}
 				</ul>
 				<p className="hint">Slope of line = angle of tablet viewed from above</p>
 			</div>
@@ -331,9 +333,7 @@ class Threading extends PureComponent {
 	}
 
 	renderToolbar() {
-		const {
-			'pattern': { numberOfTablets },
-		} = this.props;
+		const { numberOfTablets } = this.props;
 
 		return (
 			<AddTabletsForm
@@ -350,7 +350,7 @@ class Threading extends PureComponent {
 			colorBookAdded,
 			colorBooks,
 			dispatch,
-			'pattern': { palette },
+			palette,
 		} = this.props;
 		const { selectedColorIndex } = this.state;
 
@@ -395,7 +395,10 @@ Threading.propTypes = {
 	'colorBookAdded': PropTypes.string.isRequired,
 	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,
-	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
+	'holes': PropTypes.number.isRequired,
+	'numberOfTablets': PropTypes.number.isRequired,
+	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'patternId': PropTypes.string.isRequired,
 };
 
 export default Threading;

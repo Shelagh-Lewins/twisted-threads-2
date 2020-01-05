@@ -14,7 +14,11 @@ import {
 import {
 	editIsPublic,
 	editTextField,
+	getHoles,
 	getIsLoading,
+	getNumberOfRows,
+	getNumberOfTablets,
+	getPalette,
 } from '../modules/pattern';
 import { editPatternImageCaption, removePatternImage } from '../modules/patternImages';
 import AppContext from '../modules/appContext';
@@ -345,6 +349,10 @@ class Pattern extends PureComponent {
 			canCreateColorBook,
 			colorBookAdded,
 			dispatch,
+			holes,
+			numberOfRows,
+			numberOfTablets,
+			palette,
 			tab,
 		} = this.props;
 
@@ -352,9 +360,6 @@ class Pattern extends PureComponent {
 			_id,
 			createdBy,
 			description,
-			holes,
-			numberOfRows,
-			numberOfTablets,
 			patternType,
 			previewOrientation,
 			threadingNotes,
@@ -409,6 +414,10 @@ class Pattern extends PureComponent {
 						{picksByTablet && picksByTablet.length > 0 && (
 							<PatternPreview
 								dispatch={dispatch}
+								holes={holes}
+								numberOfRows={numberOfRows}
+								numberOfTablets={numberOfTablets}
+								palette={palette}
 								pattern={pattern}
 								patternWillRepeat={patternWillRepeat}
 								picksByTablet={picksByTablet}
@@ -418,6 +427,10 @@ class Pattern extends PureComponent {
 						{pattern.patternDesign && (
 							<WeavingDesign
 								dispatch={dispatch}
+								holes={holes}
+								numberOfRows={numberOfRows}
+								numberOfTablets={numberOfTablets}
+								palette={palette}
 								pattern={pattern}
 								picksByTablet={picksByTablet}
 								patternWillRepeat={patternWillRepeat}
@@ -440,8 +453,11 @@ class Pattern extends PureComponent {
 								colorBookAdded={colorBookAdded}
 								colorBooks={colorBooks}
 								dispatch={dispatch}
+								holes={holes}
+								numberOfRows={numberOfRows}
+								numberOfTablets={numberOfTablets}
+								palette={palette}
 								patternId={pattern._id}
-								pattern={pattern}
 							/>
 						)}
 						<EditableText
@@ -578,7 +594,11 @@ Pattern.propTypes = {
 	'colorBookAdded': PropTypes.string.isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
+	'holes': PropTypes.number.isRequired,
 	'isLoading': PropTypes.bool.isRequired,
+	'numberOfRows': PropTypes.number.isRequired,
+	'numberOfTablets': PropTypes.number.isRequired,
+	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'tab': PropTypes.string.isRequired,
 };
 
@@ -587,8 +607,12 @@ function mapStateToProps(state, ownProps) {
 		'canAddPatternImage': getCanAddPatternImage(state),
 		'canCreateColorBook': getCanCreateColorBook(state),
 		'colorBookAdded': state.colorBook.colorBookAdded,
+		'holes': getHoles(state),
 		'isLoading': getIsLoading(state),
 		'errors': state.errors,
+		'numberOfRows': getNumberOfRows(state),
+		'numberOfTablets': getNumberOfTablets(state),
+		'palette': getPalette(state),
 		'tab': ownProps.match.params.tab || 'design',
 	};
 }
