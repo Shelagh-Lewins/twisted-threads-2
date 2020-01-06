@@ -145,8 +145,6 @@ export const getPrevColor = ({
 };
 
 export const findPatternTwist = (holes, picksByTablet) => {
-	console.log('picksByTablet', picksByTablet);
-
 	let patternWillRepeat = false;
 	let patternIsTwistNeutral = false;
 

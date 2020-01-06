@@ -20,6 +20,9 @@ export const SET_PATTERN_COUNT = 'SET_PATTERN_COUNT';
 export const SET_ISLOADING = 'SET_ISLOADING';
 export const SET_PATTERN_DATA = 'SET_PATTERN_DATA';
 
+// edit pattern charts
+export const UPDATE_WEAVING_CELL_DIRECTION = 'UPDATE_WEAVING_CELL_DIRECTION';
+
 // ////////////////////////////
 // Actions that change the Store
 
@@ -78,6 +81,7 @@ export const savePatternData = (patternObj) => (dispatch) => {
 
 // ///////////////////////////
 // Provide information to the UI
+//TO DO rework as selectors
 export const getIsSubscribed = (state) => state.pattern.isSubscribed;
 
 export const getIsLoading = (state) => state.pattern.isLoading;
@@ -96,7 +100,6 @@ export const getHoles = (state) => state.pattern.holes;
 
 export const getPalette = (state) => state.pattern.palette;
 
-//TO DO rework as selectors
 export const getThreadingForTablet = (state, tabletIndex) => state.pattern.threading.map((threadingRow) => threadingRow[tabletIndex]);
 
 export const getOrientationForTablet = (state, tabletIndex) => state.pattern.orientations[tabletIndex];
@@ -157,6 +160,13 @@ export function editIsPublic({
 }
 
 // Weaving
+export function updateWeavingCellDirection(data) {
+	return {
+		'type': 'UPDATE_WEAVING_CELL_DIRECTION',
+		'payload': data,
+	};
+}
+
 export function editWeavingCellDirection({
 	_id,
 	row,
@@ -164,6 +174,7 @@ export function editWeavingCellDirection({
 }) {
 	return (dispatch, getState) => {
 		const currentDirection = getState().pattern.picks[tablet][row].direction;
+		const direction = currentDirection === 'F' ? 'B' : 'F';
 
 		Meteor.call('pattern.edit', {
 			_id,
@@ -171,11 +182,18 @@ export function editWeavingCellDirection({
 				'type': 'editWeavingCellDirection',
 				row,
 				tablet,
-				'direction': currentDirection === 'F' ? 'B' : 'F',
+				direction,
 			},
 			row,
 			tablet,
 		});
+
+		dispatch(updateWeavingCellDirection({
+			_id,
+			row,
+			tablet,
+			direction,
+		}));
 	};
 }
 
@@ -403,6 +421,12 @@ export default function pattern(state = initialPatternState, action) {
 				'palette': action.payload.palette,
 				'threading': action.payload.threading,
 			}, state);
+		}
+
+		// edit pattern charts
+		case UPDATE_WEAVING_CELL_DIRECTION: {
+			console.log('here', action.payload);
+			return state;
 		}
 
 		default:
