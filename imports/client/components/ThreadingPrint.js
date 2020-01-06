@@ -1,8 +1,7 @@
 import React, { PureComponent } from 'react';
-import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
-import ChartSVG from './ChartSVG';
-import AddTabletsForm from '../forms/AddTabletsForm';
+import ThreadingChartCell from './ThreadingChartCell';
+import OrientationCell from './OrientationCell';
 import './ThreadingPrint.scss';
 import { HOLE_LABELS } from '../../modules/parameters';
 
@@ -17,53 +16,49 @@ import { HOLE_LABELS } from '../../modules/parameters';
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
 class ThreadingPrint extends PureComponent {
-	renderCell(colorIndex, rowIndex, tabletIndex) {
-		const {
-			pattern,
-			'pattern': { holes, orientations },
-		} = this.props;
-
-		const orientation = orientations[tabletIndex];
+	renderCell(rowIndex, tabletIndex) {
+		const { holes, palette } = this.props;
 
 		return (
 			<span>
-				<ChartSVG
-					pattern={pattern}
-					direction="F"
-					netTurns={holes - rowIndex /* hole labels run bottom to top, indexes run top to bottom */}
-					numberOfTurns={1}
-					orientation={orientation}
+				<ThreadingChartCell
+					holes={holes}
+					palette={palette}
+					rowIndex={rowIndex}
 					tabletIndex={tabletIndex}
 				/>
 			</span>
 		);
 	}
 
-	renderRow(row, rowIndex) {
-		const { 'pattern': { holes } } = this.props;
+	renderRow(rowIndex) {
+		const { holes, numberOfTablets } = this.props;
 		const labelIndex = holes - rowIndex - 1;
+
+		const cells = [];
+		for (let i = 0; i < numberOfTablets; i += 1) {
+			cells.push(
+				<li
+					className="cell value"
+					key={`threading-cell-${rowIndex}-${i}`}
+				>
+					{this.renderCell(rowIndex, i)}
+				</li>,
+			);
+		}
 
 		return (
 			<>
 				<ul className="threading-row">
 					<li className="cell label"><span>{HOLE_LABELS[labelIndex]}</span></li>
-					{
-						row.map((colorIndex, index) => (
-							<li
-								className="cell value"
-								key={`threading-cell-${rowIndex}-${index}`}
-							>
-								{this.renderCell(colorIndex, rowIndex, index)}
-							</li>
-						))
-					}
+					{cells}
 				</ul>
 			</>
 		);
 	}
 
 	renderTabletLabels() {
-		const { 'pattern': { numberOfTablets } } = this.props;
+		const { numberOfTablets } = this.props;
 
 		const labels = [];
 		for (let i = 0; i < numberOfTablets; i += 1) {
@@ -81,53 +76,50 @@ class ThreadingPrint extends PureComponent {
 	}
 
 	renderChart() {
-		const { 'pattern': { threading } } = this.props;
+		const { holes } = this.props;
+		const rows = [];
+		for (let i = 0; i < holes; i += 1) {
+			rows.push(
+				<li
+					className="row"
+					key={`threading-row-${i}`}
+				>
+					{this.renderRow(i)}
+				</li>,
+			);
+		}
 
 		return (
 			<>
 				{this.renderTabletLabels()}
 				<ul className="threading-chart">
-					{
-						threading.map((row, index) => (
-							<li
-								className="row"
-								key={`threading-row-${index}`}
-							>
-								{this.renderRow(row, index)}
-							</li>
-						))
-					}
+					{rows}
 				</ul>
 			</>
 		);
 	}
 
-	renderOrientation(value) {
-		return (
-			<span>
-				<span
-					className={`${value === '/' ? 's' : 'z'}`}
-				/>
-			</span>
-		);
-	}
-
 	renderOrientations() {
-		const { 'pattern': { orientations } } = this.props;
+		const { numberOfTablets } = this.props;
+		const orientations = [];
+		for (let i = 0; i < numberOfTablets; i += 1) {
+			orientations.push(
+				<li
+					className="cell value"
+					key={`orientation-${i}`}
+				>
+					<OrientationCell
+						isEditing={false}
+						tabletIndex={i}
+					/>
+				</li>,
+			);
+		}
 
 		return (
 			<div className="orientations">
 				<ul className="orientations">
-					{
-						orientations.map((value, tabletIndex) => (
-							<li
-								className="cell value"
-								key={`orientation-${tabletIndex}`}
-							>
-								{this.renderOrientation(tabletIndex, orientations[tabletIndex])}
-							</li>
-						))
-					}
+					{orientations}
 				</ul>
 				<p className="hint">Slope of line = angle of tablet viewed from above</p>
 			</div>
@@ -147,7 +139,9 @@ class ThreadingPrint extends PureComponent {
 }
 
 ThreadingPrint.propTypes = {
-	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
+	'holes': PropTypes.number.isRequired,
+	'numberOfTablets': PropTypes.number.isRequired,
+	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 export default ThreadingPrint;

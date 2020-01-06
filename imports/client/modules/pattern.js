@@ -388,7 +388,6 @@ export default function pattern(state = initialPatternState, action) {
 		}
 
 		case SET_PATTERN_DATA: {
-			//console.log('SET_PATTERN_DATA', action.payload);
 			return updeep({
 				'picks': action.payload.picks,
 				'holes': action.payload.holes,

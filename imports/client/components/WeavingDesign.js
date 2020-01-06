@@ -66,10 +66,7 @@ class WeavingDesign extends PureComponent {
 	}
 
 	handleClickRemoveRow(rowIndex) {
-		const {
-			'pattern': { _id },
-			dispatch,
-		} = this.props;
+		const { dispatch, 'pattern': { _id } } = this.props;
 		const { isEditing } = this.state;
 
 		if (!isEditing) {
@@ -162,16 +159,21 @@ class WeavingDesign extends PureComponent {
 		);
 	}
 
-	renderRow(row, rowIndex) {
-		const { numberOfRows } = this.props;
+	renderRow(rowIndex) {
+		const { numberOfRows, numberOfTablets } = this.props;
 		const { isEditing } = this.state;
 		const rowLabel = numberOfRows - rowIndex;
+
+		const cells = [];
+		for (let i = 0; i < numberOfTablets; i += 1) {
+			cells.push(this.renderCell(rowLabel - 1, i));
+		}
 
 		return (
 			<>
 				<ul className="weaving-row">
 					<li className="cell label"><span>{rowLabel}</span></li>
-					{row.map((obj, tabletIndex) => this.renderCell(rowLabel - 1, tabletIndex))}
+					{cells}
 					{isEditing && numberOfRows > 1 && (
 						<li className="cell delete">
 							<span
@@ -210,21 +212,23 @@ class WeavingDesign extends PureComponent {
 	}
 
 	renderChart() {
-		const { 'pattern': { 'patternDesign': { weavingInstructions } } } = this.props;
+		const { numberOfRows } = this.props;
+		const rows = [];
+		for (let i = 0; i < numberOfRows; i += 1) {
+			rows.push(
+				<li
+					className="row"
+					key={`weaving-row-${i}`}
+				>
+					{this.renderRow(i)}
+				</li>,
+			);
+		}
 
 		return (
 			<>
 				<ul className="weaving-chart">
-					{
-						weavingInstructions.map((row, index) => (
-							<li
-								className="row"
-								key={`weaving-row-${index}`}
-							>
-								{this.renderRow(row, index)}
-							</li>
-						))
-					}
+					{rows}
 				</ul>
 				{this.renderTabletLabels()}
 			</>

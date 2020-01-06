@@ -2,7 +2,6 @@
 
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { modulus } from '../modules/weavingUtils';
 import WeavingChartCell from './WeavingChartCell';
 
 import './Threading.scss';
@@ -21,13 +20,15 @@ import './WeavingChart.scss';
 class WeavingChart extends PureComponent {
 	renderCell(rowIndex, tabletIndex) {
 		const { holes, palette } = this.props;
-		
+
 		return (
 			<li
 				className="cell value"
 				key={`weaving-cell-${rowIndex}-${tabletIndex}`}
 			>
 				<WeavingChartCell
+					holes={holes}
+					palette={palette}
 					rowIndex={rowIndex}
 					tabletIndex={tabletIndex}
 				/>
@@ -35,9 +36,19 @@ class WeavingChart extends PureComponent {
 		);
 	}
 
-	renderRow(numberOfRows, row, rowIndex) {
-		const { handleClickDown, handleClickUp } = this.props;
+	renderRow(rowIndex) {
+		const {
+			handleClickDown,
+			handleClickUp,
+			numberOfRows,
+			numberOfTablets,
+		} = this.props;
 		const rowLabel = numberOfRows - rowIndex;
+
+		const cells = [];
+		for (let i = 0; i < numberOfTablets; i += 1) {
+			cells.push(this.renderCell(rowLabel - 1, i));
+		}
 
 		// background images in scss are malformed: the leading / is removed so they become relative and do not point to public/images
 		// https://github.com/meteor/meteor/issues/10247
@@ -49,7 +60,7 @@ class WeavingChart extends PureComponent {
 			<>
 				<ul className="weaving-row">
 					<li className="cell label"><span>{rowLabel}</span></li>
-					{row.map((obj, tabletIndex) => this.renderCell(rowLabel - 1, tabletIndex))}
+					{cells}
 				</ul>
 				<div className="highlight">
 					<div className="innertube" />
@@ -77,7 +88,7 @@ class WeavingChart extends PureComponent {
 	}
 
 	renderTabletLabels() {
-		const { 'pattern': { numberOfTablets } } = this.props;
+		const { numberOfTablets } = this.props;
 
 		const labels = [];
 		for (let i = 0; i < numberOfTablets; i += 1) {
@@ -97,32 +108,32 @@ class WeavingChart extends PureComponent {
 	renderChart() {
 		const {
 			handleClickRow,
-			'pattern': {
-				numberOfRows,
-				'patternDesign': { weavingInstructions },
-			},
+			numberOfRows,
 			selectedRow,
 		} = this.props;
+
+		const rows = [];
+		for (let i = 0; i < numberOfRows; i += 1) {
+			rows.push(
+				<li
+					className={`row ${i === selectedRow ? 'selected' : ''}`}
+					key={`weaving-row-${i}`}
+					onClick={i === selectedRow ? undefined : () => handleClickRow(i)}
+					onKeyPress={i === selectedRow ? undefined : () => handleClickRow(i)}
+					role="button" // eslint-disable-line 
+					tabIndex="0"
+					type="button"
+				>
+					{this.renderRow(i)}
+				</li>,
+			);
+		}
 
 		return (
 			<div className="weaving-chart-holder">
 				{this.renderTabletLabels()}
 				<ul className="weaving-chart">
-					{
-						weavingInstructions.map((row, index) => (
-							<li
-								className={`row ${index === selectedRow ? 'selected' : ''}`}
-								key={`weaving-row-${index}`}
-								onClick={index === selectedRow ? undefined : () => handleClickRow(index)}
-								onKeyPress={index === selectedRow ? undefined : () => handleClickRow(index)}
-								role="button" // eslint-disable-line 
-								tabIndex="0"
-								type="button"
-							>
-								{this.renderRow(numberOfRows, row, index)}
-							</li>
-						))
-					}
+					{rows}
 				</ul>
 			</div>
 		);
@@ -143,8 +154,10 @@ WeavingChart.propTypes = {
 	'handleClickUp': PropTypes.func.isRequired,
 	'handleClickRow': PropTypes.func.isRequired,
 	'handleClickDown': PropTypes.func.isRequired,
-	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
-	'picksByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'holes': PropTypes.number.isRequired,
+	'numberOfRows': PropTypes.number.isRequired,
+	'numberOfTablets': PropTypes.number.isRequired,
+	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'selectedRow': PropTypes.number,
 };
 

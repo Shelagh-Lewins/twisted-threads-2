@@ -112,15 +112,14 @@ class Pattern extends PureComponent {
 
 	onClickEditableTextSave({ fieldValue, fieldName }) {
 		const { dispatch } = this.props;
-		const { patternId } = this.context;
+		const { 'pattern': { _id } } = this.context;
 
-		dispatch(editTextField({ '_id': patternId, fieldValue, fieldName }));
+		dispatch(editTextField({ _id, fieldValue, fieldName }));
 	}
 
 	onChangeIsPublic = () => {
 		const { dispatch } = this.props;
-		const { pattern } = this.context;
-		const { _id, isPublic } = pattern;
+		const { 'pattern': { _id, isPublic } } = this.context;
 
 		dispatch(editIsPublic({ _id, 'isPublic': !isPublic }));
 	};
@@ -170,8 +169,7 @@ class Pattern extends PureComponent {
 	}
 
 	renderIsPublic() {
-		const { pattern } = this.context;
-		const { isPublic } = pattern;
+		const { 'pattern': { isPublic } } = this.context;
 
 		const hintText = isPublic
 			? 'Public: people can see this pattern but they can\'t edit it.'
@@ -432,7 +430,6 @@ class Pattern extends PureComponent {
 								numberOfTablets={numberOfTablets}
 								palette={palette}
 								pattern={pattern}
-								picksByTablet={picksByTablet}
 								patternWillRepeat={patternWillRepeat}
 							/>
 						)}
@@ -607,9 +604,9 @@ function mapStateToProps(state, ownProps) {
 		'canAddPatternImage': getCanAddPatternImage(state),
 		'canCreateColorBook': getCanCreateColorBook(state),
 		'colorBookAdded': state.colorBook.colorBookAdded,
+		'errors': state.errors,
 		'holes': getHoles(state),
 		'isLoading': getIsLoading(state),
-		'errors': state.errors,
 		'numberOfRows': getNumberOfRows(state),
 		'numberOfTablets': getNumberOfTablets(state),
 		'palette': getPalette(state),

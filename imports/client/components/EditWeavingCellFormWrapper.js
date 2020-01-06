@@ -26,8 +26,8 @@ class EditWeavingCellFormWrapper extends PureComponent {
 EditWeavingCellFormWrapper.propTypes = {
 	'handleSubmit': PropTypes.func.isRequired,
 	'numberOfTurns': PropTypes.number.isRequired,
-	'rowIndex': PropTypes.number.isRequired,
-	'tabletIndex': PropTypes.number.isRequired,
+	'rowIndex': PropTypes.number.isRequired, // eslint-disable-line react/no-unused-prop-types
+	'tabletIndex': PropTypes.number.isRequired, // eslint-disable-line react/no-unused-prop-types
 };
 
 function mapStateToProps(state, ownProps) {

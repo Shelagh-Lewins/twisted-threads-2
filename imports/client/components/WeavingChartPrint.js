@@ -2,8 +2,7 @@
 
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { modulus } from '../modules/weavingUtils';
-import ChartSVG from './ChartSVG';
+import WeavingChartCell from './WeavingChartCell';
 
 import './Threading.scss';
 import './WeavingChartPrint.scss';
@@ -20,65 +19,44 @@ import './WeavingChartPrint.scss';
 
 class WeavingChartPrint extends PureComponent {
 	renderCell(rowIndex, tabletIndex) {
-		const {
-			pattern,
-			'pattern': {
-				holes,
-				orientations,
-			},
-			picksByTablet,
-		} = this.props;
-
-		const orientation = orientations[tabletIndex];
-		const { direction, numberOfTurns, totalTurns } = picksByTablet[tabletIndex][rowIndex];
-		const netTurns = modulus(totalTurns, holes);
-
-		// if not idle, show direction
-		let directionClass = '';
-		if (numberOfTurns !== 0) {
-			if (direction === 'F') {
-				directionClass = 'forward';
-			} else if (direction === 'B') {
-				directionClass = 'backward';
-			}
-		}
+		const { holes, palette } = this.props;
 
 		return (
 			<li
 				className="cell value"
 				key={`weaving-cell-${rowIndex}-${tabletIndex}`}
 			>
-				<span
-					className={directionClass}
-				>
-					<ChartSVG
-						pattern={pattern}
-						direction={direction}
-						netTurns={netTurns}
-						numberOfTurns={numberOfTurns}
-						orientation={orientation}
-						tabletIndex={tabletIndex}
-					/>
-				</span>
+				<WeavingChartCell
+					holes={holes}
+					palette={palette}
+					rowIndex={rowIndex}
+					tabletIndex={tabletIndex}
+				/>
 			</li>
 		);
 	}
 
-	renderRow(numberOfRows, row, rowIndex) {
+	renderRow(rowIndex) {
+		const { numberOfRows, numberOfTablets } = this.props;
 		const rowLabel = numberOfRows - rowIndex;
+
+		const cells = [];
+		for (let i = 0; i < numberOfTablets; i += 1) {
+			cells.push(this.renderCell(rowLabel - 1, i));
+		}
 
 		return (
 			<>
 				<ul className="weaving-row">
 					<li className="cell label"><span>{rowLabel}</span></li>
-					{row.map((obj, tabletIndex) => this.renderCell(rowLabel - 1, tabletIndex))}
+					{cells}
 				</ul>
 			</>
 		);
 	}
 
 	renderTabletLabels() {
-		const { 'pattern': { numberOfTablets } } = this.props;
+		const { numberOfTablets } = this.props;
 
 		const labels = [];
 		for (let i = 0; i < numberOfTablets; i += 1) {
@@ -96,28 +74,24 @@ class WeavingChartPrint extends PureComponent {
 	}
 
 	renderChart() {
-		const {
-			'pattern': {
-				numberOfRows,
-				'patternDesign': { weavingInstructions },
-			},
-			selectedRow,
-		} = this.props;
+		const { numberOfRows } = this.props;
+		const rows = [];
+		for (let i = 0; i < numberOfRows; i += 1) {
+			rows.push(
+				<li
+					className="row"
+					key={`weaving-row-${i}`}
+				>
+					{this.renderRow(i)}
+				</li>,
+			);
+		}
 
 		return (
 			<div className="weaving-chart-holder">
 				{this.renderTabletLabels()}
 				<ul className="weaving-chart">
-					{
-						weavingInstructions.map((row, index) => (
-							<li
-								className={`row ${index === selectedRow ? 'selected' : ''}`}
-								key={`weaving-row-${index}`}
-							>
-								{this.renderRow(numberOfRows, row, index)}
-							</li>
-						))
-					}
+					{rows}
 				</ul>
 			</div>
 		);
@@ -135,9 +109,10 @@ class WeavingChartPrint extends PureComponent {
 }
 
 WeavingChartPrint.propTypes = {
-	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
-	'picksByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'selectedRow': PropTypes.number,
+	'holes': PropTypes.number.isRequired,
+	'numberOfRows': PropTypes.number.isRequired,
+	'numberOfTablets': PropTypes.number.isRequired,
+	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 export default WeavingChartPrint;

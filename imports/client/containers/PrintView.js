@@ -3,17 +3,18 @@
 import React, { PureComponent } from 'react';
 import { Button } from 'reactstrap';
 import { connect } from 'react-redux';
-import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import PageWrapper from '../components/PageWrapper';
-import store from '../modules/store';
 import {
+	getHoles,
 	getIsLoading,
-	setIsLoading,
+	getNumberOfRows,
+	getNumberOfTablets,
+	getPalette,
 } from '../modules/pattern';
+import AppContext from '../modules/appContext';
 import { findPatternTwist, getPicksByTablet } from '../modules/weavingUtils';
 
-import { Patterns } from '../../modules/collection';
 import Loading from '../components/Loading';
 import PatternPreview from '../components/PatternPreview';
 import WeavingChartPrint from '../components/WeavingChartPrint';
@@ -59,40 +60,48 @@ class PrintView extends PureComponent {
 		const {
 			dispatch,
 			errors,
+			holes,
 			isLoading,
-			pattern,
-			'pattern': {
-				_id,
-				description,
-				holes,
-				name,
-				patternType,
-				threadingNotes,
-				weavingNotes,
-			},
-			picksByTablet,
-			createdByUser,
+			numberOfRows,
+			numberOfTablets,
+			palette,
 		} = this.props;
 		const { showPrintHint } = this.state;
 
+		const {
+			createdByUser,
+			pattern,
+		} = this.context;
+
+		const picksByTablet = getPicksByTablet(pattern || {});
+
 		let content = <Loading />;
 
-		const info = (
-			<div className="links">
-				<p>{`Printed from: ${Meteor.absoluteUrl()}pattern/${_id}`}</p>
-				<p>{`Created by: ${createdByUser.username}`}</p>
-				<p>{`Pattern type: ${patternType}`}</p>
-				{description && description !== '' && (
-					<>
-						<div>{description}</div>
-						<br />
-					</>
-				)}
-			</div>
-		);
-
 		if (!isLoading) {
-			if (name && name !== '') {
+			if (pattern) {
+				const {
+					_id,
+					description,
+					name,
+					patternType,
+					threadingNotes,
+					weavingNotes,
+				} = pattern;
+
+				const info = (
+					<div className="links">
+						<p>{`Printed from: ${Meteor.absoluteUrl()}pattern/${_id}`}</p>
+						<p>{`Created by: ${createdByUser.username}`}</p>
+						<p>{`Pattern type: ${patternType}`}</p>
+						{description && description !== '' && (
+							<>
+								<div>{description}</div>
+								<br />
+							</>
+						)}
+					</div>
+				);
+
 				const { patternWillRepeat } = findPatternTwist(holes, picksByTablet);
 
 				const printHint = (
@@ -116,7 +125,7 @@ class PrintView extends PureComponent {
 				content = (
 					<>
 						{showPrintHint && printHint}
-						<h1>{pattern.name}</h1>
+						<h1>{name}</h1>
 						{info}
 						{/* if navigating from the home page, the pattern summary is in MiniMongo before Tracker sets isLoading to true. This doesn't include the detail fields so we need to prevent errors. */}
 						{pattern.patternDesign && (
@@ -126,6 +135,10 @@ class PrintView extends PureComponent {
 										<h2>Woven band</h2>
 										<PatternPreview
 											dispatch={dispatch}
+											holes={holes}
+											numberOfRows={numberOfRows}
+											numberOfTablets={numberOfTablets}
+											palette={palette}
 											pattern={pattern}
 											patternWillRepeat={patternWillRepeat}
 											picksByTablet={picksByTablet}
@@ -134,8 +147,13 @@ class PrintView extends PureComponent {
 								)}
 								<h2>Weaving chart</h2>
 								<WeavingChartPrint
+									dispatch={dispatch}
+									holes={holes}
+									numberOfRows={numberOfRows}
+									numberOfTablets={numberOfTablets}
+									palette={palette}
 									pattern={pattern}
-									picksByTablet={picksByTablet}
+									patternWillRepeat={patternWillRepeat}
 								/>
 								{weavingNotes && weavingNotes !== '' && (
 									<>
@@ -146,7 +164,11 @@ class PrintView extends PureComponent {
 								)}
 								<h2>Threading chart</h2>
 								<ThreadingPrint
-									pattern={pattern}
+									holes={holes}
+									numberOfRows={numberOfRows}
+									numberOfTablets={numberOfTablets}
+									palette={palette}
+									patternId={pattern._id}
 								/>
 								{threadingNotes && threadingNotes !== '' && (
 									<>
@@ -177,49 +199,26 @@ class PrintView extends PureComponent {
 }
 
 PrintView.propTypes = {
-	'_id': PropTypes.string.isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
+	'holes': PropTypes.number.isRequired,
 	'isLoading': PropTypes.bool.isRequired,
-	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
-	'picksByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'createdByUser': PropTypes.objectOf(PropTypes.any).isRequired,
+	'numberOfRows': PropTypes.number.isRequired,
+	'numberOfTablets': PropTypes.number.isRequired,
+	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
-function mapStateToProps(state, ownProps) {
+PrintView.contextType = AppContext;
+
+function mapStateToProps(state) {
 	return {
-		'_id': ownProps.match.params.id, // read the url parameter to find the id of the pattern
 		'errors': state.errors,
-		'isLoading': state.pattern.isLoading,
+		'holes': getHoles(state),
+		'isLoading': getIsLoading(state),
+		'numberOfRows': getNumberOfRows(state),
+		'numberOfTablets': getNumberOfTablets(state),
+		'palette': getPalette(state),
 	};
 }
 
-const Tracker = withTracker(({ _id, dispatch }) => {
-	const state = store.getState();
-	const isLoading = getIsLoading(state);
-	let pattern = {};
-
-	const handle = Meteor.subscribe('pattern', _id, {
-		'onReady': () => {
-			dispatch(setIsLoading(false));
-			pattern = Patterns.findOne({ _id });
-			const { createdBy } = pattern;
-			Meteor.subscribe('users', [createdBy]);
-		},
-	});
-
-	if (isLoading && handle.ready()) {
-		dispatch(setIsLoading(false));
-	} else if (!isLoading && !handle.ready()) {
-		dispatch(setIsLoading(true));
-	}
-
-	// pass database data as props
-	return {
-		'createdByUser': Meteor.users.findOne({ '_id': pattern.createdBy }) || {},
-		'pattern': pattern,
-		'picksByTablet': getPicksByTablet(pattern),
-	};
-})(PrintView);
-
-export default connect(mapStateToProps)(Tracker);
+export default connect(mapStateToProps)(PrintView);

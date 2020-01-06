@@ -38,7 +38,7 @@ class OrientationCell extends PureComponent {
 }
 
 OrientationCell.propTypes = {
-	'handleClickOrientation': PropTypes.func.isRequired,
+	'handleClickOrientation': PropTypes.func,
 	'isEditing': PropTypes.bool.isRequired,
 	'orientation': PropTypes.string.isRequired,
 	'tabletIndex': PropTypes.number.isRequired,
