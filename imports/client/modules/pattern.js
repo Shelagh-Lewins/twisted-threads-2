@@ -6,6 +6,8 @@ import { logErrors, clearErrors } from './errors';
 import {
 	findPatternTwist,
 	getPicksByTablet,
+	getWeavingInstructionsByTablet,
+	reCalculatePicksForTablet,
 } from './weavingUtils';
 
 const updeep = require('updeep');
@@ -57,26 +59,45 @@ export function setIsLoading(isLoading) {
 // NEW put pattern in store
 
 // save pattern data in store for calculating charts
-export function setPatternData({ picks, patternObj }) {
+export function setPatternData({
+	picks,
+	patternObj,
+	weavingInstructionsByTablet,
+}) {
+	const {
+		holes,
+		numberOfRows,
+		numberOfTablets,
+		orientations,
+		palette,
+		threading,
+	} = patternObj;
+
 	return {
 		'type': 'SET_PATTERN_DATA',
 		'payload': {
 			picks,
-			'holes': patternObj.holes,
-			'numberOfRows': patternObj.numberOfRows,
-			'numberOfTablets': patternObj.numberOfTablets,
-			'orientations': patternObj.orientations,
-			'palette': patternObj.palette,
-			'threading': patternObj.threading,
+			holes,
+			numberOfRows,
+			numberOfTablets,
+			orientations,
+			palette,
+			threading,
+			weavingInstructionsByTablet,
 		},
 	};
 }
 
 // calculate weaving picks from pattern data
 export const savePatternData = (patternObj) => (dispatch) => {
+	const weavingInstructionsByTablet = getWeavingInstructionsByTablet(patternObj || {});
 	const picks = getPicksByTablet(patternObj || {});
 
-	dispatch(setPatternData({ picks, patternObj }));
+	dispatch(setPatternData({
+		picks,
+		patternObj,
+		weavingInstructionsByTablet,
+	}));
 };
 
 // ///////////////////////////
@@ -412,21 +433,51 @@ export default function pattern(state = initialPatternState, action) {
 		}
 
 		case SET_PATTERN_DATA: {
+			const {
+				holes,
+				numberOfRows,
+				numberOfTablets,
+				orientations,
+				palette,
+				picks,
+				threading,
+				weavingInstructionsByTablet,
+			} = action.payload;
+
 			return updeep({
-				'picks': action.payload.picks,
-				'holes': action.payload.holes,
-				'numberOfRows': action.payload.numberOfRows,
-				'numberOfTablets': action.payload.numberOfTablets,
-				'orientations': action.payload.orientations,
-				'palette': action.payload.palette,
-				'threading': action.payload.threading,
+				holes,
+				numberOfRows,
+				numberOfTablets,
+				orientations,
+				palette,
+				picks,
+				threading,
+				weavingInstructionsByTablet,
 			}, state);
 		}
 
 		// edit pattern charts
 		case UPDATE_WEAVING_CELL_DIRECTION: {
-			console.log('here', action.payload);
-			return state;
+			const { direction, row, tablet } = action.payload;
+			const { weavingInstructionsByTablet } = state;
+
+			// to update the weaving instructions
+			const obj = { ...weavingInstructionsByTablet[tablet][row] };
+			obj.direction = direction;
+
+			// to calculate new picks for this tablet
+			const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tablet]];
+			weavingInstructionsForTablet[row] = obj;
+			const picksForTablet = reCalculatePicksForTablet({
+				'currentPicks': state.picks[tablet],
+				weavingInstructionsForTablet,
+				row,
+			});
+
+			return updeep({
+				'weavingInstructionsByTablet': { [row]: { [tablet]: obj } },
+				'picks': { [tablet]: picksForTablet },
+			}, state);
 		}
 
 		default:
