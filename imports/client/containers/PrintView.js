@@ -11,10 +11,11 @@ import {
 	getNumberOfRows,
 	getNumberOfTablets,
 	getPalette,
+	getPatternTwist,
+	getTotalTurnsByTablet,
 } from '../modules/pattern';
 import AppContext from '../modules/appContext';
-import { findPatternTwist, getPicksByTablet } from '../modules/weavingUtils';
-
+import { getNumberOfRepeats } from '../modules/weavingUtils';
 import Loading from '../components/Loading';
 import PatternPreview from '../components/PatternPreview';
 import WeavingChartPrint from '../components/WeavingChartPrint';
@@ -65,6 +66,9 @@ class PrintView extends PureComponent {
 			numberOfRows,
 			numberOfTablets,
 			palette,
+			patternIsTwistNeutral,
+			patternWillRepeat,
+			totalTurnsByTablet,
 		} = this.props;
 		const { showPrintHint } = this.state;
 
@@ -72,8 +76,6 @@ class PrintView extends PureComponent {
 			createdByUser,
 			pattern,
 		} = this.context;
-
-		const picksByTablet = getPicksByTablet(pattern || {});
 
 		let content = <Loading />;
 
@@ -102,7 +104,19 @@ class PrintView extends PureComponent {
 					</div>
 				);
 
-				const { patternWillRepeat } = findPatternTwist(holes, picksByTablet);
+				const twistNeutralText = (
+					<span className="hint">{patternIsTwistNeutral ? 'The pattern is twist neutral.' : 'The pattern is not twist neutral.'}</span>
+				);
+
+				let repeatHint = 'The pattern will not repeat.';
+
+				if (patternWillRepeat) {
+					repeatHint = `The pattern will repeat (${getNumberOfRepeats(numberOfRows)} repeats shown).`;
+				}
+
+				const repeatText = (
+					<span className="hint">{repeatHint}</span>
+				);
 
 				const printHint = (
 					<div className="print-hint">
@@ -130,21 +144,19 @@ class PrintView extends PureComponent {
 						{/* if navigating from the home page, the pattern summary is in MiniMongo before Tracker sets isLoading to true. This doesn't include the detail fields so we need to prevent errors. */}
 						{pattern.patternDesign && (
 							<>
-								{picksByTablet && picksByTablet.length > 0 && (
-									<>
-										<h2>Woven band</h2>
-										<PatternPreview
-											dispatch={dispatch}
-											holes={holes}
-											numberOfRows={numberOfRows}
-											numberOfTablets={numberOfTablets}
-											palette={palette}
-											pattern={pattern}
-											patternWillRepeat={patternWillRepeat}
-											picksByTablet={picksByTablet}
-										/>
-									</>
-								)}
+								<h2>Woven band</h2>
+								{repeatText}
+								{twistNeutralText}
+								<PatternPreview
+									dispatch={dispatch}
+									holes={holes}
+									numberOfRows={numberOfRows}
+									numberOfTablets={numberOfTablets}
+									palette={palette}
+									pattern={pattern}
+									patternWillRepeat={patternWillRepeat}
+									totalTurnsByTablet={totalTurnsByTablet}
+								/>
 								<h2>Weaving chart</h2>
 								<WeavingChartPrint
 									dispatch={dispatch}
@@ -206,11 +218,16 @@ PrintView.propTypes = {
 	'numberOfRows': PropTypes.number.isRequired,
 	'numberOfTablets': PropTypes.number.isRequired,
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'patternIsTwistNeutral': PropTypes.bool.isRequired,
+	'patternWillRepeat': PropTypes.bool.isRequired,
+	'totalTurnsByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 PrintView.contextType = AppContext;
 
-function mapStateToProps(state) {
+function mapStateToProps(state, ownProps) {
+	const { patternIsTwistNeutral, patternWillRepeat } = getPatternTwist(state);
+
 	return {
 		'errors': state.errors,
 		'holes': getHoles(state),
@@ -218,6 +235,9 @@ function mapStateToProps(state) {
 		'numberOfRows': getNumberOfRows(state),
 		'numberOfTablets': getNumberOfTablets(state),
 		'palette': getPalette(state),
+		'patternIsTwistNeutral': patternIsTwistNeutral,
+		'patternWillRepeat': patternWillRepeat,
+		'totalTurnsByTablet': getTotalTurnsByTablet(state),
 	};
 }
 

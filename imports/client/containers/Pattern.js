@@ -19,10 +19,12 @@ import {
 	getNumberOfRows,
 	getNumberOfTablets,
 	getPalette,
+	getPatternTwist,
+	getTotalTurnsByTablet,
 } from '../modules/pattern';
 import { editPatternImageCaption, removePatternImage } from '../modules/patternImages';
 import AppContext from '../modules/appContext';
-import { findPatternTwist, getNumberOfRepeats, getPicksByTablet } from '../modules/weavingUtils';
+import { getNumberOfRepeats } from '../modules/weavingUtils';
 import PageWrapper from '../components/PageWrapper';
 import Loading from '../components/Loading';
 import WeavingDesign from '../components/WeavingDesign';
@@ -340,7 +342,6 @@ class Pattern extends PureComponent {
 		createdByUser,
 		patternImages,
 		pattern,
-		picksByTablet,
 	}) {
 		const {
 			canAddPatternImage,
@@ -351,7 +352,10 @@ class Pattern extends PureComponent {
 			numberOfRows,
 			numberOfTablets,
 			palette,
+			patternIsTwistNeutral,
+			patternWillRepeat,
 			tab,
+			totalTurnsByTablet,
 		} = this.props;
 
 		const {
@@ -370,8 +374,6 @@ class Pattern extends PureComponent {
 
 		switch (tab) {
 			case 'design':
-				const { patternIsTwistNeutral, patternWillRepeat } = findPatternTwist(holes, picksByTablet);
-
 				const twistNeutralText = (
 					<span className="hint">{patternIsTwistNeutral ? 'The pattern is twist neutral.' : 'The pattern is not twist neutral.'}</span>
 				);
@@ -409,7 +411,7 @@ class Pattern extends PureComponent {
 								previewOrientation={previewOrientation}
 							/>
 						)}
-						{picksByTablet && picksByTablet.length > 0 && (
+						{
 							<PatternPreview
 								dispatch={dispatch}
 								holes={holes}
@@ -418,9 +420,9 @@ class Pattern extends PureComponent {
 								palette={palette}
 								pattern={pattern}
 								patternWillRepeat={patternWillRepeat}
-								picksByTablet={picksByTablet}
+								totalTurnsByTablet={totalTurnsByTablet}
 							/>
-						)}
+						}
 						<h2>Weaving chart</h2>
 						{pattern.patternDesign && (
 							<WeavingDesign
@@ -519,8 +521,6 @@ class Pattern extends PureComponent {
 			pattern,
 		} = this.context;
 
-		const picksByTablet = getPicksByTablet(pattern || {});
-
 		let content = <Loading />;
 
 		if (!isLoading) {
@@ -563,7 +563,6 @@ class Pattern extends PureComponent {
 							createdByUser,
 							pattern,
 							patternImages,
-							picksByTablet,
 						})}
 					</>
 				);
@@ -596,10 +595,15 @@ Pattern.propTypes = {
 	'numberOfRows': PropTypes.number.isRequired,
 	'numberOfTablets': PropTypes.number.isRequired,
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'patternIsTwistNeutral': PropTypes.bool.isRequired,
+	'patternWillRepeat': PropTypes.bool.isRequired,
 	'tab': PropTypes.string.isRequired,
+	'totalTurnsByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
+	const { patternIsTwistNeutral, patternWillRepeat } = getPatternTwist(state);
+
 	return {
 		'canAddPatternImage': getCanAddPatternImage(state),
 		'canCreateColorBook': getCanCreateColorBook(state),
@@ -610,7 +614,10 @@ function mapStateToProps(state, ownProps) {
 		'numberOfRows': getNumberOfRows(state),
 		'numberOfTablets': getNumberOfTablets(state),
 		'palette': getPalette(state),
+		'patternIsTwistNeutral': patternIsTwistNeutral,
+		'patternWillRepeat': patternWillRepeat,
 		'tab': ownProps.match.params.tab || 'design',
+		'totalTurnsByTablet': getTotalTurnsByTablet(state),
 	};
 }
 

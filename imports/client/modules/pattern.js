@@ -3,7 +3,10 @@
 // And also for Pattern page state
 // import * as svg from 'save-svg-as-png';
 import { logErrors, clearErrors } from './errors';
-import { getPicksByTablet } from './weavingUtils';
+import {
+	findPatternTwist,
+	getPicksByTablet,
+} from './weavingUtils';
 
 const updeep = require('updeep');
 
@@ -87,6 +90,8 @@ export const getPick = (state, rowIndex, tabletIndex) => state.pattern.picks[tab
 
 export const getPicksForTablet = (state, tabletIndex) => state.pattern.picks[tabletIndex];
 
+export const getTotalTurnsByTablet = (state) => state.pattern.picks.map((picksForTablet) => picksForTablet[state.pattern.numberOfRows - 1].totalTurns);
+
 export const getHoles = (state) => state.pattern.holes;
 
 export const getPalette = (state) => state.pattern.palette;
@@ -96,6 +101,7 @@ export const getThreadingForTablet = (state, tabletIndex) => state.pattern.threa
 
 export const getOrientationForTablet = (state, tabletIndex) => state.pattern.orientations[tabletIndex];
 
+export const getPatternTwist = (state) => findPatternTwist(state.pattern.holes, state.pattern.picks);
 
 // ///////////////////////////
 // Action that call Meteor methods; these do not change the Store but are located here in order to keep server interactions away from UI

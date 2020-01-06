@@ -29,7 +29,7 @@ export default function PatternPreview(props) {
 			previewOrientation,
 			weftColor,
 		},
-		picksByTablet,
+		totalTurnsByTablet,
 	} = props;
 	const canEdit = createdBy === Meteor.userId();
 
@@ -279,7 +279,7 @@ export default function PatternPreview(props) {
 	const totalTurnCells = [];
 
 	for (let j = 0; j < numberOfTablets; j += 1) {
-		const { totalTurns } = picksByTablet[j][numberOfRows - 1];
+		const totalTurns = totalTurnsByTablet[j];
 		const startPosition = modulus(totalTurns, holes) === 0; // tablet is back at start position
 		let title = `Tablet number ${j + 1}. Total turns: ${totalTurns}`;
 		if (startPosition) {
@@ -352,5 +352,5 @@ PatternPreview.propTypes = {
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 	'patternWillRepeat': PropTypes.bool.isRequired,
-	'picksByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'totalTurnsByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
 };

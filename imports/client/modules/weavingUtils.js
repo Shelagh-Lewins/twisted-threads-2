@@ -145,25 +145,33 @@ export const getPrevColor = ({
 };
 
 export const findPatternTwist = (holes, picksByTablet) => {
-	let patternWillRepeat = true;
-	let patternIsTwistNeutral = true;
-	const numberOfRows = picksByTablet[0].length;
-	const numberOfTablets = picksByTablet.length;
+	console.log('picksByTablet', picksByTablet);
 
-	for (let j = 0; j < numberOfTablets; j += 1) {
-		const { totalTurns } = picksByTablet[j][numberOfRows - 1];
-		const startPosition = modulus(totalTurns, holes) === 0; // tablet is back at start position
+	let patternWillRepeat = false;
+	let patternIsTwistNeutral = false;
 
-		if (totalTurns !== 0) {
-			patternIsTwistNeutral = false;
-		}
+	if (picksByTablet[0]) {
+		patternWillRepeat = true;
+		patternIsTwistNeutral = true;
 
-		if (!startPosition) {
-			patternWillRepeat = false;
-		}
+		const numberOfRows = picksByTablet[0].length;
+		const numberOfTablets = picksByTablet.length;
 
-		if (!patternIsTwistNeutral && !patternWillRepeat) {
-			break;
+		for (let j = 0; j < numberOfTablets; j += 1) {
+			const { totalTurns } = picksByTablet[j][numberOfRows - 1];
+			const startPosition = modulus(totalTurns, holes) === 0; // tablet is back at start position
+
+			if (totalTurns !== 0) {
+				patternIsTwistNeutral = false;
+			}
+
+			if (!startPosition) {
+				patternWillRepeat = false;
+			}
+
+			if (!patternIsTwistNeutral && !patternWillRepeat) {
+				break;
+			}
 		}
 	}
 
