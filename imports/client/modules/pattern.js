@@ -23,7 +23,8 @@ export const SET_ISLOADING = 'SET_ISLOADING';
 export const SET_PATTERN_DATA = 'SET_PATTERN_DATA';
 
 // edit pattern charts
-export const UPDATE_WEAVING_CELL_DIRECTION = 'UPDATE_WEAVING_CELL_DIRECTION';
+export const UPDATE_WEAVING_CELL = 'UPDATE_WEAVING_CELL';
+export const UPDATE_WEAVING_CELL_TURNS = 'UPDATE_WEAVING_CELL_TURNS';
 
 // ////////////////////////////
 // Actions that change the Store
@@ -181,9 +182,9 @@ export function editIsPublic({
 }
 
 // Weaving
-export function updateWeavingCellDirection(data) {
+export function updateWeavingCell(data) {
 	return {
-		'type': 'UPDATE_WEAVING_CELL_DIRECTION',
+		'type': 'UPDATE_WEAVING_CELL',
 		'payload': data,
 	};
 }
@@ -200,7 +201,7 @@ export function editWeavingCellDirection({
 		Meteor.call('pattern.edit', {
 			_id,
 			'data': {
-				'type': 'editWeavingCellDirection',
+				'type': 'updateWeavingCellDirection',
 				row,
 				tablet,
 				direction,
@@ -209,12 +210,19 @@ export function editWeavingCellDirection({
 			tablet,
 		});
 
-		dispatch(updateWeavingCellDirection({
-			_id,
+		dispatch(updateWeavingCell({
+			'modification': { direction },
 			row,
 			tablet,
-			direction,
 		}));
+	};
+}
+
+// number of turns
+export function updateWeavingCellTurns(data) {
+	return {
+		'type': 'UPDATE_WEAVING_CELL_TURNS',
+		'payload': data,
 	};
 }
 
@@ -224,7 +232,7 @@ export function editWeavingCellNumberOfTurns({
 	tablet,
 	numberOfTurns,
 }) {
-	return () => {
+	return (dispatch) => {
 		Meteor.call('pattern.edit', {
 			_id,
 			'data': {
@@ -234,6 +242,12 @@ export function editWeavingCellNumberOfTurns({
 				numberOfTurns,
 			},
 		});
+
+		dispatch(updateWeavingCell({
+			'modification': { numberOfTurns },
+			row,
+			tablet,
+		}));
 	};
 }
 
@@ -456,14 +470,15 @@ export default function pattern(state = initialPatternState, action) {
 			}, state);
 		}
 
-		// edit pattern charts
-		case UPDATE_WEAVING_CELL_DIRECTION: {
-			const { direction, row, tablet } = action.payload;
+		// edit pattern charts. modification can be direction or numberOfTurns
+		case UPDATE_WEAVING_CELL: {
+			const { modification, row, tablet } = action.payload;
 			const { weavingInstructionsByTablet } = state;
 
 			// to update the weaving instructions
 			const obj = { ...weavingInstructionsByTablet[tablet][row] };
-			obj.direction = direction;
+			const modName = Object.keys(modification)[0];
+			obj[modName] = modification[modName];
 
 			// to calculate new picks for this tablet
 			const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tablet]];
