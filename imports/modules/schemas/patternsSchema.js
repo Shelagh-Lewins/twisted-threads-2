@@ -104,7 +104,7 @@ const PatternsSchema = new SimpleSchema({
 	},
 	'threading.$.$': {
 		'type': SimpleSchema.Integer,
-		'label': 'Tag',
+		'label': 'Threading cell',
 	},
 	'threadingNotes': {
 		'type': String,

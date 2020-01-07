@@ -4,6 +4,7 @@
 // import * as svg from 'save-svg-as-png';
 import { logErrors, clearErrors } from './errors';
 import {
+	calculatePicksForTablet,
 	findPatternTwist,
 	getPicksByTablet,
 	getWeavingInstructionsByTablet,
@@ -34,6 +35,7 @@ export const UPDATE_ORIENTATION = 'UPDATE_ORIENTATION';
 export const UPDATE_ADD_WEAVING_ROWS = 'UPDATE_ADD_WEAVING_ROWS';
 export const UPDATE_REMOVE_WEAVING_ROW = 'UPDATE_REMOVE_WEAVING_ROW';
 export const UPDATE_ADD_TABLETS = 'UPDATE_ADD_TABLETS';
+export const UPDATE_REMOVE_TABLET = 'UPDATE_REMOVE_TABLET';
 
 // ////////////////////////////
 // Actions that change the Store
@@ -190,6 +192,7 @@ export function editIsPublic({
 	};
 }
 
+// Pattern charts
 // Weaving
 export function updateWeavingCell(data) {
 	return {
@@ -358,7 +361,6 @@ export function addTablets({
 	insertTabletsAt,
 }) {
 	return (dispatch) => {
-		console.log('id', _id);
 		Meteor.call('pattern.edit', {
 			_id,
 			'data': {
@@ -377,11 +379,19 @@ export function addTablets({
 	};
 }
 
+// remove tablet
+export function updateRemoveTablet(data) {
+	return {
+		'type': 'UPDATE_REMOVE_TABLET',
+		'payload': data,
+	};
+}
+
 export function removeTablet({
 	_id,
 	tablet,
 }) {
-	return () => {
+	return (dispatch) => {
 		Meteor.call('pattern.edit', {
 			_id,
 			tablet,
@@ -390,6 +400,10 @@ export function removeTablet({
 				tablet,
 			},
 		});
+
+		dispatch(updateRemoveTablet({
+			tablet,
+		}));
 	};
 }
 
@@ -686,8 +700,7 @@ export default function pattern(state = initialPatternState, action) {
 				threading,
 				weavingInstructionsByTablet,
 			} = state;
-
-			const newTablet = [];
+console.log('insertTabletsAt', insertTabletsAt);
 			const newThreading = [...threading];
 			const newOrientations = [...orientations];
 			const newWeavingInstructionsByTablet = [...weavingInstructionsByTablet];
@@ -696,36 +709,71 @@ export default function pattern(state = initialPatternState, action) {
 				'numberOfTurns': DEFAULT_NUMBER_OF_TURNS,
 			};
 			const newPicks = [...picks];
-
-			for (let i = 0; i < holes; i += 1) {
-				newTablet.push(colorIndex);
-			}
-
-			for (let i = 0; i < holes; i += 1) {
-				const newThreadingRow = [...newThreading[i]];
-				newThreadingRow.splice(insertTabletsAt, 0, colorIndex);
-				newThreading[i] = newThreadingRow;
-			}
+			const newNumberOfTablets = numberOfTablets + insertNTablets;
 
 			for (let i = 0; i < insertNTablets; i += 1) {
 				newOrientations.splice(insertTabletsAt, 0, DEFAULT_ORIENTATION);
 			}
 
-			for (let i = 0; i < insertTabletsAt; i += 1) {
-				newWeavingInstructionsByTablet.splice(insertTabletsAt, 0, obj);
+			for (let i = 0; i < insertNTablets; i += 1) {
+				for (let j = 0; j < holes; j += 1) {
+					const newThreadingRow = [...newThreading[j]];
+					newThreadingRow.splice(insertTabletsAt, 0, colorIndex);
+					newThreading[j] = newThreadingRow;
+				}
+
+				const newWeavingInstructionsForTablet = [];
+				for (let j = 0; j < numberOfRows; j += 1) {
+					newWeavingInstructionsForTablet.push(obj);
+				}
+
+				newWeavingInstructionsByTablet.splice(insertTabletsAt, 0, newWeavingInstructionsForTablet);
 			}
 
-			for (let i = 0; i < insertTabletsAt; i += 1) {
-				const picksForTablet = reCalculatePicksForTablet({
-					'currentPicks': [],
+			for (let i = 0; i < insertNTablets; i += 1) {
+				console.log('i', i);
+				const picksForTablet = calculatePicksForTablet({
 					'weavingInstructionsForTablet': newWeavingInstructionsByTablet[i],
-					'row': 0,
 				});
-
+console.log('found picksForTablet', picksForTablet);
 				newPicks.splice(i, 0, picksForTablet);
 			}
 
-			const newNumberOfTablets = numberOfTablets + insertNTablets;
+			return updeep({
+				'numberOfTablets': newNumberOfTablets,
+				'orientations': newOrientations,
+				'threading': newThreading,
+				'weavingInstructionsByTablet': newWeavingInstructionsByTablet,
+				'picks': newPicks,
+			}, state);
+		}
+
+		case UPDATE_REMOVE_TABLET: {
+			const { tablet } = action.payload;
+			const {
+				holes,
+				numberOfTablets,
+				orientations,
+				picks,
+				threading,
+				weavingInstructionsByTablet,
+			} = state;
+
+			const newPicks = [...picks];
+			const newWeavingInstructionsByTablet = [...weavingInstructionsByTablet];
+			const newThreading = [...threading];
+			const newOrientations = [...orientations];
+			const newNumberOfTablets = numberOfTablets - 1;
+
+			newPicks.splice(tablet, 1);
+			newWeavingInstructionsByTablet.splice(tablet, 1);
+			newOrientations.splice(tablet, 1);
+
+			for (let i = 0; i < holes; i += 1) {
+				const newThreadingRow = [...newThreading[i]];
+				newThreadingRow.splice(tablet, 1);
+				newThreading[i] = newThreadingRow;
+			}
 
 			return updeep({
 				'numberOfTablets': newNumberOfTablets,

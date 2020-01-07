@@ -509,8 +509,11 @@ Meteor.methods({
 				update.$set = {
 					'numberOfTablets': pattern.numberOfTablets + insertNTablets,
 				};
-
-				return Patterns.update({ _id }, update, { 'bypassCollection2': true }); //TO DO figure out why the schema prevents this
+				return Patterns.update(
+					{ _id },
+					update,
+					{ 'bypassCollection2': true },
+				); // schema rejects the operation. This may be a bug in Simple Schema; I have logged in issue
 
 
 			case 'removeTablet':
@@ -544,7 +547,11 @@ Meteor.methods({
 						throw new Meteor.Error('remove-tablet-unknown-pattern-type', `Unable to remove tablet because the pattern type ${patternType} was not recognised`);
 				}
 
-				Patterns.update({ _id }, update1);
+				Patterns.update(
+					{ _id },
+					update1,
+					{ 'bypassCollection2': true },
+				);
 
 				const update2 = {};
 
@@ -568,7 +575,12 @@ Meteor.methods({
 						break;
 				}
 
-				return Patterns.update({ _id }, update2);
+				return Patterns.update(
+					{ _id },
+					update2,
+					{ 'bypassCollection2': true },
+				);
+				// schema rejects the operation. This may be a bug in Simple Schema; I have logged in issue
 
 			case 'paletteColor':
 				({ colorHexValue, colorIndex } = data);

@@ -98,7 +98,7 @@ export const reCalculatePicksForTablet = ({
 }) => {
 	const picks = [...currentPicks];
 	const numberOfRows = weavingInstructionsForTablet.length;
-
+console.log('reCalculatePicksForTablet, row', row);
 	for (let i = row; i < numberOfRows; i += 1) {
 		const { direction, numberOfTurns } = weavingInstructionsForTablet[i];
 
@@ -127,6 +127,44 @@ export const reCalculatePicksForTablet = ({
 		});
 	}
 
+	return picks;
+};
+
+export const calculatePicksForTablet = ({
+	weavingInstructionsForTablet,
+}) => {
+	console.log('weavingInstructionsForTablet', weavingInstructionsForTablet);
+	const picks = [];
+	const numberOfRows = weavingInstructionsForTablet.length;
+console.log('numberOfRows', numberOfRows);
+	for (let i = 0; i < numberOfRows; i += 1) {
+		const { direction, numberOfTurns } = weavingInstructionsForTablet[i];
+
+		let adjustedDirection = direction;
+
+		// idle tablet
+		if (numberOfTurns === 0) {
+			if (i === 0) {
+				// first row: take direction from the following pick
+				// because idle, forward is the same as forward, idle
+				// will fail if pattern starts with two idles
+				// but that doesn't seem a common scenario
+				adjustedDirection = weavingInstructionsForTablet[i + 1].direction;
+			} else {
+				// use direction of previous row
+				adjustedDirection = picks[i - 1].direction;
+			}
+		}
+
+		picks[i] = turnTablet({
+			'direction': adjustedDirection,
+			'numberOfTurns': numberOfTurns,
+			'totalTurns': i === 0
+				? 0
+				: picks[i - 1].totalTurns,
+		});
+	}
+console.log('about to return picks', picks);
 	return picks;
 };
 
@@ -220,7 +258,7 @@ export const getPrevColor = ({
 export const findPatternTwist = (holes, picksByTablet) => {
 	let patternWillRepeat = false;
 	let patternIsTwistNeutral = false;
-
+console.log('findPatternTwist, picksByTablet', picksByTablet);
 	if (picksByTablet[0]) {
 		patternWillRepeat = true;
 		patternIsTwistNeutral = true;
@@ -229,6 +267,8 @@ export const findPatternTwist = (holes, picksByTablet) => {
 		const numberOfTablets = picksByTablet.length;
 
 		for (let j = 0; j < numberOfTablets; j += 1) {
+			console.log('j', j);
+			console.log('numberOfRows - 1', numberOfRows - 1);
 			const { totalTurns } = picksByTablet[j][numberOfRows - 1];
 			const startPosition = modulus(totalTurns, holes) === 0; // tablet is back at start position
 
