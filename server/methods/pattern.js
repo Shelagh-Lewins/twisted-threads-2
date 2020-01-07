@@ -325,7 +325,7 @@ Meteor.methods({
 				check(direction, nonEmptyStringCheck);
 				check(row, Match.Integer);
 				check(tablet, validTabletsCheck);
-//console.log('method', direction);
+
 				switch (patternType) {
 					case 'individual':
 						return Patterns.update({ _id }, { '$set': { [`patternDesign.weavingInstructions.${row}.${tablet}.direction`]: direction } });

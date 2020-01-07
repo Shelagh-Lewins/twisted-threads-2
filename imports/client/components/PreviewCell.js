@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import PreviewSVG from './PreviewSVG';
 
 import {
+	getNumberOfRows,
 	getOrientationForTablet,
 	getPicksForTablet,
 	getThreadingForTablet,
@@ -15,6 +16,7 @@ class PreviewCell extends PureComponent {
 			currentRepeat,
 			holes,
 			numberOfRepeats,
+			numberOfRows,
 			orientation,
 			palette,
 			patternWillRepeat,
@@ -29,6 +31,7 @@ class PreviewCell extends PureComponent {
 				currentRepeat={currentRepeat}
 				holes={holes}
 				numberOfRepeats={numberOfRepeats}
+				numberOfRows={numberOfRows}
 				orientation={orientation}
 				palette={palette}
 				patternWillRepeat={patternWillRepeat}
@@ -45,6 +48,7 @@ PreviewCell.propTypes = {
 	'currentRepeat': PropTypes.number.isRequired,
 	'holes': PropTypes.number.isRequired,
 	'numberOfRepeats': PropTypes.number.isRequired,
+	'numberOfRows': PropTypes.number.isRequired,
 	'orientation': PropTypes.string.isRequired,
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'patternWillRepeat': PropTypes.bool.isRequired,
@@ -58,6 +62,7 @@ function mapStateToProps(state, ownProps) {
 	const { tabletIndex } = ownProps;
 
 	return {
+		'numberOfRows': getNumberOfRows(state),
 		'orientation': getOrientationForTablet(state, tabletIndex),
 		'picksForTablet': getPicksForTablet(state, tabletIndex),
 		'threadingForTablet': getThreadingForTablet(state, tabletIndex),

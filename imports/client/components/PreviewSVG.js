@@ -147,7 +147,7 @@ export default function PreviewSVG({
 PreviewSVG.propTypes = {
 	'currentRepeat': PropTypes.number.isRequired,
 	'numberOfRepeats': PropTypes.number.isRequired,
-	// 'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
+	'numberOfRows': PropTypes.number.isRequired,
 	'patternWillRepeat': PropTypes.bool.isRequired,
 	'picksForTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'rowIndex': PropTypes.number.isRequired,
