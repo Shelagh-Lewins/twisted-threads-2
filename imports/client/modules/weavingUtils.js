@@ -98,7 +98,7 @@ export const reCalculatePicksForTablet = ({
 }) => {
 	const picks = [...currentPicks];
 	const numberOfRows = weavingInstructionsForTablet.length;
-console.log('reCalculatePicksForTablet, row', row);
+
 	for (let i = row; i < numberOfRows; i += 1) {
 		const { direction, numberOfTurns } = weavingInstructionsForTablet[i];
 
@@ -130,13 +130,13 @@ console.log('reCalculatePicksForTablet, row', row);
 	return picks;
 };
 
+// calculate picks for tablet from weaving instructions
 export const calculatePicksForTablet = ({
 	weavingInstructionsForTablet,
 }) => {
-	console.log('weavingInstructionsForTablet', weavingInstructionsForTablet);
 	const picks = [];
 	const numberOfRows = weavingInstructionsForTablet.length;
-console.log('numberOfRows', numberOfRows);
+
 	for (let i = 0; i < numberOfRows; i += 1) {
 		const { direction, numberOfTurns } = weavingInstructionsForTablet[i];
 
@@ -164,7 +164,7 @@ console.log('numberOfRows', numberOfRows);
 				: picks[i - 1].totalTurns,
 		});
 	}
-console.log('about to return picks', picks);
+
 	return picks;
 };
 
@@ -258,7 +258,7 @@ export const getPrevColor = ({
 export const findPatternTwist = (holes, picksByTablet) => {
 	let patternWillRepeat = false;
 	let patternIsTwistNeutral = false;
-console.log('findPatternTwist, picksByTablet', picksByTablet);
+
 	if (picksByTablet[0]) {
 		patternWillRepeat = true;
 		patternIsTwistNeutral = true;
@@ -267,8 +267,6 @@ console.log('findPatternTwist, picksByTablet', picksByTablet);
 		const numberOfTablets = picksByTablet.length;
 
 		for (let j = 0; j < numberOfTablets; j += 1) {
-			console.log('j', j);
-			console.log('numberOfRows - 1', numberOfRows - 1);
 			const { totalTurns } = picksByTablet[j][numberOfRows - 1];
 			const startPosition = modulus(totalTurns, holes) === 0; // tablet is back at start position
 
@@ -339,7 +337,7 @@ export const getThread = ({
 	} else if (orientation === '/') {
 		threadAngle = '\\';
 	}
-//console.log('get thread 3');
+
 	return {
 		colorIndex,
 		holeToShow,

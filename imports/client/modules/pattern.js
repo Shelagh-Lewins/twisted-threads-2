@@ -213,7 +213,7 @@ export function editWeavingCellDirection({
 		Meteor.call('pattern.edit', {
 			_id,
 			'data': {
-				'type': 'updateWeavingCellDirection',
+				'type': 'editWeavingCellDirection',
 				row,
 				tablet,
 				direction,
@@ -565,20 +565,21 @@ export default function pattern(state = initialPatternState, action) {
 			const obj = { ...weavingInstructionsByTablet[tablet][row] };
 			const modName = Object.keys(modification)[0];
 			obj[modName] = modification[modName];
-
+//console.log('original weaving', weavingInstructionsByTablet[tablet]);
 			// to calculate new picks for this tablet
 			const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tablet]];
 
 			weavingInstructionsForTablet[row] = obj;
-
+			//console.log('new weaving', weavingInstructionsForTablet);
+//console.log('currentPicks', state.picks[tablet]);
 			const picksForTablet = reCalculatePicksForTablet({
 				'currentPicks': state.picks[tablet],
 				weavingInstructionsForTablet,
 				row,
 			});
-
+//console.log('picksForTablet', picksForTablet);
 			return updeep({
-				'weavingInstructionsByTablet': { [row]: { [tablet]: obj } },
+				'weavingInstructionsByTablet': { [tablet]: { [row]: obj } },
 				'picks': { [tablet]: picksForTablet },
 			}, state);
 		}
@@ -700,7 +701,7 @@ export default function pattern(state = initialPatternState, action) {
 				threading,
 				weavingInstructionsByTablet,
 			} = state;
-console.log('insertTabletsAt', insertTabletsAt);
+
 			const newThreading = [...threading];
 			const newOrientations = [...orientations];
 			const newWeavingInstructionsByTablet = [...weavingInstructionsByTablet];
@@ -731,11 +732,10 @@ console.log('insertTabletsAt', insertTabletsAt);
 			}
 
 			for (let i = 0; i < insertNTablets; i += 1) {
-				console.log('i', i);
 				const picksForTablet = calculatePicksForTablet({
 					'weavingInstructionsForTablet': newWeavingInstructionsByTablet[i],
 				});
-console.log('found picksForTablet', picksForTablet);
+
 				newPicks.splice(i, 0, picksForTablet);
 			}
 
