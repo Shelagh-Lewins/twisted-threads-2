@@ -7,6 +7,9 @@ import {
 	getOrientationForTablet,
 	getPick,
 	getThreadingForTablet,
+	makeGetPick,
+	makeUniqueSelectorInstance,
+	getPickCached,
 } from '../modules/pattern';
 import {
 	modulus,
@@ -14,16 +17,20 @@ import {
 
 class WeavingChartCell extends PureComponent {
 	render() {
+		console.log('render');
 		const {
+			direction,
 			holes,
+			numberOfTurns,
 			orientation,
 			palette,
 			pick,
 			tabletIndex,
 			threadingForTablet,
+			totalTurns,
 		} = this.props;
 
-		const { direction, numberOfTurns, totalTurns } = pick;
+		// const { direction, numberOfTurns, totalTurns } = pick;
 
 		const netTurns = modulus(totalTurns, holes);
 
@@ -68,11 +75,17 @@ WeavingChartCell.propTypes = {
 
 function mapStateToProps(state, ownProps) {
 	const { rowIndex, tabletIndex } = ownProps;
+	const pick = getPickCached(state, `${tabletIndex}_${rowIndex}`);
+console.log('WeavingChartCell', `${tabletIndex}_${rowIndex}`);
 
 	return {
+		'direction': pick.direction,
+		'numberOfTurns': pick.numberOfTurns,
 		'orientation': getOrientationForTablet(state, tabletIndex),
-		'pick': getPick(state, rowIndex, tabletIndex),
+		'pick': pick,
+		// 'pick': getPick(state, rowIndex, tabletIndex),
 		'threadingForTablet': getThreadingForTablet(state, tabletIndex),
+		'totalTurns': pick.totalTurns,
 	};
 }
 

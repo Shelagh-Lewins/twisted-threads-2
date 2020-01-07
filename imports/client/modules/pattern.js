@@ -15,6 +15,8 @@ import {
 	DEFAULT_NUMBER_OF_TURNS,
 	DEFAULT_ORIENTATION,
 } from '../../modules/parameters';
+import { createSelector } from 'reselect';
+import createCachedSelector from 're-reselect';
 
 const updeep = require('updeep');
 
@@ -123,9 +125,63 @@ export const getNumberOfRows = (state) => state.pattern.numberOfRows || 0;
 
 export const getNumberOfTablets = (state) => state.pattern.numberOfTablets || 0;
 
-export const getPick = (state, rowIndex, tabletIndex) => state.pattern.picks[tabletIndex][rowIndex];
+export const getPick = (state, rowIndex, tabletIndex) => {
+	//console.log('*** getPick');
+	//console.log('rowIndex', rowIndex);
+	//console.log('tabletIndex', tabletIndex);
+	return state.pattern.picks[tabletIndex][rowIndex];
+}
 
 export const getPicksForTablet = (state, tabletIndex) => state.pattern.picks[tabletIndex];
+
+// ///////////////////////
+export const getPicks = (state) => state.pattern.picks;
+export const selectTabletIndex = (state, tabletIndex) => tabletIndex;
+export const selectRowIndex = (state, rowIndex) => rowIndex;
+
+export const makeUniqueSelectorInstance = () => createSelector(
+    [getPicks, selectTabletIndex, selectRowIndex],
+    (picks, tabletIndex, rowIndex) => {
+    	console.log('*** makeUniqueSelectorInstance');
+	//console.log('rowIndex', rowIndex);
+	//console.log('tabletIndex', tabletIndex);
+    	return picks[tabletIndex][rowIndex];
+    }
+);  
+
+export const makeGetPick = (state, rowIndex, tabletIndex) => createSelector(
+	[],
+	() => {
+		console.log('*** makeGetPick');
+	console.log('rowIndex', rowIndex);
+	console.log('tabletIndex', tabletIndex);
+		return state.pattern.picks[tabletIndex][rowIndex];
+	}
+);
+
+
+// user re-reselect to cache individual picks
+export const getPickFromCache = (state, identifier) => {
+	const identifiers = identifier.split('_');
+
+	return state.pattern.picks[identifiers[0]][identifiers[1]];
+};
+
+export const getPickCached = createCachedSelector(
+  getPickFromCache,
+
+  // resultFunc
+  (pick) => pick,
+)(
+  // re-reselect keySelector (receives selectors' arguments)
+  // Use "tabletIndex_rowIndex" as cacheKey
+  // re-reselect only accepts string as cacheKey
+  (_state_, identifier) => identifier
+);
+
+// ///////////////////////////////////
+
+
 
 export const getTotalTurnsByTablet = (state) => state.pattern.picks.map((picksForTablet) => picksForTablet[state.pattern.numberOfRows - 1].totalTurns);
 
