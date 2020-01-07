@@ -24,7 +24,8 @@ export const SET_PATTERN_DATA = 'SET_PATTERN_DATA';
 
 // edit pattern charts
 export const UPDATE_WEAVING_CELL = 'UPDATE_WEAVING_CELL';
-export const UPDATE_WEAVING_CELL_TURNS = 'UPDATE_WEAVING_CELL_TURNS';
+export const UPDATE_THREADING_CELL = 'UPDATE_THREADING_CELL';
+export const UPDATE_ORIENTATION = 'UPDATE_ORIENTATION';
 
 // ////////////////////////////
 // Actions that change the Store
@@ -129,7 +130,7 @@ export const getOrientationForTablet = (state, tabletIndex) => state.pattern.ori
 export const getPatternTwist = (state) => findPatternTwist(state.pattern.holes, state.pattern.picks);
 
 // ///////////////////////////
-// Action that call Meteor methods; these do not change the Store but are located here in order to keep server interactions away from UI
+// Action that call Meteor methods; teh
 
 export const addPattern = (data, history) => (dispatch) => {
 	dispatch(clearErrors());
@@ -219,13 +220,6 @@ export function editWeavingCellDirection({
 }
 
 // number of turns
-export function updateWeavingCellTurns(data) {
-	return {
-		'type': 'UPDATE_WEAVING_CELL_TURNS',
-		'payload': data,
-	};
-}
-
 export function editWeavingCellNumberOfTurns({
 	_id,
 	row,
@@ -284,13 +278,20 @@ export function removeWeavingRow({
 }
 
 // Threading
+export function updateThreadingCell(data) {
+	return {
+		'type': 'UPDATE_THREADING_CELL',
+		'payload': data,
+	};
+}
+
 export function editThreadingCell({
 	_id,
 	hole,
 	tablet,
 	colorIndex,
 }) {
-	return () => {
+	return (dispatch) => {
 		Meteor.call('pattern.edit', {
 			_id,
 			'data': {
@@ -300,6 +301,12 @@ export function editThreadingCell({
 				colorIndex,
 			},
 		});
+
+		dispatch(updateThreadingCell({
+			hole,
+			tablet,
+			colorIndex,
+		}));
 	};
 }
 
@@ -339,18 +346,35 @@ export function removeTablet({
 }
 
 // Tablet orientation
+export function updateOrientation(data) {
+	return {
+		'type': 'UPDATE_ORIENTATION',
+		'payload': data,
+	};
+}
+
 export function editOrientation({
 	_id,
 	tablet,
 }) {
-	return () => {
+	return (dispatch, getState) => {
+		const currentOrientation = getState().pattern.orientations[tablet];
+
+		const tabletOrientation = currentOrientation === '\\' ? '/' : '\\';
+
 		Meteor.call('pattern.edit', {
 			_id,
 			'data': {
 				'type': 'orientation',
 				tablet,
+				tabletOrientation,
 			},
 		});
+
+		dispatch(updateOrientation({
+			tablet,
+			tabletOrientation,
+		}));
 	};
 }
 
@@ -491,6 +515,33 @@ export default function pattern(state = initialPatternState, action) {
 
 			return updeep({
 				'weavingInstructionsByTablet': { [row]: { [tablet]: obj } },
+				'picks': { [tablet]: picksForTablet },
+			}, state);
+		}
+
+		case UPDATE_THREADING_CELL: {
+			const { hole, tablet, colorIndex } = action.payload;
+
+			return updeep({
+				'threading': { [hole]: { [tablet]: colorIndex } },
+			}, state);
+		}
+
+		case UPDATE_ORIENTATION: {
+			const { tablet, tabletOrientation } = action.payload;
+			const { weavingInstructionsByTablet } = state;
+
+			// to calculate new picks for this tablet
+			const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tablet]];
+			// weavingInstructionsForTablet[row] = obj;
+			const picksForTablet = reCalculatePicksForTablet({
+				'currentPicks': state.picks[tablet],
+				weavingInstructionsForTablet,
+				'row': 0,
+			});
+
+			return updeep({
+				'orientations': { [tablet]: tabletOrientation },
 				'picks': { [tablet]: picksForTablet },
 			}, state);
 		}

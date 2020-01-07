@@ -304,6 +304,7 @@ Meteor.methods({
 		let orientation;
 		let row;
 		let tablet;
+		let tabletOrientation;
 		let fieldValue;
 
 		switch (type) {
@@ -592,17 +593,15 @@ Meteor.methods({
 				return Patterns.update({ _id }, { '$set': { 'weftColor': colorIndex } });
 
 			case 'orientation':
-				({ tablet } = data);
+				({ tablet, tabletOrientation } = data);
 				check(tablet, validTabletsCheck);
 
 				if (tablet >= numberOfTablets) {
 					throw new Meteor.Error('edit-pattern-invalid-tablet', 'Unable to edit pattern because an invalid tablet number was specified');
 				}
 
-				const newOrientation = pattern.orientations[tablet] === '\\' ? '/' : '\\';
-
 				// update the value in the nested arrays
-				return Patterns.update({ _id }, { '$set': { [`orientations.${tablet}`]: newOrientation } });
+				return Patterns.update({ _id }, { '$set': { [`orientations.${tablet}`]: tabletOrientation } });
 
 			case 'previewOrientation':
 				({ orientation } = data);
