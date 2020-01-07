@@ -510,7 +510,7 @@ Meteor.methods({
 					'numberOfTablets': pattern.numberOfTablets + insertNTablets,
 				};
 
-				return Patterns.update({ _id }, update);
+				return Patterns.update({ _id }, update, { 'bypassCollection2': true }); //TO DO figure out why the schema prevents this
 
 
 			case 'removeTablet':

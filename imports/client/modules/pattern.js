@@ -10,7 +10,6 @@ import {
 	reCalculatePicksForTablet,
 } from './weavingUtils';
 import {
-	DEFAULT_COLOR,
 	DEFAULT_DIRECTION,
 	DEFAULT_NUMBER_OF_TURNS,
 	DEFAULT_ORIENTATION,
@@ -34,6 +33,7 @@ export const UPDATE_THREADING_CELL = 'UPDATE_THREADING_CELL';
 export const UPDATE_ORIENTATION = 'UPDATE_ORIENTATION';
 export const UPDATE_ADD_WEAVING_ROWS = 'UPDATE_ADD_WEAVING_ROWS';
 export const UPDATE_REMOVE_WEAVING_ROW = 'UPDATE_REMOVE_WEAVING_ROW';
+export const UPDATE_ADD_TABLETS = 'UPDATE_ADD_TABLETS';
 
 // ////////////////////////////
 // Actions that change the Store
@@ -343,13 +343,22 @@ export function editThreadingCell({
 	};
 }
 
+// add tablets
+export function updateAddTablets(data) {
+	return {
+		'type': 'UPDATE_ADD_TABLETS',
+		'payload': data,
+	};
+}
+
 export function addTablets({
 	_id,
 	colorIndex,
 	insertNTablets,
 	insertTabletsAt,
 }) {
-	return () => {
+	return (dispatch) => {
+		console.log('id', _id);
 		Meteor.call('pattern.edit', {
 			_id,
 			'data': {
@@ -359,6 +368,12 @@ export function addTablets({
 				insertTabletsAt,
 			},
 		});
+
+		dispatch(updateAddTablets({
+			colorIndex,
+			insertNTablets,
+			insertTabletsAt,
+		}));
 	};
 }
 
@@ -586,6 +601,7 @@ export default function pattern(state = initialPatternState, action) {
 			const {
 				numberOfRows,
 				numberOfTablets,
+				picks,
 				weavingInstructionsByTablet,
 			} = state;
 
@@ -606,7 +622,7 @@ export default function pattern(state = initialPatternState, action) {
 				}
 
 				const picksForTablet = reCalculatePicksForTablet({
-					'currentPicks': state.picks[i],
+					'currentPicks': picks[i],
 					'weavingInstructionsForTablet': newWeavingInstructionsForTablet,
 					'row': insertRowsAt,
 				});
@@ -654,6 +670,67 @@ export default function pattern(state = initialPatternState, action) {
 
 			return updeep({
 				'numberOfRows': newNumberOfRows,
+				'weavingInstructionsByTablet': newWeavingInstructionsByTablet,
+				'picks': newPicks,
+			}, state);
+		}
+
+		case UPDATE_ADD_TABLETS: {
+			const { colorIndex, insertNTablets, insertTabletsAt } = action.payload;
+			const {
+				holes,
+				numberOfRows,
+				numberOfTablets,
+				orientations,
+				picks,
+				threading,
+				weavingInstructionsByTablet,
+			} = state;
+
+			const newTablet = [];
+			const newThreading = [...threading];
+			const newOrientations = [...orientations];
+			const newWeavingInstructionsByTablet = [...weavingInstructionsByTablet];
+			const obj = {
+				'direction': DEFAULT_DIRECTION,
+				'numberOfTurns': DEFAULT_NUMBER_OF_TURNS,
+			};
+			const newPicks = [...picks];
+
+			for (let i = 0; i < holes; i += 1) {
+				newTablet.push(colorIndex);
+			}
+
+			for (let i = 0; i < holes; i += 1) {
+				const newThreadingRow = [...newThreading[i]];
+				newThreadingRow.splice(insertTabletsAt, 0, colorIndex);
+				newThreading[i] = newThreadingRow;
+			}
+
+			for (let i = 0; i < insertNTablets; i += 1) {
+				newOrientations.splice(insertTabletsAt, 0, DEFAULT_ORIENTATION);
+			}
+
+			for (let i = 0; i < insertTabletsAt; i += 1) {
+				newWeavingInstructionsByTablet.splice(insertTabletsAt, 0, obj);
+			}
+
+			for (let i = 0; i < insertTabletsAt; i += 1) {
+				const picksForTablet = reCalculatePicksForTablet({
+					'currentPicks': [],
+					'weavingInstructionsForTablet': newWeavingInstructionsByTablet[i],
+					'row': 0,
+				});
+
+				newPicks.splice(i, 0, picksForTablet);
+			}
+
+			const newNumberOfTablets = numberOfTablets + insertNTablets;
+
+			return updeep({
+				'numberOfTablets': newNumberOfTablets,
+				'orientations': newOrientations,
+				'threading': newThreading,
 				'weavingInstructionsByTablet': newWeavingInstructionsByTablet,
 				'picks': newPicks,
 			}, state);

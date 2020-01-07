@@ -99,7 +99,7 @@ class Threading extends PureComponent {
 	handleSubmitAddTablets(data) {
 		const { dispatch, 'patternId': _id } = this.props;
 		const { selectedColorIndex } = this.state;
-
+console.log('in component', _id);
 		dispatch(addTablets({
 			_id,
 			'insertNTablets': parseInt(data.insertNTablets, 10),
