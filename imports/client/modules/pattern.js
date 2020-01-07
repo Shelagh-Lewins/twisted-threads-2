@@ -9,6 +9,12 @@ import {
 	getWeavingInstructionsByTablet,
 	reCalculatePicksForTablet,
 } from './weavingUtils';
+import {
+	DEFAULT_COLOR,
+	DEFAULT_DIRECTION,
+	DEFAULT_NUMBER_OF_TURNS,
+	DEFAULT_ORIENTATION,
+} from '../../modules/parameters';
 
 const updeep = require('updeep');
 
@@ -26,6 +32,8 @@ export const SET_PATTERN_DATA = 'SET_PATTERN_DATA';
 export const UPDATE_WEAVING_CELL = 'UPDATE_WEAVING_CELL';
 export const UPDATE_THREADING_CELL = 'UPDATE_THREADING_CELL';
 export const UPDATE_ORIENTATION = 'UPDATE_ORIENTATION';
+export const UPDATE_ADD_WEAVING_ROWS = 'UPDATE_ADD_WEAVING_ROWS';
+export const UPDATE_REMOVE_WEAVING_ROW = 'UPDATE_REMOVE_WEAVING_ROW';
 
 // ////////////////////////////
 // Actions that change the Store
@@ -245,12 +253,20 @@ export function editWeavingCellNumberOfTurns({
 	};
 }
 
+// add weaving rows
+export function updateAddWeavingRows(data) {
+	return {
+		'type': 'UPDATE_ADD_WEAVING_ROWS',
+		'payload': data,
+	};
+}
+
 export function addWeavingRows({
 	_id,
 	insertNRows,
 	insertRowsAt,
 }) {
-	return () => {
+	return (dispatch) => {
 		Meteor.call('pattern.edit', {
 			_id,
 			'data': {
@@ -259,6 +275,19 @@ export function addWeavingRows({
 				insertRowsAt,
 			},
 		});
+
+		dispatch(updateAddWeavingRows({
+			insertNRows,
+			insertRowsAt,
+		}));
+	};
+}
+
+// remove weaving rows
+export function updateRemoveWeavingRow(data) {
+	return {
+		'type': 'UPDATE_REMOVE_WEAVING_ROW',
+		'payload': data,
 	};
 }
 
@@ -266,7 +295,7 @@ export function removeWeavingRow({
 	_id,
 	row,
 }) {
-	return () => {
+	return (dispatch) => {
 		Meteor.call('pattern.edit', {
 			_id,
 			'data': {
@@ -274,6 +303,10 @@ export function removeWeavingRow({
 				row,
 			},
 		});
+
+		dispatch(updateRemoveWeavingRow({
+			row,
+		}));
 	};
 }
 
@@ -506,7 +539,9 @@ export default function pattern(state = initialPatternState, action) {
 
 			// to calculate new picks for this tablet
 			const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tablet]];
+
 			weavingInstructionsForTablet[row] = obj;
+
 			const picksForTablet = reCalculatePicksForTablet({
 				'currentPicks': state.picks[tablet],
 				weavingInstructionsForTablet,
@@ -543,6 +578,84 @@ export default function pattern(state = initialPatternState, action) {
 			return updeep({
 				'orientations': { [tablet]: tabletOrientation },
 				'picks': { [tablet]: picksForTablet },
+			}, state);
+		}
+
+		case UPDATE_ADD_WEAVING_ROWS: {
+			const { insertNRows, insertRowsAt } = action.payload;
+			const {
+				numberOfRows,
+				numberOfTablets,
+				weavingInstructionsByTablet,
+			} = state;
+
+			// individual weaving instruction
+			const obj = {
+				'direction': DEFAULT_DIRECTION,
+				'numberOfTurns': DEFAULT_NUMBER_OF_TURNS,
+			};
+
+			const newPicks = [];
+			const newWeavingInstructionsByTablet = [];
+
+			for (let i = 0; i < numberOfTablets; i += 1) {
+				const newWeavingInstructionsForTablet = [...weavingInstructionsByTablet[i]];
+
+				for (let j = 0; j < insertNRows; j += 1) {
+					newWeavingInstructionsForTablet.splice(insertRowsAt, 0, obj);
+				}
+
+				const picksForTablet = reCalculatePicksForTablet({
+					'currentPicks': state.picks[i],
+					'weavingInstructionsForTablet': newWeavingInstructionsForTablet,
+					'row': insertRowsAt,
+				});
+
+				newWeavingInstructionsByTablet.push(newWeavingInstructionsForTablet);
+				newPicks.push(picksForTablet);
+			}
+
+			const newNumberOfRows = numberOfRows + insertNRows;
+
+			return updeep({
+				'numberOfRows': newNumberOfRows,
+				'weavingInstructionsByTablet': newWeavingInstructionsByTablet,
+				'picks': newPicks,
+			}, state);
+		}
+
+		case UPDATE_REMOVE_WEAVING_ROW: {
+			const { row } = action.payload;
+			const {
+				numberOfRows,
+				numberOfTablets,
+				weavingInstructionsByTablet,
+			} = state;
+
+			const newPicks = [];
+			const newWeavingInstructionsByTablet = [];
+
+			for (let i = 0; i < numberOfTablets; i += 1) {
+				const newWeavingInstructionsForTablet = [...weavingInstructionsByTablet[i]];
+
+				newWeavingInstructionsForTablet.splice(row, 1);
+
+				const picksForTablet = reCalculatePicksForTablet({
+					'currentPicks': state.picks[i],
+					'weavingInstructionsForTablet': newWeavingInstructionsForTablet,
+					'row': row,
+				});
+
+				newWeavingInstructionsByTablet.push(newWeavingInstructionsForTablet);
+				newPicks.push(picksForTablet);
+			}
+
+			const newNumberOfRows = numberOfRows - 1;
+
+			return updeep({
+				'numberOfRows': newNumberOfRows,
+				'weavingInstructionsByTablet': newWeavingInstructionsByTablet,
+				'picks': newPicks,
 			}, state);
 		}
 
