@@ -26,25 +26,38 @@ export default function ChartSVG(props) {
 		orientation,
 		palette,
 		tabletIndex,
+		threadDetails, // used to optimise Threading chart
 		threadingForTablet,
 	} = props;
 
 	let svg = null;
 
-	const {
-		colorIndex,
-		holeToShow,
-		threadAngle,
-		threadColor,
-	} = getThread({
-		direction,
-		EMPTY_HOLE_COLOR,
-		holes,
-		netTurns,
-		orientation,
-		palette,
-		threadingForTablet,
-	});
+	let colorIndex;
+	let holeToShow;
+	let threadAngle;
+	let threadColor;
+
+	if (threadDetails) {
+		colorIndex = threadDetails.colorIndex;
+		holeToShow = threadDetails.holeToShow;
+		threadAngle = threadDetails.threadAngle;
+		threadColor = threadDetails.threadColor;
+	} else {
+		const result = getThread({
+			direction,
+			EMPTY_HOLE_COLOR,
+			holes,
+			netTurns,
+			orientation,
+			palette,
+			threadingForTablet,
+		});
+
+		colorIndex = result.colorIndex;
+		holeToShow = result.holeToShow;
+		threadAngle = result.threadAngle;
+		threadColor = result.threadColor;
+	}
 
 	// choose the svg graphic to represent this pick on the weaving chart
 	if (numberOfTurns === 0) {
@@ -142,6 +155,7 @@ export default function ChartSVG(props) {
 	return svg;
 }
 
+// one of threadDetails and threadingForTablet must be provided
 ChartSVG.propTypes = {
 	'direction': PropTypes.string.isRequired,
 	'holes': PropTypes.number.isRequired,
@@ -150,5 +164,6 @@ ChartSVG.propTypes = {
 	'orientation': PropTypes.string.isRequired,
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'tabletIndex': PropTypes.number.isRequired,
-	'threadingForTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'threadDetails': PropTypes.objectOf(PropTypes.any),
+	'threadingForTablet': PropTypes.arrayOf(PropTypes.any),
 };

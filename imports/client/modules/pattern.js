@@ -144,7 +144,7 @@ export const getTotalTurns = (state, rowIndex, tabletIndex) => state.pattern.pic
 
 export const totalTurns = (state, tabletIndex) => state.pattern.picks[tabletIndex].totalTurns;
 
-// export const getThreadingForCell = (state, tabletIndex, rowIndex) => state.patternObj.threading[rowIndex][tabletIndex];
+export const getThreadingForHole = (state, tabletIndex, holeIndex) => state.pattern.threadingByTablet[tabletIndex][holeIndex];
 
 // ///////////////////////
 // cached selectors to provide array props without triggering re-render

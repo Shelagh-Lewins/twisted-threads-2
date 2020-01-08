@@ -7,7 +7,7 @@ import {
 	getHoles,
 	getOrientationForTablet,
 	getPalette,
-	getThreadingForTabletCached,
+	getThreadingForHole,
 } from '../modules/pattern';
 
 function ThreadingChartCell(props) {
@@ -17,9 +17,21 @@ function ThreadingChartCell(props) {
 		palette,
 		rowIndex,
 		tabletIndex,
-		threadingForTablet,
+		threadingForHole,
 	} = props;
-	console.log('render ThreadingChartCell', props);
+
+	const holeToShow = rowIndex;
+	const colorIndex = threadingForHole;
+
+	// threading chart is always single turns forwards from home position
+	// so we don't need to pass the entire threading for the tablet, only the thread for this hole
+	// this means only the changed hole re-renders when the colour changes, not all four holes
+	const threadDetails = {
+		'colorIndex': colorIndex,
+		'holeToShow': holeToShow,
+		'threadAngle': orientation === '\\' ? '\\' : '/',
+		'threadColor': palette[colorIndex],
+	};
 
 	return (
 		<ChartSVG
@@ -30,7 +42,8 @@ function ThreadingChartCell(props) {
 			orientation={orientation}
 			palette={palette}
 			tabletIndex={tabletIndex}
-			threadingForTablet={threadingForTablet}
+			threadDetails={threadDetails}
+
 		/>
 	);
 }
@@ -41,7 +54,8 @@ ThreadingChartCell.propTypes = {
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'rowIndex': PropTypes.number.isRequired, // eslint-disable-line react/no-unused-prop-types
 	'tabletIndex': PropTypes.number.isRequired,
-	'threadingForTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'threadingForHole': PropTypes.number.isRequired,
+	// 'threadingForTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
@@ -51,7 +65,8 @@ function mapStateToProps(state, ownProps) {
 		'holes': getHoles(state),
 		'orientation': getOrientationForTablet(state, tabletIndex),
 		'palette': getPalette(state),
-		'threadingForTablet': getThreadingForTabletCached(state, tabletIndex),
+		'threadingForHole': getThreadingForHole(state, tabletIndex, rowIndex),
+		// 'threadingForTablet': getThreadingForTabletCached(state, tabletIndex),
 	};
 }
 

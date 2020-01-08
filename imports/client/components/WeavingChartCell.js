@@ -25,7 +25,7 @@ function WeavingChartCell(props) {
 		totalTurns,
 	} = props;
 
-	console.log('render WeavingChartCell', props);
+	// console.log('render WeavingChartCell', props);
 
 	const netTurns = modulus(totalTurns, holes);
 
