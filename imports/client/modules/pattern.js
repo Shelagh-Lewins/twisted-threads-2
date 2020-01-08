@@ -170,43 +170,37 @@ export const makeGetPick = (state, rowIndex, tabletIndex) => createSelector(
 );
 
 
-// user re-reselect to cache individual picks
-export const getPickFromCache = (state, identifier) => {
-	const identifiers = identifier.split('_');
+// user re-reselect to cache processed threading for tablet
+export const getThreadingForTabletAsString = (state, tabletIndex) => JSON.stringify(state.pattern.threading.map((threadingRow) => threadingRow[tabletIndex]));
 
-	return state.pattern.picks[identifiers[0]][identifiers[1]];
-};
+export const getThreadingForTabletCached = createCachedSelector(
+	getThreadingForTabletAsString,
 
-export const getPickCached = createCachedSelector(
-  getPickFromCache,
-
-  // resultFunc
-  (pick) => pick,
+	// resultFunc
+	(threading) => threading,
 )(
-  // re-reselect keySelector (receives selectors' arguments)
-  // Use "tabletIndex_rowIndex" as cacheKey
-  // re-reselect only accepts string as cacheKey
-  (_state_, identifier) => identifier
+ 	// re-reselect keySelector (receives selectors' arguments)
+	// Use "tabletIndex_rowIndex" as cacheKey
+	(_state_, tabletIndex) => tabletIndex,
 );
 
 // ///////////////////////////////////
-
-
-
 export const getTotalTurnsByTablet = (state) => state.pattern.picks.map((picksForTablet) => picksForTablet[state.pattern.numberOfRows - 1].totalTurns);
 
 export const getHoles = (state) => state.pattern.holes;
 
 export const getPalette = (state) => state.pattern.palette;
 
-export const getThreadingForTablet = (state, tabletIndex) => state.pattern.threading.map((threadingRow) => threadingRow[tabletIndex]);
+// passing an array triggers re-render even when there is no change
+export const getThreadingForTablet = (state, tabletIndex) => JSON.stringify(state.pattern.threading.map((threadingRow) => threadingRow[tabletIndex]));
 
 export const getOrientationForTablet = (state, tabletIndex) => state.pattern.orientations[tabletIndex];
 
 export const getPatternTwist = (state) => findPatternTwist(state.pattern.holes, state.pattern.picks);
 
 // ///////////////////////////
-// Action that call Meteor methods; teh
+// Action that call Meteor methods
+// if pattern chart data change, this will be updated in the Redux store
 
 export const addPattern = (data, history) => (dispatch) => {
 	dispatch(clearErrors());

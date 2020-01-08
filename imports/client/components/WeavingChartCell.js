@@ -11,6 +11,7 @@ import {
 	getThreadingForTablet,
 	getTotalTurns,
 	makeGetPick,
+	getThreadingForTabletCached,
 	makeUniqueSelectorInstance,
 	getPickCached,
 } from '../modules/pattern';
@@ -24,11 +25,19 @@ class WeavingChartCell extends PureComponent {
 		//console.log('componentDidUpdate');
 		//console.log('new', JSON.stringify(this.props));
 		//console.log('old', JSON.stringify(prevProps));
-		if (JSON.stringify(this.props) !== JSON.stringify(prevProps)) {
+		Object.keys(this.props).forEach((key) => {
+			if (this.props[key] !== prevProps[key]) {
+				console.log('change to ', key);
+				console.log('old value ', prevProps[key]);
+				console.log('new value ', this.props[key]);
+			}
+		});
+
+		/* if (JSON.stringify(this.props) !== JSON.stringify(prevProps)) {
 			console.log('changed props. Tablet, row', tabletIndex, rowIndex);
 			console.log('prevProps', prevProps);
 			console.log('this.props', this.props);
-		}
+		} */
 		//console.log('changed props', JSON.stringify(this.props) !== JSON.stringify(prevProps)) {
 			//console.log('changed. Tablet, row', tabletIndex, rowIndex););
 
@@ -37,11 +46,11 @@ class WeavingChartCell extends PureComponent {
 		//console.log('old', JSON.stringify(prevState));
 		//console.log('changed state', JSON.stringify(this.state) !== JSON.stringify(prevState));
 
-		if (JSON.stringify(this.state) !== JSON.stringify(prevState)) {
+		/* if (JSON.stringify(this.state) !== JSON.stringify(prevState)) {
 			console.log('changed state. Tablet, row', tabletIndex, rowIndex);
 			console.log('prevProps', prevProps);
 			console.log('this.props', this.props);
-		}
+		} */
 	}
 
 	render() {
@@ -51,7 +60,6 @@ class WeavingChartCell extends PureComponent {
 			numberOfTurns,
 			orientation,
 			palette,
-			pick,
 			tabletIndex,
 			threadingForTablet,
 			totalTurns,
@@ -85,7 +93,7 @@ class WeavingChartCell extends PureComponent {
 					orientation={orientation}
 					palette={palette}
 					tabletIndex={tabletIndex}
-					threadingForTablet={threadingForTablet}
+					threadingForTablet={JSON.parse(threadingForTablet)}
 				/>
 			</span>
 		);
@@ -93,30 +101,28 @@ class WeavingChartCell extends PureComponent {
 }
 
 WeavingChartCell.propTypes = {
-	'orientation': PropTypes.string.isRequired,
+	'direction': PropTypes.string.isRequired,
 	'holes': PropTypes.number.isRequired,
+	'numberOfTurns': PropTypes.number.isRequired,
+	'orientation': PropTypes.string.isRequired,
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'pick': PropTypes.objectOf(PropTypes.any),
 	'rowIndex': PropTypes.number.isRequired, // eslint-disable-line react/no-unused-prop-types
 	'tabletIndex': PropTypes.number.isRequired,
-	'threadingForTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'threadingForTablet': PropTypes.string.isRequired,
+	'totalTurns': PropTypes.number.isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
 	const { tabletIndex, rowIndex } = ownProps;
-	//const pick = getPickCached(state, `${tabletIndex}_${rowIndex}`);
-	//console.log('ownProps', ownProps);
-	//const pick = getPick(state, rowIndex, tabletIndex);
-//console.log('WeavingChartCell', `${tabletIndex}_${rowIndex}`);
+	const { direction, numberOfTurns, totalTurns } = state.pattern.picks[tabletIndex][rowIndex];
 
 	return {
-		'direction': state.pattern.picks[tabletIndex][rowIndex].direction,
-		'numberOfTurns': state.pattern.picks[tabletIndex][rowIndex].numberOfTurns,
-		'orientation': getOrientationForTablet(state, tabletIndex),
-		// 'pick': pick,
-		// 'pick': getPick(state, rowIndex, tabletIndex),
-		'threadingForTablet': getThreadingForTablet(state, tabletIndex),
-		'totalTurns': state.pattern.picks[tabletIndex][rowIndex].totalTurns,
+		'direction': direction,
+		'numberOfTurns': numberOfTurns,
+		// 'orientation': getOrientationForTablet(state, tabletIndex),
+		'orientation': '/',
+		'threadingForTablet': getThreadingForTabletCached(state, tabletIndex),
+		'totalTurns': totalTurns,
 	};
 }
 

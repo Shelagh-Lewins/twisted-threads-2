@@ -16,7 +16,8 @@ import './WeavingChart.scss';
 // but eslint doesn't pick this up
 /* eslint-disable jsx-a11y/no-noninteractive-tabindex */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
-
+// {/* holes={holes} */}
+// 					palette={palette}
 class WeavingChart extends PureComponent {
 	renderCell(rowIndex, tabletIndex) {
 		const { holes, palette } = this.props;
@@ -27,8 +28,27 @@ class WeavingChart extends PureComponent {
 				key={`weaving-cell-${rowIndex}-${tabletIndex}`}
 			>
 				<WeavingChartCell
-					holes={holes}
-					palette={palette}
+					
+					holes={4}
+					palette={[
+	'#7A1313',
+	'#C32828',
+	'#f98c03',
+	'#fbe158',
+	'#6aa84f',
+	'#1f6d1f',
+	'#172f79',
+	'#3670B4',
+	'#76bae6',
+	'#a67bc8',
+	'#9025c5',
+	'#000000',
+	'#828282',
+	'#ffffff',
+	'#523f12',
+	'#aa8e4b',
+]}
+
 					rowIndex={rowIndex}
 					tabletIndex={tabletIndex}
 				/>

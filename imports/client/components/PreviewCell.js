@@ -38,7 +38,7 @@ class PreviewCell extends PureComponent {
 				picksForTablet={picksForTablet}
 				rowIndex={rowIndex}
 				tabletIndex={tabletIndex}
-				threadingForTablet={threadingForTablet}
+				threadingForTablet={JSON.parse(threadingForTablet)}
 			/>
 		);
 	}
@@ -55,7 +55,7 @@ PreviewCell.propTypes = {
 	'picksForTablet': PropTypes.arrayOf(PropTypes.any),
 	'rowIndex': PropTypes.number.isRequired, // eslint-disable-line react/no-unused-prop-types
 	'tabletIndex': PropTypes.number.isRequired,
-	'threadingForTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'threadingForTablet': PropTypes.string.isRequired,
 };
 
 function mapStateToProps(state, ownProps) {

@@ -29,7 +29,7 @@ class ThreadingChartCell extends PureComponent {
 				orientation={orientation}
 				palette={palette}
 				tabletIndex={tabletIndex}
-				threadingForTablet={threadingForTablet}
+				threadingForTablet={JSON.parse(threadingForTablet)}
 			/>
 		);
 	}
@@ -41,7 +41,7 @@ ThreadingChartCell.propTypes = {
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'rowIndex': PropTypes.number.isRequired, // eslint-disable-line react/no-unused-prop-types
 	'tabletIndex': PropTypes.number.isRequired,
-	'threadingForTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'threadingForTablet': PropTypes.string.isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
