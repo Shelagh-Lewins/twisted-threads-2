@@ -27,7 +27,7 @@ function PreviewCell(props) {
 		threadingForTablet,
 	} = props;
 
-	console.log('render previewCell', props);
+	// console.log('render previewCell', props);
 
 	return (
 		<PreviewSVG

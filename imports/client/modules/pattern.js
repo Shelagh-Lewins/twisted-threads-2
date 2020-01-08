@@ -9,6 +9,7 @@ import {
 	calculatePicksForTablet,
 	findPatternTwist,
 	getPicksByTablet,
+	getThreadingByTablet,
 	getWeavingInstructionsByTablet,
 	reCalculatePicksForTablet,
 } from './weavingUtils';
@@ -77,6 +78,7 @@ export function setIsLoading(isLoading) {
 export function setPatternData({
 	picks,
 	patternObj,
+	threadingByTablet,
 	weavingInstructionsByTablet,
 }) {
 	const {
@@ -85,7 +87,6 @@ export function setPatternData({
 		numberOfTablets,
 		orientations,
 		palette,
-		threading,
 	} = patternObj;
 
 	return {
@@ -97,7 +98,7 @@ export function setPatternData({
 			numberOfTablets,
 			orientations,
 			palette,
-			threading,
+			threadingByTablet,
 			weavingInstructionsByTablet,
 		},
 	};
@@ -105,12 +106,14 @@ export function setPatternData({
 
 // calculate weaving picks from pattern data
 export const savePatternData = (patternObj) => (dispatch) => {
+	const threadingByTablet = getThreadingByTablet(patternObj);
 	const weavingInstructionsByTablet = getWeavingInstructionsByTablet(patternObj || {});
 	const picks = getPicksByTablet(patternObj || {});
 
 	dispatch(setPatternData({
 		picks,
 		patternObj,
+		threadingByTablet,
 		weavingInstructionsByTablet,
 	}));
 };
@@ -141,12 +144,14 @@ export const getTotalTurns = (state, rowIndex, tabletIndex) => state.pattern.pic
 
 export const totalTurns = (state, tabletIndex) => state.pattern.picks[tabletIndex].totalTurns;
 
+// export const getThreadingForCell = (state, tabletIndex, rowIndex) => state.patternObj.threading[rowIndex][tabletIndex];
+
 // ///////////////////////
 // cached selectors to provide array props without triggering re-render
 
 // use re-reselect to cache processed threading for tablet
 // otherwise, passing an array triggers re-render even when there is no change
-export const getThreading = (state) => state.pattern.threading;
+export const getThreading = (state) => state.pattern.threadingByTablet;
 
 export const getTabletIndex = (state, tabletIndex) => tabletIndex;
 
@@ -155,7 +160,7 @@ export const getThreadingForTabletCached = createCachedSelector(
 	getTabletIndex,
 
 	// resultFunc
-	(threading, tabletIndex) => threading.map((threadingRow) => threadingRow[tabletIndex]),
+	(threading, tabletIndex) => threading[tabletIndex],
 )(
 	// re-reselect keySelector (receives selectors' arguments)
 	// Use "tabletIndex_rowIndex" as cacheKey
@@ -571,7 +576,7 @@ export default function pattern(state = initialPatternState, action) {
 				orientations,
 				palette,
 				picks,
-				threading,
+				threadingByTablet,
 				weavingInstructionsByTablet,
 			} = action.payload;
 
@@ -582,7 +587,7 @@ export default function pattern(state = initialPatternState, action) {
 				orientations,
 				palette,
 				picks,
-				threading,
+				threadingByTablet,
 				weavingInstructionsByTablet,
 			}, state);
 		}
@@ -618,7 +623,7 @@ export default function pattern(state = initialPatternState, action) {
 			const { hole, tablet, colorIndex } = action.payload;
 
 			return updeep({
-				'threading': { [hole]: { [tablet]: colorIndex } },
+				'threadingByTablet': { [tablet]: { [hole]: colorIndex } },
 			}, state);
 		}
 

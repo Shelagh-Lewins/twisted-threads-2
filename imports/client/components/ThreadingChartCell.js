@@ -7,7 +7,6 @@ import {
 	getHoles,
 	getOrientationForTablet,
 	getPalette,
-	getPick,
 	getThreadingForTabletCached,
 } from '../modules/pattern';
 
@@ -20,6 +19,7 @@ function ThreadingChartCell(props) {
 		tabletIndex,
 		threadingForTablet,
 	} = props;
+	console.log('render ThreadingChartCell', props);
 
 	return (
 		<ChartSVG
@@ -51,7 +51,6 @@ function mapStateToProps(state, ownProps) {
 		'holes': getHoles(state),
 		'orientation': getOrientationForTablet(state, tabletIndex),
 		'palette': getPalette(state),
-		'pick': getPick(state, rowIndex, tabletIndex),
 		'threadingForTablet': getThreadingForTabletCached(state, tabletIndex),
 	};
 }

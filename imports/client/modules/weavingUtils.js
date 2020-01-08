@@ -57,6 +57,29 @@ export const getWeavingInstructionsForTablet = (pattern, tabletIndex) => {
 	return weavingInstructionsForTablet;
 };
 
+// recast threading by tablet, row
+// better for getting data per tablet
+export const getThreadingByTablet = (pattern) => {
+	const {
+		holes,
+		numberOfTablets,
+		threading,
+	} = pattern;
+
+	const threadingByTablet = [];
+
+	for (let i = 0; i < numberOfTablets; i += 1) {
+		const threadingForTablet = [];
+
+		for (let j = 0; j < holes; j += 1) {
+			threadingForTablet.push(threading[j][i]);
+		}
+		threadingByTablet.push(threadingForTablet);
+	}
+
+	return threadingByTablet;
+};
+
 // recast weaving instructions to be by tablet, row
 // which is better for manipulating weaving instructions
 // instead of the more human-readable row, tablet
