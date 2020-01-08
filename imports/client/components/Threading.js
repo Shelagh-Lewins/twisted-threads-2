@@ -7,6 +7,7 @@ import {
 	editPaletteColor,
 	editThreadingCell,
 	removeTablet,
+	setIsEditingThreading,
 } from '../modules/pattern';
 import ThreadingChartCell from './ThreadingChartCell';
 import OrientationCell from './OrientationCell';
@@ -141,11 +142,14 @@ class Threading extends PureComponent {
 	}
 
 	toggleEditThreading() {
+		const { dispatch } = this.props;
 		const { isEditing } = this.state;
 
 		this.setState({
 			'isEditing': !isEditing,
 		});
+
+		dispatch(setIsEditingThreading(!isEditing));
 
 		if (!isEditing) {
 			setTimeout(() => {

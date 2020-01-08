@@ -33,6 +33,8 @@ export const SET_ISLOADING = 'SET_ISLOADING';
 export const SET_PATTERN_DATA = 'SET_PATTERN_DATA';
 
 // edit pattern charts
+export const SET_IS_EDITING_WEAVING = 'SET_IS_EDITING_WEAVING';
+export const SET_IS_EDITING_THREADING = 'SET_IS_EDITING_THREADING';
 export const UPDATE_WEAVING_CELL = 'UPDATE_WEAVING_CELL';
 export const UPDATE_THREADING_CELL = 'UPDATE_THREADING_CELL';
 export const UPDATE_ORIENTATION = 'UPDATE_ORIENTATION';
@@ -71,8 +73,19 @@ export function setIsLoading(isLoading) {
 	};
 }
 
-// ///////////////////////////
-// NEW put pattern in store
+export function setIsEditingWeaving(isEditingWeaving) {
+	return {
+		'type': 'SET_IS_EDITING_WEAVING',
+		'payload': isEditingWeaving,
+	};
+}
+
+export function setIsEditingThreading(isEditingThreading) {
+	return {
+		'type': 'SET_IS_EDITING_THREADING',
+		'payload': isEditingThreading,
+	};
+}
 
 // save pattern data in store for calculating charts
 export function setPatternData({
@@ -143,6 +156,8 @@ export const getThreadingForHole = (state, tabletIndex, holeIndex) => state.patt
 export const getTotalTurnsByTablet = (state) => state.pattern.picks.map((picksForTablet) => picksForTablet[state.pattern.numberOfRows - 1].totalTurns);
 
 export const getOrientationForTablet = (state, tabletIndex) => state.pattern.orientations[tabletIndex];
+
+export const getIsEditing = (state) => state.pattern.isEditingWeaving || state.pattern.isEditingThreading;
 
 // ///////////////////////
 // cached selectors to provide props without triggering re-render
@@ -551,6 +566,8 @@ const initialPatternState = {
 	'currentPageNumber': 0,
 	'error': null,
 	'holes': 0,
+	'isEditingThreading': false,
+	'isEditingWeaving': false,
 	'isLoading': true,
 	'palette': [],
 	'patternCount': 0,
@@ -618,6 +635,14 @@ export default function pattern(state = initialPatternState, action) {
 				'weavingInstructionsByTablet': { [tablet]: { [row]: obj } },
 				'picks': { [tablet]: picksForTablet },
 			}, state);
+		}
+
+		case SET_IS_EDITING_WEAVING: {
+			return updeep({ 'isEditingWeaving': action.payload }, state);
+		}
+
+		case SET_IS_EDITING_THREADING: {
+			return updeep({ 'isEditingThreading': action.payload }, state);
 		}
 
 		case UPDATE_THREADING_CELL: {

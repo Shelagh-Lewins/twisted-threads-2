@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import PreviewSVG from './PreviewSVG';
 
 import {
+	getIsEditing,
 	getHoles,
 	getNumberOfRows,
 	getOrientationForTablet,
@@ -12,41 +13,48 @@ import {
 	getThreadingForTablet,
 } from '../modules/pattern';
 
-function PreviewCell(props) {
-	const {
-		currentRepeat,
-		holes,
-		numberOfRepeats,
-		numberOfRows,
-		orientation,
-		palette,
-		patternWillRepeat,
-		picksForTablet,
-		rowIndex,
-		tabletIndex,
-		threadingForTablet,
-	} = props;
+class PreviewCell extends Component {
+	shouldComponentUpdate(nextProps, nextState) {
+		const { componentShouldUpdate } = nextProps;
 
-	// console.log('render previewCell', props);
+		return componentShouldUpdate;
+	}
 
-	return (
-		<PreviewSVG
-			currentRepeat={currentRepeat}
-			holes={holes}
-			numberOfRepeats={numberOfRepeats}
-			numberOfRows={numberOfRows}
-			orientation={orientation}
-			palette={palette}
-			patternWillRepeat={patternWillRepeat}
-			picksForTablet={picksForTablet}
-			rowIndex={rowIndex}
-			tabletIndex={tabletIndex}
-			threadingForTablet={threadingForTablet}
-		/>
-	);
+	render() {
+		const {
+			currentRepeat,
+			holes,
+			numberOfRepeats,
+			numberOfRows,
+			orientation,
+			palette,
+			patternWillRepeat,
+			picksForTablet,
+			rowIndex,
+			tabletIndex,
+			threadingForTablet,
+		} = this.props;
+
+		return (
+			<PreviewSVG
+				currentRepeat={currentRepeat}
+				holes={holes}
+				numberOfRepeats={numberOfRepeats}
+				numberOfRows={numberOfRows}
+				orientation={orientation}
+				palette={palette}
+				patternWillRepeat={patternWillRepeat}
+				picksForTablet={picksForTablet}
+				rowIndex={rowIndex}
+				tabletIndex={tabletIndex}
+				threadingForTablet={threadingForTablet}
+			/>
+		);
+	}
 }
 
 PreviewCell.propTypes = {
+	'componentShouldUpdate': PropTypes.bool.isRequired,
 	'currentRepeat': PropTypes.number.isRequired,
 	'holes': PropTypes.number.isRequired,
 	'numberOfRepeats': PropTypes.number.isRequired,
@@ -64,6 +72,7 @@ function mapStateToProps(state, ownProps) {
 	const { tabletIndex } = ownProps;
 
 	return {
+		'componentShouldUpdate': !getIsEditing(state),
 		'holes': getHoles(state),
 		'numberOfRows': getNumberOfRows(state),
 		'orientation': getOrientationForTablet(state, tabletIndex),

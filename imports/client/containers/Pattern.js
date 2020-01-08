@@ -15,6 +15,7 @@ import {
 	editIsPublic,
 	editTextField,
 	getHoles,
+	getIsEditing,
 	getIsLoading,
 	getNumberOfRows,
 	getNumberOfTablets,
@@ -349,6 +350,7 @@ class Pattern extends PureComponent {
 			colorBookAdded,
 			dispatch,
 			holes,
+			isEditing,
 			numberOfRows,
 			numberOfTablets,
 			palette,
@@ -393,7 +395,7 @@ class Pattern extends PureComponent {
 				);
 
 				tabContent = (
-					<div className="tab-content">
+					<div className={`tab-content ${isEditing ? 'is-editing' : ''}`}>
 						<h2>Woven band</h2>
 						{repeatText}
 						{twistNeutralText}
@@ -407,6 +409,7 @@ class Pattern extends PureComponent {
 						{canEdit && (
 							<PreviewOrientation
 								_id={_id}
+								disabled={isEditing ? 'disabled' : ''}
 								dispatch={dispatch}
 								previewOrientation={previewOrientation}
 							/>
@@ -591,6 +594,7 @@ Pattern.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 	'holes': PropTypes.number.isRequired,
+	'isEditing': PropTypes.bool.isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'numberOfRows': PropTypes.number.isRequired,
 	'numberOfTablets': PropTypes.number.isRequired,
@@ -610,6 +614,7 @@ function mapStateToProps(state, ownProps) {
 		'colorBookAdded': state.colorBook.colorBookAdded,
 		'errors': state.errors,
 		'holes': getHoles(state),
+		'isEditing': getIsEditing(state),
 		'isLoading': getIsLoading(state),
 		'numberOfRows': getNumberOfRows(state),
 		'numberOfTablets': getNumberOfTablets(state),

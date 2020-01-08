@@ -6,6 +6,7 @@ import {
 	editWeavingCellDirection,
 	editWeavingCellNumberOfTurns,
 	removeWeavingRow,
+	setIsEditingWeaving,
 } from '../modules/pattern';
 import WeavingChartCell from './WeavingChartCell';
 import AddRowsForm from '../forms/AddRowsForm';
@@ -107,11 +108,14 @@ class WeavingDesign extends PureComponent {
 	}
 
 	toggleEditWeaving() {
+		const { dispatch } = this.props;
 		const { isEditing } = this.state;
 
 		this.setState({
 			'isEditing': !isEditing,
 		});
+
+		dispatch(setIsEditingWeaving(!isEditing));
 	}
 
 	renderControls() {

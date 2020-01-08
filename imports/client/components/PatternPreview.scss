@@ -1,9 +1,19 @@
 @import "../constants/variables";
 
+.is-editing {
+	.pattern-preview {
+		opacity: .5;
+	}
+}
+
 .pattern-preview {
 	margin: 8px 0 8px 0;
 	/* overflow-y: hidden; */
 	position: relative;
+
+	.preview-overlay {
+		display: none;
+	}
 
 	.preview-wrapper {
 		pointer-events: none;

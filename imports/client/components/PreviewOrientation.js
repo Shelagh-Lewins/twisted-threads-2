@@ -6,7 +6,13 @@ import { ALLOWED_PREVIEW_ORIENTATIONS } from '../../modules/parameters';
 import './PreviewOrientation.scss';
 
 
-export default function PreviewOrientation({ _id, dispatch, previewOrientation }) {
+export default function PreviewOrientation(props) {
+	const {
+		_id,
+		disabled,
+		dispatch,
+		previewOrientation,
+	} = props;
 	const handleChangeOrientation = (event) => {
 		dispatch(editPreviewOrientation({ _id, 'orientation': event.target.value }));
 	};
@@ -26,6 +32,7 @@ export default function PreviewOrientation({ _id, dispatch, previewOrientation }
 				<span className="text">Orientation:</span>
 				<select
 					className="form-control"
+					disabled={disabled}
 					id="previewOrientation"
 					name="previewOrientation"
 					onChange={handleChangeOrientation}
@@ -40,6 +47,7 @@ export default function PreviewOrientation({ _id, dispatch, previewOrientation }
 
 PreviewOrientation.propTypes = {
 	'_id': PropTypes.string.isRequired,
+	'disabled': PropTypes.string.isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'previewOrientation': PropTypes.string.isRequired,
 };
