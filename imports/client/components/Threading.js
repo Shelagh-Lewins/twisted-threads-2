@@ -151,12 +151,12 @@ class Threading extends PureComponent {
 
 		dispatch(setIsEditingThreading(!isEditing));
 
-		if (!isEditing) {
+		/* if (!isEditing) {
 			setTimeout(() => {
 				const element = document.getElementById(this.paletteId);
 				element.scrollIntoView({ 'behavior': 'smooth' });
 			}, 200);
-		}
+		} */
 	}
 
 	renderControls() {

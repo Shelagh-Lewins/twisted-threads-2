@@ -21,7 +21,7 @@ import {
 	getNumberOfTablets,
 	getPalette,
 	getPatternTwistSelector,
-	getTotalTurnsByTablet,
+	getTotalTurnsByTabletSelector,
 } from '../modules/pattern';
 import { editPatternImageCaption, removePatternImage } from '../modules/patternImages';
 import AppContext from '../modules/appContext';
@@ -622,7 +622,7 @@ function mapStateToProps(state, ownProps) {
 		'patternIsTwistNeutral': patternIsTwistNeutral,
 		'patternWillRepeat': patternWillRepeat,
 		'tab': ownProps.match.params.tab || 'design',
-		'totalTurnsByTablet': getTotalTurnsByTablet(state),
+		'totalTurnsByTablet': getTotalTurnsByTabletSelector(state),
 	};
 }
 

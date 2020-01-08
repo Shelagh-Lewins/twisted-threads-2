@@ -3,7 +3,7 @@
 // And also for Pattern page state
 // import * as svg from 'save-svg-as-png';
 import { createSelector } from 'reselect';
-import createCachedSelector from 're-reselect';
+// import createCachedSelector from 're-reselect';
 import { logErrors, clearErrors } from './errors';
 import {
 	calculatePicksForTablet,
@@ -165,6 +165,12 @@ export const getPatternTwistSelector = createSelector(
 	getHoles,
 	getPicks,
 	(holes, picks) => findPatternTwist(holes, picks),
+);
+
+export const getTotalTurnsByTabletSelector = createSelector(
+	getPicks,
+	getNumberOfRows,
+	(picks, numberOfRows) => picks.map((picksForTablet) => picksForTablet[numberOfRows - 1].totalTurns),
 );
 
 // this next is unnecessary because threading has been recast, but it's a useful example of how to get array props
@@ -759,11 +765,11 @@ export default function pattern(state = initialPatternState, action) {
 				numberOfTablets,
 				orientations,
 				picks,
-				threading,
+				threadingByTablet,
 				weavingInstructionsByTablet,
 			} = state;
 
-			const newThreading = [...threading];
+			const newThreadingByTablet = [...threadingByTablet];
 			const newOrientations = [...orientations];
 			const newWeavingInstructionsByTablet = [...weavingInstructionsByTablet];
 			const obj = {
@@ -774,36 +780,37 @@ export default function pattern(state = initialPatternState, action) {
 			const newNumberOfTablets = numberOfTablets + insertNTablets;
 
 			for (let i = 0; i < insertNTablets; i += 1) {
+				// update orientations
 				newOrientations.splice(insertTabletsAt, 0, DEFAULT_ORIENTATION);
-			}
 
-			for (let i = 0; i < insertNTablets; i += 1) {
+				// update threading
+				const newThreadingTablet = [];
 				for (let j = 0; j < holes; j += 1) {
-					const newThreadingRow = [...newThreading[j]];
-					newThreadingRow.splice(insertTabletsAt, 0, colorIndex);
-					newThreading[j] = newThreadingRow;
+					newThreadingTablet.push(colorIndex);
 				}
 
+				newThreadingByTablet.splice(insertTabletsAt, 0, newThreadingTablet);
+
+				// update weaving instructions
 				const newWeavingInstructionsForTablet = [];
 				for (let j = 0; j < numberOfRows; j += 1) {
 					newWeavingInstructionsForTablet.push(obj);
 				}
 
 				newWeavingInstructionsByTablet.splice(insertTabletsAt, 0, newWeavingInstructionsForTablet);
-			}
 
-			for (let i = 0; i < insertNTablets; i += 1) {
+				// update picks
 				const picksForTablet = calculatePicksForTablet({
-					'weavingInstructionsForTablet': newWeavingInstructionsByTablet[i],
+					'weavingInstructionsForTablet': newWeavingInstructionsByTablet[insertTabletsAt],
 				});
 
-				newPicks.splice(i, 0, picksForTablet);
+				newPicks.splice(insertTabletsAt, 0, picksForTablet);
 			}
 
 			return updeep({
 				'numberOfTablets': newNumberOfTablets,
 				'orientations': newOrientations,
-				'threading': newThreading,
+				'threadingByTablet': newThreadingByTablet,
 				'weavingInstructionsByTablet': newWeavingInstructionsByTablet,
 				'picks': newPicks,
 			}, state);
@@ -812,34 +819,28 @@ export default function pattern(state = initialPatternState, action) {
 		case UPDATE_REMOVE_TABLET: {
 			const { tablet } = action.payload;
 			const {
-				holes,
 				numberOfTablets,
 				orientations,
 				picks,
-				threading,
+				threadingByTablet,
 				weavingInstructionsByTablet,
 			} = state;
 
 			const newPicks = [...picks];
 			const newWeavingInstructionsByTablet = [...weavingInstructionsByTablet];
-			const newThreading = [...threading];
+			const newThreadingByTablet = [...threadingByTablet];
 			const newOrientations = [...orientations];
 			const newNumberOfTablets = numberOfTablets - 1;
 
 			newPicks.splice(tablet, 1);
+			newThreadingByTablet.splice(tablet, 1);
 			newWeavingInstructionsByTablet.splice(tablet, 1);
 			newOrientations.splice(tablet, 1);
-
-			for (let i = 0; i < holes; i += 1) {
-				const newThreadingRow = [...newThreading[i]];
-				newThreadingRow.splice(tablet, 1);
-				newThreading[i] = newThreadingRow;
-			}
 
 			return updeep({
 				'numberOfTablets': newNumberOfTablets,
 				'orientations': newOrientations,
-				'threading': newThreading,
+				'threadingByTablet': newThreadingByTablet,
 				'weavingInstructionsByTablet': newWeavingInstructionsByTablet,
 				'picks': newPicks,
 			}, state);

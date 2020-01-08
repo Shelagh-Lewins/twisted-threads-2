@@ -12,7 +12,7 @@ import {
 	getNumberOfTablets,
 	getPalette,
 	getPatternTwist,
-	getTotalTurnsByTablet,
+	getTotalTurnsByTabletSelector,
 } from '../modules/pattern';
 import AppContext from '../modules/appContext';
 import { getNumberOfRepeats } from '../modules/weavingUtils';
@@ -236,7 +236,7 @@ function mapStateToProps(state) {
 		'palette': getPalette(state),
 		'patternIsTwistNeutral': patternIsTwistNeutral,
 		'patternWillRepeat': patternWillRepeat,
-		'totalTurnsByTablet': getTotalTurnsByTablet(state),
+		'totalTurnsByTablet': getTotalTurnsByTabletSelector(state),
 	};
 }
 
