@@ -73,8 +73,8 @@ class Pattern extends PureComponent {
 		document.body.classList.add(bodyClass);
 	}
 
-	componentDidUpdate() {
-		const { dispatch } = this.props;
+	componentDidUpdate(prevProps) {
+		const { dispatch, isEditing } = this.props;
 		const { gotUser } = this.state;
 		const { patternId } = this.context;
 
@@ -99,6 +99,14 @@ class Pattern extends PureComponent {
 					'selectedPatternImage': null,
 				});
 			}
+		}
+
+		// resync with database when user finishes editing
+		// just in case
+		if (prevProps.isEditing && !isEditing) {
+			console.log('*** stopped editing');
+			const { pattern } = this.context;
+			console.log('new pattern', pattern);
 		}
 	}
 
