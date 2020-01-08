@@ -1,6 +1,6 @@
 // weaving chart for interactive weaving chart page
 
-import React, { PureComponent } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import WeavingChartCell from './WeavingChartCell';
 
@@ -17,33 +17,31 @@ import './WeavingChart.scss';
 /* eslint-disable jsx-a11y/no-noninteractive-tabindex */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
-class WeavingChart extends PureComponent {
-	renderCell(rowIndex, tabletIndex) {
-		return (
-			<li
-				className="cell value"
-				key={`weaving-cell-${rowIndex}-${tabletIndex}`}
-			>
-				<WeavingChartCell
-					rowIndex={rowIndex}
-					tabletIndex={tabletIndex}
-				/>
-			</li>
-		);
-	}
+function WeavingChart(props) {
+	const renderCell = (rowIndex, tabletIndex) => (
+		<li
+			className="cell value"
+			key={`weaving-cell-${rowIndex}-${tabletIndex}`}
+		>
+			<WeavingChartCell
+				rowIndex={rowIndex}
+				tabletIndex={tabletIndex}
+			/>
+		</li>
+	);
 
-	renderRow(rowIndex) {
+	const renderRow = (rowIndex) => {
 		const {
 			handleClickDown,
 			handleClickUp,
 			numberOfRows,
 			numberOfTablets,
-		} = this.props;
+		} = props;
 		const rowLabel = numberOfRows - rowIndex;
 
 		const cells = [];
 		for (let i = 0; i < numberOfTablets; i += 1) {
-			cells.push(this.renderCell(rowLabel - 1, i));
+			cells.push(renderCell(rowLabel - 1, i));
 		}
 
 		// background images in scss are malformed: the leading / is removed so they become relative and do not point to public/images
@@ -81,10 +79,10 @@ class WeavingChart extends PureComponent {
 				</div>
 			</>
 		);
-	}
+	};
 
-	renderTabletLabels() {
-		const { numberOfTablets } = this.props;
+	const renderTabletLabels = () => {
+		const { numberOfTablets } = props;
 
 		const labels = [];
 		for (let i = 0; i < numberOfTablets; i += 1) {
@@ -99,14 +97,14 @@ class WeavingChart extends PureComponent {
 		}
 
 		return <ul className="tablet-labels">{labels}</ul>;
-	}
+	};
 
-	renderChart() {
+	const renderChart = () => {
 		const {
 			handleClickRow,
 			numberOfRows,
 			selectedRow,
-		} = this.props;
+		} = props;
 
 		const rows = [];
 		for (let i = 0; i < numberOfRows; i += 1) {
@@ -120,30 +118,28 @@ class WeavingChart extends PureComponent {
 					tabIndex="0"
 					type="button"
 				>
-					{this.renderRow(i)}
+					{renderRow(i)}
 				</li>,
 			);
 		}
 
 		return (
 			<div className="weaving-chart-holder">
-				{this.renderTabletLabels()}
+				{renderTabletLabels()}
 				<ul className="weaving-chart">
 					{rows}
 				</ul>
 			</div>
 		);
-	}
+	};
 
-	render() {
-		return (
-			<div className="weaving">
-				<div className="content">
-					{this.renderChart()}
-				</div>
+	return (
+		<div className="weaving">
+			<div className="content">
+				{renderChart()}
 			</div>
-		);
-	}
+		</div>
+	);
 }
 
 WeavingChart.propTypes = {

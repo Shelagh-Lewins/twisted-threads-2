@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
@@ -11,30 +11,28 @@ import {
 /* eslint-disable jsx-a11y/no-noninteractive-tabindex */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
-class OrientationCell extends PureComponent {
-	render() {
-		const {
-			handleClickOrientation,
-			isEditing,
-			orientation,
-			tabletIndex,
-		} = this.props;
+function OrientationCell(props) {
+	const {
+		handleClickOrientation,
+		isEditing,
+		orientation,
+		tabletIndex,
+	} = props;
 
-		return (
+	return (
+		<span
+			type={isEditing ? 'button' : undefined}
+			onClick={isEditing ? () => handleClickOrientation(tabletIndex) : undefined}
+			onKeyPress={isEditing ? () => handleClickOrientation(tabletIndex) : undefined}
+			role={isEditing ? 'button' : undefined}
+			tabIndex={isEditing ? '0' : undefined}
+			title={`${orientation === '/' ? 'Orientation S' : 'Orientation Z'}`}
+		>
 			<span
-				type={isEditing ? 'button' : undefined}
-				onClick={isEditing ? () => handleClickOrientation(tabletIndex) : undefined}
-				onKeyPress={isEditing ? () => handleClickOrientation(tabletIndex) : undefined}
-				role={isEditing ? 'button' : undefined}
-				tabIndex={isEditing ? '0' : undefined}
-				title={`${orientation === '/' ? 'Orientation S' : 'Orientation Z'}`}
-			>
-				<span
-					className={`${orientation === '/' ? 's' : 'z'}`}
-				/>
-			</span>
-		);
-	}
+				className={`${orientation === '/' ? 's' : 'z'}`}
+			/>
+		</span>
+	);
 }
 
 OrientationCell.propTypes = {

@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import ChartSVG from './ChartSVG';
@@ -11,30 +11,28 @@ import {
 	getThreadingForTabletCached,
 } from '../modules/pattern';
 
-class ThreadingChartCell extends PureComponent {
-	render() {
-		const {
-			holes,
-			orientation,
-			palette,
-			rowIndex,
-			tabletIndex,
-			threadingForTablet,
-		} = this.props;
+function ThreadingChartCell(props) {
+	const {
+		holes,
+		orientation,
+		palette,
+		rowIndex,
+		tabletIndex,
+		threadingForTablet,
+	} = props;
 
-		return (
-			<ChartSVG
-				direction="F"
-				holes={holes}
-				netTurns={holes - rowIndex /* hole labels run bottom to top, indexes run top to bottom */}
-				numberOfTurns={1}
-				orientation={orientation}
-				palette={palette}
-				tabletIndex={tabletIndex}
-				threadingForTablet={threadingForTablet}
-			/>
-		);
-	}
+	return (
+		<ChartSVG
+			direction="F"
+			holes={holes}
+			netTurns={holes - rowIndex /* hole labels run bottom to top, indexes run top to bottom */}
+			numberOfTurns={1}
+			orientation={orientation}
+			palette={palette}
+			tabletIndex={tabletIndex}
+			threadingForTablet={threadingForTablet}
+		/>
+	);
 }
 
 ThreadingChartCell.propTypes = {

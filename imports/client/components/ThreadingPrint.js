@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import ThreadingChartCell from './ThreadingChartCell';
 import OrientationCell from './OrientationCell';
@@ -15,20 +15,18 @@ import { HOLE_LABELS } from '../../modules/parameters';
 /* eslint-disable jsx-a11y/no-noninteractive-tabindex */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
-class ThreadingPrint extends PureComponent {
-	renderCell(rowIndex, tabletIndex) {
-		return (
-			<span>
-				<ThreadingChartCell
-					rowIndex={rowIndex}
-					tabletIndex={tabletIndex}
-				/>
-			</span>
-		);
-	}
+function ThreadingPrint(props) {
+	const renderCell = (rowIndex, tabletIndex) => (
+		<span>
+			<ThreadingChartCell
+				rowIndex={rowIndex}
+				tabletIndex={tabletIndex}
+			/>
+		</span>
+	);
 
-	renderRow(rowIndex) {
-		const { holes, numberOfTablets } = this.props;
+	const renderRow = (rowIndex) => {
+		const { holes, numberOfTablets } = props;
 		const labelIndex = holes - rowIndex - 1;
 
 		const cells = [];
@@ -38,7 +36,7 @@ class ThreadingPrint extends PureComponent {
 					className="cell value"
 					key={`threading-cell-${rowIndex}-${i}`}
 				>
-					{this.renderCell(rowIndex, i)}
+					{renderCell(rowIndex, i)}
 				</li>,
 			);
 		}
@@ -51,10 +49,10 @@ class ThreadingPrint extends PureComponent {
 				</ul>
 			</>
 		);
-	}
+	};
 
-	renderTabletLabels() {
-		const { numberOfTablets } = this.props;
+	const renderTabletLabels = () => {
+		const { numberOfTablets } = props;
 
 		const labels = [];
 		for (let i = 0; i < numberOfTablets; i += 1) {
@@ -69,10 +67,10 @@ class ThreadingPrint extends PureComponent {
 		}
 
 		return <ul className="tablet-labels">{labels}</ul>;
-	}
+	};
 
-	renderChart() {
-		const { holes } = this.props;
+	const renderChart = () => {
+		const { holes } = props;
 		const rows = [];
 		for (let i = 0; i < holes; i += 1) {
 			rows.push(
@@ -80,23 +78,23 @@ class ThreadingPrint extends PureComponent {
 					className="row"
 					key={`threading-row-${i}`}
 				>
-					{this.renderRow(i)}
+					{renderRow(i)}
 				</li>,
 			);
 		}
 
 		return (
 			<>
-				{this.renderTabletLabels()}
+				{renderTabletLabels()}
 				<ul className="threading-chart">
 					{rows}
 				</ul>
 			</>
 		);
-	}
+	};
 
-	renderOrientations() {
-		const { numberOfTablets } = this.props;
+	const renderOrientations = () => {
+		const { numberOfTablets } = props;
 		const orientations = [];
 		for (let i = 0; i < numberOfTablets; i += 1) {
 			orientations.push(
@@ -120,18 +118,16 @@ class ThreadingPrint extends PureComponent {
 				<p className="hint">Slope of line = angle of tablet viewed from above</p>
 			</div>
 		);
-	}
+	};
 
-	render() {
-		return (
-			<div className="threading">
-				<div className="content">
-					{this.renderChart()}
-					{this.renderOrientations()}
-				</div>
+	return (
+		<div className="threading">
+			<div className="content">
+				{renderChart()}
+				{renderOrientations()}
 			</div>
-		);
-	}
+		</div>
+	);
 }
 
 ThreadingPrint.propTypes = {

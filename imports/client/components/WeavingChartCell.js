@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import ChartSVG from './ChartSVG';
@@ -13,60 +13,48 @@ import {
 	modulus,
 } from '../modules/weavingUtils';
 
-class WeavingChartCell extends Component {
-	componentDidUpdate(prevProps) {
-		Object.keys(this.props).forEach((key) => {
-			if (this.props[key] !== prevProps[key]) {
-				console.log('change to ', key);
-				console.log('old value ', prevProps[key]);
-				console.log('new value ', this.props[key]);
-			}
-		});
-	}
+function WeavingChartCell(props) {
+	const {
+		direction,
+		holes,
+		numberOfTurns,
+		orientation,
+		palette,
+		tabletIndex,
+		threadingForTablet,
+		totalTurns,
+	} = props;
 
-	render() {
-		const {
-			direction,
-			holes,
-			numberOfTurns,
-			orientation,
-			palette,
-			tabletIndex,
-			threadingForTablet,
-			totalTurns,
-		} = this.props;
+	// console.log('render', props);
 
-		console.log('render', this.props);
+	const netTurns = modulus(totalTurns, holes);
 
-		const netTurns = modulus(totalTurns, holes);
-
-		// if not idle, show direction
-		let directionClass = '';
-		if (numberOfTurns !== 0) {
-			if (direction === 'F') {
-				directionClass = 'forward';
-			} else if (direction === 'B') {
-				directionClass = 'backward';
-			}
+	// if not idle, show direction
+	let directionClass = '';
+	if (numberOfTurns !== 0) {
+		if (direction === 'F') {
+			directionClass = 'forward';
+		} else if (direction === 'B') {
+			directionClass = 'backward';
 		}
-
-		return (
-			<span
-				className={directionClass}
-			>
-				<ChartSVG
-					direction={direction}
-					holes={holes}
-					netTurns={netTurns}
-					numberOfTurns={numberOfTurns}
-					orientation={orientation}
-					palette={palette}
-					tabletIndex={tabletIndex}
-					threadingForTablet={threadingForTablet}
-				/>
-			</span>
-		);
 	}
+
+	return (
+		<span
+			className={directionClass}
+		>
+			<ChartSVG
+				direction={direction}
+				holes={holes}
+				netTurns={netTurns}
+				numberOfTurns={numberOfTurns}
+				orientation={orientation}
+				palette={palette}
+				tabletIndex={tabletIndex}
+				threadingForTablet={threadingForTablet}
+			/>
+		</span>
+	);
 }
 
 WeavingChartCell.propTypes = {

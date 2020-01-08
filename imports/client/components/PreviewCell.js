@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import PreviewSVG from './PreviewSVG';
@@ -12,38 +12,38 @@ import {
 	getThreadingForTabletCached,
 } from '../modules/pattern';
 
-class PreviewCell extends PureComponent {
-	render() {
-		const {
-			currentRepeat,
-			holes,
-			numberOfRepeats,
-			numberOfRows,
-			orientation,
-			palette,
-			patternWillRepeat,
-			picksForTablet,
-			rowIndex,
-			tabletIndex,
-			threadingForTablet,
-		} = this.props;
+function PreviewCell(props) {
+	const {
+		currentRepeat,
+		holes,
+		numberOfRepeats,
+		numberOfRows,
+		orientation,
+		palette,
+		patternWillRepeat,
+		picksForTablet,
+		rowIndex,
+		tabletIndex,
+		threadingForTablet,
+	} = props;
 
-		return (
-			<PreviewSVG
-				currentRepeat={currentRepeat}
-				holes={holes}
-				numberOfRepeats={numberOfRepeats}
-				numberOfRows={numberOfRows}
-				orientation={orientation}
-				palette={palette}
-				patternWillRepeat={patternWillRepeat}
-				picksForTablet={picksForTablet}
-				rowIndex={rowIndex}
-				tabletIndex={tabletIndex}
-				threadingForTablet={threadingForTablet}
-			/>
-		);
-	}
+	console.log('render previewCell', props);
+
+	return (
+		<PreviewSVG
+			currentRepeat={currentRepeat}
+			holes={holes}
+			numberOfRepeats={numberOfRepeats}
+			numberOfRows={numberOfRows}
+			orientation={orientation}
+			palette={palette}
+			patternWillRepeat={patternWillRepeat}
+			picksForTablet={picksForTablet}
+			rowIndex={rowIndex}
+			tabletIndex={tabletIndex}
+			threadingForTablet={threadingForTablet}
+		/>
+	);
 }
 
 PreviewCell.propTypes = {
