@@ -19,7 +19,7 @@ import {
 	getNumberOfRows,
 	getNumberOfTablets,
 	getPalette,
-	getPatternTwist,
+	getPatternTwistSelector,
 	getTotalTurnsByTablet,
 } from '../modules/pattern';
 import { editPatternImageCaption, removePatternImage } from '../modules/patternImages';
@@ -602,7 +602,7 @@ Pattern.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
-	const { patternIsTwistNeutral, patternWillRepeat } = getPatternTwist(state);
+	const { patternIsTwistNeutral, patternWillRepeat } = getPatternTwistSelector(state);
 
 	return {
 		'canAddPatternImage': getCanAddPatternImage(state),

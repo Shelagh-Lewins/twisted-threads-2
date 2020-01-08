@@ -66,7 +66,6 @@ function mapStateToProps(state, ownProps) {
 		'orientation': getOrientationForTablet(state, tabletIndex),
 		'palette': getPalette(state),
 		'threadingForHole': getThreadingForHole(state, tabletIndex, rowIndex),
-		// 'threadingForTablet': getThreadingForTabletCached(state, tabletIndex),
 	};
 }
 

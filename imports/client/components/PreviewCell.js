@@ -9,7 +9,7 @@ import {
 	getOrientationForTablet,
 	getPalette,
 	getPicksForTablet,
-	getThreadingForTabletCached,
+	getThreadingForTablet,
 } from '../modules/pattern';
 
 function PreviewCell(props) {
@@ -69,7 +69,7 @@ function mapStateToProps(state, ownProps) {
 		'orientation': getOrientationForTablet(state, tabletIndex),
 		'palette': getPalette(state),
 		'picksForTablet': getPicksForTablet(state, tabletIndex),
-		'threadingForTablet': getThreadingForTabletCached(state, tabletIndex),
+		'threadingForTablet': getThreadingForTablet(state, tabletIndex),
 	};
 }
 

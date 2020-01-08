@@ -120,8 +120,6 @@ export const savePatternData = (patternObj) => (dispatch) => {
 
 // ///////////////////////////
 // Provide information to the UI
-export const getIsSubscribed = (state) => state.pattern.isSubscribed;
-
 export const getIsLoading = (state) => state.pattern.isLoading;
 
 export const getNumberOfRows = (state) => state.pattern.numberOfRows || 0;
@@ -132,26 +130,33 @@ export const getHoles = (state) => state.pattern.holes;
 
 export const getPalette = (state) => state.pattern.palette;
 
-export const getPick = (state, rowIndex, tabletIndex) => state.pattern.picks[tabletIndex][rowIndex];
+export const getPicks = (state) => state.pattern.picks;
+
+export const getPick = (state, tabletIndex, rowIndex) => state.pattern.picks[tabletIndex][rowIndex];
 
 export const getPicksForTablet = (state, tabletIndex) => state.pattern.picks[tabletIndex];
 
-export const getDirection = (state, rowIndex, tabletIndex) => state.pattern.picks[tabletIndex][rowIndex].direction;
-
-export const getNumberOfTurns = (state, rowIndex, tabletIndex) => state.pattern.picks[tabletIndex][rowIndex].numberOfTurns;
-
-export const getTotalTurns = (state, rowIndex, tabletIndex) => state.pattern.picks[tabletIndex][rowIndex].totalTurns;
-
-export const totalTurns = (state, tabletIndex) => state.pattern.picks[tabletIndex].totalTurns;
+export const getThreadingForTablet = (state, tabletIndex) => state.pattern.threadingByTablet[tabletIndex];
 
 export const getThreadingForHole = (state, tabletIndex, holeIndex) => state.pattern.threadingByTablet[tabletIndex][holeIndex];
 
+export const getTotalTurnsByTablet = (state) => state.pattern.picks.map((picksForTablet) => picksForTablet[state.pattern.numberOfRows - 1].totalTurns);
+
+export const getOrientationForTablet = (state, tabletIndex) => state.pattern.orientations[tabletIndex];
+
 // ///////////////////////
-// cached selectors to provide array props without triggering re-render
+// cached selectors to provide props without triggering re-render
+export const getPatternTwistSelector = createSelector(
+	getHoles,
+	getPicks,
+	(holes, picks) => findPatternTwist(holes, picks),
+);
+
+// this next is unnecessary because threading has been recast, but it's a useful example of how to get array props
 
 // use re-reselect to cache processed threading for tablet
 // otherwise, passing an array triggers re-render even when there is no change
-export const getThreading = (state) => state.pattern.threadingByTablet;
+/* export const getThreading = (state) => state.pattern.threadingByTablet;
 
 export const getTabletIndex = (state, tabletIndex) => tabletIndex;
 
@@ -165,14 +170,10 @@ export const getThreadingForTabletCached = createCachedSelector(
 	// re-reselect keySelector (receives selectors' arguments)
 	// Use "tabletIndex_rowIndex" as cacheKey
 	(_state_, tabletIndex) => tabletIndex,
-);
+); */
 
 // ///////////////////////////////////
-export const getTotalTurnsByTablet = (state) => state.pattern.picks.map((picksForTablet) => picksForTablet[state.pattern.numberOfRows - 1].totalTurns);
 
-export const getOrientationForTablet = (state, tabletIndex) => state.pattern.orientations[tabletIndex];
-
-export const getPatternTwist = (state) => findPatternTwist(state.pattern.holes, state.pattern.picks);
 
 // ///////////////////////////
 // Action that call Meteor methods

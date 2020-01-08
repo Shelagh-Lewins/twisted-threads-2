@@ -7,7 +7,8 @@ import {
 	getHoles,
 	getOrientationForTablet,
 	getPalette,
-	getThreadingForTabletCached,
+	getPick,
+	getThreadingForTablet,
 } from '../modules/pattern';
 import {
 	modulus,
@@ -71,7 +72,7 @@ WeavingChartCell.propTypes = {
 
 function mapStateToProps(state, ownProps) {
 	const { tabletIndex, rowIndex } = ownProps;
-	const { direction, numberOfTurns, totalTurns } = state.pattern.picks[tabletIndex][rowIndex];
+	const { direction, numberOfTurns, totalTurns } = getPick(state, tabletIndex, rowIndex);
 
 	return {
 		'direction': direction,
@@ -79,7 +80,7 @@ function mapStateToProps(state, ownProps) {
 		'numberOfTurns': numberOfTurns,
 		'orientation': getOrientationForTablet(state, tabletIndex),
 		'palette': getPalette(state),
-		'threadingForTablet': getThreadingForTabletCached(state, tabletIndex),
+		'threadingForTablet': getThreadingForTablet(state, tabletIndex),
 		'totalTurns': totalTurns,
 	};
 }

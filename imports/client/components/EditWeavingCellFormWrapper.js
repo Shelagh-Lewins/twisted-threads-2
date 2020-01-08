@@ -34,7 +34,7 @@ function mapStateToProps(state, ownProps) {
 	const { rowIndex, tabletIndex } = ownProps;
 
 	return {
-		'numberOfTurns': getPick(state, rowIndex, tabletIndex).numberOfTurns,
+		'numberOfTurns': getPick(state, tabletIndex, rowIndex).numberOfTurns,
 	};
 }
 
