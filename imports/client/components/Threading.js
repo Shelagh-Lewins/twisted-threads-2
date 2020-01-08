@@ -168,7 +168,6 @@ console.log('in component', _id);
 	}
 
 	renderCell(rowIndex, tabletIndex) {
-		const { holes, palette } = this.props;
 		const { isEditing } = this.state;
 
 		return (
@@ -180,8 +179,6 @@ console.log('in component', _id);
 				tabIndex={isEditing ? '0' : undefined}
 			>
 				<ThreadingChartCell
-					holes={holes}
-					palette={palette}
 					rowIndex={rowIndex}
 					tabletIndex={tabletIndex}
 				/>

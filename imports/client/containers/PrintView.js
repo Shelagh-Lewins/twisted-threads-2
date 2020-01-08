@@ -179,7 +179,6 @@ class PrintView extends PureComponent {
 									holes={holes}
 									numberOfRows={numberOfRows}
 									numberOfTablets={numberOfTablets}
-									palette={palette}
 									patternId={pattern._id}
 								/>
 								{threadingNotes && threadingNotes !== '' && (
@@ -225,7 +224,7 @@ PrintView.propTypes = {
 
 PrintView.contextType = AppContext;
 
-function mapStateToProps(state, ownProps) {
+function mapStateToProps(state) {
 	const { patternIsTwistNeutral, patternWillRepeat } = getPatternTwist(state);
 
 	return {

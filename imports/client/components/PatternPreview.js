@@ -197,9 +197,7 @@ export default function PatternPreview(props) {
 			>
 				<PreviewCell
 					currentRepeat={currentRepeat}
-					holes={holes}
 					numberOfRepeats={numberOfRepeats}
-					palette={palette}
 					patternWillRepeat={patternWillRepeat}
 					rowIndex={rowIndex}
 					tabletIndex={tabletIndex}

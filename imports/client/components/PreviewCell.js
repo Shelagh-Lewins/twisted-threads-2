@@ -4,10 +4,12 @@ import PropTypes from 'prop-types';
 import PreviewSVG from './PreviewSVG';
 
 import {
+	getHoles,
 	getNumberOfRows,
 	getOrientationForTablet,
+	getPalette,
 	getPicksForTablet,
-	getThreadingForTablet,
+	getThreadingForTabletCached,
 } from '../modules/pattern';
 
 class PreviewCell extends PureComponent {
@@ -38,7 +40,7 @@ class PreviewCell extends PureComponent {
 				picksForTablet={picksForTablet}
 				rowIndex={rowIndex}
 				tabletIndex={tabletIndex}
-				threadingForTablet={JSON.parse(threadingForTablet)}
+				threadingForTablet={threadingForTablet}
 			/>
 		);
 	}
@@ -55,17 +57,19 @@ PreviewCell.propTypes = {
 	'picksForTablet': PropTypes.arrayOf(PropTypes.any),
 	'rowIndex': PropTypes.number.isRequired, // eslint-disable-line react/no-unused-prop-types
 	'tabletIndex': PropTypes.number.isRequired,
-	'threadingForTablet': PropTypes.string.isRequired,
+	'threadingForTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
 	const { tabletIndex } = ownProps;
 
 	return {
+		'holes': getHoles(state),
 		'numberOfRows': getNumberOfRows(state),
 		'orientation': getOrientationForTablet(state, tabletIndex),
+		'palette': getPalette(state),
 		'picksForTablet': getPicksForTablet(state, tabletIndex),
-		'threadingForTablet': getThreadingForTablet(state, tabletIndex),
+		'threadingForTablet': getThreadingForTabletCached(state, tabletIndex),
 	};
 }
 

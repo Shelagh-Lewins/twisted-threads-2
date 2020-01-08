@@ -19,16 +19,12 @@ import './WeavingChartPrint.scss';
 
 class WeavingChartPrint extends PureComponent {
 	renderCell(rowIndex, tabletIndex) {
-		const { holes, palette } = this.props;
-
 		return (
 			<li
 				className="cell value"
 				key={`weaving-cell-${rowIndex}-${tabletIndex}`}
 			>
 				<WeavingChartCell
-					holes={holes}
-					palette={palette}
 					rowIndex={rowIndex}
 					tabletIndex={tabletIndex}
 				/>
@@ -109,10 +105,8 @@ class WeavingChartPrint extends PureComponent {
 }
 
 WeavingChartPrint.propTypes = {
-	'holes': PropTypes.number.isRequired,
 	'numberOfRows': PropTypes.number.isRequired,
 	'numberOfTablets': PropTypes.number.isRequired,
-	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 export default WeavingChartPrint;

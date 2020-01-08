@@ -127,7 +127,6 @@ class WeavingDesign extends PureComponent {
 	}
 
 	renderCell(rowIndex, tabletIndex) {
-		const { holes, palette } = this.props;
 		const { isEditing, selectedCell } = this.state;
 
 		let isSelected = false;
@@ -149,8 +148,6 @@ class WeavingDesign extends PureComponent {
 					tabIndex={isEditing ? '0' : undefined}
 				>
 					<WeavingChartCell
-						holes={holes}
-						palette={palette}
 						rowIndex={rowIndex}
 						tabletIndex={tabletIndex}
 					/>
@@ -286,10 +283,8 @@ class WeavingDesign extends PureComponent {
 
 WeavingDesign.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
-	'holes': PropTypes.number.isRequired,
 	'numberOfRows': PropTypes.number.isRequired,
 	'numberOfTablets': PropTypes.number.isRequired,
-	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 };
 

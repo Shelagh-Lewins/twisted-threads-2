@@ -17,13 +17,9 @@ import { HOLE_LABELS } from '../../modules/parameters';
 
 class ThreadingPrint extends PureComponent {
 	renderCell(rowIndex, tabletIndex) {
-		const { holes, palette } = this.props;
-
 		return (
 			<span>
 				<ThreadingChartCell
-					holes={holes}
-					palette={palette}
 					rowIndex={rowIndex}
 					tabletIndex={tabletIndex}
 				/>
@@ -141,7 +137,6 @@ class ThreadingPrint extends PureComponent {
 ThreadingPrint.propTypes = {
 	'holes': PropTypes.number.isRequired,
 	'numberOfTablets': PropTypes.number.isRequired,
-	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 export default ThreadingPrint;

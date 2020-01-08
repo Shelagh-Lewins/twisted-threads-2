@@ -4,9 +4,11 @@ import PropTypes from 'prop-types';
 import ChartSVG from './ChartSVG';
 
 import {
+	getHoles,
 	getOrientationForTablet,
+	getPalette,
 	getPick,
-	getThreadingForTablet,
+	getThreadingForTabletCached,
 } from '../modules/pattern';
 
 class ThreadingChartCell extends PureComponent {
@@ -29,7 +31,7 @@ class ThreadingChartCell extends PureComponent {
 				orientation={orientation}
 				palette={palette}
 				tabletIndex={tabletIndex}
-				threadingForTablet={JSON.parse(threadingForTablet)}
+				threadingForTablet={threadingForTablet}
 			/>
 		);
 	}
@@ -41,16 +43,18 @@ ThreadingChartCell.propTypes = {
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'rowIndex': PropTypes.number.isRequired, // eslint-disable-line react/no-unused-prop-types
 	'tabletIndex': PropTypes.number.isRequired,
-	'threadingForTablet': PropTypes.string.isRequired,
+	'threadingForTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
 	const { rowIndex, tabletIndex } = ownProps;
 
 	return {
+		'holes': getHoles(state),
 		'orientation': getOrientationForTablet(state, tabletIndex),
+		'palette': getPalette(state),
 		'pick': getPick(state, rowIndex, tabletIndex),
-		'threadingForTablet': getThreadingForTablet(state, tabletIndex),
+		'threadingForTablet': getThreadingForTabletCached(state, tabletIndex),
 	};
 }
 

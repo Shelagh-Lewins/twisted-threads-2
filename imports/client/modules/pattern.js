@@ -117,7 +117,6 @@ export const savePatternData = (patternObj) => (dispatch) => {
 
 // ///////////////////////////
 // Provide information to the UI
-//TO DO rework as selectors
 export const getIsSubscribed = (state) => state.pattern.isSubscribed;
 
 export const getIsLoading = (state) => state.pattern.isLoading;
@@ -126,13 +125,11 @@ export const getNumberOfRows = (state) => state.pattern.numberOfRows || 0;
 
 export const getNumberOfTablets = (state) => state.pattern.numberOfTablets || 0;
 
-export const getPick = (state, rowIndex, tabletIndex) => {
-	//console.log('*** getPick', state.pattern);
-	//console.log('tabletIndex', tabletIndex);
-	//console.log('rowIndex', rowIndex);
-	//console.log('tabletIndex', tabletIndex);
-	return state.pattern.picks[tabletIndex][rowIndex];
-};
+export const getHoles = (state) => state.pattern.holes;
+
+export const getPalette = (state) => state.pattern.palette;
+
+export const getPick = (state, rowIndex, tabletIndex) => state.pattern.picks[tabletIndex][rowIndex];
 
 export const getPicksForTablet = (state, tabletIndex) => state.pattern.picks[tabletIndex];
 
@@ -145,54 +142,28 @@ export const getTotalTurns = (state, rowIndex, tabletIndex) => state.pattern.pic
 export const totalTurns = (state, tabletIndex) => state.pattern.picks[tabletIndex].totalTurns;
 
 // ///////////////////////
-export const getPicks = (state) => state.pattern.picks;
-export const selectTabletIndex = (state, tabletIndex) => tabletIndex;
-export const selectRowIndex = (state, rowIndex) => rowIndex;
+// cached selectors to provide array props without triggering re-render
 
-export const makeUniqueSelectorInstance = () => createSelector(
-    [getPicks, selectTabletIndex, selectRowIndex],
-    (picks, tabletIndex, rowIndex) => {
-    	//console.log('*** makeUniqueSelectorInstance');
-	//console.log('rowIndex', rowIndex);
-	//console.log('tabletIndex', tabletIndex);
-    	return picks[tabletIndex][rowIndex];
-    }
-);  
+// use re-reselect to cache processed threading for tablet
+// otherwise, passing an array triggers re-render even when there is no change
+export const getThreading = (state) => state.pattern.threading;
 
-export const makeGetPick = (state, rowIndex, tabletIndex) => createSelector(
-	[],
-	() => {
-		//console.log('*** makeGetPick');
-	//console.log('rowIndex', rowIndex);
-	//console.log('tabletIndex', tabletIndex);
-		return state.pattern.picks[tabletIndex][rowIndex];
-	}
-);
-
-
-// user re-reselect to cache processed threading for tablet
-export const getThreadingForTabletAsString = (state, tabletIndex) => JSON.stringify(state.pattern.threading.map((threadingRow) => threadingRow[tabletIndex]));
+export const getTabletIndex = (state, tabletIndex) => tabletIndex;
 
 export const getThreadingForTabletCached = createCachedSelector(
-	getThreadingForTabletAsString,
+	getThreading,
+	getTabletIndex,
 
 	// resultFunc
-	(threading) => threading,
+	(threading, tabletIndex) => threading.map((threadingRow) => threadingRow[tabletIndex]),
 )(
- 	// re-reselect keySelector (receives selectors' arguments)
+	// re-reselect keySelector (receives selectors' arguments)
 	// Use "tabletIndex_rowIndex" as cacheKey
 	(_state_, tabletIndex) => tabletIndex,
 );
 
 // ///////////////////////////////////
 export const getTotalTurnsByTablet = (state) => state.pattern.picks.map((picksForTablet) => picksForTablet[state.pattern.numberOfRows - 1].totalTurns);
-
-export const getHoles = (state) => state.pattern.holes;
-
-export const getPalette = (state) => state.pattern.palette;
-
-// passing an array triggers re-render even when there is no change
-export const getThreadingForTablet = (state, tabletIndex) => JSON.stringify(state.pattern.threading.map((threadingRow) => threadingRow[tabletIndex]));
 
 export const getOrientationForTablet = (state, tabletIndex) => state.pattern.orientations[tabletIndex];
 

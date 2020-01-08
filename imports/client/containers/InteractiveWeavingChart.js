@@ -157,11 +157,9 @@ class InteractiveWeavingChart extends PureComponent {
 		const {
 			dispatch,
 			errors,
-			holes,
 			numberOfRows,
 			numberOfTablets,
 			isLoading,
-			palette,
 		} = this.props;
 		const { selectedRow } = this.state;
 		const { pattern } = this.context;
@@ -186,13 +184,11 @@ class InteractiveWeavingChart extends PureComponent {
 							{pattern.patternDesign && (
 								<WeavingChart
 									dispatch={dispatch}
-									holes={holes}
 									handleClickDown={this.handleClickDown}
 									handleClickRow={this.handleClickRow}
 									handleClickUp={this.handleClickUp}
 									numberOfRows={numberOfRows}
 									numberOfTablets={numberOfTablets}
-									palette={palette}
 									selectedRow={selectedRow}
 								/>
 							)}
@@ -220,21 +216,17 @@ InteractiveWeavingChart.contextType = AppContext;
 InteractiveWeavingChart.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
-	'holes': PropTypes.number.isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'numberOfRows': PropTypes.number.isRequired,
 	'numberOfTablets': PropTypes.number.isRequired,
-	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
-function mapStateToProps(state, ownProps) {
+function mapStateToProps(state) {
 	return {
 		'errors': state.errors,
-		'holes': getHoles(state),
 		'isLoading': getIsLoading(state),
 		'numberOfRows': getNumberOfRows(state),
 		'numberOfTablets': getNumberOfTablets(state),
-		'palette': getPalette(state),
 	};
 }
 

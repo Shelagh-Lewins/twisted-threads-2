@@ -1,30 +1,20 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import ChartSVG from './ChartSVG';
 
 import {
-	getDirection,
-	getNumberOfTurns,
+	getHoles,
 	getOrientationForTablet,
-	getPick,
-	getThreadingForTablet,
-	getTotalTurns,
-	makeGetPick,
+	getPalette,
 	getThreadingForTabletCached,
-	makeUniqueSelectorInstance,
-	getPickCached,
 } from '../modules/pattern';
 import {
 	modulus,
 } from '../modules/weavingUtils';
 
-class WeavingChartCell extends PureComponent {
-	componentDidUpdate(prevProps, prevState) {
-		const {tabletIndex, rowIndex} = this.props;
-		//console.log('componentDidUpdate');
-		//console.log('new', JSON.stringify(this.props));
-		//console.log('old', JSON.stringify(prevProps));
+class WeavingChartCell extends Component {
+	componentDidUpdate(prevProps) {
 		Object.keys(this.props).forEach((key) => {
 			if (this.props[key] !== prevProps[key]) {
 				console.log('change to ', key);
@@ -32,25 +22,6 @@ class WeavingChartCell extends PureComponent {
 				console.log('new value ', this.props[key]);
 			}
 		});
-
-		/* if (JSON.stringify(this.props) !== JSON.stringify(prevProps)) {
-			console.log('changed props. Tablet, row', tabletIndex, rowIndex);
-			console.log('prevProps', prevProps);
-			console.log('this.props', this.props);
-		} */
-		//console.log('changed props', JSON.stringify(this.props) !== JSON.stringify(prevProps)) {
-			//console.log('changed. Tablet, row', tabletIndex, rowIndex););
-
-		//console.log('state');
-		//console.log('new', JSON.stringify(this.state));
-		//console.log('old', JSON.stringify(prevState));
-		//console.log('changed state', JSON.stringify(this.state) !== JSON.stringify(prevState));
-
-		/* if (JSON.stringify(this.state) !== JSON.stringify(prevState)) {
-			console.log('changed state. Tablet, row', tabletIndex, rowIndex);
-			console.log('prevProps', prevProps);
-			console.log('this.props', this.props);
-		} */
 	}
 
 	render() {
@@ -65,9 +36,7 @@ class WeavingChartCell extends PureComponent {
 			totalTurns,
 		} = this.props;
 
-		//console.log('render', this.props);
-
-		// const { direction, numberOfTurns, totalTurns } = pick;
+		console.log('render', this.props);
 
 		const netTurns = modulus(totalTurns, holes);
 
@@ -93,7 +62,7 @@ class WeavingChartCell extends PureComponent {
 					orientation={orientation}
 					palette={palette}
 					tabletIndex={tabletIndex}
-					threadingForTablet={JSON.parse(threadingForTablet)}
+					threadingForTablet={threadingForTablet}
 				/>
 			</span>
 		);
@@ -108,7 +77,7 @@ WeavingChartCell.propTypes = {
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'rowIndex': PropTypes.number.isRequired, // eslint-disable-line react/no-unused-prop-types
 	'tabletIndex': PropTypes.number.isRequired,
-	'threadingForTablet': PropTypes.string.isRequired,
+	'threadingForTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'totalTurns': PropTypes.number.isRequired,
 };
 
@@ -118,9 +87,10 @@ function mapStateToProps(state, ownProps) {
 
 	return {
 		'direction': direction,
+		'holes': getHoles(state),
 		'numberOfTurns': numberOfTurns,
-		// 'orientation': getOrientationForTablet(state, tabletIndex),
-		'orientation': '/',
+		'orientation': getOrientationForTablet(state, tabletIndex),
+		'palette': getPalette(state),
 		'threadingForTablet': getThreadingForTabletCached(state, tabletIndex),
 		'totalTurns': totalTurns,
 	};
