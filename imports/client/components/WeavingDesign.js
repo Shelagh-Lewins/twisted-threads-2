@@ -327,9 +327,11 @@ class WeavingDesign extends PureComponent {
 
 		let rowIndex;
 		let tabletIndex;
+		let selectedCellText = 'none';
 
 		if (selectedCell) {
 			[rowIndex, tabletIndex] = selectedCell;
+			selectedCellText = `tablet ${tabletIndex}, row ${rowIndex}`;
 		}
 
 		return (
@@ -348,6 +350,9 @@ class WeavingDesign extends PureComponent {
 					rowIndex={rowIndex}
 					tabletIndex={tabletIndex}
 				/>
+				<p className="hint">
+					{`Selected: ${selectedCellText}`}
+				</p>
 				<AddRowsForm
 					enableReinitialize={true}
 					handleSubmit={this.handleSubmitAddRows}
