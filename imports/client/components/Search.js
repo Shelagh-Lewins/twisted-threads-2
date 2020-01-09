@@ -115,6 +115,7 @@ class Search extends PureComponent {
 		<div className="search-controls">
 			<Input
 				onChange={this.onChangeInput}
+				size="18"
 				type="text"
 			/>
 			<Button
@@ -156,7 +157,6 @@ class Search extends PureComponent {
 
 		const ListItem = ({ item }) => {
 			const {
-				_id,
 				createdBy,
 				name,
 				numberOfTablets,
