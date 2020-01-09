@@ -24,6 +24,10 @@ $rw-img-path: "~/img";
 		display: none;
 	}
 
+	.rw-list {
+		max-height: 300px;
+	}
+
 	li {
 		float: left;
 		line-height: 1;
@@ -42,6 +46,21 @@ $rw-img-path: "~/img";
 
 			div {
 				margin-left: 56px;
+			}
+		}
+
+		.show-more-patterns,
+		.show-more-users {
+			color: $color-text;
+			float: left;
+			font-weight: bold;
+			padding: 8px 0;
+			text-align: center;
+			text-decoration: none;
+			width: 100%;
+
+			svg {
+				margin-right: 8px;
 			}
 		}
 

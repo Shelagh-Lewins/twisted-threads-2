@@ -13,6 +13,7 @@ export const SET_SEARCH_TERM = 'SET_SEARCH_TERM';
 export const SEARCH_COMPLETE = 'SEARCH_COMPLETE';
 export const CLEAR_SEARCH_RESULTS = 'CLEAR_SEARCH_RESULTS';
 export const SET_PATTERN_SEARCH_LIMIT = 'SET_PATTERN_SEARCH_LIMIT';
+export const SET_USER_SEARCH_LIMIT = 'SET_USER_SEARCH_LIMIT';
 
 // define action types so they are visible
 // and export them so other reducers can use them
@@ -44,19 +45,7 @@ export function clearSearchResults() {
 	};
 }
 
-// Start search
-export const searchStart = (searchTerm) => (dispatch, getState) => {
-	dispatch(clearErrors());
-	dispatch(setIsSearching(true));
-	dispatch(clearSearchResults());
-
-	if (!searchTerm || searchTerm === '') {
-		return;
-	}
-
-	dispatch(setSearchTerm(searchTerm));
-};
-
+// pattern search limit
 export function setPatternSearchLimit(patternSearchLimit) {
 	return {
 		'type': 'SET_PATTERN_SEARCH_LIMIT',
@@ -65,15 +54,44 @@ export function setPatternSearchLimit(patternSearchLimit) {
 }
 
 export const showMorePatterns = () => (dispatch, getState) => {
-					console.log('show more!');
 	const { patternSearchLimit } = getState().search;
 	dispatch(setPatternSearchLimit(patternSearchLimit + SEARCH_MORE));
+};
+
+// user search limit
+export function setUserSearchLimit(userSearchLimit) {
+	return {
+		'type': 'SET_USER_SEARCH_LIMIT',
+		'payload': userSearchLimit,
+	};
+}
+
+export const showMoreUsers = () => (dispatch, getState) => {
+	const { userSearchLimit } = getState().search;
+	dispatch(setUserSearchLimit(userSearchLimit + SEARCH_MORE));
+};
+
+// Start search
+export const searchStart = (searchTerm) => (dispatch) => {
+	dispatch(clearErrors());
+	dispatch(setIsSearching(true));
+	dispatch(clearSearchResults());
+	dispatch(setPatternSearchLimit(SEARCH_LIMIT));
+	dispatch(setUserSearchLimit(SEARCH_LIMIT));
+
+	if (!searchTerm || searchTerm === '') {
+		return;
+	}
+
+	dispatch(setSearchTerm(searchTerm));
 };
 
 // Provide info to UI
 export const getSearchTerm = (state) => state.search.searchTerm;
 
 export const getPatternSearchLimit = (state) => state.search.patternSearchLimit;
+
+export const getUserSearchLimit = (state) => state.search.userSearchLimit;
 
 // ///////////////////////////
 // State
@@ -84,6 +102,7 @@ const initialSearchState = {
 	'patternSearchLimit': SEARCH_LIMIT,
 	'searchResults': [],
 	'searchTerm': '',
+	'userSearchLimit': SEARCH_LIMIT,
 };
 
 // state updates
@@ -110,6 +129,10 @@ export default function auth(state = initialSearchState, action) {
 
 		case SET_PATTERN_SEARCH_LIMIT: {
 			return updeep({ 'patternSearchLimit': action.payload }, state);
+		}
+
+		case SET_USER_SEARCH_LIMIT: {
+			return updeep({ 'userSearchLimit': action.payload }, state);
 		}
 
 		default:

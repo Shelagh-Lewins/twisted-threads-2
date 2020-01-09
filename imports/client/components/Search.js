@@ -11,9 +11,11 @@ import store from '../modules/store';
 import {
 	getPatternSearchLimit,
 	getSearchTerm,
+	getUserSearchLimit,
 	searchStart,
 	setIsSearching,
 	showMorePatterns,
+	showMoreUsers,
 } from '../modules/search';
 import 'react-widgets/dist/css/react-widgets.css';
 import { PatternsIndex, UsersIndex } from '../../modules/collection';
@@ -95,7 +97,11 @@ class Search extends PureComponent {
 			case 'showMorePatterns':
 				dispatch(showMorePatterns());
 				Search.updateMe.set(true);
-				// Search._combobox._values.open = true; // keep the list open
+				break;
+
+			case 'showMoreUsers':
+				dispatch(showMoreUsers());
+				Search.updateMe.set(true);
 				break;
 
 			default:
@@ -104,6 +110,7 @@ class Search extends PureComponent {
 		history.push(url);
 	};
 
+	// custom input and button prevents the selected item from being written to the input
 	renderSearchInput = () => (
 		<div className="search-controls">
 			<Input
@@ -170,7 +177,9 @@ class Search extends PureComponent {
 									<span className="icon" />
 									{numberOfTablets}
 								</span>
-								<span className="created-by" title={`Created by ${createdBy}`}><span className="icon" />{username}</span>
+								<span className="created-by" title={`Created by ${createdBy}`}>
+									<span className="icon" />{username}
+								</span>
 							</div>
 						</span>
 					);
@@ -188,12 +197,25 @@ class Search extends PureComponent {
 					break;
 
 				case 'showMorePatterns':
-					element = <span className="show-more-patterns">Show more patterns</span>;
+					element = (
+						<span className="show-more-patterns">
+							<FontAwesomeIcon icon={['fas', 'search']} style={{ 'color': iconColors.default }} size="1x" />
+							Show more patterns...
+						</span>
+					);
+					break;
+
+				case 'showMoreUsers':
+					element = (
+						<span className="show-more-users">
+							<FontAwesomeIcon icon={['fas', 'search']} style={{ 'color': iconColors.default }} size="1x" />
+							Show more users...
+						</span>
+					);
 					break;
 
 				default:
-				//TO DO review this, it is a fallback in case type not present
-					element = <span className="name">{name}</span>;
+					element = <span className="default">{name}</span>;
 					break;
 			}
 			return element;
@@ -222,6 +244,7 @@ class Search extends PureComponent {
 					onChange={() => {}}
 					open={open}
 					onSelect={this.onSelect}
+					onToggle={() => {}}
 					textField="name"
 					valueField="_id"
 				/>
@@ -241,28 +264,24 @@ Search.propTypes = {
 	'searchTerm': PropTypes.string.isRequired,
 };
 
-function mapStateToProps(state, ownProps) {
-	return {
-	};
-}
-
 const Tracker = withTracker(({ dispatch }) => {
-	// console.log('updateMe', Search.updateMe.get());
+	// force the results list to update when the user clicks "more..."
 	const trigger = Search.updateMe.get();
+
 	const state = store.getState();
 	const searchTerm = getSearchTerm(state);
 	const patternSearchLimit = getPatternSearchLimit(state);
+	const userSearchLimit = getUserSearchLimit(state);
 	let patternsResults = [];
 	let usersResults = [];
 
-	//console.log('*** tracker. patternSeachLimit', patternSearchLimit);
-
 	if (searchTerm) {
 		// search for patterns
+		// server returns extra results so the client knows if 'show more' should be shown
 		const patternsCursor = PatternsIndex.search(searchTerm, { 'limit': patternSearchLimit + SEARCH_MORE }); // search is a reactive data source
-		// server returns extra results for 'show more'
+
 		patternsResults = patternsCursor.fetch();
-		//console.log('*** patternCursor count', patternsCursor.count());
+
 		// hide the 'more' results'
 		patternsResults = patternsResults.slice(0, patternSearchLimit);
 
@@ -274,9 +293,19 @@ const Tracker = withTracker(({ dispatch }) => {
 		}
 
 		// search for users
-		const usersCursor = UsersIndex.search(searchTerm, { 'limit': 10 }); // search is a reactive data source
+		// server returns extra results so the client knows if 'show more' should be shown
+		const usersCursor = UsersIndex.search(searchTerm, { 'limit': userSearchLimit + SEARCH_MORE }); // search is a reactive data source
 		usersResults = usersCursor.fetch();
-		//console.log('*** usersCursor count', usersCursor.count());
+
+		// hide the 'more' results'
+		usersResults = usersResults.slice(0, userSearchLimit);
+
+		if (usersResults.length < usersCursor.count()) {
+			usersResults.push({
+				'name': 'Show more users',
+				'type': 'showMoreUsers',
+			});
+		}
 
 		dispatch(setIsSearching(false));
 	}
@@ -287,4 +316,4 @@ const Tracker = withTracker(({ dispatch }) => {
 	};
 })(Search);
 
-export default connect(mapStateToProps)(Tracker);
+export default connect()(Tracker);
