@@ -115,8 +115,16 @@
 	}
 
 	.weaving-toolbar {
+		background-color: $color-chart-editing-background;
+		border: 1px solid transparent;
+		border-radius: 4px;
 		clear: both;
 		float: left;
+		padding: 8px;
+
+		&.scrolling {
+			border-color: $color-chart-border;
+		}
 
 		.form-group {
 			clear: both;

@@ -29,7 +29,8 @@ class WeavingDesign extends PureComponent {
 		super(props);
 
 		this.state = {
-			'controlsOffset': 0,
+			'controlsOffsetX': 0,
+			'controlsOffsetY': 0,
 			'isEditing': false,
 			'selectedCell': undefined,
 		};
@@ -60,33 +61,55 @@ class WeavingDesign extends PureComponent {
 	// ensure the edit tools remain in view
 	trackScrolling = () => {
 		const weavingElm = this.weavingRef.current;
+		const constrolsElm = this.controlsRef.current;
 
 		const {
-			'x': weavingLeftOffset,
+			'x': weavingPositionX,
+			'y': weavingPositionY,
 		} = weavingElm.getBoundingClientRect();
 
 		// find the containing element's applied styles
-		const compStyles = window.getComputedStyle(weavingElm);
+		const weavingCompStyles = window.getComputedStyle(weavingElm);
 
-		const threadingWidth = parseFloat(weavingElm.clientWidth)
-		- parseFloat(compStyles.getPropertyValue('padding-left'))
-		- parseFloat(compStyles.getPropertyValue('padding-right'));
 
-		//const swatchesNode = this.controlsRef.current.getElementsByClassName('swatches')[0];
+		const controlsCompStyles = window.getComputedStyle(constrolsElm);
 
-		const controlsWidth = this.controlsRef.current.getBoundingClientRect().width;
+		const weavingWidth = parseFloat(weavingElm.clientWidth)
+		- parseFloat(weavingCompStyles.getPropertyValue('padding-left'))
+		- parseFloat(weavingCompStyles.getPropertyValue('padding-right'));
 
-		const widthDifference = threadingWidth - controlsWidth;
+		const weavingHeight = parseFloat(weavingElm.clientHeight)
+		- parseFloat(weavingCompStyles.getPropertyValue('padding-top'))
+		- parseFloat(weavingCompStyles.getPropertyValue('padding-bottom'));
+
+		const windowHeight = window.innerHeight;
+		const controlsPaddingY = parseFloat(controlsCompStyles.getPropertyValue('padding-top')) + parseFloat(controlsCompStyles.getPropertyValue('padding-bottom'));
+		const weavingLeftOffset = weavingPositionX;
+		const weavingBottomOffset = weavingHeight + weavingPositionY - windowHeight + controlsPaddingY + 16; // extra bit to raise panel above bottom of window
+
+		const controlsWidth = constrolsElm.getBoundingClientRect().width;
+
+		const controlsHeight = constrolsElm.getBoundingClientRect().height;
+
+		const widthDifference = weavingWidth - controlsWidth;
+
+		const heightDifference = weavingHeight - controlsHeight;
+
+		let offsetX = 0;
+		let offsetY = 0;
 
 		if (weavingLeftOffset < 0) {
-			this.setState({
-				'controlsOffset': Math.min(-1 * weavingLeftOffset, widthDifference),
-			});
-		} else {
-			this.setState({
-				'controlsOffset': 0,
-			});
+			offsetX = Math.min(-1 * weavingLeftOffset, widthDifference);
 		}
+
+		if (weavingBottomOffset > 0) {
+			offsetY = Math.min(weavingBottomOffset, heightDifference);
+		}
+
+		this.setState({
+			'controlsOffsetX': offsetX,
+			'controlsOffsetY': offsetY,
+		});
 	}
 
 	handleClickWeavingCell(rowIndex, tabletIndex) {
@@ -160,13 +183,14 @@ class WeavingDesign extends PureComponent {
 		if (!isEditing) {
 			document.addEventListener('scroll', this.trackScrolling);
 			window.addEventListener('resize', this.trackScrolling);
+			setTimeout(() => this.trackScrolling(), 100); // give the controls time to render
 		} else {
 			document.removeEventListener('scroll', this.trackScrolling);
 			window.removeEventListener('resize', this.trackScrolling);
 		}
 
 		this.setState({
-			'controlsOffset': 0,
+			'controlsOffsetX': 0,
 			'isEditing': !isEditing,
 		});
 
@@ -295,7 +319,11 @@ class WeavingDesign extends PureComponent {
 		const {
 			numberOfRows,
 		} = this.props;
-		const { controlsOffset, selectedCell } = this.state;
+		const {
+			controlsOffsetX,
+			controlsOffsetY,
+			selectedCell,
+		} = this.state;
 
 		let rowIndex;
 		let tabletIndex;
@@ -306,10 +334,11 @@ class WeavingDesign extends PureComponent {
 
 		return (
 			<div
-				className="weaving-toolbar"
+				className={`weaving-toolbar ${controlsOffsetY > 0 ? 'scrolling' : ''}`}
 				ref={this.controlsRef}
 				style={{
-					'left': `${controlsOffset}px`,
+					'left': `${controlsOffsetX}px`,
+					'bottom': `${controlsOffsetY}px`,
 					'position': 'relative',
 				}}
 			>
