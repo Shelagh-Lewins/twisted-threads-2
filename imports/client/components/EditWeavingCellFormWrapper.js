@@ -10,12 +10,14 @@ import {
 class EditWeavingCellFormWrapper extends PureComponent {
 	render() {
 		const {
+			canEdit,
 			handleSubmit,
 			numberOfTurns,
 		} = this.props;
 
 		return (
 			<EditWeavingCellForm
+				canEdit={canEdit}
 				handleSubmit={handleSubmit}
 				numberOfTurns={numberOfTurns}
 			/>
@@ -24,17 +26,25 @@ class EditWeavingCellFormWrapper extends PureComponent {
 }
 
 EditWeavingCellFormWrapper.propTypes = {
+	'canEdit': PropTypes.bool.isRequired,
 	'handleSubmit': PropTypes.func.isRequired,
 	'numberOfTurns': PropTypes.number.isRequired,
-	'rowIndex': PropTypes.number.isRequired, // eslint-disable-line react/no-unused-prop-types
-	'tabletIndex': PropTypes.number.isRequired, // eslint-disable-line react/no-unused-prop-types
+	'rowIndex': PropTypes.number, // eslint-disable-line react/no-unused-prop-types
+	'tabletIndex': PropTypes.number, // eslint-disable-line react/no-unused-prop-types
 };
 
 function mapStateToProps(state, ownProps) {
 	const { rowIndex, tabletIndex } = ownProps;
 
+	if (typeof tabletIndex !== 'undefined'
+		&& typeof rowIndex !== 'undefined') {
+		return {
+			'numberOfTurns': getPick(state, tabletIndex, rowIndex).numberOfTurns,
+		};
+	}
+
 	return {
-		'numberOfTurns': getPick(state, tabletIndex, rowIndex).numberOfTurns,
+		'numberOfTurns': 0,
 	};
 }
 

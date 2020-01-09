@@ -251,14 +251,12 @@ class WeavingDesign extends PureComponent {
 
 		return (
 			<div className="weaving-toolbar">
-				<span className="hint">Click on a chart cell to edit it</span>
-				{selectedCell && (
-					<EditWeavingCellFormWrapper
-						handleSubmit={this.handleSubmitEditWeavingCellForm}
-						rowIndex={rowIndex}
-						tabletIndex={tabletIndex}
-					/>
-				)}
+				<EditWeavingCellFormWrapper
+					canEdit={selectedCell !== undefined}
+					handleSubmit={this.handleSubmitEditWeavingCellForm}
+					rowIndex={rowIndex}
+					tabletIndex={tabletIndex}
+				/>
 				<AddRowsForm
 					enableReinitialize={true}
 					handleSubmit={this.handleSubmitAddRows}
@@ -279,6 +277,7 @@ class WeavingDesign extends PureComponent {
 				<div className="content">
 					{this.renderChart()}
 					{isEditing && this.renderToolbar()}
+					<div className="clearing" />
 				</div>
 			</div>
 		);

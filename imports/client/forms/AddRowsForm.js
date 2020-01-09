@@ -65,51 +65,49 @@ const AddRowsForm = (props) => {
 	return (
 		<div className="edit-pattern-form">
 			<form onSubmit={formik.handleSubmit}>
-				<Row className="form-group">
-					<Col>
-						<label htmlFor="insertNRows">
-							Add
-							<input
-								className={`form-control ${formik.touched.insertNRows && formik.errors.insertNRows ? 'is-invalid' : ''
-								}`}
-								placeholder="Number of rows"
-								id="insertNRows"
-								max={MAX_ROWS - numberOfRows}
-								min="1"
-								name="insertNRows"
-								type="number"
-								onChange={formik.handleChange}
-								onBlur={formik.handleBlur}
-								value={formik.values.insertNRows}
-							/>
-							{formik.touched.insertNRows && formik.errors.insertNRows ? (
-								<div className="invalid-feedback invalid">{formik.errors.insertNRows}</div>
-							) : null}
-						</label>
-						<label htmlFor="insertRowsAt">
-							rows at:
-							<input
-								className={`form-control ${formik.touched.insertRowsAt && formik.errors.insertRowsAt ? 'is-invalid' : ''
-								}`}
-								placeholder="Position to insert rows"
-								id="insertRowsAt"
-								max={numberOfRows + 1}
-								min="1"
-								name="insertRowsAt"
-								type="number"
-								onChange={formik.handleChange}
-								onBlur={formik.handleBlur}
-								value={formik.values.insertRowsAt}
-							/>
-							{formik.touched.tablets && formik.errors.tablets ? (
-								<div className="invalid-feedback invalid">{formik.errors.tablets}</div>
-							) : null}
-						</label>
-						<div className="controls">
-							<Button type="submit" color="primary">Add rows</Button>
-						</div>
-					</Col>
-				</Row>
+				<div className="form-group">
+					<label htmlFor="insertNRows">
+						Add
+						<input
+							className={`form-control ${formik.touched.insertNRows && formik.errors.insertNRows ? 'is-invalid' : ''
+							}`}
+							placeholder="Number of rows"
+							id="insertNRows"
+							max={MAX_ROWS - numberOfRows}
+							min="1"
+							name="insertNRows"
+							type="number"
+							onChange={formik.handleChange}
+							onBlur={formik.handleBlur}
+							value={formik.values.insertNRows}
+						/>
+						{formik.touched.insertNRows && formik.errors.insertNRows ? (
+							<div className="invalid-feedback invalid">{formik.errors.insertNRows}</div>
+						) : null}
+					</label>
+					<label htmlFor="insertRowsAt">
+						rows at:
+						<input
+							className={`form-control ${formik.touched.insertRowsAt && formik.errors.insertRowsAt ? 'is-invalid' : ''
+							}`}
+							placeholder="Position to insert rows"
+							id="insertRowsAt"
+							max={numberOfRows + 1}
+							min="1"
+							name="insertRowsAt"
+							type="number"
+							onChange={formik.handleChange}
+							onBlur={formik.handleBlur}
+							value={formik.values.insertRowsAt}
+						/>
+						{formik.touched.tablets && formik.errors.tablets ? (
+							<div className="invalid-feedback invalid">{formik.errors.tablets}</div>
+						) : null}
+					</label>
+					<div className="controls">
+						<Button type="submit" color="primary">Add rows</Button>
+					</div>
+				</div>
 			</form>
 		</div>
 	);

@@ -23,9 +23,10 @@ const validate = (values) => {
 };
 
 const EditWeavingCellForm = (props) => {
-	const { numberOfTurns } = props;
+	const { canEdit, numberOfTurns } = props;
 
 	const formik = useFormik({
+		'enableReinitialize': true,
 		'initialValues': {
 			'numberOfTurns': numberOfTurns,
 		},
@@ -47,38 +48,44 @@ const EditWeavingCellForm = (props) => {
 	return (
 		<div className="edit-pattern-form">
 			<form onSubmit={formik.handleSubmit}>
-				<Row className="form-group">
-					<Col>
-						<label htmlFor="numberOfTurns">
-							Number of turns:
-							<input
-								className={`form-control ${formik.touched.numberOfTurns && formik.errors.numberOfTurns ? 'is-invalid' : ''
-								}`}
-								placeholder="Pattern name"
-								id="numberOfTurns"
-								max={ALLOWED_NUMBER_OF_TURNS}
-								min="0"
-								name="numberOfTurns"
-								type="number"
-								onChange={formik.handleChange}
-								onBlur={formik.handleBlur}
-								value={formik.values.numberOfTurns}
-							/>
-							{formik.touched.numberOfTurns && formik.errors.numberOfTurns ? (
-								<div className="invalid-feedback invalid">{formik.errors.numberOfTurns}</div>
-							) : null}
-						</label>
-						<div className="controls">
-							<Button type="submit" color="primary">Update number of turns</Button>
-						</div>
-					</Col>
-				</Row>
+				<div className="form-group">
+					<label htmlFor="numberOfTurns">
+						Number of turns:
+						<input
+							className={`form-control ${formik.touched.numberOfTurns && formik.errors.numberOfTurns ? 'is-invalid' : ''
+							}`}
+							disabled={!canEdit}
+							placeholder="Pattern name"
+							id="numberOfTurns"
+							max={ALLOWED_NUMBER_OF_TURNS}
+							min="0"
+							name="numberOfTurns"
+							type="number"
+							onChange={formik.handleChange}
+							onBlur={formik.handleBlur}
+							value={formik.values.numberOfTurns}
+						/>
+						{formik.touched.numberOfTurns && formik.errors.numberOfTurns ? (
+							<div className="invalid-feedback invalid">{formik.errors.numberOfTurns}</div>
+						) : null}
+					</label>
+					<div className="controls">
+						<Button
+							type="submit"
+							color="primary"
+							disabled={!canEdit}
+						>
+							Update number of turns
+						</Button>
+					</div>
+				</div>
 			</form>
 		</div>
 	);
 };
 
 EditWeavingCellForm.propTypes = {
+	'canEdit': PropTypes.bool.isRequired,
 	'handleSubmit': PropTypes.func.isRequired,
 	'numberOfTurns': PropTypes.number.isRequired,
 };
