@@ -33,6 +33,7 @@ class Threading extends PureComponent {
 		super(props);
 
 		this.state = {
+			'controlsOffset': 0,
 			'isEditing': false,
 			'selectedColorIndex': 0,
 		};
@@ -51,6 +52,47 @@ class Threading extends PureComponent {
 		functionsToBind.forEach((functionName) => {
 			this[functionName] = this[functionName].bind(this);
 		});
+
+		// ref to find nodes so we can keep controls in view
+		this.threadingRef = React.createRef();
+		this.controlsRef = React.createRef();
+	}
+
+	componentWillUnmount() {
+		document.removeEventListener('scroll', this.trackScrolling);
+		window.removeEventListener('resize', this.trackScrolling);
+	}
+
+	// ensure the edit tools remain in view
+	trackScrolling = () => {
+		const threadingElm = this.threadingRef.current;
+
+		const {
+			'x': threadingLeftOffset,
+		} = threadingElm.getBoundingClientRect();
+
+		// find the containing element's applied styles
+		const compStyles = window.getComputedStyle(threadingElm);
+
+		const threadingWidth = parseFloat(threadingElm.clientWidth)
+		- parseFloat(compStyles.getPropertyValue('padding-left'))
+		- parseFloat(compStyles.getPropertyValue('padding-right'));
+
+		const swatchesNode = this.controlsRef.current.getElementsByClassName('swatches')[0];
+
+		const controlsWidth = swatchesNode.getBoundingClientRect().width;
+
+		const widthDifference = threadingWidth - controlsWidth;
+
+		if (threadingLeftOffset < 0) {
+			this.setState({
+				'controlsOffset': Math.min(-1 * threadingLeftOffset, widthDifference),
+			});
+		} else {
+			this.setState({
+				'controlsOffset': 0,
+			});
+		}
 	}
 
 	selectColor(index) {
@@ -145,7 +187,16 @@ class Threading extends PureComponent {
 		const { dispatch } = this.props;
 		const { isEditing } = this.state;
 
+		if (!isEditing) {
+			document.addEventListener('scroll', this.trackScrolling);
+			window.addEventListener('resize', this.trackScrolling);
+		} else {
+			document.removeEventListener('scroll', this.trackScrolling);
+			window.removeEventListener('resize', this.trackScrolling);
+		}
+
 		this.setState({
+			'controlsOffset': 0,
 			'isEditing': !isEditing,
 		});
 
@@ -373,17 +424,31 @@ class Threading extends PureComponent {
 
 	render() {
 		const { canEdit } = this.props;
-		const { isEditing } = this.state;
+		const { controlsOffset, isEditing } = this.state;
 
 		return (
-			<div className={`threading ${isEditing ? 'editing' : ''}`}>
+			<div
+				className={`threading ${isEditing ? 'editing' : ''}`}
+			>
 				{canEdit && this.renderControls()}
-				<div className="content">
+				<div
+					className="content"
+					ref={this.threadingRef}
+				>
 					{this.renderChart()}
 					{isEditing && this.renderRemoveTabletButtons()}
 					{this.renderOrientations()}
-					{isEditing && this.renderToolbar()}
-					{isEditing && this.renderPalette()}
+					<div
+						ref={this.controlsRef}
+						style={{
+							'left': `${controlsOffset}px`,
+							'position': 'relative',
+						}}
+					>
+						{isEditing && this.renderToolbar()}
+						{isEditing && this.renderPalette()}
+					</div>
+					<div className="clearing" />
 				</div>
 			</div>
 		);

@@ -103,11 +103,12 @@ class Pattern extends PureComponent {
 
 		// resync with database when user finishes editing
 		// just in case
-		if (prevProps.isEditing && !isEditing) {
+		// currently this is a placeholder, in case its needed
+		/* if (prevProps.isEditing && !isEditing) {
 			console.log('*** stopped editing');
 			const { pattern } = this.context;
 			console.log('new pattern', pattern);
-		}
+		} */
 	}
 
 	componentWillUnmount() {

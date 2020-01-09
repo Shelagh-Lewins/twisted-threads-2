@@ -166,6 +166,7 @@ class Weft extends PureComponent {
 				<div className="content">
 					{this.renderWeft()}
 					{isEditing && this.renderPalette()}
+					<div className="clearing" />
 				</div>
 			</div>
 		);
