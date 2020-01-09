@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Button, Input } from 'reactstrap';
 import { Combobox } from 'react-widgets';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
@@ -15,172 +17,217 @@ import {
 } from '../modules/search';
 import 'react-widgets/dist/css/react-widgets.css';
 import { PatternsIndex, UsersIndex } from '../../modules/collection';
-import { SEARCH_MORE } from '../../modules/parameters';
-import ReactDOM from "react-dom";
+import { iconColors, SEARCH_MORE } from '../../modules/parameters';
 
-function Search(props) {
-	const {
-		dispatch,
-		history,
-		isSearching,
-		searchResults,
-		searchTerm,
-	} = props;
+class Search extends PureComponent {
+	constructor(props) {
+		super(props);
 
-	const onChange = (value) => {
+		this.state = {
+			'open': false,
+		};
+
+		// bind onClick functions to provide context
+		const functionsToBind = [
+			'onChangeInput',
+			'onSelect',
+			'toggleOpen',
+		];
+
+		functionsToBind.forEach((functionName) => {
+			this[functionName] = this[functionName].bind(this);
+		});
+	}
+
+	componentDidUpdate(prevProps) {
+		const { isSearching, searchTerm } = this.props;
+		const { open } = this.state;
+
+		if (prevProps.isSearching
+			&& !isSearching
+			&& searchTerm !== ''
+			&& !open) {
+			// allow search results to appear
+			// avoiding 'no results for' showing briefly
+			setTimeout(() => this.toggleOpen(), 100);
+		}
+	}
+
+	toggleOpen = () => {
+		const { open } = this.state;
+
+		this.setState({ 'open': !open });
+	}
+
+	onChangeInput = (event) => {
+		const {
+			dispatch,
+		} = this.props;
+		const { value } = event.target;
+
 		clearTimeout(global.searchTimeout);
 
-		if (typeof value !== 'object') {
-			// user has entered a search term
-			// don't fire if they've selected a search result
-			global.searchTimeout = setTimeout(() => {
-				dispatch(searchStart(value));
-			}, 500);
-		}
+		global.searchTimeout = setTimeout(() => {
+			dispatch(searchStart(value));
+		}, 500);
 	};
 
-	const onSelect = (value) => {
+	onSelect = (value) => {
+		const {
+			dispatch,
+			history,
+		} = this.props;
+
 		const { '__originalId': _id, type } = value;
 		let url;
 
 		switch (type) {
 			case 'pattern':
+				this.toggleOpen();
 				url = `/pattern/${_id}`;
 				break;
 
 			case 'user':
+				this.toggleOpen();
 				url = `/user/${_id}`;
 				break;
 
 			case 'showMorePatterns':
 				dispatch(showMorePatterns());
 				Search.updateMe.set(true);
-				Search._combobox._values.open = true; // keep the list open
-				//Search._combobox.inner.handleSelect('');
+				// Search._combobox._values.open = true; // keep the list open
 				break;
 
 			default:
 				break;
 		}
 		history.push(url);
-
-		console.log('*** ref', Search._combobox);
-		console.log('state', Search._combobox.inner.state);
-		//Search._combobox._values.value = '';
-		//Search._combobox.inner.state.accessors.text('');
-		/* console.log('*** ref ***', Search._combobox._values.value);
-
-		const node = ReactDOM.findDOMNode(Search._combobox);
-		console.log('node', node);
-
-		setTimeout(() => {
-			const input1 = node.getElementsByTagName('input')[0];
-			console.log('input', input1.value);
-			input1.setAttribute('value', searchTerm);
-			const input2 = node.getElementsByTagName('input')[0];
-			console.log('input2', input2.value);
-		}, 2000); */
 	};
 
-	const GroupHeading = ({ item }) => {
-		// note 'item' here is actually the group property
-		let text;
-
-		switch (item) {
-			case 'pattern':
-				text = 'Patterns';
-				break;
-
-			case 'user':
-				text = 'Users';
-				break;
-
-			default:
-				break;
-		}
-
-		return <span className="group-header">{text}</span>;
-	};
-
-	const ListItem = ({ item }) => {
-		const {
-			_id,
-			createdBy,
-			name,
-			numberOfTablets,
-			username,
-			type,
-		} = item;
-
-		let element;
-
-		switch (type) {
-			case 'pattern':
-				element = (
-					<span className="search-result-pattern">
-						<span className="main-icon" />
-						<div>
-							<span className="name">{name}</span>
-							<span className="tablets-count" title={`${numberOfTablets} tablets`}>
-								<span className="icon" />
-								{numberOfTablets}
-							</span>
-							<span className="created-by" title={`Created by ${createdBy}`}><span className="icon" />{username}</span>
-						</div>
-					</span>
-				);
-				break;
-
-			case 'user':
-				element = (
-					<span className="search-result-user">
-						<span className="main-icon" />
-						<div>
-							<span className="name">{name}</span>
-						</div>
-					</span>
-				);
-				break;
-
-			case 'showMorePatterns':
-				element = <span className="show-more-patterns">Show more patterns</span>;
-				break;
-
-			default:
-			//TO DO review this, it is a fallback in case type not present
-				element = <span className="name">{name}</span>;
-				break;
-		}
-		return element;
-	};
-
-	let message = 'Enter a search term...';
-
-	if (isSearching) {
-		message = 'Searching...';
-	} else if (searchTerm && searchTerm !== '') {
-		message = `no results found for ${searchTerm}`;
-	}
-
-	return (
-		<div className="search">
-			<Combobox
-				ref={(c) => Search._combobox = c}
-				busy={isSearching}
-				data={searchResults}
-				groupBy="type"
-				groupComponent={GroupHeading}
-				itemComponent={ListItem}
-				messages={{
-					'emptyList': message,
-				}}
-				onChange={onChange}
-				onSelect={onSelect}
-				textField="name"
-				valueField="_id"
+	renderSearchInput = () => (
+		<div className="search-controls">
+			<Input
+				onChange={this.onChangeInput}
+				type="text"
 			/>
+			<Button
+				onClick={this.toggleOpen}
+				title="toggle results"
+			>
+				<FontAwesomeIcon icon={['fas', 'search']} style={{ 'color': iconColors.default }} size="1x" />
+			</Button>
 		</div>
 	);
+
+	render() {
+		const {
+			isSearching,
+			searchResults,
+			searchTerm,
+		} = this.props;
+		const { open } = this.state;
+
+		const GroupHeading = ({ item }) => {
+			// note 'item' here is actually the group property
+			let text;
+
+			switch (item) {
+				case 'pattern':
+					text = 'Patterns';
+					break;
+
+				case 'user':
+					text = 'Users';
+					break;
+
+				default:
+					break;
+			}
+
+			return <span className="group-header">{text}</span>;
+		};
+
+		const ListItem = ({ item }) => {
+			const {
+				_id,
+				createdBy,
+				name,
+				numberOfTablets,
+				username,
+				type,
+			} = item;
+
+			let element;
+
+			switch (type) {
+				case 'pattern':
+					element = (
+						<span className="search-result-pattern">
+							<span className="main-icon" />
+							<div>
+								<span className="name">{name}</span>
+								<span className="tablets-count" title={`${numberOfTablets} tablets`}>
+									<span className="icon" />
+									{numberOfTablets}
+								</span>
+								<span className="created-by" title={`Created by ${createdBy}`}><span className="icon" />{username}</span>
+							</div>
+						</span>
+					);
+					break;
+
+				case 'user':
+					element = (
+						<span className="search-result-user">
+							<span className="main-icon" />
+							<div>
+								<span className="name">{name}</span>
+							</div>
+						</span>
+					);
+					break;
+
+				case 'showMorePatterns':
+					element = <span className="show-more-patterns">Show more patterns</span>;
+					break;
+
+				default:
+				//TO DO review this, it is a fallback in case type not present
+					element = <span className="name">{name}</span>;
+					break;
+			}
+			return element;
+		};
+
+		let message = 'Enter a search term...';
+
+		if (isSearching) {
+			message = 'Searching...';
+		} else if (searchTerm && searchTerm !== '') {
+			message = `no results found for ${searchTerm}`;
+		}
+
+		return (
+			<div className="search">
+				{this.renderSearchInput()}
+				<Combobox
+					busy={isSearching}
+					data={searchResults}
+					groupBy="type"
+					groupComponent={GroupHeading}
+					itemComponent={ListItem}
+					messages={{
+						'emptyList': message,
+					}}
+					onChange={() => {}}
+					open={open}
+					onSelect={this.onSelect}
+					textField="name"
+					valueField="_id"
+				/>
+			</div>
+		);
+	}
 }
 
 // force withTracker to update when 'show more' is clicked
@@ -200,7 +247,8 @@ function mapStateToProps(state, ownProps) {
 }
 
 const Tracker = withTracker(({ dispatch }) => {
-	//console.log('updateMe', Search.updateMe.get());
+	// console.log('updateMe', Search.updateMe.get());
+	const trigger = Search.updateMe.get();
 	const state = store.getState();
 	const searchTerm = getSearchTerm(state);
 	const patternSearchLimit = getPatternSearchLimit(state);
