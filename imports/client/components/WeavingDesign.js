@@ -29,6 +29,7 @@ class WeavingDesign extends PureComponent {
 		super(props);
 
 		this.state = {
+			'controlsOffset': 0,
 			'isEditing': false,
 			'selectedCell': undefined,
 		};
@@ -45,6 +46,47 @@ class WeavingDesign extends PureComponent {
 		functionsToBind.forEach((functionName) => {
 			this[functionName] = this[functionName].bind(this);
 		});
+
+		// ref to find nodes so we can keep controls in view
+		this.weavingRef = React.createRef();
+		this.controlsRef = React.createRef();
+	}
+
+	componentWillUnmount() {
+		document.removeEventListener('scroll', this.trackScrolling);
+		window.removeEventListener('resize', this.trackScrolling);
+	}
+
+	// ensure the edit tools remain in view
+	trackScrolling = () => {
+		const weavingElm = this.weavingRef.current;
+
+		const {
+			'x': weavingLeftOffset,
+		} = weavingElm.getBoundingClientRect();
+
+		// find the containing element's applied styles
+		const compStyles = window.getComputedStyle(weavingElm);
+
+		const threadingWidth = parseFloat(weavingElm.clientWidth)
+		- parseFloat(compStyles.getPropertyValue('padding-left'))
+		- parseFloat(compStyles.getPropertyValue('padding-right'));
+
+		//const swatchesNode = this.controlsRef.current.getElementsByClassName('swatches')[0];
+
+		const controlsWidth = this.controlsRef.current.getBoundingClientRect().width;
+
+		const widthDifference = threadingWidth - controlsWidth;
+
+		if (weavingLeftOffset < 0) {
+			this.setState({
+				'controlsOffset': Math.min(-1 * weavingLeftOffset, widthDifference),
+			});
+		} else {
+			this.setState({
+				'controlsOffset': 0,
+			});
+		}
 	}
 
 	handleClickWeavingCell(rowIndex, tabletIndex) {
@@ -112,6 +154,19 @@ class WeavingDesign extends PureComponent {
 		const { isEditing } = this.state;
 
 		this.setState({
+			'isEditing': !isEditing,
+		});
+
+		if (!isEditing) {
+			document.addEventListener('scroll', this.trackScrolling);
+			window.addEventListener('resize', this.trackScrolling);
+		} else {
+			document.removeEventListener('scroll', this.trackScrolling);
+			window.removeEventListener('resize', this.trackScrolling);
+		}
+
+		this.setState({
+			'controlsOffset': 0,
 			'isEditing': !isEditing,
 		});
 
@@ -240,7 +295,7 @@ class WeavingDesign extends PureComponent {
 		const {
 			numberOfRows,
 		} = this.props;
-		const { selectedCell } = this.state;
+		const { controlsOffset, selectedCell } = this.state;
 
 		let rowIndex;
 		let tabletIndex;
@@ -250,7 +305,14 @@ class WeavingDesign extends PureComponent {
 		}
 
 		return (
-			<div className="weaving-toolbar">
+			<div
+				className="weaving-toolbar"
+				ref={this.controlsRef}
+				style={{
+					'left': `${controlsOffset}px`,
+					'position': 'relative',
+				}}
+			>
 				<EditWeavingCellFormWrapper
 					canEdit={selectedCell !== undefined}
 					handleSubmit={this.handleSubmitEditWeavingCellForm}
@@ -274,7 +336,10 @@ class WeavingDesign extends PureComponent {
 		return (
 			<div className={`weaving ${isEditing ? 'editing' : ''}`}>
 				{canEdit && this.renderControls()}
-				<div className="content">
+				<div
+					className="content"
+					ref={this.weavingRef}
+				>
 					{this.renderChart()}
 					{isEditing && this.renderToolbar()}
 					<div className="clearing" />
