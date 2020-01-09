@@ -111,21 +111,32 @@ class Search extends PureComponent {
 	};
 
 	// custom input and button prevents the selected item from being written to the input
-	renderSearchInput = () => (
-		<div className="search-controls">
-			<Input
-				onChange={this.onChangeInput}
-				size="18"
-				type="text"
-			/>
-			<Button
-				onClick={this.toggleOpen}
-				title="toggle results"
-			>
-				<FontAwesomeIcon icon={['fas', 'search']} style={{ 'color': iconColors.default }} size="1x" />
-			</Button>
-		</div>
-	);
+	renderSearchInput = () => {
+		const { isSearching } = this.props;
+		const iconClass = isSearching ? 'fa-spin' : '';
+		const iconName = isSearching ? 'spinner' : 'search';
+
+		return (
+			<div className="search-controls">
+				<Input
+					onChange={this.onChangeInput}
+					size="18"
+					type="text"
+				/>
+				<Button
+					onClick={this.toggleOpen}
+					title="toggle results"
+				>
+					<FontAwesomeIcon
+						className={iconClass}
+						icon={['fas', iconName]}
+						style={{ 'color': iconColors.default }}
+						size="1x"
+					/>
+				</Button>
+			</div>
+		);
+	}
 
 	render() {
 		const {

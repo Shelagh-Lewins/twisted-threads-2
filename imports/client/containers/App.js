@@ -21,6 +21,7 @@ import {
 	faLockOpen,
 	faPencilAlt,
 	faSearch,
+	faSpinner,
 	faTrash,
 } from '@fortawesome/free-solid-svg-icons'; // import the icons you want
 import { withTracker } from 'meteor/react-meteor-data';
@@ -77,6 +78,7 @@ library.add(
 	faLockOpen,
 	faPencilAlt,
 	faSearch,
+	faSpinner,
 	faTrash,
 ); // and add them to your library
 
