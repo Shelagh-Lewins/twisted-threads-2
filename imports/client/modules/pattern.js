@@ -166,8 +166,20 @@ export const getIsEditing = (state) => state.pattern.isEditingWeaving || state.p
 // cached selectors to provide props without triggering re-render
 export const getPatternTwistSelector = createSelector(
 	getHoles,
+	getNumberOfRows,
+	getNumberOfTablets,
 	getPicks,
-	(holes, picks) => findPatternTwist(holes, picks),
+	(
+		holes,
+		numberOfRows,
+		numberOfTablets,
+		picks,
+	) => findPatternTwist({
+		holes,
+		numberOfRows,
+		numberOfTablets,
+		picks,
+	}),
 );
 
 export const getTotalTurnsByTabletSelector = createSelector(

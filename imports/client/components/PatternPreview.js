@@ -28,7 +28,6 @@ class PatternPreview extends Component {
 
 	render() {
 		const {
-			componentShouldUpdate,
 			dispatch,
 			holes,
 			numberOfRows,
@@ -124,7 +123,7 @@ class PatternPreview extends Component {
 		let totalTurnsDisplayStyle = {};
 		let rowNumbersStyle = {};
 		const tabletLabelsAllowance = 60; // allow for labels which aren't part of the svg
-		const tabletLabelsOffset = 10; // push the labels to the side
+		const tabletLabelsOffset = 15; // push the labels to the side
 		const adjustedHeight = imageHeight + tabletLabelsAllowance;
 		const rowNumbersAllowance = cellWidth * 1.5;
 

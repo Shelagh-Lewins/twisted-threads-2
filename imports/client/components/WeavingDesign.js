@@ -143,6 +143,7 @@ class WeavingDesign extends PureComponent {
 
 		if (response === true) {
 			dispatch(removeWeavingRow({ _id, 'row': rowIndex }));
+			setTimeout(() => this.trackScrolling(), 100); // give time for the deleted rows to be removed
 		}
 	}
 
@@ -154,6 +155,8 @@ class WeavingDesign extends PureComponent {
 			'insertNRows': parseInt(data.insertNRows, 10),
 			'insertRowsAt': parseInt(data.insertRowsAt - 1, 10),
 		}));
+
+		setTimeout(() => this.trackScrolling(), 100); // give the new rows time to render
 	}
 
 	handleSubmitEditWeavingCellForm(data) {
@@ -257,7 +260,7 @@ class WeavingDesign extends PureComponent {
 					{isEditing && numberOfRows > 1 && (
 						<li className="cell delete">
 							<span
-								title="delete row"
+								title={`delete row ${rowLabel}`}
 								type="button"
 								onClick={() => this.handleClickRemoveRow(rowLabel - 1)}
 								onKeyPress={() => this.handleClickRemoveRow(rowLabel - 1)}

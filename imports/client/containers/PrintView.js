@@ -11,7 +11,7 @@ import {
 	getNumberOfRows,
 	getNumberOfTablets,
 	getPalette,
-	getPatternTwist,
+	getPatternTwistSelector,
 	getTotalTurnsByTabletSelector,
 } from '../modules/pattern';
 import AppContext from '../modules/appContext';
@@ -225,7 +225,7 @@ PrintView.propTypes = {
 PrintView.contextType = AppContext;
 
 function mapStateToProps(state) {
-	const { patternIsTwistNeutral, patternWillRepeat } = getPatternTwist(state);
+	const { patternIsTwistNeutral, patternWillRepeat } = getPatternTwistSelector(state);
 
 	return {
 		'errors': state.errors,

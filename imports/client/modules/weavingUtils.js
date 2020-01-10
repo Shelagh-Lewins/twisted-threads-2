@@ -278,19 +278,21 @@ export const getPrevColor = ({
 	return palette[colorIndex];
 };
 
-export const findPatternTwist = (holes, picksByTablet) => {
+export const findPatternTwist = ({
+	holes,
+	numberOfRows,
+	numberOfTablets,
+	picks,
+}) => {
 	let patternWillRepeat = false;
 	let patternIsTwistNeutral = false;
 
-	if (picksByTablet[0]) {
+	if (picks[0]) {
 		patternWillRepeat = true;
 		patternIsTwistNeutral = true;
 
-		const numberOfRows = picksByTablet[0].length;
-		const numberOfTablets = picksByTablet.length;
-
 		for (let j = 0; j < numberOfTablets; j += 1) {
-			const { totalTurns } = picksByTablet[j][numberOfRows - 1];
+			const { totalTurns } = picks[j][numberOfRows - 1];
 			const startPosition = modulus(totalTurns, holes) === 0; // tablet is back at start position
 
 			if (totalTurns !== 0) {

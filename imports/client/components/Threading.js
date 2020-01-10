@@ -113,6 +113,8 @@ class Threading extends PureComponent {
 
 		if (response === true) {
 			dispatch(removeTablet({ _id, 'tablet': tabletIndex }));
+
+			setTimeout(() => this.trackScrolling(), 100); // give the change time to render
 		}
 	}
 
@@ -149,6 +151,8 @@ class Threading extends PureComponent {
 			'insertTabletsAt': parseInt(data.insertTabletsAt - 1, 10),
 			'colorIndex': parseInt(selectedColorIndex, 10),
 		}));
+
+		setTimeout(() => this.trackScrolling(), 100); // give the change time to render
 	}
 
 	handleClickThreadingCell(rowIndex, tabletIndex) {
@@ -201,13 +205,6 @@ class Threading extends PureComponent {
 		});
 
 		dispatch(setIsEditingThreading(!isEditing));
-
-		/* if (!isEditing) {
-			setTimeout(() => {
-				const element = document.getElementById(this.paletteId);
-				element.scrollIntoView({ 'behavior': 'smooth' });
-			}, 200);
-		} */
 	}
 
 	renderControls() {
