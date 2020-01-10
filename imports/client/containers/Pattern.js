@@ -22,6 +22,7 @@ import {
 	getPalette,
 	getPatternTwistSelector,
 	getTotalTurnsByTabletSelector,
+	savePatternData,
 } from '../modules/pattern';
 import { editPatternImageCaption, removePatternImage } from '../modules/patternImages';
 import AppContext from '../modules/appContext';
@@ -101,14 +102,12 @@ class Pattern extends PureComponent {
 			}
 		}
 
-		// resync with database when user finishes editing
-		// just in case
-		// currently this is a placeholder, in case its needed
-		/* if (prevProps.isEditing && !isEditing) {
-			console.log('*** stopped editing');
+		// resync with database when user starts editing
+		// in case they have made changes to the pattern in another window or on another machine
+		if (!prevProps.isEditing && isEditing) {
 			const { pattern } = this.context;
-			console.log('new pattern', pattern);
-		} */
+			dispatch(savePatternData(pattern));
+		}
 	}
 
 	componentWillUnmount() {
