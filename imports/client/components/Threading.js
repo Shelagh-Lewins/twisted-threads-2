@@ -317,7 +317,7 @@ class Threading extends PureComponent {
 				onKeyPress={() => this.handleClickRemoveTablet(tabletIndex)}
 				role="button"
 				tabIndex="0"
-				title={`Delete tablet ${tabletIndex}`}
+				title={`Delete tablet ${tabletIndex + 1}`}
 			>
 			X
 			</span>
