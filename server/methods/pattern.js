@@ -287,12 +287,16 @@ Meteor.methods({
 		}
 
 		// same for any pattern type
-		const { numberOfRows, numberOfTablets, patternType } = pattern;
+		const {
+			numberOfRows,
+			numberOfTablets,
+			patternType,
+			patternDesign,
+		} = pattern;
 
 		// to be filled in by data depending on case
 		let colorHexValue;
 		let colorIndex;
-		let direction;
 		let fieldName;
 		let hole;
 		let isPublic;
@@ -321,14 +325,21 @@ Meteor.methods({
 				return;
 
 			case 'editWeavingCellDirection':
-				({ direction, row, tablet } = data);
-				check(direction, nonEmptyStringCheck);
+				({ row, tablet } = data);
 				check(row, Match.Integer);
 				check(tablet, validTabletsCheck);
 
+				const { weavingInstructions } = patternDesign;
+
+				// change direction of tablet for this row and all followiing rows
+				for (let i = row; i < numberOfRows; i += 1) {
+					const newDirection = weavingInstructions[i][tablet].direction === 'F' ? 'B' : 'F';
+					weavingInstructions[i][tablet].direction = newDirection;
+				}
+
 				switch (patternType) {
 					case 'individual':
-						return Patterns.update({ _id }, { '$set': { [`patternDesign.weavingInstructions.${row}.${tablet}.direction`]: direction } });
+						return Patterns.update({ _id }, { '$set': { 'patternDesign.weavingInstructions': weavingInstructions } });
 
 					default:
 						throw new Meteor.Error('edit-weaving-cell-direction-unknown-pattern-type', `Unable to add weaving cell direction because the pattern type ${patternType} was not recognised`);

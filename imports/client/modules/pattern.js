@@ -35,7 +35,10 @@ export const SET_PATTERN_DATA = 'SET_PATTERN_DATA';
 // edit pattern charts
 export const SET_IS_EDITING_WEAVING = 'SET_IS_EDITING_WEAVING';
 export const SET_IS_EDITING_THREADING = 'SET_IS_EDITING_THREADING';
-export const UPDATE_WEAVING_CELL = 'UPDATE_WEAVING_CELL';
+
+export const UPDATE_WEAVING_CELL_DIRECTION = 'UPDATE_WEAVING_CELL_DIRECTION';
+export const UPDATE_WEAVING_CELL_TURNS = 'UPDATE_WEAVING_CELL_TURNS';
+
 export const UPDATE_THREADING_CELL = 'UPDATE_THREADING_CELL';
 export const UPDATE_ORIENTATION = 'UPDATE_ORIENTATION';
 export const UPDATE_ADD_WEAVING_ROWS = 'UPDATE_ADD_WEAVING_ROWS';
@@ -252,36 +255,32 @@ export function editIsPublic({
 
 // Pattern charts
 // Weaving
-export function updateWeavingCell(data) {
+export function updateWeavingCellDirection(data) {
 	return {
-		'type': 'UPDATE_WEAVING_CELL',
+		'type': 'UPDATE_WEAVING_CELL_DIRECTION',
 		'payload': data,
 	};
 }
 
+// change direction of this row and all followiing rows
 export function editWeavingCellDirection({
 	_id,
 	row,
 	tablet,
 }) {
-	return (dispatch, getState) => {
-		const currentDirection = getState().pattern.picks[tablet][row].direction;
-		const direction = currentDirection === 'F' ? 'B' : 'F';
-
+	return (dispatch) => {
 		Meteor.call('pattern.edit', {
 			_id,
 			'data': {
 				'type': 'editWeavingCellDirection',
 				row,
 				tablet,
-				direction,
 			},
 			row,
 			tablet,
 		});
 
-		dispatch(updateWeavingCell({
-			'modification': { direction },
+		dispatch(updateWeavingCellDirection({
 			row,
 			tablet,
 		}));
@@ -289,6 +288,13 @@ export function editWeavingCellDirection({
 }
 
 // number of turns
+export function updateWeavingCellNumberOfTurns(data) {
+	return {
+		'type': 'UPDATE_WEAVING_CELL_TURNS',
+		'payload': data,
+	};
+}
+
 export function editWeavingCellNumberOfTurns({
 	_id,
 	row,
@@ -306,8 +312,8 @@ export function editWeavingCellNumberOfTurns({
 			},
 		});
 
-		dispatch(updateWeavingCell({
-			'modification': { numberOfTurns },
+		dispatch(updateWeavingCellNumberOfTurns({
+			numberOfTurns,
 			row,
 			tablet,
 		}));
@@ -616,8 +622,59 @@ export default function pattern(state = initialPatternState, action) {
 			}, state);
 		}
 
+		case UPDATE_WEAVING_CELL_TURNS: {
+			const { numberOfTurns, row, tablet } = action.payload;
+			const { weavingInstructionsByTablet } = state;
+
+			// to update the weaving instructions
+			const obj = { ...weavingInstructionsByTablet[tablet][row] };
+
+			obj.numberOfTurns = numberOfTurns;
+
+			// to calculate new picks for this tablet
+			const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tablet]];
+
+			weavingInstructionsForTablet[row] = obj;
+
+			const picksForTablet = reCalculatePicksForTablet({
+				'currentPicks': state.picks[tablet],
+				weavingInstructionsForTablet,
+				row,
+			});
+
+			return updeep({
+				'weavingInstructionsByTablet': { [tablet]: { [row]: obj } },
+				'picks': { [tablet]: picksForTablet },
+			}, state);
+		}
+
+		case UPDATE_WEAVING_CELL_DIRECTION: {
+			const { row, tablet } = action.payload;
+			const { numberOfRows, weavingInstructionsByTablet } = state;
+
+			const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tablet]];
+
+			// change direction of tablet for this row and all followiing rows
+			for (let i = row; i < numberOfRows; i += 1) {
+				const obj = { ...weavingInstructionsForTablet[i] };
+				obj.direction = weavingInstructionsForTablet[i].direction === 'F' ? 'B' : 'F';
+				weavingInstructionsForTablet[i] = obj;
+			}
+
+			const picksForTablet = reCalculatePicksForTablet({
+				'currentPicks': state.picks[tablet],
+				weavingInstructionsForTablet,
+				row,
+			});
+
+			return updeep({
+				'weavingInstructionsByTablet': { [tablet]: weavingInstructionsForTablet },
+				'picks': { [tablet]: picksForTablet },
+			}, state);
+		}
+
 		// edit pattern charts. modification can be direction or numberOfTurns
-		case UPDATE_WEAVING_CELL: {
+		/* case UPDATE_WEAVING_CELL: {
 			const { modification, row, tablet } = action.payload;
 			const { weavingInstructionsByTablet } = state;
 
@@ -641,7 +698,7 @@ export default function pattern(state = initialPatternState, action) {
 				'weavingInstructionsByTablet': { [tablet]: { [row]: obj } },
 				'picks': { [tablet]: picksForTablet },
 			}, state);
-		}
+		} */
 
 		case SET_IS_EDITING_WEAVING: {
 			return updeep({ 'isEditingWeaving': action.payload }, state);
