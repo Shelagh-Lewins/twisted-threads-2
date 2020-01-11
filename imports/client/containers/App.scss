@@ -54,3 +54,12 @@ h4 {
 		width: 100%;
 	}
 }
+
+select {
+	&:disabled {
+		&.form-control {
+			opacity: 0.8;
+		}
+	}
+}
+

@@ -122,3 +122,38 @@ export const PATTERN_IMAGES_KEY = 'test/'; // this is a pseudo-folder that names
 
 export const SEARCH_LIMIT = 10; // number of results to return
 export const SEARCH_MORE = 10; // show this many more when the user clicks 'show more...'
+
+export const MAIN_MENU_ITEMS = [
+	{
+		'value': 'home',
+		'name': 'Home',
+		'url': '/',
+	},
+	{
+		'value': 'recentlyViewed',
+		'name': 'Recently viewed',
+		'url': '/recently-viewed',
+	},
+	{
+		'value': 'newPatterns',
+		'name': 'New patterns',
+		'url': '/new-patterns',
+	},
+	{
+		'value': 'myPatterns',
+		'name': 'My patterns',
+		'url': '/my-patterns',
+	},
+	{
+		'value': 'allPatterns',
+		'name': 'All patterns',
+		'url': '/all-patterns',
+	},
+	{
+		'value': 'people',
+		'name': 'People',
+		'url': '/people',
+	},
+];
+
+export const ITEMS_PER_PREVIEW_LIST = 10;

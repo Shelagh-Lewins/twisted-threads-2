@@ -3,6 +3,7 @@ import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { editIsPublic, removePattern } from '../modules/pattern';
 
 import './PatternSummary.scss';
 import IsPublicIndicator from './IsPublicIndicator';
@@ -11,7 +12,7 @@ import { iconColors } from '../../modules/parameters';
 
 function PatternSummary(props) {
 	const {
-		handleClickButtonRemove,
+		dispatch,
 		'pattern':
 			{
 				_id,
@@ -21,7 +22,6 @@ function PatternSummary(props) {
 				numberOfTablets,
 				isPublic,
 			},
-		onChangeIsPublic,
 		patternPreview,
 		tagTexts,
 		user,
@@ -31,6 +31,18 @@ function PatternSummary(props) {
 	if (user) {
 		username = user.username;
 	}
+
+	const onChangeIsPublic = () => {
+		dispatch(editIsPublic({ _id, 'isPublic': !isPublic }));
+	};
+
+	const handleClickButtonRemove = () => {
+		const response = confirm(`Do you want to delete the pattern "${name}"?`); // eslint-disable-line no-restricted-globals
+
+		if (response === true) {
+			dispatch(removePattern(_id));
+		}
+	};
 
 	const canEdit = Meteor.userId() === createdBy;
 
@@ -101,8 +113,7 @@ function PatternSummary(props) {
 }
 
 PatternSummary.propTypes = {
-	'handleClickButtonRemove': PropTypes.func.isRequired,
-	'onChangeIsPublic': PropTypes.func.isRequired,
+	'dispatch': PropTypes.func.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any),
 	'patternPreview': PropTypes.objectOf(PropTypes.any),
 	'tagTexts': PropTypes.arrayOf(PropTypes.any),

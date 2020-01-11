@@ -6,6 +6,7 @@ import {
 	getSelectedMainMenuItem,
 	setSelectedMainMenuItem,
 } from '../modules/page';
+import { MAIN_MENU_ITEMS } from '../../modules/parameters';
 
 function MainMenu(props) {
 	const {
@@ -23,6 +24,7 @@ function MainMenu(props) {
 	const renderMenuItem = ({ value, name, url }) => (
 		<li
 			className={selectedMainMenuItem === value ? 'selected' : ''}
+			key={value}
 			onClick={() => handleClickMenuItem({ value, url })}
 			onKeyPress={() => handleClickMenuItem({ value, url })}
 			role="menuitem"
@@ -32,49 +34,15 @@ function MainMenu(props) {
 		</li>
 	);
 
-	const menuItems = [
-		{
-			'value': 'home',
-			'name': 'Home',
-			'url': '/',
-		},
-		{
-			'value': 'recentlyViewed',
-			'name': 'Recently viewed',
-			'url': '/recently-viewed',
-		},
-		{
-			'value': 'newPatterns',
-			'name': 'New patterns',
-			'url': '/new-patterns',
-		},
-		{
-			'value': 'myPatterns',
-			'name': 'My patterns',
-			'url': '/my-patterns',
-		},
-		{
-			'value': 'allPatterns',
-			'name': 'All patterns',
-			'url': '/all-patterns',
-		},
-		{
-			'value': 'people',
-			'name': 'People',
-			'url': '/people',
-		},
-	];
-
 	return (
 		<ul className="main-menu">
-			{menuItems.map((menuItem) => renderMenuItem(menuItem))}
+			{MAIN_MENU_ITEMS.map((menuItem) => renderMenuItem(menuItem))}
 		</ul>
 	);
 }
 
 MainMenu.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
-	//'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'selectedMainMenuItem': PropTypes.string.isRequired,
 };
 

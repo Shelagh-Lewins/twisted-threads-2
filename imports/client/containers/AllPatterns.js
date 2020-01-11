@@ -6,7 +6,6 @@ import {
 	Row,
 } from 'reactstrap';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import PageWrapper from '../components/PageWrapper';
 import store from '../modules/store';
@@ -15,9 +14,6 @@ import {
 	getPatternCount,
 	setIsLoading,
 } from '../modules/pattern';
-import {
-	getIsAuthenticated,
-} from '../modules/auth';
 import { PatternPreviews, Patterns, Tags } from '../../modules/collection';
 import Loading from '../components/Loading';
 import MainMenu from '../components/MainMenu';
@@ -34,6 +30,10 @@ class AllPatterns extends Component {
 	constructor(props) {
 		super(props);
 
+		this.state = ({
+			'width': 0,
+		});
+
 		// bind onClick functions to provide context
 		const functionsToBind = [
 		];
@@ -41,15 +41,38 @@ class AllPatterns extends Component {
 		functionsToBind.forEach((functionName) => {
 			this[functionName] = this[functionName].bind(this);
 		});
+
+		// ref to find div into which pattern list previews must fit
+		this.containerRef = React.createRef();
 	}
 
 	componentDidMount() {
 		document.body.classList.add(bodyClass);
+		window.addEventListener('resize', this.trackWindowSize);
 	}
 
 	componentWillUnmount() {
 		document.body.classList.remove(bodyClass);
+		window.removeEventListener('resize', this.trackWindowSize);
 	}
+
+	trackWindowSize = () => {
+		// find width of div into which lists must fit
+		const containerElm = this.containerRef.current;
+
+		// find the containing element's applied styles
+		const compStyles = window.getComputedStyle(containerElm);
+
+		const width = parseFloat(containerElm.clientWidth)
+		- parseFloat(compStyles.getPropertyValue('padding-left'))
+		- parseFloat(compStyles.getPropertyValue('padding-right'));
+		console.log('width', width);
+
+		this.setState({
+			width,
+		});
+	}
+	//TO DO update on scroll and resize
 
 	render() {
 		const {
@@ -57,9 +80,7 @@ class AllPatterns extends Component {
 			dispatch,
 			errors,
 			history,
-			isAuthenticated,
 			isLoading,
-			isVerified,
 			patterns,
 			patternCount,
 			patternPreviews,
@@ -67,41 +88,49 @@ class AllPatterns extends Component {
 			users,
 		} = this.props;
 
+		const { width } = this.state;
+
 		return (
 			<PageWrapper
 				dispatch={dispatch}
 				errors={errors}
 			>
 				<MainMenu />
-				<Container className="menu-selected-area">
-					{isLoading && <Loading />}
-					<Row>
-						<Col lg="12">
-							<h1>All patterns</h1>
-						</Col>
-					</Row>
-					{!isLoading
-						&& patternCount > 0
-						&& (
-							<>
-								<Row>
-									<Col lg="12">
-										<h2>All patterns</h2>
-									</Col>
-								</Row>
-								<PatternList
-									currentPageNumber={currentPageNumber}
-									dispatch={dispatch}
-									history={history}
-									patternCount={patternCount}
-									patterns={patterns}
-									patternPreviews={patternPreviews}
-									tags={tags}
-									users={users}
-								/>
-							</>
-						)}
-				</Container>
+				<div ref={this.containerRef}>
+					<Container
+						className="menu-selected-area"
+					>
+						{isLoading && <Loading />}
+						<Row>
+							<Col lg="12">
+								<h1>All patterns</h1>
+							</Col>
+						</Row>
+						{!isLoading
+							&& patternCount > 0
+							&& (
+								<>
+									<Row>
+										<Col lg="12">
+											<h2>All patterns</h2>
+										</Col>
+									</Row>
+									<PatternList
+										baseUrl="all-patterns/"
+										currentPageNumber={currentPageNumber}
+										dispatch={dispatch}
+										history={history}
+										patternCount={patternCount}
+										patterns={patterns}
+										patternPreviews={patternPreviews}
+										tags={tags}
+										users={users}
+										width={width}
+									/>
+								</>
+							)}
+					</Container>
+				</div>
 			</PageWrapper>
 		);
 	}
@@ -116,7 +145,6 @@ AllPatterns.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
-	'isAuthenticated': PropTypes.bool.isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'patternCount': PropTypes.number.isRequired,
 	'patternPreviews': PropTypes.arrayOf(PropTypes.any).isRequired,
@@ -138,7 +166,6 @@ function mapStateToProps(state, ownProps) {
 	return {
 		'currentPageNumber': currentPageNumber, // read the url parameter to find the currentPage
 		'errors': state.errors,
-		'isAuthenticated': getIsAuthenticated(state),
 		'isLoading': getIsLoading(state),
 		'pageSkip': (currentPageNumber - 1) * ITEMS_PER_PAGE,
 		'patternCount': state.pattern.patternCount,

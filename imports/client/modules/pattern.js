@@ -62,7 +62,7 @@ export const getPatternCount = (userId) => (dispatch) => Meteor.call('pattern.ge
 });
 
 export const changePage = (newPageNumber, history) => (dispatch) => {
-	const url = `/?page=${newPageNumber + 1}`;
+	const url = `?page=${newPageNumber + 1}`;
 
 	history.push(url);
 	dispatch(getPatternCount());

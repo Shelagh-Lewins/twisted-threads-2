@@ -4,11 +4,12 @@ import PropTypes from 'prop-types';
 
 import PatternSummary from './PatternSummary';
 import Pagination from './Pagination';
-import { changePage, editIsPublic, removePattern } from '../modules/pattern';
+import { changePage } from '../modules/pattern';
 import { ITEMS_PER_PAGE } from '../../modules/parameters';
+import './PatternList.scss';
 
 class PatternList extends PureComponent {
-	onChangeIsPublic = ({ _id, isPublic }) => {
+	/* onChangeIsPublic = ({ _id, isPublic }) => {
 		const { dispatch } = this.props;
 
 		dispatch(editIsPublic({ _id, isPublic }));
@@ -21,7 +22,7 @@ class PatternList extends PureComponent {
 		if (response === true) {
 			dispatch(removePattern(_id));
 		}
-	};
+	}; */
 
 	render() {
 		const {
@@ -61,17 +62,17 @@ class PatternList extends PureComponent {
 					}
 
 					return (
-						<Col lg="6" key={`pattern-summary-${_id}`}>
+						<div key={`pattern-summary-${_id}`}>
 							<PatternSummary
-								pattern={pattern}
 								dispatch={dispatch}
 								handleClickButtonRemove={this.handleClickButtonRemove}
 								onChangeIsPublic={this.onChangeIsPublic}
+								pattern={pattern}
 								patternPreview={patternPreviews.find((patternPreview) => patternPreview.patternId === _id)}
 								tagTexts={tagTexts}
 								user={users.find((user) => user._id === createdBy)}
 							/>
-						</Col>
+						</div>
 					);
 				})}
 				<Col lg="12">
@@ -87,8 +88,8 @@ PatternList.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'patternCount': PropTypes.number.isRequired,
-	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'patternPreviews': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'tags': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'users': PropTypes.arrayOf(PropTypes.any).isRequired,
 };

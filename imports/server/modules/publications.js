@@ -6,7 +6,7 @@ import {
 	Patterns,
 	Tags,
 } from '../../modules/collection';
-import { ITEMS_PER_PAGE } from '../../modules/parameters';
+import { ITEMS_PER_PAGE, ITEMS_PER_PREVIEW_LIST } from '../../modules/parameters';
 import {
 	nonEmptyStringCheck,
 	positiveIntegerCheck,
@@ -186,6 +186,35 @@ Meteor.publish('pattern', function (_id = undefined) {
 		{
 			'fields': patternFields,
 			'limit': 1,
+		},
+	);
+});
+
+// preview list for all patterns
+// displayed on Home page
+Meteor.publish('allPatternsPreview', function () {
+	if (this.userId) {
+		return Patterns.find(
+			{
+				'$or': [
+					{ 'isPublic': { '$eq': true } },
+					{ 'createdBy': this.userId },
+				],
+			},
+			{
+				'fields': patternFields,
+			},
+		);
+	}
+
+	return Patterns.find(
+		{
+			'isPublic': { '$eq': true },
+		},
+		{
+			'fields': patternFields,
+			'limit': ITEMS_PER_PREVIEW_LIST,
+			'sort': 'nameSort',
 		},
 	);
 });

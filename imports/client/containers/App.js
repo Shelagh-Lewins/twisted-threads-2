@@ -50,6 +50,9 @@ import {
 	setIsLoading,
 	savePatternData,
 } from '../modules/pattern';
+import {
+	setSelectedMainMenuItem,
+} from '../modules/page';
 import AppContext from '../modules/appContext';
 import Navbar from '../components/Navbar';
 import Login from './Login';
@@ -68,6 +71,7 @@ import InteractiveWeavingChart from './InteractiveWeavingChart';
 import WeavingPrintView from './PrintView';
 import DevTools from '../components/DevTools';
 import './App.scss';
+import { MAIN_MENU_ITEMS } from '../../modules/parameters';
 
 // for optional url parameter with specified options, use regex: https://stackoverflow.com/questions/47369023/react-router-v4-allow-only-certain-parameters-in-url
 // this allows pattern/id/tabname and pattern/id/weaving with different components
@@ -176,19 +180,32 @@ export const withDatabase = withTracker((props) => {
 	// provide information for any pattern page
 	// using context allows us to send data to the page component and the Navbar with a single subscription
 	if (location) {
+		const { pathname } = location;
+
+		// if the page has MainMenu, set the selected menu item from the url
+		MAIN_MENU_ITEMS.map((menuItem) => {
+			if (matchPath(pathname, {
+				'path': menuItem.url,
+				'exact': false,
+				'strict': false,
+			})) {
+				dispatch(setSelectedMainMenuItem(menuItem.value));
+			}
+		});
+
 		// Navbar always needs to know about user
 		const values = {
 			'allTags': [],
 			'username': username,
 		};
 
-		const matchPattern = matchPath(location.pathname, {
+		const matchPattern = matchPath(pathname, {
 			'path': '/pattern/:id',
 			'exact': false,
 			'strict': false,
 		});
 
-		const matchHome = matchPath(location.pathname, {
+		const matchHome = matchPath(pathname, {
 			'path': '/',
 			'exact': false,
 			'strict': false,

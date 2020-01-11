@@ -25,13 +25,11 @@ import {
 import { PatternPreviews, Patterns, Tags } from '../../modules/collection';
 import Loading from '../components/Loading';
 import MainMenu from '../components/MainMenu';
-import PatternList from '../components/PatternList';
+import PatternListPreview from '../components/PatternListPreview';
 import AddPatternForm from '../forms/AddPatternForm';
 
-import { ITEMS_PER_PAGE } from '../../modules/parameters';
+import { ITEMS_PER_PREVIEW_LIST } from '../../modules/parameters';
 import './Home.scss';
-
-const queryString = require('query-string');
 
 const bodyClass = 'home';
 
@@ -89,16 +87,13 @@ class Home extends Component {
 
 	render() {
 		const {
+			allPatterns,
 			canCreatePattern,
-			currentPageNumber,
 			dispatch,
 			errors,
-			history,
 			isAuthenticated,
 			isLoading,
 			isVerified,
-			patterns,
-			patternCount,
 			patternPreviews,
 			tags,
 			users,
@@ -148,23 +143,15 @@ class Home extends Component {
 							</Col>
 						</Row>
 					)}
-					{!isLoading
-						&& patternCount > 0
-						&& !showAddPatternForm && (
+					{!isLoading && !showAddPatternForm && (
 						<>
-							<Row>
-								<Col lg="12">
-									<h2>Home patterns</h2>
-								</Col>
-							</Row>
-							<PatternList
-								currentPageNumber={currentPageNumber}
+							<PatternListPreview
 								dispatch={dispatch}
-								history={history}
-								patternCount={patternCount}
-								patterns={patterns}
+								listName="All patterns"
+								patterns={allPatterns}
 								patternPreviews={patternPreviews}
 								tags={tags}
+								url="/all-patterns"
 								users={users}
 							/>
 						</>
@@ -175,66 +162,48 @@ class Home extends Component {
 	}
 }
 
-Home.defaultProps = {
-	'currentPageNumber': 1,
-};
-
 Home.propTypes = {
+	'allPatterns': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'canCreatePattern': PropTypes.bool.isRequired,
-	'currentPageNumber': PropTypes.number,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isAuthenticated': PropTypes.bool.isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'isVerified': PropTypes.bool.isRequired,
-	'patternCount': PropTypes.number.isRequired,
 	'patternPreviews': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'tags': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'users': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
-	// find page number as URL query parameter, if present, in the form '/?page=1'
-	let currentPageNumber = 1;
-	const parsed = queryString.parse(ownProps.location.search);
-	const page = parseInt(parsed.page, 10);
-
-	if (!Number.isNaN(page)) {
-		currentPageNumber = page;
-	}
-
 	return {
 		'canCreatePattern': getCanCreatePattern(state),
-		'currentPageNumber': currentPageNumber, // read the url parameter to find the currentPage
 		'errors': state.errors,
 		'isAuthenticated': getIsAuthenticated(state),
 		'isLoading': getIsLoading(state),
 		'isVerified': getIsVerified(state),
-		'pageSkip': (currentPageNumber - 1) * ITEMS_PER_PAGE,
-		'patternCount': state.pattern.patternCount,
 	};
 }
 
-const Tracker = withTracker(({ pageSkip, dispatch }) => {
+const Tracker = withTracker(({ dispatch }) => {
 	const state = store.getState();
 	const isLoading = getIsLoading(state);
 
-	const patterns = Patterns.find({}, {
+	const allPatterns = Patterns.find({}, {
+		'limit': ITEMS_PER_PREVIEW_LIST,
 		'sort': { 'nameSort': 1 },
-		'limit': ITEMS_PER_PAGE,
 	}).fetch();
 
 	Meteor.subscribe('tags');
 
-	const handle = Meteor.subscribe('patterns', pageSkip, ITEMS_PER_PAGE, {
+	const handle = Meteor.subscribe('allPatternsPreview', {
 		'onReady': () => {
-			const patternIds = patterns.map((pattern) => pattern._id);
+			const patternIds = allPatterns.map((pattern) => pattern._id);
 
 			Meteor.subscribe('patternPreviews', { patternIds });
 
-			const userIds = patterns.map((pattern) => pattern.createdBy);
+			const userIds = allPatterns.map((pattern) => pattern.createdBy);
 			const uniqueUsers = [...(new Set(userIds))];
 
 			Meteor.subscribe('users', uniqueUsers);
@@ -249,7 +218,7 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 	}
 
 	return {
-		patterns,
+		allPatterns,
 		'patternPreviews': PatternPreviews.find().fetch(),
 		'tags': Tags.find().fetch(),
 		'users': Meteor.users.find().fetch(),
