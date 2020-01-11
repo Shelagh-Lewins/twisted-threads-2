@@ -5,6 +5,7 @@ import auth from './auth';
 import colorBook from './colorBook';
 import errors from './errors';
 import pattern from './pattern';
+import page from './page';
 import patternImages from './patternImages';
 import search from './search';
 
@@ -14,6 +15,7 @@ export default combineReducers({
 	auth,
 	colorBook,
 	errors,
+	page,
 	pattern,
 	patternImages,
 	search,

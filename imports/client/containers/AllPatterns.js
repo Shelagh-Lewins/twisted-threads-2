@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import {
-	Button,
 	Col,
 	Container,
 	Row,
@@ -12,41 +11,31 @@ import PropTypes from 'prop-types';
 import PageWrapper from '../components/PageWrapper';
 import store from '../modules/store';
 import {
-	addPattern,
 	getIsLoading,
 	getPatternCount,
 	setIsLoading,
 } from '../modules/pattern';
 import {
-	getCanCreatePattern,
 	getIsAuthenticated,
-	getIsVerified,
 } from '../modules/auth';
 import { PatternPreviews, Patterns, Tags } from '../../modules/collection';
 import Loading from '../components/Loading';
 import MainMenu from '../components/MainMenu';
 import PatternList from '../components/PatternList';
-import AddPatternForm from '../forms/AddPatternForm';
 
 import { ITEMS_PER_PAGE } from '../../modules/parameters';
 import './Home.scss';
 
 const queryString = require('query-string');
 
-const bodyClass = 'home';
+const bodyClass = 'all-patterns';
 
-class Home extends Component {
+class AllPatterns extends Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {
-			'showAddPatternForm': false,
-		};
-
 		// bind onClick functions to provide context
 		const functionsToBind = [
-			'handleClickShowAddPatternForm',
-			'handleCancelShowAddPatternForm',
 		];
 
 		functionsToBind.forEach((functionName) => {
@@ -62,34 +51,8 @@ class Home extends Component {
 		document.body.classList.remove(bodyClass);
 	}
 
-	handleSubmitAddPattern = (data, { resetForm }) => {
-		const { dispatch, history } = this.props;
-		const modifiedData = { ...data };
-		modifiedData.holes = parseInt(data.holes, 10); // select value is string
-
-		dispatch(addPattern(modifiedData, history));
-		resetForm();
-
-		this.setState({
-			'showAddPatternForm': false,
-		});
-	}
-
-	handleClickShowAddPatternForm() {
-		this.setState({
-			'showAddPatternForm': true,
-		});
-	}
-
-	handleCancelShowAddPatternForm() {
-		this.setState({
-			'showAddPatternForm': false,
-		});
-	}
-
 	render() {
 		const {
-			canCreatePattern,
 			currentPageNumber,
 			dispatch,
 			errors,
@@ -103,21 +66,6 @@ class Home extends Component {
 			tags,
 			users,
 		} = this.props;
-		const { showAddPatternForm } = this.state;
-
-		const addPatternButton = (
-			<Row>
-				<Col lg="12">
-					<Button
-						className="show-add-pattern-form"
-						color="primary"
-						onClick={this.handleClickShowAddPatternForm}
-					>
-						New patterrn
-					</Button>
-				</Col>
-			</Row>
-		);
 
 		return (
 			<PageWrapper
@@ -129,65 +77,47 @@ class Home extends Component {
 					{isLoading && <Loading />}
 					<Row>
 						<Col lg="12">
-							<h1>Welcome</h1>
-							This is the development version of Twisted Threads 2, the online app for tablet weaving. ALL DATA HERE MAY BE DELETED AT ANY TIME.
-							{!isAuthenticated && <p>To get started, please <Link to="/login">Login</Link>. If you don&apos;t already have an account, please <Link to="/register">Register</Link>.</p>}
-							{isAuthenticated && !canCreatePattern && !isVerified && <p>To create more patterns, please verify your email address. You can request a new verification email from your <Link to="/account">Account</Link> page</p>}
-							{isAuthenticated && !canCreatePattern && isVerified && <p>To create more patterns, please get in touch with the developer of Twisted Threads via the <a href="https://www.facebook.com/groups/927805953974190/">Twisted Threads Facebook group</a>.</p>}
+							<h1>All patterns</h1>
 						</Col>
 					</Row>
-					{canCreatePattern && !showAddPatternForm && addPatternButton}
-					{showAddPatternForm && (
-						<Row>
-							<Col lg="12">
-								<AddPatternForm
-									handleCancel={this.handleCancelShowAddPatternForm}
-									handleSubmit={this.handleSubmitAddPattern}
-								/>
-								<hr />
-							</Col>
-						</Row>
-					)}
 					{!isLoading
 						&& patternCount > 0
-						&& !showAddPatternForm && (
-						<>
-							<Row>
-								<Col lg="12">
-									<h2>Home patterns</h2>
-								</Col>
-							</Row>
-							<PatternList
-								currentPageNumber={currentPageNumber}
-								dispatch={dispatch}
-								history={history}
-								patternCount={patternCount}
-								patterns={patterns}
-								patternPreviews={patternPreviews}
-								tags={tags}
-								users={users}
-							/>
-						</>
-					)}
+						&& (
+							<>
+								<Row>
+									<Col lg="12">
+										<h2>All patterns</h2>
+									</Col>
+								</Row>
+								<PatternList
+									currentPageNumber={currentPageNumber}
+									dispatch={dispatch}
+									history={history}
+									patternCount={patternCount}
+									patterns={patterns}
+									patternPreviews={patternPreviews}
+									tags={tags}
+									users={users}
+								/>
+							</>
+						)}
 				</Container>
 			</PageWrapper>
 		);
 	}
 }
 
-Home.defaultProps = {
+AllPatterns.defaultProps = {
 	'currentPageNumber': 1,
 };
 
-Home.propTypes = {
-	'canCreatePattern': PropTypes.bool.isRequired,
+AllPatterns.propTypes = {
 	'currentPageNumber': PropTypes.number,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isAuthenticated': PropTypes.bool.isRequired,
 	'isLoading': PropTypes.bool.isRequired,
-	'isVerified': PropTypes.bool.isRequired,
 	'patternCount': PropTypes.number.isRequired,
 	'patternPreviews': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
@@ -206,12 +136,10 @@ function mapStateToProps(state, ownProps) {
 	}
 
 	return {
-		'canCreatePattern': getCanCreatePattern(state),
 		'currentPageNumber': currentPageNumber, // read the url parameter to find the currentPage
 		'errors': state.errors,
 		'isAuthenticated': getIsAuthenticated(state),
 		'isLoading': getIsLoading(state),
-		'isVerified': getIsVerified(state),
 		'pageSkip': (currentPageNumber - 1) * ITEMS_PER_PAGE,
 		'patternCount': state.pattern.patternCount,
 	};
@@ -254,6 +182,6 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 		'tags': Tags.find().fetch(),
 		'users': Meteor.users.find().fetch(),
 	};
-})(Home);
+})(AllPatterns);
 
 export default connect(mapStateToProps)(Tracker);

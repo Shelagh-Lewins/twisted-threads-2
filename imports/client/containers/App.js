@@ -61,6 +61,7 @@ import VerifyEmail from './VerifyEmail';
 import ForgotPassword from './ForgotPassword';
 import ResetPassword from './ResetPassword';
 import Home from './Home';
+import AllPatterns from './AllPatterns';
 import Pattern from './Pattern';
 import User from './User';
 import InteractiveWeavingChart from './InteractiveWeavingChart';
@@ -102,6 +103,7 @@ const DefaultContainer = () => (
 			<Route exact path="/forgot-password" component={ForgotPassword} />
 			<Route exact path="/reset-password/:token" component={ResetPassword} />
 			<Route exact path="/" component={Home} />
+			<Route exact path="/all-patterns" component={AllPatterns} />
 			<Route exact path="/pattern/:id/:tab(design|info)?" component={Pattern} />
 			<Route exact path="/pattern/:id/weaving" component={InteractiveWeavingChart} />
 			<Route exact path="/user/:id" component={User} />
