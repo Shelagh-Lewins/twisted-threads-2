@@ -75,8 +75,10 @@ class PatternPreview extends Component {
 		}
 
 		// pick graphic size in the SVG
-		const unitWidth = 41.560534;
-		const unitHeight = 113.08752;
+		const unitWidth = 42;
+		const unitHeight = 113;
+		//const unitWidth = 41.560534;
+		//const unitHeight = 113.08752;
 
 		// screen pixel size of pick graphic, used to calculate final size of preview holder
 		const cellHeight = 54;
