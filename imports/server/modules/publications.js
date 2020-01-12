@@ -391,6 +391,45 @@ Meteor.publish('users', function (userIds) {
 	);
 });
 
+// ////////////////////////
+// all users page
+Meteor.publish('allUsers', function (skip = 0, limit = ITEMS_PER_PAGE) {
+	// this needs to return the same number of patterns as the getUsersCount method, for pagination
+	//TODO count users and implement!
+	check(skip, positiveIntegerCheck);
+
+	return Meteor.users.find(
+		{ 'publicPatternsCount': { '$gt': 0 } },
+		{
+			'fields': {
+				'_id': 1,
+				'publicPatternsCount': 1,
+				'username': 1,
+			},
+			'sort': { 'username': 1 },
+			'skip': skip,
+			'limit': limit,
+		},
+	);
+});
+
+// preview list for users
+// displayed on Home page
+Meteor.publish('allUsersPreview', function () {
+	return Patterns.find(
+		{ 'publicPatternsCount': { '$gt': 0 } },
+		{
+			'fields': {
+				'_id': 1,
+				'publicPatternsCount': 1,
+				'username': 1,
+			},
+			'limit': ITEMS_PER_PREVIEW_LIST,
+			'sort': { 'nameSort': 1 },
+		},
+	);
+});
+
 // Pattern Images that have been uploaded by the pattern's owner
 // Show images for a particular pattern
 Meteor.publish('patternImages', function (patternId) {

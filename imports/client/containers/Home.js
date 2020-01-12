@@ -219,6 +219,7 @@ class Home extends Component {
 
 Home.propTypes = {
 	'allPatterns': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'allUsers': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'canCreatePattern': PropTypes.bool.isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
@@ -269,6 +270,11 @@ const Tracker = withTracker(({ dispatch }) => {
 		'sort': { 'createdAt': -1 },
 	}).fetch();
 
+	const allUsers = Meteor.users.find({}, {
+		'limit': ITEMS_PER_PREVIEW_LIST,
+		'sort': { 'nameSort': 1 },
+	}).fetch();
+
 	Meteor.subscribe('tags');
 
 	// handle so we can use onReady to set isLoading to false
@@ -311,6 +317,8 @@ const Tracker = withTracker(({ dispatch }) => {
 		},
 	});
 
+	Meteor.subscribe('allUsersPreview');
+
 	if (isLoading && handle.ready()) {
 		dispatch(setIsLoading(false));
 	} else if (!isLoading && !handle.ready()) {
@@ -319,6 +327,7 @@ const Tracker = withTracker(({ dispatch }) => {
 
 	return {
 		allPatterns,
+		allUsers,
 		myPatterns,
 		newPatterns,
 		'patternPreviews': PatternPreviews.find().fetch(),
