@@ -39,6 +39,7 @@ class Home extends Component {
 
 		this.state = {
 			'showAddPatternForm': false,
+			'width': 0,
 		};
 
 		// bind onClick functions to provide context
@@ -50,15 +51,40 @@ class Home extends Component {
 		functionsToBind.forEach((functionName) => {
 			this[functionName] = this[functionName].bind(this);
 		});
+
+		// ref to find div into which pattern list previews must fit
+		this.containerRef = React.createRef();
 	}
 
 	componentDidMount() {
 		document.body.classList.add(bodyClass);
+		window.addEventListener('resize', this.trackWindowSize);
+		this.trackWindowSize();
 	}
 
 	componentWillUnmount() {
 		document.body.classList.remove(bodyClass);
+		window.removeEventListener('resize', this.trackWindowSize);
 	}
+
+	trackWindowSize = () => {
+		// find width of div into which lists must fit
+		const containerElm = this.containerRef.current;
+
+		// find the containing element's applied styles
+		const compStyles = window.getComputedStyle(containerElm);
+
+		const width = parseFloat(containerElm.clientWidth)
+		- parseFloat(compStyles.getPropertyValue('padding-left'))
+		- parseFloat(compStyles.getPropertyValue('padding-right'));
+		console.log('width', width);
+
+		this.setState({
+			width,
+		});
+	}
+
+	// to do set size at mount
 
 	handleSubmitAddPattern = (data, { resetForm }) => {
 		const { dispatch, history } = this.props;
@@ -98,7 +124,7 @@ class Home extends Component {
 			tags,
 			users,
 		} = this.props;
-		const { showAddPatternForm } = this.state;
+		const { showAddPatternForm, width } = this.state;
 
 		const addPatternButton = (
 			<Row>
@@ -121,41 +147,44 @@ class Home extends Component {
 			>
 				<MainMenu />
 				<Container className="menu-selected-area">
-					{isLoading && <Loading />}
-					<Row>
-						<Col lg="12">
-							<h1>Welcome</h1>
-							This is the development version of Twisted Threads 2, the online app for tablet weaving. ALL DATA HERE MAY BE DELETED AT ANY TIME.
-							{!isAuthenticated && <p>To get started, please <Link to="/login">Login</Link>. If you don&apos;t already have an account, please <Link to="/register">Register</Link>.</p>}
-							{isAuthenticated && !canCreatePattern && !isVerified && <p>To create more patterns, please verify your email address. You can request a new verification email from your <Link to="/account">Account</Link> page</p>}
-							{isAuthenticated && !canCreatePattern && isVerified && <p>To create more patterns, please get in touch with the developer of Twisted Threads via the <a href="https://www.facebook.com/groups/927805953974190/">Twisted Threads Facebook group</a>.</p>}
-						</Col>
-					</Row>
-					{canCreatePattern && !showAddPatternForm && addPatternButton}
-					{showAddPatternForm && (
+					<div ref={this.containerRef}>
+						{isLoading && <Loading />}
 						<Row>
 							<Col lg="12">
-								<AddPatternForm
-									handleCancel={this.handleCancelShowAddPatternForm}
-									handleSubmit={this.handleSubmitAddPattern}
-								/>
-								<hr />
+								<h1>Welcome</h1>
+								This is the development version of Twisted Threads 2, the online app for tablet weaving. ALL DATA HERE MAY BE DELETED AT ANY TIME.
+								{!isAuthenticated && <p>To get started, please <Link to="/login">Login</Link>. If you don&apos;t already have an account, please <Link to="/register">Register</Link>.</p>}
+								{isAuthenticated && !canCreatePattern && !isVerified && <p>To create more patterns, please verify your email address. You can request a new verification email from your <Link to="/account">Account</Link> page</p>}
+								{isAuthenticated && !canCreatePattern && isVerified && <p>To create more patterns, please get in touch with the developer of Twisted Threads via the <a href="https://www.facebook.com/groups/927805953974190/">Twisted Threads Facebook group</a>.</p>}
 							</Col>
 						</Row>
-					)}
-					{!isLoading && !showAddPatternForm && (
-						<>
-							<PatternListPreview
-								dispatch={dispatch}
-								listName="All patterns"
-								patterns={allPatterns}
-								patternPreviews={patternPreviews}
-								tags={tags}
-								url="/all-patterns"
-								users={users}
-							/>
-						</>
-					)}
+						{canCreatePattern && !showAddPatternForm && addPatternButton}
+						{showAddPatternForm && (
+							<Row>
+								<Col lg="12">
+									<AddPatternForm
+										handleCancel={this.handleCancelShowAddPatternForm}
+										handleSubmit={this.handleSubmitAddPattern}
+									/>
+									<hr />
+								</Col>
+							</Row>
+						)}
+						{!isLoading && !showAddPatternForm && (
+							<>
+								<PatternListPreview
+									dispatch={dispatch}
+									listName="All patterns"
+									patterns={allPatterns}
+									patternPreviews={patternPreviews}
+									tags={tags}
+									url="/all-patterns"
+									users={users}
+									width={width}
+								/>
+							</>
+						)}
+					</div>
 				</Container>
 			</PageWrapper>
 		);
