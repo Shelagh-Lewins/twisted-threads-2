@@ -10,8 +10,10 @@ import {
 } from 'reactstrap';
 
 import PatternSummary from './PatternSummary';
-
 import './PatternListPreview.scss';
+
+import getCSSVariables from '../modules/getCSSVariables';
+
 
 const PatternListPreview = (props) => {
 	const {
@@ -22,14 +24,30 @@ const PatternListPreview = (props) => {
 		tags,
 		url,
 		users,
+		width,
 	} = props;
+
+	// find the pattern summary dimensions from variables.scss
+	const importedStyles = getCSSVariables()[0].style;
+	const patternSummaryWidth = parseInt(importedStyles.width, 10);
+	const patternSummaryPaddingRight = parseInt(importedStyles['padding-right'], 10);
+
+	const widthPerPatternSummary = patternSummaryWidth + patternSummaryPaddingRight;
+
+	// find the number of pattern previews that will fit on one line
+	const numberOfPatternPreviews = Math.floor(width / widthPerPatternSummary);
+	console.log('widthPerPatternSummary', widthPerPatternSummary);
+	console.log('width', width);
+	console.log('numberOfPatternPreviews', numberOfPatternPreviews);
+
+	const patternsToShow = patterns.slice(0, numberOfPatternPreviews);
 
 	return (
 		<div className="pattern-list-preview">
 			<h1>{listName}</h1>
 			<Link to={url}>More...</Link>
 			<ul>
-				{patterns.map((pattern) => {
+				{patternsToShow.map((pattern) => {
 					const { _id, createdBy, 'tags': patternTags } = pattern;
 
 					const tagTexts = [];
@@ -69,6 +87,7 @@ PatternListPreview.propTypes = {
 	'tags': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'users': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'url': PropTypes.string.isRequired,
+	'width': PropTypes.number.isRequired,
 };
 
 export default PatternListPreview;

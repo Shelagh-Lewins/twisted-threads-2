@@ -1,1 +1,12 @@
 @import "../constants/variables";
+
+.pattern-list-preview {
+	.pattern-summary {
+		margin-right: $pattern-summary-preview-padding;
+	}
+
+	ul {
+		margin: 0;
+		padding: 0;
+	}
+}

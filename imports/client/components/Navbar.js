@@ -54,9 +54,7 @@ class Navbar extends Component {
 			isAuthenticated,
 			isLoading,
 			isSearching,
-			//searchResults,
 			searchTerm,
-			
 		} = this.props;
 
 		const {
@@ -125,7 +123,7 @@ class Navbar extends Component {
 		);
 
 		return (
-			<nav className="navbar navbar-expand-sm navbar-dark">
+			<nav className="navbar navbar-expand-md navbar-dark">
 				<Link className="navbar-brand" to="/">Twisted Threads</Link>
 				<Search
 					dispatch={dispatch}

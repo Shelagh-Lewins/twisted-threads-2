@@ -35,8 +35,12 @@
 	}
 
 	.menu-selected-area {
-		&.container {
-			margin-left: 200px;
+		margin-left: 200px;
+		max-width: unset;
+		width: unset;
+
+		.container {
+			margin-left: 0;
 		}
 	}
 }

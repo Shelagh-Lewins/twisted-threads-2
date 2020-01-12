@@ -120,7 +120,6 @@ class Search extends PureComponent {
 			<div className="search-controls">
 				<Input
 					onChange={this.onChangeInput}
-					size="18"
 					type="text"
 				/>
 				<Button

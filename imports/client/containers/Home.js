@@ -146,8 +146,11 @@ class Home extends Component {
 				errors={errors}
 			>
 				<MainMenu />
-				<Container className="menu-selected-area">
-					<div ref={this.containerRef}>
+				<div
+					className="menu-selected-area"
+					ref={this.containerRef}
+				>
+					<Container>
 						{isLoading && <Loading />}
 						<Row>
 							<Col lg="12">
@@ -170,22 +173,22 @@ class Home extends Component {
 								</Col>
 							</Row>
 						)}
-						{!isLoading && !showAddPatternForm && (
-							<>
-								<PatternListPreview
-									dispatch={dispatch}
-									listName="All patterns"
-									patterns={allPatterns}
-									patternPreviews={patternPreviews}
-									tags={tags}
-									url="/all-patterns"
-									users={users}
-									width={width}
-								/>
-							</>
-						)}
-					</div>
-				</Container>
+					</Container>
+					{!isLoading && !showAddPatternForm && (
+						<>
+							<PatternListPreview
+								dispatch={dispatch}
+								listName="All patterns"
+								patterns={allPatterns}
+								patternPreviews={patternPreviews}
+								tags={tags}
+								url="/all-patterns"
+								users={users}
+								width={width}
+							/>
+						</>
+					)}
+				</div>
 			</PageWrapper>
 		);
 	}
