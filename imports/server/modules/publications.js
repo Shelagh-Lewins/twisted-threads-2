@@ -225,6 +225,9 @@ Meteor.publish('allPatternsPreview', function () {
 // ////////////////////////////////
 // My patterns
 Meteor.publish('myPatterns', function (skip = 0, limit = ITEMS_PER_PAGE) {
+	// this needs to return the same number of patterns as the getPatternCount method, for pagination
+	check(skip, positiveIntegerCheck);
+
 	if (this.userId) {
 		return Patterns.find(
 			{ 'createdBy': this.userId },
@@ -255,6 +258,72 @@ Meteor.publish('myPatternsPreview', function () {
 	}
 
 	this.ready();
+});
+
+// ////////////////////////////////
+// New patterns
+// returns all patterns, but sorted by creation date
+Meteor.publish('newPatterns', function (skip = 0, limit = ITEMS_PER_PAGE) {
+	// this needs to return the same number of patterns as the getPatternCount method, for pagination
+	check(skip, positiveIntegerCheck);
+
+	if (this.userId) {
+		return Patterns.find(
+			{
+				'$or': [
+					{ 'isPublic': { '$eq': true } },
+					{ 'createdBy': this.userId },
+				],
+			},
+			{
+				'fields': patternsFields,
+				'sort': { 'createdAt': -1 },
+				'skip': skip,
+				'limit': limit,
+			},
+		);
+	}
+
+	return Patterns.find(
+		{ 'isPublic': { '$eq': true } },
+		{
+			'fields': patternsFields,
+			'sort': { 'createdAt': -1 },
+			'skip': skip,
+			'limit': limit,
+		},
+	);
+});
+
+// preview list for my patterns
+// displayed on Home page
+Meteor.publish('newPatternsPreview', function () {
+	if (this.userId) {
+		return Patterns.find(
+			{
+				'$or': [
+					{ 'isPublic': { '$eq': true } },
+					{ 'createdBy': this.userId },
+				],
+			},
+			{
+				'fields': patternsFields,
+				'limit': ITEMS_PER_PREVIEW_LIST,
+				'sort': { 'createdAt': -1 },
+			},
+		);
+	}
+
+	return Patterns.find(
+		{
+			'isPublic': { '$eq': true },
+		},
+		{
+			'fields': patternsFields,
+			'limit': ITEMS_PER_PREVIEW_LIST,
+			'sort': { 'createdAt': -1 },
+		},
+	);
 });
 
 // //////////////////////////

@@ -120,6 +120,7 @@ class Home extends Component {
 			isLoading,
 			isVerified,
 			myPatterns,
+			newPatterns,
 			patternPreviews,
 			tags,
 			users,
@@ -178,11 +179,11 @@ class Home extends Component {
 						<>
 							<PatternListPreview
 								dispatch={dispatch}
-								listName="All patterns"
-								patterns={allPatterns}
+								listName="New patterns"
+								patterns={newPatterns}
 								patternPreviews={patternPreviews}
 								tags={tags}
-								url="/all-patterns"
+								url="/new-patterns"
 								users={users}
 								width={width}
 							/>
@@ -198,6 +199,16 @@ class Home extends Component {
 									width={width}
 								/>
 							)}
+							<PatternListPreview
+								dispatch={dispatch}
+								listName="All patterns"
+								patterns={allPatterns}
+								patternPreviews={patternPreviews}
+								tags={tags}
+								url="/all-patterns"
+								users={users}
+								width={width}
+							/>
 						</>
 					)}
 				</div>
@@ -216,6 +227,7 @@ Home.propTypes = {
 	'isLoading': PropTypes.bool.isRequired,
 	'isVerified': PropTypes.bool.isRequired,
 	'myPatterns': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'newPatterns': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'patternPreviews': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'tags': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'users': PropTypes.arrayOf(PropTypes.any).isRequired,
@@ -252,6 +264,11 @@ const Tracker = withTracker(({ dispatch }) => {
 		).fetch();
 	}
 
+	const newPatterns = Patterns.find({}, {
+		'limit': ITEMS_PER_PREVIEW_LIST,
+		'sort': { 'createdAt': -1 },
+	}).fetch();
+
 	Meteor.subscribe('tags');
 
 	// handle so we can use onReady to set isLoading to false
@@ -281,6 +298,19 @@ const Tracker = withTracker(({ dispatch }) => {
 		},
 	});
 
+	Meteor.subscribe('newPatternsPreview', {
+		'onReady': () => {
+			const patternIds = myPatterns.map((pattern) => pattern._id);
+
+			Meteor.subscribe('patternPreviews', { patternIds });
+
+			const userIds = myPatterns.map((pattern) => pattern.createdBy);
+			const uniqueUsers = [...(new Set(userIds))];
+
+			Meteor.subscribe('users', uniqueUsers);
+		},
+	});
+
 	if (isLoading && handle.ready()) {
 		dispatch(setIsLoading(false));
 	} else if (!isLoading && !handle.ready()) {
@@ -290,6 +320,7 @@ const Tracker = withTracker(({ dispatch }) => {
 	return {
 		allPatterns,
 		myPatterns,
+		newPatterns,
 		'patternPreviews': PatternPreviews.find().fetch(),
 		'tags': Tags.find().fetch(),
 		'users': Meteor.users.find().fetch(),
