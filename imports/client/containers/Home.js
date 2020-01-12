@@ -77,7 +77,6 @@ class Home extends Component {
 		const width = parseFloat(containerElm.clientWidth)
 		- parseFloat(compStyles.getPropertyValue('padding-left'))
 		- parseFloat(compStyles.getPropertyValue('padding-right'));
-		console.log('width', width);
 
 		this.setState({
 			width,

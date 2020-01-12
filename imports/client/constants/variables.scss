@@ -67,7 +67,7 @@ $color-pattern-summary-created-by: #999;
 
 $pattern-summary-preview-height: 112px;
 $pattern-summary-preview-width: 270px;
-$pattern-summary-preview-padding: 16px;
+$pattern-summary-preview-margin: 16px;
 
 $color-pattern-image-background: rgba(0, 0, 0, .9);
 $color-pattern-image-caption-bg: #333;
@@ -98,11 +98,15 @@ $color-search-info: #999;
 $color-main-menu-background: #fff;
 $color-main-menu-selected-background: #ccc;
 
+$color-pattern-list-preview: #666;
+$pattern-list-preview-padding: 15px;
+
 // this is a hack to extract variable values from scss
 // https://stackoverflow.com/questions/3326494/parsing-css-in-javascript-jquery
 // :export { var: $var } is the right way but I can't get it to work
 // each variable has to be assigned to a valid css rule
 exporter {
-	padding-right: $pattern-summary-preview-padding;
+	margin-right: $pattern-summary-preview-margin;
+	padding: $pattern-list-preview-padding;
 	width: $pattern-summary-preview-width;
 }

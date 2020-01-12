@@ -99,7 +99,7 @@ PageWrapper.propTypes = {
 		PropTypes.element,
 		PropTypes.arrayOf(PropTypes.element),
 		PropTypes.node,
-	]).isRequired,
+	]),
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 	'message': PropTypes.string,

@@ -1,12 +1,28 @@
 @import "../constants/variables";
 
 .pattern-list-preview {
+	padding: $pattern-list-preview-padding;
+
+	.more {
+		float: right;
+		margin-right: $pattern-summary-preview-margin;
+	}
+
 	.pattern-summary {
-		margin-right: $pattern-summary-preview-padding;
+		margin-right: $pattern-summary-preview-margin;
+	}
+
+	h1 {
+		border: 0;
+		color: $color-pattern-list-preview;
+		float: left;
+		font-size: 1.4rem !important;
 	}
 
 	ul {
-		margin: 0;
+		float: left;
+		margin: 8px 0 0 0;
 		padding: 0;
+		width: 100%;
 	}
 }

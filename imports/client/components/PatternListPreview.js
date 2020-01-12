@@ -4,6 +4,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import {
+	Button,
 	Col,
 	Container,
 	Row,
@@ -30,22 +31,34 @@ const PatternListPreview = (props) => {
 	// find the pattern summary dimensions from variables.scss
 	const importedStyles = getCSSVariables()[0].style;
 	const patternSummaryWidth = parseInt(importedStyles.width, 10);
-	const patternSummaryPaddingRight = parseInt(importedStyles['padding-right'], 10);
+	const patternSummaryMarginRight = parseInt(importedStyles['margin-right'], 10);
 
-	const widthPerPatternSummary = patternSummaryWidth + patternSummaryPaddingRight;
+	const patternListPreviewPadding = parseInt(importedStyles['margin-right'], 10);
+
+	const widthPerPatternSummary = patternSummaryWidth + patternSummaryMarginRight;
 
 	// find the number of pattern previews that will fit on one line
-	const numberOfPatternPreviews = Math.floor(width / widthPerPatternSummary);
-	console.log('widthPerPatternSummary', widthPerPatternSummary);
-	console.log('width', width);
-	console.log('numberOfPatternPreviews', numberOfPatternPreviews);
+	const paddingX = 2 * patternListPreviewPadding;
+	const numberOfPatternSummaries = Math.floor((width - paddingX) / widthPerPatternSummary);
 
-	const patternsToShow = patterns.slice(0, numberOfPatternPreviews);
+	const patternsToShow = patterns.slice(0, numberOfPatternSummaries);
+
+	const divWidth = numberOfPatternSummaries * widthPerPatternSummary + paddingX;
 
 	return (
-		<div className="pattern-list-preview">
+		<div
+			className="pattern-list-preview"
+			style={{ 'width': divWidth }}
+		>
 			<h1>{listName}</h1>
-			<Link to={url}>More...</Link>
+			<Button
+				className="more"
+				color="secondary"
+				tag={Link}
+				to={url}
+			>
+				More...
+			</Button>
 			<ul>
 				{patternsToShow.map((pattern) => {
 					const { _id, createdBy, 'tags': patternTags } = pattern;
