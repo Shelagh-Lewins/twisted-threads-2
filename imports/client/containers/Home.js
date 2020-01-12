@@ -119,6 +119,7 @@ class Home extends Component {
 			isAuthenticated,
 			isLoading,
 			isVerified,
+			myPatterns,
 			patternPreviews,
 			tags,
 			users,
@@ -185,6 +186,18 @@ class Home extends Component {
 								users={users}
 								width={width}
 							/>
+							{isAuthenticated && (
+								<PatternListPreview
+									dispatch={dispatch}
+									listName="My patterns"
+									patterns={myPatterns}
+									patternPreviews={patternPreviews}
+									tags={tags}
+									url="/my-patterns"
+									users={users}
+									width={width}
+								/>
+							)}
 						</>
 					)}
 				</div>
@@ -202,6 +215,7 @@ Home.propTypes = {
 	'isAuthenticated': PropTypes.bool.isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'isVerified': PropTypes.bool.isRequired,
+	'myPatterns': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'patternPreviews': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'tags': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'users': PropTypes.arrayOf(PropTypes.any).isRequired,
@@ -226,8 +240,21 @@ const Tracker = withTracker(({ dispatch }) => {
 		'sort': { 'nameSort': 1 },
 	}).fetch();
 
+	let myPatterns = [];
+
+	if (Meteor.userId()) {
+		myPatterns = Patterns.find(
+			{ 'createdBy': Meteor.userId },
+			{
+				'limit': ITEMS_PER_PREVIEW_LIST,
+				'sort': { 'nameSort': 1 },
+			},
+		).fetch();
+	}
+
 	Meteor.subscribe('tags');
 
+	// handle so we can use onReady to set isLoading to false
 	const handle = Meteor.subscribe('allPatternsPreview', {
 		'onReady': () => {
 			const patternIds = allPatterns.map((pattern) => pattern._id);
@@ -241,8 +268,20 @@ const Tracker = withTracker(({ dispatch }) => {
 		},
 	});
 
+	Meteor.subscribe('myPatternsPreview', {
+		'onReady': () => {
+			const patternIds = myPatterns.map((pattern) => pattern._id);
+
+			Meteor.subscribe('patternPreviews', { patternIds });
+
+			const userIds = myPatterns.map((pattern) => pattern.createdBy);
+			const uniqueUsers = [...(new Set(userIds))];
+
+			Meteor.subscribe('users', uniqueUsers);
+		},
+	});
+
 	if (isLoading && handle.ready()) {
-		dispatch(getPatternCount());
 		dispatch(setIsLoading(false));
 	} else if (!isLoading && !handle.ready()) {
 		dispatch(setIsLoading(true));
@@ -250,6 +289,7 @@ const Tracker = withTracker(({ dispatch }) => {
 
 	return {
 		allPatterns,
+		myPatterns,
 		'patternPreviews': PatternPreviews.find().fetch(),
 		'tags': Tags.find().fetch(),
 		'users': Meteor.users.find().fetch(),

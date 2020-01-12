@@ -3,6 +3,9 @@ import { connect } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import {
+	getIsAuthenticated,
+} from '../modules/auth';
+import {
 	getSelectedMainMenuItem,
 	setSelectedMainMenuItem,
 } from '../modules/page';
@@ -11,6 +14,7 @@ import { MAIN_MENU_ITEMS } from '../../modules/parameters';
 function MainMenu(props) {
 	const {
 		dispatch,
+		isAuthenticated,
 		selectedMainMenuItem,
 	} = props;
 
@@ -34,20 +38,35 @@ function MainMenu(props) {
 		</li>
 	);
 
+	const renderMenuItems = () => {
+		const menuItems = [];
+
+		MAIN_MENU_ITEMS.forEach((menuItem) => {
+			const { loginRequired } = menuItem;
+			if (!loginRequired || (loginRequired && isAuthenticated)) {
+				menuItems.push(renderMenuItem(menuItem));
+			}
+		});
+
+		return menuItems;
+	};
+
 	return (
 		<ul className="main-menu">
-			{MAIN_MENU_ITEMS.map((menuItem) => renderMenuItem(menuItem))}
+			{renderMenuItems()}
 		</ul>
 	);
 }
 
 MainMenu.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
+	'isAuthenticated': PropTypes.bool.isRequired,
 	'selectedMainMenuItem': PropTypes.string.isRequired,
 };
 
 function mapStateToProps(state) {
 	return {
+		'isAuthenticated': getIsAuthenticated(state),
 		'selectedMainMenuItem': getSelectedMainMenuItem(state),
 	};
 }

@@ -128,31 +128,37 @@ export const MAIN_MENU_ITEMS = [
 		'value': 'home',
 		'name': 'Home',
 		'url': '/',
+		'loginRequired': false,
 	},
 	{
 		'value': 'recentlyViewed',
 		'name': 'Recently viewed',
 		'url': '/recently-viewed',
+		'loginRequired': false,
 	},
 	{
 		'value': 'newPatterns',
 		'name': 'New patterns',
 		'url': '/new-patterns',
+		'loginRequired': false,
 	},
 	{
 		'value': 'myPatterns',
 		'name': 'My patterns',
 		'url': '/my-patterns',
+		'loginRequired': true,
 	},
 	{
 		'value': 'allPatterns',
 		'name': 'All patterns',
 		'url': '/all-patterns',
+		'loginRequired': false,
 	},
 	{
 		'value': 'people',
 		'name': 'People',
 		'url': '/people',
+		'loginRequired': false,
 	},
 ];
 

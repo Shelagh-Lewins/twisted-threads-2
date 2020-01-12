@@ -124,7 +124,8 @@ const patternFields = {
 	},
 };
 
-// list of patterns
+// ////////////////////////////////
+// All patterns
 Meteor.publish('patterns', function (skip = 0, limit = ITEMS_PER_PAGE) {
 	// this needs to return the same number of patterns as the getPatternCount method, for pagination
 	check(skip, positiveIntegerCheck);
@@ -202,7 +203,9 @@ Meteor.publish('allPatternsPreview', function () {
 				],
 			},
 			{
-				'fields': patternFields,
+				'fields': patternsFields,
+				'limit': ITEMS_PER_PREVIEW_LIST,
+				'sort': { 'nameSort': 1 },
 			},
 		);
 	}
@@ -212,11 +215,46 @@ Meteor.publish('allPatternsPreview', function () {
 			'isPublic': { '$eq': true },
 		},
 		{
-			'fields': patternFields,
+			'fields': patternsFields,
 			'limit': ITEMS_PER_PREVIEW_LIST,
-			'sort': 'nameSort',
+			'sort': { 'nameSort': 1 },
 		},
 	);
+});
+
+// ////////////////////////////////
+// My patterns
+Meteor.publish('myPatterns', function (skip = 0, limit = ITEMS_PER_PAGE) {
+	if (this.userId) {
+		return Patterns.find(
+			{ 'createdBy': this.userId },
+			{
+				'fields': patternsFields,
+				'sort': { 'nameSort': 1 },
+				'skip': skip,
+				'limit': limit,
+			},
+		);
+	}
+
+	this.ready();
+});
+
+// preview list for my patterns
+// displayed on Home page
+Meteor.publish('myPatternsPreview', function () {
+	if (this.userId) {
+		return Patterns.find(
+			{ 'createdBy': this.userId },
+			{
+				'fields': patternsFields,
+				'limit': ITEMS_PER_PREVIEW_LIST,
+				'sort': { 'nameSort': 1 },
+			},
+		);
+	}
+
+	this.ready();
 });
 
 // //////////////////////////

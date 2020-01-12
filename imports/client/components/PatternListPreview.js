@@ -59,35 +59,40 @@ const PatternListPreview = (props) => {
 			>
 				More...
 			</Button>
-			<ul>
-				{patternsToShow.map((pattern) => {
-					const { _id, createdBy, 'tags': patternTags } = pattern;
+			{patternsToShow.length === 0 && (
+				<div>No items to show</div>
+			)}
+			{patternsToShow.length > 0 && (
+				<ul>
+					{patternsToShow.map((pattern) => {
+						const { _id, createdBy, 'tags': patternTags } = pattern;
 
-					const tagTexts = [];
+						const tagTexts = [];
 
-					// ensure tags subscription is ready
-					if (patternTags && tags && tags.length > 0) {
-						patternTags.forEach((patternTag) => {
-							const tagObject = tags.find((tag) => tag._id === patternTag);
-							if (tagObject && tagObject.name) {
-								tagTexts.push(tagObject.name);
-							}
-						});
-					}
+						// ensure tags subscription is ready
+						if (patternTags && tags && tags.length > 0) {
+							patternTags.forEach((patternTag) => {
+								const tagObject = tags.find((tag) => tag._id === patternTag);
+								if (tagObject && tagObject.name) {
+									tagTexts.push(tagObject.name);
+								}
+							});
+						}
 
-					return (
-						<div key={`pattern-summary-${url}-${_id}`}>
-							<PatternSummary
-								pattern={pattern}
-								dispatch={dispatch}
-								patternPreview={patternPreviews.find((patternPreview) => patternPreview.patternId === _id)}
-								tagTexts={tagTexts}
-								user={users.find((user) => user._id === createdBy)}
-							/>
-						</div>
-					);
-				})}
-			</ul>
+						return (
+							<div key={`pattern-summary-${url}-${_id}`}>
+								<PatternSummary
+									pattern={pattern}
+									dispatch={dispatch}
+									patternPreview={patternPreviews.find((patternPreview) => patternPreview.patternId === _id)}
+									tagTexts={tagTexts}
+									user={users.find((user) => user._id === createdBy)}
+								/>
+							</div>
+						);
+					})}
+				</ul>
+			)}
 		</div>
 	);
 };
