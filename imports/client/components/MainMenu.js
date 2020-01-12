@@ -11,6 +11,8 @@ import {
 } from '../modules/page';
 import { MAIN_MENU_ITEMS } from '../../modules/parameters';
 
+import './MainMenu.scss';
+
 function MainMenu(props) {
 	const {
 		dispatch,

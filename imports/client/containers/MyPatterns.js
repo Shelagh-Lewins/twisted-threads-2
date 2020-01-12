@@ -24,9 +24,9 @@ import './Home.scss';
 
 const queryString = require('query-string');
 
-const bodyClass = 'all-patterns';
+const bodyClass = 'my-patterns';
 
-class AllPatterns extends Component {
+class MyPatterns extends Component {
 	constructor(props) {
 		super(props);
 
@@ -73,7 +73,7 @@ class AllPatterns extends Component {
 					{isLoading && <Loading />}
 					<Row>
 						<Col lg="12">
-							<h1>All patterns</h1>
+							<h1>My patterns</h1>
 						</Col>
 					</Row>
 					{!isLoading
@@ -97,11 +97,11 @@ class AllPatterns extends Component {
 	}
 }
 
-AllPatterns.defaultProps = {
+MyPatterns.defaultProps = {
 	'currentPageNumber': 1,
 };
 
-AllPatterns.propTypes = {
+MyPatterns.propTypes = {
 	'currentPageNumber': PropTypes.number,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
@@ -137,14 +137,17 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 	const state = store.getState();
 	const isLoading = getIsLoading(state);
 
-	const patterns = Patterns.find({}, {
-		'sort': { 'nameSort': 1 },
-		'limit': ITEMS_PER_PAGE,
-	}).fetch();
+	const patterns = Patterns.find(
+		{ 'createdBy': Meteor.userId },
+		{
+			'sort': { 'nameSort': 1 },
+			'limit': ITEMS_PER_PAGE,
+		},
+	).fetch();
 
 	Meteor.subscribe('tags');
 
-	const handle = Meteor.subscribe('patterns', pageSkip, ITEMS_PER_PAGE, {
+	const handle = Meteor.subscribe('myPatterns', pageSkip, ITEMS_PER_PAGE, {
 		'onReady': () => {
 			const patternIds = patterns.map((pattern) => pattern._id);
 
@@ -170,6 +173,6 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 		'tags': Tags.find().fetch(),
 		'users': Meteor.users.find().fetch(),
 	};
-})(AllPatterns);
+})(MyPatterns);
 
 export default connect(mapStateToProps)(Tracker);

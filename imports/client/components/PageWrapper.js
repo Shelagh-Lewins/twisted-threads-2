@@ -14,8 +14,6 @@ import formatErrorMessages from '../modules/formatErrorMessages';
 import { clearErrors } from '../modules/errors';
 import FlashMessage from './FlashMessage';
 
-import './PageWrapper.scss';
-
 class PageWrapper extends Component {
 	constructor() {
 		super();
