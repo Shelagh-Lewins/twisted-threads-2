@@ -3,17 +3,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import {
-	Button,
-	Col,
-	Container,
-	Row,
-} from 'reactstrap';
+import { Button } from 'reactstrap';
 
 import PatternSummary from './PatternSummary';
 import './PatternListPreview.scss';
 
-import getCSSVariables from '../modules/getCSSVariables';
+import getListPreviewDimensions from '../modules/getListPreviewDimensions';
 
 
 const PatternListPreview = (props) => {
@@ -28,22 +23,9 @@ const PatternListPreview = (props) => {
 		width,
 	} = props;
 
-	// find the pattern summary dimensions from variables.scss
-	const importedStyles = getCSSVariables()[0].style;
-	const patternSummaryWidth = parseInt(importedStyles.width, 10);
-	const patternSummaryMarginRight = parseInt(importedStyles['margin-right'], 10);
+	const { divWidth, numberToShow } = getListPreviewDimensions(width);
 
-	const patternListPreviewPadding = parseInt(importedStyles['margin-right'], 10);
-
-	const widthPerPatternSummary = patternSummaryWidth + patternSummaryMarginRight;
-
-	// find the number of pattern previews that will fit on one line
-	const paddingX = 2 * patternListPreviewPadding;
-	const numberOfPatternSummaries = Math.floor((width - paddingX) / widthPerPatternSummary);
-
-	const patternsToShow = patterns.slice(0, numberOfPatternSummaries);
-
-	const divWidth = numberOfPatternSummaries * widthPerPatternSummary + paddingX;
+	const patternsToShow = patterns.slice(0, numberToShow);
 
 	return (
 		<div
@@ -60,7 +42,7 @@ const PatternListPreview = (props) => {
 				More...
 			</Button>
 			{patternsToShow.length === 0 && (
-				<div>No items to show</div>
+				<div>No patterns to show</div>
 			)}
 			{patternsToShow.length > 0 && (
 				<ul>

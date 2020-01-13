@@ -14,7 +14,6 @@ import store from '../modules/store';
 import {
 	addPattern,
 	getIsLoading,
-	getPatternCount,
 	setIsLoading,
 } from '../modules/pattern';
 import {
@@ -26,6 +25,7 @@ import { PatternPreviews, Patterns, Tags } from '../../modules/collection';
 import Loading from '../components/Loading';
 import MainMenu from '../components/MainMenu';
 import PatternListPreview from '../components/PatternListPreview';
+import UserListPreview from '../components/UserListPreview';
 import AddPatternForm from '../forms/AddPatternForm';
 
 import { ITEMS_PER_PREVIEW_LIST } from '../../modules/parameters';
@@ -113,6 +113,7 @@ class Home extends Component {
 	render() {
 		const {
 			allPatterns,
+			allUsers,
 			canCreatePattern,
 			dispatch,
 			errors,
@@ -207,6 +208,12 @@ class Home extends Component {
 								tags={tags}
 								url="/all-patterns"
 								users={users}
+								width={width}
+							/>
+							<UserListPreview
+								listName="People"
+								url="/people"
+								users={allUsers}
 								width={width}
 							/>
 						</>
