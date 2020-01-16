@@ -9,21 +9,6 @@ import { ITEMS_PER_PAGE } from '../../modules/parameters';
 import './PatternList.scss';
 
 class PatternList extends PureComponent {
-	/* onChangeIsPublic = ({ _id, isPublic }) => {
-		const { dispatch } = this.props;
-
-		dispatch(editIsPublic({ _id, isPublic }));
-	};
-
-	handleClickButtonRemove = ({ _id, name }) => {
-		const { dispatch } = this.props;
-		const response = confirm(`Do you want to delete the pattern "${name}"?`); // eslint-disable-line no-restricted-globals
-
-		if (response === true) {
-			dispatch(removePattern(_id));
-		}
-	}; */
-
 	render() {
 		const {
 			currentPageNumber,

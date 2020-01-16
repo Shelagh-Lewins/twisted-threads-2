@@ -13,6 +13,7 @@ import {
 } from './utils';
 // arrow functions lose "this" context
 /* eslint-disable func-names */
+/* eslint-disable prefer-arrow-callback */
 
 // don't allow users to edit their profile
 // https://docs.meteor.com/api/accounts.html
@@ -395,11 +396,15 @@ Meteor.publish('users', function (userIds) {
 // all users page
 Meteor.publish('allUsers', function (skip = 0, limit = ITEMS_PER_PAGE) {
 	// this needs to return the same number of patterns as the getUsersCount method, for pagination
-	//TODO count users and implement!
 	check(skip, positiveIntegerCheck);
 
 	return Meteor.users.find(
-		{ 'publicPatternsCount': { '$gt': 0 } },
+		{
+			'$or': [
+				{ 'publicPatternsCount': { '$gt': 0 } },
+				{ '_id': this.userId },
+			],
+		},
 		{
 			'fields': {
 				'_id': 1,

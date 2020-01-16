@@ -14,6 +14,9 @@ const updeep = require('updeep');
 
 // define action types so they are visible
 // and export them so other reducers can use them
+export const SET_USER_COUNT = 'SET_USER_COUNT';
+export const SET_ISLOADING = 'SET_ISLOADING';
+
 export const REGISTER = 'REGISTER';
 export const LOGIN = 'LOGIN';
 export const LOGOUT = 'LOGOUT';
@@ -84,6 +87,30 @@ export const logout = (history) => (dispatch) => {
 		history.push('/');
 	});
 };
+
+// ////////////////////////////////
+// Provide information to the UI
+// used in pagination
+export function setUserCount(userCount) {
+	return {
+		'type': 'SET_USER_COUNT',
+		'payload': userCount,
+	};
+}
+
+export const getUserCount = () => (dispatch) => Meteor.call('auth.getUserCount', (error, result) => {
+	dispatch(setUserCount(result));
+});
+
+export const getIsLoading = (state) => state.auth.isLoading;
+
+// waiting for data subscription to be ready
+export function setIsLoading(isLoading) {
+	return {
+		'type': 'SET_ISLOADING',
+		'payload': isLoading,
+	};
+}
 
 // ////////////////////////////////
 // verification of email address
@@ -500,12 +527,21 @@ const initialAuthState = {
 	'verificationEmailSent': false,
 	'emailVerified': false,
 	'user': null,
+	'userCount': 0,
 	'userRoles': [],
 };
 
 // state updates
 export default function auth(state = initialAuthState, action) {
 	switch (action.type) {
+		case SET_USER_COUNT: {
+			return updeep({ 'userCount': action.payload }, state);
+		}
+
+		case SET_ISLOADING: {
+			return updeep({ 'isLoading': action.payload }, state);
+		}
+
 		case FORGOT_PASSWORD_EMAIL_SENT: {
 			return updeep({ 'forgotPasswordEmailSent': true }, state);
 		}

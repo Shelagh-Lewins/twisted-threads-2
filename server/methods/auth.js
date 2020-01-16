@@ -81,4 +81,19 @@ Meteor.methods({
 
 		return checkUserCanAddPatternImage(patternId);
 	},
+	'auth.getUserCount': function () {
+		// required for pagination
+		// must return the same number as the relevant publications function
+
+		// counts all users with public patterns
+		// plus the user themselves if logged in
+
+		// return all patterns visible to this user
+		return Meteor.users.find({
+			'$or': [
+				{ 'publicPatternsCount': { '$gt': 0 } },
+				{ '_id': this.userId },
+			],
+		}).count();
+	},
 });

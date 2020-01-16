@@ -27,7 +27,6 @@ const updeep = require('updeep');
 
 // define action types so they are visible
 // and export them so other reducers can use them
-export const GET_PATTERN_COUNT = 'GET_PATTERN_COUNT';
 export const SET_PATTERN_COUNT = 'SET_PATTERN_COUNT';
 export const SET_ISLOADING = 'SET_ISLOADING';
 export const SET_PATTERN_DATA = 'SET_PATTERN_DATA';
@@ -684,33 +683,6 @@ export default function pattern(state = initialPatternState, action) {
 				'picks': { [tablet]: picksForTablet },
 			}, state);
 		}
-
-		// edit pattern charts. modification can be direction or numberOfTurns
-		/* case UPDATE_WEAVING_CELL: {
-			const { modification, row, tablet } = action.payload;
-			const { weavingInstructionsByTablet } = state;
-
-			// to update the weaving instructions
-			const obj = { ...weavingInstructionsByTablet[tablet][row] };
-			const modName = Object.keys(modification)[0];
-			obj[modName] = modification[modName];
-
-			// to calculate new picks for this tablet
-			const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tablet]];
-
-			weavingInstructionsForTablet[row] = obj;
-
-			const picksForTablet = reCalculatePicksForTablet({
-				'currentPicks': state.picks[tablet],
-				weavingInstructionsForTablet,
-				row,
-			});
-
-			return updeep({
-				'weavingInstructionsByTablet': { [tablet]: { [row]: obj } },
-				'picks': { [tablet]: picksForTablet },
-			}, state);
-		} */
 
 		case SET_IS_EDITING_WEAVING: {
 			return updeep({ 'isEditingWeaving': action.payload }, state);
