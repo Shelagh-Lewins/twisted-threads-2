@@ -17,7 +17,7 @@ import {
 import UserSummary from '../components/UserSummary';
 import Loading from '../components/Loading';
 import MainMenu from '../components/MainMenu';
-import ItemPreviewList from '../components/ItemPreviewList';
+import PaginatedList from '../components/PaginatedList';
 
 import { ITEMS_PER_PAGE } from '../../modules/parameters';
 import './Home.scss';
@@ -93,14 +93,14 @@ class People extends Component {
 					{!isLoading
 						&& userCount > 0
 						&& (
-							<ItemPreviewList
+							<PaginatedList
 								currentPageNumber={currentPageNumber}
 								dispatch={dispatch}
 								history={history}
 								itemCount={userCount}
 							>
 								{this.renderUsers()}
-							</ItemPreviewList>
+							</PaginatedList>
 						)}
 				</Container>
 			</PageWrapper>
@@ -146,6 +146,7 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 	const isLoading = getIsLoading(state);
 
 	const users = Meteor.users.find(
+		{},
 		{
 			'sort': { 'username': 1 },
 			'limit': ITEMS_PER_PAGE,

@@ -385,6 +385,7 @@ Meteor.publish('users', function (userIds) {
 		{
 			'fields': {
 				'_id': 1,
+				'description': 1,
 				'publicPatternsCount': 1,
 				'username': 1,
 			},

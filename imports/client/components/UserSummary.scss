@@ -12,22 +12,11 @@
 	width: $pattern-summary-preview-width;
 
 	a {
+		color: $color-pattern-summary-name;
 		line-height: 2.4;
-	}
+		text-decoration: none;
 
-	.controls {
-		float: right;
-
-		.is-public {
-			float: left;
-			margin-right: 8px;
-		}
-	}
-
-	.main {
-		a {
-			display: block;
-			overflow: hidden;
+		&:hover {
 			text-decoration: none;
 		}
 	}
@@ -38,7 +27,7 @@
 		display: block;
 		font-size: 16px !important;
 		font-weight: bold;
-		height: 30px;
+		line-height: 32px;
 		overflow: hidden;
 		padding: 8px 8px 2px 8px;
 		text-overflow: ellipsis;
@@ -46,6 +35,15 @@
 
 		&:hover {
 			text-decoration: none;
+		}
+
+		.icon {
+			background: url("../images/user_profile.png") transparent no-repeat left top;
+			background-size: 32px 32px;
+			float: left;
+			height: 32px;
+			margin: 0 8px 0 0;
+			width: 32px;
 		}
 	}
 
@@ -60,90 +58,21 @@
 		white-space: pre-line;
 	}
 
-	.pattern-preview {
-		background-color: $color-pattern-preview-background;
-		background-position: center center;
-		background-repeat: no-repeat;
-		background-size: contain;
-		height: $pattern-summary-preview-height;
-		overflow: hidden;
-		position: relative;
-		width: $pattern-summary-preview-width;
-	}
-
 	.info {
-		left: 8px;
-		position: absolute;
-		top: 84px;
-		z-index: 2;
-	}
+		padding: 8px 8px 8px 8px;
 
-	.tags {
-		background: $color-pattern-summary-tablets-background;
-		border-radius: 4px;
-		color: $color-pattern-summmary-tablets;
-		float: left;
-		font-size: 14px;
-		line-height: 1.2;
-		padding: 4px;
+		.public-patterns {
+			font-weight: bold;
+			line-height: 1;
 
-		.tag {
-			&::after {
-				content: ", ";
+			.icon {
+				background: url("../images/number_of_patterns.png") transparent no-repeat left top;
+				background-size: 16px 16px;
+				float: left;
+				height: 16px;
+				margin: 0 8px 0 0;
+				width: 16px;
 			}
-
-			&:last-child {
-				&::after {
-					content: "";
-				}
-			}
-		}
-	}
-
-	.tablets {
-		background: $color-pattern-summary-tablets-background;
-		border-radius: 4px;
-		clear: both;
-		color: $color-pattern-summmary-tablets;
-		float: left;
-		font-size: 14px;
-		line-height: 1.2;
-		padding: 4px;
-
-		.icon {
-			background: url("../images/tablet_white.svg") transparent no-repeat right 0 top 0;
-			background-size: 16px 16px;
-			float: left;
-			height: 16px;
-			margin-right: 8px;
-			width: 16px;
-		}
-	}
-
-	.footer {
-		padding: 0 8px 8px 8px;
-
-		button {
-			background-color: transparent;
-			border-color: transparent;
-		}
-	}
-
-	.created-by {
-		color: $color-pattern-summary-created-by;
-		font-weight: bold;
-		overflow: hidden;
-		text-decoration: none;
-		text-overflow: ellipsis;
-		white-space: pre-line;
-
-		.icon {
-			background: url("../images/created_by.png") transparent no-repeat left top;
-			background-size: 16px 16px;
-			display: inline-block;
-			height: 16px;
-			margin: 0 4px 0 0;
-			width: 16px;
 		}
 	}
 }

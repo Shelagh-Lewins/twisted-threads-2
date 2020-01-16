@@ -32,14 +32,16 @@ import {
 import {
 	getCanCreateColorBook,
 	getIsAuthenticated,
+	editTextField,
 } from '../modules/auth';
 
 import Loading from '../components/Loading';
-import ItemPreviewList from '../components/ItemPreviewList';
-import PatternSummary from '../components/PatternSummary';
+import PaginatedList from '../components/PaginatedList';
+import PatternList from '../components/PatternList';
 import PageWrapper from '../components/PageWrapper';
 import ColorBookSummary from '../components/ColorBookSummary';
 import AddColorBookForm from '../forms/AddColorBookForm';
+import EditableText from '../components/EditableText';
 
 import { ITEMS_PER_PAGE } from '../../modules/parameters';
 
@@ -63,6 +65,7 @@ class User extends PureComponent {
 			'handleClickAddButton',
 			'handleClickAddColorBook',
 			'handleClickButtonCopy',
+			'onClickEditableTextSave',
 			'handleClickSelectColorBook',
 		];
 
@@ -85,6 +88,27 @@ class User extends PureComponent {
 		dispatch(editIsPublic({ _id, isPublic }));
 	};
 
+	onClickEditableTextSave({ fieldValue, fieldName }) {
+		const {
+			dispatch,
+			'user': {
+				_id,
+			},
+		} = this.props;
+
+		dispatch(editTextField({ _id, fieldValue, fieldName }));
+	}
+
+	handleClickButtonRemoveColorBook = ({ _id, name }) => {
+		const { dispatch } = this.props;
+
+		const response = confirm(`Do you want to delete the colour book "${name}"?`); // eslint-disable-line no-restricted-globals
+
+		if (response === true) {
+			dispatch(removeColorBook(_id));
+		}
+	};
+
 	handleClickButtonCopy = ({ _id }) => {
 		const { colorBooks, dispatch, history } = this.props;
 		const thisColorBook = colorBooks.find((colorBook) => colorBook._id === _id);
@@ -95,16 +119,6 @@ class User extends PureComponent {
 			if (response === true) {
 				dispatch(copyColorBook(_id, history));
 			}
-		}
-	};
-
-	handleClickButtonRemoveColorBook = ({ _id, name }) => {
-		const { dispatch } = this.props;
-
-		const response = confirm(`Do you want to delete the colour book "${name}"?`); // eslint-disable-line no-restricted-globals
-
-		if (response === true) {
-			dispatch(removeColorBook(_id));
 		}
 	};
 
@@ -212,53 +226,17 @@ class User extends PureComponent {
 		);
 	}
 
-	renderPatterns() {
-		const {
-			dispatch,
-			patterns,
-			patternPreviews,
-			tags,
-			user,
-		} = this.props;
-
-		return patterns.map((pattern) => {
-			const { _id, 'tags': patternTags } = pattern;
-
-			const tagTexts = [];
-
-			// ensure tags subscription is ready
-			if (patternTags && tags && tags.length > 0) {
-				patternTags.forEach((patternTag) => {
-					const tagObject = tags.find((tag) => tag._id === patternTag);
-					if (tagObject && tagObject.name) {
-						tagTexts.push(tagObject.name);
-					}
-				});
-			}
-
-			return (
-				<div key={`pattern-summary-${_id}`}>
-					<PatternSummary
-						dispatch={dispatch}
-						handleClickButtonRemove={this.handleClickButtonRemove}
-						onChangeIsPublic={this.onChangeIsPublic}
-						pattern={pattern}
-						patternPreview={patternPreviews.find((patternPreview) => patternPreview.patternId === _id)}
-						tagTexts={tagTexts}
-						user={user}
-					/>
-				</div>
-			);
-		});
-	}
-
 	renderPatternsList() {
 		const {
 			currentPageNumber,
 			dispatch,
 			history,
 			isLoading,
+			patterns,
+			patternPreviews,
 			patternCount,
+			tags,
+			user,
 		} = this.props;
 
 		return (
@@ -274,18 +252,46 @@ class User extends PureComponent {
 							<div>There are no patterns to display</div>
 						)}
 						{patternCount > 0 && (
-							<ItemPreviewList
+							<PaginatedList
 								currentPageNumber={currentPageNumber}
 								dispatch={dispatch}
 								history={history}
 								itemCount={patternCount}
 							>
-								{this.renderPatterns()}
-							</ItemPreviewList>
+								<PatternList
+									dispatch={dispatch}
+									patternPreviews={patternPreviews}
+									patterns={patterns}
+									tags={tags}
+									users={[user]}
+								/>
+							</PaginatedList>
 						)}
 					</>
 				)}
 			</>
+		);
+	}
+
+	renderDescription() {
+		const {
+			'user': {
+				_id,
+				description,
+			},
+		} = this.props;
+		const canEdit = _id === Meteor.userId();
+
+		return (
+			<EditableText
+				canEdit={canEdit}
+				fieldName="description"
+				onClickSave={this.onClickEditableTextSave}
+				optional={true}
+				title="Description"
+				type="textarea"
+				fieldValue={description}
+			/>
 		);
 	}
 
@@ -304,6 +310,7 @@ class User extends PureComponent {
 				content = (
 					<>
 						<h1>{user.username}</h1>
+						{this.renderDescription()}
 						{this.renderColorBooks()}
 						{this.renderPatternsList()}
 					</>

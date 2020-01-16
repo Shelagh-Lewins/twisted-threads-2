@@ -96,4 +96,29 @@ Meteor.methods({
 			],
 		}).count();
 	},
+	'auth.editTextField': function ({ _id, fieldName, fieldValue }) {
+		if (_id !== Meteor.userId()) {
+			throw new Meteor.Error('edit-text-field-not-logged-in', 'Unable to edit text field because the user is not logged in');
+		}
+
+		check(fieldName, nonEmptyStringCheck);
+
+		const optionalFields = [
+			'description',
+		];
+
+		if (optionalFields.indexOf(fieldName) === -1) {
+			check(fieldValue, nonEmptyStringCheck);
+		} else {
+			check(fieldValue, String);
+		}
+
+		const update = {};
+		update[fieldName] = fieldValue;
+
+		Meteor.users.update(
+			{ '_id': Meteor.userId() },
+			{ '$set': update },
+		);
+	},
 });

@@ -88,6 +88,21 @@ export const logout = (history) => (dispatch) => {
 	});
 };
 
+// editable text fields like description
+export function editTextField({
+	_id,
+	fieldName,
+	fieldValue,
+}) {
+	return () => {
+		Meteor.call('auth.editTextField', {
+			_id,
+			fieldName,
+			fieldValue,
+		});
+	};
+}
+
 // ////////////////////////////////
 // Provide information to the UI
 // used in pagination

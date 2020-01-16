@@ -7,9 +7,9 @@ import PropTypes from 'prop-types';
 import Pagination from './Pagination';
 import { changePage } from '../modules/pattern';
 import { ITEMS_PER_PAGE } from '../../modules/parameters';
-import './ItemPreviewList.scss';
+import './PaginatedList.scss';
 
-class ItemPreviewList extends PureComponent {
+class PaginatedList extends PureComponent {
 	render() {
 		const {
 			children,
@@ -38,7 +38,7 @@ class ItemPreviewList extends PureComponent {
 	}
 }
 
-ItemPreviewList.propTypes = {
+PaginatedList.propTypes = {
 	'children': PropTypes.oneOfType([
 		PropTypes.element,
 		PropTypes.arrayOf(PropTypes.element),
@@ -50,4 +50,4 @@ ItemPreviewList.propTypes = {
 	'itemCount': PropTypes.number.isRequired,
 };
 
-export default ItemPreviewList;
+export default PaginatedList;
