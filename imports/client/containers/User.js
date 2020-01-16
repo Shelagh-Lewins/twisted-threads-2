@@ -1,4 +1,4 @@
-// detail of a single pattern
+// detail of a single user
 
 import React, { PureComponent } from 'react';
 import {
@@ -35,7 +35,8 @@ import {
 } from '../modules/auth';
 
 import Loading from '../components/Loading';
-import PatternList from '../components/PatternList';
+import ItemPreviewList from '../components/ItemPreviewList';
+import PatternSummary from '../components/PatternSummary';
 import PageWrapper from '../components/PageWrapper';
 import ColorBookSummary from '../components/ColorBookSummary';
 import AddColorBookForm from '../forms/AddColorBookForm';
@@ -213,15 +214,51 @@ class User extends PureComponent {
 
 	renderPatterns() {
 		const {
+			dispatch,
+			patterns,
+			patternPreviews,
+			tags,
+			user,
+		} = this.props;
+
+		return patterns.map((pattern) => {
+			const { _id, 'tags': patternTags } = pattern;
+
+			const tagTexts = [];
+
+			// ensure tags subscription is ready
+			if (patternTags && tags && tags.length > 0) {
+				patternTags.forEach((patternTag) => {
+					const tagObject = tags.find((tag) => tag._id === patternTag);
+					if (tagObject && tagObject.name) {
+						tagTexts.push(tagObject.name);
+					}
+				});
+			}
+
+			return (
+				<div key={`pattern-summary-${_id}`}>
+					<PatternSummary
+						dispatch={dispatch}
+						handleClickButtonRemove={this.handleClickButtonRemove}
+						onChangeIsPublic={this.onChangeIsPublic}
+						pattern={pattern}
+						patternPreview={patternPreviews.find((patternPreview) => patternPreview.patternId === _id)}
+						tagTexts={tagTexts}
+						user={user}
+					/>
+				</div>
+			);
+		});
+	}
+
+	renderPatternsList() {
+		const {
 			currentPageNumber,
 			dispatch,
 			history,
 			isLoading,
-			patterns,
 			patternCount,
-			patternPreviews,
-			tags,
-			user,
 		} = this.props;
 
 		return (
@@ -237,16 +274,14 @@ class User extends PureComponent {
 							<div>There are no patterns to display</div>
 						)}
 						{patternCount > 0 && (
-							<PatternList
+							<ItemPreviewList
 								currentPageNumber={currentPageNumber}
 								dispatch={dispatch}
 								history={history}
-								patternCount={patternCount}
-								patterns={patterns}
-								patternPreviews={patternPreviews}
-								tags={tags}
-								users={[user]}
-							/>
+								itemCount={patternCount}
+							>
+								{this.renderPatterns()}
+							</ItemPreviewList>
 						)}
 					</>
 				)}
@@ -270,7 +305,7 @@ class User extends PureComponent {
 					<>
 						<h1>{user.username}</h1>
 						{this.renderColorBooks()}
-						{this.renderPatterns()}
+						{this.renderPatternsList()}
 					</>
 				);
 			} else {

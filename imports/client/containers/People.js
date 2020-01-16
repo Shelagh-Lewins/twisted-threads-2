@@ -14,9 +14,10 @@ import {
 	getUserCount,
 	setIsLoading,
 } from '../modules/auth';
+import UserSummary from '../components/UserSummary';
 import Loading from '../components/Loading';
 import MainMenu from '../components/MainMenu';
-import PatternList from '../components/PatternList';
+import ItemPreviewList from '../components/ItemPreviewList';
 
 import { ITEMS_PER_PAGE } from '../../modules/parameters';
 import './Home.scss';
@@ -46,6 +47,24 @@ class People extends Component {
 		document.body.classList.remove(bodyClass);
 	}
 
+	renderUsers() {
+		const {
+			users,
+		} = this.props;
+
+		return users.map((user) => {
+			const { _id } = user;
+
+			return (
+				<div key={`user-summary-${_id}`}>
+					<UserSummary
+						user={user}
+					/>
+				</div>
+			);
+		});
+	}
+
 	render() {
 		const {
 			currentPageNumber,
@@ -54,7 +73,6 @@ class People extends Component {
 			history,
 			isLoading,
 			userCount,
-			users,
 		} = this.props;
 
 		return (
@@ -69,20 +87,20 @@ class People extends Component {
 					{isLoading && <Loading />}
 					<Row>
 						<Col lg="12">
-							<h1>My patterns</h1>
+							<h1>People</h1>
 						</Col>
 					</Row>
 					{!isLoading
 						&& userCount > 0
 						&& (
-							<PatternList
-								baseUrl="all-patterns/"
+							<ItemPreviewList
 								currentPageNumber={currentPageNumber}
 								dispatch={dispatch}
 								history={history}
-								patternCount={patternCount}
-								users={users}
-							/>
+								itemCount={userCount}
+							>
+								{this.renderUsers()}
+							</ItemPreviewList>
 						)}
 				</Container>
 			</PageWrapper>

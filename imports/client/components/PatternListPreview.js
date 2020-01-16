@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { Button } from 'reactstrap';
 
 import PatternSummary from './PatternSummary';
-import './PatternListPreview.scss';
+import './ItemListPreview.scss';
 
 import getListPreviewDimensions from '../modules/getListPreviewDimensions';
 
@@ -29,7 +29,7 @@ const PatternListPreview = (props) => {
 
 	return (
 		<div
-			className="pattern-list-preview"
+			className="item-list-preview"
 			style={{ 'width': divWidth }}
 		>
 			<h1>{listName}</h1>
@@ -62,7 +62,7 @@ const PatternListPreview = (props) => {
 						}
 
 						return (
-							<div key={`pattern-summary-${url}-${_id}`}>
+							<div key={`item-summary-${url}-${_id}`}>
 								<PatternSummary
 									pattern={pattern}
 									dispatch={dispatch}

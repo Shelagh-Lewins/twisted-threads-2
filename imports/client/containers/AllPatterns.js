@@ -15,9 +15,10 @@ import {
 	setIsLoading,
 } from '../modules/pattern';
 import { PatternPreviews, Patterns, Tags } from '../../modules/collection';
+import PatternSummary from '../components/PatternSummary';
 import Loading from '../components/Loading';
 import MainMenu from '../components/MainMenu';
-import PatternList from '../components/PatternList';
+import ItemPreviewList from '../components/ItemPreviewList';
 
 import { ITEMS_PER_PAGE } from '../../modules/parameters';
 import './Home.scss';
@@ -47,6 +48,46 @@ class AllPatterns extends Component {
 		document.body.classList.remove(bodyClass);
 	}
 
+	renderPatterns() {
+		const {
+			dispatch,
+			patterns,
+			patternPreviews,
+			tags,
+			users,
+		} = this.props;
+
+		return patterns.map((pattern) => {
+			const { _id, createdBy, 'tags': patternTags } = pattern;
+
+			const tagTexts = [];
+
+			// ensure tags subscription is ready
+			if (patternTags && tags && tags.length > 0) {
+				patternTags.forEach((patternTag) => {
+					const tagObject = tags.find((tag) => tag._id === patternTag);
+					if (tagObject && tagObject.name) {
+						tagTexts.push(tagObject.name);
+					}
+				});
+			}
+
+			return (
+				<div key={`pattern-summary-${_id}`}>
+					<PatternSummary
+						dispatch={dispatch}
+						handleClickButtonRemove={this.handleClickButtonRemove}
+						onChangeIsPublic={this.onChangeIsPublic}
+						pattern={pattern}
+						patternPreview={patternPreviews.find((patternPreview) => patternPreview.patternId === _id)}
+						tagTexts={tagTexts}
+						user={users.find((user) => user._id === createdBy)}
+					/>
+				</div>
+			);
+		});
+	}
+
 	render() {
 		const {
 			currentPageNumber,
@@ -54,11 +95,7 @@ class AllPatterns extends Component {
 			errors,
 			history,
 			isLoading,
-			patterns,
 			patternCount,
-			patternPreviews,
-			tags,
-			users,
 		} = this.props;
 
 		return (
@@ -79,17 +116,14 @@ class AllPatterns extends Component {
 					{!isLoading
 						&& patternCount > 0
 						&& (
-							<PatternList
-								baseUrl="all-patterns/"
+							<ItemPreviewList
 								currentPageNumber={currentPageNumber}
 								dispatch={dispatch}
 								history={history}
-								patternCount={patternCount}
-								patterns={patterns}
-								patternPreviews={patternPreviews}
-								tags={tags}
-								users={users}
-							/>
+								itemCount={patternCount}
+							>
+								{this.renderPatterns()}
+							</ItemPreviewList>
 						)}
 				</Container>
 			</PageWrapper>

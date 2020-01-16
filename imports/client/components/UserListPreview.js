@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { Button } from 'reactstrap';
 
 import UserSummary from './UserSummary';
-import './PatternListPreview.scss';
+import './ItemListPreview.scss';
 
 import getListPreviewDimensions from '../modules/getListPreviewDimensions';
 
@@ -25,7 +25,7 @@ const UserListPreview = (props) => {
 
 	return (
 		<div
-			className="user-list-preview"
+			className="item-list-preview"
 			style={{ 'width': divWidth }}
 		>
 			<h1>{listName}</h1>
