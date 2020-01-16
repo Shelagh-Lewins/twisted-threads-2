@@ -1,0 +1,36 @@
+@import "../constants/variables";
+
+.userpic-1 {
+	&.icon,
+	&::before {
+		background-color: $color-userpic-1;
+	}
+}
+
+.userpic-2 {
+	&.icon,
+	&::before {
+		background-color: $color-userpic-2;
+	}
+}
+
+.userpic-3 {
+	&.icon,
+	&::before {
+		background-color: $color-userpic-3;
+	}
+}
+
+.userpic-4 {
+	&.icon,
+	&::before {
+		background-color: $color-userpic-4;
+	}
+}
+
+.userpic-5 {
+	&.icon,
+	&::before {
+		background-color: $color-userpic-5;
+	}
+}

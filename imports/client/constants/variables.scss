@@ -101,6 +101,12 @@ $color-main-menu-selected-background: #ccc;
 $color-pattern-list-preview: #666;
 $pattern-list-preview-padding: 15px;
 
+$color-userpic-1: #ffc;
+$color-userpic-2: #9fc;
+$color-userpic-3: #c9c;
+$color-userpic-4: #9cf;
+$color-userpic-5: #c90;
+
 // this is a hack to extract variable values from scss
 // https://stackoverflow.com/questions/3326494/parsing-css-in-javascript-jquery
 // :export { var: $var } is the right way but I can't get it to work

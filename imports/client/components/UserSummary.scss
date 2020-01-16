@@ -38,7 +38,9 @@
 		}
 
 		.icon {
-			background: url("../images/user_profile.png") transparent no-repeat left top;
+			background-image: url("../images/user_profile.png");
+			background-position: left top;
+			background-repeat: no-repeat;
 			background-size: 32px 32px;
 			float: left;
 			height: 32px;

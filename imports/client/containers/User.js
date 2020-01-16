@@ -44,8 +44,10 @@ import AddColorBookForm from '../forms/AddColorBookForm';
 import EditableText from '../components/EditableText';
 
 import { ITEMS_PER_PAGE } from '../../modules/parameters';
+import getUserpicStyle from '../modules/getUserpicStyle';
 
 import './User.scss';
+import '../components/Userpic.scss';
 
 const queryString = require('query-string');
 
@@ -245,7 +247,7 @@ class User extends PureComponent {
 					<>
 						<Row>
 							<Col lg="12">
-								<h2>Patterns</h2>
+								<h2>{`Patterns (${patternCount})`}</h2>
 							</Col>
 						</Row>
 						{patternCount === 0 && (
@@ -309,7 +311,11 @@ class User extends PureComponent {
 			if (user) {
 				content = (
 					<>
-						<h1>{user.username}</h1>
+						<h1
+							className={getUserpicStyle(user._id)}
+						>
+							{user.username}
+						</h1>
 						{this.renderDescription()}
 						{this.renderColorBooks()}
 						{this.renderPatternsList()}

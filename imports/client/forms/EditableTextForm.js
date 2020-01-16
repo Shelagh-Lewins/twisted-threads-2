@@ -15,7 +15,11 @@ const validate = (optional, values) => {
 };
 
 const EditableTextForm = (props) => {
-	const { fieldValue, optional, type } = props;
+	const {
+		fieldValue,
+		optional,
+		type,
+	} = props;
 	const formik = useFormik({
 		'initialValues': {
 			'fieldValue': fieldValue,
@@ -72,7 +76,7 @@ const EditableTextForm = (props) => {
 		<form onSubmit={formik.handleSubmit} className="edit-text-field-form">
 			<div className="form-group">
 				<label htmlFor="fieldValue">
-					Name
+					{title}
 					{fieldElement}
 					{formik.touched.fieldValue && formik.errors.fieldValue ? (
 						<div className="invalid-feedback invalid">{formik.errors.fieldValue}</div>
@@ -92,12 +96,12 @@ EditableTextForm.defaultProps = {
 };
 
 EditableTextForm.propTypes = {
+	'fieldValue': PropTypes.string,
 	'handleCancel': PropTypes.func.isRequired,
 	'handleSubmit': PropTypes.func.isRequired,
 	'optional': PropTypes.bool,
 	'title': PropTypes.string.isRequired,
 	'type': PropTypes.string.isRequired,
-	'fieldValue': PropTypes.string,
 };
 
 export default EditableTextForm;

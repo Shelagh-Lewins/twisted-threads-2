@@ -6,4 +6,18 @@
 	.add-controls {
 		margin-bottom: 8px;
 	}
+
+	h1 {
+		&::before {
+			background-image: url("../images/user_profile.png");
+			background-position: left top;
+			background-repeat: no-repeat;
+			background-size: 32px 32px;
+			content: "";
+			float: left;
+			height: 32px;
+			margin: 0 8px 0 0;
+			width: 32px;
+		}
+	}
 }

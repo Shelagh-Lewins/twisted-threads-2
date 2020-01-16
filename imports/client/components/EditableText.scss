@@ -28,6 +28,10 @@
 
 	label {
 		font-size: 0;
+
+		.invalid {
+			font-size: 0.8rem;
+		}
 	}
 
 	.field-value {
