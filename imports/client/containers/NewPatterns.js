@@ -74,7 +74,7 @@ class NewPatterns extends Component {
 					{isLoading && <Loading />}
 					<Row>
 						<Col lg="12">
-							<h1>{`New patterns (${patternCount})`}</h1>
+							<h1>New patterns</h1>
 						</Col>
 					</Row>
 					{!isLoading

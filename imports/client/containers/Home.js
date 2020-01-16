@@ -83,8 +83,6 @@ class Home extends Component {
 		});
 	}
 
-	// to do set size at mount
-
 	handleSubmitAddPattern = (data, { resetForm }) => {
 		const { dispatch, history } = this.props;
 		const modifiedData = { ...data };

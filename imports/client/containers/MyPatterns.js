@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import {
+	Button,
 	Col,
 	Container,
 	Row,
@@ -10,15 +11,20 @@ import PropTypes from 'prop-types';
 import PageWrapper from '../components/PageWrapper';
 import store from '../modules/store';
 import {
+	addPattern,
 	getIsLoading,
 	getPatternCount,
 	setIsLoading,
 } from '../modules/pattern';
+import {
+	getCanCreatePattern,
+} from '../modules/auth';
 import { PatternPreviews, Patterns, Tags } from '../../modules/collection';
 import Loading from '../components/Loading';
 import MainMenu from '../components/MainMenu';
 import PaginatedList from '../components/PaginatedList';
 import PatternList from '../components/PatternList';
+import AddPatternForm from '../forms/AddPatternForm';
 
 import { ITEMS_PER_PAGE } from '../../modules/parameters';
 import './Home.scss';
@@ -31,8 +37,14 @@ class MyPatterns extends Component {
 	constructor(props) {
 		super(props);
 
+		this.state = {
+			'showAddPatternForm': false,
+		};
+
 		// bind onClick functions to provide context
 		const functionsToBind = [
+			'handleClickShowAddPatternForm',
+			'handleCancelShowAddPatternForm',
 		];
 
 		functionsToBind.forEach((functionName) => {
@@ -48,8 +60,34 @@ class MyPatterns extends Component {
 		document.body.classList.remove(bodyClass);
 	}
 
+	handleSubmitAddPattern = (data, { resetForm }) => {
+		const { dispatch, history } = this.props;
+		const modifiedData = { ...data };
+		modifiedData.holes = parseInt(data.holes, 10); // select value is string
+
+		dispatch(addPattern(modifiedData, history));
+		resetForm();
+
+		this.setState({
+			'showAddPatternForm': false,
+		});
+	}
+
+	handleClickShowAddPatternForm() {
+		this.setState({
+			'showAddPatternForm': true,
+		});
+	}
+
+	handleCancelShowAddPatternForm() {
+		this.setState({
+			'showAddPatternForm': false,
+		});
+	}
+
 	render() {
 		const {
+			canCreatePattern,
 			currentPageNumber,
 			dispatch,
 			errors,
@@ -61,6 +99,21 @@ class MyPatterns extends Component {
 			tags,
 			users,
 		} = this.props;
+		const { showAddPatternForm } = this.state;
+
+		const addPatternButton = (
+			<Row>
+				<Col lg="12">
+					<Button
+						className="show-add-pattern-form"
+						color="primary"
+						onClick={this.handleClickShowAddPatternForm}
+					>
+						New patterrn
+					</Button>
+				</Col>
+			</Row>
+		);
 
 		return (
 			<PageWrapper
@@ -74,10 +127,23 @@ class MyPatterns extends Component {
 					{isLoading && <Loading />}
 					<Row>
 						<Col lg="12">
-							<h1>{`My patterns (${patternCount})`}</h1>
+							<h1>My patterns</h1>
 						</Col>
 					</Row>
+					{canCreatePattern && !showAddPatternForm && addPatternButton}
+					{showAddPatternForm && (
+						<Row>
+							<Col lg="12">
+								<AddPatternForm
+									handleCancel={this.handleCancelShowAddPatternForm}
+									handleSubmit={this.handleSubmitAddPattern}
+								/>
+								<hr />
+							</Col>
+						</Row>
+					)}
 					{!isLoading
+						&& !showAddPatternForm
 						&& patternCount > 0
 						&& (
 							<PaginatedList
@@ -106,6 +172,7 @@ MyPatterns.defaultProps = {
 };
 
 MyPatterns.propTypes = {
+	'canCreatePattern': PropTypes.bool.isRequired,
 	'currentPageNumber': PropTypes.number,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
@@ -129,6 +196,7 @@ function mapStateToProps(state, ownProps) {
 	}
 
 	return {
+		'canCreatePattern': getCanCreatePattern(state),
 		'currentPageNumber': currentPageNumber, // read the url parameter to find the currentPage
 		'errors': state.errors,
 		'isLoading': getIsLoading(state),

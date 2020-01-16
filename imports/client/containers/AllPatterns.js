@@ -74,7 +74,7 @@ class AllPatterns extends Component {
 					{isLoading && <Loading />}
 					<Row>
 						<Col lg="12">
-							<h1>{`All patterns (${patternCount})`}</h1>
+							<h1>All patterns</h1>
 						</Col>
 					</Row>
 					{!isLoading
