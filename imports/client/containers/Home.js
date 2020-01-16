@@ -121,6 +121,7 @@ class Home extends Component {
 			myPatterns,
 			newPatterns,
 			patternPreviews,
+			recentPatterns,
 			tags,
 			users,
 		} = this.props;
@@ -176,6 +177,16 @@ class Home extends Component {
 					</Container>
 					{!isLoading && !showAddPatternForm && (
 						<>
+							<PatternListPreview
+								dispatch={dispatch}
+								listName="Recently viewed patterns"
+								patterns={recentPatterns}
+								patternPreviews={patternPreviews}
+								tags={tags}
+								url="/recent-patterns"
+								users={users}
+								width={width}
+							/>
 							<PatternListPreview
 								dispatch={dispatch}
 								listName="New patterns"
@@ -235,6 +246,7 @@ Home.propTypes = {
 	'myPatterns': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'newPatterns': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'patternPreviews': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'recentPatterns': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'tags': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'users': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
@@ -259,6 +271,7 @@ const Tracker = withTracker(({ dispatch }) => {
 	}).fetch();
 
 	let myPatterns = [];
+	let recentPatterns = [];
 
 	if (Meteor.userId()) {
 		myPatterns = Patterns.find(
@@ -268,6 +281,37 @@ const Tracker = withTracker(({ dispatch }) => {
 				'sort': { 'nameSort': 1 },
 			},
 		).fetch();
+
+		if (Meteor.user()) {
+			const { 'recentPatterns': recentPatternsList } = Meteor.user().profile;
+
+			// console.log('recentPatternsList', recentPatternsList);
+
+			const patternIds = recentPatternsList.map((pattern) => pattern.patternId);
+
+			recentPatterns = Patterns.find(
+				{
+					'_id': { '$in': patternIds },
+				},
+			);
+
+			recentPatterns = recentPatterns.map((pattern) => {
+				const { updatedAt } = recentPatternsList.find(({ patternId }) => patternId === pattern._id);
+				pattern.updatedAt = updatedAt;
+				return pattern;
+			});
+
+			recentPatterns.sort((a, b) => {
+				if (a.updatedAt < b.updatedAt) {
+					return 1;
+				}
+
+				if (a.updatedAt > b.updatedAt) {
+					return -1;
+				}
+				return 0;
+			});
+		}
 	}
 
 	const newPatterns = Patterns.find({}, {
@@ -290,6 +334,19 @@ const Tracker = withTracker(({ dispatch }) => {
 			Meteor.subscribe('patternPreviews', { patternIds });
 
 			const userIds = allPatterns.map((pattern) => pattern.createdBy);
+			const uniqueUsers = [...(new Set(userIds))];
+
+			Meteor.subscribe('users', uniqueUsers);
+		},
+	});
+
+	Meteor.subscribe('recentPatterns', {
+		'onReady': () => {
+			const patternIds = myPatterns.map((pattern) => pattern._id);
+
+			Meteor.subscribe('patternPreviews', { patternIds });
+
+			const userIds = myPatterns.map((pattern) => pattern.createdBy);
 			const uniqueUsers = [...(new Set(userIds))];
 
 			Meteor.subscribe('users', uniqueUsers);
@@ -323,6 +380,7 @@ const Tracker = withTracker(({ dispatch }) => {
 	});
 
 	Meteor.subscribe('allUsersPreview');
+	//console.log('recent', Patterns.find().fetch());
 
 	if (isLoading && handle.ready()) {
 		dispatch(setIsLoading(false));
@@ -336,6 +394,7 @@ const Tracker = withTracker(({ dispatch }) => {
 		myPatterns,
 		newPatterns,
 		'patternPreviews': PatternPreviews.find().fetch(),
+		recentPatterns,
 		'tags': Tags.find().fetch(),
 		'users': Meteor.users.find().fetch(),
 	};

@@ -192,6 +192,70 @@ Meteor.publish('pattern', function (_id = undefined) {
 	);
 });
 
+// preview list for my patterns
+// displayed on Home page
+// and also used for full Recent Patterns page
+// limited numbers of recent patterns are stored, they won't be paginated and don't need to be limited like All Patterns or All Users
+Meteor.publish('recentPatterns', function () {
+	let handle;
+
+	if (this.userId) {
+		const user = Meteor.users.findOne({ '_id': this.userId });
+		const { 'recentPatterns': recentPatternsList } = user.profile;
+		const patternIds = recentPatternsList.map((pattern) => pattern.patternId);
+
+		const transform = (pattern) => {
+			const { updatedAt } = recentPatternsList.find(({ patternId }) => patternId === pattern._id);
+			pattern.updatedAt = updatedAt;
+		};
+
+		const fields = patternsFields;
+
+		const self = this;
+
+		handle = Patterns.find(
+			{
+				'_id': { '$in': patternIds },
+			},
+			{
+				'fields': fields,
+				'sort': { 'updatedAt': 1 },
+			},
+		).observe({
+			'added': function (pattern) {
+				self.added('patterns', pattern._id, transform(pattern));
+			},
+
+			'changed': function (pattern) {
+				self.changed('patterns', pattern._id, transform(pattern));
+			},
+
+			'removed': function (pattern) {
+				self.removed('patterns', pattern._id);
+			},
+		});
+
+		this.ready();
+
+		this.onStop(function () {
+			handle.stop();
+		});
+
+		/* return Patterns.find(
+			{
+				'_id': { '$in': patternIds },
+			},
+			{
+				'fields': patternsFields,
+				'limit': ITEMS_PER_PREVIEW_LIST,
+				'sort': { 'createdAt': -1 },
+			},
+		); */
+	}
+
+	this.ready();
+});
+
 // preview list for all patterns
 // displayed on Home page
 Meteor.publish('allPatternsPreview', function () {
@@ -328,7 +392,7 @@ Meteor.publish('newPatternsPreview', function () {
 });
 
 // //////////////////////////
-// Pattern previews
+// Pattern preview graphics
 
 Meteor.publish('patternPreviews', function ({ patternIds }) {
 	// we previously explicitly returned nothing when user was not logged in
