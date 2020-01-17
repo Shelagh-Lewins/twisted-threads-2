@@ -21,6 +21,8 @@ import PaginatedList from '../components/PaginatedList';
 import PatternList from '../components/PatternList';
 
 import { ITEMS_PER_PAGE } from '../../modules/parameters';
+import secondaryPatternSubscriptions from '../modules/secondaryPatternSubscriptions';
+
 import './Home.scss';
 
 const queryString = require('query-string');
@@ -150,14 +152,7 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 
 	const handle = Meteor.subscribe('patterns', pageSkip, ITEMS_PER_PAGE, {
 		'onReady': () => {
-			const patternIds = patterns.map((pattern) => pattern._id);
-
-			Meteor.subscribe('patternPreviews', { patternIds });
-
-			const userIds = patterns.map((pattern) => pattern.createdBy);
-			const uniqueUsers = [...(new Set(userIds))];
-
-			Meteor.subscribe('users', uniqueUsers);
+			secondaryPatternSubscriptions(patterns);
 		},
 	});
 

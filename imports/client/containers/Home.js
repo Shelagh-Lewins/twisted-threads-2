@@ -29,6 +29,9 @@ import UserListPreview from '../components/UserListPreview';
 import AddPatternForm from '../forms/AddPatternForm';
 
 import { ITEMS_PER_PREVIEW_LIST } from '../../modules/parameters';
+import secondaryPatternSubscriptions from '../modules/secondaryPatternSubscriptions';
+import findRecentPatterns from '../modules/findRecentPatterns';
+
 import './Home.scss';
 
 const bodyClass = 'home';
@@ -271,7 +274,8 @@ const Tracker = withTracker(({ dispatch }) => {
 	}).fetch();
 
 	let myPatterns = [];
-	let recentPatterns = [];
+	// let recentPatterns = [];
+	const recentPatterns = findRecentPatterns();
 
 	if (Meteor.userId()) {
 		myPatterns = Patterns.find(
@@ -282,10 +286,10 @@ const Tracker = withTracker(({ dispatch }) => {
 			},
 		).fetch();
 
-		if (Meteor.user()) {
-			const { 'recentPatterns': recentPatternsList } = Meteor.user().profile;
+		
 
-			// console.log('recentPatternsList', recentPatternsList);
+		/* if (Meteor.user()) {
+			const { 'recentPatterns': recentPatternsList } = Meteor.user().profile;
 
 			const patternIds = recentPatternsList.map((pattern) => pattern.patternId);
 
@@ -311,7 +315,7 @@ const Tracker = withTracker(({ dispatch }) => {
 				}
 				return 0;
 			});
-		}
+		} */
 	}
 
 	const newPatterns = Patterns.find({}, {
@@ -329,58 +333,33 @@ const Tracker = withTracker(({ dispatch }) => {
 	// handle so we can use onReady to set isLoading to false
 	const handle = Meteor.subscribe('allPatternsPreview', {
 		'onReady': () => {
-			const patternIds = allPatterns.map((pattern) => pattern._id);
-
-			Meteor.subscribe('patternPreviews', { patternIds });
-
-			const userIds = allPatterns.map((pattern) => pattern.createdBy);
-			const uniqueUsers = [...(new Set(userIds))];
-
-			Meteor.subscribe('users', uniqueUsers);
+			secondaryPatternSubscriptions(allPatterns);
+			console.log('home, secondaryPatternSubscriptions allPatterns');
 		},
 	});
 
 	Meteor.subscribe('recentPatterns', {
 		'onReady': () => {
-			const patternIds = myPatterns.map((pattern) => pattern._id);
-
-			Meteor.subscribe('patternPreviews', { patternIds });
-
-			const userIds = myPatterns.map((pattern) => pattern.createdBy);
-			const uniqueUsers = [...(new Set(userIds))];
-
-			Meteor.subscribe('users', uniqueUsers);
+			secondaryPatternSubscriptions(recentPatterns);
+			console.log('home, secondaryPatternSubscriptions recentPatterns');
 		},
 	});
 
 	Meteor.subscribe('myPatternsPreview', {
 		'onReady': () => {
-			const patternIds = myPatterns.map((pattern) => pattern._id);
-
-			Meteor.subscribe('patternPreviews', { patternIds });
-
-			const userIds = myPatterns.map((pattern) => pattern.createdBy);
-			const uniqueUsers = [...(new Set(userIds))];
-
-			Meteor.subscribe('users', uniqueUsers);
+			secondaryPatternSubscriptions(myPatterns);
+			console.log('home, secondaryPatternSubscriptions myPatterns');
 		},
 	});
 
 	Meteor.subscribe('newPatternsPreview', {
 		'onReady': () => {
-			const patternIds = myPatterns.map((pattern) => pattern._id);
-
-			Meteor.subscribe('patternPreviews', { patternIds });
-
-			const userIds = myPatterns.map((pattern) => pattern.createdBy);
-			const uniqueUsers = [...(new Set(userIds))];
-
-			Meteor.subscribe('users', uniqueUsers);
+			secondaryPatternSubscriptions(newPatterns);
+			console.log('home, secondaryPatternSubscriptions newPatterns');
 		},
 	});
 
 	Meteor.subscribe('allUsersPreview');
-	//console.log('recent', Patterns.find().fetch());
 
 	if (isLoading && handle.ready()) {
 		dispatch(setIsLoading(false));

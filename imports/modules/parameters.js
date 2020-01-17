@@ -131,9 +131,9 @@ export const MAIN_MENU_ITEMS = [
 		'loginRequired': false,
 	},
 	{
-		'value': 'recentlyViewed',
-		'name': 'Recently viewed',
-		'url': '/recently-viewed',
+		'value': 'recentPatterns',
+		'name': 'Recent patterns',
+		'url': '/recent-patterns',
 		'loginRequired': false,
 	},
 	{

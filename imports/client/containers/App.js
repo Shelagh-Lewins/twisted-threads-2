@@ -64,6 +64,7 @@ import VerifyEmail from './VerifyEmail';
 import ForgotPassword from './ForgotPassword';
 import ResetPassword from './ResetPassword';
 import Home from './Home';
+import RecentPatterns from './RecentPatterns';
 import AllPatterns from './AllPatterns';
 import MyPatterns from './MyPatterns';
 import NewPatterns from './NewPatterns';
@@ -110,6 +111,7 @@ const DefaultContainer = () => (
 			<Route exact path="/forgot-password" component={ForgotPassword} />
 			<Route exact path="/reset-password/:token" component={ResetPassword} />
 			<Route exact path="/" component={Home} />
+			<Route exact path="/recent-patterns" component={RecentPatterns} />
 			<Route exact path="/new-patterns" component={NewPatterns} />
 			<Route exact path="/all-patterns" component={AllPatterns} />
 			<Route exact path="/my-patterns" component={MyPatterns} />

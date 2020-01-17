@@ -22,14 +22,13 @@ import PatternList from '../components/PatternList';
 
 import { ITEMS_PER_PAGE } from '../../modules/parameters';
 import secondaryPatternSubscriptions from '../modules/secondaryPatternSubscriptions';
-
 import './Home.scss';
 
 const queryString = require('query-string');
 
 const bodyClass = 'new-patterns';
 
-class NewPatterns extends Component {
+class RecentPatterns extends Component {
 	constructor(props) {
 		super(props);
 
@@ -76,7 +75,7 @@ class NewPatterns extends Component {
 					{isLoading && <Loading />}
 					<Row>
 						<Col lg="12">
-							<h1>New patterns</h1>
+							<h1>Recently viewed patterns</h1>
 						</Col>
 					</Row>
 					{!isLoading
@@ -103,11 +102,11 @@ class NewPatterns extends Component {
 	}
 }
 
-NewPatterns.defaultProps = {
+RecentPatterns.defaultProps = {
 	'currentPageNumber': 1,
 };
 
-NewPatterns.propTypes = {
+RecentPatterns.propTypes = {
 	'currentPageNumber': PropTypes.number,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
@@ -150,7 +149,7 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 
 	Meteor.subscribe('tags');
 
-	const handle = Meteor.subscribe('newPatterns', pageSkip, ITEMS_PER_PAGE, {
+	const handle = Meteor.subscribe('recentPatterns', pageSkip, ITEMS_PER_PAGE, {
 		'onReady': () => {
 			secondaryPatternSubscriptions(patterns);
 		},
@@ -169,6 +168,6 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 		'tags': Tags.find().fetch(),
 		'users': Meteor.users.find().fetch(),
 	};
-})(NewPatterns);
+})(RecentPatterns);
 
 export default connect(mapStateToProps)(Tracker);

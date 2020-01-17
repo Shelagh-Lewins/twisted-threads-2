@@ -429,6 +429,13 @@ Meteor.publish('patternPreviews', function ({ patternIds }) {
 
 // Public information about particular users
 Meteor.publish('users', function (userIds) {
+	console.log('*** publish userIds', userIds);
+	console.log('*** publish typeof userIds', typeof userIds);
+	if (userIds.length === 0) {
+		this.ready();
+		return;
+	}
+
 	check(userIds, [String]);
 
 	if (userIds.length === 0) {
