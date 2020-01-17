@@ -31,6 +31,9 @@ import AddPatternForm from '../forms/AddPatternForm';
 import { ITEMS_PER_PREVIEW_LIST } from '../../modules/parameters';
 import secondaryPatternSubscriptions from '../modules/secondaryPatternSubscriptions';
 import findRecentPatterns from '../modules/findRecentPatterns';
+import {
+	getLocalStorageItem,
+} from '../modules/localStorage';
 
 import './Home.scss';
 
@@ -274,17 +277,30 @@ const Tracker = withTracker(({ dispatch }) => {
 	}).fetch();
 
 	let myPatterns = [];
-	// let recentPatterns = [];
 	const recentPatterns = findRecentPatterns();
 
-	if (Meteor.userId()) {
-		myPatterns = Patterns.find(
-			{ 'createdBy': Meteor.userId },
-			{
-				'limit': ITEMS_PER_PREVIEW_LIST,
-				'sort': { 'nameSort': 1 },
+	if (Accounts.loginServicesConfigured()) {
+		if (Meteor.userId()) {
+			myPatterns = Patterns.find(
+				{ 'createdBy': Meteor.userId },
+				{
+					'limit': ITEMS_PER_PREVIEW_LIST,
+					'sort': { 'nameSort': 1 },
+				},
+			).fetch();
+
+			Meteor.subscribe('recentPatterns', {
+				'onReady': () => {
+					secondaryPatternSubscriptions(recentPatterns);
+				},
+			});
+		}
+	} else {
+		Meteor.subscribe('recentPatterns', recentPatterns, {
+			'onReady': () => {
+				secondaryPatternSubscriptions(recentPatterns);
 			},
-		).fetch();
+		});
 	}
 
 	const newPatterns = Patterns.find({}, {
@@ -303,12 +319,6 @@ const Tracker = withTracker(({ dispatch }) => {
 	const handle = Meteor.subscribe('allPatternsPreview', {
 		'onReady': () => {
 			secondaryPatternSubscriptions(allPatterns);
-		},
-	});
-
-	Meteor.subscribe('recentPatterns', {
-		'onReady': () => {
-			secondaryPatternSubscriptions(recentPatterns);
 		},
 	});
 

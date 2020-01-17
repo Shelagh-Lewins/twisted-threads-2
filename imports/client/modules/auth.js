@@ -6,6 +6,10 @@ import {
 	MAX_RECENTS,
 	ROLE_LIMITS,
 } from '../../modules/parameters';
+import {
+	getLocalStorageItem,
+	setLocalStorageItem,
+} from './localStorage';
 
 const updeep = require('updeep');
 
@@ -306,11 +310,18 @@ export function setUserRoles(result) {
 // Better to do this work on the client
 export function updateRecentPatterns({ currentWeavingRow, patternId }) {
 	// ensure the recent patterns list exists
-	if (!Meteor.user()) {
-		return;
-	}
+	let currentRecentPatterns = [];
 
-	const currentRecentPatterns = Meteor.user().profile.recentPatterns || [];
+	if (Meteor.user()) {
+		// recents saved in user profile
+		currentRecentPatterns = Meteor.user().profile.recentPatterns || [];
+	} else {
+		// recents saved in local storage
+		const result = getLocalStorageItem('recentPatterns');
+		if (result && result !== '') {
+			currentRecentPatterns = JSON.parse(result);
+		}
+	}
 
 	const newRecentPatterns = [];
 
@@ -351,25 +362,20 @@ export function updateRecentPatterns({ currentWeavingRow, patternId }) {
 
 // record a recently viewed pattern, with weaving chart row if the user has been weaving
 export function addRecentPattern({ currentWeavingRow, patternId }) {
-	if (!Meteor.user()) {
-		return () => {};
+	const newRecentPatterns = updateRecentPatterns({ currentWeavingRow, patternId });
+
+	if (Meteor.user()) {
+		return () => {
+			Meteor.call('auth.setRecentPatterns', { newRecentPatterns, 'userId': Meteor.userId(), patternId });
+		};
 	}
 
-	const newRecentPatterns = updateRecentPatterns({ currentWeavingRow, patternId });
-	return () => {
-		Meteor.call('auth.setRecentPatterns', { newRecentPatterns, 'userId': Meteor.userId(), patternId });
-	};
+	setLocalStorageItem('recentPatterns', JSON.stringify(newRecentPatterns));
+
+	return () => {};
 }
 
 // Provide info to UI
-// Selectors
-//TODO
-// checkCanCreateColorBook
-// checkUserCanCreatePattern
-// checkUserCanAddPatternImage
-// use selectors
-// remove all methods and actions
-
 const getUser = (state) => state.auth.user;
 
 export const getUserId = createSelector(

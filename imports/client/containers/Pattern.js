@@ -77,10 +77,10 @@ class Pattern extends PureComponent {
 	componentDidUpdate(prevProps) {
 		const { dispatch, isEditing } = this.props;
 		const { gotUser } = this.state;
-		const { patternId } = this.context;
+		const { isLoadingUser, patternId } = this.context;
 
 		// wait for user details to load
-		if (!gotUser && Meteor.user() && patternId) {
+		if (!gotUser && !isLoadingUser && patternId) {
 			dispatch(addRecentPattern({ patternId }));
 
 			this.setState({

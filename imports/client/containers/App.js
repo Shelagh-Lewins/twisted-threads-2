@@ -231,7 +231,7 @@ export const withDatabase = withTracker((props) => {
 						// check pattern is found
 						if (pattern) {
 							const { createdBy } = pattern;
-console.log('App.js has pattern', pattern);
+
 							Meteor.subscribe('users', [createdBy]);
 							Meteor.subscribe('colorBooks', createdBy);
 							Meteor.subscribe('patternImages', pattern._id);
@@ -278,11 +278,11 @@ console.log('App.js has pattern', pattern);
 			// console.log('home page');
 			// it would be nice to pass data to Home page here
 			// for consistency
-			// however, Home needs component properties for pagination
-			// to know what patterns to subscribe to
-			// this could probably be done via Redux state
-			// but the current code is DRY so leave it for now
+			// however, the current code works...
 		}
+
+		// detect when the Accounts system is loaded so we can see if there is a logged in user
+		values.isLoadingUser = !Accounts.loginServicesConfigured();
 
 		return values;
 	}
@@ -294,6 +294,7 @@ function ProviderInner({
 	children,
 	colorBooks,
 	createdByUser,
+	isLoadingUser,
 	pattern,
 	patternId,
 	patternImages,
@@ -304,6 +305,7 @@ function ProviderInner({
 			allTags,
 			colorBooks,
 			createdByUser,
+			isLoadingUser,
 			pattern,
 			patternId,
 			patternImages,
@@ -325,6 +327,7 @@ ProviderInner.propTypes = {
 	]).isRequired,
 	'colorBooks': PropTypes.arrayOf(PropTypes.any),
 	'createdByUser': PropTypes.objectOf(PropTypes.any),
+	'isLoadingUser': PropTypes.bool,
 	'pattern': PropTypes.objectOf(PropTypes.any),
 	'patternId': PropTypes.string,
 	'patternImages': PropTypes.arrayOf(PropTypes.any),

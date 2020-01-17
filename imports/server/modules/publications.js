@@ -196,52 +196,71 @@ Meteor.publish('pattern', function (_id = undefined) {
 // displayed on Home page
 // and also used for full Recent Patterns page
 // limited numbers of recent patterns are stored, they won't be paginated and don't need to be limited like All Patterns or All Users
-Meteor.publish('recentPatterns', function () {
-	let handle;
+// the list of recent patterns may be taken from the db if the user is logged in
+// or provided by the client (from local storage) if not
+Meteor.publish('recentPatterns', function (localStorageRecentPatterns) {
+	check(localStorageRecentPatterns, Match.Maybe([Object]));
+
+	// handle and transform allows the updatedAt field to be added to the pattern, from the recentPattern entry
+	let recentPatternsList = [];
+	let permissionQuery;
 
 	if (this.userId) {
 		const user = Meteor.users.findOne({ '_id': this.userId });
-		const { 'recentPatterns': recentPatternsList } = user.profile;
-		const patternIds = recentPatternsList.map((pattern) => pattern.patternId);
-
-		const transform = (pattern) => {
-			const { updatedAt } = recentPatternsList.find(({ patternId }) => patternId === pattern._id);
-			pattern.updatedAt = updatedAt;
-			return pattern;
+		recentPatternsList = user.profile.recentPatternsList;
+		permissionQuery = {
+			'$or': [
+				{ 'isPublic': { '$eq': true } },
+				{ 'createdBy': this.userId },
+			],
 		};
-
-		const fields = patternsFields;
-
-		const self = this;
-
-		handle = Patterns.find(
-			{
-				'_id': { '$in': patternIds },
-			},
-			{
-				'fields': fields,
-				'sort': { 'updatedAt': 1 },
-			},
-		).observe({
-			'added': function (pattern) {
-				self.added('patterns', pattern._id, transform(pattern));
-			},
-
-			'changed': function (pattern) {
-				self.changed('patterns', pattern._id, transform(pattern));
-			},
-
-			'removed': function (pattern) {
-				self.removed('patterns', pattern._id);
-			},
-		});
-
-		this.ready();
-
-		this.onStop(function () {
-			handle.stop();
-		});
+	} else {
+		recentPatternsList = localStorageRecentPatterns;
+		permissionQuery = { 'isPublic': { '$eq': true } };
 	}
+
+	const patternIds = recentPatternsList.map((pattern) => pattern.patternId);
+
+	const transform = (pattern) => {
+		const { updatedAt } = recentPatternsList.find(({ patternId }) => patternId === pattern._id);
+		pattern.updatedAt = updatedAt;
+		return pattern;
+	};
+
+	const fields = patternsFields;
+
+	const self = this;
+
+	const handle = Patterns.find(
+		{
+			'$and': [
+				permissionQuery,
+				{ '_id': { '$in': patternIds } },
+			],
+		},
+		{
+			'fields': fields,
+			'sort': { 'updatedAt': 1 },
+		},
+	).observe({
+		'added': function (pattern) {
+			self.added('patterns', pattern._id, transform(pattern));
+		},
+
+		'changed': function (pattern) {
+			self.changed('patterns', pattern._id, transform(pattern));
+		},
+
+		'removed': function (pattern) {
+			self.removed('patterns', pattern._id);
+		},
+	});
+
+	this.ready();
+
+	this.onStop(function () {
+		handle.stop();
+	});
 
 	this.ready();
 });
