@@ -285,37 +285,6 @@ const Tracker = withTracker(({ dispatch }) => {
 				'sort': { 'nameSort': 1 },
 			},
 		).fetch();
-
-		
-
-		/* if (Meteor.user()) {
-			const { 'recentPatterns': recentPatternsList } = Meteor.user().profile;
-
-			const patternIds = recentPatternsList.map((pattern) => pattern.patternId);
-
-			recentPatterns = Patterns.find(
-				{
-					'_id': { '$in': patternIds },
-				},
-			);
-
-			recentPatterns = recentPatterns.map((pattern) => {
-				const { updatedAt } = recentPatternsList.find(({ patternId }) => patternId === pattern._id);
-				pattern.updatedAt = updatedAt;
-				return pattern;
-			});
-
-			recentPatterns.sort((a, b) => {
-				if (a.updatedAt < b.updatedAt) {
-					return 1;
-				}
-
-				if (a.updatedAt > b.updatedAt) {
-					return -1;
-				}
-				return 0;
-			});
-		} */
 	}
 
 	const newPatterns = Patterns.find({}, {
@@ -334,28 +303,24 @@ const Tracker = withTracker(({ dispatch }) => {
 	const handle = Meteor.subscribe('allPatternsPreview', {
 		'onReady': () => {
 			secondaryPatternSubscriptions(allPatterns);
-			console.log('home, secondaryPatternSubscriptions allPatterns');
 		},
 	});
 
 	Meteor.subscribe('recentPatterns', {
 		'onReady': () => {
 			secondaryPatternSubscriptions(recentPatterns);
-			console.log('home, secondaryPatternSubscriptions recentPatterns');
 		},
 	});
 
 	Meteor.subscribe('myPatternsPreview', {
 		'onReady': () => {
 			secondaryPatternSubscriptions(myPatterns);
-			console.log('home, secondaryPatternSubscriptions myPatterns');
 		},
 	});
 
 	Meteor.subscribe('newPatternsPreview', {
 		'onReady': () => {
 			secondaryPatternSubscriptions(newPatterns);
-			console.log('home, secondaryPatternSubscriptions newPatterns');
 		},
 	});
 

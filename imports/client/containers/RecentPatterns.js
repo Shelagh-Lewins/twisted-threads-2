@@ -14,7 +14,7 @@ import {
 	getPatternCount,
 	setIsLoading,
 } from '../modules/pattern';
-import { PatternPreviews, Patterns, Tags } from '../../modules/collection';
+import { PatternPreviews, Tags } from '../../modules/collection';
 import Loading from '../components/Loading';
 import MainMenu from '../components/MainMenu';
 import PaginatedList from '../components/PaginatedList';
@@ -22,6 +22,8 @@ import PatternList from '../components/PatternList';
 
 import { ITEMS_PER_PAGE } from '../../modules/parameters';
 import secondaryPatternSubscriptions from '../modules/secondaryPatternSubscriptions';
+import findRecentPatterns from '../modules/findRecentPatterns';
+
 import './Home.scss';
 
 const queryString = require('query-string');
@@ -142,10 +144,7 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 	const state = store.getState();
 	const isLoading = getIsLoading(state);
 
-	const patterns = Patterns.find({}, {
-		'sort': { 'createdAt': -1 },
-		'limit': ITEMS_PER_PAGE,
-	}).fetch();
+	const patterns = findRecentPatterns();
 
 	Meteor.subscribe('tags');
 

@@ -207,6 +207,7 @@ Meteor.publish('recentPatterns', function () {
 		const transform = (pattern) => {
 			const { updatedAt } = recentPatternsList.find(({ patternId }) => patternId === pattern._id);
 			pattern.updatedAt = updatedAt;
+			return pattern;
 		};
 
 		const fields = patternsFields;
@@ -240,17 +241,6 @@ Meteor.publish('recentPatterns', function () {
 		this.onStop(function () {
 			handle.stop();
 		});
-
-		/* return Patterns.find(
-			{
-				'_id': { '$in': patternIds },
-			},
-			{
-				'fields': patternsFields,
-				'limit': ITEMS_PER_PREVIEW_LIST,
-				'sort': { 'createdAt': -1 },
-			},
-		); */
 	}
 
 	this.ready();
@@ -429,8 +419,10 @@ Meteor.publish('patternPreviews', function ({ patternIds }) {
 
 // Public information about particular users
 Meteor.publish('users', function (userIds) {
-	console.log('*** publish userIds', userIds);
-	console.log('*** publish typeof userIds', typeof userIds);
+	if (userIds[0] === null) {
+		console.log('*** publish userIds', userIds);
+		console.log('*** publish typeof userIds', typeof userIds);
+	}
 	if (userIds.length === 0) {
 		this.ready();
 		return;

@@ -15,7 +15,7 @@ const findRecentPatterns = () => {
 			{
 				'_id': { '$in': patternIds },
 			},
-		);
+		).fetch();
 
 		recentPatterns = recentPatterns.map((pattern) => {
 			const { updatedAt } = recentPatternsList.find(({ patternId }) => patternId === pattern._id);

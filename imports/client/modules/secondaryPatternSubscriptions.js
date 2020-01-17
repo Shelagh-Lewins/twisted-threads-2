@@ -8,9 +8,7 @@ const secondaryPatternSubscriptions = (patterns) => {
 
 	const userIds = patterns.map((pattern) => pattern.createdBy);
 	const uniqueUsers = [...(new Set(userIds))];
-	console.log('secondaryPatternSubscriptions');
-	console.log('userIds', userIds);
-	console.log('uniqueUsers', uniqueUsers);
+
 	Meteor.subscribe('users', uniqueUsers);
 };
 

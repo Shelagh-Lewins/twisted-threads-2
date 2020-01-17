@@ -231,7 +231,7 @@ export const withDatabase = withTracker((props) => {
 						// check pattern is found
 						if (pattern) {
 							const { createdBy } = pattern;
-
+console.log('App.js has pattern', pattern);
 							Meteor.subscribe('users', [createdBy]);
 							Meteor.subscribe('colorBooks', createdBy);
 							Meteor.subscribe('patternImages', pattern._id);
