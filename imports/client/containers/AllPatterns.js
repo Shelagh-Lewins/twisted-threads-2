@@ -157,7 +157,7 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 	});
 
 	if (isLoading && handle.ready()) {
-		dispatch(getPatternCount());
+		dispatch(getPatternCount({}));
 		dispatch(setIsLoading(false));
 	} else if (!isLoading && !handle.ready()) {
 		dispatch(setIsLoading(true));

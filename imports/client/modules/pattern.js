@@ -18,7 +18,7 @@ import {
 	DEFAULT_NUMBER_OF_TURNS,
 	DEFAULT_ORIENTATION,
 } from '../../modules/parameters';
-
+import findRecentPatterns from './findRecentPatterns';
 
 const updeep = require('updeep');
 
@@ -56,15 +56,22 @@ export function setPatternCount(patternCount) {
 	};
 }
 
-export const getPatternCount = (userId) => (dispatch) => Meteor.call('pattern.getPatternCount', userId, (error, result) => {
-	dispatch(setPatternCount(result));
-});
+export const getPatternCount = ({ countRecentPatterns = false, userId }) => (dispatch) => {
+	if (countRecentPatterns) {
+		dispatch(setPatternCount(findRecentPatterns().length));
+	}
 
-export const changePage = (newPageNumber, history) => (dispatch) => {
+	Meteor.call('pattern.getPatternCount', userId, (error, result) => {
+		dispatch(setPatternCount(result));
+	});
+};
+
+export const changePage = (newPageNumber, history, patternCountParams = {}) => (dispatch) => {
 	const url = `?page=${newPageNumber + 1}`;
 
 	history.push(url);
-	dispatch(getPatternCount());
+
+	dispatch(getPatternCount(patternCountParams));
 };
 
 // waiting for data subscription to be ready

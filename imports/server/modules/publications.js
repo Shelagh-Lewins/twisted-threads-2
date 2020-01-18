@@ -42,6 +42,26 @@ const ColorBooksFields = {
 	'nameSort': 1,
 };
 
+// gatekeeper for pattern visibility
+// and color book visibility works the same
+// logged in user can see their own patterns
+// and any public patterns
+// not logged in user sees only public patterns
+function getPermissionQuery(userId) {
+	let permissionQuery = { 'isPublic': { '$eq': true } };
+
+	if (userId) {
+		permissionQuery = {
+			'$or': [
+				{ 'isPublic': { '$eq': true } },
+				{ 'createdBy': userId },
+			],
+		};
+	}
+
+	return permissionQuery;
+}
+
 Meteor.publish('colorBooks', function (userId) {
 	check(userId, Match.Maybe(nonEmptyStringCheck));
 
@@ -50,12 +70,7 @@ Meteor.publish('colorBooks', function (userId) {
 		return ColorBooks.find(
 			{
 				'$and': [
-					{
-						'$or': [
-							{ 'isPublic': { '$eq': true } },
-							{ 'createdBy': this.userId },
-						],
-					},
+					getPermissionQuery(this.userId),
 					{ 'createdBy': userId },
 				],
 			},
@@ -69,12 +84,7 @@ Meteor.publish('colorBooks', function (userId) {
 	// all color books the user can see
 	if (this.userId) {
 		return ColorBooks.find(
-			{
-				'$or': [
-					{ 'isPublic': { '$eq': true } },
-					{ 'createdBy': this.userId },
-				],
-			},
+			getPermissionQuery(this.userId),
 			{
 				'fields': ColorBooksFields,
 				'sort': { 'nameSort': 1 },
@@ -82,13 +92,13 @@ Meteor.publish('colorBooks', function (userId) {
 		);
 	}
 
-	return ColorBooks.find(
+	/* return ColorBooks.find(
 		{ 'isPublic': { '$eq': true } },
 		{
 			'fields': ColorBooksFields,
 			'sort': { 'nameSort': 1 },
 		},
-	);
+	); */
 });
 
 
@@ -132,26 +142,8 @@ Meteor.publish('patterns', function (skip = 0, limit = ITEMS_PER_PAGE) {
 	check(skip, positiveIntegerCheck);
 
 	// Meteor._sleepForMs(3000); // simulate server delay
-
-	if (this.userId) {
-		return Patterns.find(
-			{
-				'$or': [
-					{ 'isPublic': { '$eq': true } },
-					{ 'createdBy': this.userId },
-				],
-			},
-			{
-				'fields': patternsFields,
-				'sort': { 'nameSort': 1 },
-				'skip': skip,
-				'limit': limit,
-			},
-		);
-	}
-
 	return Patterns.find(
-		{ 'isPublic': { '$eq': true } },
+		getPermissionQuery(this.userId),
 		{
 			'fields': patternsFields,
 			'sort': { 'nameSort': 1 },
@@ -162,28 +154,15 @@ Meteor.publish('patterns', function (skip = 0, limit = ITEMS_PER_PAGE) {
 });
 
 // individual pattern
-Meteor.publish('pattern', function (_id = undefined) {
+Meteor.publish('pattern', function (_id) {
 	check(_id, nonEmptyStringCheck);
-
-	if (this.userId) {
-		return Patterns.find(
-			{
-				_id,
-				'$or': [
-					{ 'isPublic': { '$eq': true } },
-					{ 'createdBy': this.userId },
-				],
-			},
-			{
-				'fields': patternFields,
-			},
-		);
-	}
 
 	return Patterns.find(
 		{
-			_id,
-			'isPublic': { '$eq': true },
+			'$and': [
+				{ _id },
+				getPermissionQuery(this.userId),
+			],
 		},
 		{
 			'fields': patternFields,
@@ -202,21 +181,14 @@ Meteor.publish('recentPatterns', function (localStorageRecentPatterns) {
 	check(localStorageRecentPatterns, Match.Maybe([Object]));
 
 	// handle and transform allows the updatedAt field to be added to the pattern, from the recentPattern entry
+	// https://stackoverflow.com/questions/25519205/add-computed-fields-to-meteor-users-in-a-publication
 	let recentPatternsList = [];
-	let permissionQuery;
 
 	if (this.userId) {
 		const user = Meteor.users.findOne({ '_id': this.userId });
-		recentPatternsList = user.profile.recentPatternsList;
-		permissionQuery = {
-			'$or': [
-				{ 'isPublic': { '$eq': true } },
-				{ 'createdBy': this.userId },
-			],
-		};
+		recentPatternsList = user.profile.recentPatterns || [];
 	} else {
 		recentPatternsList = localStorageRecentPatterns;
-		permissionQuery = { 'isPublic': { '$eq': true } };
 	}
 
 	const patternIds = recentPatternsList.map((pattern) => pattern.patternId);
@@ -234,7 +206,7 @@ Meteor.publish('recentPatterns', function (localStorageRecentPatterns) {
 	const handle = Patterns.find(
 		{
 			'$and': [
-				permissionQuery,
+				getPermissionQuery(this.userId),
 				{ '_id': { '$in': patternIds } },
 			],
 		},
@@ -242,7 +214,9 @@ Meteor.publish('recentPatterns', function (localStorageRecentPatterns) {
 			'fields': fields,
 			'sort': { 'updatedAt': 1 },
 		},
-	).observe({
+	);
+
+	const test = handle.observe({
 		'added': function (pattern) {
 			self.added('patterns', pattern._id, transform(pattern));
 		},
@@ -256,38 +230,19 @@ Meteor.publish('recentPatterns', function (localStorageRecentPatterns) {
 		},
 	});
 
-	this.ready();
-
 	this.onStop(function () {
-		handle.stop();
+		test.stop();
 	});
 
 	this.ready();
+	return handle;
 });
 
 // preview list for all patterns
 // displayed on Home page
 Meteor.publish('allPatternsPreview', function () {
-	if (this.userId) {
-		return Patterns.find(
-			{
-				'$or': [
-					{ 'isPublic': { '$eq': true } },
-					{ 'createdBy': this.userId },
-				],
-			},
-			{
-				'fields': patternsFields,
-				'limit': ITEMS_PER_PREVIEW_LIST,
-				'sort': { 'nameSort': 1 },
-			},
-		);
-	}
-
 	return Patterns.find(
-		{
-			'isPublic': { '$eq': true },
-		},
+		getPermissionQuery(this.userId),
 		{
 			'fields': patternsFields,
 			'limit': ITEMS_PER_PREVIEW_LIST,
@@ -341,25 +296,8 @@ Meteor.publish('newPatterns', function (skip = 0, limit = ITEMS_PER_PAGE) {
 	// this needs to return the same number of patterns as the getPatternCount method, for pagination
 	check(skip, positiveIntegerCheck);
 
-	if (this.userId) {
-		return Patterns.find(
-			{
-				'$or': [
-					{ 'isPublic': { '$eq': true } },
-					{ 'createdBy': this.userId },
-				],
-			},
-			{
-				'fields': patternsFields,
-				'sort': { 'createdAt': -1 },
-				'skip': skip,
-				'limit': limit,
-			},
-		);
-	}
-
 	return Patterns.find(
-		{ 'isPublic': { '$eq': true } },
+		getPermissionQuery(this.userId),
 		{
 			'fields': patternsFields,
 			'sort': { 'createdAt': -1 },
@@ -369,33 +307,37 @@ Meteor.publish('newPatterns', function (skip = 0, limit = ITEMS_PER_PAGE) {
 	);
 });
 
-// preview list for my patterns
+// preview list for new patterns
 // displayed on Home page
 Meteor.publish('newPatternsPreview', function () {
-	if (this.userId) {
-		return Patterns.find(
-			{
-				'$or': [
-					{ 'isPublic': { '$eq': true } },
-					{ 'createdBy': this.userId },
-				],
-			},
-			{
-				'fields': patternsFields,
-				'limit': ITEMS_PER_PREVIEW_LIST,
-				'sort': { 'createdAt': -1 },
-			},
-		);
-	}
-
 	return Patterns.find(
-		{
-			'isPublic': { '$eq': true },
-		},
+		getPermissionQuery(this.userId),
 		{
 			'fields': patternsFields,
 			'limit': ITEMS_PER_PREVIEW_LIST,
 			'sort': { 'createdAt': -1 },
+		},
+	);
+});
+
+// patterns cretaed by a user
+Meteor.publish('userPatterns', function (skip = 0, limit = ITEMS_PER_PAGE, userId) {
+	// this needs to return the same number of patterns as the getPatternCount method, for pagination
+	check(skip, positiveIntegerCheck);
+	check(userId, nonEmptyStringCheck);
+
+	return Patterns.find(
+		{
+			'$and': [
+				{ 'createdBy': userId },
+				getPermissionQuery(this.userId),
+			],
+		},
+		{
+			'fields': patternsFields,
+			'sort': { 'nameSort': 1 },
+			'skip': skip,
+			'limit': limit,
 		},
 	);
 });
@@ -416,11 +358,10 @@ Meteor.publish('patternPreviews', function ({ patternIds }) {
 	// and that are in the array passed in
 	const patterns = Patterns.find(
 		{
-			'$or': [
-				{ 'isPublic': { '$eq': true } },
-				{ 'createdBy': this.userId },
+			'$and': [
+				{ '_id': { '$in': patternIds } },
+				getPermissionQuery(this.userId),
 			],
-			'_id': { '$in': patternIds },
 		},
 		{
 			'fields': {},
@@ -438,10 +379,10 @@ Meteor.publish('patternPreviews', function ({ patternIds }) {
 
 // Public information about particular users
 Meteor.publish('users', function (userIds) {
-	if (userIds[0] === null) {
+	/* if (userIds[0] === null) {
 		console.log('*** publish userIds', userIds);
 		console.log('*** publish typeof userIds', typeof userIds);
-	}
+	} */
 	if (userIds.length === 0) {
 		this.ready();
 		return;

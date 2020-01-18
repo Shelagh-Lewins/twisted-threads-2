@@ -153,6 +153,7 @@ class MyPatterns extends Component {
 								dispatch={dispatch}
 								history={history}
 								itemCount={patternCount}
+								patternCountParams={{ 'userId': Meteor.userId }}
 							>
 								<PatternList
 									dispatch={dispatch}
@@ -228,7 +229,7 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 	});
 
 	if (isLoading && handle.ready()) {
-		dispatch(getPatternCount());
+		dispatch(getPatternCount({ 'userId': Meteor.userId }));
 		dispatch(setIsLoading(false));
 	} else if (!isLoading && !handle.ready()) {
 		dispatch(setIsLoading(true));

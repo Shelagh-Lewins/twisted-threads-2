@@ -17,11 +17,12 @@ class PaginatedList extends PureComponent {
 			dispatch,
 			history,
 			itemCount,
+			patternCountParams,
 		} = this.props;
 
 		const pagination = itemCount > ITEMS_PER_PAGE ? (
 			<Pagination
-				handlePageClick={(data) => dispatch(changePage(data.selected, history))}
+				handlePageClick={(data) => dispatch(changePage(data.selected, history, patternCountParams))}
 				initialPage={currentPageNumber - 1}
 				pageCount={Math.ceil(itemCount / ITEMS_PER_PAGE)}
 			/>
@@ -48,6 +49,7 @@ PaginatedList.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'itemCount': PropTypes.number.isRequired,
+	'patternCountParams': PropTypes.objectOf(PropTypes.any),
 };
 
 export default PaginatedList;

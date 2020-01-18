@@ -1,5 +1,6 @@
 // return an array of the user's recently viewed patterns
 // most recent first
+// this includes only the recent pattern data, not the full pattern data
 
 import { Patterns } from '../../modules/collection';
 import { getLocalStorageItem } from './localStorage';
@@ -11,7 +12,11 @@ const findRecentPatterns = () => {
 	if (Meteor.user()) {
 		recentPatternsList = Meteor.user().profile.recentPatterns;
 	} else {
-		recentPatternsList = JSON.parse(getLocalStorageItem('recentPatterns'));
+		const valueFromLocalStorage = JSON.stringify(getLocalStorageItem('recentPatterns'));
+
+		if (valueFromLocalStorage !== null && typeof valueFromLocalStorage === 'object') {
+			recentPatternsList = valueFromLocalStorage;
+		}
 	}
 
 	const patternIds = recentPatternsList.map((pattern) => pattern.patternId);

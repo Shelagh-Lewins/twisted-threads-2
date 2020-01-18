@@ -247,7 +247,7 @@ class User extends PureComponent {
 					<>
 						<Row>
 							<Col lg="12">
-								<h2>{`Patterns (${patternCount})`}</h2>
+								<h2>Patterns</h2>
 							</Col>
 						</Row>
 						{patternCount === 0 && (
@@ -259,6 +259,7 @@ class User extends PureComponent {
 								dispatch={dispatch}
 								history={history}
 								itemCount={patternCount}
+								patternCountParams={{ 'userId': user._id }}
 							>
 								<PatternList
 									dispatch={dispatch}
@@ -390,7 +391,7 @@ const Tracker = withTracker((props) => {
 		'limit': ITEMS_PER_PAGE,
 	}).fetch();
 
-	const handle = Meteor.subscribe('patterns', pageSkip, ITEMS_PER_PAGE, {
+	const handle = Meteor.subscribe('userPatterns', pageSkip, ITEMS_PER_PAGE, _id, {
 		'onReady': () => {
 			const patternIds = patterns.map((pattern) => pattern._id);
 
@@ -399,7 +400,7 @@ const Tracker = withTracker((props) => {
 	});
 
 	if (isLoading && handle.ready()) {
-		dispatch(getPatternCount(_id));
+		dispatch(getPatternCount({ 'userId': _id }));
 		dispatch(setIsLoading(false));
 	} else if (!isLoading && !handle.ready()) {
 		dispatch(setIsLoading(true));

@@ -80,24 +80,27 @@ class RecentPatterns extends Component {
 							<h1>Recently viewed patterns</h1>
 						</Col>
 					</Row>
-					{!isLoading
-						&& patternCount > 0
-						&& (
-							<PaginatedList
-								currentPageNumber={currentPageNumber}
+					{!isLoading && patternCount > 0 && (
+						<PaginatedList
+							currentPageNumber={currentPageNumber}
+							dispatch={dispatch}
+							history={history}
+							itemCount={patternCount}
+						>
+							<PatternList
 								dispatch={dispatch}
-								history={history}
-								itemCount={patternCount}
-							>
-								<PatternList
-									dispatch={dispatch}
-									patternPreviews={patternPreviews}
-									patterns={patterns}
-									tags={tags}
-									users={users}
-								/>
-							</PaginatedList>
-						)}
+								patternPreviews={patternPreviews}
+								patterns={patterns}
+								tags={tags}
+								users={users}
+							/>
+						</PaginatedList>
+					)}
+					{!isLoading && patternCount === 0 && (
+						<div className="no-patterns">
+							There are no recently viewed patterns to display
+						</div>
+					)}
 				</Container>
 			</PageWrapper>
 		);
@@ -144,18 +147,21 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 	const state = store.getState();
 	const isLoading = getIsLoading(state);
 
-	const patterns = findRecentPatterns();
+
+	let patterns = findRecentPatterns();
+	const sliceEnd = ITEMS_PER_PAGE + pageSkip;
+	patterns = patterns.slice(pageSkip, sliceEnd);
 
 	Meteor.subscribe('tags');
 
-	const handle = Meteor.subscribe('recentPatterns', pageSkip, ITEMS_PER_PAGE, {
+	const handle = Meteor.subscribe('recentPatterns', patterns, {
 		'onReady': () => {
 			secondaryPatternSubscriptions(patterns);
 		},
 	});
 
 	if (isLoading && handle.ready()) {
-		dispatch(getPatternCount());
+		dispatch(getPatternCount({ 'countRecentPatterns': true }));
 		dispatch(setIsLoading(false));
 	} else if (!isLoading && !handle.ready()) {
 		dispatch(setIsLoading(true));

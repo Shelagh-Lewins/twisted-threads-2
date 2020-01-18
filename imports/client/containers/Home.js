@@ -183,16 +183,18 @@ class Home extends Component {
 					</Container>
 					{!isLoading && !showAddPatternForm && (
 						<>
-							<PatternListPreview
-								dispatch={dispatch}
-								listName="Recently viewed patterns"
-								patterns={recentPatterns}
-								patternPreviews={patternPreviews}
-								tags={tags}
-								url="/recent-patterns"
-								users={users}
-								width={width}
-							/>
+							{recentPatterns.length > 0 && (
+								<PatternListPreview
+									dispatch={dispatch}
+									listName="Recently viewed patterns"
+									patterns={recentPatterns}
+									patternPreviews={patternPreviews}
+									tags={tags}
+									url="/recent-patterns"
+									users={users}
+									width={width}
+								/>
+							)}
 							<PatternListPreview
 								dispatch={dispatch}
 								listName="New patterns"
