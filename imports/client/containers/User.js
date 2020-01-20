@@ -166,7 +166,6 @@ class User extends PureComponent {
 
 	renderColorBooks() {
 		const {
-			//_id,
 			canCreateColorBook,
 			colorBooks,
 			dispatch,
@@ -174,8 +173,7 @@ class User extends PureComponent {
 			'user': { _id },
 		} = this.props;
 		const { selectedColorBook, showAddColorBookForm } = this.state;
-console.log('_id', _id);
-console.log('Meteor.userId', Meteor.userId());
+
 		const canCreate = canCreateColorBook && Meteor.userId() === _id;
 
 		const addButton = (
@@ -401,7 +399,7 @@ const Tracker = withTracker((props) => {
 			Meteor.subscribe('patternPreviews', { patternIds }, _id);
 		},
 	});
-console.log('*** tracker _id', _id);
+
 	if (isLoading && handle.ready()) {
 		dispatch(getPatternCount(_id));
 		dispatch(setIsLoading(false));
