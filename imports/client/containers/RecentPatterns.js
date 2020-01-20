@@ -11,7 +11,7 @@ import PageWrapper from '../components/PageWrapper';
 import store from '../modules/store';
 import {
 	getIsLoading,
-	getPatternCount,
+	//getPatternCount,
 	setIsLoading,
 } from '../modules/pattern';
 import { PatternPreviews, Tags } from '../../modules/collection';
@@ -139,50 +139,27 @@ function mapStateToProps(state, ownProps) {
 		'errors': state.errors,
 		'isLoading': getIsLoading(state),
 		'pageSkip': (currentPageNumber - 1) * ITEMS_PER_PAGE,
-		'patternCount': state.pattern.patternCount,
 	};
 }
 
 const Tracker = withTracker(({ pageSkip, dispatch }) => {
 	const state = store.getState();
 	const isLoading = getIsLoading(state);
-//console.log('recentPatterns tracker');
-
 	const { ready, recentPatterns } = findRecentPatterns();
-	console.log('recents 1', recentPatterns);
+	const patternCount = recentPatterns.length;
 	const sliceEnd = ITEMS_PER_PAGE + pageSkip;
 	const patterns = recentPatterns.slice(pageSkip, sliceEnd);
 
 	Meteor.subscribe('tags');
 
-	/* const handle2 = Meteor.subscribe('patterns', pageSkip, 100, {
-		'onReady': () => {
-			console.log('Recentpatterns handle2 ready', patterns);
-			//secondaryPatternSubscriptions(patterns);
-		},
-	}); */
-
-	/* const handle = Meteor.subscribe('recentPatterns', patterns, {
-		'onReady': () => {
-			console.log('recentPatterns ready', patterns);
-			secondaryPatternSubscriptions(patterns);
-		},
-	}); */
-
 	if (isLoading && ready) {
-		dispatch(getPatternCount({ 'countRecentPatterns': true }));
 		dispatch(setIsLoading(false));
 	} else if (!isLoading && !ready) {
 		dispatch(setIsLoading(true));
 	}
-	/* if (isLoading && ready) {
-		console.log('get pattern count');
-		dispatch(getPatternCount({ 'countRecentPatterns': true }));
-		dispatch(setIsLoading(false));
-	} */
-	//dispatch(setIsLoading(false));
-console.log('recents 2', recentPatterns);
+
 	return {
+		patternCount,
 		patterns,
 		'patternPreviews': PatternPreviews.find().fetch(),
 		'tags': Tags.find().fetch(),

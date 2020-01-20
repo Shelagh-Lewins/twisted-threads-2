@@ -1,6 +1,9 @@
 // return an array of the user's recently viewed patterns
 // most recent first
 // this includes the full pattern data
+// and adds the date viewed from the list in the user's profile or local storage
+// This can be used to find the count of recent patterns for pagination
+// the client will then need to truncate the array for display
 
 import { Patterns } from '../../modules/collection';
 import { getLocalStorageItem } from './localStorage';
@@ -30,13 +33,10 @@ const findRecentPatterns = () => {
 
 	const handle = Meteor.subscribe('patternsById', patternIds, {
 		'onReady': () => {
-			//console.log('findRecentPatterns.js handle2 ready', Patterns.find({_id: 'HLpMPYP6Eja3wd5rg'}).fetch());
 			secondaryPatternSubscriptions(recentPatterns);
 		},
 	});
 
-
-//console.log('findRecentPatterns has patterns', recentPatterns);
 	recentPatterns = recentPatterns.map((pattern) => {
 		const { updatedAt } = recentPatternsList.find(({ patternId }) => patternId === pattern._id);
 		pattern.updatedAt = updatedAt;

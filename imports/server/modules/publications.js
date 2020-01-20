@@ -140,7 +140,7 @@ const patternFields = {
 Meteor.publish('patterns', function (skip = 0, limit = ITEMS_PER_PAGE) {
 	// this needs to return the same number of patterns as the getPatternCount method, for pagination
 	check(skip, positiveIntegerCheck);
-console.log('publish patterns');
+
 	// Meteor._sleepForMs(3000); // simulate server delay
 	return Patterns.find(
 		getPermissionQuery(this.userId),
@@ -155,8 +155,7 @@ console.log('publish patterns');
 
 Meteor.publish('patternsById', function (patternIds) {
 	check(patternIds, [nonEmptyStringCheck]);
-//console.log('publish patternsById');
-	// Meteor._sleepForMs(3000); // simulate server delay
+
 	return Patterns.find(
 		{
 			'$and': [
@@ -172,7 +171,6 @@ Meteor.publish('patternsById', function (patternIds) {
 
 // individual pattern
 Meteor.publish('pattern', function (_id) {
-	//console.log('*** publish pattern', _id);
 	check(_id, nonEmptyStringCheck);
 
 	return Patterns.find(
@@ -188,76 +186,6 @@ Meteor.publish('pattern', function (_id) {
 		},
 	);
 });
-
-// preview list for my patterns
-// displayed on Home page
-// and also used for full Recent Patterns page
-// limited numbers of recent patterns are stored, they won't be paginated and don't need to be limited like All Patterns or All Users
-// the list of recent patterns may be taken from the db if the user is logged in
-// or provided by the client (from local storage) if not
-/* Meteor.publish('recentPatterns', function (localStorageRecentPatterns) {
-	check(localStorageRecentPatterns, Match.Maybe([Object]));
-
-	// handle and transform allows the updatedAt field to be added to the pattern, from the recentPattern entry
-	// https://stackoverflow.com/questions/25519205/add-computed-fields-to-meteor-users-in-a-publication
-	let recentPatternsList = [];
-
-	if (this.userId) {
-		const user = Meteor.users.findOne({ '_id': this.userId });
-		recentPatternsList = user.profile.recentPatterns || [];
-	} else {
-		recentPatternsList = localStorageRecentPatterns;
-	}
-
-	const patternIds = recentPatternsList.map((pattern) => pattern.patternId);
-
-	const transform = (pattern) => {
-		const { updatedAt } = recentPatternsList.find(({ patternId }) => patternId === pattern._id);
-		pattern.updatedAt = updatedAt;
-		return pattern;
-	};
-
-	const fields = patternsFields;
-
-	const self = this;
-
-	const handle = Patterns.find(
-		{
-			'$and': [
-				getPermissionQuery(this.userId),
-				{ '_id': { '$in': patternIds } },
-			],
-		},
-		{
-			'fields': fields,
-			'sort': { 'updatedAt': 1 },
-		},
-	);
-
-	const test = handle.observe({
-		'added': function (pattern) {
-			//console.log('added');
-			self.added('patterns', pattern._id, transform(pattern));
-		},
-
-		'changed': function (pattern) {
-			//console.log('changed');
-			self.changed('patterns', pattern._id, transform(pattern));
-		},
-
-		'removed': function (pattern) {
-			//console.log('removed');
-			self.removed('patterns', pattern._id);
-		},
-	});
-
-	this.onStop(function () {
-		test.stop();
-	});
-
-	this.ready();
-	return handle;
-}); */
 
 // preview list for all patterns
 // displayed on Home page
@@ -331,7 +259,6 @@ Meteor.publish('newPatterns', function (skip = 0, limit = ITEMS_PER_PAGE) {
 // preview list for new patterns
 // displayed on Home page
 Meteor.publish('newPatternsPreview', function () {
-	console.log('*** publish newPatternsPreview');
 	return Patterns.find(
 		getPermissionQuery(this.userId),
 		{
@@ -401,10 +328,6 @@ Meteor.publish('patternPreviews', function ({ patternIds }) {
 
 // Public information about particular users
 Meteor.publish('users', function (userIds) {
-	/* if (userIds[0] === null) {
-		console.log('*** publish userIds', userIds);
-		console.log('*** publish typeof userIds', typeof userIds);
-	} */
 	if (userIds.length === 0) {
 		this.ready();
 		return;

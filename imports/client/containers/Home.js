@@ -270,7 +270,6 @@ function mapStateToProps(state, ownProps) {
 }
 
 const Tracker = withTracker(({ dispatch }) => {
-		//console.log('*** Home.js withTracker');
 	const state = store.getState();
 	const isLoading = getIsLoading(state);
 
@@ -281,9 +280,9 @@ const Tracker = withTracker(({ dispatch }) => {
 
 	let myPatterns = [];
 	let newPatterns = [];
-	const { recentPatterns } = findRecentPatterns();
-	console.log('recent patterns list', recentPatterns);
-	const patterns = recentPatterns.slice(0, ITEMS_PER_PREVIEW_LIST);
+	let { recentPatterns } = findRecentPatterns();
+
+	recentPatterns = recentPatterns.slice(0, ITEMS_PER_PREVIEW_LIST);
 
 	if (Accounts.loginServicesConfigured()) {
 		if (Meteor.userId()) {
@@ -294,27 +293,8 @@ const Tracker = withTracker(({ dispatch }) => {
 					'sort': { 'nameSort': 1 },
 				},
 			).fetch();
-
-			/* Meteor.subscribe('recentPatterns', {
-				'onReady': () => {
-					secondaryPatternSubscriptions(recentPatterns);
-				},
-			}); */
 		}
-	} else {
-		/* Meteor.subscribe('recentPatterns', recentPatterns, {
-			'onReady': () => {
-				secondaryPatternSubscriptions(recentPatterns);
-			},
-		}); */
 	}
-
-	/* const handle2 = Meteor.subscribe('patternsById', 0, ITEMS_PER_PREVIEW_LIST, recentPatternsList, {
-		'onReady': () => {
-			console.log('Home.js handle2 ready', Patterns.find({_id: 'HLpMPYP6Eja3wd5rg'}).fetch());
-			//secondaryPatternSubscriptions(recentPatterns);
-		},
-	}); */
 
 	const allUsers = Meteor.users.find({}, {
 		'limit': ITEMS_PER_PREVIEW_LIST,
@@ -338,18 +318,16 @@ const Tracker = withTracker(({ dispatch }) => {
 
 	Meteor.subscribe('newPatternsPreview', {
 		'onReady': () => {
-			//console.log('*** newPatternsPreview onReady');
 			newPatterns = Patterns.find({}, {
 				'limit': ITEMS_PER_PREVIEW_LIST,
 				'sort': { 'createdAt': -1 },
 			}).fetch();
-			//console.log('*** Home.js newPatterns 1', newPatterns);
 			secondaryPatternSubscriptions(newPatterns);
 		},
 	});
 
 	Meteor.subscribe('allUsersPreview');
-//console.log('*** Home.js newPatterns 2', newPatterns);
+
 	if (isLoading && handle.ready()) {
 		dispatch(setIsLoading(false));
 	} else if (!isLoading && !handle.ready()) {

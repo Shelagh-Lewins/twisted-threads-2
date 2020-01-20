@@ -166,14 +166,17 @@ class User extends PureComponent {
 
 	renderColorBooks() {
 		const {
+			//_id,
 			canCreateColorBook,
 			colorBooks,
 			dispatch,
 			isAuthenticated,
+			'user': { _id },
 		} = this.props;
 		const { selectedColorBook, showAddColorBookForm } = this.state;
-
-		const canCreate = canCreateColorBook;
+console.log('_id', _id);
+console.log('Meteor.userId', Meteor.userId());
+		const canCreate = canCreateColorBook && Meteor.userId() === _id;
 
 		const addButton = (
 			<Button
@@ -398,9 +401,9 @@ const Tracker = withTracker((props) => {
 			Meteor.subscribe('patternPreviews', { patternIds }, _id);
 		},
 	});
-
+console.log('*** tracker _id', _id);
 	if (isLoading && handle.ready()) {
-		dispatch(getPatternCount({ 'userId': _id }));
+		dispatch(getPatternCount(_id));
 		dispatch(setIsLoading(false));
 	} else if (!isLoading && !handle.ready()) {
 		dispatch(setIsLoading(true));

@@ -56,22 +56,20 @@ export function setPatternCount(patternCount) {
 	};
 }
 
-export const getPatternCount = ({ countRecentPatterns = false, userId }) => (dispatch) => {
-	if (countRecentPatterns) {
-		dispatch(setPatternCount(findRecentPatterns().length));
-	}
-
+export const getPatternCount = (userId) => (dispatch) => {
 	Meteor.call('pattern.getPatternCount', userId, (error, result) => {
 		dispatch(setPatternCount(result));
 	});
 };
 
-export const changePage = (newPageNumber, history, patternCountParams = {}) => (dispatch) => {
+export const changePage = (newPageNumber, history, patternCountParams) => (dispatch) => {
+
+	const userId = patternCountParams && patternCountParams.userId;
 	const url = `?page=${newPageNumber + 1}`;
 
 	history.push(url);
 
-	dispatch(getPatternCount(patternCountParams));
+	dispatch(getPatternCount(userId));
 };
 
 // waiting for data subscription to be ready

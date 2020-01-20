@@ -243,7 +243,6 @@ Meteor.methods({
 			}
 
 			// for another user, return only their public patterns
-			// return Patterns.find({ 'createdBy': userId });
 			return Patterns.find({
 				'$and': [
 					{ 'isPublic': { '$eq': true } },

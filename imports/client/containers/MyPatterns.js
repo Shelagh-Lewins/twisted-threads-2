@@ -229,7 +229,7 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 	});
 
 	if (isLoading && handle.ready()) {
-		dispatch(getPatternCount({ 'userId': Meteor.userId }));
+		dispatch(getPatternCount(Meteor.userId));
 		dispatch(setIsLoading(false));
 	} else if (!isLoading && !handle.ready()) {
 		dispatch(setIsLoading(true));
