@@ -18,7 +18,6 @@ import {
 	DEFAULT_NUMBER_OF_TURNS,
 	DEFAULT_ORIENTATION,
 } from '../../modules/parameters';
-import findRecentPatterns from './findRecentPatterns';
 
 const updeep = require('updeep');
 
@@ -44,6 +43,10 @@ export const UPDATE_ADD_WEAVING_ROWS = 'UPDATE_ADD_WEAVING_ROWS';
 export const UPDATE_REMOVE_WEAVING_ROW = 'UPDATE_REMOVE_WEAVING_ROW';
 export const UPDATE_ADD_TABLETS = 'UPDATE_ADD_TABLETS';
 export const UPDATE_REMOVE_TABLET = 'UPDATE_REMOVE_TABLET';
+
+export const SET_FILTER_MAX_TABLETS = 'SET_FILTER_MAX_TABLETS';
+export const SET_FILTER_MIN_TABLETS = 'SET_FILTER_MIN_TABLETS';
+export const REMOVE_TABLET_FILTER = 'REMOVE_TABLET_FILTER';
 
 // ////////////////////////////
 // Actions that change the Store
@@ -589,10 +592,35 @@ export function editTextField({
 }
 
 // ///////////////////////////
+// filter pattern list on number of tablets
+export function setFilterMaxTablets(maxTablets) {
+	return {
+		'type': 'SET_FILTER_MAX_TABLETS',
+		'payload': maxTablets,
+	};
+}
+
+export function setFilterMinTablets(minTablets) {
+	return {
+		'type': 'SET_FILTER_MIN_TABLETS',
+		'payload': minTablets,
+	};
+}
+
+export function removeTabletFilter(minTablets) {
+	return {
+		'type': 'REMOVE_TABLET_FILTER',
+		'payload': minTablets,
+	};
+}
+
+// ///////////////////////////
 // default state
 const initialPatternState = {
 	'currentPageNumber': 0,
 	'error': null,
+	'filterMaxTablets': null,
+	'filterMinTablets': null,
 	'holes': 0,
 	'isEditingThreading': false,
 	'isEditingWeaving': false,
@@ -890,6 +918,18 @@ export default function pattern(state = initialPatternState, action) {
 				'weavingInstructionsByTablet': newWeavingInstructionsByTablet,
 				'picks': newPicks,
 			}, state);
+		}
+
+		case SET_FILTER_MAX_TABLETS: {
+			return updeep({ 'filterMaxTablets': action.payload }, state);
+		}
+
+		case SET_FILTER_MIN_TABLETS: {
+			return updeep({ 'filterMinTablets': action.payload }, state);
+		}
+
+		case REMOVE_TABLET_FILTER: {
+			return updeep({ 'filterMaxTablets': null, 'filterMinTablets': null }, state);
 		}
 
 		default:

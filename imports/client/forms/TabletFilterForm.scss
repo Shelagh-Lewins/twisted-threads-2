@@ -1,0 +1,26 @@
+@import "../constants/variables";
+
+.tablet-filter-form {
+	.form-group {
+		input {
+			display: inline-block;
+			margin: 0 8px;
+			width: 80px;
+		}
+
+		label {
+			font-size: 0;
+			width: auto;
+		}
+	}
+
+	.controls {
+		display: inline;
+		margin-left: 16px;
+	}
+
+	.invalid-feedback {
+		font-size: .8rem;
+		position: absolute;
+	}
+}

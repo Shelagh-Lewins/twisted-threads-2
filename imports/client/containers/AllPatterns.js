@@ -17,6 +17,7 @@ import {
 import { PatternPreviews, Patterns, Tags } from '../../modules/collection';
 import Loading from '../components/Loading';
 import MainMenu from '../components/MainMenu';
+import TabletFilterForm from '../forms/TabletFilterForm';
 import PaginatedList from '../components/PaginatedList';
 import PatternList from '../components/PatternList';
 
@@ -82,20 +83,23 @@ class AllPatterns extends Component {
 					{!isLoading
 						&& patternCount > 0
 						&& (
-							<PaginatedList
-								currentPageNumber={currentPageNumber}
-								dispatch={dispatch}
-								history={history}
-								itemCount={patternCount}
-							>
-								<PatternList
+							<>
+								<TabletFilterForm />
+								<PaginatedList
+									currentPageNumber={currentPageNumber}
 									dispatch={dispatch}
-									patternPreviews={patternPreviews}
-									patterns={patterns}
-									tags={tags}
-									users={users}
-								/>
-							</PaginatedList>
+									history={history}
+									itemCount={patternCount}
+								>
+									<PatternList
+										dispatch={dispatch}
+										patternPreviews={patternPreviews}
+										patterns={patterns}
+										tags={tags}
+										users={users}
+									/>
+								</PaginatedList>
+							</>
 						)}
 				</Container>
 			</PageWrapper>
