@@ -21,7 +21,7 @@ import PaginatedList from '../components/PaginatedList';
 import PatternList from '../components/PatternList';
 
 import { ITEMS_PER_PAGE } from '../../modules/parameters';
-import secondaryPatternSubscriptions from '../modules/secondaryPatternSubscriptions';
+//import secondaryPatternSubscriptions from '../modules/secondaryPatternSubscriptions';
 import findRecentPatterns from '../modules/findRecentPatterns';
 
 import './Home.scss';
@@ -146,27 +146,42 @@ function mapStateToProps(state, ownProps) {
 const Tracker = withTracker(({ pageSkip, dispatch }) => {
 	const state = store.getState();
 	const isLoading = getIsLoading(state);
+//console.log('recentPatterns tracker');
 
-
-	let patterns = findRecentPatterns();
+	const { ready, recentPatterns } = findRecentPatterns();
+	console.log('recents 1', recentPatterns);
 	const sliceEnd = ITEMS_PER_PAGE + pageSkip;
-	patterns = patterns.slice(pageSkip, sliceEnd);
+	const patterns = recentPatterns.slice(pageSkip, sliceEnd);
 
 	Meteor.subscribe('tags');
 
-	const handle = Meteor.subscribe('recentPatterns', patterns, {
+	/* const handle2 = Meteor.subscribe('patterns', pageSkip, 100, {
 		'onReady': () => {
+			console.log('Recentpatterns handle2 ready', patterns);
+			//secondaryPatternSubscriptions(patterns);
+		},
+	}); */
+
+	/* const handle = Meteor.subscribe('recentPatterns', patterns, {
+		'onReady': () => {
+			console.log('recentPatterns ready', patterns);
 			secondaryPatternSubscriptions(patterns);
 		},
-	});
+	}); */
 
-	if (isLoading && handle.ready()) {
+	if (isLoading && ready) {
 		dispatch(getPatternCount({ 'countRecentPatterns': true }));
 		dispatch(setIsLoading(false));
-	} else if (!isLoading && !handle.ready()) {
+	} else if (!isLoading && !ready) {
 		dispatch(setIsLoading(true));
 	}
-
+	/* if (isLoading && ready) {
+		console.log('get pattern count');
+		dispatch(getPatternCount({ 'countRecentPatterns': true }));
+		dispatch(setIsLoading(false));
+	} */
+	//dispatch(setIsLoading(false));
+console.log('recents 2', recentPatterns);
 	return {
 		patterns,
 		'patternPreviews': PatternPreviews.find().fetch(),

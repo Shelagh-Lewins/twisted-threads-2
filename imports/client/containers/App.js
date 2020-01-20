@@ -142,7 +142,7 @@ export const withDatabase = withTracker((props) => {
 	const { dispatch, location } = props;
 	let pattern;
 	let patternIdParam;
-
+console.log('*** App.js withTracker');
 	// provide information about the user
 	const state = store.getState();
 	const userId = getUserId(state);
@@ -222,7 +222,7 @@ export const withDatabase = withTracker((props) => {
 		if (matchPattern) {
 			// on any pattern route, page component and Navbar need pattern data
 			patternIdParam = matchPattern.params.id;
-
+console.log('*** matchPattern');
 			if (patternIdParam) {
 				const handle = Meteor.subscribe('pattern', patternIdParam, {
 					'onReady': () => {

@@ -1,9 +1,10 @@
 // return an array of the user's recently viewed patterns
 // most recent first
-// this includes only the recent pattern data, not the full pattern data
+// this includes the full pattern data
 
 import { Patterns } from '../../modules/collection';
 import { getLocalStorageItem } from './localStorage';
+import secondaryPatternSubscriptions from './secondaryPatternSubscriptions';
 
 const findRecentPatterns = () => {
 	let recentPatterns = [];
@@ -27,6 +28,15 @@ const findRecentPatterns = () => {
 		},
 	).fetch();
 
+	const handle = Meteor.subscribe('patternsById', patternIds, {
+		'onReady': () => {
+			//console.log('findRecentPatterns.js handle2 ready', Patterns.find({_id: 'HLpMPYP6Eja3wd5rg'}).fetch());
+			secondaryPatternSubscriptions(recentPatterns);
+		},
+	});
+
+
+//console.log('findRecentPatterns has patterns', recentPatterns);
 	recentPatterns = recentPatterns.map((pattern) => {
 		const { updatedAt } = recentPatternsList.find(({ patternId }) => patternId === pattern._id);
 		pattern.updatedAt = updatedAt;
@@ -44,7 +54,7 @@ const findRecentPatterns = () => {
 		return 0;
 	});
 
-	return recentPatterns;
+	return { 'ready': handle.ready(), recentPatterns };
 };
 
 export default findRecentPatterns;
