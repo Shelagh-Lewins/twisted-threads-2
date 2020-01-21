@@ -1,25 +1,21 @@
+// add rows to an 'individual' type pattern
+
 import React from 'react';
 import { Button, Col, Row } from 'reactstrap';
 import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import {
-	removeTabletFilter,
-	setFilterMaxTablets,
-	setFilterMinTablets,
-} from '../modules/pattern';
-import {
+
 	MAX_TABLETS,
 } from '../../modules/parameters';
-import './TabletFilterForm.scss';
+import './AddPatternForm.scss';
 
-const validate = (values, formik) => {
+const validate = (values) => {
 	const errors = {};
 console.log('validate values', values);
 
 	// can be null, that means no limit
 	if (values.minTablets) {
-		console.log('minTablets', typeof values.minTablets);
 		const minTablets = parseFloat(values.minTablets, 10);
 		if (minTablets < 1) {
 			errors.minTablets = 'Must be at least 1';
@@ -44,126 +40,80 @@ console.log('validate values', values);
 		}
 	}
 
-	//formik.errors = errors;
-
 	return errors;
 };
 
+const handleSubmit = (values) => {
+		console.log('submit', values);
+	};
+
 const TabletFilterForm = (props) => {
-	const {
-		dispatch,
-		maxTablets,
-		minTablets,
-	} = props;
-
-	const handleRemoveFilter = () => {
-		dispatch(removeTabletFilter());
-	};
-
-	const handleChangeMinTablets = (e, formik) => {
-		const errors = validate({ 'minTablets': e.target.value }, formik);
-console.log('errors', errors);
-		if (!errors.minTablets) {
-			dispatch(setFilterMinTablets(e.target.value));
-		}
-	};
-
-	const handleChangeMaxTablets = (e) => {
-		const errors = validate({ 'maxTablets': e.target.value });
-console.log('errors', errors);
-		if (!errors.maxTablets) {
-			dispatch(setFilterMaxTablets(e.target.value));
-		}
-	};
-
-	// can happen if user presses return
-	// values seem not to be populated
-	const handleSubmit = (values) => {};
-
+	const { numberOfRows } = props;
 	const formik = useFormik({
 		'initialValues': {
-			minTablets,
-			maxTablets,
+			'minTablets': 1,
+			'maxTablets': 2,
 		},
 		validate,
 		'onSubmit': (values) => {
 			handleSubmit(values);
 		},
 	});
-console.log('main fn, formik', formik);
 
+	// note firefox doesn't support the 'label' shorthand in option
+	// https://bugzilla.mozilla.org/show_bug.cgi?id=40545#c11
 	return (
 		<div className="tablet-filter-form">
 			<form onSubmit={formik.handleSubmit}>
-				<Row className="form-group">
-					<Col lg="6">
-						Show patterns with between
-						<label htmlFor="minTablets">
-							Minimum tablets
-							<input
-								className={`form-control ${formik.touched.minTablets && formik.errors.minTablets ? 'is-invalid' : ''
-								}`}
-								placeholder="Min"
-								id="minTablets"
-								max={MAX_TABLETS}
-								min="1"
-								name="minTablets"
-								type="number"
-								onChange={(e) => {
-									console.log('formik', formik);
-									handleChangeMinTablets(e, formik);
-								}}
-								onBlur={formik.handleBlur}
-
-							/>
-							{formik.touched.minTablets && formik.errors.minTablets ? (
-								<div className="invalid-feedback invalid">{formik.errors.minTablets}</div>
-							) : null}
-						</label>
-						and
-						<label htmlFor="maxTablets">
-							Maximum tablets
-							<input
-								className={`form-control ${formik.touched.maxTablets && formik.errors.maxTablets ? 'is-invalid' : ''
-								}`}
-								placeholder="Max"
-								id="maxTablets"
-								max={MAX_TABLETS}
-								min="1"
-								name="maxTablets"
-								type="number"
-								onChange={handleChangeMaxTablets}
-								onBlur={formik.handleBlur}
-								value={maxTablets}
-							/>
-							{formik.touched.maxTablets && formik.errors.maxTablets ? (
-								<div className="invalid-feedback invalid">{formik.errors.maxTablets}</div>
-							) : null}
-						</label>
-						tablets
-						<div className="controls">
-							<Button type="cancel" color="secondary" onClick={handleRemoveFilter}>Remove filter</Button>
-							<Button type="submit" color="primary">Update</Button>
-						</div>
-					</Col>
-				</Row>
-
+				<div className="form-group">
+					<label htmlFor="minTablets">
+						Add
+						<input
+							className={`form-control ${formik.touched.minTablets && formik.errors.minTablets ? 'is-invalid' : ''
+							}`}
+							placeholder="Min"
+							id="minTablets"
+							max={MAX_TABLETS}
+							min="1"
+							name="minTablets"
+							type="number"
+							onChange={formik.handleChange}
+							onBlur={formik.handleBlur}
+						/>
+						{formik.touched.minTablets && formik.errors.minTablets ? (
+							<div className="invalid-feedback invalid">{formik.errors.minTablets}</div>
+						) : null}
+					</label>
+					<label htmlFor="maxTablets">
+						rows at:
+						<input
+							className={`form-control ${formik.touched.maxTablets && formik.errors.maxTablets ? 'is-invalid' : ''
+							}`}
+							placeholder="Position to insert rows"
+							id="maxTablets"
+							max={MAX_TABLETS}
+							min="1"
+							name="maxTablets"
+							type="number"
+							onChange={formik.handleChange}
+							onBlur={formik.handleBlur}
+						/>
+						{formik.touched.maxTablets && formik.errors.maxTablets ? (
+							<div className="invalid-feedback invalid">{formik.errors.maxTablets}</div>
+						) : null}
+					</label>
+					<div className="controls">
+						<Button type="submit" color="primary">Update</Button>
+					</div>
+				</div>
 			</form>
 		</div>
 	);
 };
 
 TabletFilterForm.propTypes = {
-	'dispatch': PropTypes.func.isRequired,
-	'maxTablets': PropTypes.number,
-	'minTablets': PropTypes.number,
+	'minTablets': PropTypes.func.isRequired,
+	'numberOfRows': PropTypes.number.isRequired,
 };
 
-function mapStateToProps(state) {
-	return {
-		'maxTablets': state.pattern.maxTablets,
-		'minTablets': state.pattern.minTablets,
-	};
-}
-
-export default connect(mapStateToProps)(TabletFilterForm);
+export default TabletFilterForm;
