@@ -190,17 +190,6 @@ export const withDatabase = withTracker((props) => {
 	if (location) {
 		const { pathname } = location;
 
-		// if the page has MainMenu, set the selected menu item from the url
-		MAIN_MENU_ITEMS.map((menuItem) => {
-			if (matchPath(pathname, {
-				'path': menuItem.url,
-				'exact': false,
-				'strict': false,
-			})) {
-				dispatch(setSelectedMainMenuItem(menuItem.value));
-			}
-		});
-
 		// Navbar always needs to know about user
 		const values = {
 			'allTags': [],

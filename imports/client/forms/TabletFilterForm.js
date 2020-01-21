@@ -6,7 +6,7 @@ import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import {
-	removeTabletFilter,
+	updateFilterRemove,
 	updateFilterMaxTablets,
 	updateFilterMinTablets,
 } from '../modules/pattern';
@@ -55,15 +55,28 @@ const TabletFilterForm = (props) => {
 	} = props;
 
 	let setFieldValue;
+	const filterActive = maxTablets || minTablets;
 
 	const handleChangeMinTablets = (e) => {
 		setFieldValue('minTablets', e.target.value);
-		dispatch(updateFilterMinTablets(e.target.value));
+		const { value } = e.target;
+
+		clearTimeout(global.filterTabletsTimeout);
+
+		global.filterTabletsTimeout = setTimeout(() => {
+			dispatch(updateFilterMinTablets(value));
+		}, 800);
 	};
 
 	const handleChangeMaxTablets = (e) => {
 		setFieldValue('maxTablets', e.target.value);
-		dispatch(updateFilterMaxTablets(e.target.value));
+		const { value } = e.target;
+
+		clearTimeout(global.filterTabletsTimeout);
+
+		global.filterTabletsTimeout = setTimeout(() => {
+			dispatch(updateFilterMaxTablets(value));
+		}, 800);
 	};
 
 	const handleRemoveFilter = () => {
@@ -71,7 +84,7 @@ const TabletFilterForm = (props) => {
 		// so use empty string for when no value is specified
 		setFieldValue('minTablets', '');
 		setFieldValue('maxTablets', '');
-		dispatch(removeTabletFilter());
+		dispatch(updateFilterRemove());
 	};
 
 	const formik = useFormik({
@@ -134,7 +147,14 @@ const TabletFilterForm = (props) => {
 						</label>
 						tablets
 						<div className="controls">
-							<Button type="cancel" color="secondary" onClick={handleRemoveFilter}>Remove filter</Button>
+							<Button
+								color="secondary"
+								disabled={!filterActive}
+								onClick={handleRemoveFilter}
+								type="cancel"
+							>
+								Remove filter
+							</Button>
 							<Button type="submit" color="primary">Update</Button>
 						</div>
 					</Col>
@@ -154,8 +174,8 @@ TabletFilterForm.propTypes = {
 
 function mapStateToProps(state) {
 	return {
-		'maxTablets': state.pattern.maxTablets,
-		'minTablets': state.pattern.minTablets,
+		'maxTablets': state.pattern.filterMaxTablets,
+		'minTablets': state.pattern.filterMinTablets,
 	};
 }
 

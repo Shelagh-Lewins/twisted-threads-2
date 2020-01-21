@@ -180,3 +180,28 @@ export const updatePublicPatternsCount = (_id) => {
 		},
 	);
 };
+
+export const getTabletFilter = ({ filterMaxTablets, filterMinTablets }) => {
+	check(filterMaxTablets, Match.Maybe(positiveIntegerCheck));
+	check(filterMinTablets, Match.Maybe(positiveIntegerCheck));
+
+	// max and min must be integers between 1 and MAX_TABLETS
+	let min = 1;
+	if (filterMinTablets) {
+		min = Math.max(filterMinTablets, 1);
+	}
+	min = Math.min(min, MAX_TABLETS);
+
+	let max = MAX_TABLETS;
+	if (filterMaxTablets) {
+		max = Math.min(filterMaxTablets, MAX_TABLETS);
+	}
+	max = Math.max(max, 1);
+
+	return {
+		'$and': [
+			{ 'numberOfTablets': { '$gte': min } },
+			{ 'numberOfTablets': { '$lte': max } },
+		],
+	};
+};

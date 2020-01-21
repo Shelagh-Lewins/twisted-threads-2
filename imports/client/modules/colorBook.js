@@ -27,7 +27,6 @@ export function setColorBookAdded(colorBookId) {
 export const addColorBook = (name) => (dispatch) => {
 	dispatch(clearErrors());
 	Meteor.call('colorBook.add', name, (error, result) => {
-		// Meteor.call('addColorBook', name, (error, result) => {
 		if (error) {
 			return dispatch(logErrors({ 'add-color-book': error.reason }));
 		}

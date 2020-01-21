@@ -15,6 +15,7 @@ import {
 	getIsLoading,
 	getPatternCount,
 	setIsLoading,
+	setPatternCountUserId,
 } from '../modules/pattern';
 import {
 	getCanCreatePattern,
@@ -22,6 +23,7 @@ import {
 import { PatternPreviews, Patterns, Tags } from '../../modules/collection';
 import Loading from '../components/Loading';
 import MainMenu from '../components/MainMenu';
+import TabletFilterForm from '../forms/TabletFilterForm';
 import PaginatedList from '../components/PaginatedList';
 import PatternList from '../components/PatternList';
 import AddPatternForm from '../forms/AddPatternForm';
@@ -55,6 +57,8 @@ class MyPatterns extends Component {
 	}
 
 	componentDidMount() {
+		const { dispatch } = this.props;
+		dispatch(setPatternCountUserId(Meteor.userId));
 		document.body.classList.add(bodyClass);
 	}
 
@@ -144,16 +148,14 @@ class MyPatterns extends Component {
 							</Col>
 						</Row>
 					)}
-					{!isLoading
-						&& !showAddPatternForm
-						&& patternCount > 0
-						&& (
+					{!isLoading && !showAddPatternForm && (
+						<>
+							<TabletFilterForm />
 							<PaginatedList
 								currentPageNumber={currentPageNumber}
 								dispatch={dispatch}
 								history={history}
 								itemCount={patternCount}
-								patternCountParams={{ 'userId': Meteor.userId }}
 							>
 								<PatternList
 									dispatch={dispatch}
@@ -163,7 +165,8 @@ class MyPatterns extends Component {
 									users={users}
 								/>
 							</PaginatedList>
-						)}
+						</>
+					)}
 				</Container>
 			</PageWrapper>
 		);
@@ -179,6 +182,8 @@ MyPatterns.propTypes = {
 	'currentPageNumber': PropTypes.number,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
+	'filterMaxTablets': PropTypes.number,
+	'filterMinTablets': PropTypes.number,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'patternCount': PropTypes.number.isRequired,
@@ -202,13 +207,21 @@ function mapStateToProps(state, ownProps) {
 		'canCreatePattern': getCanCreatePattern(state),
 		'currentPageNumber': currentPageNumber, // read the url parameter to find the currentPage
 		'errors': state.errors,
+		'filterMaxTablets': state.pattern.filterMaxTablets,
+		'filterMinTablets': state.pattern.filterMinTablets,
 		'isLoading': getIsLoading(state),
 		'pageSkip': (currentPageNumber - 1) * ITEMS_PER_PAGE,
 		'patternCount': state.pattern.patternCount,
 	};
 }
 
-const Tracker = withTracker(({ pageSkip, dispatch }) => {
+const Tracker = withTracker((props) => {
+	const {
+		dispatch,
+		filterMaxTablets,
+		filterMinTablets,
+		pageSkip,
+	} = props;
 	const state = store.getState();
 	const isLoading = getIsLoading(state);
 
@@ -222,7 +235,12 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 
 	Meteor.subscribe('tags');
 
-	const handle = Meteor.subscribe('myPatterns', pageSkip, ITEMS_PER_PAGE, {
+	const handle = Meteor.subscribe('myPatterns', {
+		filterMaxTablets,
+		filterMinTablets,
+		'limit': ITEMS_PER_PAGE,
+		'skip': pageSkip,
+	}, {
 		'onReady': () => {
 			secondaryPatternSubscriptions(patterns);
 		},

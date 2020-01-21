@@ -28,6 +28,7 @@ const updeep = require('updeep');
 // define action types so they are visible
 // and export them so other reducers can use them
 export const SET_PATTERN_COUNT = 'SET_PATTERN_COUNT';
+export const SET_PATTERN_COUNT_USERID = 'SET_PATTERN_COUNT_USERID';
 export const SET_ISLOADING = 'SET_ISLOADING';
 export const SET_PATTERN_DATA = 'SET_PATTERN_DATA';
 
@@ -60,20 +61,36 @@ export function setPatternCount(patternCount) {
 	};
 }
 
-export const getPatternCount = (userId) => (dispatch) => {
-	Meteor.call('pattern.getPatternCount', userId, (error, result) => {
+export const getPatternCount = () => (dispatch, getState) => {
+	const {
+		filterMaxTablets,
+		filterMinTablets,
+		patternCountUserId,
+	} = getState().pattern;
+// console.log('2 *** about to call');
+	Meteor.call('pattern.getPatternCount', {
+		filterMaxTablets,
+		filterMinTablets,
+		'userId': patternCountUserId,
+	}, (error, result) => {
 		dispatch(setPatternCount(result));
 	});
 };
 
-export const changePage = (newPageNumber, history, patternCountParams) => (dispatch) => {
+// should the pattern count only include patterns belonging to a particular user?
+export function setPatternCountUserId(userId) {
+	return {
+		'type': 'SET_PATTERN_COUNT_USERID',
+		'payload': userId,
+	};
+}
 
-	const userId = patternCountParams && patternCountParams.userId;
+export const changePage = (newPageNumber, history) => (dispatch) => {
 	const url = `?page=${newPageNumber + 1}`;
 
 	history.push(url);
 
-	dispatch(getPatternCount(userId));
+	dispatch(getPatternCount());
 };
 
 // waiting for data subscription to be ready
@@ -594,10 +611,10 @@ export function editTextField({
 
 // ///////////////////////////
 // filter pattern list on number of tablets
-export function setFilterMaxTablets(minTablets) {
+export function setFilterMaxTablets(maxTablets) {
 	return {
 		'type': 'SET_FILTER_MAX_TABLETS',
-		'payload': minTablets,
+		'payload': maxTablets,
 	};
 }
 
@@ -613,6 +630,7 @@ export function updateFilterMaxTablets(maxTablets) {
 		}
 
 		dispatch(setFilterMaxTablets(value));
+		dispatch(getPatternCount());
 	};
 }
 
@@ -635,6 +653,7 @@ export function updateFilterMinTablets(minTablets) {
 		}
 
 		dispatch(setFilterMinTablets(value));
+		dispatch(getPatternCount());
 	};
 }
 
@@ -645,6 +664,13 @@ export function removeTabletFilter() {
 			'maxTablets': undefined,
 			'minTablets': undefined,
 		},
+	};
+}
+
+export function updateFilterRemove() {
+	return (dispatch) => {
+		dispatch(removeTabletFilter());
+		dispatch(getPatternCount());
 	};
 }
 
@@ -661,6 +687,7 @@ const initialPatternState = {
 	'isLoading': true,
 	'palette': [],
 	'patternCount': 0,
+	'patternCountUserId': undefined,
 	'picks': [],
 	'threading': [],
 };
@@ -670,6 +697,10 @@ export default function pattern(state = initialPatternState, action) {
 	switch (action.type) {
 		case SET_PATTERN_COUNT: {
 			return updeep({ 'patternCount': action.payload }, state);
+		}
+
+		case SET_PATTERN_COUNT_USERID: {
+			return updeep({ 'patternCountUserId': action.payload }, state);
 		}
 
 		case SET_ISLOADING: {

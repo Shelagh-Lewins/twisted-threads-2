@@ -6,8 +6,12 @@ import {
 	Patterns,
 	Tags,
 } from '../../modules/collection';
-import { ITEMS_PER_PAGE, ITEMS_PER_PREVIEW_LIST } from '../../modules/parameters';
 import {
+	ITEMS_PER_PAGE,
+	ITEMS_PER_PREVIEW_LIST,
+} from '../../modules/parameters';
+import {
+	getTabletFilter,
 	nonEmptyStringCheck,
 	positiveIntegerCheck,
 } from './utils';
@@ -91,14 +95,6 @@ Meteor.publish('colorBooks', function (userId) {
 			},
 		);
 	}
-
-	/* return ColorBooks.find(
-		{ 'isPublic': { '$eq': true } },
-		{
-			'fields': ColorBooksFields,
-			'sort': { 'nameSort': 1 },
-		},
-	); */
 });
 
 
@@ -137,13 +133,25 @@ const patternFields = {
 
 // ////////////////////////////////
 // All patterns
-Meteor.publish('patterns', function (skip = 0, limit = ITEMS_PER_PAGE) {
+Meteor.publish('patterns', function ({
+	filterMaxTablets,
+	filterMinTablets,
+	skip = 0,
+	limit = ITEMS_PER_PAGE,
+}) {
 	// this needs to return the same number of patterns as the getPatternCount method, for pagination
+	check(filterMaxTablets, Match.Maybe(positiveIntegerCheck));
+	check(filterMinTablets, Match.Maybe(positiveIntegerCheck));
+	check(limit, positiveIntegerCheck);
 	check(skip, positiveIntegerCheck);
 
-	// Meteor._sleepForMs(3000); // simulate server delay
 	return Patterns.find(
-		getPermissionQuery(this.userId),
+		{
+			'$and': [
+				getTabletFilter({ filterMaxTablets, filterMinTablets }),
+				getPermissionQuery(this.userId),
+			],
+		},
 		{
 			'fields': patternsFields,
 			'sort': { 'nameSort': 1 },
@@ -202,13 +210,26 @@ Meteor.publish('allPatternsPreview', function () {
 
 // ////////////////////////////////
 // My patterns
-Meteor.publish('myPatterns', function (skip = 0, limit = ITEMS_PER_PAGE) {
+Meteor.publish('myPatterns', function ({
+	filterMaxTablets,
+	filterMinTablets,
+	skip = 0,
+	limit = ITEMS_PER_PAGE,
+}) {
 	// this needs to return the same number of patterns as the getPatternCount method, for pagination
+	check(filterMaxTablets, Match.Maybe(positiveIntegerCheck));
+	check(filterMinTablets, Match.Maybe(positiveIntegerCheck));
+	check(limit, positiveIntegerCheck);
 	check(skip, positiveIntegerCheck);
 
 	if (this.userId) {
 		return Patterns.find(
-			{ 'createdBy': this.userId },
+			{
+				'$and': [
+					getTabletFilter({ filterMaxTablets, filterMinTablets }),
+					{ 'createdBy': this.userId },
+				],
+			},
 			{
 				'fields': patternsFields,
 				'sort': { 'nameSort': 1 },
@@ -241,12 +262,25 @@ Meteor.publish('myPatternsPreview', function () {
 // ////////////////////////////////
 // New patterns
 // returns all patterns, but sorted by creation date
-Meteor.publish('newPatterns', function (skip = 0, limit = ITEMS_PER_PAGE) {
+Meteor.publish('newPatterns', function ({
+	filterMaxTablets,
+	filterMinTablets,
+	skip = 0,
+	limit = ITEMS_PER_PAGE,
+}) {
 	// this needs to return the same number of patterns as the getPatternCount method, for pagination
+	check(filterMaxTablets, Match.Maybe(positiveIntegerCheck));
+	check(filterMinTablets, Match.Maybe(positiveIntegerCheck));
+	check(limit, positiveIntegerCheck);
 	check(skip, positiveIntegerCheck);
 
 	return Patterns.find(
-		getPermissionQuery(this.userId),
+		{
+			'$and': [
+				getTabletFilter({ filterMaxTablets, filterMinTablets }),
+				getPermissionQuery(this.userId),
+			],
+		},
 		{
 			'fields': patternsFields,
 			'sort': { 'createdAt': -1 },
@@ -270,14 +304,24 @@ Meteor.publish('newPatternsPreview', function () {
 });
 
 // patterns cretaed by a user
-Meteor.publish('userPatterns', function (skip = 0, limit = ITEMS_PER_PAGE, userId) {
+Meteor.publish('userPatterns', function ({
+	filterMaxTablets,
+	filterMinTablets,
+	skip = 0,
+	limit = ITEMS_PER_PAGE,
+	userId,
+}) {
 	// this needs to return the same number of patterns as the getPatternCount method, for pagination
+	check(filterMaxTablets, Match.Maybe(positiveIntegerCheck));
+	check(filterMinTablets, Match.Maybe(positiveIntegerCheck));
+	check(limit, positiveIntegerCheck);
 	check(skip, positiveIntegerCheck);
 	check(userId, nonEmptyStringCheck);
 
 	return Patterns.find(
 		{
 			'$and': [
+				getTabletFilter({ filterMaxTablets, filterMinTablets }),
 				{ 'createdBy': userId },
 				getPermissionQuery(this.userId),
 			],

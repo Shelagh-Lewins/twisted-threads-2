@@ -11,7 +11,6 @@ import PageWrapper from '../components/PageWrapper';
 import store from '../modules/store';
 import {
 	getIsLoading,
-	//getPatternCount,
 	setIsLoading,
 } from '../modules/pattern';
 import { PatternPreviews, Tags } from '../../modules/collection';
@@ -21,7 +20,6 @@ import PaginatedList from '../components/PaginatedList';
 import PatternList from '../components/PatternList';
 
 import { ITEMS_PER_PAGE } from '../../modules/parameters';
-//import secondaryPatternSubscriptions from '../modules/secondaryPatternSubscriptions';
 import findRecentPatterns from '../modules/findRecentPatterns';
 
 import './Home.scss';

@@ -16,6 +16,12 @@ const PatternList = (props) => {
 		users,
 	} = props;
 
+	if (patterns.length === 0) {
+		return (
+			<div className="item-list empty">There are no patterns to display</div>
+		);
+	}
+
 	return patterns.map((pattern) => {
 		const { _id, createdBy, 'tags': patternTags } = pattern;
 

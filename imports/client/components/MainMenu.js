@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import {
+	matchPath,
+	withRouter,
+} from 'react-router-dom';
 import PropTypes from 'prop-types';
 import {
 	getIsAuthenticated,
@@ -13,56 +16,79 @@ import { MAIN_MENU_ITEMS } from '../../modules/parameters';
 
 import './MainMenu.scss';
 
-function MainMenu(props) {
-	const {
-		dispatch,
-		isAuthenticated,
-		selectedMainMenuItem,
-	} = props;
+class MainMenu extends Component {
+	componentDidMount() {
+		const {
+			dispatch,
+			location,
+		} = this.props;
 
-	const history = useHistory();
+		if (location) {
+			const { pathname } = location;
+			MAIN_MENU_ITEMS.map((menuItem) => {
+				if (matchPath(pathname, {
+					'path': menuItem.url,
+					'exact': true,
+					'strict': false,
+				})) {
+					dispatch(setSelectedMainMenuItem(menuItem.value));
+				}
+			});
+		}
+	}
 
-	const handleClickMenuItem = ({ value, url }) => {
-		dispatch(setSelectedMainMenuItem(value));
-		history.push(url);
-	};
+	render() {
+		const {
+			dispatch,
+			history,
+			isAuthenticated,
+			selectedMainMenuItem,
+		} = this.props;
 
-	const renderMenuItem = ({ value, name, url }) => (
-		<li
-			className={selectedMainMenuItem === value ? 'selected' : ''}
-			key={value}
-			onClick={() => handleClickMenuItem({ value, url })}
-			onKeyPress={() => handleClickMenuItem({ value, url })}
-			role="menuitem"
-			tabIndex="0"
-		>
-			{name}
-		</li>
-	);
+		const handleClickMenuItem = ({ value, url }) => {
+			dispatch(setSelectedMainMenuItem(value));
+			history.push(url);
+		};
 
-	const renderMenuItems = () => {
-		const menuItems = [];
+		const renderMenuItem = ({ value, name, url }) => (
+			<li
+				className={selectedMainMenuItem === value ? 'selected' : ''}
+				key={value}
+				onClick={() => handleClickMenuItem({ value, url })}
+				onKeyPress={() => handleClickMenuItem({ value, url })}
+				role="menuitem"
+				tabIndex="0"
+			>
+				{name}
+			</li>
+		);
 
-		MAIN_MENU_ITEMS.forEach((menuItem) => {
-			const { loginRequired } = menuItem;
-			if (!loginRequired || (loginRequired && isAuthenticated)) {
-				menuItems.push(renderMenuItem(menuItem));
-			}
-		});
+		const renderMenuItems = () => {
+			const menuItems = [];
 
-		return menuItems;
-	};
+			MAIN_MENU_ITEMS.forEach((menuItem) => {
+				const { loginRequired } = menuItem;
+				if (!loginRequired || (loginRequired && isAuthenticated)) {
+					menuItems.push(renderMenuItem(menuItem));
+				}
+			});
 
-	return (
-		<ul className="main-menu">
-			{renderMenuItems()}
-		</ul>
-	);
+			return menuItems;
+		};
+
+		return (
+			<ul className="main-menu">
+				{renderMenuItems()}
+			</ul>
+		);
+	}
 }
 
 MainMenu.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
+	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isAuthenticated': PropTypes.bool.isRequired,
+	'location': PropTypes.objectOf(PropTypes.any),
 	'selectedMainMenuItem': PropTypes.string.isRequired,
 };
 
@@ -73,4 +99,5 @@ function mapStateToProps(state) {
 	};
 }
 
-export default connect(mapStateToProps)(MainMenu);
+
+export default withRouter(connect(mapStateToProps)(MainMenu));

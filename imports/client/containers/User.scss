@@ -3,6 +3,11 @@
 .user {
 	background-color: $color-home-page-background;
 
+	.main-container {
+		max-width: unset;
+		width: unset;
+	}
+
 	.add-controls {
 		margin-bottom: 8px;
 	}
@@ -19,5 +24,15 @@
 			margin: 0 8px 0 0;
 			width: 32px;
 		}
+	}
+
+	.container {
+		max-width: 600px;
+		margin-left: 15px;
+	}
+
+	.pattern-list-holder {
+		max-width: unset;
+		width: unset;
 	}
 }

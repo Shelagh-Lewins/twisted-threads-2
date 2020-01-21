@@ -80,27 +80,25 @@ class AllPatterns extends Component {
 							<h1>All patterns</h1>
 						</Col>
 					</Row>
-					{!isLoading
-						&& patternCount > 0
-						&& (
-							<>
-								<TabletFilterForm />
-								<PaginatedList
-									currentPageNumber={currentPageNumber}
+					{!isLoading && (
+						<>
+							<TabletFilterForm />
+							<PaginatedList
+								currentPageNumber={currentPageNumber}
+								dispatch={dispatch}
+								history={history}
+								itemCount={patternCount}
+							>
+								<PatternList
 									dispatch={dispatch}
-									history={history}
-									itemCount={patternCount}
-								>
-									<PatternList
-										dispatch={dispatch}
-										patternPreviews={patternPreviews}
-										patterns={patterns}
-										tags={tags}
-										users={users}
-									/>
-								</PaginatedList>
-							</>
-						)}
+									patternPreviews={patternPreviews}
+									patterns={patterns}
+									tags={tags}
+									users={users}
+								/>
+							</PaginatedList>
+						</>
+					)}
 				</Container>
 			</PageWrapper>
 		);
@@ -115,6 +113,8 @@ AllPatterns.propTypes = {
 	'currentPageNumber': PropTypes.number,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
+	'filterMaxTablets': PropTypes.number,
+	'filterMinTablets': PropTypes.number,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'patternCount': PropTypes.number.isRequired,
@@ -137,16 +137,23 @@ function mapStateToProps(state, ownProps) {
 	return {
 		'currentPageNumber': currentPageNumber, // read the url parameter to find the currentPage
 		'errors': state.errors,
+		'filterMaxTablets': state.pattern.filterMaxTablets,
+		'filterMinTablets': state.pattern.filterMinTablets,
 		'isLoading': getIsLoading(state),
 		'pageSkip': (currentPageNumber - 1) * ITEMS_PER_PAGE,
 		'patternCount': state.pattern.patternCount,
 	};
 }
 
-const Tracker = withTracker(({ pageSkip, dispatch }) => {
+const Tracker = withTracker((props) => {
+	const {
+		dispatch,
+		filterMaxTablets,
+		filterMinTablets,
+		pageSkip,
+	} = props;
 	const state = store.getState();
 	const isLoading = getIsLoading(state);
-
 	const patterns = Patterns.find({}, {
 		'sort': { 'nameSort': 1 },
 		'limit': ITEMS_PER_PAGE,
@@ -154,7 +161,12 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 
 	Meteor.subscribe('tags');
 
-	const handle = Meteor.subscribe('patterns', pageSkip, ITEMS_PER_PAGE, {
+	const handle = Meteor.subscribe('patterns', {
+		filterMaxTablets,
+		filterMinTablets,
+		'limit': ITEMS_PER_PAGE,
+		'skip': pageSkip,
+	}, {
 		'onReady': () => {
 			secondaryPatternSubscriptions(patterns);
 		},

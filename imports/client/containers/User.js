@@ -15,6 +15,7 @@ import {
 	getIsLoading,
 	getPatternCount,
 	setIsLoading,
+	setPatternCountUserId,
 } from '../modules/pattern';
 import {
 	addColorBook,
@@ -36,6 +37,7 @@ import {
 } from '../modules/auth';
 
 import Loading from '../components/Loading';
+import TabletFilterForm from '../forms/TabletFilterForm';
 import PaginatedList from '../components/PaginatedList';
 import PatternList from '../components/PatternList';
 import PageWrapper from '../components/PageWrapper';
@@ -77,6 +79,9 @@ class User extends PureComponent {
 	}
 
 	componentDidMount() {
+		const { dispatch, user } = this.props;
+		dispatch(setPatternCountUserId(user._id));
+
 		document.body.classList.add(bodyClass);
 	}
 
@@ -234,7 +239,6 @@ class User extends PureComponent {
 			currentPageNumber,
 			dispatch,
 			history,
-			isLoading,
 			patterns,
 			patternPreviews,
 			patternCount,
@@ -244,35 +248,26 @@ class User extends PureComponent {
 
 		return (
 			<>
-				{!isLoading && (
-					<>
-						<Row>
-							<Col lg="12">
-								<h2>Patterns</h2>
-							</Col>
-						</Row>
-						{patternCount === 0 && (
-							<div>There are no patterns to display</div>
-						)}
-						{patternCount > 0 && (
-							<PaginatedList
-								currentPageNumber={currentPageNumber}
-								dispatch={dispatch}
-								history={history}
-								itemCount={patternCount}
-								patternCountParams={{ 'userId': user._id }}
-							>
-								<PatternList
-									dispatch={dispatch}
-									patternPreviews={patternPreviews}
-									patterns={patterns}
-									tags={tags}
-									users={[user]}
-								/>
-							</PaginatedList>
-						)}
-					</>
-				)}
+				<Row>
+					<Col lg="12">
+						<h2>Patterns</h2>
+					</Col>
+				</Row>
+				<TabletFilterForm />
+				<PaginatedList
+					currentPageNumber={currentPageNumber}
+					dispatch={dispatch}
+					history={history}
+					itemCount={patternCount}
+				>
+					<PatternList
+						dispatch={dispatch}
+						patternPreviews={patternPreviews}
+						patterns={patterns}
+						tags={tags}
+						users={[user]}
+					/>
+				</PaginatedList>
 			</>
 		);
 	}
@@ -313,14 +308,18 @@ class User extends PureComponent {
 			if (user) {
 				content = (
 					<>
-						<h1
-							className={getUserpicStyle(user._id)}
-						>
-							{user.username}
-						</h1>
-						{this.renderDescription()}
-						{this.renderColorBooks()}
-						{this.renderPatternsList()}
+						<Container>
+							<h1
+								className={getUserpicStyle(user._id)}
+							>
+								{user.username}
+							</h1>
+							{this.renderDescription()}
+							{this.renderColorBooks()}
+						</Container>
+						<Container className="pattern-list-holder">
+							{this.renderPatternsList()}
+						</Container>
 					</>
 				);
 			} else {
@@ -333,9 +332,7 @@ class User extends PureComponent {
 				dispatch={dispatch}
 				errors={errors}
 			>
-				<Container>
-					{content}
-				</Container>
+				{content}
 			</PageWrapper>
 		);
 	}
@@ -346,6 +343,8 @@ User.propTypes = {
 	'currentPageNumber': PropTypes.number,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
+	'filterMaxTablets': PropTypes.number,
+	'filterMinTablets': PropTypes.number,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isAuthenticated': PropTypes.bool.isRequired,
 	'isLoading': PropTypes.bool.isRequired,
@@ -372,6 +371,8 @@ function mapStateToProps(state, ownProps) {
 		'canCreateColorBook': getCanCreateColorBook(state),
 		'currentPageNumber': currentPageNumber, // read the url parameter to find the currentPage
 		'errors': state.errors,
+		'filterMaxTablets': state.pattern.filterMaxTablets,
+		'filterMinTablets': state.pattern.filterMinTablets,
 		'isAuthenticated': getIsAuthenticated(state),
 		'isLoading': state.pattern.isLoading,
 		'pageSkip': (currentPageNumber - 1) * ITEMS_PER_PAGE,
@@ -380,7 +381,13 @@ function mapStateToProps(state, ownProps) {
 }
 
 const Tracker = withTracker((props) => {
-	const { _id, dispatch, pageSkip } = props;
+	const {
+		_id,
+		dispatch,
+		filterMaxTablets,
+		filterMinTablets,
+		pageSkip,
+	} = props;
 	const state = store.getState();
 	const isLoading = getIsLoading(state);
 
@@ -392,7 +399,13 @@ const Tracker = withTracker((props) => {
 		'limit': ITEMS_PER_PAGE,
 	}).fetch();
 
-	const handle = Meteor.subscribe('userPatterns', pageSkip, ITEMS_PER_PAGE, _id, {
+	const handle = Meteor.subscribe('userPatterns', {
+		filterMaxTablets,
+		filterMinTablets,
+		'limit': ITEMS_PER_PAGE,
+		'skip': pageSkip,
+		'userId': _id,
+	}, {
 		'onReady': () => {
 			const patternIds = patterns.map((pattern) => pattern._id);
 

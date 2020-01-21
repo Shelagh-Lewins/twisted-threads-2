@@ -160,7 +160,7 @@ const mapStateToProps = (state, ownProps) => ({
 	'isAuthenticated': getIsAuthenticated(state),
 	'isLoading': state.pattern.isLoading,
 	'isSearching': state.search.isSearching,
-	'location': ownProps.location,
+	// 'location': ownProps.location,
 	'searchTerm': state.search.searchTerm,
 });
 

@@ -1,7 +1,9 @@
 import { check } from 'meteor/check';
 import {
 	checkUserCanCreatePattern,
+	getTabletFilter,
 	nonEmptyStringCheck,
+	positiveIntegerCheck,
 	updatePublicPatternsCount,
 	validHolesCheck,
 	validRowsCheck,
@@ -220,14 +222,22 @@ Meteor.methods({
 
 		return newPatternId;
 	},
-	'pattern.getPatternCount': function (userId) {
+	'pattern.getPatternCount': function ({
+		filterMaxTablets,
+		filterMinTablets,
+		userId,
+	}) {
 		// required for pagination
 		// must return the same number as the relevant publications function
 
 		// by default, will count all patterns the user can see i.e. their own and all public patterns
 
 		// if userId is specified, will count all patterns owned by that user which this user can see
+		check(filterMaxTablets, Match.Maybe(positiveIntegerCheck));
+		check(filterMinTablets, Match.Maybe(positiveIntegerCheck));
 		check(userId, Match.Maybe(String));
+
+		const tabletFilter = getTabletFilter({ filterMaxTablets, filterMinTablets });
 
 		// if a user is specified, make sure they exist
 		if (userId) {
@@ -237,9 +247,12 @@ Meteor.methods({
 
 			// return all your own patterns
 			if (userId === Meteor.userId()) {
-				// return;
-
-				return Patterns.find({ 'createdBy': userId }).count();
+				return Patterns.find({
+					'$and': [
+						{ 'createdBy': userId },
+						tabletFilter,
+					],
+				}).count();
 			}
 
 			// for another user, return only their public patterns
@@ -247,15 +260,21 @@ Meteor.methods({
 				'$and': [
 					{ 'isPublic': { '$eq': true } },
 					{ 'createdBy': userId },
+					tabletFilter,
 				],
 			}).count();
 		}
 
 		// return all patterns visible to this user
 		return Patterns.find({
-			'$or': [
-				{ 'isPublic': { '$eq': true } },
-				{ 'createdBy': Meteor.userId() },
+			'$and': [
+				{
+					'$or': [
+						{ 'isPublic': { '$eq': true } },
+						{ 'createdBy': Meteor.userId() },
+					],
+				},
+				tabletFilter,
 			],
 		}).count();
 	},
