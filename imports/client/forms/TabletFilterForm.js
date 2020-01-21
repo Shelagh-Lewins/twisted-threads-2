@@ -4,15 +4,19 @@ import React from 'react';
 import { Button, Col, Row } from 'reactstrap';
 import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import {
-
+	removeTabletFilter,
+	updateFilterMaxTablets,
+	updateFilterMinTablets,
+} from '../modules/pattern';
+import {
 	MAX_TABLETS,
 } from '../../modules/parameters';
-import './AddPatternForm.scss';
+import './TabletFilterForm.scss';
 
 const validate = (values) => {
 	const errors = {};
-console.log('validate values', values);
 
 	// can be null, that means no limit
 	if (values.minTablets) {
@@ -43,77 +47,116 @@ console.log('validate values', values);
 	return errors;
 };
 
-const handleSubmit = (values) => {
-		console.log('submit', values);
+const TabletFilterForm = (props) => {
+	const {
+		dispatch,
+		maxTablets,
+		minTablets,
+	} = props;
+
+	let setFieldValue;
+
+	const handleChangeMinTablets = (e) => {
+		setFieldValue('minTablets', e.target.value);
+		dispatch(updateFilterMinTablets(e.target.value));
 	};
 
-const TabletFilterForm = (props) => {
-	const { numberOfRows } = props;
+	const handleChangeMaxTablets = (e) => {
+		setFieldValue('maxTablets', e.target.value);
+		dispatch(updateFilterMaxTablets(e.target.value));
+	};
+
+	const handleRemoveFilter = () => {
+		// it doesn't seem to be possible to set the input values to null or undefined
+		// so use empty string for when no value is specified
+		setFieldValue('minTablets', '');
+		setFieldValue('maxTablets', '');
+		dispatch(removeTabletFilter());
+	};
+
 	const formik = useFormik({
 		'initialValues': {
-			'minTablets': 1,
-			'maxTablets': 2,
+			'minTablets': minTablets || '',
+			'maxTablets': maxTablets || '',
 		},
 		validate,
-		'onSubmit': (values) => {
-			handleSubmit(values);
-		},
+		'onSubmit': () => {},
 	});
+
+	setFieldValue = formik.setFieldValue;
 
 	// note firefox doesn't support the 'label' shorthand in option
 	// https://bugzilla.mozilla.org/show_bug.cgi?id=40545#c11
 	return (
 		<div className="tablet-filter-form">
 			<form onSubmit={formik.handleSubmit}>
-				<div className="form-group">
-					<label htmlFor="minTablets">
-						Add
-						<input
-							className={`form-control ${formik.touched.minTablets && formik.errors.minTablets ? 'is-invalid' : ''
-							}`}
-							placeholder="Min"
-							id="minTablets"
-							max={MAX_TABLETS}
-							min="1"
-							name="minTablets"
-							type="number"
-							onChange={formik.handleChange}
-							onBlur={formik.handleBlur}
-						/>
-						{formik.touched.minTablets && formik.errors.minTablets ? (
-							<div className="invalid-feedback invalid">{formik.errors.minTablets}</div>
-						) : null}
-					</label>
-					<label htmlFor="maxTablets">
-						rows at:
-						<input
-							className={`form-control ${formik.touched.maxTablets && formik.errors.maxTablets ? 'is-invalid' : ''
-							}`}
-							placeholder="Position to insert rows"
-							id="maxTablets"
-							max={MAX_TABLETS}
-							min="1"
-							name="maxTablets"
-							type="number"
-							onChange={formik.handleChange}
-							onBlur={formik.handleBlur}
-						/>
-						{formik.touched.maxTablets && formik.errors.maxTablets ? (
-							<div className="invalid-feedback invalid">{formik.errors.maxTablets}</div>
-						) : null}
-					</label>
-					<div className="controls">
-						<Button type="submit" color="primary">Update</Button>
-					</div>
-				</div>
+				<Row className="form-group">
+					<Col lg="12">
+						Show patterns with between
+						<label htmlFor="minTablets">
+							Minimum tablets
+							<input
+								className={`form-control ${formik.touched.minTablets && formik.errors.minTablets ? 'is-invalid' : ''
+								}`}
+								placeholder="Min"
+								id="minTablets"
+								max={MAX_TABLETS}
+								min="1"
+								name="minTablets"
+								type="number"
+								onChange={handleChangeMinTablets}
+								onBlur={formik.handleBlur}
+								value={formik.values.minTablets}
+							/>
+							{formik.touched.minTablets && formik.errors.minTablets ? (
+								<div className="invalid-feedback invalid">{formik.errors.minTablets}</div>
+							) : null}
+						</label>
+						and
+						<label htmlFor="maxTablets">
+							Maximum tablets
+							<input
+								className={`form-control ${formik.touched.maxTablets && formik.errors.maxTablets ? 'is-invalid' : ''
+								}`}
+								placeholder="Max"
+								id="maxTablets"
+								max={MAX_TABLETS}
+								min="1"
+								name="maxTablets"
+								type="number"
+								onChange={handleChangeMaxTablets}
+								onBlur={formik.handleBlur}
+								value={formik.values.maxTablets}
+							/>
+							{formik.touched.maxTablets && formik.errors.maxTablets ? (
+								<div className="invalid-feedback invalid">{formik.errors.maxTablets}</div>
+							) : null}
+						</label>
+						tablets
+						<div className="controls">
+							<Button type="cancel" color="secondary" onClick={handleRemoveFilter}>Remove filter</Button>
+							<Button type="submit" color="primary">Update</Button>
+						</div>
+					</Col>
+				</Row>
 			</form>
 		</div>
 	);
 };
 
+// It seems that the submit button must exist, or validation doesn't happen. As we want filters to update immediately, the buttons is hidden in css.
+
 TabletFilterForm.propTypes = {
-	'minTablets': PropTypes.func.isRequired,
-	'numberOfRows': PropTypes.number.isRequired,
+	'dispatch': PropTypes.func.isRequired,
+	'maxTablets': PropTypes.number,
+	'minTablets': PropTypes.number,
 };
 
-export default TabletFilterForm;
+function mapStateToProps(state) {
+	return {
+		'maxTablets': state.pattern.maxTablets,
+		'minTablets': state.pattern.minTablets,
+	};
+}
+
+export default connect(mapStateToProps)(TabletFilterForm);

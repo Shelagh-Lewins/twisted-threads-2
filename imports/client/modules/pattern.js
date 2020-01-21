@@ -17,6 +17,7 @@ import {
 	DEFAULT_DIRECTION,
 	DEFAULT_NUMBER_OF_TURNS,
 	DEFAULT_ORIENTATION,
+	MAX_TABLETS,
 } from '../../modules/parameters';
 
 const updeep = require('updeep');
@@ -593,10 +594,25 @@ export function editTextField({
 
 // ///////////////////////////
 // filter pattern list on number of tablets
-export function setFilterMaxTablets(maxTablets) {
+export function setFilterMaxTablets(minTablets) {
 	return {
 		'type': 'SET_FILTER_MAX_TABLETS',
-		'payload': maxTablets,
+		'payload': minTablets,
+	};
+}
+
+export function updateFilterMaxTablets(maxTablets) {
+	return (dispatch, getState) => {
+		const value = parseFloat(maxTablets, 10);
+
+		if ((value) < 1
+			|| value > MAX_TABLETS
+			|| !Number.isInteger(value)
+			|| value <= getState().pattern.minTablets) {
+			return;
+		}
+
+		dispatch(setFilterMaxTablets(value));
 	};
 }
 
@@ -607,10 +623,28 @@ export function setFilterMinTablets(minTablets) {
 	};
 }
 
-export function removeTabletFilter(minTablets) {
+export function updateFilterMinTablets(minTablets) {
+	return (dispatch, getState) => {
+		const value = parseFloat(minTablets, 10);
+
+		if ((value) < 1
+			|| value > MAX_TABLETS
+			|| !Number.isInteger(value)
+			|| value >= getState().pattern.maxTablets) {
+			return;
+		}
+
+		dispatch(setFilterMinTablets(value));
+	};
+}
+
+export function removeTabletFilter() {
 	return {
 		'type': 'REMOVE_TABLET_FILTER',
-		'payload': minTablets,
+		'payload': {
+			'maxTablets': undefined,
+			'minTablets': undefined,
+		},
 	};
 }
 
@@ -619,8 +653,8 @@ export function removeTabletFilter(minTablets) {
 const initialPatternState = {
 	'currentPageNumber': 0,
 	'error': null,
-	'filterMaxTablets': null,
-	'filterMinTablets': null,
+	'filterMaxTablets': undefined,
+	'filterMinTablets': undefined,
 	'holes': 0,
 	'isEditingThreading': false,
 	'isEditingWeaving': false,
