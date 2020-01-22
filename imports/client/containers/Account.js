@@ -14,7 +14,6 @@ import {
 	getIsAuthenticated,
 	getIsVerified,
 	getUserEmail,
-	// getUserId,
 	getUsername,
 	logout,
 	sendVerificationEmail,
@@ -156,7 +155,6 @@ Account.propTypes = {
 	'isAuthenticated': PropTypes.bool.isRequired,
 	'isVerified': PropTypes.bool.isRequired,
 	'userEmail': PropTypes.string,
-	//'userId': PropTypes.string,
 	'username': PropTypes.string,
 	'verificationEmailSent': PropTypes.bool.isRequired,
 };
@@ -166,7 +164,6 @@ const mapStateToProps = (state) => ({
 	'isAuthenticated': getIsAuthenticated(state),
 	'isVerified': getIsVerified(state),
 	'userEmail': getUserEmail(state),
-	//'userId': getUserId(state),
 	'username': getUsername(state),
 	'verificationEmailSent': state.auth.verificationEmailSent,
 });

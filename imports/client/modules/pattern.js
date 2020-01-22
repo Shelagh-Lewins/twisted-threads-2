@@ -628,7 +628,7 @@ export function setFilterMaxTablets(maxTablets) {
 	};
 }
 
-export function updateFilterMaxTablets(maxTablets) {
+export function updateFilterMaxTablets(maxTablets, history) {
 	return (dispatch, getState) => {
 		const value = parseFloat(maxTablets, 10);
 
@@ -640,6 +640,7 @@ export function updateFilterMaxTablets(maxTablets) {
 		}
 
 		dispatch(setFilterMaxTablets(value));
+		dispatch(changePage(0, history));
 		dispatch(getPatternCount());
 	};
 }
@@ -651,7 +652,7 @@ export function setFilterMinTablets(minTablets) {
 	};
 }
 
-export function updateFilterMinTablets(minTablets) {
+export function updateFilterMinTablets(minTablets, history) {
 	return (dispatch, getState) => {
 		const value = parseFloat(minTablets, 10);
 
@@ -663,6 +664,7 @@ export function updateFilterMinTablets(minTablets) {
 		}
 
 		dispatch(setFilterMinTablets(value));
+		dispatch(changePage(0, history));
 		dispatch(getPatternCount());
 	};
 }
@@ -677,9 +679,10 @@ export function removeTabletFilter() {
 	};
 }
 
-export function updateFilterRemove() {
+export function updateFilterRemove(history) {
 	return (dispatch) => {
 		dispatch(removeTabletFilter());
+		dispatch(changePage(0, history));
 		dispatch(getPatternCount());
 	};
 }

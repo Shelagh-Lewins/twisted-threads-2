@@ -75,7 +75,6 @@ class Navbar extends Component {
 		const {
 			pattern,
 			patternId,
-			//username,
 		} = this.context;
 
 		let isOwner = false;
@@ -137,8 +136,6 @@ class Navbar extends Component {
 		}
 
 		const { showDropdown } = this.state;
-		//const username = Meteor.user() ? Meteor.user().username : '';
-
 		const authLinks = (
 			<ul className="navbar-nav ml-auto">
 				<li className="nav-item"><Link to="/account" className="nav-link">{username}</Link></li>
@@ -195,7 +192,6 @@ const mapStateToProps = (state, ownProps) => ({
 	'isAuthenticated': getIsAuthenticated(state),
 	'isLoading': state.pattern.isLoading,
 	'isSearching': state.search.isSearching,
-	// 'location': ownProps.location,
 	'searchTerm': state.search.searchTerm,
 	'username': getUsername(state),
 });

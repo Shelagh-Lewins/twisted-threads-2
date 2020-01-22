@@ -5,6 +5,7 @@ import { Button, Col, Row } from 'reactstrap';
 import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { useHistory } from "react-router-dom";
 import {
 	updateFilterRemove,
 	updateFilterMaxTablets,
@@ -50,9 +51,11 @@ const validate = (values) => {
 const TabletFilterForm = (props) => {
 	const {
 		dispatch,
+		// history,
 		maxTablets,
 		minTablets,
 	} = props;
+	const history = useHistory();
 
 	let setFieldValue;
 	const filterActive = maxTablets || minTablets;
@@ -64,7 +67,7 @@ const TabletFilterForm = (props) => {
 		clearTimeout(global.filterTabletsTimeout);
 
 		global.filterTabletsTimeout = setTimeout(() => {
-			dispatch(updateFilterMinTablets(value));
+			dispatch(updateFilterMinTablets(value, history));
 		}, 800);
 	};
 
@@ -75,7 +78,7 @@ const TabletFilterForm = (props) => {
 		clearTimeout(global.filterTabletsTimeout);
 
 		global.filterTabletsTimeout = setTimeout(() => {
-			dispatch(updateFilterMaxTablets(value));
+			dispatch(updateFilterMaxTablets(value, history));
 		}, 800);
 	};
 
@@ -84,7 +87,7 @@ const TabletFilterForm = (props) => {
 		// so use empty string for when no value is specified
 		setFieldValue('minTablets', '');
 		setFieldValue('maxTablets', '');
-		dispatch(updateFilterRemove());
+		dispatch(updateFilterRemove(history));
 	};
 
 	const formik = useFormik({
@@ -168,6 +171,7 @@ const TabletFilterForm = (props) => {
 
 TabletFilterForm.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
+	//'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'maxTablets': PropTypes.number,
 	'minTablets': PropTypes.number,
 };

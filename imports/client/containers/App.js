@@ -12,8 +12,6 @@ import { connect, Provider } from 'react-redux';
 // fontawesome
 import { library } from '@fortawesome/fontawesome-svg-core';
 import {
-	// faQuestionCircle,
-	// faUser,
 	faBookOpen,
 	faClone,
 	faFileDownload,
@@ -37,12 +35,9 @@ import {
 	getNumberOfPatternImages,
 	getNumberOfPatterns,
 	getUserRoles,
-	//getUserId,
-	//getUsername,
 	setNumberOfColorBooks,
 	setNumberOfPatternImages,
 	setNumberOfPatterns,
-	//setUser,
 	setUserRoles,
 } from '../modules/auth';
 import {
@@ -143,13 +138,6 @@ export const withDatabase = withTracker((props) => {
 
 	// provide information about the user
 	const state = store.getState();
-	//const userId = getUserId(state);
-	const userId = Meteor.userId();
-
-	// check for changes to avoid unnecessary store updates
-	//console.log('*** App.js tracker');
-	//console.log('*** userId', userId);
-
 	const isLoading = getIsLoading(state);
 
 	// check for login, logout, change of email verifiction status. Update record of user in state.auth if there is a change.
@@ -159,20 +147,15 @@ export const withDatabase = withTracker((props) => {
 	let numberOfColorBooks = 0;
 	let numberOfPatternImages = 0;
 
-	//console.log('*** App.js tracker');
 	const userRoles = Roles.getRolesForUser(MeteorUserId);
-//console.log('userRoles', userRoles);
-//console.log('roles from state', getUserRoles(state));
+
 	if (JSON.stringify(userRoles) !== JSON.stringify(getUserRoles(state))) {
-		//console.log('*** about to setUserRoles');
+
 		dispatch(setUserRoles(userRoles));
 	}
 
 	// update user information that would not otherwise be reactive
 	if (Meteor.user()) {
-		//console.log('*** got Meteor.user', userId);
-
-
 		// change in the database must trigger a change in the numbers in the Redux store
 		// check for change in number of patterns the user has created
 		numberOfPatterns = Patterns.find({ 'createdBy': Meteor.userId() }).count();
@@ -189,12 +172,6 @@ export const withDatabase = withTracker((props) => {
 		}
 	}
 
-	/* if (userId !== MeteorUserId) {
-		console.log('change of user');
-		dispatch(setUser(Meteor.user()));
-	} */
-	//const username = getUsername(store.getState());
-
 	// provide information for any pattern page
 	// using context allows us to send data to the page component and the Navbar with a single subscription
 	if (location) {
@@ -203,17 +180,10 @@ export const withDatabase = withTracker((props) => {
 		// Navbar always needs to know about user
 		const values = {
 			'allTags': [],
-			//'username': username,
 		};
 
 		const matchPattern = matchPath(pathname, {
 			'path': '/pattern/:id',
-			'exact': false,
-			'strict': false,
-		});
-
-		const matchHome = matchPath(pathname, {
-			'path': '/',
 			'exact': false,
 			'strict': false,
 		});
@@ -278,13 +248,6 @@ export const withDatabase = withTracker((props) => {
 			}
 		}
 
-		if (matchHome) {
-			// console.log('home page');
-			// it would be nice to pass data to Home page here
-			// for consistency
-			// however, the current code works...
-		}
-
 		// detect when the Accounts system is loaded so we can see if there is a logged in user
 		values.isLoadingUser = !Accounts.loginServicesConfigured();
 
@@ -302,7 +265,6 @@ function ProviderInner({
 	pattern,
 	patternId,
 	patternImages,
-	//username,
 }) {
 	return (
 		<AppContext.Provider value={{
@@ -313,7 +275,6 @@ function ProviderInner({
 			pattern,
 			patternId,
 			patternImages,
-			//username,
 		}}
 		>
 			{children}
@@ -335,7 +296,6 @@ ProviderInner.propTypes = {
 	'pattern': PropTypes.objectOf(PropTypes.any),
 	'patternId': PropTypes.string,
 	'patternImages': PropTypes.arrayOf(PropTypes.any),
-	//'username': PropTypes.string,
 };
 
 // withRouter gives us location

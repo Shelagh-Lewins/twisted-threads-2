@@ -1,6 +1,6 @@
 // Actions for auth
 // Using actions keeps the UI separated from the server.
-import { createSelector } from 'reselect';
+// import { createSelector } from 'reselect';
 import { logErrors, clearErrors } from './errors';
 import {
 	MAX_RECENTS,
@@ -376,27 +376,6 @@ export function addRecentPattern({ currentWeavingRow, patternId }) {
 }
 
 // Provide info to UI
-/* const getUser = (state) => state.auth.user;
-
-export const getUserId = createSelector(
-	[getUser],
-	(user) => {
-		if (user) {
-			return user._id;
-		}
-		return undefined;
-	},
-);
-
-export const getUsername = createSelector(
-	[getUser],
-	(user) => {
-		if (user) {
-			return user.username;
-		}
-		return undefined;
-	},
-); */
 // return empty string if user not available
 export const getUsername = () => (Meteor.user() ? Meteor.user().username : '');
 
@@ -406,39 +385,17 @@ export const getNumberOfColorBooks = (state) => state.auth.numberOfColorBooks;
 
 export const getNumberOfPatternImages = (state) => state.auth.numberOfPatternImages;
 
-//export const getUserRoles = (state) => Roles.getRolesForUser(Meteor.userId());
-
 // Roles.getRolesForUser is not reactive
+// so we save it in state when it changes
 export const getUserRoles = (state) => state.auth.userRoles;
-
-/* export const getIsAuthenticated = createSelector(
-	[getUserId],
-	(userId) => Boolean(userId),
-); */
 
 export const getIsAuthenticated = (state) => Boolean(Meteor.userId());
 
 // is the user logged in AND has a verified email address?
 // used on Accounts page to show resend verification email link
-/* export const getIsVerified = createSelector(
-	[getUser],
-	(user) => {
-		if (!user) {
-			return false;
-		}
-
-		if (!user.emails[0]) {
-			return false;
-		}
-		return user.emails[0].verified;
-	},
-); */
 export const getIsVerified = (state) => getUserRoles(state).indexOf('verified') !== -1;
 
 export const getUserEmail = (state) => {
-//export const getUserEmail = createSelector(
-	//[getUser],
-	//(user) => {
 	const user = Meteor.user();
 
 	if (!user) {
@@ -450,41 +407,10 @@ export const getUserEmail = (state) => {
 	}
 	return user.emails[0].address;
 };
-//);
-
-/* export const getCanCreatePattern = createSelector(
-	[getUserRoles, getNumberOfPatterns],
-	(userRoles, numberOfPatterns) => {
-		if (userRoles.length === 0) {
-			return false;
-		}
-
-		// user must not have reached the limit on number of patterns
-
-		const limits = [];
-		userRoles.forEach((role) => {
-			if (ROLE_LIMITS[role]) {
-				limits.push(ROLE_LIMITS[role].maxPatternsPerUser);
-			}
-		});
-
-		const limit = Math.max(...limits); // user can create the largest number of patterns of any role they have
-
-		if (numberOfPatterns < limit) {
-			return true;
-		}
-
-		return false;
-	},
-); */
 
 export const getCanCreatePattern = (state) => {
-//export const getCanCreatePattern = createSelector(
-	//[getUserRoles, getNumberOfPatterns],
-	//(userRoles, numberOfPatterns) => {
-
 	const userRoles = getUserRoles(state);
-//console.log('userRoles', userRoles);
+
 	if (userRoles.length === 0) {
 		return false;
 	}
@@ -506,26 +432,8 @@ export const getCanCreatePattern = (state) => {
 
 	return false;
 };
-//);
-
-/* export const canEditPattern = createSelector(
-	[getUser],
-	(user) => {
-		if (!user) {
-			return false;
-		}
-
-		if (!user.emails[0]) {
-			return false;
-		}
-		return user.emails[0].verified;
-	},
-); */
 
 export const getCanCreateColorBook = (state) => {
-//export const getCanCreateColorBook = createSelector(
-	//[getUserRoles, getNumberOfColorBooks],
-	//(userRoles, numberOfColorBooks) => {
 	const userRoles = getUserRoles(state);
 
 	if (userRoles.length === 0) {
@@ -548,12 +456,8 @@ export const getCanCreateColorBook = (state) => {
 
 	return false;
 };
-//);
 
 export const getCanAddPatternImage = (state) => {
-//export const getCanAddPatternImage = createSelector(
-	//[getUserRoles, getNumberOfPatternImages],
-	//(userRoles, numberOfPatternImages) => {
 	const userRoles = getUserRoles(state);
 
 	if (userRoles.length === 0) {
@@ -576,7 +480,6 @@ export const getCanAddPatternImage = (state) => {
 
 	return false;
 };
-//);
 
 // ///////////////////////////
 // State
