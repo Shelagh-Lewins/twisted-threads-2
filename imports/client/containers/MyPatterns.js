@@ -127,27 +127,29 @@ class MyPatterns extends Component {
 				errors={errors}
 			>
 				<MainMenu />
-				<Container
+				<div
 					className="menu-selected-area"
 				>
 					{isLoading && <Loading />}
-					<Row>
-						<Col lg="12">
-							<h1>My patterns</h1>
-						</Col>
-					</Row>
-					{canCreatePattern && !showAddPatternForm && addPatternButton}
-					{showAddPatternForm && (
+					<Container>
 						<Row>
 							<Col lg="12">
-								<AddPatternForm
-									handleCancel={this.handleCancelShowAddPatternForm}
-									handleSubmit={this.handleSubmitAddPattern}
-								/>
-								<hr />
+								<h1>My patterns</h1>
 							</Col>
 						</Row>
-					)}
+						{canCreatePattern && !showAddPatternForm && addPatternButton}
+						{showAddPatternForm && (
+							<Row>
+								<Col lg="12">
+									<AddPatternForm
+										handleCancel={this.handleCancelShowAddPatternForm}
+										handleSubmit={this.handleSubmitAddPattern}
+									/>
+									<hr />
+								</Col>
+							</Row>
+						)}
+					</Container>
 					{!isLoading && !showAddPatternForm && (
 						<>
 							<TabletFilterForm />
@@ -167,7 +169,7 @@ class MyPatterns extends Component {
 							</PaginatedList>
 						</>
 					)}
-				</Container>
+				</div>
 			</PageWrapper>
 		);
 	}
@@ -248,7 +250,7 @@ const Tracker = withTracker((props) => {
 
 	if (isLoading && handle.ready()) {
 		dispatch(getPatternCount(Meteor.userId));
-		dispatch(setIsLoading(false));
+		setTimeout(() => dispatch(setIsLoading(false)), 50);
 	} else if (!isLoading && !handle.ready()) {
 		dispatch(setIsLoading(true));
 	}

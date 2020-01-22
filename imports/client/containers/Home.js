@@ -31,9 +31,6 @@ import AddPatternForm from '../forms/AddPatternForm';
 import { ITEMS_PER_PREVIEW_LIST } from '../../modules/parameters';
 import secondaryPatternSubscriptions from '../modules/secondaryPatternSubscriptions';
 import findRecentPatterns from '../modules/findRecentPatterns';
-import {
-	getLocalStorageItem,
-} from '../modules/localStorage';
 
 import './Home.scss';
 

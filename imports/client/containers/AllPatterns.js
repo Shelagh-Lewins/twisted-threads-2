@@ -71,15 +71,17 @@ class AllPatterns extends Component {
 				errors={errors}
 			>
 				<MainMenu />
-				<Container
+				<div
 					className="menu-selected-area"
 				>
 					{isLoading && <Loading />}
-					<Row>
-						<Col lg="12">
-							<h1>All patterns</h1>
-						</Col>
-					</Row>
+					<Container>
+						<Row>
+							<Col lg="12">
+								<h1>All patterns</h1>
+							</Col>
+						</Row>
+					</Container>
 					{!isLoading && (
 						<>
 							<TabletFilterForm />
@@ -99,7 +101,7 @@ class AllPatterns extends Component {
 							</PaginatedList>
 						</>
 					)}
-				</Container>
+				</div>
 			</PageWrapper>
 		);
 	}
@@ -174,7 +176,7 @@ const Tracker = withTracker((props) => {
 
 	if (isLoading && handle.ready()) {
 		dispatch(getPatternCount());
-		dispatch(setIsLoading(false));
+		setTimeout(() => dispatch(setIsLoading(false)), 50);
 	} else if (!isLoading && !handle.ready()) {
 		dispatch(setIsLoading(true));
 	}

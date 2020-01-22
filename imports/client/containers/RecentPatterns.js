@@ -69,15 +69,17 @@ class RecentPatterns extends Component {
 				errors={errors}
 			>
 				<MainMenu />
-				<Container
+				<div
 					className="menu-selected-area"
 				>
 					{isLoading && <Loading />}
-					<Row>
-						<Col lg="12">
-							<h1>Recently viewed patterns</h1>
-						</Col>
-					</Row>
+					<Container>
+						<Row>
+							<Col lg="12">
+								<h1>Recently viewed patterns</h1>
+							</Col>
+						</Row>
+					</Container>
 					{!isLoading && patternCount > 0 && (
 						<PaginatedList
 							currentPageNumber={currentPageNumber}
@@ -99,7 +101,7 @@ class RecentPatterns extends Component {
 							There are no recently viewed patterns to display
 						</div>
 					)}
-				</Container>
+				</div>
 			</PageWrapper>
 		);
 	}
@@ -151,7 +153,7 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 	Meteor.subscribe('tags');
 
 	if (isLoading && ready) {
-		dispatch(setIsLoading(false));
+		setTimeout(() => dispatch(setIsLoading(false)), 50);
 	} else if (!isLoading && !ready) {
 		dispatch(setIsLoading(true));
 	}

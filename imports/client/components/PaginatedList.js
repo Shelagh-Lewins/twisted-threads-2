@@ -1,7 +1,6 @@
 // Preview lists for pattern and user listing pages
 
 import React, { PureComponent } from 'react';
-import { Row, Col } from 'reactstrap';
 import PropTypes from 'prop-types';
 
 import Pagination from './Pagination';
@@ -28,12 +27,10 @@ class PaginatedList extends PureComponent {
 		) : '';
 
 		return (
-			<Row className="item-list">
+			<div className="item-list">
 				{children}
-				<Col lg="12">
-					{pagination}
-				</Col>
-			</Row>
+				{pagination}
+			</div>
 		);
 	}
 }

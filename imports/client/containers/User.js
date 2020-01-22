@@ -415,7 +415,7 @@ const Tracker = withTracker((props) => {
 
 	if (isLoading && handle.ready()) {
 		dispatch(getPatternCount(_id));
-		dispatch(setIsLoading(false));
+		setTimeout(() => dispatch(setIsLoading(false)), 50);
 	} else if (!isLoading && !handle.ready()) {
 		dispatch(setIsLoading(true));
 	}

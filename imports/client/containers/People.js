@@ -52,6 +52,12 @@ class People extends Component {
 			users,
 		} = this.props;
 
+		if (users.length === 0) {
+			return (
+				<div className="item-list empty">There are no people to display</div>
+			);
+		}
+
 		return users.map((user) => {
 			const { _id } = user;
 
@@ -81,28 +87,28 @@ class People extends Component {
 				errors={errors}
 			>
 				<MainMenu />
-				<Container
+				<div
 					className="menu-selected-area"
 				>
 					{isLoading && <Loading />}
-					<Row>
-						<Col lg="12">
-							<h1>People</h1>
-						</Col>
-					</Row>
-					{!isLoading
-						&& userCount > 0
-						&& (
-							<PaginatedList
-								currentPageNumber={currentPageNumber}
-								dispatch={dispatch}
-								history={history}
-								itemCount={userCount}
-							>
-								{this.renderUsers()}
-							</PaginatedList>
-						)}
-				</Container>
+					<Container>
+						<Row>
+							<Col lg="12">
+								<h1>People</h1>
+							</Col>
+						</Row>
+					</Container>
+					{!isLoading && (
+						<PaginatedList
+							currentPageNumber={currentPageNumber}
+							dispatch={dispatch}
+							history={history}
+							itemCount={userCount}
+						>
+							{this.renderUsers()}
+						</PaginatedList>
+					)}
+				</div>
 			</PageWrapper>
 		);
 	}
@@ -157,7 +163,7 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 
 	if (isLoading && handle.ready()) {
 		dispatch(getUserCount());
-		dispatch(setIsLoading(false));
+		setTimeout(() => dispatch(setIsLoading(false)), 50);
 	} else if (!isLoading && !handle.ready()) {
 		dispatch(setIsLoading(true));
 	}

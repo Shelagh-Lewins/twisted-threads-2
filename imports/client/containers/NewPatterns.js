@@ -71,15 +71,17 @@ class NewPatterns extends Component {
 				errors={errors}
 			>
 				<MainMenu />
-				<Container
+				<div
 					className="menu-selected-area"
 				>
 					{isLoading && <Loading />}
-					<Row>
-						<Col lg="12">
-							<h1>New patterns</h1>
-						</Col>
-					</Row>
+					<Container>
+						<Row>
+							<Col lg="12">
+								<h1>New patterns</h1>
+							</Col>
+						</Row>
+					</Container>
 					{!isLoading && (
 						<>
 							<TabletFilterForm />
@@ -99,7 +101,7 @@ class NewPatterns extends Component {
 							</PaginatedList>
 						</>
 					)}
-				</Container>
+				</div>
 			</PageWrapper>
 		);
 	}
@@ -169,14 +171,17 @@ const Tracker = withTracker((props) => {
 		'skip': pageSkip,
 	}, {
 		'onReady': () => {
-			// secondaryPatternSubscriptions(patterns);
+			secondaryPatternSubscriptions(patterns);
 		},
 	});
 
 	if (isLoading && handle.ready()) {
 		// console.log('1 *** NewPatterns getPatternCount');
 		dispatch(getPatternCount());
-		dispatch(setIsLoading(false));
+		// the delay allows patterns from the previous page subscription to be cleared out of minimongo
+		// otherwise, when you switch pages, the old patterns show briefly
+		// This seems to be a minimongo issue that old docs are cleared out of the cache after the handle reports ready()
+		setTimeout(() => dispatch(setIsLoading(false)), 50);
 	} else if (!isLoading && !handle.ready()) {
 		dispatch(setIsLoading(true));
 	}
