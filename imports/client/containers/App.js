@@ -147,11 +147,18 @@ export const withDatabase = withTracker((props) => {
 	let numberOfColorBooks = 0;
 	let numberOfPatternImages = 0;
 
-	const userRoles = Roles.getRolesForUser(MeteorUserId);
-
-	if (JSON.stringify(userRoles) !== JSON.stringify(getUserRoles(state))) {
-
-		dispatch(setUserRoles(userRoles));
+	// sometimes when you click the verification link in an email getRolesForUser throws an error
+	// the new role assignment temporarily lacks the required 'inheritedRoles' field
+	// This seems to happen consistently in Chrome but only if there is already another browser window open to the right of the email browser window. I can only guess it is some strange timing issue
+	// the db problem appears to correct itself on the next update
+	// try / catch appears to allow things to work
+	try {
+		const userRoles = Roles.getRolesForUser(MeteorUserId);
+		if (JSON.stringify(userRoles) !== JSON.stringify(getUserRoles(state))) {
+			dispatch(setUserRoles(userRoles));
+		}
+	} catch (err) {
+		console.log('*** err in App.js, Roles.getRolesForUser', err);
 	}
 
 	// update user information that would not otherwise be reactive
