@@ -14,9 +14,9 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import {
 	// faQuestionCircle,
 	// faUser,
-	// faFileDownload,
 	faBookOpen,
 	faClone,
+	faFileDownload,
 	faLock,
 	faLockOpen,
 	faPencilAlt,
@@ -50,9 +50,6 @@ import {
 	setIsLoading,
 	savePatternData,
 } from '../modules/pattern';
-import {
-	setSelectedMainMenuItem,
-} from '../modules/page';
 import AppContext from '../modules/appContext';
 import Navbar from '../components/Navbar';
 import Login from './Login';
@@ -75,7 +72,6 @@ import InteractiveWeavingChart from './InteractiveWeavingChart';
 import WeavingPrintView from './PrintView';
 import DevTools from '../components/DevTools';
 import './App.scss';
-import { MAIN_MENU_ITEMS } from '../../modules/parameters';
 
 // for optional url parameter with specified options, use regex: https://stackoverflow.com/questions/47369023/react-router-v4-allow-only-certain-parameters-in-url
 // this allows pattern/id/tabname and pattern/id/weaving with different components
@@ -83,6 +79,7 @@ import { MAIN_MENU_ITEMS } from '../../modules/parameters';
 library.add(
 	faBookOpen,
 	faClone,
+	faFileDownload,
 	faLock,
 	faLockOpen,
 	faPencilAlt,

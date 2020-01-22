@@ -10,7 +10,11 @@ import {
 	getCanCreatePattern,
 	getIsAuthenticated,
 } from '../modules/auth';
-import { copyPattern, removePattern } from '../modules/pattern';
+import {
+	copyPattern,
+	downloadPattern,
+	removePattern,
+} from '../modules/pattern';
 import AppContext from '../modules/appContext';
 import Search from './Search';
 import './Navbar.scss';
@@ -32,6 +36,15 @@ class Navbar extends Component {
 			dispatch(removePattern(_id, history));
 		}
 	};
+
+	handleClickButtonDownload({ _id }) {
+		const { dispatch } = this.props;
+		const {
+			pattern,
+		} = this.context;
+
+		dispatch(downloadPattern(_id, pattern));
+	}
 
 	handleClickButtonCopy({ _id }) {
 		const { dispatch, history } = this.props;
@@ -79,6 +92,17 @@ class Navbar extends Component {
 				<Link to="/my-patterns" className="nav-link">My patterns</Link>
 			);
 
+			const buttonDownload = (
+				<Button
+					type="button"
+					onClick={() => this.handleClickButtonDownload({ '_id': patternId })}
+					title="Download pattern"
+				>
+					<FontAwesomeIcon icon={['fas', 'file-download']} style={{ 'color': iconColors.contrast }} size="1x" />
+					<span className="d-inline d-sm-none button-text nav-link">Download pattern</span>
+				</Button>
+			);
+
 			const buttonCopy = (
 				<Button
 					type="button"
@@ -103,6 +127,7 @@ class Navbar extends Component {
 
 			patternMenu = (
 				<ul className="pattern-menu navbar-nav ml-auto">
+					<li className="nav-item">{buttonDownload}</li>
 					<li className="nav-item">{buttonCopy}</li>
 					{isOwner && <li className="nav-item">{buttonRemove}</li>}
 				</ul>

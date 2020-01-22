@@ -273,6 +273,12 @@ export const copyPattern = (_id, history) => (dispatch) => {
 	});
 };
 
+export const downloadPattern = (_id, patternObj) => (dispatch) => {
+	dispatch(clearErrors());
+
+	console.log('Pattern data:', patternObj);
+};
+
 // Edit pattern
 // Pattern as a whole
 export function editIsPublic({
