@@ -6,14 +6,13 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import PageWrapper from '../components/PageWrapper';
 import {
-	getHoles,
 	getIsLoading,
 	getNumberOfRows,
 	getNumberOfTablets,
-	getPalette,
 } from '../modules/pattern';
 import { addRecentPattern } from '../modules/auth';
 import AppContext from '../modules/appContext';
+import { getLocalStorageItem } from '../modules/localStorage';
 import Loading from '../components/Loading';
 import WeavingChart from '../components/WeavingChart';
 import './InteractiveWeavingChart.scss';
@@ -65,23 +64,31 @@ class InteractiveWeavingChart extends PureComponent {
 		if (numberOfRows > 0 && gotUser && !selectedRowHasBeenSet) {
 			let selectedRow = numberOfRows - 1; // row 1 as default
 
+			let recentPatternsList;
+
 			if (Meteor.user()) { // user is logged in
-				const { 'profile': { recentPatterns } } = Meteor.user();
+				recentPatternsList = Meteor.user().profile.recentPatterns;
+			} else {
+				const valueFromLocalStorage = JSON.parse(getLocalStorageItem('recentPatterns'));
 
-				// currentWeavingRow is stored in recentPatterns as 'natural' row number, 1 +
-				// selectedRow starts with 0 at the last row, because that's how the HTML rows are constructed
+				if (valueFromLocalStorage !== null && typeof valueFromLocalStorage === 'object') {
+					recentPatternsList = valueFromLocalStorage;
+				}
+			}
 
-				if (recentPatterns) {
-					const thisRecentPattern = recentPatterns.find((recentPattern) => recentPattern.patternId === patternId);
-					const { currentWeavingRow } = thisRecentPattern;
+			// currentWeavingRow is stored in recentPatterns as 'natural' row number, 1 +
+			// selectedRow starts with 0 at the last row, because that's how the HTML rows are constructed
 
-					if (thisRecentPattern) {
-						if ((typeof currentWeavingRow !== 'undefined')
-							&& !isNaN(currentWeavingRow)
-							&& currentWeavingRow > 0
-							&& currentWeavingRow <= numberOfRows) {
-							selectedRow = numberOfRows - currentWeavingRow;
-						}
+			if (recentPatternsList) {
+				const thisRecentPattern = recentPatternsList.find((recentPattern) => recentPattern.patternId === patternId);
+				const { currentWeavingRow } = thisRecentPattern;
+
+				if (thisRecentPattern) {
+					if ((typeof currentWeavingRow !== 'undefined')
+						&& !isNaN(currentWeavingRow)
+						&& currentWeavingRow > 0
+						&& currentWeavingRow <= numberOfRows) {
+						selectedRow = numberOfRows - currentWeavingRow;
 					}
 				}
 
