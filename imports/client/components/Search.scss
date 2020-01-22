@@ -2,16 +2,17 @@
 $rw-font-path: "~/fonts";
 $rw-img-path: "~/img";
 
-.search {
+.search-box {
 	.search-controls {
 		background-color: $color-search-controls-background;
 		border-radius: 4px;
 		color: $color-text;
+		margin-bottom: 8px;
 
 		input {
 			border: 0;
 			display: inline-block;
-			width: auto;
+			width: 300px;
 		}
 
 		button {
@@ -127,6 +128,28 @@ $rw-img-path: "~/img";
 			font-size: 95%;
 			font-weight: bold;
 			margin: 7px 8px 0 0;
+		}
+	}
+}
+
+@media (min-width: 540px) {
+	.search-box {
+		.search-controls {
+			margin-bottom: 0;
+
+			input {
+				width: 120px;
+			}
+		}
+	}
+}
+
+@media (min-width: 992px) {
+	.search-box {
+		.search-controls {
+			input {
+				width: 200px;
+			}
 		}
 	}
 }

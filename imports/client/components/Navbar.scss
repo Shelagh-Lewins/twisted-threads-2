@@ -18,6 +18,17 @@
 	.button-text {
 		margin-left: 8px;
 	}
+
+	.logo {
+		background: url("../images/logo.png") transparent no-repeat right 0 top 0;
+		background-size: 32px 32px;
+		float: left;
+		font-weight: bold;
+		height: 32px;
+		line-height: 32px;
+		margin: 0 8px 0 0;
+		width: 32px;
+	}
 }
 
 .navbar-brand,
@@ -27,4 +38,9 @@
 	&:hover {
 		color: $color-navbar-hover !important;
 	}
+}
+
+.navbar-brand {
+	font-size: .8rem;
+	font-weight: bold;
 }

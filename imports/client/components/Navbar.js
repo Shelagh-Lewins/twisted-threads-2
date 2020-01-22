@@ -72,8 +72,13 @@ class Navbar extends Component {
 		const showPatternMenu = !isLoading && patternId && (canCreatePattern || isOwner);
 
 		let patternMenu;
+		let myPatternsLink;
 
 		if (showPatternMenu) {
+			myPatternsLink = (
+				<Link to="/my-patterns" className="nav-link">My patterns</Link>
+			);
+
 			const buttonCopy = (
 				<Button
 					type="button"
@@ -124,13 +129,14 @@ class Navbar extends Component {
 
 		return (
 			<nav className="navbar navbar-expand-md navbar-dark">
-				<Link className="navbar-brand" to="/">Twisted Threads</Link>
+				<Link className="navbar-brand" to="/"><span className="logo" />Twisted Threads</Link>
 				<Search
 					dispatch={dispatch}
 					history={history}
 					isSearching={isSearching}
 					searchTerm={searchTerm}
 				/>
+				{myPatternsLink}
 				<button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" onClick={(e) => { this.showDropdown(e); }}>
 					<span className="navbar-toggler-icon" />
 				</button>

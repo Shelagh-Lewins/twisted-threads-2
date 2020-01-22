@@ -240,7 +240,7 @@ class Search extends PureComponent {
 		}
 
 		return (
-			<div className="search">
+			<div className="search-box">
 				{this.renderSearchInput()}
 				<Combobox
 					busy={isSearching}
