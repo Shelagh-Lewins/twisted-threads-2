@@ -34,7 +34,7 @@ Meteor.startup(() => {
 			if (!user) {
 				return;
 			}
-
+console.log('*** server/main.js users observeChanges');
 			try {
 				if (user.emails[0].verified) {
 					Roles.addUsersToRoles(_id, ['verified']);

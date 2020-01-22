@@ -14,7 +14,9 @@ const findRecentPatterns = () => {
 	let recentPatternsList = [];
 
 	if (Meteor.user()) {
-		recentPatternsList = Meteor.user().profile.recentPatterns;
+		if (Meteor.user().profile.recentPatterns) {
+			recentPatternsList = Meteor.user().profile.recentPatterns;
+		}
 	} else {
 		const valueFromLocalStorage = JSON.parse(getLocalStorageItem('recentPatterns'));
 

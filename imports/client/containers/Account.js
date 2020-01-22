@@ -14,7 +14,7 @@ import {
 	getIsAuthenticated,
 	getIsVerified,
 	getUserEmail,
-	getUserId,
+	// getUserId,
 	getUsername,
 	logout,
 	sendVerificationEmail,
@@ -52,9 +52,9 @@ class Account extends Component {
 	}
 
 	onSendVerificationEmail() {
-		const { dispatch, userId, history } = this.props;
+		const { dispatch, history } = this.props;
 
-		dispatch(sendVerificationEmail(userId, history));
+		dispatch(sendVerificationEmail(Meteor.userId(), history));
 	}
 
 	render() {
@@ -156,7 +156,7 @@ Account.propTypes = {
 	'isAuthenticated': PropTypes.bool.isRequired,
 	'isVerified': PropTypes.bool.isRequired,
 	'userEmail': PropTypes.string,
-	'userId': PropTypes.string,
+	//'userId': PropTypes.string,
 	'username': PropTypes.string,
 	'verificationEmailSent': PropTypes.bool.isRequired,
 };
@@ -166,7 +166,7 @@ const mapStateToProps = (state) => ({
 	'isAuthenticated': getIsAuthenticated(state),
 	'isVerified': getIsVerified(state),
 	'userEmail': getUserEmail(state),
-	'userId': getUserId(state),
+	//'userId': getUserId(state),
 	'username': getUsername(state),
 	'verificationEmailSent': state.auth.verificationEmailSent,
 });

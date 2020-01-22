@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
 	getCanCreatePattern,
 	getIsAuthenticated,
+	getUsername,
 } from '../modules/auth';
 import {
 	copyPattern,
@@ -68,12 +69,13 @@ class Navbar extends Component {
 			isLoading,
 			isSearching,
 			searchTerm,
+			username,
 		} = this.props;
 
 		const {
 			pattern,
 			patternId,
-			username,
+			//username,
 		} = this.context;
 
 		let isOwner = false;
@@ -128,13 +130,14 @@ class Navbar extends Component {
 			patternMenu = (
 				<ul className="pattern-menu navbar-nav ml-auto">
 					<li className="nav-item">{buttonDownload}</li>
-					<li className="nav-item">{buttonCopy}</li>
+					{canCreatePattern && <li className="nav-item">{buttonCopy}</li>}
 					{isOwner && <li className="nav-item">{buttonRemove}</li>}
 				</ul>
 			);
 		}
 
 		const { showDropdown } = this.state;
+		//const username = Meteor.user() ? Meteor.user().username : '';
 
 		const authLinks = (
 			<ul className="navbar-nav ml-auto">
@@ -184,6 +187,7 @@ Navbar.propTypes = {
 	'isLoading': PropTypes.bool.isRequired,
 	'isSearching': PropTypes.bool.isRequired,
 	'searchTerm': PropTypes.string.isRequired,
+	'username': PropTypes.string,
 };
 
 const mapStateToProps = (state, ownProps) => ({
@@ -193,6 +197,7 @@ const mapStateToProps = (state, ownProps) => ({
 	'isSearching': state.search.isSearching,
 	// 'location': ownProps.location,
 	'searchTerm': state.search.searchTerm,
+	'username': getUsername(state),
 });
 
 export default withRouter(connect(mapStateToProps)(Navbar));

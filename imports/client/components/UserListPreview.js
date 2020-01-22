@@ -38,7 +38,7 @@ const UserListPreview = (props) => {
 				More...
 			</Button>
 			{usersToShow.length === 0 && (
-				<div>No users to show</div>
+				<div className="clearing">No people to show</div>
 			)}
 			{usersToShow.length > 0 && (
 				<ul>

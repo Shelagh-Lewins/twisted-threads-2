@@ -123,6 +123,7 @@ export function setPatternData({
 	weavingInstructionsByTablet,
 }) {
 	const {
+		_id,
 		holes,
 		numberOfRows,
 		numberOfTablets,
@@ -133,6 +134,7 @@ export function setPatternData({
 	return {
 		'type': 'SET_PATTERN_DATA',
 		'payload': {
+			_id,
 			picks,
 			holes,
 			numberOfRows,
@@ -162,6 +164,8 @@ export const savePatternData = (patternObj) => (dispatch) => {
 // ///////////////////////////
 // Provide information to the UI
 export const getIsLoading = (state) => state.pattern.isLoading;
+
+export const getPatternId = (state) => state.pattern._id;
 
 export const getNumberOfRows = (state) => state.pattern.numberOfRows || 0;
 
@@ -715,6 +719,7 @@ export default function pattern(state = initialPatternState, action) {
 
 		case SET_PATTERN_DATA: {
 			const {
+				_id,
 				holes,
 				numberOfRows,
 				numberOfTablets,
@@ -726,6 +731,7 @@ export default function pattern(state = initialPatternState, action) {
 			} = action.payload;
 
 			return updeep({
+				_id,
 				holes,
 				numberOfRows,
 				numberOfTablets,
