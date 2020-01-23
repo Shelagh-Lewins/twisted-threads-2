@@ -839,12 +839,11 @@ export default function pattern(state = initialPatternState, action) {
 		case UPDATE_WEAVING_ROW_DIRECTION: {
 			const { row } = action.payload;
 			const {
-				numberOfRows,
 				numberOfTablets,
 				patternDesign,
 				weavingInstructionsByTablet,
 			} = state;
-console.log('patternDesign', patternDesign);
+
 			const newWeavingInstructions = [...patternDesign.weavingInstructions];
 			const newWeavingInstructionsByTablet = [];
 			const newPicks = [];
@@ -854,16 +853,12 @@ console.log('patternDesign', patternDesign);
 
 			// update weaving instructions for each tablet
 			for (let i = 0; i < numberOfTablets; i += 1) {
-				console.log('weavingInstructionsByTablet', weavingInstructionsByTablet);
-
 				const weavingInstructionsForTablet = [...weavingInstructionsByTablet[i]];
 
-				// change direction of tablet for this row and all following rows
-				for (let j = row; j < numberOfRows; j += 1) {
-					const obj = { ...weavingInstructionsForTablet[j] };
-					obj.direction = weavingInstructionsForTablet[j].direction === 'F' ? 'B' : 'F';
-					weavingInstructionsForTablet[j] = obj;
-				}
+				// change direction for this row
+				const obj = { ...weavingInstructionsForTablet[row] };
+				obj.direction = obj.direction === 'F' ? 'B' : 'F';
+				weavingInstructionsForTablet[row] = obj;
 
 				const picksForTablet = reCalculatePicksForTablet({
 					'currentPicks': state.picks[i],
