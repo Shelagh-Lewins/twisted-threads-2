@@ -50,6 +50,15 @@ export const getWeavingInstructionsForTablet = (pattern, tabletIndex) => {
 			}
 			break;
 
+		case 'allTogether':
+			for (let i = 0; i < numberOfRows; i += 1) {
+				weavingInstructionsForTablet[i] = {
+					'direction': patternDesign.weavingInstructions[i],
+					'numberOfTurns': 1,
+				};
+			}
+			break;
+
 		default:
 			break;
 	}
@@ -86,31 +95,54 @@ export const getThreadingByTablet = (pattern) => {
 // that is saved in the database
 export const getWeavingInstructionsByTablet = (pattern) => {
 	const {
-		patternDesign,
-		patternType,
-		numberOfRows,
 		numberOfTablets,
 	} = pattern;
 
 	const weavingInstructionsByTablet = [];
 
-	switch (patternType) {
-		case 'individual':
-			for (let i = 0; i < numberOfTablets; i += 1) {
-				weavingInstructionsByTablet[i] = [];
-
-				for (let j = 0; j < numberOfRows; j += 1) {
-					weavingInstructionsByTablet[i].push(patternDesign.weavingInstructions[j][i]);
-				}
-			}
-			break;
-
-		default:
-			break;
+	for (let i = 0; i < numberOfTablets; i += 1) {
+		weavingInstructionsByTablet.push(getWeavingInstructionsForTablet(pattern, i));
 	}
 
 	return weavingInstructionsByTablet;
 };
+
+export const calculatePicksForTablet = createSelector(
+	[getWeavingInstructionsForTablet, getNumberOfRows],
+	(weavingInstructionsForTablet, numberOfRows) => {
+		const picks = [];
+
+		for (let i = 0; i < numberOfRows; i += 1) {
+			const { direction, numberOfTurns } = weavingInstructionsForTablet[i];
+
+			let adjustedDirection = direction;
+
+			// idle tablet
+			if (numberOfTurns === 0) {
+				if (i === 0) {
+					// first row: take direction from the following pick
+					// because idle, forward is the same as forward, idle
+					// will fail if pattern starts with two idles
+					// but that doesn't seem a common scenario
+					adjustedDirection = weavingInstructionsForTablet[i + 1].direction;
+				} else {
+					// use direction of previous row
+					adjustedDirection = picks[i - 1].direction;
+				}
+			}
+
+			picks[i] = turnTablet({
+				'direction': adjustedDirection,
+				'numberOfTurns': numberOfTurns,
+				'totalTurns': i === 0
+					? 0
+					: picks[i - 1].totalTurns,
+			});
+		}
+
+		return picks;
+	},
+);
 
 // recalculate picks for the tablet
 // from the row of the change onward
@@ -153,81 +185,6 @@ export const reCalculatePicksForTablet = ({
 	return picks;
 };
 
-// calculate picks for tablet from weaving instructions
-export const calculatePicksForTablet = ({
-	weavingInstructionsForTablet,
-}) => {
-	const picks = [];
-	const numberOfRows = weavingInstructionsForTablet.length;
-
-	for (let i = 0; i < numberOfRows; i += 1) {
-		const { direction, numberOfTurns } = weavingInstructionsForTablet[i];
-
-		let adjustedDirection = direction;
-
-		// idle tablet
-		if (numberOfTurns === 0) {
-			if (i === 0) {
-				// first row: take direction from the following pick
-				// because idle, forward is the same as forward, idle
-				// will fail if pattern starts with two idles
-				// but that doesn't seem a common scenario
-				adjustedDirection = weavingInstructionsForTablet[i + 1].direction;
-			} else {
-				// use direction of previous row
-				adjustedDirection = picks[i - 1].direction;
-			}
-		}
-
-		picks[i] = turnTablet({
-			'direction': adjustedDirection,
-			'numberOfTurns': numberOfTurns,
-			'totalTurns': i === 0
-				? 0
-				: picks[i - 1].totalTurns,
-		});
-	}
-
-	return picks;
-};
-
-const getPicksForTablet = createSelector(
-	[getWeavingInstructionsForTablet, getNumberOfRows],
-	(weavingInstructionsForTablet, numberOfRows) => {
-		const picks = [];
-
-		for (let i = 0; i < numberOfRows; i += 1) {
-			const { direction, numberOfTurns } = weavingInstructionsForTablet[i];
-
-			let adjustedDirection = direction;
-
-			// idle tablet
-			if (numberOfTurns === 0) {
-				if (i === 0) {
-					// first row: take direction from the following pick
-					// because idle, forward is the same as forward, idle
-					// will fail if pattern starts with two idles
-					// but that doesn't seem a common scenario
-					adjustedDirection = weavingInstructionsForTablet[i + 1].direction;
-				} else {
-					// use direction of previous row
-					adjustedDirection = picks[i - 1].direction;
-				}
-			}
-
-			picks[i] = turnTablet({
-				'direction': adjustedDirection,
-				'numberOfTurns': numberOfTurns,
-				'totalTurns': i === 0
-					? 0
-					: picks[i - 1].totalTurns,
-			});
-		}
-
-		return picks;
-	},
-);
-
 export const getPicksByTablet = createSelector(
 	[getPattern, getNumberOfTablets],
 	(pattern, numberOfTablets) => {
@@ -241,7 +198,7 @@ export const getPicksByTablet = createSelector(
 		const picksByTablet = [];
 
 		for (let j = 0; j < numberOfTablets; j += 1) {
-			const picksForTablet = getPicksForTablet(pattern, j);
+			const picksForTablet = calculatePicksForTablet(pattern, j);
 			picksByTablet.push(picksForTablet);
 		}
 

@@ -29,7 +29,8 @@ import AppContext from '../modules/appContext';
 import { getNumberOfRepeats } from '../modules/weavingUtils';
 import PageWrapper from '../components/PageWrapper';
 import Loading from '../components/Loading';
-import WeavingDesign from '../components/WeavingDesign';
+import WeavingDesignIndividual from '../components/WeavingDesignIndividual';
+import WeavingDesignAllTogether from '../components/WeavingDesignAllTogether';
 import Weft from '../components/Weft';
 import PatternPreview from '../components/PatternPreview';
 import Threading from '../components/Threading';
@@ -38,7 +39,10 @@ import PreviewOrientation from '../components/PreviewOrientation';
 import EditableText from '../components/EditableText';
 import ImageUploader from '../components/ImageUploader';
 import TagInput from '../components/TagInput';
-import { iconColors } from '../../modules/parameters';
+import {
+	ALLOWED_PATTERN_TYPES,
+	iconColors,
+} from '../../modules/parameters';
 import './Pattern.scss';
 
 const bodyClass = 'pattern';
@@ -164,18 +168,26 @@ class Pattern extends PureComponent {
 
 	// title and any other elements above tabs
 	renderHeader({ pattern }) {
-		const { createdBy, name } = pattern;
+		const {
+			createdBy,
+			name,
+			patternType,
+		} = pattern;
 		const canEdit = createdBy === Meteor.userId();
+		const typeDisplayName = ALLOWED_PATTERN_TYPES.find((type) => type.name === patternType).name;
 
 		return (
-			<EditableText
-				canEdit={canEdit}
-				fieldName="name"
-				onClickSave={this.onClickEditableTextSave}
-				title="Name"
-				type="input"
-				fieldValue={name}
-			/>
+			<>
+				<EditableText
+					canEdit={canEdit}
+					fieldName="name"
+					onClickSave={this.onClickEditableTextSave}
+					title="Name"
+					type="input"
+					fieldValue={name}
+				/>
+				<p>Pattern type: {typeDisplayName}</p>
+			</>
 		);
 	}
 
@@ -346,6 +358,51 @@ class Pattern extends PureComponent {
 		);
 	}
 
+	renderWeavingInstructions() {
+		const {
+			pattern,
+		} = this.context;
+		const {
+			dispatch,
+		} = this.props;
+		const {
+			patternType,
+		} = pattern;
+
+		let weavingInstructions;
+
+		switch (patternType) {
+			case 'individual':
+				weavingInstructions = (
+					<>
+						<h2>Weaving chart</h2>
+						<WeavingDesignIndividual
+							dispatch={dispatch}
+							pattern={pattern}
+						/>
+					</>
+				);
+				break;
+
+			case 'allTogether':
+				weavingInstructions = (
+					<>
+						<h2>Weaving instructions</h2>
+						<WeavingDesignAllTogether
+							dispatch={dispatch}
+							pattern={pattern}
+						/>
+					</>
+				);
+				break;
+
+			default:
+				break;
+		}
+
+		return weavingInstructions;
+	}
+
 	renderTabContent({
 		colorBooks,
 		createdByUser,
@@ -372,7 +429,6 @@ class Pattern extends PureComponent {
 			_id,
 			createdBy,
 			description,
-			patternType,
 			previewOrientation,
 			threadingNotes,
 			weavingNotes,
@@ -434,18 +490,7 @@ class Pattern extends PureComponent {
 								totalTurnsByTablet={totalTurnsByTablet}
 							/>
 						}
-						<h2>Weaving chart</h2>
-						{pattern.patternDesign && (
-							<WeavingDesign
-								dispatch={dispatch}
-								holes={holes}
-								numberOfRows={numberOfRows}
-								numberOfTablets={numberOfTablets}
-								palette={palette}
-								pattern={pattern}
-								patternWillRepeat={patternWillRepeat}
-							/>
-						)}
+						{pattern.patternDesign && this.renderWeavingInstructions()}
 						<EditableText
 							canEdit={canEdit}
 							fieldName="weavingNotes"
@@ -487,11 +532,11 @@ class Pattern extends PureComponent {
 			case 'info':
 				tabContent = (
 					<div className="tab-content">
-						<p>{`Pattern type: ${patternType}`}</p>
 						<p>Created by: <Link to={`/user/${createdBy}`} className="created-by">
 							{createdByUser.username}</Link>
 						</p>
 						{canEdit && this.renderIsPublic()}
+						<p>Number of holes: {holes}</p>
 						<p>Number of tablets: {numberOfTablets}</p>
 						{canEdit && this.renderTagInput()}
 						<EditableText

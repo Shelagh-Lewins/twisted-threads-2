@@ -107,6 +107,10 @@ $color-userpic-3: #c9c;
 $color-userpic-4: #9cf;
 $color-userpic-5: #c90;
 
+$color-row-direction: #424a6c;
+$color-row-direction-background: #fff;
+$color-row-direction-background-disabled: #ccc;
+
 // this is a hack to extract variable values from scss
 // https://stackoverflow.com/questions/3326494/parsing-css-in-javascript-jquery
 // :export { var: $var } is the right way but I can't get it to work

@@ -36,9 +36,14 @@ export const SET_PATTERN_DATA = 'SET_PATTERN_DATA';
 export const SET_IS_EDITING_WEAVING = 'SET_IS_EDITING_WEAVING';
 export const SET_IS_EDITING_THREADING = 'SET_IS_EDITING_THREADING';
 
+// 'individual' patternType
 export const UPDATE_WEAVING_CELL_DIRECTION = 'UPDATE_WEAVING_CELL_DIRECTION';
 export const UPDATE_WEAVING_CELL_TURNS = 'UPDATE_WEAVING_CELL_TURNS';
 
+// 'allTogether' patternType
+export const UPDATE_WEAVING_ROW_DIRECTION = 'UPDATE_WEAVING_ROW_DIRECTION';
+
+// general patternType
 export const UPDATE_THREADING_CELL = 'UPDATE_THREADING_CELL';
 export const UPDATE_ORIENTATION = 'UPDATE_ORIENTATION';
 export const UPDATE_ADD_WEAVING_ROWS = 'UPDATE_ADD_WEAVING_ROWS';
@@ -129,6 +134,7 @@ export function setPatternData({
 		numberOfTablets,
 		orientations,
 		palette,
+		patternDesign,
 	} = patternObj;
 
 	return {
@@ -141,6 +147,7 @@ export function setPatternData({
 			numberOfTablets,
 			orientations,
 			palette,
+			patternDesign,
 			threadingByTablet,
 			weavingInstructionsByTablet,
 		},
@@ -301,7 +308,7 @@ export function editIsPublic({
 }
 
 // Pattern charts
-// Weaving
+// Weaving (individual)
 export function updateWeavingCellDirection(data) {
 	return {
 		'type': 'UPDATE_WEAVING_CELL_DIRECTION',
@@ -367,6 +374,36 @@ export function editWeavingCellNumberOfTurns({
 	};
 }
 
+// ///////////////////////////////
+// allTogether
+// number of turns
+export function updateWeavingRowDirection(data) {
+	return {
+		'type': 'UPDATE_WEAVING_ROW_DIRECTION',
+		'payload': data,
+	};
+}
+
+export function editWeavingRowDirection({
+	_id,
+	row,
+}) {
+	return (dispatch) => {
+		Meteor.call('pattern.edit', {
+			_id,
+			'data': {
+				'type': 'editWeavingRowDirection',
+				row,
+			},
+		});
+
+		dispatch(updateWeavingRowDirection({
+			row,
+		}));
+	};
+}
+
+// ///////////////////////////////
 // add weaving rows
 export function updateAddWeavingRows(data) {
 	return {
@@ -728,6 +765,7 @@ export default function pattern(state = initialPatternState, action) {
 				numberOfTablets,
 				orientations,
 				palette,
+				patternDesign,
 				picks,
 				threadingByTablet,
 				weavingInstructionsByTablet,
@@ -740,6 +778,7 @@ export default function pattern(state = initialPatternState, action) {
 				numberOfTablets,
 				orientations,
 				palette,
+				patternDesign,
 				picks,
 				threadingByTablet,
 				weavingInstructionsByTablet,
@@ -778,7 +817,7 @@ export default function pattern(state = initialPatternState, action) {
 
 			const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tablet]];
 
-			// change direction of tablet for this row and all followiing rows
+			// change direction of tablet for this row and all following rows
 			for (let i = row; i < numberOfRows; i += 1) {
 				const obj = { ...weavingInstructionsForTablet[i] };
 				obj.direction = weavingInstructionsForTablet[i].direction === 'F' ? 'B' : 'F';
@@ -794,6 +833,52 @@ export default function pattern(state = initialPatternState, action) {
 			return updeep({
 				'weavingInstructionsByTablet': { [tablet]: weavingInstructionsForTablet },
 				'picks': { [tablet]: picksForTablet },
+			}, state);
+		}
+
+		case UPDATE_WEAVING_ROW_DIRECTION: {
+			const { row } = action.payload;
+			const {
+				numberOfRows,
+				numberOfTablets,
+				patternDesign,
+				weavingInstructionsByTablet,
+			} = state;
+console.log('patternDesign', patternDesign);
+			const newWeavingInstructions = [...patternDesign.weavingInstructions];
+			const newWeavingInstructionsByTablet = [];
+			const newPicks = [];
+
+			// update pattern design for this row
+			newWeavingInstructions[row] = newWeavingInstructions[row] === 'F' ? 'B' : 'F';
+
+			// update weaving instructions for each tablet
+			for (let i = 0; i < numberOfTablets; i += 1) {
+				console.log('weavingInstructionsByTablet', weavingInstructionsByTablet);
+
+				const weavingInstructionsForTablet = [...weavingInstructionsByTablet[i]];
+
+				// change direction of tablet for this row and all following rows
+				for (let j = row; j < numberOfRows; j += 1) {
+					const obj = { ...weavingInstructionsForTablet[j] };
+					obj.direction = weavingInstructionsForTablet[j].direction === 'F' ? 'B' : 'F';
+					weavingInstructionsForTablet[j] = obj;
+				}
+
+				const picksForTablet = reCalculatePicksForTablet({
+					'currentPicks': state.picks[i],
+					weavingInstructionsForTablet,
+					row,
+				});
+
+				newWeavingInstructionsByTablet.push(weavingInstructionsForTablet);
+				newPicks.push(picksForTablet);
+			}
+
+			return updeep({
+				'weavingInstructionsByTablet': newWeavingInstructionsByTablet,
+				'patternDesign': { 'weavingInstructions': newWeavingInstructions },
+				'picks': newPicks,
 			}, state);
 		}
 

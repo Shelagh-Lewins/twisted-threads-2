@@ -72,6 +72,7 @@ Meteor.methods({
 
 		switch (patternType) {
 			case 'individual':
+				// specify tablet turning individually for every row and tablet
 				// fill in the weaving instructions as all Forward 1 turn
 				for (let i = 0; i < tablets; i += 1) {
 					for (let j = 0; j < rows; j += 1) {
@@ -80,6 +81,16 @@ Meteor.methods({
 							'numberOfTurns': DEFAULT_NUMBER_OF_TURNS,
 						};
 					}
+				}
+
+				patternDesign = { weavingInstructions };
+				break;
+
+			case 'allTogether':
+				// all tablets are turned together each row
+				// fill in the weaving instructions as Forward for every row
+				for (let i = 0; i < rows; i += 1) {
+					weavingInstructions[i] = DEFAULT_DIRECTION;
 				}
 
 				patternDesign = { weavingInstructions };
@@ -309,7 +320,7 @@ Meteor.methods({
 			numberOfRows,
 			numberOfTablets,
 			patternType,
-			patternDesign,
+			'patternDesign': { weavingInstructions },
 		} = pattern;
 
 		// to be filled in by data depending on case
@@ -347,8 +358,6 @@ Meteor.methods({
 				check(row, Match.Integer);
 				check(tablet, validTabletsCheck);
 
-				const { weavingInstructions } = patternDesign;
-
 				// change direction of tablet for this row and all followiing rows
 				for (let i = row; i < numberOfRows; i += 1) {
 					const newDirection = weavingInstructions[i][tablet].direction === 'F' ? 'B' : 'F';
@@ -372,6 +381,20 @@ Meteor.methods({
 				switch (patternType) {
 					case 'individual':
 						return Patterns.update({ _id }, { '$set': { [`patternDesign.weavingInstructions.${row}.${tablet}.numberOfTurns`]: numberOfTurns } });
+
+					default:
+						throw new Meteor.Error('edit-weaving-cell-turns-unknown-pattern-type', `Unable to add weaving cell turns because the pattern type ${patternType} was not recognised`);
+				}
+
+			case 'editWeavingRowDirection':
+				({ row } = data);
+				check(row, Match.Integer);
+
+				switch (patternType) {
+					case 'allTogether':
+						const newDirection = weavingInstructions[row] === 'F' ? 'B' : 'F';
+
+						return Patterns.update({ _id }, { '$set': { [`patternDesign.weavingInstructions.${row}`]: newDirection } });
 
 					default:
 						throw new Meteor.Error('edit-weaving-cell-turns-unknown-pattern-type', `Unable to add weaving cell turns because the pattern type ${patternType} was not recognised`);

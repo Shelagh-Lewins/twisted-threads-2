@@ -12,7 +12,7 @@ import WeavingChartCell from './WeavingChartCell';
 import AddRowsForm from '../forms/AddRowsForm';
 import EditWeavingCellFormWrapper from './EditWeavingCellFormWrapper';
 import './Threading.scss';
-import './WeavingDesign.scss';
+import './WeavingDesignIndividual.scss';
 
 // row and tablet have nothing to identify them except index
 // note row here indicates hole of the tablet
@@ -24,7 +24,7 @@ import './WeavingDesign.scss';
 /* eslint-disable jsx-a11y/no-noninteractive-tabindex */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
-class WeavingDesign extends PureComponent {
+class WeavingDesignIndividual extends PureComponent {
 	constructor(props) {
 		super(props);
 
@@ -243,7 +243,9 @@ class WeavingDesign extends PureComponent {
 	}
 
 	renderRow(rowIndex) {
-		const { numberOfRows, numberOfTablets } = this.props;
+		const {
+			'pattern': { numberOfRows, numberOfTablets },
+		} = this.props;
 		const { isEditing } = this.state;
 		const rowLabel = numberOfRows - rowIndex;
 
@@ -277,7 +279,9 @@ class WeavingDesign extends PureComponent {
 	}
 
 	renderTabletLabels() {
-		const { numberOfTablets } = this.props;
+		const {
+			'pattern': { numberOfTablets },
+		} = this.props;
 
 		const labels = [];
 		for (let i = 0; i < numberOfTablets; i += 1) {
@@ -295,7 +299,9 @@ class WeavingDesign extends PureComponent {
 	}
 
 	renderChart() {
-		const { numberOfRows } = this.props;
+		const {
+			'pattern': { numberOfRows },
+		} = this.props;
 		const rows = [];
 		for (let i = 0; i < numberOfRows; i += 1) {
 			rows.push(
@@ -320,7 +326,7 @@ class WeavingDesign extends PureComponent {
 
 	renderToolbar() {
 		const {
-			numberOfRows,
+			'pattern': { numberOfRows },
 		} = this.props;
 		const {
 			controlsOffsetX,
@@ -386,11 +392,9 @@ class WeavingDesign extends PureComponent {
 	}
 }
 
-WeavingDesign.propTypes = {
+WeavingDesignIndividual.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
-	'numberOfRows': PropTypes.number.isRequired,
-	'numberOfTablets': PropTypes.number.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 };
 
-export default WeavingDesign;
+export default WeavingDesignIndividual;
