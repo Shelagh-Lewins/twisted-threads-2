@@ -973,15 +973,16 @@ export default function pattern(state = initialPatternState, action) {
 				numberOfTablets,
 				weavingInstructionsByTablet,
 			} = state;
-
+console.log('row', row);
 			const newPicks = [];
 			const newWeavingInstructionsByTablet = [];
 
 			for (let i = 0; i < numberOfTablets; i += 1) {
+				console.log('*** i', i);
 				const newWeavingInstructionsForTablet = [...weavingInstructionsByTablet[i]];
-
+console.log('*** weavingInstructionsByTablet[i]', weavingInstructionsByTablet[i]);
 				newWeavingInstructionsForTablet.splice(row, 1);
-
+console.log('*** newWeavingInstructionsForTablet', newWeavingInstructionsForTablet);
 				const picksForTablet = reCalculatePicksForTablet({
 					'currentPicks': state.picks[i],
 					'weavingInstructionsForTablet': newWeavingInstructionsForTablet,
@@ -993,7 +994,8 @@ export default function pattern(state = initialPatternState, action) {
 			}
 
 			const newNumberOfRows = numberOfRows - 1;
-
+console.log('*** newNumberOfRows', newNumberOfRows);
+console.log('* newPicks', newPicks);
 			return updeep({
 				'numberOfRows': newNumberOfRows,
 				'weavingInstructionsByTablet': newWeavingInstructionsByTablet,

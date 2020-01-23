@@ -157,7 +157,7 @@ export const reCalculatePicksForTablet = ({
 	weavingInstructionsForTablet,
 	row,
 }) => {
-	const picks = [...currentPicks];
+	const picks = [...currentPicks].slice(0, row);
 	const numberOfRows = weavingInstructionsForTablet.length;
 
 	for (let i = row; i < numberOfRows; i += 1) {

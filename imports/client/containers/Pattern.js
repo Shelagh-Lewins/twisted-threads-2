@@ -666,6 +666,7 @@ Pattern.propTypes = {
 function mapStateToProps(state, ownProps) {
 	const { patternIsTwistNeutral, patternWillRepeat } = getPatternTwistSelector(state);
 
+	// pattern chart info like numberOfRows must be got from store or it may not be correct
 	return {
 		'canAddPatternImage': getCanAddPatternImage(state),
 		'canCreateColorBook': getCanCreateColorBook(state),

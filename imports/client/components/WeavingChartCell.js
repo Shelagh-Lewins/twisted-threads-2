@@ -70,6 +70,7 @@ WeavingChartCell.propTypes = {
 
 function mapStateToProps(state, ownProps) {
 	const { tabletIndex, rowIndex } = ownProps;
+
 	const { direction, numberOfTurns, totalTurns } = getPick(state, tabletIndex, rowIndex);
 
 	return {

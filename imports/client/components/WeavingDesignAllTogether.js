@@ -64,10 +64,8 @@ class WeavingDesignAllTogether extends PureComponent {
 			'pattern': { _id },
 		} = this.props;
 
-		console.log('*** values', values);
 		const newNumberOfRows = values.numberOfRows;
-		console.log('newNumberOfRows', newNumberOfRows);
-		console.log('numberOfRows', numberOfRows);
+
 		if (newNumberOfRows > numberOfRows) {
 			dispatch(addWeavingRows({
 				_id,

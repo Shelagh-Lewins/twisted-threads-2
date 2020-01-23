@@ -281,7 +281,7 @@ class WeavingDesignIndividual extends PureComponent {
 
 	renderTabletLabels() {
 		const {
-			'pattern': { numberOfTablets },
+			numberOfTablets,
 		} = this.props;
 
 		const labels = [];
@@ -301,8 +301,9 @@ class WeavingDesignIndividual extends PureComponent {
 
 	renderChart() {
 		const {
-			'pattern': { numberOfRows },
+			numberOfRows,
 		} = this.props;
+
 		const rows = [];
 		for (let i = 0; i < numberOfRows; i += 1) {
 			rows.push(
@@ -327,7 +328,7 @@ class WeavingDesignIndividual extends PureComponent {
 
 	renderToolbar() {
 		const {
-			'pattern': { numberOfRows },
+			numberOfRows,
 		} = this.props;
 		const {
 			controlsOffsetX,
