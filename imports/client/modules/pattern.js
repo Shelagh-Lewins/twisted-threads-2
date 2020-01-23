@@ -12,6 +12,7 @@ import {
 	getThreadingByTablet,
 	getWeavingInstructionsByTablet,
 	reCalculatePicksForTablet,
+	testPickThing,
 } from './weavingUtils';
 import {
 	DEFAULT_DIRECTION,
@@ -1000,16 +1001,17 @@ export default function pattern(state = initialPatternState, action) {
 				orientations,
 				picks,
 				threadingByTablet,
+				'patternDesign': { weavingInstructions },
 				weavingInstructionsByTablet,
 			} = state;
 
 			const newThreadingByTablet = [...threadingByTablet];
 			const newOrientations = [...orientations];
 			const newWeavingInstructionsByTablet = [...weavingInstructionsByTablet];
-			const obj = {
+			/* const obj = {
 				'direction': DEFAULT_DIRECTION,
 				'numberOfTurns': DEFAULT_NUMBER_OF_TURNS,
-			};
+			}; */
 			const newPicks = [...picks];
 			const newNumberOfTablets = numberOfTablets + insertNTablets;
 
@@ -1028,15 +1030,17 @@ export default function pattern(state = initialPatternState, action) {
 				// update weaving instructions
 				const newWeavingInstructionsForTablet = [];
 				for (let j = 0; j < numberOfRows; j += 1) {
+					const obj = {
+						'direction': weavingInstructions[j],
+						'numberOfTurns': DEFAULT_NUMBER_OF_TURNS,
+					};
 					newWeavingInstructionsForTablet.push(obj);
 				}
 
 				newWeavingInstructionsByTablet.splice(insertTabletsAt, 0, newWeavingInstructionsForTablet);
 
 				// update picks
-				const picksForTablet = calculatePicksForTablet({
-					'weavingInstructionsForTablet': newWeavingInstructionsByTablet[insertTabletsAt],
-				});
+				const picksForTablet = calculatePicksForTablet(newWeavingInstructionsByTablet[insertTabletsAt], numberOfRows);
 
 				newPicks.splice(insertTabletsAt, 0, picksForTablet);
 			}

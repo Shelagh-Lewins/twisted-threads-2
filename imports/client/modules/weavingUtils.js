@@ -1,6 +1,10 @@
 // functions used to calculate weaving chart from pattern design
 import { createSelector } from 'reselect';
-import { EMPTY_HOLE_COLOR, MAX_PICKS_IN_REPEAT } from '../../modules/parameters';
+import {
+	DEFAULT_DIRECTION,
+	EMPTY_HOLE_COLOR,
+	MAX_PICKS_IN_REPEAT,
+} from '../../modules/parameters';
 
 const tinycolor = require('tinycolor2');
 
@@ -107,41 +111,43 @@ export const getWeavingInstructionsByTablet = (pattern) => {
 	return weavingInstructionsByTablet;
 };
 
-export const calculatePicksForTablet = createSelector(
-	[getWeavingInstructionsForTablet, getNumberOfRows],
-	(weavingInstructionsForTablet, numberOfRows) => {
-		const picks = [];
+export const calculatePicksForTablet = (weavingInstructionsForTablet, numberOfRows) => {
+	const picks = [];
 
-		for (let i = 0; i < numberOfRows; i += 1) {
-			const { direction, numberOfTurns } = weavingInstructionsForTablet[i];
+	for (let i = 0; i < numberOfRows; i += 1) {
+		const { direction, numberOfTurns } = weavingInstructionsForTablet[i];
 
-			let adjustedDirection = direction;
+		let adjustedDirection = direction;
 
-			// idle tablet
-			if (numberOfTurns === 0) {
-				if (i === 0) {
-					// first row: take direction from the following pick
-					// because idle, forward is the same as forward, idle
-					// will fail if pattern starts with two idles
-					// but that doesn't seem a common scenario
-					adjustedDirection = weavingInstructionsForTablet[i + 1].direction;
-				} else {
-					// use direction of previous row
-					adjustedDirection = picks[i - 1].direction;
-				}
+		// idle tablet
+		if (numberOfTurns === 0) {
+			if (i === 0) {
+				// first row: take direction from the following pick
+				// because idle, forward is the same as forward, idle
+				// will fail if pattern starts with two idles
+				// but that doesn't seem a common scenario
+				adjustedDirection = weavingInstructionsForTablet[i + 1].direction;
+			} else {
+				// use direction of previous row
+				adjustedDirection = picks[i - 1].direction;
 			}
-
-			picks[i] = turnTablet({
-				'direction': adjustedDirection,
-				'numberOfTurns': numberOfTurns,
-				'totalTurns': i === 0
-					? 0
-					: picks[i - 1].totalTurns,
-			});
 		}
 
-		return picks;
-	},
+		picks[i] = turnTablet({
+			'direction': adjustedDirection,
+			'numberOfTurns': numberOfTurns,
+			'totalTurns': i === 0
+				? 0
+				: picks[i - 1].totalTurns,
+		});
+	}
+
+	return picks;
+};
+
+export const calculatePicksForTabletSelector = createSelector(
+	[getWeavingInstructionsForTablet, getNumberOfRows],
+	(weavingInstructionsForTablet, numberOfRows) => calculatePicksForTablet(weavingInstructionsForTablet, numberOfRows),
 );
 
 // recalculate picks for the tablet
@@ -198,7 +204,7 @@ export const getPicksByTablet = createSelector(
 		const picksByTablet = [];
 
 		for (let j = 0; j < numberOfTablets; j += 1) {
-			const picksForTablet = calculatePicksForTablet(pattern, j);
+			const picksForTablet = calculatePicksForTabletSelector(pattern, j);
 			picksByTablet.push(picksForTablet);
 		}
 

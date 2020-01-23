@@ -595,6 +595,9 @@ Meteor.methods({
 						update1.$set[`patternDesign.weavingInstructions.$[].${tablet}.toBeRemoved`] = true;
 						break;
 
+					case 'allTogether':
+						break;
+
 					default:
 						throw new Meteor.Error('remove-tablet-unknown-pattern-type', `Unable to remove tablet because the pattern type ${patternType} was not recognised`);
 				}
@@ -621,6 +624,9 @@ Meteor.methods({
 					case 'individual':
 						// remove picks from each weaving row
 						update2.$pull['patternDesign.weavingInstructions.$[]'] = { 'toBeRemoved': true };
+						break;
+
+					case 'allTogether':
 						break;
 
 					default:

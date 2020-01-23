@@ -86,7 +86,7 @@ class WeavingDesignAllTogether extends PureComponent {
 			'patternDesign': { weavingInstructions },
 		} = this.props;
 
-console.log('weavingInstructions', weavingInstructions);
+
 		return (
 			<div className="weaving-instructions">
 				<div className="row-direction-buttons">
