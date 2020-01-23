@@ -1,0 +1,19 @@
+@import "../constants/variables";
+
+.all-together-rows-form {
+	.form-group {
+		input {
+			width: auto;
+		}
+
+		label {
+			font-size: 0;
+			margin: 0 8px;
+			width: auto;
+		}
+	}
+
+	[type="submit"] {
+		display: none;
+	}
+}

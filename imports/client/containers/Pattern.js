@@ -364,6 +364,8 @@ class Pattern extends PureComponent {
 		} = this.context;
 		const {
 			dispatch,
+			numberOfRows,
+			numberOfTablets,
 		} = this.props;
 		const {
 			patternType,
@@ -378,6 +380,8 @@ class Pattern extends PureComponent {
 						<h2>Weaving chart</h2>
 						<WeavingDesignIndividual
 							dispatch={dispatch}
+							numberOfRows={numberOfRows}
+							numberOfTablets={numberOfTablets}
 							pattern={pattern}
 						/>
 					</>
@@ -390,6 +394,7 @@ class Pattern extends PureComponent {
 						<h2>Weaving instructions</h2>
 						<WeavingDesignAllTogether
 							dispatch={dispatch}
+							numberOfRows={numberOfRows}
 							pattern={pattern}
 						/>
 					</>

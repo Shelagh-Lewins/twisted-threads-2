@@ -5,7 +5,7 @@ import {
 	addWeavingRows,
 	editWeavingCellDirection,
 	editWeavingCellNumberOfTurns,
-	removeWeavingRow,
+	removeWeavingRows,
 	setIsEditingWeaving,
 } from '../modules/pattern';
 import WeavingChartCell from './WeavingChartCell';
@@ -142,7 +142,7 @@ class WeavingDesignIndividual extends PureComponent {
 		const response = confirm(`Do you want to delete row ${rowIndex + 1}?`); // eslint-disable-line no-restricted-globals
 
 		if (response === true) {
-			dispatch(removeWeavingRow({ _id, 'row': rowIndex }));
+			dispatch(removeWeavingRows({ _id, 'row': rowIndex }));
 			setTimeout(() => this.trackScrolling(), 100); // give time for the deleted rows to be removed
 		}
 	}
@@ -244,7 +244,8 @@ class WeavingDesignIndividual extends PureComponent {
 
 	renderRow(rowIndex) {
 		const {
-			'pattern': { numberOfRows, numberOfTablets },
+			numberOfRows,
+			numberOfTablets,
 		} = this.props;
 		const { isEditing } = this.state;
 		const rowLabel = numberOfRows - rowIndex;
@@ -394,6 +395,8 @@ class WeavingDesignIndividual extends PureComponent {
 
 WeavingDesignIndividual.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
+	'numberOfRows': PropTypes.number.isRequired,
+	'numberOfTablets': PropTypes.number.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 };
 

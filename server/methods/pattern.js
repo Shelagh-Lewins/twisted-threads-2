@@ -335,6 +335,8 @@ Meteor.methods({
 		let insertTabletsAt;
 		let numberOfTurns;
 		let orientation;
+		let removeNRows;
+		let removeRowsAt;
 		let row;
 		let tablet;
 		let tabletOrientation;
@@ -401,6 +403,7 @@ Meteor.methods({
 				}
 
 			case 'addWeavingRows':
+			console.log('method got case');
 				({ insertNRows, insertRowsAt } = data);
 				check(insertNRows, Match.Integer);
 				check(insertRowsAt, Match.Integer);
@@ -442,14 +445,46 @@ Meteor.methods({
 
 						return Patterns.update({ _id }, update);
 
+					case 'allTogether':
+						const newRows2 = [];
+
+						for (let i = 0; i < insertNRows; i += 1) {
+							const newRow = [];
+
+							for (let j = 0; j < numberOfTablets; j += 1) {
+								newRow.push(DEFAULT_DIRECTION);
+							}
+							newRows2.push(newRow);
+						}
+
+						const update2 = {};
+						update.$push = {
+							'patternDesign.weavingInstructions': {
+								'$each': newRows2,
+								'$position': insertRowsAt,
+							},
+						};
+console.log('update2', update2);
+						update2.$set = {
+							'numberOfRows': numberOfRows + insertNRows,
+						};
+
+						return Patterns.update({ _id }, update);
+
 					default:
 						throw new Meteor.Error('add-rows-unknown-pattern-type', `Unable to add rows because the pattern type ${patternType} was not recognised`);
 				}
 
-			case 'removeWeavingRow':
-				({ row } = data);
+			case 'removeWeavingRows':
+				({
+					removeNRows,
+					removeRowsAt,
+					row,
+				} = data);
 				check(_id, nonEmptyStringCheck);
 				check(row, Match.Integer);
+				check(removeNRows, Match.Maybe(Match.Integer));
+				check(removeRowsAt, Match.Maybe(Match.Integer));
 
 				if (pattern.numberOfRows === 1) {
 					throw new Meteor.Error('remove-row-last-row', 'Unable to remove row because there is only one row');

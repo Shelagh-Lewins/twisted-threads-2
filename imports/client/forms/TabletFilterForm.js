@@ -5,7 +5,7 @@ import { Button, Col, Row } from 'reactstrap';
 import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { useHistory } from "react-router-dom";
+import { useHistory } from 'react-router-dom';
 import {
 	updateFilterRemove,
 	updateFilterMaxTablets,
@@ -171,7 +171,6 @@ const TabletFilterForm = (props) => {
 
 TabletFilterForm.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
-	//'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'maxTablets': PropTypes.number,
 	'minTablets': PropTypes.number,
 };

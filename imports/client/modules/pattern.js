@@ -12,7 +12,6 @@ import {
 	getThreadingByTablet,
 	getWeavingInstructionsByTablet,
 	reCalculatePicksForTablet,
-	testPickThing,
 } from './weavingUtils';
 import {
 	DEFAULT_DIRECTION,
@@ -48,7 +47,7 @@ export const UPDATE_WEAVING_ROW_DIRECTION = 'UPDATE_WEAVING_ROW_DIRECTION';
 export const UPDATE_THREADING_CELL = 'UPDATE_THREADING_CELL';
 export const UPDATE_ORIENTATION = 'UPDATE_ORIENTATION';
 export const UPDATE_ADD_WEAVING_ROWS = 'UPDATE_ADD_WEAVING_ROWS';
-export const UPDATE_REMOVE_WEAVING_ROW = 'UPDATE_REMOVE_WEAVING_ROW';
+export const UPDATE_REMOVE_WEAVING_ROWS = 'UPDATE_REMOVE_WEAVING_ROWS';
 export const UPDATE_ADD_TABLETS = 'UPDATE_ADD_TABLETS';
 export const UPDATE_REMOVE_TABLET = 'UPDATE_REMOVE_TABLET';
 
@@ -136,6 +135,7 @@ export function setPatternData({
 		orientations,
 		palette,
 		patternDesign,
+		patternType,
 	} = patternObj;
 
 	return {
@@ -149,6 +149,7 @@ export function setPatternData({
 			orientations,
 			palette,
 			patternDesign,
+			patternType,
 			threadingByTablet,
 			weavingInstructionsByTablet,
 		},
@@ -418,6 +419,7 @@ export function addWeavingRows({
 	insertNRows,
 	insertRowsAt,
 }) {
+	console.log('addWeavingRows');
 	return (dispatch) => {
 		Meteor.call('pattern.edit', {
 			_id,
@@ -436,27 +438,31 @@ export function addWeavingRows({
 }
 
 // remove weaving rows
-export function updateRemoveWeavingRow(data) {
+export function updateRemoveWeavingRows(data) {
 	return {
-		'type': 'UPDATE_REMOVE_WEAVING_ROW',
+		'type': 'UPDATE_REMOVE_WEAVING_ROWS',
 		'payload': data,
 	};
 }
 
-export function removeWeavingRow({
+export function removeWeavingRows({
 	_id,
+	removeNRows,
+	removeRowsAt,
 	row,
 }) {
 	return (dispatch) => {
 		Meteor.call('pattern.edit', {
 			_id,
 			'data': {
-				'type': 'removeWeavingRow',
+				removeNRows,
+				removeRowsAt,
+				'type': 'removeWeavingRows',
 				row,
 			},
 		});
 
-		dispatch(updateRemoveWeavingRow({
+		dispatch(updateRemoveWeavingRows({
 			row,
 		}));
 	};
@@ -767,6 +773,7 @@ export default function pattern(state = initialPatternState, action) {
 				orientations,
 				palette,
 				patternDesign,
+				patternType,
 				picks,
 				threadingByTablet,
 				weavingInstructionsByTablet,
@@ -780,6 +787,7 @@ export default function pattern(state = initialPatternState, action) {
 				orientations,
 				palette,
 				patternDesign,
+				patternType,
 				picks,
 				threadingByTablet,
 				weavingInstructionsByTablet,
@@ -918,6 +926,7 @@ export default function pattern(state = initialPatternState, action) {
 			const {
 				numberOfRows,
 				numberOfTablets,
+				patternType,
 				picks,
 				weavingInstructionsByTablet,
 			} = state;
@@ -957,7 +966,7 @@ export default function pattern(state = initialPatternState, action) {
 			}, state);
 		}
 
-		case UPDATE_REMOVE_WEAVING_ROW: {
+		case UPDATE_REMOVE_WEAVING_ROWS: {
 			const { row } = action.payload;
 			const {
 				numberOfRows,
@@ -999,6 +1008,7 @@ export default function pattern(state = initialPatternState, action) {
 				numberOfRows,
 				numberOfTablets,
 				orientations,
+				patternType,
 				picks,
 				threadingByTablet,
 				'patternDesign': { weavingInstructions },
@@ -1008,10 +1018,6 @@ export default function pattern(state = initialPatternState, action) {
 			const newThreadingByTablet = [...threadingByTablet];
 			const newOrientations = [...orientations];
 			const newWeavingInstructionsByTablet = [...weavingInstructionsByTablet];
-			/* const obj = {
-				'direction': DEFAULT_DIRECTION,
-				'numberOfTurns': DEFAULT_NUMBER_OF_TURNS,
-			}; */
 			const newPicks = [...picks];
 			const newNumberOfTablets = numberOfTablets + insertNTablets;
 
@@ -1030,9 +1036,26 @@ export default function pattern(state = initialPatternState, action) {
 				// update weaving instructions
 				const newWeavingInstructionsForTablet = [];
 				for (let j = 0; j < numberOfRows; j += 1) {
+					let direction;
+					let numberOfTurns;
+
+					switch (patternType) {
+						case 'individual':
+							direction = DEFAULT_DIRECTION;
+							numberOfTurns = DEFAULT_NUMBER_OF_TURNS;
+							break;
+
+						case 'allTogether':
+							direction = weavingInstructions[j];
+							numberOfTurns = 1;
+							break;
+
+						default:
+							break;
+					}
 					const obj = {
-						'direction': weavingInstructions[j],
-						'numberOfTurns': DEFAULT_NUMBER_OF_TURNS,
+						direction,
+						numberOfTurns,
 					};
 					newWeavingInstructionsForTablet.push(obj);
 				}
@@ -1059,6 +1082,7 @@ export default function pattern(state = initialPatternState, action) {
 			const {
 				numberOfTablets,
 				orientations,
+				patternType,
 				picks,
 				threadingByTablet,
 				weavingInstructionsByTablet,
@@ -1072,6 +1096,18 @@ export default function pattern(state = initialPatternState, action) {
 
 			newPicks.splice(tablet, 1);
 			newThreadingByTablet.splice(tablet, 1);
+
+			switch (patternType) {
+				case 'individual':
+					//TODO maybe should update patternDesign just to be tidy?
+					break;
+
+				case 'allTogether':
+					break;
+
+				default:
+					break;
+			}
 			newWeavingInstructionsByTablet.splice(tablet, 1);
 			newOrientations.splice(tablet, 1);
 

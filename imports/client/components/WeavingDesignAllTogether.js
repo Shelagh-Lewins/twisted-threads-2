@@ -3,9 +3,12 @@ import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import {
+	addWeavingRows,
 	editWeavingRowDirection,
+	removeWeavingRows,
 	setIsEditingWeaving,
 } from '../modules/pattern';
+import AllTogetherRowsForm from '../forms/AllTogetherRowsForm';
 
 import './WeavingDesignAllTogether.scss';
 
@@ -19,6 +22,7 @@ class WeavingDesignAllTogether extends PureComponent {
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
+			'handleChangeNumberOfRows',
 			'handleClickRowDirection',
 			'toggleEditWeaving',
 		];
@@ -48,9 +52,35 @@ class WeavingDesignAllTogether extends PureComponent {
 			dispatch,
 			'pattern': { _id },
 		} = this.props;
-		console.log('handleClickRowDirection', event.target.value);
+
 		const row = parseInt(event.target.value, 10);
 		dispatch(editWeavingRowDirection({ _id, row }));
+	}
+
+	handleChangeNumberOfRows(values) {
+		const {
+			dispatch,
+			numberOfRows,
+			'pattern': { _id },
+		} = this.props;
+
+		console.log('*** values', values);
+		const newNumberOfRows = values.numberOfRows;
+		console.log('newNumberOfRows', newNumberOfRows);
+		console.log('numberOfRows', numberOfRows);
+		if (newNumberOfRows > numberOfRows) {
+			dispatch(addWeavingRows({
+				_id,
+				'insertNRows': newNumberOfRows - numberOfRows,
+				'insertRowsAt': numberOfRows,
+			}));
+		} else if (newNumberOfRows < numberOfRows) {
+			dispatch(removeWeavingRows({
+				_id,
+				'insertNRows': numberOfRows - newNumberOfRows,
+				'insertRowsAt': numberOfRows,
+			}));
+		}
 	}
 
 	renderControls() {
@@ -80,12 +110,23 @@ class WeavingDesignAllTogether extends PureComponent {
 		);
 	}
 
-	renderWeavingInstructions() {
+	renderRowControls() {
 		const {
-			'pattern': { numberOfRows },
-			'patternDesign': { weavingInstructions },
+			numberOfRows,
 		} = this.props;
 
+		return (
+			<AllTogetherRowsForm
+				handleSubmit={this.handleChangeNumberOfRows}
+				numberOfRows={numberOfRows}
+			/>
+		);
+	}
+
+	renderWeavingInstructions() {
+		const {
+			'patternDesign': { weavingInstructions },
+		} = this.props;
 
 		return (
 			<div className="weaving-instructions">
@@ -104,6 +145,7 @@ class WeavingDesignAllTogether extends PureComponent {
 		return (
 			<div className={`weaving ${isEditing ? 'editing' : ''}`}>
 				<div>Turn all tablets together, forward or backward, following the sequence shown below</div>
+				{this.renderRowControls()}
 				{canEdit && this.renderControls()}
 				<div
 					className="content"
@@ -119,6 +161,7 @@ class WeavingDesignAllTogether extends PureComponent {
 
 WeavingDesignAllTogether.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
+	'numberOfRows': PropTypes.number.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 	'patternDesign': PropTypes.objectOf(PropTypes.any).isRequired, // updated in state
 };
