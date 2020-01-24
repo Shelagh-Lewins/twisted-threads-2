@@ -51,7 +51,6 @@ const validate = (values) => {
 const TabletFilterForm = (props) => {
 	const {
 		dispatch,
-		// history,
 		maxTablets,
 		minTablets,
 	} = props;
@@ -61,8 +60,9 @@ const TabletFilterForm = (props) => {
 	const filterActive = maxTablets || minTablets;
 
 	const handleChangeMinTablets = (e) => {
-		setFieldValue('minTablets', e.target.value);
 		const { value } = e.target;
+
+		setFieldValue('minTablets', value);
 
 		clearTimeout(global.filterTabletsTimeout);
 
@@ -72,8 +72,9 @@ const TabletFilterForm = (props) => {
 	};
 
 	const handleChangeMaxTablets = (e) => {
-		setFieldValue('maxTablets', e.target.value);
 		const { value } = e.target;
+
+		setFieldValue('maxTablets', value);
 
 		clearTimeout(global.filterTabletsTimeout);
 

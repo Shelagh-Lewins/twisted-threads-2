@@ -403,7 +403,6 @@ Meteor.methods({
 				}
 
 			case 'addWeavingRows':
-			console.log('method got case');
 				({ insertNRows, insertRowsAt } = data);
 				check(insertNRows, Match.Integer);
 				check(insertRowsAt, Match.Integer);
@@ -449,27 +448,24 @@ Meteor.methods({
 						const newRows2 = [];
 
 						for (let i = 0; i < insertNRows; i += 1) {
-							const newRow = [];
+							const newRow = DEFAULT_DIRECTION;
 
-							for (let j = 0; j < numberOfTablets; j += 1) {
-								newRow.push(DEFAULT_DIRECTION);
-							}
 							newRows2.push(newRow);
 						}
 
 						const update2 = {};
-						update.$push = {
+						update2.$push = {
 							'patternDesign.weavingInstructions': {
 								'$each': newRows2,
 								'$position': insertRowsAt,
 							},
 						};
-console.log('update2', update2);
+
 						update2.$set = {
 							'numberOfRows': numberOfRows + insertNRows,
 						};
 
-						return Patterns.update({ _id }, update);
+						return Patterns.update({ _id }, update2);
 
 					default:
 						throw new Meteor.Error('add-rows-unknown-pattern-type', `Unable to add rows because the pattern type ${patternType} was not recognised`);
@@ -479,37 +475,58 @@ console.log('update2', update2);
 				({
 					removeNRows,
 					removeRowsAt,
-					row,
 				} = data);
 				check(_id, nonEmptyStringCheck);
-				check(row, Match.Integer);
 				check(removeNRows, Match.Maybe(Match.Integer));
 				check(removeRowsAt, Match.Maybe(Match.Integer));
 
-				if (pattern.numberOfRows === 1) {
-					throw new Meteor.Error('remove-row-last-row', 'Unable to remove row because there is only one row');
+				if (pattern.numberOfRows <= removeNRows) {
+					throw new Meteor.Error('remove-rows-last-row', 'Unable to remove rows because the last row would be removed');
 				}
 
-				if (pattern.numberOfRows <= row) {
-					throw new Meteor.Error('remove-row-invalid-row', 'Unable to remove row because the row does not exist');
+				if (pattern.numberOfRows < removeRowsAt) {
+					throw new Meteor.Error('remove-rows-invalid-row', 'Unable to remove row because the row does not exist');
 				}
 
 				switch (patternType) {
 					case 'individual':
 						// an element cannot be removed from an array by index
-						// so first we mark the row to remove
+						// so first we mark each row to remove
 						// then use 'pull'
-						Patterns.update({ _id }, { '$set': { [`patternDesign.weavingInstructions.${row}.${0}.toBeRemoved`]: true } });
+						for (let i = 0; i < removeNRows; i += 1) {
+							const rowIndex = i + removeRowsAt;
+
+							Patterns.update({ _id }, { '$set': { [`patternDesign.weavingInstructions.${rowIndex}.${0}.toBeRemoved`]: true } });
+						}
 
 						// NOTE if the pull fails, the numberOfRows will then be incorrect
 						// however if the following updates don't take place atomically, the client will likely show errors
 						const update = {};
 						update.$pull = { 'patternDesign.weavingInstructions': { '$elemMatch': { 'toBeRemoved': true } } };
 						update.$set = {
-							'numberOfRows': pattern.numberOfRows - 1,
+							'numberOfRows': pattern.numberOfRows - removeNRows,
 						};
 
 						return Patterns.update({ _id }, update);
+					case 'allTogether':
+						// an element cannot be removed from an array by index
+						// so first we mark each row to remove
+						// then use 'pull'
+						for (let i = 0; i < removeNRows; i += 1) {
+							const rowIndex = i + removeRowsAt;
+
+							Patterns.update({ _id }, { '$set': { [`patternDesign.weavingInstructions.${rowIndex}`]: 'toBeRemoved' } });
+						}
+
+						// NOTE if the pull fails, the numberOfRows will then be incorrect
+						// however if the following updates don't take place atomically, the client will likely show errors
+						const update2 = {};
+						update2.$pull = { 'patternDesign.weavingInstructions': 'toBeRemoved' };
+						update2.$set = {
+							'numberOfRows': pattern.numberOfRows - removeNRows,
+						};
+
+						return Patterns.update({ _id }, update2);
 
 					default:
 						throw new Meteor.Error('remove-row-unknown-pattern-type', `Unable to remove row because the pattern type ${patternType} was not recognised`);

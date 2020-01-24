@@ -57,15 +57,14 @@ class WeavingDesignAllTogether extends PureComponent {
 		dispatch(editWeavingRowDirection({ _id, row }));
 	}
 
-	handleChangeNumberOfRows(values) {
+	handleChangeNumberOfRows(newNumberOfRows) {
 		const {
 			dispatch,
 			numberOfRows,
 			'pattern': { _id },
 		} = this.props;
 
-		const newNumberOfRows = values.numberOfRows;
-
+		// rows are added and removed at the end
 		if (newNumberOfRows > numberOfRows) {
 			dispatch(addWeavingRows({
 				_id,
@@ -75,8 +74,8 @@ class WeavingDesignAllTogether extends PureComponent {
 		} else if (newNumberOfRows < numberOfRows) {
 			dispatch(removeWeavingRows({
 				_id,
-				'insertNRows': numberOfRows - newNumberOfRows,
-				'insertRowsAt': numberOfRows,
+				'removeNRows': numberOfRows - newNumberOfRows,
+				'removeRowsAt': numberOfRows - 1,
 			}));
 		}
 	}
@@ -108,13 +107,15 @@ class WeavingDesignAllTogether extends PureComponent {
 		);
 	}
 
-	renderRowControls() {
+	renderRowsForm() {
 		const {
 			numberOfRows,
 		} = this.props;
+		const { isEditing } = this.state;
 
 		return (
 			<AllTogetherRowsForm
+				disabled={!isEditing}
 				handleSubmit={this.handleChangeNumberOfRows}
 				numberOfRows={numberOfRows}
 			/>
@@ -143,11 +144,11 @@ class WeavingDesignAllTogether extends PureComponent {
 		return (
 			<div className={`weaving ${isEditing ? 'editing' : ''}`}>
 				<div>Turn all tablets together, forward or backward, following the sequence shown below</div>
-				{this.renderRowControls()}
 				{canEdit && this.renderControls()}
 				<div
 					className="content"
 				>
+					{this.renderRowsForm()}
 					{this.renderWeavingInstructions()}
 					<div className="clearing" />
 				</div>

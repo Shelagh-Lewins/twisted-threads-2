@@ -419,7 +419,6 @@ export function addWeavingRows({
 	insertNRows,
 	insertRowsAt,
 }) {
-	console.log('addWeavingRows');
 	return (dispatch) => {
 		Meteor.call('pattern.edit', {
 			_id,
@@ -449,7 +448,6 @@ export function removeWeavingRows({
 	_id,
 	removeNRows,
 	removeRowsAt,
-	row,
 }) {
 	return (dispatch) => {
 		Meteor.call('pattern.edit', {
@@ -458,12 +456,12 @@ export function removeWeavingRows({
 				removeNRows,
 				removeRowsAt,
 				'type': 'removeWeavingRows',
-				row,
 			},
 		});
 
 		dispatch(updateRemoveWeavingRows({
-			row,
+			removeNRows,
+			removeRowsAt,
 		}));
 	};
 }
@@ -846,6 +844,7 @@ export default function pattern(state = initialPatternState, action) {
 		}
 
 		case UPDATE_WEAVING_ROW_DIRECTION: {
+			// 'allTogether' patterns only
 			const { row } = action.payload;
 			const {
 				numberOfTablets,
@@ -880,9 +879,9 @@ export default function pattern(state = initialPatternState, action) {
 			}
 
 			return updeep({
-				'weavingInstructionsByTablet': newWeavingInstructionsByTablet,
 				'patternDesign': { 'weavingInstructions': newWeavingInstructions },
 				'picks': newPicks,
+				'weavingInstructionsByTablet': newWeavingInstructionsByTablet,
 			}, state);
 		}
 
@@ -926,6 +925,7 @@ export default function pattern(state = initialPatternState, action) {
 			const {
 				numberOfRows,
 				numberOfTablets,
+				patternDesign,
 				patternType,
 				picks,
 				weavingInstructionsByTablet,
@@ -959,48 +959,88 @@ export default function pattern(state = initialPatternState, action) {
 
 			const newNumberOfRows = numberOfRows + insertNRows;
 
-			return updeep({
+			const update = {
 				'numberOfRows': newNumberOfRows,
 				'weavingInstructionsByTablet': newWeavingInstructionsByTablet,
 				'picks': newPicks,
-			}, state);
+			};
+
+			// update patternDesign for patterns will be used for UI
+			const newPatternDesignRows = [];
+			let newWeavingInstructions = [];
+
+			switch (patternType) {
+				case 'individual':
+					break;
+
+				case 'allTogether':
+					for (let i = 0; i < insertNRows; i += 1) {
+						newPatternDesignRows.push(DEFAULT_DIRECTION);
+					}
+					newWeavingInstructions = patternDesign.weavingInstructions.concat(newPatternDesignRows);
+					update.patternDesign = { 'weavingInstructions': newWeavingInstructions };
+					break;
+
+				default:
+					break;
+			}
+
+			return updeep(update, state);
 		}
 
 		case UPDATE_REMOVE_WEAVING_ROWS: {
-			const { row } = action.payload;
+			const { removeNRows, removeRowsAt } = action.payload;
 			const {
 				numberOfRows,
 				numberOfTablets,
+				patternDesign,
+				patternType,
 				weavingInstructionsByTablet,
 			} = state;
-console.log('row', row);
+
 			const newPicks = [];
 			const newWeavingInstructionsByTablet = [];
 
 			for (let i = 0; i < numberOfTablets; i += 1) {
-				console.log('*** i', i);
 				const newWeavingInstructionsForTablet = [...weavingInstructionsByTablet[i]];
-console.log('*** weavingInstructionsByTablet[i]', weavingInstructionsByTablet[i]);
-				newWeavingInstructionsForTablet.splice(row, 1);
-console.log('*** newWeavingInstructionsForTablet', newWeavingInstructionsForTablet);
+
+				newWeavingInstructionsForTablet.splice(removeRowsAt, removeNRows);
+
 				const picksForTablet = reCalculatePicksForTablet({
 					'currentPicks': state.picks[i],
 					'weavingInstructionsForTablet': newWeavingInstructionsForTablet,
-					'row': row,
+					'row': removeRowsAt,
 				});
 
 				newWeavingInstructionsByTablet.push(newWeavingInstructionsForTablet);
 				newPicks.push(picksForTablet);
 			}
 
-			const newNumberOfRows = numberOfRows - 1;
-console.log('*** newNumberOfRows', newNumberOfRows);
-console.log('* newPicks', newPicks);
-			return updeep({
+			const newNumberOfRows = numberOfRows - removeNRows;
+
+			const update = {
 				'numberOfRows': newNumberOfRows,
 				'weavingInstructionsByTablet': newWeavingInstructionsByTablet,
 				'picks': newPicks,
-			}, state);
+			};
+
+			// update patternDesign for patterns will be used for UI
+			const newWeavingInstructions = [...patternDesign.weavingInstructions];
+
+			switch (patternType) {
+				case 'individual':
+					break;
+
+				case 'allTogether':
+					newWeavingInstructions.splice(removeRowsAt, removeNRows);
+					update.patternDesign = { 'weavingInstructions': newWeavingInstructions };
+					break;
+
+				default:
+					break;
+			}
+
+			return updeep(update, state);
 		}
 
 		case UPDATE_ADD_TABLETS: {
@@ -1101,7 +1141,6 @@ console.log('* newPicks', newPicks);
 
 			switch (patternType) {
 				case 'individual':
-					//TODO maybe should update patternDesign just to be tidy?
 					break;
 
 				case 'allTogether':

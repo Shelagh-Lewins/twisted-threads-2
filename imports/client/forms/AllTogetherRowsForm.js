@@ -25,7 +25,25 @@ const validate = (values) => {
 };
 
 const AllTogetherRowsForm = (props) => {
-	const { numberOfRows } = props;
+	const {
+		disabled,
+		numberOfRows,
+	} = props;
+
+	let setFieldValue;
+
+	const handleChangeNumberOfTablets = (e) => {
+		const { value } = e.target;
+
+		setFieldValue('numberOfRows', value);
+
+		clearTimeout(global.allTogetherRowsTimeout);
+
+		global.allTogetherRowsTimeout = setTimeout(() => {
+			props.handleSubmit(value);
+		}, 800);
+	};
+
 	const formik = useFormik({
 		'initialValues': {
 			numberOfRows,
@@ -33,10 +51,10 @@ const AllTogetherRowsForm = (props) => {
 		'validate': (values) => {
 			validate(values, numberOfRows);
 		},
-		'onSubmit': (values, { resetForm }) => {
-			props.handleSubmit(values, { resetForm });
-		},
+		'onSubmit': () => {},
 	});
+
+	setFieldValue = formik.setFieldValue;
 
 	// note firefox doesn't support the 'label' shorthand in option
 	// https://bugzilla.mozilla.org/show_bug.cgi?id=40545#c11
@@ -50,13 +68,14 @@ const AllTogetherRowsForm = (props) => {
 						<input
 							className={`form-control ${formik.touched.numberOfRows && formik.errors.numberOfRows ? 'is-invalid' : ''
 							}`}
+							disabled={disabled}
 							placeholder="Number of rows"
 							id="numberOfRows"
 							max={MAX_ROWS}
 							min="1"
 							name="numberOfRows"
 							type="number"
-							onChange={formik.handleSubmit}
+							onChange={handleChangeNumberOfTablets}
 							onBlur={formik.handleBlur}
 							value={formik.values.numberOfRows}
 						/>
@@ -75,6 +94,7 @@ const AllTogetherRowsForm = (props) => {
 };
 
 AllTogetherRowsForm.propTypes = {
+	'disabled': PropTypes.bool.isRequired,
 	'handleSubmit': PropTypes.func.isRequired,
 	'numberOfRows': PropTypes.number.isRequired,
 };
