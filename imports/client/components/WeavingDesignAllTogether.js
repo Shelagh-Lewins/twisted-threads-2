@@ -103,6 +103,7 @@ class WeavingDesignAllTogether extends PureComponent {
 				value={index}
 			>
 				{direction === 'F' ? 'F' : 'B'}
+				<span className="row-number">{index + 1}</span>
 			</Button>
 		);
 	}
