@@ -163,7 +163,7 @@ class WeavingDesignIndividual extends PureComponent {
 		setTimeout(() => this.trackScrolling(), 100); // give the new rows time to render
 	}
 
-	handleSubmitEditWeavingCellForm(data) {
+	handleSubmitEditWeavingCellForm(numberOfTurns) {
 		const { dispatch, 'pattern': { _id } } = this.props;
 		const { selectedCell } = this.state;
 
@@ -175,7 +175,7 @@ class WeavingDesignIndividual extends PureComponent {
 			_id,
 			'row': selectedCell[0],
 			'tablet': selectedCell[1],
-			'numberOfTurns': parseInt(data.numberOfTurns, 10),
+			'numberOfTurns': parseInt(numberOfTurns, 10),
 		}));
 	}
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Col, Row } from 'reactstrap';
+import { Button } from 'reactstrap';
 import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
 import {
@@ -24,6 +24,19 @@ const validate = (values) => {
 
 const EditWeavingCellForm = (props) => {
 	const { canEdit, numberOfTurns } = props;
+	let setFieldValue;
+
+	const handleChangeNumberOfTurns = (e) => {
+		const { value } = e.target;
+
+		setFieldValue('numberOfTurns', value);
+
+		clearTimeout(global.editWeavingCellTimeout);
+
+		global.editWeavingCellTimeout = setTimeout(() => {
+			props.handleSubmit(value);
+		}, 800);
+	};
 
 	const formik = useFormik({
 		'enableReinitialize': true,
@@ -31,9 +44,7 @@ const EditWeavingCellForm = (props) => {
 			'numberOfTurns': numberOfTurns,
 		},
 		validate,
-		'onSubmit': (values, { resetForm }) => {
-			props.handleSubmit(values, { resetForm });
-		},
+		'onSubmit': () => {},
 	});
 
 	// change initial values after selecting a different cell
@@ -44,6 +55,8 @@ const EditWeavingCellForm = (props) => {
 			},
 		});
 	}
+
+	setFieldValue = formik.setFieldValue;
 
 	return (
 		<div className="edit-pattern-form">
@@ -61,7 +74,7 @@ const EditWeavingCellForm = (props) => {
 							min="0"
 							name="numberOfTurns"
 							type="number"
-							onChange={formik.handleChange}
+							onChange={handleChangeNumberOfTurns}
 							onBlur={formik.handleBlur}
 							value={formik.values.numberOfTurns}
 						/>

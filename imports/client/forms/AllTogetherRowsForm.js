@@ -26,7 +26,7 @@ const validate = (values) => {
 
 const AllTogetherRowsForm = (props) => {
 	const {
-		disabled,
+		canEdit,
 		numberOfRows,
 	} = props;
 
@@ -68,7 +68,7 @@ const AllTogetherRowsForm = (props) => {
 						<input
 							className={`form-control ${formik.touched.numberOfRows && formik.errors.numberOfRows ? 'is-invalid' : ''
 							}`}
-							disabled={disabled}
+							disabled={!canEdit}
 							placeholder="Number of rows"
 							id="numberOfRows"
 							max={MAX_ROWS}
@@ -94,7 +94,7 @@ const AllTogetherRowsForm = (props) => {
 };
 
 AllTogetherRowsForm.propTypes = {
-	'disabled': PropTypes.bool.isRequired,
+	'canEdit': PropTypes.bool.isRequired,
 	'handleSubmit': PropTypes.func.isRequired,
 	'numberOfRows': PropTypes.number.isRequired,
 };

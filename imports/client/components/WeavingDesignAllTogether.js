@@ -116,7 +116,7 @@ class WeavingDesignAllTogether extends PureComponent {
 
 		return (
 			<AllTogetherRowsForm
-				disabled={!isEditing}
+				canEdit={!isEditing}
 				handleSubmit={this.handleChangeNumberOfRows}
 				numberOfRows={numberOfRows}
 			/>
