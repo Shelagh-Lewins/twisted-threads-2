@@ -8,9 +8,12 @@ import {
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { FLASH_MESSAGE_TEXTS } from '../../modules/parameters';
 
 import PageWrapper from '../components/PageWrapper';
+import VerifyEmailForm from '../forms/VerifyEmailForm';
 import {
+	emailNotVerified,
 	getIsAuthenticated,
 	getIsVerified,
 	getUserEmail,
@@ -48,6 +51,7 @@ class Account extends Component {
 		const { dispatch } = this.props;
 
 		dispatch(verificationEmailNotSent());
+		dispatch(emailNotVerified());
 	}
 
 	onSendVerificationEmail() {
@@ -59,6 +63,7 @@ class Account extends Component {
 	render() {
 		const {
 			dispatch,
+			emailVerified,
 			errors,
 			isAuthenticated,
 			isVerified,
@@ -74,6 +79,12 @@ class Account extends Component {
 				: (
 					<div>
 						<p>Status: unverified</p>
+						<p>To create more patterns and colour books, please verify your email address using the code from the verification email that was sent to you.</p>
+						<VerifyEmailForm
+							dispatch={dispatch}
+						/>
+						<br />
+						<p>If the code has expired, or you did not receive the email, you can request a new verification email by clicking the button below:</p>
 						<p>
 							<Button
 								type="button"
@@ -92,7 +103,11 @@ class Account extends Component {
 		let type = null;
 
 		if (verificationEmailSent) {
-			message = 'Verification email has been sent';
+			message = 'Verification email has been re-sent. If you do not receive the email within a few minutes, please check your Junk or Spam folder.';
+			onClick = this.onCloseFlashMessage;
+			type = 'success';
+		} else if (emailVerified) {
+			message = FLASH_MESSAGE_TEXTS.emailVerified;
 			onClick = this.onCloseFlashMessage;
 			type = 'success';
 		}
@@ -150,6 +165,7 @@ class Account extends Component {
 
 Account.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
+	'emailVerified': PropTypes.bool.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isAuthenticated': PropTypes.bool.isRequired,
@@ -160,6 +176,7 @@ Account.propTypes = {
 };
 
 const mapStateToProps = (state) => ({
+	'emailVerified': state.auth.emailVerified,
 	'errors': state.errors,
 	'isAuthenticated': getIsAuthenticated(state),
 	'isVerified': getIsVerified(state),

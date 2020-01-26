@@ -158,7 +158,7 @@ class Home extends Component {
 						{isLoading && <Loading />}
 						<Row>
 							<Col lg="12">
-								<h1>Welcome</h1>
+								<h1>Twisted Threads 2</h1>
 								This is the development version of Twisted Threads 2, the online app for tablet weaving. ALL DATA HERE MAY BE DELETED AT ANY TIME.
 								{!isAuthenticated && <p>To get started, please <Link to="/login">Login</Link>. If you don&apos;t already have an account, please <Link to="/register">Register</Link>.</p>}
 								{isAuthenticated && !canCreatePattern && !isVerified && <p>To create more patterns, please verify your email address. You can request a new verification email from your <Link to="/account">Account</Link> page</p>}

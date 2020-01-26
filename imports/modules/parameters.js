@@ -163,3 +163,7 @@ export const MAIN_MENU_ITEMS = [
 ];
 
 export const ITEMS_PER_PREVIEW_LIST = 10;
+
+export const FLASH_MESSAGE_TEXTS = {
+	'emailVerified': 'Your email address has been verified',
+};
