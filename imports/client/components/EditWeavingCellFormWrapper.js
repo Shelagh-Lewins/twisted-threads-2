@@ -38,9 +38,14 @@ function mapStateToProps(state, ownProps) {
 
 	if (typeof tabletIndex !== 'undefined'
 		&& typeof rowIndex !== 'undefined') {
-		return {
-			'numberOfTurns': getPick(state, tabletIndex, rowIndex).numberOfTurns,
-		};
+		const pick = getPick(state, tabletIndex, rowIndex);
+
+		// timing issues can cause chart to try to update with a non-existent row index after removing rows
+		if (typeof pick !== 'undefined') {
+			return {
+				'numberOfTurns': getPick(state, tabletIndex, rowIndex).numberOfTurns,
+			};
+		}
 	}
 
 	return {

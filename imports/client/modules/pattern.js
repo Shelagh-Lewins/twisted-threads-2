@@ -1054,7 +1054,7 @@ export default function pattern(state = initialPatternState, action) {
 					break;
 
 				case 'allTogether':
-					newWeavingInstructions.splice(removeRowsAt, removeNRows);
+					newWeavingInstructions.splice(removeRowsAt - removeNRows, removeNRows);
 					update.patternDesign = { 'weavingInstructions': newWeavingInstructions };
 					break;
 

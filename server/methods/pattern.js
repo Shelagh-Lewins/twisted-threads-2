@@ -513,7 +513,7 @@ Meteor.methods({
 						// so first we mark each row to remove
 						// then use 'pull'
 						for (let i = 0; i < removeNRows; i += 1) {
-							const rowIndex = i + removeRowsAt;
+							const rowIndex = i + removeRowsAt - 1;
 
 							Patterns.update({ _id }, { '$set': { [`patternDesign.weavingInstructions.${rowIndex}`]: 'toBeRemoved' } });
 						}
@@ -526,7 +526,9 @@ Meteor.methods({
 							'numberOfRows': pattern.numberOfRows - removeNRows,
 						};
 
-						return Patterns.update({ _id }, update2);
+						Patterns.update({ _id }, update2);
+						console.log('after update2', Patterns.findOne({_id}).patternDesign.weavingInstructions);
+						return;
 
 					default:
 						throw new Meteor.Error('remove-row-unknown-pattern-type', `Unable to remove row because the pattern type ${patternType} was not recognised`);

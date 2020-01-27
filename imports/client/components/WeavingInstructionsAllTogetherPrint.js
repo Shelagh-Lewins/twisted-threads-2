@@ -10,9 +10,9 @@ import {
 } from '../modules/pattern';
 import AllTogetherRowsForm from '../forms/AllTogetherRowsForm';
 
-import './WeavingDesignAllTogether.scss';
+import './WeavingInstructionsAllTogetherPrint.scss';
 
-class WeavingDesignAllTogether extends PureComponent {
+class WeavingInstructionsAllTogetherPrint extends PureComponent {
 	constructor(props) {
 		super(props);
 
@@ -116,7 +116,7 @@ class WeavingDesignAllTogether extends PureComponent {
 
 		return (
 			<AllTogetherRowsForm
-				canEdit={isEditing}
+				canEdit={!isEditing}
 				handleSubmit={this.handleChangeNumberOfRows}
 				numberOfRows={numberOfRows}
 			/>
@@ -159,8 +159,7 @@ class WeavingDesignAllTogether extends PureComponent {
 }
 
 
-WeavingDesignAllTogether.propTypes = {
-	'dispatch': PropTypes.func.isRequired,
+WeavingInstructionsAllTogetherPrint.propTypes = {
 	'numberOfRows': PropTypes.number.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 	'patternDesign': PropTypes.objectOf(PropTypes.any).isRequired, // updated in state
@@ -172,4 +171,4 @@ function mapStateToProps(state) {
 	};
 }
 
-export default connect(mapStateToProps)(WeavingDesignAllTogether);
+export default connect(mapStateToProps)(WeavingInstructionsAllTogetherPrint);

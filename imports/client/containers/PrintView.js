@@ -19,6 +19,7 @@ import { getNumberOfRepeats } from '../modules/weavingUtils';
 import Loading from '../components/Loading';
 import PatternPreview from '../components/PatternPreview';
 import WeavingChartPrint from '../components/WeavingChartPrint';
+import WeavingInstructionsAllTogetherPrint from '../components/WeavingInstructionsAllTogetherPrint';
 import ThreadingPrint from '../components/ThreadingPrint';
 import Notation from '../components/Notation';
 import './PrintView.scss';
@@ -118,6 +119,42 @@ class PrintView extends PureComponent {
 					<span className="hint">{repeatHint}</span>
 				);
 
+				let weavingInstructions;
+
+				switch (patternType) {
+					case 'individual':
+						weavingInstructions = (
+							<>
+								<h2>Weaving chart</h2>
+								<WeavingChartPrint
+									dispatch={dispatch}
+									holes={holes}
+									numberOfRows={numberOfRows}
+									numberOfTablets={numberOfTablets}
+									palette={palette}
+									pattern={pattern}
+									patternWillRepeat={patternWillRepeat}
+								/>
+							</>
+						);
+						break;
+
+					case 'allTogether':
+						weavingInstructions = (
+							<>
+								<h2>Weaving instructions</h2>
+								<WeavingInstructionsAllTogetherPrint
+									numberOfRows={numberOfRows}
+									pattern={pattern}
+								/>
+							</>
+						);
+						break;
+
+					default:
+						break;
+				}
+
 				const printHint = (
 					<div className="print-hint">
 						<div className="innertube">
@@ -157,16 +194,7 @@ class PrintView extends PureComponent {
 									patternWillRepeat={patternWillRepeat}
 									totalTurnsByTablet={totalTurnsByTablet}
 								/>
-								<h2>Weaving chart</h2>
-								<WeavingChartPrint
-									dispatch={dispatch}
-									holes={holes}
-									numberOfRows={numberOfRows}
-									numberOfTablets={numberOfTablets}
-									palette={palette}
-									pattern={pattern}
-									patternWillRepeat={patternWillRepeat}
-								/>
+								{weavingInstructions}
 								{weavingNotes && weavingNotes !== '' && (
 									<>
 										<h2>Weaving notes</h2>
