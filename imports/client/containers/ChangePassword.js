@@ -31,13 +31,14 @@ class ChangePassword extends Component {
 		dispatch(passwordNotChanged());
 	}
 
-	handleSubmit = ({ newPassword, oldPassword }) => {
+	handleSubmit = ({ newPassword, oldPassword }, { resetForm }) => {
 		const { dispatch } = this.props;
 
 		dispatch(changePassword({
 			newPassword,
 			oldPassword,
 		}));
+		resetForm();
 	}
 
 	render() {

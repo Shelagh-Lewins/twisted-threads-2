@@ -15,13 +15,14 @@ class ResetPassword extends Component {
 		dispatch(passwordNotReset());
 	}
 
-	handleSubmit = ({ password }) => {
+	handleSubmit = ({ password }, { resetForm }) => {
 		const { dispatch, token } = this.props;
 
 		dispatch(resetPassword({
 			token,
 			password,
 		}));
+		resetForm();
 	}
 
 	render() {

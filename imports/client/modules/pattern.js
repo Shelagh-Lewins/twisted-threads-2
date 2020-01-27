@@ -46,6 +46,8 @@ export const UPDATE_WEAVING_ROW_DIRECTION = 'UPDATE_WEAVING_ROW_DIRECTION';
 // general patternType
 export const UPDATE_THREADING_CELL = 'UPDATE_THREADING_CELL';
 export const UPDATE_ORIENTATION = 'UPDATE_ORIENTATION';
+export const UPDATE_PALETTE_COLOR = 'UPDATE_PALETTE_COLOR';
+
 export const UPDATE_ADD_WEAVING_ROWS = 'UPDATE_ADD_WEAVING_ROWS';
 export const UPDATE_REMOVE_WEAVING_ROWS = 'UPDATE_REMOVE_WEAVING_ROWS';
 export const UPDATE_ADD_TABLETS = 'UPDATE_ADD_TABLETS';
@@ -594,12 +596,19 @@ export function editOrientation({
 }
 
 // Palette color
+export function updatePaletteColor(data) {
+	return {
+		'type': 'UPDATE_PALETTE_COLOR',
+		'payload': data,
+	};
+}
+
 export function editPaletteColor({
 	_id,
 	colorHexValue,
 	colorIndex,
 }) {
-	return () => {
+	return (dispatch) => {
 		Meteor.call('pattern.edit', {
 			_id,
 			'data': {
@@ -608,6 +617,11 @@ export function editPaletteColor({
 				colorIndex,
 			},
 		});
+
+		dispatch(updatePaletteColor({
+			colorHexValue,
+			colorIndex,
+		}));
 	};
 }
 
@@ -917,6 +931,14 @@ export default function pattern(state = initialPatternState, action) {
 			return updeep({
 				'orientations': { [tablet]: tabletOrientation },
 				'picks': { [tablet]: picksForTablet },
+			}, state);
+		}
+
+		case UPDATE_PALETTE_COLOR: {
+			const { colorHexValue, colorIndex } = action.payload;
+
+			return updeep({
+				'palette': { [colorIndex]: colorHexValue },
 			}, state);
 		}
 

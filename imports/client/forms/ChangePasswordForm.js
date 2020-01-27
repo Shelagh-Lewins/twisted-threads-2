@@ -43,8 +43,8 @@ const ChangePasswordForm = (props) => {
 			'oldPassword': '',
 		},
 		validate,
-		'onSubmit': (values) => {
-			props.handleSubmit(values);
+		'onSubmit': (values, { resetForm }) => {
+			props.handleSubmit(values, { resetForm });
 		},
 	});
 
