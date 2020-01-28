@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from 'reactstrap';
+import { Button, Col, Row } from 'reactstrap';
 import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
 
@@ -42,44 +42,48 @@ const ResetPasswordForm = (props) => {
 
 	return (
 		<form onSubmit={formik.handleSubmit}>
-			<div className="form-group">
-				<label htmlFor="password">
-					New password
-					<input
-						className={`form-control ${formik.touched.password &&	formik.errors.password ? 'is-invalid' : ''
-						}`}
-						placeholder="New password"
-						id="password"
-						name="password"
-						type="password"
-						onChange={formik.handleChange}
-						onBlur={formik.handleBlur}
-						value={formik.values.password}
-					/>
-					{formik.touched.password && formik.errors.password ? (
-						<div className="invalid-feedback invalid">{formik.errors.password}</div>
-					) : null}
-				</label>
-			</div>
-			<div className="form-group">
-				<label htmlFor="confirmPassword">
-					Confirm password
-					<input
-						className={`form-control ${formik.touched.confirmPassword && formik.errors.confirmPassword ? 'is-invalid' : ''
-						}`}
-						placeholder="Confirm password"
-						id="confirmPassword"
-						name="confirmPassword"
-						type="password"
-						onChange={formik.handleChange}
-						onBlur={formik.handleBlur}
-						value={formik.values.confirmPassword}
-					/>
-					{formik.touched.confirmPassword && formik.errors.confirmPassword ? (
-						<div className="invalid-feedback invalid">{formik.errors.confirmPassword}</div>
-					) : null}
-				</label>
-			</div>
+			<Row className="form-group">
+				<Col sm="6">
+					<label htmlFor="password">
+						New password
+						<input
+							className={`form-control ${formik.touched.password &&	formik.errors.password ? 'is-invalid' : ''
+							}`}
+							placeholder="New password"
+							id="password"
+							name="password"
+							type="password"
+							onChange={formik.handleChange}
+							onBlur={formik.handleBlur}
+							value={formik.values.password}
+						/>
+						{formik.touched.password && formik.errors.password ? (
+							<div className="invalid-feedback invalid">{formik.errors.password}</div>
+						) : null}
+					</label>
+				</Col>
+			</Row>
+			<Row className="form-group">
+				<Col sm="6">
+					<label htmlFor="confirmPassword">
+						Confirm password
+						<input
+							className={`form-control ${formik.touched.confirmPassword && formik.errors.confirmPassword ? 'is-invalid' : ''
+							}`}
+							placeholder="Confirm password"
+							id="confirmPassword"
+							name="confirmPassword"
+							type="password"
+							onChange={formik.handleChange}
+							onBlur={formik.handleBlur}
+							value={formik.values.confirmPassword}
+						/>
+						{formik.touched.confirmPassword && formik.errors.confirmPassword ? (
+							<div className="invalid-feedback invalid">{formik.errors.confirmPassword}</div>
+						) : null}
+					</label>
+				</Col>
+			</Row>
 			<Button type="submit" color="primary">Reset password</Button>
 		</form>
 	);

@@ -37,8 +37,8 @@ class ChangePassword extends Component {
 		dispatch(changePassword({
 			newPassword,
 			oldPassword,
+			resetForm,
 		}));
-		resetForm();
 	}
 
 	render() {

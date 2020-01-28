@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from 'reactstrap';
+import { Button, Col, Row } from 'reactstrap';
 import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
 
@@ -50,63 +50,69 @@ const ChangePasswordForm = (props) => {
 
 	return (
 		<form onSubmit={formik.handleSubmit}>
-			<div className="form-group">
-				<label htmlFor="password">
-					Old password
-					<input
-						className={`form-control ${formik.touched.oldPassword &&	formik.errors.oldPassword ? 'is-invalid' : ''
-						}`}
-						placeholder="Old password"
-						id="oldPassword"
-						name="oldPassword"
-						type="password"
-						onChange={formik.handleChange}
-						onBlur={formik.handleBlur}
-						value={formik.values.oldPassword}
-					/>
-					{formik.touched.oldPassword && formik.errors.oldPassword ? (
-						<div className="invalid-feedback invalid">{formik.errors.oldPassword}</div>
-					) : null}
-				</label>
-			</div>
-			<div className="form-group">
-				<label htmlFor="newPassword">
-					New password
-					<input
-						className={`form-control ${formik.touched.newPassword &&	formik.errors.newPassword ? 'is-invalid' : ''
-						}`}
-						placeholder="New password"
-						id="newPassword"
-						name="newPassword"
-						type="password"
-						onChange={formik.handleChange}
-						onBlur={formik.handleBlur}
-						value={formik.values.newPassword}
-					/>
-					{formik.touched.newPassword && formik.errors.newPassword ? (
-						<div className="invalid-feedback invalid">{formik.errors.newPassword}</div>
-					) : null}
-				</label>
-			</div>
-			<div className="form-group">
-				<label htmlFor="confirmNewPassword">
-					Confirm password
-					<input
-						className={`form-control ${formik.touched.confirmNewPassword && formik.errors.confirmNewPassword ? 'is-invalid' : ''
-						}`}
-						placeholder="Confirm password"
-						id="confirmNewPassword"
-						name="confirmNewPassword"
-						type="password"
-						onChange={formik.handleChange}
-						onBlur={formik.handleBlur}
-						value={formik.values.confirmNewPassword}
-					/>
-					{formik.touched.confirmNewPassword && formik.errors.confirmNewPassword ? (
-						<div className="invalid-feedback invalid">{formik.errors.confirmNewPassword}</div>
-					) : null}
-				</label>
-			</div>
+			<Row className="form-group">
+				<Col sm="6">
+					<label htmlFor="password">
+						Old password
+						<input
+							className={`form-control ${formik.touched.oldPassword &&	formik.errors.oldPassword ? 'is-invalid' : ''
+							}`}
+							placeholder="Old password"
+							id="oldPassword"
+							name="oldPassword"
+							type="password"
+							onChange={formik.handleChange}
+							onBlur={formik.handleBlur}
+							value={formik.values.oldPassword}
+						/>
+						{formik.touched.oldPassword && formik.errors.oldPassword ? (
+							<div className="invalid-feedback invalid">{formik.errors.oldPassword}</div>
+						) : null}
+					</label>
+				</Col>
+			</Row>
+			<Row className="form-group">
+				<Col sm="6">
+					<label htmlFor="newPassword">
+						New password
+						<input
+							className={`form-control ${formik.touched.newPassword &&	formik.errors.newPassword ? 'is-invalid' : ''
+							}`}
+							placeholder="New password"
+							id="newPassword"
+							name="newPassword"
+							type="password"
+							onChange={formik.handleChange}
+							onBlur={formik.handleBlur}
+							value={formik.values.newPassword}
+						/>
+						{formik.touched.newPassword && formik.errors.newPassword ? (
+							<div className="invalid-feedback invalid">{formik.errors.newPassword}</div>
+						) : null}
+					</label>
+				</Col>
+			</Row>
+			<Row className="form-group">
+				<Col sm="6">
+					<label htmlFor="confirmNewPassword">
+						Confirm password
+						<input
+							className={`form-control ${formik.touched.confirmNewPassword && formik.errors.confirmNewPassword ? 'is-invalid' : ''
+							}`}
+							placeholder="Confirm password"
+							id="confirmNewPassword"
+							name="confirmNewPassword"
+							type="password"
+							onChange={formik.handleChange}
+							onBlur={formik.handleBlur}
+							value={formik.values.confirmNewPassword}
+						/>
+						{formik.touched.confirmNewPassword && formik.errors.confirmNewPassword ? (
+							<div className="invalid-feedback invalid">{formik.errors.confirmNewPassword}</div>
+						) : null}
+					</label>
+				</Col>
+			</Row>
 			<Button type="submit" color="primary">Change password</Button>
 		</form>
 	);

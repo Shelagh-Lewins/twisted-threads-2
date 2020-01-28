@@ -21,8 +21,8 @@ class ResetPassword extends Component {
 		dispatch(resetPassword({
 			token,
 			password,
+			resetForm,
 		}));
-		resetForm();
 	}
 
 	render() {

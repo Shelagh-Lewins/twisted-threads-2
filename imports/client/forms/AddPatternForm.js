@@ -104,7 +104,7 @@ const AddPatternForm = (props) => {
 					</label>
 				</div>
 				<Row className="form-group">
-					<Col lg="6">
+					<Col md="6">
 						<label htmlFor="patternType">
 							Pattern type
 							<select
@@ -119,7 +119,7 @@ const AddPatternForm = (props) => {
 							</select>
 						</label>
 					</Col>
-					<Col lg="6">
+					<Col md="6">
 						<div className="form-group">
 							<label htmlFor="holes">
 								Number of holes in each tablet
@@ -138,7 +138,7 @@ const AddPatternForm = (props) => {
 					</Col>
 				</Row>
 				<Row className="form-group">
-					<Col lg="6">
+					<Col md="6">
 						<label htmlFor="tablets">
 							Number of tablets
 							<input
@@ -159,7 +159,7 @@ const AddPatternForm = (props) => {
 							) : null}
 						</label>
 					</Col>
-					<Col>
+					<Col md="6">
 						<label htmlFor="rows">
 							Number of rows
 							<input

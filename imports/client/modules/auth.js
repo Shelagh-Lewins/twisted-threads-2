@@ -224,7 +224,11 @@ export function passwordNotReset() {
 	};
 }
 
-export const resetPassword = ({ token, password }) => (dispatch) => {
+export const resetPassword = ({
+	token,
+	password,
+	resetForm,
+}) => (dispatch) => {
 	dispatch(clearErrors());
 	dispatch(passwordNotReset());
 
@@ -233,6 +237,7 @@ export const resetPassword = ({ token, password }) => (dispatch) => {
 			return dispatch(logErrors({ 'reset password': error.reason }));
 		}
 
+		resetForm();
 		dispatch(passwordReset());
 	});
 };
@@ -250,7 +255,11 @@ export function passwordNotChanged() {
 	};
 }
 
-export const changePassword = ({ oldPassword, newPassword }) => (dispatch) => {
+export const changePassword = ({
+	oldPassword,
+	newPassword,
+	resetForm,
+}) => (dispatch) => {
 	dispatch(clearErrors());
 	dispatch(passwordNotReset());
 
@@ -264,6 +273,7 @@ export const changePassword = ({ oldPassword, newPassword }) => (dispatch) => {
 			return dispatch(logErrors({ 'change password': message }));
 		}
 
+		resetForm();
 		dispatch(passwordChanged());
 	});
 };
