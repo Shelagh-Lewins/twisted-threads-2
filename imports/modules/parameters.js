@@ -44,7 +44,7 @@ export const findPatternTypeDisplayName = (patternType) => ALLOWED_PATTERN_TYPES
 
 export const DEFAULT_COLOR = 3; // default thread color is different from that selected in palette, so that users will see something happen if they click on the threading chart
 export const DEFAULT_TABLETS = 8;
-export const DEFAULT_ROWS = 10;
+export const DEFAULT_ROWS = 8;
 export const DEFAULT_ORIENTATION = '/';
 export const DEFAULT_DIRECTION = 'F';
 export const DEFAULT_NUMBER_OF_TURNS = 1;

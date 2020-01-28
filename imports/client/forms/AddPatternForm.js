@@ -80,6 +80,21 @@ const AddPatternForm = (props) => {
 		</option>
 	));
 
+	let typeHint;
+
+	switch (formik.values.patternType) {
+		case 'individual':
+			typeHint = 'Control the turning direction and number of turns of each tablet individually.';
+			break;
+
+		case 'allTogether':
+			typeHint = 'Turn all tablets together each pick, either forwards or backwards.';
+			break;
+
+		default:
+			break;
+	}
+
 	return (
 		<div className="add-pattern-form">
 			<h1>Create pattern</h1>
@@ -135,6 +150,11 @@ const AddPatternForm = (props) => {
 								</select>
 							</label>
 						</div>
+					</Col>
+				</Row>
+				<Row>
+					<Col>
+						<p>{typeHint}</p>
 					</Col>
 				</Row>
 				<Row className="form-group">
