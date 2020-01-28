@@ -508,19 +508,19 @@ Meteor.methods({
 						};
 
 						return Patterns.update({ _id }, update);
+
 					case 'allTogether':
 						// an element cannot be removed from an array by index
 						// so first we mark each row to remove
 						// then use 'pull'
 						const start = removeRowsAt - removeNRows + 1;
 
-						console.log('removeRowsAt', removeRowsAt);
 						for (let i = 0; i < removeNRows; i += 1) {
 							const rowIndex = i + start;
-console.log('rowIndex', rowIndex);
+
 							Patterns.update({ _id }, { '$set': { [`patternDesign.weavingInstructions.${rowIndex}`]: 'toBeRemoved' } });
 						}
-console.log('after update1', Patterns.findOne({_id}).patternDesign.weavingInstructions);
+
 						// NOTE if the pull fails, the numberOfRows will then be incorrect
 						// however if the following updates don't take place atomically, the client will likely show errors
 						const update2 = {};
@@ -530,7 +530,6 @@ console.log('after update1', Patterns.findOne({_id}).patternDesign.weavingInstru
 						};
 
 						Patterns.update({ _id }, update2);
-						console.log('after update2', Patterns.findOne({_id}).patternDesign.weavingInstructions);
 						return;
 
 					default:
