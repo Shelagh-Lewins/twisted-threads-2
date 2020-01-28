@@ -1,29 +1,29 @@
 @import "../constants/variables";
 
-.weaving-instructions {
-	.row-direction-buttons {
-		white-space: nowrap;
-
-		button {
-			&.disabled {
-				background: $color-print-background;
-				border: 1px solid $color-print-color;
-				color: $color-print-color;
-				margin: 0 8px 8px 0;
-				opacity: 1;
-				position: relative;
-				width: 40px;
+.print-view {
+	.weaving-instructions {
+		.row-direction-buttons {
+			button {
+				&.disabled {
+					background: $color-print-background;
+					border: 1px solid $color-print-color;
+					color: $color-print-color;
+					margin: 0 8px 8px 0;
+					opacity: 1;
+					position: relative;
+					width: 40px;
+				}
 			}
-		}
 
-		.row-number {
-			bottom: 2px;
-			color: $color-hint;
-			font-size: 10px;
-			left: 3px;
-			line-height: 1.1;
-			position: absolute;
-			text-align: left;
+			.row-number {
+				bottom: 2px;
+				color: $color-hint;
+				font-size: 10px;
+				left: 3px;
+				line-height: 1.1;
+				position: absolute;
+				text-align: left;
+			}
 		}
 	}
 }
