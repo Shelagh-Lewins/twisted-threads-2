@@ -22,6 +22,9 @@ import WeavingChartPrint from '../components/WeavingChartPrint';
 import WeavingInstructionsAllTogetherPrint from '../components/WeavingInstructionsAllTogetherPrint';
 import ThreadingPrint from '../components/ThreadingPrint';
 import Notation from '../components/Notation';
+import {
+	findPatternTypeDisplayName,
+} from '../../modules/parameters';
 import './PrintView.scss';
 
 const bodyClass = 'print-view';
@@ -95,7 +98,7 @@ class PrintView extends PureComponent {
 					<div className="links">
 						<p>{`Printed from: ${Meteor.absoluteUrl()}pattern/${_id}`}</p>
 						<p>{`Created by: ${createdByUser.username}`}</p>
-						<p>{`Pattern type: ${patternType}`}</p>
+						<p>{`Pattern type: ${findPatternTypeDisplayName(patternType)}`}</p>
 						{description && description !== '' && (
 							<>
 								<div>{description}</div>

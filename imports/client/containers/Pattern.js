@@ -40,7 +40,7 @@ import EditableText from '../components/EditableText';
 import ImageUploader from '../components/ImageUploader';
 import TagInput from '../components/TagInput';
 import {
-	ALLOWED_PATTERN_TYPES,
+	findPatternTypeDisplayName,
 	iconColors,
 } from '../../modules/parameters';
 import './Pattern.scss';
@@ -174,7 +174,6 @@ class Pattern extends PureComponent {
 			patternType,
 		} = pattern;
 		const canEdit = createdBy === Meteor.userId();
-		const typeDisplayName = ALLOWED_PATTERN_TYPES.find((type) => type.name === patternType).name;
 
 		return (
 			<>
@@ -186,7 +185,7 @@ class Pattern extends PureComponent {
 					type="input"
 					fieldValue={name}
 				/>
-				<p>Pattern type: {typeDisplayName}</p>
+				<p>Pattern type: {findPatternTypeDisplayName(patternType)}</p>
 			</>
 		);
 	}

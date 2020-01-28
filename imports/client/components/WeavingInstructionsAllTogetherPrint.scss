@@ -5,15 +5,14 @@
 		white-space: nowrap;
 
 		button {
-			background: $color-row-direction-background;
-			border: 1px solid $color-row-direction;
-			color: $color-row-direction;
-			margin: 0 8px 8px 0;
-			position: relative;
-			width: 40px;
-
 			&.disabled {
-				background: $color-row-direction-background-disabled;
+				background: $color-print-background;
+				border: 1px solid $color-print-color;
+				color: $color-print-color;
+				margin: 0 8px 8px 0;
+				opacity: 1;
+				position: relative;
+				width: 40px;
 			}
 		}
 
