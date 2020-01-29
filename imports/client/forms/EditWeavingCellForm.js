@@ -5,17 +5,21 @@ import PropTypes from 'prop-types';
 import {
 	ALLOWED_NUMBER_OF_TURNS,
 } from '../../modules/parameters';
+import './EditWeavingCellForm.scss';
 
 const validate = (values) => {
 	const errors = {};
 
-	if (!values.numberOfTurns && values.numberOfTurns !== 0) {
+	const numberOfTurns = parseFloat(values.numberOfTurns);
+
+	if (!values.numberOfTurns && numberOfTurns !== 0) {
 		errors.numberOfTurns = 'Required';
-	} else if (values.numberOfTurns < 0) {
+	} else if (numberOfTurns < 0) {
 		errors.numberOfTurns = 'Must be at least 0';
-	} else if (values.numberOfTurns > ALLOWED_NUMBER_OF_TURNS) {
+	} else if (numberOfTurns > ALLOWED_NUMBER_OF_TURNS) {
 		errors.numberOfTurns = `Must not be greater than ${ALLOWED_NUMBER_OF_TURNS}`;
-	} else if (!Number.isInteger(values.numberOfTurns)) {
+	} else if (!Number.isInteger(numberOfTurns)) {
+		console.log('whole error', numberOfTurns);
 		errors.numberOfTurns = 'Must be a whole number';
 	}
 

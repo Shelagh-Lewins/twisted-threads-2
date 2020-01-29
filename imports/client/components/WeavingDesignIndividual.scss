@@ -131,5 +131,21 @@
 			float: left;
 			margin-bottom: 0;
 		}
+
+		.btn-toolbar {
+			float: left;
+			margin: 0 8px 8px 0;
+
+			button {
+				&.selected {
+					background: $color-palette-button-selected;
+					border-color: $color-palette-button-selected;
+				}
+			}
+
+			p {
+				line-height: 2;
+			}
+		}
 	}
 }

@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Button } from 'reactstrap';
+import { Button, ButtonGroup, ButtonToolbar } from 'reactstrap';
 import PropTypes from 'prop-types';
 import {
 	addWeavingRows,
@@ -10,7 +10,7 @@ import {
 } from '../modules/pattern';
 import WeavingChartCell from './WeavingChartCell';
 import AddRowsForm from '../forms/AddRowsForm';
-import EditWeavingCellFormWrapper from './EditWeavingCellFormWrapper';
+import EditWeavingCellForm from '../forms/EditWeavingCellForm';
 import './Threading.scss';
 import './WeavingDesignIndividual.scss';
 
@@ -31,12 +31,14 @@ class WeavingDesignIndividual extends PureComponent {
 		this.state = {
 			'controlsOffsetX': 0,
 			'controlsOffsetY': 0,
+			'editMode': 'direction',
 			'isEditing': false,
-			'selectedCell': undefined,
+			'numberOfTurns': 1,
 		};
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
+			'handleClickEditMode',
 			'handleClickRemoveRow',
 			'handleClickWeavingCell',
 			'handleSubmitAddRows',
@@ -114,21 +116,26 @@ class WeavingDesignIndividual extends PureComponent {
 
 	handleClickWeavingCell(rowIndex, tabletIndex) {
 		const { dispatch, 'pattern': { _id } } = this.props;
-		const { isEditing } = this.state;
+		const { isEditing, editMode, numberOfTurns } = this.state;
 
 		if (!isEditing) {
 			return;
 		}
 
-		dispatch(editWeavingCellDirection({
-			_id,
-			'row': rowIndex,
-			'tablet': tabletIndex,
-		}));
-
-		this.setState({
-			'selectedCell': [rowIndex, tabletIndex],
-		});
+		if (editMode === 'direction') {
+			dispatch(editWeavingCellDirection({
+				_id,
+				'row': rowIndex,
+				'tablet': tabletIndex,
+			}));
+		} else if (editMode === 'numberOfTurns') {
+			dispatch(editWeavingCellNumberOfTurns({
+				_id,
+				'row': rowIndex,
+				'tablet': tabletIndex,
+				'numberOfTurns': parseInt(numberOfTurns, 10),
+			}));
+		}
 	}
 
 	handleClickRemoveRow(rowIndex) {
@@ -164,28 +171,22 @@ class WeavingDesignIndividual extends PureComponent {
 	}
 
 	handleSubmitEditWeavingCellForm(numberOfTurns) {
-		const { dispatch, 'pattern': { _id } } = this.props;
-		const { selectedCell } = this.state;
-
-		if (!selectedCell) {
-			return;
-		}
-
-		dispatch(editWeavingCellNumberOfTurns({
-			_id,
-			'row': selectedCell[0],
-			'tablet': selectedCell[1],
+		this.setState({
 			'numberOfTurns': parseInt(numberOfTurns, 10),
-		}));
+		});
+	}
+
+	handleClickEditMode(event) {
+		const newEditMode = event.target.value;
+
+		this.setState({
+			'editMode': newEditMode,
+		});
 	}
 
 	toggleEditWeaving() {
 		const { dispatch } = this.props;
 		const { isEditing } = this.state;
-
-		this.setState({
-			'isEditing': !isEditing,
-		});
 
 		if (!isEditing) {
 			document.addEventListener('scroll', this.trackScrolling);
@@ -199,6 +200,7 @@ class WeavingDesignIndividual extends PureComponent {
 		this.setState({
 			'controlsOffsetX': 0,
 			'isEditing': !isEditing,
+			'numberOfTurns': 1,
 		});
 
 		dispatch(setIsEditingWeaving(!isEditing));
@@ -330,6 +332,40 @@ class WeavingDesignIndividual extends PureComponent {
 		);
 	}
 
+	renderEditOptions() {
+		const { editMode } = this.state;
+		const options = [
+			{
+				'name': 'Edit turning direction',
+				'value': 'direction',
+			},
+			{
+				'name': 'Edit number of turns',
+				'value': 'numberOfTurns',
+			},
+		];
+
+		return (
+			<>
+				<ButtonToolbar>
+					<ButtonGroup className="edit-mode">
+						{options.map((option) => (
+							<Button
+								className={editMode === option.value ? 'selected' : ''}
+								color="secondary"
+								key={option.value}
+								onClick={this.handleClickEditMode}
+								value={option.value}
+							>
+								{option.name}
+							</Button>
+						))}
+					</ButtonGroup>
+				</ButtonToolbar>
+			</>
+		);
+	}
+
 	renderToolbar() {
 		const {
 			numberOfRows,
@@ -337,17 +373,12 @@ class WeavingDesignIndividual extends PureComponent {
 		const {
 			controlsOffsetX,
 			controlsOffsetY,
-			selectedCell,
+			editMode,
+			numberOfTurns,
 		} = this.state;
 
 		let rowIndex;
 		let tabletIndex;
-		let selectedCellText = 'none';
-
-		if (selectedCell) {
-			[rowIndex, tabletIndex] = selectedCell;
-			selectedCellText = `tablet ${tabletIndex}, row ${rowIndex}`;
-		}
 
 		return (
 			<div
@@ -359,15 +390,15 @@ class WeavingDesignIndividual extends PureComponent {
 					'position': 'relative',
 				}}
 			>
-				<EditWeavingCellFormWrapper
-					canEdit={selectedCell !== undefined}
+				{this.renderEditOptions()}
+				<EditWeavingCellForm
+					canEdit={editMode === 'numberOfTurns'}
 					handleSubmit={this.handleSubmitEditWeavingCellForm}
+					numberOfTurns={numberOfTurns}
 					rowIndex={rowIndex}
 					tabletIndex={tabletIndex}
 				/>
-				<p className="hint">
-					{`Selected: ${selectedCellText}`}
-				</p>
+				<hr className="clearing" />
 				<AddRowsForm
 					enableReinitialize={true}
 					handleSubmit={this.handleSubmitAddRows}
