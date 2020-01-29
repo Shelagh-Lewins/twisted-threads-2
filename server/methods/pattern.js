@@ -24,6 +24,9 @@ import {
 	MAX_ROWS,
 	MAX_TABLETS,
 } from '../../imports/modules/parameters';
+import {
+	getPatternPermissionQuery,
+} from '../../imports/modules/permissionQueries';
 
 const tinycolor = require('tinycolor2');
 
@@ -256,20 +259,11 @@ Meteor.methods({
 				throw new Meteor.Error('get-pattern-count-user-not-found', 'Unable to get pattern count because the specified user did not exist');
 			}
 
-			// return all your own patterns
-			if (userId === Meteor.userId()) {
-				return Patterns.find({
-					'$and': [
-						{ 'createdBy': userId },
-						tabletFilter,
-					],
-				}).count();
-			}
-
-			// for another user, return only their public patterns
+			// return patterns created by that user
+			// which this user can see
 			return Patterns.find({
 				'$and': [
-					{ 'isPublic': { '$eq': true } },
+					getPatternPermissionQuery(),
 					{ 'createdBy': userId },
 					tabletFilter,
 				],

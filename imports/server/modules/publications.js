@@ -15,6 +15,10 @@ import {
 	nonEmptyStringCheck,
 	positiveIntegerCheck,
 } from './utils';
+import {
+	getPatternPermissionQuery,
+	getUserPermissionQuery,
+} from '../../modules/permissionQueries';
 // arrow functions lose "this" context
 /* eslint-disable func-names */
 /* eslint-disable prefer-arrow-callback */
@@ -46,26 +50,6 @@ const ColorBooksFields = {
 	'nameSort': 1,
 };
 
-// gatekeeper for pattern visibility
-// and color book visibility works the same
-// logged in user can see their own patterns
-// and any public patterns
-// not logged in user sees only public patterns
-function getPermissionQuery(userId) {
-	let permissionQuery = { 'isPublic': { '$eq': true } };
-
-	if (userId) {
-		permissionQuery = {
-			'$or': [
-				{ 'isPublic': { '$eq': true } },
-				{ 'createdBy': userId },
-			],
-		};
-	}
-
-	return permissionQuery;
-}
-
 Meteor.publish('colorBooks', function (userId) {
 	check(userId, Match.Maybe(nonEmptyStringCheck));
 
@@ -74,7 +58,7 @@ Meteor.publish('colorBooks', function (userId) {
 		return ColorBooks.find(
 			{
 				'$and': [
-					getPermissionQuery(this.userId),
+					getPatternPermissionQuery(),
 					{ 'createdBy': userId },
 				],
 			},
@@ -88,7 +72,7 @@ Meteor.publish('colorBooks', function (userId) {
 	// all color books the user can see
 	if (this.userId) {
 		return ColorBooks.find(
-			getPermissionQuery(this.userId),
+			getPatternPermissionQuery(),
 			{
 				'fields': ColorBooksFields,
 				'sort': { 'nameSort': 1 },
@@ -96,7 +80,6 @@ Meteor.publish('colorBooks', function (userId) {
 		);
 	}
 });
-
 
 // //////////////////////////
 // Patterns
@@ -149,7 +132,7 @@ Meteor.publish('patterns', function ({
 		{
 			'$and': [
 				getTabletFilter({ filterMaxTablets, filterMinTablets }),
-				getPermissionQuery(this.userId),
+				getPatternPermissionQuery(),
 			],
 		},
 		{
@@ -168,7 +151,7 @@ Meteor.publish('patternsById', function (patternIds) {
 		{
 			'$and': [
 				{ '_id': { '$in': patternIds } },
-				getPermissionQuery(this.userId),
+				getPatternPermissionQuery(),
 			],
 		},
 		{
@@ -185,7 +168,7 @@ Meteor.publish('pattern', function (_id) {
 		{
 			'$and': [
 				{ _id },
-				getPermissionQuery(this.userId),
+				getPatternPermissionQuery(),
 			],
 		},
 		{
@@ -199,7 +182,7 @@ Meteor.publish('pattern', function (_id) {
 // displayed on Home page
 Meteor.publish('allPatternsPreview', function () {
 	return Patterns.find(
-		getPermissionQuery(this.userId),
+		getPatternPermissionQuery(),
 		{
 			'fields': patternsFields,
 			'limit': ITEMS_PER_PREVIEW_LIST,
@@ -278,7 +261,7 @@ Meteor.publish('newPatterns', function ({
 		{
 			'$and': [
 				getTabletFilter({ filterMaxTablets, filterMinTablets }),
-				getPermissionQuery(this.userId),
+				getPatternPermissionQuery(),
 			],
 		},
 		{
@@ -294,7 +277,7 @@ Meteor.publish('newPatterns', function ({
 // displayed on Home page
 Meteor.publish('newPatternsPreview', function () {
 	return Patterns.find(
-		getPermissionQuery(this.userId),
+		getPatternPermissionQuery(),
 		{
 			'fields': patternsFields,
 			'limit': ITEMS_PER_PREVIEW_LIST,
@@ -323,7 +306,7 @@ Meteor.publish('userPatterns', function ({
 			'$and': [
 				getTabletFilter({ filterMaxTablets, filterMinTablets }),
 				{ 'createdBy': userId },
-				getPermissionQuery(this.userId),
+				getPatternPermissionQuery(),
 			],
 		},
 		{
@@ -353,7 +336,7 @@ Meteor.publish('patternPreviews', function ({ patternIds }) {
 		{
 			'$and': [
 				{ '_id': { '$in': patternIds } },
-				getPermissionQuery(this.userId),
+				getPatternPermissionQuery(),
 			],
 		},
 		{
@@ -384,13 +367,12 @@ Meteor.publish('users', function (userIds) {
 		return;
 	}
 
-	// return those users with public patterns
+	// return those users with public color books or patterns
 	// whose ids are in the array passed in
-	// note that all information is published automatically for the logged in user
 	return Meteor.users.find(
 		{
-			'$or': [
-				{ 'publicPatternsCount': { '$gt': 0 } },
+			'$and': [
+				getUserPermissionQuery(),
 				{ '_id': { '$in': userIds } },
 			],
 		},
@@ -398,6 +380,7 @@ Meteor.publish('users', function (userIds) {
 			'fields': {
 				'_id': 1,
 				'description': 1,
+				'publicColorBooksCount': 1,
 				'publicPatternsCount': 1,
 				'username': 1,
 			},
@@ -408,19 +391,15 @@ Meteor.publish('users', function (userIds) {
 // ////////////////////////
 // all users page
 Meteor.publish('allUsers', function (skip = 0, limit = ITEMS_PER_PAGE) {
-	// this needs to return the same number of patterns as the getUsersCount method, for pagination
+	// this needs to return the same number of users as the getUserCount method, for pagination
 	check(skip, positiveIntegerCheck);
 
 	return Meteor.users.find(
-		{
-			'$or': [
-				{ 'publicPatternsCount': { '$gt': 0 } },
-				{ '_id': this.userId },
-			],
-		},
+		getUserPermissionQuery(),
 		{
 			'fields': {
 				'_id': 1,
+				'publicColorBooksCount': 1,
 				'publicPatternsCount': 1,
 				'username': 1,
 			},
@@ -434,11 +413,12 @@ Meteor.publish('allUsers', function (skip = 0, limit = ITEMS_PER_PAGE) {
 // preview list for users
 // displayed on Home page
 Meteor.publish('allUsersPreview', function () {
-	return Patterns.find(
-		{ 'publicPatternsCount': { '$gt': 0 } },
+	return Meteor.users.find(
+		getUserPermissionQuery(),
 		{
 			'fields': {
 				'_id': 1,
+				'publicColorBooksCount': 1,
 				'publicPatternsCount': 1,
 				'username': 1,
 			},

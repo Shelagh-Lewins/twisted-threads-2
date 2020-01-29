@@ -7,6 +7,9 @@ import {
 	nonEmptyStringCheck,
 } from '../../imports/server/modules/utils';
 import updateActionsLog from '../../imports/server/modules/actionsLog';
+import {
+	getUserPermissionQuery,
+} from '../../imports/modules/permissionQueries';
 
 Meteor.methods({
 	'auth.sendVerificationEmail': function (userId) {
@@ -88,13 +91,8 @@ Meteor.methods({
 		// counts all users with public patterns
 		// plus the user themselves if logged in
 
-		// return all patterns visible to this user
-		return Meteor.users.find({
-			'$or': [
-				{ 'publicPatternsCount': { '$gt': 0 } },
-				{ '_id': this.userId },
-			],
-		}).count();
+		// return all users visible to this user
+		return Meteor.users.find(getUserPermissionQuery()).count();
 	},
 	'auth.editTextField': function ({ _id, fieldName, fieldValue }) {
 		if (_id !== Meteor.userId()) {

@@ -9,6 +9,10 @@ import PatternPreviewsSchema from './schemas/patternPreviewsSchema';
 import ActionsLogSchema from './schemas/actionsLogSchema';
 import PatternImagesSchema from './schemas/patternImagesSchema';
 import TagsSchema from './schemas/tagsSchema';
+import {
+	getPatternPermissionQuery,
+	getUserPermissionQuery,
+} from './permissionQueries';
 
 // Color books
 export const ColorBooks = new Mongo.Collection('colorBooks');
@@ -54,12 +58,7 @@ export const PatternsIndex = new Index({
 
 			const newSelector = {
 				'$and': [
-					{
-						'$or': [
-							{ 'isPublic': { '$eq': true } },
-							{ 'createdBy': options.search.userId },
-						],
-					},
+					getPatternPermissionQuery(),
 					{
 						'$or': selector.$or,
 					},
@@ -96,12 +95,7 @@ export const UsersIndex = new Index({
 				// only return users with public patterns
 				// or the current user
 				'$and': [
-					{
-						'$or': [
-							{ 'publicPatternsCount': { '$gt': 0 } },
-							{ '_id': options.search.userId },
-						],
-					},
+					getUserPermissionQuery(),
 					{
 						'$or': selector.$or,
 					},

@@ -33,47 +33,49 @@ const PatternListPreview = (props) => {
 			style={{ 'width': divWidth }}
 		>
 			<h1>{listName}</h1>
-			<Button
-				className="more"
-				color="secondary"
-				tag={Link}
-				to={url}
-			>
-				More...
-			</Button>
 			{patternsToShow.length === 0 && (
 				<div className="clearing">No items in list</div>
 			)}
 			{patternsToShow.length > 0 && (
-				<ul>
-					{patternsToShow.map((pattern) => {
-						const { _id, createdBy, 'tags': patternTags } = pattern;
+				<>
+					<Button
+						className="more"
+						color="secondary"
+						tag={Link}
+						to={url}
+					>
+						More...
+					</Button>
+					<ul>
+						{patternsToShow.map((pattern) => {
+							const { _id, createdBy, 'tags': patternTags } = pattern;
 
-						const tagTexts = [];
+							const tagTexts = [];
 
-						// ensure tags subscription is ready
-						if (patternTags && tags && tags.length > 0) {
-							patternTags.forEach((patternTag) => {
-								const tagObject = tags.find((tag) => tag._id === patternTag);
-								if (tagObject && tagObject.name) {
-									tagTexts.push(tagObject.name);
-								}
-							});
-						}
+							// ensure tags subscription is ready
+							if (patternTags && tags && tags.length > 0) {
+								patternTags.forEach((patternTag) => {
+									const tagObject = tags.find((tag) => tag._id === patternTag);
+									if (tagObject && tagObject.name) {
+										tagTexts.push(tagObject.name);
+									}
+								});
+							}
 
-						return (
-							<div key={`item-summary-${url}-${_id}`}>
-								<PatternSummary
-									pattern={pattern}
-									dispatch={dispatch}
-									patternPreview={patternPreviews.find((patternPreview) => patternPreview.patternId === _id)}
-									tagTexts={tagTexts}
-									user={users.find((user) => user._id === createdBy)}
-								/>
-							</div>
-						);
-					})}
-				</ul>
+							return (
+								<div key={`item-summary-${url}-${_id}`}>
+									<PatternSummary
+										pattern={pattern}
+										dispatch={dispatch}
+										patternPreview={patternPreviews.find((patternPreview) => patternPreview.patternId === _id)}
+										tagTexts={tagTexts}
+										user={users.find((user) => user._id === createdBy)}
+									/>
+								</div>
+							);
+						})}
+					</ul>
+				</>
 			)}
 		</div>
 	);

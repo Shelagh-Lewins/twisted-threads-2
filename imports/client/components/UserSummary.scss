@@ -63,18 +63,28 @@
 	.info {
 		padding: 8px 8px 8px 8px;
 
+		.public-color-books,
 		.public-patterns {
+			display: inline-block;
 			font-weight: bold;
 			line-height: 1;
+			margin-right: 16px;
 
 			.icon {
-				background: url("../images/number_of_patterns.png") transparent no-repeat left top;
-				background-size: 16px 16px;
 				float: left;
 				height: 16px;
 				margin: 0 8px 0 0;
 				width: 16px;
 			}
 		}
+
+		.public-patterns {
+			.icon {
+				background: url("../images/number_of_patterns.png") transparent no-repeat left top;
+				background-size: 16px 16px;
+			}
+		}
+
+
 	}
 }

@@ -76,6 +76,8 @@ Accounts.onCreateUser((options, user) => {
 	// We still want the default hook's 'profile' behavior.
 	newUser.profile = options.profile || {};
 	newUser.profile.nameSort = user.username.toLowerCase();
+	newUser.publicPatternsCount = 0;
+	newUser.publicColorBooksCount = 0;
 
 	// assign the user the default role
 	Roles.addUsersToRoles(newUser._id, 'registered');

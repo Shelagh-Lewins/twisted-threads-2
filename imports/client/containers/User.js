@@ -60,6 +60,7 @@ class User extends PureComponent {
 		super(props);
 
 		this.state = {
+			'gotUser': false,
 			'selectedColorBook': null,
 			'showAddColorBookForm': false,
 		};
@@ -79,10 +80,21 @@ class User extends PureComponent {
 	}
 
 	componentDidMount() {
-		const { dispatch, user } = this.props;
-		dispatch(setPatternCountUserId(user._id));
-
 		document.body.classList.add(bodyClass);
+	}
+
+	componentDidUpdate() {
+		const { dispatch, user } = this.props;
+		const { gotUser, isLoading } = this.state;
+
+		// wait for user details to load
+		if (!gotUser && !isLoading && user) {
+			dispatch(setPatternCountUserId(user._id));
+
+			this.setState({
+				'gotUser': true,
+			});
+		}
 	}
 
 	componentWillUnmount() {
@@ -306,6 +318,7 @@ class User extends PureComponent {
 
 		if (!isLoading) {
 			if (user) {
+				console.log('render has user', user);
 				content = (
 					<>
 						<Container>
@@ -357,6 +370,7 @@ User.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
+	console.log('mapStateToProps', ownProps);
 	// find page number as URL query parameter, if present, in the form '/?page=1'
 	let currentPageNumber = 1;
 	const parsed = queryString.parse(ownProps.location.search);
@@ -428,7 +442,7 @@ const Tracker = withTracker((props) => {
 		patterns,
 		'patternPreviews': PatternPreviews.find().fetch(),
 		'tags': Tags.find().fetch(),
-		'user': Meteor.users.findOne({ _id }) || {}, // to avoid error when subscription not ready
+		'user': Meteor.users.findOne({ _id }), // to avoid error when subscription not ready
 	};
 })(User);
 

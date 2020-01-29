@@ -181,6 +181,24 @@ export const updatePublicPatternsCount = (_id) => {
 	);
 };
 
+export const updatePublicColorBooksCount = (_id) => {
+	const publicColorBooksCount = ColorBooks.find(
+		{
+			'$and': [
+				{ 'isPublic': { '$eq': true } },
+				{ 'createdBy': _id },
+			],
+		},
+	).count();
+
+	Meteor.users.update(
+		{ _id },
+		{
+			'$set': { 'publicColorBooksCount': publicColorBooksCount },
+		},
+	);
+};
+
 export const getTabletFilter = ({ filterMaxTablets, filterMinTablets }) => {
 	check(filterMaxTablets, Match.Maybe(positiveIntegerCheck));
 	check(filterMinTablets, Match.Maybe(positiveIntegerCheck));

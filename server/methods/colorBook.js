@@ -1,5 +1,9 @@
 import { check } from 'meteor/check';
-import { checkCanCreateColorBook, nonEmptyStringCheck } from '../../imports/server/modules/utils';
+import {
+	checkCanCreateColorBook,
+	nonEmptyStringCheck,
+	updatePublicColorBooksCount,
+} from '../../imports/server/modules/utils';
 import { ColorBooks } from '../../imports/modules/collection';
 import {
 	COLORS_IN_COLOR_BOOK,
@@ -18,7 +22,7 @@ Meteor.methods({
 
 		const colors = new Array(COLORS_IN_COLOR_BOOK).fill(DEFAULT_COLOR_BOOK_COLOR);
 
-		return ColorBooks.insert({
+		const colorBookId = ColorBooks.insert({
 			name,
 			'nameSort': name.toLowerCase(),
 			'createdAt': new Date(),
@@ -26,6 +30,11 @@ Meteor.methods({
 			'colors': colors,
 			'isPublic': false,
 		});
+
+		// update the user's count of public color books
+		updatePublicColorBooksCount(Meteor.userId());
+
+		return colorBookId;
 	},
 	'colorBook.remove': function (_id) {
 		check(_id, nonEmptyStringCheck);
@@ -44,12 +53,17 @@ Meteor.methods({
 			throw new Meteor.Error('remove-color-book-not-created-by-user', 'Unable to remove color book because it was not created by the current logged in user');
 		}
 
-		return ColorBooks.remove({ _id });
+		const removed = ColorBooks.remove({ _id });
+
+		// update the user's count of public color books
+		updatePublicColorBooksCount(Meteor.userId());
+
+		return removed;
 	},
 	'colorBook.copy': function (_id) {
 		check(_id, nonEmptyStringCheck);
 
-		const { error, result } = checkUserCanCreateColorBook();
+		const { error, result } = checkCanCreateColorBook();
 
 		if (error) {
 			throw error;
@@ -118,7 +132,12 @@ Meteor.methods({
 				({ isPublic } = data);
 				check(isPublic, Boolean);
 
-				return ColorBooks.update({ _id }, { '$set': { 'isPublic': isPublic } });
+				ColorBooks.update({ _id }, { '$set': { 'isPublic': isPublic } });
+
+				// update the user's count of public color books
+				updatePublicColorBooksCount(Meteor.userId());
+
+				return;
 
 			case 'color':
 				({ colorIndex, colorHexValue } = data);
