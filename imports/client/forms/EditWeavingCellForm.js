@@ -19,7 +19,6 @@ const validate = (values) => {
 	} else if (numberOfTurns > ALLOWED_NUMBER_OF_TURNS) {
 		errors.numberOfTurns = `Must not be greater than ${ALLOWED_NUMBER_OF_TURNS}`;
 	} else if (!Number.isInteger(numberOfTurns)) {
-		console.log('whole error', numberOfTurns);
 		errors.numberOfTurns = 'Must be a whole number';
 	}
 
