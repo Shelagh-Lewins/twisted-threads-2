@@ -98,11 +98,15 @@ export function editTextField({
 	fieldName,
 	fieldValue,
 }) {
-	return () => {
+	return (dispatch) => {
 		Meteor.call('auth.editTextField', {
 			_id,
 			fieldName,
 			fieldValue,
+		}, (error) => {
+			if (error) {
+				return dispatch(logErrors({ 'edit text field': error.reason }));
+			}
 		});
 	};
 }
@@ -118,6 +122,10 @@ export function setUserCount(userCount) {
 }
 
 export const getUserCount = () => (dispatch) => Meteor.call('auth.getUserCount', (error, result) => {
+	if (error) {
+		return dispatch(logErrors({ 'get user count': error.reason }));
+	}
+
 	dispatch(setUserCount(result));
 });
 
@@ -371,12 +379,16 @@ export function updateRecentPatterns({ currentWeavingRow, patternId }) {
 }
 
 // record a recently viewed pattern, with weaving chart row if the user has been weaving
-export function addRecentPattern({ currentWeavingRow, patternId }) {
+export const addRecentPattern = ({ currentWeavingRow, patternId }) => (dispatch) => {
 	const newRecentPatterns = updateRecentPatterns({ currentWeavingRow, patternId });
 
 	if (Meteor.user()) {
 		return () => {
-			Meteor.call('auth.setRecentPatterns', { newRecentPatterns, 'userId': Meteor.userId(), patternId });
+			Meteor.call('auth.setRecentPatterns', { newRecentPatterns, 'userId': Meteor.userId(), patternId }, (error) => {
+				if (error) {
+					return dispatch(logErrors({ 'add recent pattern': error.reason }));
+				}
+			});
 		};
 	}
 

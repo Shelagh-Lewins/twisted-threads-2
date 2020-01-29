@@ -87,6 +87,7 @@ const EditWeavingCellForm = (props) => {
 					</label>
 					<div className="controls">
 						<Button
+							className="hidden"
 							type="submit"
 							color="primary"
 							disabled={!canEdit}

@@ -74,12 +74,16 @@ export const getPatternCount = () => (dispatch, getState) => {
 		filterMinTablets,
 		patternCountUserId,
 	} = getState().pattern;
-// console.log('2 *** about to call');
+
 	Meteor.call('pattern.getPatternCount', {
 		filterMaxTablets,
 		filterMinTablets,
 		'userId': patternCountUserId,
 	}, (error, result) => {
+		if (error) {
+			return dispatch(logErrors({ 'get pattern count': error.reason }));
+		}
+
 		dispatch(setPatternCount(result));
 	});
 };
@@ -266,15 +270,17 @@ export const addPattern = (data, history) => (dispatch) => {
 	});
 };
 
-export function removePattern(_id, history) {
-	return () => {
-		Meteor.call('pattern.remove', _id);
-
-		if (history) { // if deleting from Home page, no need to redirect
-			history.push(`/`);
+export const removePattern = (_id, history) => (dispatch) => {
+	Meteor.call('pattern.remove', _id, (error) => {
+		if (error) {
+			return dispatch(logErrors({ 'remove pattern': error.reason }));
 		}
-	};
-}
+	});
+
+	if (history) { // if deleting from Home page, no need to redirect
+		history.push(`/`);
+	}
+};
 
 export const copyPattern = (_id, history) => (dispatch) => {
 	dispatch(clearErrors());
@@ -300,13 +306,17 @@ export function editIsPublic({
 	_id,
 	isPublic,
 }) {
-	return () => {
+	return (dispatch) => {
 		Meteor.call('pattern.edit', {
 			_id,
 			'data': {
 				'type': 'editIsPublic',
 				isPublic,
 			},
+		}, (error) => {
+			if (error) {
+				return dispatch(logErrors({ 'edit is public': error.reason }));
+			}
 		});
 	};
 }
@@ -336,6 +346,10 @@ export function editWeavingCellDirection({
 			},
 			row,
 			tablet,
+		}, (error) => {
+			if (error) {
+				return dispatch(logErrors({ 'edit weaving cell direction': error.reason }));
+			}
 		});
 
 		dispatch(updateWeavingCellDirection({
@@ -368,6 +382,10 @@ export function editWeavingCellNumberOfTurns({
 				tablet,
 				numberOfTurns,
 			},
+		}, (error) => {
+			if (error) {
+				return dispatch(logErrors({ 'edit weaving cell turns': error.reason }));
+			}
 		});
 
 		dispatch(updateWeavingCellNumberOfTurns({
@@ -399,6 +417,10 @@ export function editWeavingRowDirection({
 				'type': 'editWeavingRowDirection',
 				row,
 			},
+		}, (error) => {
+			if (error) {
+				return dispatch(logErrors({ 'edit weaving row direction': error.reason }));
+			}
 		});
 
 		dispatch(updateWeavingRowDirection({
@@ -429,6 +451,10 @@ export function addWeavingRows({
 				insertNRows,
 				insertRowsAt,
 			},
+		}, (error) => {
+			if (error) {
+				return dispatch(logErrors({ 'add weaving row': error.reason }));
+			}
 		});
 
 		dispatch(updateAddWeavingRows({
@@ -459,6 +485,10 @@ export function removeWeavingRows({
 				removeRowsAt,
 				'type': 'removeWeavingRows',
 			},
+		}, (error) => {
+			if (error) {
+				return dispatch(logErrors({ 'remove weaving row': error.reason }));
+			}
 		});
 
 		dispatch(updateRemoveWeavingRows({
@@ -491,6 +521,10 @@ export function editThreadingCell({
 				tablet,
 				colorIndex,
 			},
+		}, (error) => {
+			if (error) {
+				return dispatch(logErrors({ 'edit threading cell direction': error.reason }));
+			}
 		});
 
 		dispatch(updateThreadingCell({
@@ -524,6 +558,10 @@ export function addTablets({
 				insertNTablets,
 				insertTabletsAt,
 			},
+		}, (error) => {
+			if (error) {
+				return dispatch(logErrors({ 'add tablets': error.reason }));
+			}
 		});
 
 		dispatch(updateAddTablets({
@@ -554,6 +592,10 @@ export function removeTablet({
 				'type': 'removeTablet',
 				tablet,
 			},
+		}, (error) => {
+			if (error) {
+				return dispatch(logErrors({ 'remove tablet': error.reason }));
+			}
 		});
 
 		dispatch(updateRemoveTablet({
@@ -586,6 +628,10 @@ export function editOrientation({
 				tablet,
 				tabletOrientation,
 			},
+		}, (error) => {
+			if (error) {
+				return dispatch(logErrors({ 'update orientation': error.reason }));
+			}
 		});
 
 		dispatch(updateOrientation({
@@ -616,6 +662,10 @@ export function editPaletteColor({
 				colorHexValue,
 				colorIndex,
 			},
+		}, (error) => {
+			if (error) {
+				return dispatch(logErrors({ 'edit palette color': error.reason }));
+			}
 		});
 
 		dispatch(updatePaletteColor({
@@ -637,6 +687,10 @@ export function editWeftColor({
 				'type': 'weftColor',
 				colorIndex,
 			},
+		}, (error) => {
+			if (error) {
+				return dispatch(logErrors({ 'edit weft color': error.reason }));
+			}
 		});
 	};
 }
@@ -653,6 +707,10 @@ export function editPreviewOrientation({
 				'type': 'previewOrientation',
 				orientation,
 			},
+		}, (error) => {
+			if (error) {
+				return dispatch(logErrors({ 'edit preview orientation': error.reason }));
+			}
 		});
 	};
 }
@@ -671,6 +729,10 @@ export function editTextField({
 				fieldValue,
 				'type': 'editTextField',
 			},
+		}, (error) => {
+			if (error) {
+				return dispatch(logErrors({ 'edit text field': error.reason }));
+			}
 		});
 	};
 }
