@@ -143,7 +143,7 @@ class WeavingDesignAllTogether extends PureComponent {
 		const canEdit = createdBy === Meteor.userId();
 
 		return (
-			<div className={`weaving ${isEditing ? 'editing' : ''}`}>
+			<div className={`weaving-all-together ${isEditing ? 'editing' : ''}`}>
 				<div>Turn all tablets together, forward or backward, following the sequence shown below</div>
 				{canEdit && this.renderControls()}
 				<div

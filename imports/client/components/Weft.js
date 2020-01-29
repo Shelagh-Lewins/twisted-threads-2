@@ -13,24 +13,17 @@ import { DEFAULT_PALETTE } from '../../modules/parameters';
 import Palette from './Palette';
 import './Weft.scss';
 
-// the weft cell is only given button functionality when editing
-// but eslint doesn't pick this up
-/* eslint-disable jsx-a11y/no-noninteractive-tabindex */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 class Weft extends PureComponent {
 	constructor(props) {
 		super(props);
 
 		this.state = {
 			'isEditing': false,
-			'selectedColorIndex': 0,
 		};
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
 			'handleClickRestoreDefaults',
-			'handleClickWeft',
 			'handleEditColor',
 			'selectColor',
 			'toggleEditWeft',
@@ -42,9 +35,12 @@ class Weft extends PureComponent {
 	}
 
 	selectColor(index) {
-		this.setState({
-			'selectedColorIndex': index,
-		});
+		const { dispatch, 'pattern': { _id } } = this.props;
+
+		dispatch(editWeftColor({
+			_id,
+			'colorIndex': index,
+		}));
 	}
 
 	handleClickRestoreDefaults() {
@@ -66,22 +62,6 @@ class Weft extends PureComponent {
 		dispatch(editPaletteColor({
 			_id,
 			'colorHexValue': colorHexValue,
-			'colorIndex': selectedColorIndex,
-		}));
-	}
-
-	handleClickWeft() {
-		const { isEditing } = this.state;
-
-		if (!isEditing) {
-			return;
-		}
-
-		const { dispatch, 'pattern': { _id } } = this.props;
-		const { selectedColorIndex } = this.state;
-
-		dispatch(editWeftColor({
-			_id,
 			'colorIndex': selectedColorIndex,
 		}));
 	}
@@ -112,9 +92,8 @@ class Weft extends PureComponent {
 			colorBookAdded,
 			colorBooks,
 			dispatch,
-			'pattern': { palette },
+			'pattern': { palette, weftColor },
 		} = this.props;
-		const { selectedColorIndex } = this.state;
 
 		return (
 			<Palette
@@ -127,7 +106,7 @@ class Weft extends PureComponent {
 				handleEditColor={this.handleEditColor}
 				palette={palette}
 				selectColor={this.selectColor}
-				selectedColorIndex={selectedColorIndex}
+				selectedColorIndex={weftColor}
 			/>
 		);
 	}
@@ -136,22 +115,16 @@ class Weft extends PureComponent {
 		const {
 			'pattern': { palette, weftColor },
 		} = this.props;
-		const { isEditing } = this.state;
 
 		return (
-			<label htmlFor="weft-color" className="text">
+			<>
 				<span className="text">Weft color:</span>
 				<span
 					className="weft-color"
 					id="weft-color"
-					onClick={isEditing ? this.handleClickWeft : undefined}
-					onKeyPress={isEditing ? this.handleClickWeft : undefined}
-					role={isEditing ? 'button' : undefined}
 					style={{ 'background': palette[weftColor] }}
-					tabIndex={isEditing ? '0' : undefined}
-					type={isEditing ? 'button' : undefined}
 				/>
-			</label>
+			</>
 		);
 	}
 

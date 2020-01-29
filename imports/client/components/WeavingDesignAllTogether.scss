@@ -27,4 +27,8 @@
 			}
 		}
 	}
+
+	.weaving-all-together {
+		width: calc(100vw - 40px); // use width of viewport but don't trigger a horizontal scroll bar
+	}
 }
