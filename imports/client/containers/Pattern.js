@@ -82,9 +82,10 @@ class Pattern extends PureComponent {
 		const { dispatch, isEditing } = this.props;
 		const { gotUser } = this.state;
 		const { isLoadingUser, patternId } = this.context;
-
+console.log('*** componentDidUpdate');
 		// wait for user details to load
 		if (!gotUser && !isLoadingUser && patternId) {
+			console.log('about to dispatch');
 			dispatch(addRecentPattern({ patternId }));
 
 			this.setState({

@@ -721,7 +721,7 @@ export function editTextField({
 	fieldName,
 	fieldValue,
 }) {
-	return () => {
+	return (dispatch) => {
 		Meteor.call('pattern.edit', {
 			_id,
 			'data': {

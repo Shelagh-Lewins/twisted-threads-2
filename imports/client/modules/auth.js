@@ -383,19 +383,17 @@ export const addRecentPattern = ({ currentWeavingRow, patternId }) => (dispatch)
 	const newRecentPatterns = updateRecentPatterns({ currentWeavingRow, patternId });
 
 	if (Meteor.user()) {
-		return () => {
-			Meteor.call('auth.setRecentPatterns', { newRecentPatterns, 'userId': Meteor.userId(), patternId }, (error) => {
-				if (error) {
-					return dispatch(logErrors({ 'add recent pattern': error.reason }));
-				}
-			});
-		};
+		Meteor.call('auth.setRecentPatterns', { newRecentPatterns, 'userId': Meteor.userId(), patternId }, (error) => {
+			if (error) {
+				return dispatch(logErrors({ 'add recent pattern': error.reason }));
+			}
+		});
 	}
 
 	setLocalStorageItem('recentPatterns', JSON.stringify(newRecentPatterns));
 
 	return () => {};
-}
+};
 
 // Provide info to UI
 // return empty string if user not available
