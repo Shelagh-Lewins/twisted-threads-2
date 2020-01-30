@@ -27,12 +27,16 @@
 	}
 
 	.container {
-		max-width: 600px;
 		margin-left: 15px;
+		max-width: 600px;
 	}
 
 	.pattern-list-holder {
 		max-width: unset;
 		width: unset;
+	}
+
+	.tablet-filter-form {
+		padding-left: 0;
 	}
 }

@@ -75,9 +75,14 @@ export const PatternsIndex = new Index({
 			'nameSort': 1,
 		}),
 		'sort': () => ({ 'nameSort': 1 }),
-		'transform': (doc) => {
+		'beforePublish': (action, doc) => { // runs on the server and can therefore access Meteor.users without subscribing
+			// we have already checked this is a public pattern, so it's OK to show the owner
+			const user = Meteor.users.findOne({ '_id': doc.createdBy });
+			doc.username = user.username;
+			return doc;
+		},
+		'transform': (doc) => { // runs on the client
 			doc.type = 'pattern';
-			doc.username = Meteor.users.findOne({ '_id': doc.createdBy }).username;
 			return doc;
 		},
 	}),

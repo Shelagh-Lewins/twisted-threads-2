@@ -182,7 +182,7 @@ class Search extends PureComponent {
 						<span className="search-result-pattern">
 							<span className="main-icon" />
 							<div>
-								<span className="name">{name}</span>
+								<span className="name" title={name}>{name}</span>
 								<span className="tablets-count" title={`${numberOfTablets} tablets`}>
 									<span className="icon" />
 									{numberOfTablets}

@@ -104,7 +104,7 @@ $rw-img-path: "~/img";
 
 			.tablets-count {
 				.icon {
-					background: url("../images/tablet_count.svg") transparent no-repeat left top;
+					background: url("/images/tablet_count.svg") transparent no-repeat left top;
 					background-size: 16px 16px;
 				}
 			}
@@ -118,7 +118,7 @@ $rw-img-path: "~/img";
 
 		.created-by {
 			.icon {
-				background: url("../images/created_by.png") transparent no-repeat left top;
+				background: url("/images/created_by.png") transparent no-repeat left top;
 				background-size: 16px 16px;
 			}
 		}
@@ -126,12 +126,12 @@ $rw-img-path: "~/img";
 		.name,
 		.username {
 			display: block;
-			/*white-space: nowrap; */
-			/*overflow: hidden;*/
-			/*text-overflow: ellipsis;*/
 			font-size: 95%;
 			font-weight: bold;
 			margin: 7px 8px 0 0;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
 		}
 	}
 }
