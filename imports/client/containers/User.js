@@ -356,8 +356,6 @@ User.propTypes = {
 	'currentPageNumber': PropTypes.number,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
-	'filterMaxTablets': PropTypes.number,
-	'filterMinTablets': PropTypes.number,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isAuthenticated': PropTypes.bool.isRequired,
 	'isLoading': PropTypes.bool.isRequired,
@@ -370,7 +368,6 @@ User.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
-	console.log('mapStateToProps', ownProps);
 	// find page number as URL query parameter, if present, in the form '/?page=1'
 	let currentPageNumber = 1;
 	const parsed = queryString.parse(ownProps.location.search);
@@ -385,8 +382,6 @@ function mapStateToProps(state, ownProps) {
 		'canCreateColorBook': getCanCreateColorBook(state),
 		'currentPageNumber': currentPageNumber, // read the url parameter to find the currentPage
 		'errors': state.errors,
-		'filterMaxTablets': state.pattern.filterMaxTablets,
-		'filterMinTablets': state.pattern.filterMinTablets,
 		'isAuthenticated': getIsAuthenticated(state),
 		'isLoading': state.pattern.isLoading,
 		'pageSkip': (currentPageNumber - 1) * ITEMS_PER_PAGE,

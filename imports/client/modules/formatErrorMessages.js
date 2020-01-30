@@ -11,14 +11,19 @@
 }
 */
 
+// combine error type and message to give more information
+const buildString = (key, error) => `${key}: ${error}`;
+
 export default function (errors) {
 	const messageArray = [];
 	Object.keys(errors).forEach((key) => {
-		if (typeof errors[key] === 'string') {
-			messageArray.push(errors[key]); // plain string error
-		} else { // arary of errors
-			errors[key].map((item) => { // eslint-disable-line array-callback-return
-				messageArray.push(item);
+		const error = errors[key];
+
+		if (typeof error === 'string') {
+			messageArray.push(buildString(key, error)); // plain string error
+		} else { // array of errors
+			error.map((item) => { // eslint-disable-line array-callback-return
+				messageArray.push(buildString(key, item));
 			});
 		}
 	});

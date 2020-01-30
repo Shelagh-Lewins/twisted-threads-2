@@ -17,8 +17,11 @@ class Weft extends PureComponent {
 	constructor(props) {
 		super(props);
 
+		const { 'pattern': weftColor } = props;
+
 		this.state = {
 			'isEditing': false,
+			'selectedColorIndex': weftColor,
 		};
 
 		// bind onClick functions to provide context
@@ -41,6 +44,10 @@ class Weft extends PureComponent {
 			_id,
 			'colorIndex': index,
 		}));
+
+		this.setState({
+			'selectedColorIndex': index,
+		});
 	}
 
 	handleClickRestoreDefaults() {

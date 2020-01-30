@@ -680,7 +680,7 @@ export function editWeftColor({
 	_id,
 	colorIndex,
 }) {
-	return () => {
+	return (dispatch) => {
 		Meteor.call('pattern.edit', {
 			_id,
 			'data': {
@@ -689,7 +689,7 @@ export function editWeftColor({
 			},
 		}, (error) => {
 			if (error) {
-				return dispatch(logErrors({ 'edit weft color': error.reason }));
+				return dispatch(logErrors({ 'edit weft colour': error.reason }));
 			}
 		});
 	};
@@ -700,7 +700,7 @@ export function editPreviewOrientation({
 	_id,
 	orientation,
 }) {
-	return () => {
+	return (dispatch) => {
 		Meteor.call('pattern.edit', {
 			_id,
 			'data': {

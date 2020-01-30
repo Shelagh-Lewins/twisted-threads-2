@@ -121,7 +121,7 @@ const PatternsSchema = new SimpleSchema({
 	'weftColor': {
 		'type': SimpleSchema.Integer,
 		'label': 'Weft colour',
-		'min': 1,
+		'min': 0,
 	},
 });
 
