@@ -125,45 +125,6 @@ export const PATTERN_IMAGES_KEY = 'test/'; // this is a pseudo-folder that names
 export const SEARCH_LIMIT = 10; // number of results to return
 export const SEARCH_MORE = 10; // show this many more when the user clicks 'show more...'
 
-export const MAIN_MENU_ITEMS = [
-	{
-		'value': 'home',
-		'name': 'Home',
-		'url': '/',
-		'loginRequired': false,
-	},
-	{
-		'value': 'recentPatterns',
-		'name': 'Recent patterns',
-		'url': '/recent-patterns',
-		'loginRequired': false,
-	},
-	{
-		'value': 'newPatterns',
-		'name': 'New patterns',
-		'url': '/new-patterns',
-		'loginRequired': false,
-	},
-	{
-		'value': 'myPatterns',
-		'name': 'My patterns',
-		'url': '/my-patterns',
-		'loginRequired': true,
-	},
-	{
-		'value': 'allPatterns',
-		'name': 'All patterns',
-		'url': '/all-patterns',
-		'loginRequired': false,
-	},
-	{
-		'value': 'people',
-		'name': 'People',
-		'url': '/people',
-		'loginRequired': false,
-	},
-];
-
 export const ITEMS_PER_PREVIEW_LIST = 10;
 
 export const FLASH_MESSAGE_TEXTS = {

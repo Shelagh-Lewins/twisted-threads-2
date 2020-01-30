@@ -24,7 +24,7 @@ import './Home.scss';
 
 const queryString = require('query-string');
 
-const bodyClass = 'my-patterns';
+const bodyClass = 'people';
 
 class People extends Component {
 	constructor(props) {

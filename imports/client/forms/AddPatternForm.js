@@ -97,7 +97,7 @@ const AddPatternForm = (props) => {
 
 	return (
 		<div className="add-pattern-form">
-			<h1>Create pattern</h1>
+			<h2>Create a new pattern</h2>
 			<form onSubmit={formik.handleSubmit}>
 				<div className="form-group">
 					<label htmlFor="name">

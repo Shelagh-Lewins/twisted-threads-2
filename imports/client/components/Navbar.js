@@ -90,7 +90,7 @@ class Navbar extends Component {
 
 		if (showPatternMenu) {
 			myPatternsLink = (
-				<Link to="/my-patterns" className="nav-link">My patterns</Link>
+				<Link to={`/user/${Meteor.userId()}`} className="nav-link">My patterns</Link>
 			);
 
 			const buttonDownload = (

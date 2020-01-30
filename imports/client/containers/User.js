@@ -32,6 +32,7 @@ import {
 } from '../../modules/collection';
 import {
 	getCanCreateColorBook,
+	getCanCreatePattern,
 	getIsAuthenticated,
 	editTextField,
 } from '../modules/auth';
@@ -43,6 +44,7 @@ import PatternList from '../components/PatternList';
 import PageWrapper from '../components/PageWrapper';
 import ColorBookSummary from '../components/ColorBookSummary';
 import AddColorBookForm from '../forms/AddColorBookForm';
+import AddPatternButton from '../components/AddPatternButton';
 import EditableText from '../components/EditableText';
 
 import { ITEMS_PER_PAGE } from '../../modules/parameters';
@@ -63,15 +65,18 @@ class User extends PureComponent {
 			'gotUser': false,
 			'selectedColorBook': null,
 			'showAddColorBookForm': false,
+			'showAddPatternForm': false,
 		};
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
-			'handleClickAddButton',
+			'handleClickAddColorBookButton',
 			'handleClickAddColorBook',
+			'cancelAddColorBook',
 			'handleClickButtonCopy',
-			'onClickEditableTextSave',
 			'handleClickSelectColorBook',
+			'onClickEditableTextSave',
+			'updateShowAddPatternForm',
 		];
 
 		functionsToBind.forEach((functionName) => {
@@ -142,7 +147,7 @@ class User extends PureComponent {
 	};
 
 	// show the form to add a new color book
-	handleClickAddButton() {
+	handleClickAddColorBookButton() {
 		this.setState({
 			'showAddColorBookForm': true,
 		});
@@ -181,6 +186,12 @@ class User extends PureComponent {
 		});
 	}
 
+	updateShowAddPatternForm(showForm) {
+		this.setState({
+			'showAddPatternForm': showForm,
+		});
+	}
+
 	renderColorBooks() {
 		const {
 			canCreateColorBook,
@@ -196,11 +207,11 @@ class User extends PureComponent {
 		const addButton = (
 			<Button
 				className="add"
-				color="secondary"
-				onClick={this.handleClickAddButton}
+				color="primary"
+				onClick={this.handleClickAddColorBookButton}
 				title="Add color book"
 			>
-				+ New
+				+ New colour book
 			</Button>
 		);
 
@@ -208,40 +219,44 @@ class User extends PureComponent {
 			<>
 				<Row>
 					<Col lg="12">
-						<h2>Colour Books</h2>
-						<div className="add-controls">
-							{canCreate && !showAddColorBookForm && addButton}
-							{canCreate && showAddColorBookForm && (
-								<AddColorBookForm
-									handleCancel={this.cancelAddColorBook}
-									handleSubmit={this.handleClickAddColorBook}
-								/>
-							)}
-						</div>
+						{!showAddColorBookForm && <h2>Colour Books</h2>}
+						{canCreate && (
+							<div className="add-controls">
+								{!showAddColorBookForm && addButton}
+								{showAddColorBookForm && (
+									<AddColorBookForm
+										handleCancel={this.cancelAddColorBook}
+										handleSubmit={this.handleClickAddColorBook}
+									/>
+								)}
+							</div>
+						)}
 					</Col>
 				</Row>
-				{colorBooks.length === 0 && (
+				{!showAddColorBookForm && colorBooks.length === 0 && (
 					<div>There are no colour books to display</div>
 				)}
-				<Row>
-					<Col md="12" className="color-books-user">
-						{colorBooks.length > 0
-						&& colorBooks.map((colorBook) => (
-							<ColorBookSummary
-								canCreateColorBook={canCreateColorBook}
-								colorBook={colorBook}
-								dispatch={dispatch}
-								handleClickButtonCopy={this.handleClickButtonCopy}
-								handleClickButtonRemove={this.handleClickButtonRemoveColorBook}
-								handleClickButtonSelect={this.handleClickSelectColorBook}
-								isAuthenticated={isAuthenticated}
-								isSelected={colorBook._id === selectedColorBook}
-								key={`color-book-${colorBook._id}`}
-								onChangeIsPublic={this.onChangeColorBookIsPublic}
-							/>
-						))}
-					</Col>
-				</Row>
+				{!showAddColorBookForm && colorBooks.length > 0 && (
+					<Row>
+						<Col md="12" className="color-books-user">
+							{colorBooks.length > 0
+							&& colorBooks.map((colorBook) => (
+								<ColorBookSummary
+									canCreateColorBook={canCreateColorBook}
+									colorBook={colorBook}
+									dispatch={dispatch}
+									handleClickButtonCopy={this.handleClickButtonCopy}
+									handleClickButtonRemove={this.handleClickButtonRemoveColorBook}
+									handleClickButtonSelect={this.handleClickSelectColorBook}
+									isAuthenticated={isAuthenticated}
+									isSelected={colorBook._id === selectedColorBook}
+									key={`color-book-${colorBook._id}`}
+									onChangeIsPublic={this.onChangeColorBookIsPublic}
+								/>
+							))}
+						</Col>
+					</Row>
+				)}
 			</>
 		);
 	}
@@ -257,29 +272,29 @@ class User extends PureComponent {
 			tags,
 			user,
 		} = this.props;
+		const { showAddPatternForm } = this.state;
 
 		return (
 			<>
-				<Row>
-					<Col lg="12">
-						<h2>Patterns</h2>
-					</Col>
-				</Row>
-				<TabletFilterForm />
-				<PaginatedList
-					currentPageNumber={currentPageNumber}
-					dispatch={dispatch}
-					history={history}
-					itemCount={patternCount}
-				>
-					<PatternList
-						dispatch={dispatch}
-						patternPreviews={patternPreviews}
-						patterns={patterns}
-						tags={tags}
-						users={[user]}
-					/>
-				</PaginatedList>
+				{!showAddPatternForm && (
+					<>
+						<TabletFilterForm />
+						<PaginatedList
+							currentPageNumber={currentPageNumber}
+							dispatch={dispatch}
+							history={history}
+							itemCount={patternCount}
+						>
+							<PatternList
+								dispatch={dispatch}
+								patternPreviews={patternPreviews}
+								patterns={patterns}
+								tags={tags}
+								users={[user]}
+							/>
+						</PaginatedList>
+					</>
+				)}
 			</>
 		);
 	}
@@ -299,7 +314,7 @@ class User extends PureComponent {
 				fieldName="description"
 				onClickSave={this.onClickEditableTextSave}
 				optional={true}
-				title="Description"
+				title="Profile"
 				type="textarea"
 				fieldValue={description}
 			/>
@@ -308,27 +323,46 @@ class User extends PureComponent {
 
 	render() {
 		const {
+			canCreatePattern,
 			dispatch,
 			errors,
+			history,
 			isLoading,
 			user,
 		} = this.props;
+
+		const { showAddPatternForm } = this.state;
 
 		let content = <Loading />;
 
 		if (!isLoading) {
 			if (user) {
-				console.log('render has user', user);
+				const { _id, username } = user;
+				const canCreate = canCreatePattern && Meteor.userId() === _id;
 				content = (
 					<>
 						<Container>
 							<h1
-								className={getUserpicStyle(user._id)}
+								className={getUserpicStyle(_id)}
 							>
-								{user.username}
+								{username}
 							</h1>
 							{this.renderDescription()}
 							{this.renderColorBooks()}
+							{!showAddPatternForm && (
+								<Row>
+									<Col lg="12">
+										<h2>Patterns</h2>
+									</Col>
+								</Row>
+							)}
+							{canCreate && (
+								<AddPatternButton
+									dispatch={dispatch}
+									history={history}
+									updateShowAddPatternForm={this.updateShowAddPatternForm}
+								/>
+							)}
 						</Container>
 						<Container className="pattern-list-holder">
 							{this.renderPatternsList()}
@@ -352,6 +386,7 @@ class User extends PureComponent {
 }
 
 User.propTypes = {
+	'canCreatePattern': PropTypes.bool.isRequired,
 	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'currentPageNumber': PropTypes.number,
 	'dispatch': PropTypes.func.isRequired,
@@ -363,7 +398,7 @@ User.propTypes = {
 	'patternPreviews': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'tags': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'user': PropTypes.objectOf(PropTypes.any).isRequired,
+	'user': PropTypes.objectOf(PropTypes.any),
 	'canCreateColorBook': PropTypes.bool.isRequired,
 };
 
@@ -380,6 +415,7 @@ function mapStateToProps(state, ownProps) {
 	return {
 		'_id': ownProps.match.params.id, // read the url parameter to find the id of the pattern
 		'canCreateColorBook': getCanCreateColorBook(state),
+		'canCreatePattern': getCanCreatePattern(state),
 		'currentPageNumber': currentPageNumber, // read the url parameter to find the currentPage
 		'errors': state.errors,
 		'isAuthenticated': getIsAuthenticated(state),
@@ -437,7 +473,7 @@ const Tracker = withTracker((props) => {
 		patterns,
 		'patternPreviews': PatternPreviews.find().fetch(),
 		'tags': Tags.find().fetch(),
-		'user': Meteor.users.findOne({ _id }), // to avoid error when subscription not ready
+		'user': Meteor.users.findOne({ _id }), // note this is undefined when subscription not ready
 	};
 })(User);
 

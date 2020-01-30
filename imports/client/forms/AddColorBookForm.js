@@ -51,7 +51,7 @@ const AddColorBookForm = (props) => {
 			</div>
 			<div className="controls">
 				<Button type="button" color="secondary" onClick={handleCancel}>Cancel</Button>
-				<Button type="submit" color="primary">Add color book</Button>
+				<Button type="submit" color="primary">Create a new color book</Button>
 			</div>
 		</form>
 	);

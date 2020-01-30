@@ -12,11 +12,49 @@ import {
 	getSelectedMainMenuItem,
 	setSelectedMainMenuItem,
 } from '../modules/page';
-import { MAIN_MENU_ITEMS } from '../../modules/parameters';
 
 import './MainMenu.scss';
 
 class MainMenu extends Component {
+	mainMenuItems = [
+		{
+			'value': 'home',
+			'name': 'Home',
+			'url': '/',
+			'loginRequired': false,
+		},
+		{
+			'value': 'recentPatterns',
+			'name': 'Recent patterns',
+			'url': '/recent-patterns',
+			'loginRequired': false,
+		},
+		{
+			'value': 'newPatterns',
+			'name': 'New patterns',
+			'url': '/new-patterns',
+			'loginRequired': false,
+		},
+		{
+			'value': 'myPatterns',
+			'name': 'My patterns',
+			'url': `/user/${Meteor.userId()}`,
+			'loginRequired': true,
+		},
+		{
+			'value': 'allPatterns',
+			'name': 'All patterns',
+			'url': '/all-patterns',
+			'loginRequired': false,
+		},
+		{
+			'value': 'people',
+			'name': 'People',
+			'url': '/people',
+			'loginRequired': false,
+		},
+	];
+
 	componentDidMount() {
 		const {
 			dispatch,
@@ -25,7 +63,7 @@ class MainMenu extends Component {
 
 		if (location) {
 			const { pathname } = location;
-			MAIN_MENU_ITEMS.map((menuItem) => {
+			this.mainMenuItems.map((menuItem) => {
 				if (matchPath(pathname, {
 					'path': menuItem.url,
 					'exact': true,
@@ -66,7 +104,7 @@ class MainMenu extends Component {
 		const renderMenuItems = () => {
 			const menuItems = [];
 
-			MAIN_MENU_ITEMS.forEach((menuItem) => {
+			this.mainMenuItems.forEach((menuItem) => {
 				const { loginRequired } = menuItem;
 				if (!loginRequired || (loginRequired && isAuthenticated)) {
 					menuItems.push(renderMenuItem(menuItem));

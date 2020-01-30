@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import {
-	Button,
 	Col,
 	Container,
 	Row,
@@ -12,7 +11,6 @@ import PropTypes from 'prop-types';
 import PageWrapper from '../components/PageWrapper';
 import store from '../modules/store';
 import {
-	addPattern,
 	getIsLoading,
 	setIsLoading,
 } from '../modules/pattern';
@@ -26,7 +24,7 @@ import Loading from '../components/Loading';
 import MainMenu from '../components/MainMenu';
 import PatternListPreview from '../components/PatternListPreview';
 import UserListPreview from '../components/UserListPreview';
-import AddPatternForm from '../forms/AddPatternForm';
+import AddPatternButton from '../components/AddPatternButton';
 
 import { ITEMS_PER_PREVIEW_LIST } from '../../modules/parameters';
 import secondaryPatternSubscriptions from '../modules/secondaryPatternSubscriptions';
@@ -47,8 +45,7 @@ class Home extends Component {
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
-			'handleClickShowAddPatternForm',
-			'handleCancelShowAddPatternForm',
+			'updateShowAddPatternForm',
 		];
 
 		functionsToBind.forEach((functionName) => {
@@ -86,28 +83,9 @@ class Home extends Component {
 		});
 	}
 
-	handleSubmitAddPattern = (data, { resetForm }) => {
-		const { dispatch, history } = this.props;
-		const modifiedData = { ...data };
-		modifiedData.holes = parseInt(data.holes, 10); // select value is string
-
-		dispatch(addPattern(modifiedData, history));
-		resetForm();
-
+	updateShowAddPatternForm(showForm) {
 		this.setState({
-			'showAddPatternForm': false,
-		});
-	}
-
-	handleClickShowAddPatternForm() {
-		this.setState({
-			'showAddPatternForm': true,
-		});
-	}
-
-	handleCancelShowAddPatternForm() {
-		this.setState({
-			'showAddPatternForm': false,
+			'showAddPatternForm': showForm,
 		});
 	}
 
@@ -118,6 +96,7 @@ class Home extends Component {
 			canCreatePattern,
 			dispatch,
 			errors,
+			history,
 			isAuthenticated,
 			isLoading,
 			isVerified,
@@ -129,20 +108,6 @@ class Home extends Component {
 			users,
 		} = this.props;
 		const { showAddPatternForm, width } = this.state;
-
-		const addPatternButton = (
-			<Row>
-				<Col lg="12">
-					<Button
-						className="show-add-pattern-form"
-						color="primary"
-						onClick={this.handleClickShowAddPatternForm}
-					>
-						New patterrn
-					</Button>
-				</Col>
-			</Row>
-		);
 
 		return (
 			<PageWrapper
@@ -165,15 +130,14 @@ class Home extends Component {
 								{isAuthenticated && !canCreatePattern && isVerified && <p>To create more patterns, please get in touch with the developer of Twisted Threads via the <a href="https://www.facebook.com/groups/927805953974190/">Twisted Threads Facebook group</a>.</p>}
 							</Col>
 						</Row>
-						{canCreatePattern && !showAddPatternForm && addPatternButton}
-						{showAddPatternForm && (
+						{canCreatePattern && (
 							<Row>
 								<Col lg="12">
-									<AddPatternForm
-										handleCancel={this.handleCancelShowAddPatternForm}
-										handleSubmit={this.handleSubmitAddPattern}
+									<AddPatternButton
+										dispatch={dispatch}
+										history={history}
+										updateShowAddPatternForm={this.updateShowAddPatternForm}
 									/>
-									<hr />
 								</Col>
 							</Row>
 						)}
@@ -209,7 +173,7 @@ class Home extends Component {
 									patterns={myPatterns}
 									patternPreviews={patternPreviews}
 									tags={tags}
-									url="/my-patterns"
+									url={`/user/${Meteor.userId()}`}
 									users={users}
 									width={width}
 								/>
