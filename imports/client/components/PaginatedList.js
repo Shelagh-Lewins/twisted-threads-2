@@ -9,18 +9,38 @@ import { ITEMS_PER_PAGE } from '../../modules/parameters';
 import './PaginatedList.scss';
 
 class PaginatedList extends PureComponent {
+	constructor(props) {
+		super(props);
+
+		// bind onClick functions to provide context
+		const functionsToBind = [
+			'handlePageClick',
+		];
+
+		functionsToBind.forEach((functionName) => {
+			this[functionName] = this[functionName].bind(this);
+		});
+	}
+
+	handlePageClick = (data) => {
+		const {
+			dispatch,
+			history,
+		} = this.props;
+
+		dispatch(changePage(data.selected, history));
+	}
+
 	render() {
 		const {
 			children,
 			currentPageNumber,
-			dispatch,
-			history,
 			itemCount,
 		} = this.props;
 
 		const pagination = itemCount > ITEMS_PER_PAGE ? (
 			<Pagination
-				handlePageClick={(data) => dispatch(changePage(data.selected, history))}
+				handlePageClick={this.handlePageClick}
 				initialPage={currentPageNumber - 1}
 				pageCount={Math.ceil(itemCount / ITEMS_PER_PAGE)}
 			/>

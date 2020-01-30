@@ -56,6 +56,7 @@ class AllPatterns extends Component {
 			currentPageNumber,
 			dispatch,
 			errors,
+			handle,
 			history,
 			isLoading,
 			patternCount,
@@ -88,6 +89,7 @@ class AllPatterns extends Component {
 							<PaginatedList
 								currentPageNumber={currentPageNumber}
 								dispatch={dispatch}
+								handle={handle}
 								history={history}
 								itemCount={patternCount}
 							>
@@ -115,8 +117,10 @@ AllPatterns.propTypes = {
 	'currentPageNumber': PropTypes.number,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
+	// eslint doesn't realise the filters are used in Tracker
 	'filterMaxTablets': PropTypes.number,
 	'filterMinTablets': PropTypes.number,
+	'handle': PropTypes.objectOf(PropTypes.any).isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'patternCount': PropTypes.number.isRequired,
@@ -182,6 +186,8 @@ const Tracker = withTracker((props) => {
 	}
 
 	return {
+		'filterMaxTablets': state.pattern.filterMaxTablets,
+		'filterMinTablets': state.pattern.filterMinTablets,
 		patterns,
 		'patternPreviews': PatternPreviews.find().fetch(),
 		'tags': Tags.find().fetch(),

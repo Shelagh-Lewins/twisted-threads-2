@@ -391,6 +391,9 @@ User.propTypes = {
 	'currentPageNumber': PropTypes.number,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
+	// eslint doesn't realise the filters are used in Tracker
+	'filterMaxTablets': PropTypes.number,
+	'filterMinTablets': PropTypes.number,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isAuthenticated': PropTypes.bool.isRequired,
 	'isLoading': PropTypes.bool.isRequired,
@@ -418,6 +421,8 @@ function mapStateToProps(state, ownProps) {
 		'canCreatePattern': getCanCreatePattern(state),
 		'currentPageNumber': currentPageNumber, // read the url parameter to find the currentPage
 		'errors': state.errors,
+		'filterMaxTablets': state.pattern.filterMaxTablets,
+		'filterMinTablets': state.pattern.filterMinTablets,
 		'isAuthenticated': getIsAuthenticated(state),
 		'isLoading': state.pattern.isLoading,
 		'pageSkip': (currentPageNumber - 1) * ITEMS_PER_PAGE,

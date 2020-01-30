@@ -115,6 +115,7 @@ NewPatterns.propTypes = {
 	'currentPageNumber': PropTypes.number,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
+	// eslint doesn't realise the filters are used in Tracker
 	'filterMaxTablets': PropTypes.number,
 	'filterMinTablets': PropTypes.number,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
