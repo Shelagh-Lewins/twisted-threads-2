@@ -1,5 +1,13 @@
 @import "../constants/variables";
 
+@media (min-width: 768px) {
+	.add-pattern-form {
+		.type-hint {
+			width: 400px;
+		}
+	}
+}
+
 .add-pattern-form {
 	overflow: hidden;
 
@@ -13,5 +21,13 @@
 
 	.hint {
 		color: $color-hint;
+	}
+
+	.twill-direction {
+		input {
+			&[type="radio"] {
+				margin-right: 8px;
+			}
+		}
 	}
 }

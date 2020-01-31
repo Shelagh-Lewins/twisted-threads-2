@@ -7,36 +7,48 @@ import {
 	ALLOWED_PATTERN_TYPES,
 	DEFAULT_ROWS,
 	DEFAULT_TABLETS,
+	DEFAULT_TWILL_DIRECTION,
 	MAX_ROWS,
 	MAX_TABLETS,
 } from '../../modules/parameters';
 import './AddPatternForm.scss';
 
 const validate = (values) => {
+	const {
+		name,
+		patternType,
+		rows,
+		tablets,
+	} = values;
 	const errors = {};
 
-	if (!values.name) {
+	if (!name) {
 		errors.name = 'Required';
 	}
 
 	if (!values.tablets) {
 		errors.tablets = 'Required';
-	} else if (values.tablets < 1) {
+	} else if (tablets < 1) {
 		errors.tablets = 'Must be at least 1';
-	} else if (values.tablets > MAX_TABLETS) {
+	} else if (tablets > MAX_TABLETS) {
 		errors.tablets = `Must not be greater than ${MAX_TABLETS}`;
-	} else if (!Number.isInteger(values.tablets)) {
+	} else if (!Number.isInteger(tablets)) {
 		errors.tablets = 'Must be a whole number';
 	}
 
+	const isBrokenTwill = patternType === 'brokenTwill';
+	const minRows = isBrokenTwill ? 2 : 1;
+
 	if (!values.rows) {
 		errors.rows = 'Required';
-	} else if (values.rows < 1) {
-		errors.rows = 'Must be at least 1';
-	} else if (values.rows > MAX_ROWS) {
+	} else if (rows < minRows) {
+		errors.rows = `Must be at least ${minRows}`;
+	} else if (rows > MAX_ROWS) {
 		errors.rows = `Must not be greater than ${MAX_ROWS}`;
-	} else if (!Number.isInteger(values.rows)) {
+	} else if (!Number.isInteger(rows)) {
 		errors.rows = 'Must be a whole number';
+	} else if (isBrokenTwill && rows % 2 !== 0) {
+		errors.rows = 'Must be an even number';
 	}
 
 	return errors;
@@ -50,6 +62,7 @@ const AddPatternForm = (props) => {
 			'patternType': 'individual',
 			'rows': DEFAULT_ROWS,
 			'tablets': DEFAULT_TABLETS,
+			'twillDirection': DEFAULT_TWILL_DIRECTION,
 		},
 		validate,
 		'onSubmit': (values, { resetForm }) => {
@@ -58,6 +71,7 @@ const AddPatternForm = (props) => {
 	});
 
 	const { handleCancel } = props;
+	const { setFieldValue } = formik;
 
 	// note firefox doesn't support the 'label' shorthand in option
 	// https://bugzilla.mozilla.org/show_bug.cgi?id=40545#c11
@@ -80,6 +94,38 @@ const AddPatternForm = (props) => {
 		</option>
 	));
 
+	const twillDirectionControls = (
+		<Row className="form-group twill-direction">
+			<Col md="12">
+				Background twill direction:
+				<label htmlFor="twillDirectionS" className="radio-inline control-label">
+					<input
+						checked={formik.values.twillDirection === 'S'}
+						id="twillDirectionS"
+						name="twillDirection"
+						type="radio"
+						onChange={formik.handleChange}
+						onBlur={formik.handleBlur}
+						value="S"
+					/>
+					S-twill
+				</label>
+				<label htmlFor="twillDirectionZ" className="radio-inline control-label">
+					<input
+						checked={formik.values.twillDirection === 'Z'}
+						id="twillDirectionZ"
+						name="twillDirection"
+						type="radio"
+						onChange={formik.handleChange}
+						onBlur={formik.handleBlur}
+						value="Z"
+					/>
+					Z-twill
+				</label>
+			</Col>
+		</Row>
+	);
+
 	let typeHint;
 
 	switch (formik.values.patternType) {
@@ -91,9 +137,23 @@ const AddPatternForm = (props) => {
 			typeHint = 'Turn all tablets together each pick, either forwards or backwards.';
 			break;
 
+		case 'brokenTwill':
+			typeHint = 'Weave a double-faced band in two colours, using offset floats to create a diagonal texture.';
+			break;
+
 		default:
 			break;
 	}
+
+	const isBrokenTwill = formik.values.patternType === 'brokenTwill';
+
+	const handleChangePatternType = (e) => {
+		formik.handleChange(e);
+
+		if (e.target.value === 'brokenTwill') {
+			setFieldValue('holes', 4);
+		}
+	};
 
 	return (
 		<div className="add-pattern-form">
@@ -126,14 +186,14 @@ const AddPatternForm = (props) => {
 								className="form-control"
 								id="patternType"
 								name="patternType"
-								onChange={formik.handleChange}
+								onChange={handleChangePatternType}
 								onBlur={formik.handleBlur}
 								value={formik.values.patternType}
 							>
 								{patternTypeOptions}
 							</select>
 						</label>
-						<p className="hint">{typeHint}</p>
+						<p className="hint type-hint">{typeHint}</p>
 					</Col>
 					<Col md="6">
 						<div className="form-group">
@@ -141,6 +201,7 @@ const AddPatternForm = (props) => {
 								Number of holes in each tablet
 								<select
 									className="form-control"
+									disabled={isBrokenTwill}
 									id="holes"
 									name="holes"
 									onChange={formik.handleChange}
@@ -184,8 +245,9 @@ const AddPatternForm = (props) => {
 								placeholder="Number of rows"
 								id="rows"
 								max={MAX_ROWS}
-								min="1"
+								min={isBrokenTwill ? '2' : '1'}
 								name="rows"
+								step={isBrokenTwill ? '2' : '1'}
 								type="number"
 								onChange={formik.handleChange}
 								onBlur={formik.handleBlur}
@@ -197,6 +259,7 @@ const AddPatternForm = (props) => {
 						</label>
 					</Col>
 				</Row>
+				{formik.values.patternType === 'brokenTwill' && twillDirectionControls}
 				<div className="controls">
 					<Button type="button" color="secondary" onClick={handleCancel}>Cancel</Button>
 					<Button type="submit" color="primary">Create a new pattern</Button>

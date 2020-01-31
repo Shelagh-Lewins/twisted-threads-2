@@ -14,6 +14,7 @@ import {
 import { PatternImages, PatternPreviews, Patterns } from '../../imports/modules/collection';
 import {
 	ALLOWED_PREVIEW_ORIENTATIONS,
+	BROKEN_TWILL_THREADING,
 	DEFAULT_COLOR,
 	DEFAULT_DIRECTION,
 	DEFAULT_NUMBER_OF_TURNS,
@@ -41,12 +42,14 @@ Meteor.methods({
 		rows,
 		tablets,
 		patternType,
+		twillDirection,
 	}) {
 		check(name, String);
 		check(holes, validHolesCheck);
 		check(rows, validRowsCheck);
 		check(tablets, validTabletsCheck);
 		check(patternType, validPatternTypeCheck);
+		check(twillDirection, Match.Maybe(String));
 
 		const { error, result } = checkUserCanCreatePattern();
 
@@ -58,6 +61,7 @@ Meteor.methods({
 		// one row per hole
 		// one column per tablet
 		// note that if you use fill to create new Arrays per tablet, it's really just one array! We need to make sure each array is a new entity.
+		// most pattern types use the same threading, so set up the default for all and change later if necessary
 		const threading = new Array(holes);
 		for (let i = 0; i < holes; i += 1) {
 			threading[i] = new Array(tablets).fill(DEFAULT_COLOR);
@@ -98,6 +102,55 @@ Meteor.methods({
 
 				patternDesign = { weavingInstructions };
 				break;
+
+			case 'brokenTwill':
+				// double faced pattern with diagonal structure
+				// designed on graph paper and converted to weaving chart
+				// 4 hole tablets only
+				if (holes !== 4) {
+					throw new Meteor.Error('add-pattern-invalid-holes', 'Unable to add pattern because the number of holes must be 4 for broken twill');
+				}
+
+				// even number of rows
+				if (rows % 2 !== 0) {
+					throw new Meteor.Error('add-pattern-invalid-rows', 'Unable to add pattern because the number of rows must be even for broken twill');
+				}
+
+				// must have twill direction S or Z
+				if (twillDirection !== 'S' && twillDirection !== 'Z') {
+					throw new Meteor.Error('add-pattern-twill-direction', 'Unable to add pattern because the twill direction is invalid');
+				}
+
+				// set up the pattern chart
+				// this corresponds to Data in GTT pattern. This is the chart showing the two-colour design.
+				const twillPatternChart = [];
+				const twillChangeChart = [];
+
+				// set up a plain chart for each, this will give just background twill
+				// charts have an extra row at the end
+				// this extra row is not shown in preview or weaving chart but is used to determine the last even row
+				for (let i = 0; i < (rows / 2) + 1; i += 1) {
+					twillPatternChart[i] = [];
+					twillChangeChart[i] = [];
+
+					for (let j = 0; j < tablets; j += 1) {
+						twillPatternChart[i][j] = '.';
+						twillChangeChart[i][j] = '.';
+					}
+				}
+
+				patternDesign = { twillPatternChart, twillChangeChart };
+
+				// broken twill threading is set up with two colours in a repeating pattern
+				for (let i = 0; i < holes; i += 1) {
+					for (let j = 0; j < tablets; j += 1) {
+						threading[i][j] = BROKEN_TWILL_THREADING[i][j % holes];
+					}
+				}
+
+				// broken twill uses the default orientation, same as other patterns (/ or S)
+				break;
+
 
 			default:
 				break;

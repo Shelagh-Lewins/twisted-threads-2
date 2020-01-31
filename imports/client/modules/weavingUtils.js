@@ -1,7 +1,6 @@
 // functions used to calculate weaving chart from pattern design
 import { createSelector } from 'reselect';
 import {
-	DEFAULT_DIRECTION,
 	EMPTY_HOLE_COLOR,
 	MAX_PICKS_IN_REPEAT,
 } from '../../modules/parameters';
@@ -332,4 +331,73 @@ export const getThread = ({
 		threadAngle,
 		threadColor,
 	};
+};
+
+// 3/1 broken twill patterns are defined by two charts
+// note that twill direction change is the TWT name for GTT's long floats
+export const buildTwillWeavingInstructions = ({
+	numberOfRows,
+	numberOfTablets,
+	twillPatternChart,
+	twillChangeChart,
+}) => {
+	// each row of raw chart data corresponds to two picks, offset alternately
+	// so we need to first build expanded charts that correspond to single picks
+	const doubledPatternChart = [];
+	const doubledChangeChart = [];
+
+	for (let i = 0; i < numberOfRows / 2; i += 1) {
+		const evenPatternRow = [];
+		const oddPatternRow = [];
+		const evenChangeRow = [];
+		const oddChangeRow = [];
+
+		for (let j = 0; j < numberOfTablets; j += 1) {
+			// pattern chart
+			// even row
+			evenPatternRow.push(twillPatternChart[i][j]);
+
+			// odd row
+			if (i === ((numberOfRows / 2) - 1)) { // last row of Data
+				oddPatternRow.push(twillPatternChart[i][j]);
+			} else if (j % 2 === 0) {
+				oddPatternRow.push(twillPatternChart[i][j]);
+			} else {
+				oddPatternRow.push(twillPatternChart[i + 1][j]);
+			}
+
+			// change chart
+			// even row
+			evenChangeRow.push(twillChangeChart[i][j]);
+
+			// chart cells are alternately offset, so this finds the second pick in a pair
+			// replace X with Y in second row so we can identify first and second row of changed twill
+			if (j % 2 === 1) {
+				if (evenChangeRow[j] === 'X') {
+					evenChangeRow[j] = 'Y';
+				}
+			}
+
+			// odd row
+			if (i === ((numberOfRows / 2) - 1)) { // last row of twill direction change chart
+				oddChangeRow.push(twillChangeChart[i][j]);
+			} else if (j % 2 === 0) {
+				oddChangeRow.push(twillChangeChart[i][j]);
+			} else {
+				oddChangeRow.push(twillChangeChart[i + 1][j]);
+			}
+
+			// replace X with Y in second row so we can identify first and second row of long float
+			if ((j % 2 === 0)) {
+				if (oddChangeRow[j] === 'X') {
+					oddChangeRow[j] = 'Y';
+				}
+			}
+		}
+
+		doubledPatternChart.push(evenPatternRow);
+		doubledPatternChart.push(oddPatternRow);
+		doubledChangeChart.push(evenChangeRow);
+		doubledChangeChart.push(oddChangeRow);
+	}
 };

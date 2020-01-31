@@ -38,7 +38,12 @@ export const ALLOWED_PATTERN_TYPES = [
 		'displayName': 'All together',
 		'simulation': true,
 	},
-	// TODO build and add freehand, allTogether, packs, 3-1-broken-twill
+	{ // 3 / 1 broken twill, designed on special graph paper
+		'name': 'brokenTwill',
+		'displayName': '3/1 broken twill',
+		'simulation': true,
+	},
+	// TODO build and add freehand
 ];
 export const findPatternTypeDisplayName = (patternType) => ALLOWED_PATTERN_TYPES.find((type) => type.name === patternType).displayName;
 
@@ -59,6 +64,15 @@ export const ALLOWED_DIRECTIONS = [
 		'displayName': 'Backward',
 		'value': 'B',
 	},
+];
+
+// defaults for 3/1 broken twill
+export const DEFAULT_TWILL_DIRECTION = 'S';
+export const BROKEN_TWILL_THREADING = [
+	[3, 3, 1, 3],
+	[3, 1, 1, 1],
+	[1, 1, 3, 1],
+	[1, 3, 3, 3],
 ];
 
 export const COLORS_IN_COLOR_BOOK = 24;
