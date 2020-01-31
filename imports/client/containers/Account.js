@@ -126,6 +126,8 @@ class Account extends Component {
 							<Row>
 								<Col lg="12">
 									<h1>Account: {username}</h1>
+									<p>Your <Link to={`/user/${Meteor.userId()}`}>user page</Link> shows all your patterns and colour books.</p>
+									<hr />
 								</Col>
 							</Row>
 							<Row>
