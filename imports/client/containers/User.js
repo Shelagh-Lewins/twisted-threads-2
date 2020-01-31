@@ -348,7 +348,9 @@ class User extends PureComponent {
 								{username}
 							</h1>
 							{this.renderDescription()}
+							<hr />
 							{this.renderColorBooks()}
+							<hr />
 							{!showAddPatternForm && (
 								<Row>
 									<Col lg="12">
