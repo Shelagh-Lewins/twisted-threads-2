@@ -12,6 +12,7 @@ import {
 	getThreadingByTablet,
 	getWeavingInstructionsByTablet,
 	reCalculatePicksForTablet,
+	buildTwillWeavingInstructions, // TODO replace
 } from './weavingUtils';
 import {
 	DEFAULT_DIRECTION,
@@ -164,6 +165,23 @@ export function setPatternData({
 
 // calculate weaving picks from pattern data
 export const savePatternData = (patternObj) => (dispatch) => {
+	// broken twill will need chart giving position in twill sequence
+	// placeholder - just to check it works
+	if (patternObj.patternType === 'brokenTwill') {
+		const twillCharts = buildTwillWeavingInstructions({
+			'numberOfRows': patternObj.numberOfRows,
+			'numberOfTablets': patternObj.numberOfTablets,
+			'twillDirection': patternObj.patternDesign.twillDirection,
+			'twillPatternChart': patternObj.patternDesign.twillPatternChart,
+			'twillChangeChart': patternObj.patternDesign.twillChangeChart,
+		});
+		console.log('*** twillCharts', twillCharts);
+
+		patternObj.patternDesign.weavingInstructions = twillCharts.weavingInstructions;
+	}
+
+
+
 	const threadingByTablet = getThreadingByTablet(patternObj);
 	const weavingInstructionsByTablet = getWeavingInstructionsByTablet(patternObj || {});
 	const picks = getPicksByTablet(patternObj || {});

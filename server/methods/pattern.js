@@ -139,7 +139,11 @@ Meteor.methods({
 					}
 				}
 
-				patternDesign = { twillPatternChart, twillChangeChart };
+				patternDesign = {
+					twillDirection,
+					twillPatternChart,
+					twillChangeChart,
+				};
 
 				// broken twill threading is set up with two colours in a repeating pattern
 				for (let i = 0; i < holes; i += 1) {
