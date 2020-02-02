@@ -74,6 +74,8 @@ export const BROKEN_TWILL_THREADING = [
 	[3, 1, 1, 1],
 	[3, 3, 1, 3],
 ];
+// turning sequence for an individual tablet to weave background twill
+export const BROKEN_TWILL_SEQUENCE = ['F', 'F', 'B', 'B'];
 
 export const COLORS_IN_COLOR_BOOK = 24;
 export const DEFAULT_COLOR_BOOK_COLOR = '#aaa'; // if the default color has no saturation, clicking the vertical color bar in the color picker has no effect, which is confusing.

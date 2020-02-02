@@ -433,6 +433,7 @@ class Pattern extends PureComponent {
 			_id,
 			createdBy,
 			description,
+			patternType,
 			previewOrientation,
 			threadingNotes,
 			weavingNotes,
@@ -441,9 +442,13 @@ class Pattern extends PureComponent {
 		const canEdit = createdBy === Meteor.userId();
 
 		let tabContent;
-
+console.log('*** renderTabContent');
 		switch (tab) {
 			case 'design':
+				if (patternType === 'brokenTwill' && !pattern.weavingInstructionsByTablet) {
+					console.log('*** not ready');
+					break;
+				}
 				const twistNeutralText = (
 					<span className="hint">{patternIsTwistNeutral ? 'The pattern is twist neutral.' : 'The pattern is not twist neutral.'}</span>
 				);
@@ -567,6 +572,7 @@ class Pattern extends PureComponent {
 	}
 
 	render() {
+		console.log('*** render Pattern');
 		const {
 			dispatch,
 			errors,
