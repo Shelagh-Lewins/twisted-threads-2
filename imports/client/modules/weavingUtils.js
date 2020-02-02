@@ -32,7 +32,7 @@ export const modulus = (n, m) => ((n % m) + m) % m;
 
 // ///////////////////////////
 // provide weaving data to components
-const getPattern = (pattern) => pattern || {};
+// const getPattern = (pattern) => pattern || {};
 
 export const getNumberOfRows = (pattern) => pattern.numberOfRows;
 

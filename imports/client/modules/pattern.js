@@ -185,15 +185,12 @@ export function setPatternData({
 	};
 }
 
-// calculate weaving picks from pattern data
+// build chart data and save it in the store
 export const savePatternData = (patternObj) => (dispatch) => {
-	// dispatch(buildWeavingInstructions(patternObj));
 	const { numberOfRows, numberOfTablets } = patternObj;
 	const weavingInstructionsByTablet = buiildWeavingInstructionsByTablet(patternObj);
 
 	dispatch(setWeavingInstructions(weavingInstructionsByTablet));
-
-	// patternObj.weavingInstructionsByTablet = weavingInstructionsByTablet;
 
 	const threadingByTablet = getThreadingByTablet(patternObj);
 
@@ -202,7 +199,6 @@ export const savePatternData = (patternObj) => (dispatch) => {
 		numberOfTablets,
 		weavingInstructionsByTablet,
 	});
-	// const picks = getPicksByTablet(patternObj || {});
 
 	dispatch(setPatternData({
 		picks,
