@@ -408,8 +408,6 @@ export const buildTwillWeavingInstructions = ({
 		doubledChangeChart.push(evenChangeRow);
 		doubledChangeChart.push(oddChangeRow);
 	}
-	console.log('*** doubledPatternChart', doubledPatternChart);
-	console.log('*** doubledChangeChart', doubledChangeChart);
 
 	// build the weaving instructions
 	const twillSequence = ['F', 'F', 'B', 'B']; // turning sequence for an individual tablet to weave background twill
@@ -470,7 +468,8 @@ export const buildTwillWeavingInstructions = ({
 
 			const twillChange = doubledChangeChart[i][j];
 
-			let previousTwillChange = '.';
+			// these correspond to previous_long_float, next_long_float in my_functions.js and do not appear to be used
+			/* let previousTwillChange = '.';
 			let nextTwillChange = '.';
 
 			if (i !== 0) {
@@ -479,7 +478,7 @@ export const buildTwillWeavingInstructions = ({
 
 			if ((i < numberOfRows - 1)) {
 				nextTwillChange = doubledChangeChart[i + 1][j];
-			}
+			} */
 
 			// handle long floats
 			// advance in turning sequence

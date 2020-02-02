@@ -69,10 +69,10 @@ export const ALLOWED_DIRECTIONS = [
 // defaults for 3/1 broken twill
 export const DEFAULT_TWILL_DIRECTION = 'S';
 export const BROKEN_TWILL_THREADING = [
-	[3, 3, 1, 3],
-	[3, 1, 1, 1],
-	[1, 1, 3, 1],
 	[1, 3, 3, 3],
+	[1, 1, 3, 1],
+	[3, 1, 1, 1],
+	[3, 3, 1, 3],
 ];
 
 export const COLORS_IN_COLOR_BOOK = 24;
