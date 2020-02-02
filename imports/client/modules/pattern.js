@@ -6,13 +6,12 @@ import { createSelector } from 'reselect';
 // import createCachedSelector from 're-reselect';
 import { logErrors, clearErrors } from './errors';
 import {
+	buiildWeavingInstructionsByTablet,
 	calculatePicksForTablet,
 	findPatternTwist,
-	getPicksByTablet,
+	calculateAllPicks,
 	getThreadingByTablet,
-	getWeavingInstructionsByTablet,
 	reCalculatePicksForTablet,
-	buildTwillWeavingInstructionsByTablet, // TODO replace
 } from './weavingUtils';
 import {
 	DEFAULT_DIRECTION,
@@ -33,6 +32,7 @@ export const SET_PATTERN_COUNT_USERID = 'SET_PATTERN_COUNT_USERID';
 export const SET_ISLOADING = 'SET_ISLOADING';
 export const SET_PATTERN_ID = 'SET_PATTERN_ID';
 export const SET_WEAVING_INSTRUCTIONS = 'SET_WEAVING_INSTRUCTIONS';
+export const CLEAR_PATTERN_DATA = 'CLEAR_PATTERN_DATA';
 export const SET_PATTERN_DATA = 'SET_PATTERN_DATA';
 
 // edit pattern charts
@@ -145,40 +145,12 @@ export function setWeavingInstructions(weavingInstructionsByTablet) {
 	};
 }
 
-export const buildWeavingInstructions = (patternObj) => (dispatch) => {
-	let weavingInstructionsByTablet;
-
-	if (patternObj.patternType === 'brokenTwill') {
-		// for broken twill, the weaving instructions must be built from the pattern design charts
-		weavingInstructionsByTablet = buildTwillWeavingInstructionsByTablet({
-			'numberOfRows': patternObj.numberOfRows,
-			'numberOfTablets': patternObj.numberOfTablets,
-			'twillDirection': patternObj.patternDesign.twillDirection,
-			'twillPatternChart': patternObj.patternDesign.twillPatternChart,
-			'twillChangeChart': patternObj.patternDesign.twillChangeChart,
-		});
-	} else {
-		// weaving instructions can be read from the pattern design
-		weavingInstructionsByTablet = getWeavingInstructionsByTablet(patternObj || {});
-	}
-
-	dispatch(setWeavingInstructions({
-		weavingInstructionsByTablet,
-	}));
-
-	patternObj.weavingInstructionsByTablet = weavingInstructionsByTablet;
-
-	const threadingByTablet = getThreadingByTablet(patternObj);
-	// const weavingInstructionsByTablet = getWeavingInstructionsByTablet(patternObj || {});
-	const picks = getPicksByTablet(patternObj || {});
-
-	dispatch(setPatternData({
-		picks,
-		patternObj,
-		threadingByTablet,
-		weavingInstructionsByTablet,
-	}));
-};
+export function clearPatternData() {
+	return {
+		'type': 'CLEAR_PATTERN_DATA',
+		'payload': false,
+	};
+}
 
 export function setPatternData({
 	picks,
@@ -215,7 +187,29 @@ export function setPatternData({
 
 // calculate weaving picks from pattern data
 export const savePatternData = (patternObj) => (dispatch) => {
-	dispatch(buildWeavingInstructions(patternObj));
+	// dispatch(buildWeavingInstructions(patternObj));
+	const { numberOfRows, numberOfTablets } = patternObj;
+	const weavingInstructionsByTablet = buiildWeavingInstructionsByTablet(patternObj);
+
+	dispatch(setWeavingInstructions(weavingInstructionsByTablet));
+
+	// patternObj.weavingInstructionsByTablet = weavingInstructionsByTablet;
+
+	const threadingByTablet = getThreadingByTablet(patternObj);
+
+	const picks = calculateAllPicks({
+		numberOfRows,
+		numberOfTablets,
+		weavingInstructionsByTablet,
+	});
+	// const picks = getPicksByTablet(patternObj || {});
+
+	dispatch(setPatternData({
+		picks,
+		patternObj,
+		threadingByTablet,
+		weavingInstructionsByTablet,
+	}));
 };
 
 // ///////////////////////////
@@ -887,6 +881,10 @@ export default function pattern(state = initialPatternState, action) {
 
 		case SET_WEAVING_INSTRUCTIONS: {
 			return updeep({ 'weavingInstructionsByTablet': action.payload }, state);
+		}
+
+		case CLEAR_PATTERN_DATA: {
+			return updeep({ 'patternDataReady': false }, state);
 		}
 
 		case SET_PATTERN_DATA: {

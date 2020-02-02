@@ -41,6 +41,7 @@ import {
 	setUserRoles,
 } from '../modules/auth';
 import {
+	clearPatternData,
 	getIsLoading,
 	getPatternId,
 	setIsLoading,
@@ -203,8 +204,8 @@ export const withDatabase = withTracker((props) => {
 
 				// happens if user copies a pattern
 				if (patternIdParam !== getPatternId(state)) {
-					console.log('*** App says new pattern id', patternIdParam);
 					dispatch(setIsLoading(true));
+					dispatch(clearPatternData()); // force chart data to be rebuilt
 				}
 
 				const handle = Meteor.subscribe('pattern', patternIdParam, {
@@ -247,18 +248,14 @@ export const withDatabase = withTracker((props) => {
 					// only dispatch the action if there will be a change
 					// which can be because of switching to a different pattern
 					if (isLoading && handle.ready()) {
-						console.log('*** app may be ready');
 						if (!state.pattern.patternDataReady) {
-							// once the data are loaded, build the weaving instructions
-							console.log('*** dispatch savePatternData');
+							// once the data are loaded, build the charts
 							dispatch(savePatternData(pattern));
 						} else {
 							// everything is ready to render
-							console.log('*** not loading');
 							dispatch(setIsLoading(false));
 						}
 					} else if (!isLoading && !handle.ready()) {
-						console.log('*** dispatch setIsLoading from App');
 						dispatch(setIsLoading(true));
 					}
 				}

@@ -38,46 +38,7 @@ export const getNumberOfRows = (pattern) => pattern.numberOfRows;
 
 export const getNumberOfTablets = (pattern) => pattern.numberOfTablets;
 
-export const getWeavingInstructionsForTablet = (pattern, tabletIndex) => {
-	const {
-		//patternDesign,
-		//patternType,
-		//numberOfRows,
-		weavingInstructionsByTablet,
-	} = pattern;
-
-	return weavingInstructionsByTablet[tabletIndex];
-
-	/* let weavingInstructionsForTablet = [];
-
-	switch (patternType) {
-		case 'individual':
-			for (let i = 0; i < numberOfRows; i += 1) {
-				weavingInstructionsForTablet[i] = patternDesign.weavingInstructions[i][tabletIndex];
-			}
-			break;
-
-		case 'allTogether':
-			for (let i = 0; i < numberOfRows; i += 1) {
-				weavingInstructionsForTablet[i] = {
-					'direction': patternDesign.weavingInstructions[i],
-					'numberOfTurns': 1,
-				};
-			}
-			break;
-
-		case 'brokenTwill':
-			if (weavingInstructionsByTablet) {
-				weavingInstructionsForTablet = weavingInstructionsByTablet[tabletIndex];
-			}
-			break;
-
-		default:
-			break;
-	}
-
-	return weavingInstructionsForTablet; */
-};
+export const getWeavingInstructionsForTablet = (pattern, tabletIndex) => pattern.weavingInstructionsByTablet[tabletIndex];
 
 // recast threading by tablet, row
 // better for getting data per tablet
@@ -100,24 +61,6 @@ export const getThreadingByTablet = (pattern) => {
 	}
 
 	return threadingByTablet;
-};
-
-// recast weaving instructions to be by tablet, row
-// which is better for manipulating weaving instructions
-// instead of the more human-readable row, tablet
-// that is saved in the database
-export const getWeavingInstructionsByTablet = (pattern) => {
-	const {
-		numberOfTablets,
-	} = pattern;
-
-	const weavingInstructionsByTablet = [];
-
-	for (let i = 0; i < numberOfTablets; i += 1) {
-		weavingInstructionsByTablet.push(getWeavingInstructionsForTablet(pattern, i));
-	}
-
-	return weavingInstructionsByTablet;
 };
 
 export const calculatePicksForTablet = (weavingInstructionsForTablet, numberOfRows) => {
@@ -153,11 +96,6 @@ export const calculatePicksForTablet = (weavingInstructionsForTablet, numberOfRo
 
 	return picks;
 };
-
-export const calculatePicksForTabletSelector = createSelector(
-	[getWeavingInstructionsForTablet, getNumberOfRows],
-	(weavingInstructionsForTablet, numberOfRows) => calculatePicksForTablet(weavingInstructionsForTablet, numberOfRows),
-);
 
 // recalculate picks for the tablet
 // from the row of the change onward
@@ -200,26 +138,23 @@ export const reCalculatePicksForTablet = ({
 	return picks;
 };
 
-export const getPicksByTablet = createSelector(
-	[getPattern, getNumberOfTablets],
-	(pattern, numberOfTablets) => {
-		// weave by tablet instead of by row
-		// so that an individual tablet can be rewoven
-		// without recalculating other tablets
-		if (!pattern.patternDesign) {
-			return [];
-		}
+export const calculateAllPicks = ({
+	numberOfRows,
+	numberOfTablets,
+	weavingInstructionsByTablet,
+}) => {
+	// weave by tablet instead of by row
+	// so that an individual tablet can be rewoven
+	// without recalculating other tablets
+	const picks = [];
 
-		const picksByTablet = [];
+	for (let i = 0; i < numberOfTablets; i += 1) {
+		const picksForTablet = calculatePicksForTablet(weavingInstructionsByTablet[i], numberOfRows);
+		picks.push(picksForTablet);
+	}
 
-		for (let j = 0; j < numberOfTablets; j += 1) {
-			const picksForTablet = calculatePicksForTabletSelector(pattern, j);
-			picksByTablet.push(picksForTablet);
-		}
-
-		return picksByTablet;
-	},
-);
+	return picks;
+};
 
 // a tablet to be deleted has its colorIndex temporarily set to a marker value which causes an error in threading and weaving charts
 export const isValidColorIndex = (colorIndex) => typeof colorIndex === 'number';
@@ -343,177 +278,6 @@ export const getThread = ({
 	};
 };
 
-// 3/1 broken twill patterns are defined by two charts
-// note that twill direction change is the TWT name for GTT's long floats
-export const buildTwillWeavingInstructions = ({
-	numberOfRows,
-	numberOfTablets,
-	twillDirection,
-	twillPatternChart,
-	twillChangeChart,
-}) => {
-	// each row of the pattern design charts corresponds to two picks, offset alternately
-	// first, build expanded charts that correspond to single picks
-	const doubledPatternChart = [];
-	const doubledChangeChart = [];
-	const designChartRows = twillPatternChart.length; // the charts have an extra row because of offset
-
-	for (let i = 0; i < designChartRows; i += 1) {
-		const evenPatternRow = [];
-		const oddPatternRow = [];
-		const evenChangeRow = [];
-		const oddChangeRow = [];
-
-		for (let j = 0; j < numberOfTablets; j += 1) {
-			// pattern chart
-			// even row
-			evenPatternRow.push(twillPatternChart[i][j]);
-
-			// odd row
-			if (i === (designChartRows - 1)) { // last row of Data
-				oddPatternRow.push(twillPatternChart[i][j]);
-			} else if (j % 2 === 0) {
-				oddPatternRow.push(twillPatternChart[i][j]);
-			} else {
-				oddPatternRow.push(twillPatternChart[i + 1][j]);
-			}
-
-			// change chart
-			// even row
-			evenChangeRow.push(twillChangeChart[i][j]);
-
-			// chart cells are alternately offset, so this finds the second pick in a pair
-			// replace X with Y in second row so we can identify first and second row of changed twill
-			if (j % 2 === 1) {
-				if (evenChangeRow[j] === 'X') {
-					evenChangeRow[j] = 'Y';
-				}
-			}
-
-			// odd row
-			if (i === (designChartRows - 1)) { // last row of twill direction change chart
-				oddChangeRow.push(twillChangeChart[i][j]);
-			} else if (j % 2 === 0) {
-				oddChangeRow.push(twillChangeChart[i][j]);
-			} else {
-				oddChangeRow.push(twillChangeChart[i + 1][j]);
-			}
-
-			// replace X with Y in second row so we can identify first and second row of long float
-			if ((j % 2 === 0)) {
-				if (oddChangeRow[j] === 'X') {
-					oddChangeRow[j] = 'Y';
-				}
-			}
-		}
-
-		doubledPatternChart.push(evenPatternRow);
-		doubledPatternChart.push(oddPatternRow);
-		doubledChangeChart.push(evenChangeRow);
-		doubledChangeChart.push(oddChangeRow);
-	}
-
-	// build the weaving instructions
-	const weavingInstructions = [];
-	const twillPosition = []; // TODO maybe build this into weavingInstructions? Tracks twillPosition of last woven row
-
-	// for each tablet, what stage is it at in the twill_sequence? 0, 1, 2, 3
-	// set the start row
-	// tablets start with the previous row, so that if there is a color change in row 1, they will continue as in the non-existent previous row
-	for (let i = 0; i < numberOfTablets; i += 1) {
-		switch (twillDirection) {
-			case 'S':
-				twillPosition.push((i + 3) % 4);
-				break;
-
-			case 'Z':
-				twillPosition.push(3 - ((i + 0) % 4));
-				break;
-
-			default:
-				console.log(`Error: unknown twill direction: ${twillDirection}`);
-				break;
-		}
-	}
-
-	// find the position in the twill sequence for each row
-	for (let i = 0; i < numberOfRows; i += 1) {
-		const newRow = [];
-
-		for (let j = 0; j < numberOfTablets; j += 1) {
-			// read the pattern chart for colour change
-			// '.' is background colour
-			// 'X' is foreground colour
-			const currentColor = doubledPatternChart[i][j];
-			let nextColor = currentColor;
-			let lastColor = '.';
-			let colorChange = false;
-
-			if (i < (numberOfRows - 1)) { // last row has no next row
-				nextColor = doubledPatternChart[i + 1][j]; // problem
-			}
-
-			if (i > 0) {
-				lastColor = doubledPatternChart[i - 1][j];
-			}
-
-			if (nextColor !== currentColor) {
-				colorChange = true;
-			}
-
-			if (lastColor !== currentColor) {
-				colorChange = true;
-				if (i === 0) { // tablet starts with foreground color
-					twillPosition[j] = (twillPosition[j] + 3) % 4; // go back an extra turn
-				}
-			}
-
-			const twillChange = doubledChangeChart[i][j];
-
-			// these correspond to previous_long_float, next_long_float in my_functions.js and do not appear to be used
-			/* let previousTwillChange = '.';
-			let nextTwillChange = '.';
-
-			if (i !== 0) {
-				previousTwillChange = doubledChangeChart[i - 1][j];
-			}
-
-			if ((i < numberOfRows - 1)) {
-				nextTwillChange = doubledChangeChart[i + 1][j];
-			} */
-
-			// handle long floats
-			// advance in turning sequence
-			if ((!colorChange)) {
-				twillPosition[j] = (twillPosition[j] + 1) % 4;
-			}
-
-			if ((twillChange === 'Y')) { // second pick of long float
-				twillPosition[j] = (twillPosition[j] + 2) % 4;
-			}
-
-			const position = twillPosition[j];
-			const direction = BROKEN_TWILL_SEQUENCE[position];
-
-			newRow.push({
-				direction,
-				position,
-				'numberOfTurns': 1,
-			});
-		}
-
-		weavingInstructions.push(newRow);
-	}
-	console.log('weavingInstructions', weavingInstructions);
-
-
-	return {
-		doubledPatternChart,
-		doubledChangeChart,
-		weavingInstructions,
-	};
-};
-
 export const buildTwillDoubledCharts = ({
 	numberOfTablets,
 	twillPatternChart,
@@ -586,13 +350,66 @@ export const buildTwillDoubledCharts = ({
 	};
 };
 
+export const buildIndividualWeavingInstructionsByTablet = ({
+	numberOfRows,
+	numberOfTablets,
+	patternDesign,
+}) => {
+	const weavingInstructionsByTablet = [];
+
+	for (let i = 0; i < numberOfTablets; i += 1) {
+		const weavingInstructionsForTablet = [];
+
+		for (let j = 0; j < numberOfRows; j += 1) {
+			weavingInstructionsForTablet.push(patternDesign.weavingInstructions[j][i]);
+		}
+
+		weavingInstructionsByTablet.push(weavingInstructionsForTablet);
+	}
+
+	return weavingInstructionsByTablet;
+};
+
+export const buildAllTogetherWeavingInstructionsByTablet = ({
+	numberOfRows,
+	numberOfTablets,
+	patternDesign,
+}) => {
+	const weavingInstructionsByTablet = [];
+
+	for (let i = 0; i < numberOfTablets; i += 1) {
+		const weavingInstructionsForTablet = [];
+
+		// pattern design gives direction of turn for the entire row
+		// always 1 turn
+		for (let j = 0; j < numberOfRows; j += 1) {
+			const instruction = {
+				'direction': patternDesign.weavingInstructions[j],
+				'numberOfTurns': 1,
+			};
+
+			weavingInstructionsForTablet.push(instruction);
+		}
+
+		weavingInstructionsByTablet.push(weavingInstructionsForTablet);
+	}
+
+	return weavingInstructionsByTablet;
+};
+
+// 3/1 broken twill patterns are defined by two charts
+// note that twill direction change is the TWT name for GTT's long floats
 export const buildTwillWeavingInstructionsByTablet = ({
 	numberOfRows,
 	numberOfTablets,
-	twillDirection,
-	twillPatternChart,
-	twillChangeChart,
+	patternDesign,
 }) => {
+	const {
+		twillDirection,
+		twillPatternChart,
+		twillChangeChart,
+	} = patternDesign;
+
 	const {
 		doubledChangeChart,
 		doubledPatternChart,
@@ -678,6 +495,51 @@ export const buildTwillWeavingInstructionsByTablet = ({
 		}
 
 		weavingInstructionsByTablet.push(newTablet);
+	}
+
+	return weavingInstructionsByTablet;
+};
+
+export const buiildWeavingInstructionsByTablet = ({
+	numberOfRows,
+	numberOfTablets,
+	patternDesign,
+	patternType,
+}) => {
+	// build weaving instructions from pattern design
+	// recast to be by tablet, row
+	// which is better for manipulating weaving instructions
+	// instead of the more human-readable row, tablet
+	// that is saved in the database
+	let weavingInstructionsByTablet;
+
+	switch (patternType) {
+		case 'brokenTwill':
+			weavingInstructionsByTablet = buildTwillWeavingInstructionsByTablet({
+				numberOfRows,
+				numberOfTablets,
+				patternDesign,
+			});
+			break;
+
+		case 'individual':
+			weavingInstructionsByTablet = buildIndividualWeavingInstructionsByTablet({
+				numberOfRows,
+				numberOfTablets,
+				patternDesign,
+			});
+			break;
+
+		case 'allTogether':
+			weavingInstructionsByTablet = buildAllTogetherWeavingInstructionsByTablet({
+				numberOfRows,
+				numberOfTablets,
+				patternDesign,
+			});
+			break;
+
+		default:
+			break;
 	}
 
 	return weavingInstructionsByTablet;
