@@ -40,13 +40,15 @@ export const getNumberOfTablets = (pattern) => pattern.numberOfTablets;
 
 export const getWeavingInstructionsForTablet = (pattern, tabletIndex) => {
 	const {
-		patternDesign,
-		patternType,
-		numberOfRows,
+		//patternDesign,
+		//patternType,
+		//numberOfRows,
 		weavingInstructionsByTablet,
 	} = pattern;
 
-	let weavingInstructionsForTablet = [];
+	return weavingInstructionsByTablet[tabletIndex];
+
+	/* let weavingInstructionsForTablet = [];
 
 	switch (patternType) {
 		case 'individual':
@@ -74,7 +76,7 @@ export const getWeavingInstructionsForTablet = (pattern, tabletIndex) => {
 			break;
 	}
 
-	return weavingInstructionsForTablet;
+	return weavingInstructionsForTablet; */
 };
 
 // recast threading by tablet, row
@@ -634,11 +636,11 @@ export const buildTwillWeavingInstructionsByTablet = ({
 			let lastColor = '.';
 			let colorChange = false;
 
-			if (i < (numberOfRows - 1)) { // last row has no next row
+			if (j < (numberOfRows - 1)) { // last row has no next row
 				nextColor = doubledPatternChart[j + 1][i]; // problem
 			}
 
-			if (i > 0) {
+			if (j > 0) {
 				lastColor = doubledPatternChart[j - 1][i];
 			}
 

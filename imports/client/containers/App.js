@@ -45,6 +45,7 @@ import {
 	getPatternId,
 	setIsLoading,
 	savePatternData,
+	setPatternId,
 } from '../modules/pattern';
 import AppContext from '../modules/appContext';
 import Navbar from '../components/Navbar';
@@ -198,8 +199,11 @@ export const withDatabase = withTracker((props) => {
 			patternIdParam = matchPattern.params.id;
 
 			if (patternIdParam) {
+				dispatch(setPatternId(patternIdParam));
+
 				// happens if user copies a pattern
 				if (patternIdParam !== getPatternId(state)) {
+					console.log('*** App says new pattern id', patternIdParam);
 					dispatch(setIsLoading(true));
 				}
 
@@ -243,9 +247,18 @@ export const withDatabase = withTracker((props) => {
 					// only dispatch the action if there will be a change
 					// which can be because of switching to a different pattern
 					if (isLoading && handle.ready()) {
-						dispatch(savePatternData(pattern));
-						dispatch(setIsLoading(false));
+						console.log('*** app may be ready');
+						if (!state.pattern.patternDataReady) {
+							// once the data are loaded, build the weaving instructions
+							console.log('*** dispatch savePatternData');
+							dispatch(savePatternData(pattern));
+						} else {
+							// everything is ready to render
+							console.log('*** not loading');
+							dispatch(setIsLoading(false));
+						}
 					} else if (!isLoading && !handle.ready()) {
+						console.log('*** dispatch setIsLoading from App');
 						dispatch(setIsLoading(true));
 					}
 				}

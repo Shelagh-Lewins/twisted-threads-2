@@ -445,10 +445,10 @@ class Pattern extends PureComponent {
 console.log('*** renderTabContent');
 		switch (tab) {
 			case 'design':
-				if (patternType === 'brokenTwill' && !pattern.weavingInstructionsByTablet) {
+				/* if (patternType === 'brokenTwill' && !pattern.weavingInstructionsByTablet) {
 					console.log('*** not ready');
 					break;
-				}
+				} */
 				const twistNeutralText = (
 					<span className="hint">{patternIsTwistNeutral ? 'The pattern is twist neutral.' : 'The pattern is not twist neutral.'}</span>
 				);
@@ -579,7 +579,7 @@ console.log('*** renderTabContent');
 			isLoading,
 			tab,
 		} = this.props;
-
+console.log('*** pattern says isLoading', isLoading);
 		const {
 			colorBooks,
 			createdByUser,
