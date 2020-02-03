@@ -20,13 +20,27 @@ class WeavingDesignBrokenTwill extends PureComponent {
 	constructor(props) {
 		super(props);
 
+		const {
+			pattern,
+		} = props;
+
+		const {
+			'patternDesign': {
+				twillPatternChart,
+			},
+		} = pattern;
+
 		this.state = {
 			'isEditing': false,
+			'editMode': 'color',
+			'numberOfChartRows': twillPatternChart.length,
 		};
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
 			'toggleEditWeaving',
+			'handleClickRemoveRow',
+			'handleClickWeavingCell',
 		];
 
 		functionsToBind.forEach((functionName) => {
@@ -38,15 +52,37 @@ class WeavingDesignBrokenTwill extends PureComponent {
 		this.controlsRef = React.createRef();
 	}
 
-	handleClickRemoveRow(rowIndex) {
-		const { dispatch, 'pattern': { _id } } = this.props;
+	handleClickWeavingCell(rowIndex, tabletIndex) {
+		const {
+			dispatch,
+			'pattern': { _id },
+			// twillPatternChart,
+		} = this.props;
 		const { isEditing } = this.state;
 
 		if (!isEditing) {
 			return;
 		}
 
-		const response = confirm(`Do you want to delete row ${rowIndex + 1}?`); // eslint-disable-line no-restricted-globals
+		console.log('rowIndex', rowIndex);
+		console.log('tabletIndex', tabletIndex);
+	}
+
+	handleClickRemoveRow(rowIndex) {
+		const {
+			dispatch,
+			'pattern': { _id },
+		} = this.props;
+
+		const { isEditing } = this.state;
+
+		if (!isEditing) {
+			return;
+		}
+
+		const rowFirst = (rowIndex * 2) + 1;
+
+		const response = confirm(`Do you want to delete rows ${rowFirst} and ${rowFirst + 1}?`); // eslint-disable-line no-restricted-globals
 
 		if (response === true) {
 			/* dispatch(removeWeavingRows({
@@ -91,11 +127,21 @@ class WeavingDesignBrokenTwill extends PureComponent {
 	}
 
 	renderCell(rowIndex, tabletIndex) {
-		const { isEditing } = this.state;
+		const {
+			isEditing,
+			numberOfChartRows,
+		} = this.state;
+		let tabIndex;
+
+		if (isEditing) {
+			if (rowIndex !== numberOfChartRows - 1 || tabletIndex % 2 === 1) {
+				tabIndex = 0;
+			}
+		}
 
 		return (
 			<li
-				className={`cell value ${tabletIndex === 0 && 'first-tablet'}`}
+				className={`cell value ${tabletIndex === 0 ? 'first-tablet' : ''}`}
 				key={`twill-design-cell-${rowIndex}-${tabletIndex}`}
 			>
 				<span
@@ -103,10 +149,8 @@ class WeavingDesignBrokenTwill extends PureComponent {
 					onClick={isEditing ? () => this.handleClickWeavingCell(rowIndex, tabletIndex) : undefined}
 					onKeyPress={isEditing ? () => this.handleClickWeavingCell(rowIndex, tabletIndex) : undefined}
 					role={isEditing ? 'button' : undefined}
-					tabIndex={isEditing ? '0' : undefined}
-				>
-					<span />
-				</span>
+					tabIndex={tabIndex}
+				/>
 			</li>
 		);
 	}
@@ -114,17 +158,11 @@ class WeavingDesignBrokenTwill extends PureComponent {
 	renderRow(rowIndex) {
 		const {
 			numberOfTablets,
-			pattern,
 		} = this.props;
 
 		const {
-			'patternDesign': {
-				twillChangeChart,
-				twillPatternChart,
-			},
-		} = pattern;
-
-		const numberOfChartRows = twillPatternChart.length;
+			numberOfChartRows,
+		} = this.state;
 
 		const { isEditing } = this.state;
 		const rowLabel = numberOfChartRows - rowIndex;
@@ -136,11 +174,11 @@ class WeavingDesignBrokenTwill extends PureComponent {
 
 		return (
 			<>
-				<ul className={`${rowIndex === 0 && 'last-row'} ${(rowIndex === numberOfChartRows - 1) && 'first-row'}`}>
+				<ul className={`${rowIndex === 0 ? 'last-row' : ''} ${(rowIndex === numberOfChartRows - 1) ? 'first-row' : ''}`}>
 					<li className="row-label even"><span>{rowLabel * 2}</span></li>
 					<li className="row-label odd"><span>{(rowLabel * 2) - 1}</span></li>
 					{cells}
-					{isEditing && numberOfChartRows > 1 && (
+					{isEditing && numberOfChartRows > 2 && rowIndex !== 0 && (
 						<li className="delete">
 							<span
 								title={`delete row ${rowLabel}`}

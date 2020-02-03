@@ -5,6 +5,10 @@
 	float: left;
 	padding-right: 8px;
 
+	:focus {
+		outline: 1px solid $color-focus;
+	}
+
 	&.editing {
 		.content {
 			background: $color-chart-editing-background;
@@ -88,6 +92,22 @@
 			&.first-tablet {
 				border-left: 1px solid $color-twill-design-cell-border;
 			}
+
+			&.value {
+				span {
+					-moz-appearance: none; /* Mozilla */
+					-webkit-appearance: none; /* WebKit */
+					appearance: none; /* CSS3 */
+					display: inline-block;
+					height: 100%;
+					width: 100%;
+
+					&:focus {
+						outline: 2px solid $color-focus;
+						outline-offset: -2px;
+					}
+				}
+			}
 		}
 
 		.delete {
@@ -98,12 +118,13 @@
 			color: $color-twill-design-cell-color;
 			display: inline-block;
 			font-size: 16px;
-			height: 32px;
+			height: 33px;
 			line-height: 32px;
 			margin: 0;
 			padding: 0;
 			position: relative;
 			text-align: center;
+			top: 31px;
 			vertical-align: top;
 			width: 32px;
 
@@ -111,6 +132,14 @@
 				-moz-appearance: none; /* Mozilla */
 				-webkit-appearance: none; /* WebKit */
 				appearance: none; /* CSS3 */
+				display: inline-block;
+				height: 100%;
+				width: 100%;
+
+				&:focus {
+					outline: 2px solid $color-focus;
+					outline-offset: -2px;
+				}
 			}
 		}
 	}
