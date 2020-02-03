@@ -13,6 +13,7 @@ import {
 } from '../../imports/server/modules/utils';
 import { PatternImages, PatternPreviews, Patterns } from '../../imports/modules/collection';
 import {
+	ALLOWED_PATTERN_TYPES,
 	ALLOWED_PREVIEW_ORIENTATIONS,
 	BROKEN_TWILL_THREADING,
 	DEFAULT_COLOR,
@@ -20,7 +21,6 @@ import {
 	DEFAULT_NUMBER_OF_TURNS,
 	DEFAULT_ORIENTATION,
 	DEFAULT_PALETTE,
-	DEFAULT_PREVIEW_ORIENTATION,
 	DEFAULT_WEFT_COLOR,
 	MAX_ROWS,
 	MAX_TABLETS,
@@ -71,6 +71,7 @@ Meteor.methods({
 		// and will be used to calculated picks, from which the weaving chart and preview will be drawn
 		// 'for individual' pattern, patternDesign is simply picks
 		let patternDesign = {};
+		const tags = [];
 
 		const weavingInstructions = new Array(rows); // construct an empty array to hold the picks
 		for (let i = 0; i < rows; i += 1) {
@@ -91,6 +92,7 @@ Meteor.methods({
 				}
 
 				patternDesign = { weavingInstructions };
+				tags.push('individual');
 				break;
 
 			case 'allTogether':
@@ -101,6 +103,7 @@ Meteor.methods({
 				}
 
 				patternDesign = { weavingInstructions };
+				tags.push('all together');
 				break;
 
 			case 'brokenTwill':
@@ -153,12 +156,15 @@ Meteor.methods({
 				}
 
 				// broken twill uses the default orientation, same as other patterns (/ or S)
+				tags.push('3/1 broken twill');
 				break;
 
 
 			default:
 				break;
 		}
+
+		const { previewOrientation } = ALLOWED_PATTERN_TYPES.find((type) => type.name === patternType);
 
 		const patternId = Patterns.insert({
 			'description': '',
@@ -171,7 +177,7 @@ Meteor.methods({
 			holes,
 			'isPublic': false,
 			'palette': DEFAULT_PALETTE,
-			'previewOrientation': DEFAULT_PREVIEW_ORIENTATION,
+			'previewOrientation': previewOrientation,
 			'orientations': new Array(tablets).fill(DEFAULT_ORIENTATION),
 			patternDesign,
 			patternType,
@@ -184,6 +190,12 @@ Meteor.methods({
 
 		// update the user's count of public patterns
 		updatePublicPatternsCount(Meteor.userId());
+
+		// add the tags
+		tags.forEach((tag) => Meteor.call('tags.add', {
+			patternId,
+			'name': tag,
+		}));
 
 		return patternId;
 	},

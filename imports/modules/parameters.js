@@ -31,17 +31,18 @@ export const ALLOWED_PATTERN_TYPES = [
 	{ // simulation pattern, woven by turning each tablet individually
 		'name': 'individual',
 		'displayName': 'Individual',
-		'simulation': true,
+		'previewOrientation': 'right',
 	},
 	{ // simulation pattern, woven by turning all tablets together
 		'name': 'allTogether',
 		'displayName': 'All together',
-		'simulation': true,
+		'previewOrientation': 'right',
 	},
 	{ // 3 / 1 broken twill, designed on special graph paper
 		'name': 'brokenTwill',
 		'displayName': '3/1 broken twill',
-		'simulation': true,
+		'previewOrientation': 'up',
+
 	},
 	// TODO build and add freehand
 ];
@@ -81,7 +82,6 @@ export const COLORS_IN_COLOR_BOOK = 24;
 export const DEFAULT_COLOR_BOOK_COLOR = '#aaa'; // if the default color has no saturation, clicking the vertical color bar in the color picker has no effect, which is confusing.
 export const EMPTY_HOLE_COLOR = '#fff'; // used in weaving chart when multiple turns and an empty hole
 export const DEFAULT_WEFT_COLOR = 3;
-export const DEFAULT_PREVIEW_ORIENTATION = 'right';
 export const ALLOWED_PREVIEW_ORIENTATIONS = [
 	{
 		'text': 'Up',

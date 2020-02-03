@@ -171,9 +171,16 @@ class Pattern extends PureComponent {
 		const {
 			createdBy,
 			name,
+			patternDesign,
 			patternType,
 		} = pattern;
 		const canEdit = createdBy === Meteor.userId();
+
+		let twillDirectionIndicator;
+
+		if (patternType === 'brokenTwill') {
+			twillDirectionIndicator = <p>Twill direction: {patternDesign.twillDirection === 'S' ? 'S-twill' : 'Z-twill'}</p>;
+		}
 
 		return (
 			<>
@@ -186,6 +193,7 @@ class Pattern extends PureComponent {
 					fieldValue={name}
 				/>
 				<p>Pattern type: {findPatternTypeDisplayName(patternType)}</p>
+				{twillDirectionIndicator}
 			</>
 		);
 	}
