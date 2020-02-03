@@ -11,7 +11,7 @@ import {
 	validPaletteIndexCheck,
 	validPatternTypeCheck,
 } from '../../imports/server/modules/utils';
-import { PatternImages, PatternPreviews, Patterns } from '../../imports/modules/collection';
+import { PatternImages, PatternPreviews, Patterns, Tags } from '../../imports/modules/collection';
 import {
 	ALLOWED_PATTERN_TYPES,
 	ALLOWED_PREVIEW_ORIENTATIONS,
@@ -129,25 +129,25 @@ Meteor.methods({
 				// set up the pattern chart
 				// this corresponds to Data in GTT pattern. This is the chart showing the two-colour design.
 				const twillPatternChart = [];
-				const twillChangeChart = [];
+				const twillDirectionChangeChart = [];
 
 				// set up a plain chart for each, this will give just background twill
 				// charts have an extra row at the end
 				// this extra row is not shown in preview or weaving chart but is used to determine the last even row
 				for (let i = 0; i < (rows / 2) + 1; i += 1) {
 					twillPatternChart[i] = [];
-					twillChangeChart[i] = [];
+					twillDirectionChangeChart[i] = [];
 
 					for (let j = 0; j < tablets; j += 1) {
 						twillPatternChart[i][j] = '.';
-						twillChangeChart[i][j] = '.';
+						twillDirectionChangeChart[i][j] = '.';
 					}
 				}
 
 				patternDesign = {
 					twillDirection,
 					twillPatternChart,
-					twillChangeChart,
+					twillDirectionChangeChart,
 				};
 
 				// broken twill threading is set up with two colours in a repeating pattern
@@ -195,10 +195,21 @@ Meteor.methods({
 		updatePublicPatternsCount(Meteor.userId());
 
 		// add the tags
-		tags.forEach((tag) => Meteor.call('tags.add', {
-			patternId,
-			'name': tag,
-		}));
+		tags.forEach((tag) => {
+			const existing = Tags.findOne({ 'name': tag });
+
+			if (existing) {
+				Meteor.call('tags.assignToPattern', {
+					patternId,
+					'tagId': existing._id,
+				});
+			} else {
+				Meteor.call('tags.add', {
+					patternId,
+					'name': tag,
+				});
+			}
+		});
 
 		return patternId;
 	},
@@ -386,7 +397,8 @@ Meteor.methods({
 			numberOfRows,
 			numberOfTablets,
 			patternType,
-			'patternDesign': { weavingInstructions },
+			patternDesign,
+			// 'patternDesign': { weavingInstructions },
 		} = pattern;
 
 		// to be filled in by data depending on case
@@ -404,7 +416,9 @@ Meteor.methods({
 		let removeNRows;
 		let removeRowsAt;
 		let row;
+		let rowIndex;
 		let tablet;
+		let tabletIndex;
 		let tabletOrientation;
 		let fieldValue;
 
@@ -426,14 +440,16 @@ Meteor.methods({
 				check(row, Match.Integer);
 				check(tablet, validTabletsCheck);
 
-				// change direction of tablet for this row and all followiing rows
-				for (let i = row; i < numberOfRows; i += 1) {
-					const newDirection = weavingInstructions[i][tablet].direction === 'F' ? 'B' : 'F';
-					weavingInstructions[i][tablet].direction = newDirection;
-				}
-
 				switch (patternType) {
 					case 'individual':
+						const { weavingInstructions } = patternDesign;
+
+						// change direction of tablet for this row and all followiing rows
+						for (let i = row; i < numberOfRows; i += 1) {
+							const newDirection = weavingInstructions[i][tablet].direction === 'F' ? 'B' : 'F';
+							weavingInstructions[i][tablet].direction = newDirection;
+						}
+
 						return Patterns.update({ _id }, { '$set': { 'patternDesign.weavingInstructions': weavingInstructions } });
 
 					default:
@@ -451,7 +467,7 @@ Meteor.methods({
 						return Patterns.update({ _id }, { '$set': { [`patternDesign.weavingInstructions.${row}.${tablet}.numberOfTurns`]: numberOfTurns } });
 
 					default:
-						throw new Meteor.Error('edit-weaving-cell-turns-unknown-pattern-type', `Unable to add weaving cell turns because the pattern type ${patternType} was not recognised`);
+						throw new Meteor.Error('edit-weaving-cell-turns-unknown-pattern-type', `Unable to edit weaving cell turns because the pattern type ${patternType} was not recognised`);
 				}
 
 			case 'editWeavingRowDirection':
@@ -460,12 +476,35 @@ Meteor.methods({
 
 				switch (patternType) {
 					case 'allTogether':
+						const { weavingInstructions } = patternDesign;
 						const newDirection = weavingInstructions[row] === 'F' ? 'B' : 'F';
 
 						return Patterns.update({ _id }, { '$set': { [`patternDesign.weavingInstructions.${row}`]: newDirection } });
 
 					default:
-						throw new Meteor.Error('edit-weaving-cell-turns-unknown-pattern-type', `Unable to add weaving cell turns because the pattern type ${patternType} was not recognised`);
+						throw new Meteor.Error('edit-weaving-row-direction-unknown-pattern-type', `Unable to edit weaving row direction because the pattern type ${patternType} was not recognised`);
+				}
+
+			case 'editTwillPatternChart':
+				({ rowIndex, tabletIndex } = data);
+				check(rowIndex, Match.Integer);
+				check(tabletIndex, validTabletsCheck);
+
+				switch (patternType) {
+					case 'brokenTwill':
+						const { twillPatternChart } = patternDesign;
+						const chartLength = twillPatternChart.length;
+						if (rowIndex > chartLength - 1) {
+							throw new Meteor.Error('edit-twill-pattern-chart-unknown-pattern-type', `Unable to edit twill pattern chart because the rowIndex was greater than the number of chart rows`);
+						}
+
+						const currentValue = twillPatternChart[rowIndex][tabletIndex];
+						const newValue = currentValue === '.' ? 'X' : '.';
+
+						return Patterns.update({ _id }, { '$set': { [`patternDesign.twillPatternChart.${rowIndex}.${tabletIndex}`]: newValue } });
+
+					default:
+						throw new Meteor.Error('edit-twill-pattern-chart-unknown-pattern-type', `Unable to edit twill pattern chart because the pattern type ${patternType} was not recognised`);
 				}
 
 			case 'addWeavingRows':
@@ -560,7 +599,7 @@ Meteor.methods({
 						// so first we mark each row to remove
 						// then use 'pull'
 						for (let i = 0; i < removeNRows; i += 1) {
-							const rowIndex = i + removeRowsAt;
+							rowIndex = i + removeRowsAt;
 
 							Patterns.update({ _id }, { '$set': { [`patternDesign.weavingInstructions.${rowIndex}.${0}.toBeRemoved`]: true } });
 						}
@@ -582,7 +621,7 @@ Meteor.methods({
 						const start = removeRowsAt - removeNRows + 1;
 
 						for (let i = 0; i < removeNRows; i += 1) {
-							const rowIndex = i + start;
+							rowIndex = i + start;
 
 							Patterns.update({ _id }, { '$set': { [`patternDesign.weavingInstructions.${rowIndex}`]: 'toBeRemoved' } });
 						}

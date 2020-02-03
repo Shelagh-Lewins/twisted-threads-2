@@ -1,6 +1,6 @@
 // Partial store for search
 import { clearErrors, logErrors } from './errors';
-import { createSelector } from 'reselect';
+// import { createSelector } from 'reselect';
 import { SEARCH_LIMIT, SEARCH_MORE } from '../../modules/parameters';
 
 const updeep = require('updeep');
@@ -20,35 +20,35 @@ export const SET_USER_SEARCH_LIMIT = 'SET_USER_SEARCH_LIMIT';
 
 export function setIsSearching(isSearching) {
 	return {
-		'type': 'SET_IS_SEARCHING',
+		'type': SET_IS_SEARCHING,
 		'payload': isSearching,
 	};
 }
 
 export function setSearchTerm(searchTerm) {
 	return {
-		'type': 'SET_SEARCH_TERM',
+		'type': SET_SEARCH_TERM,
 		'payload': searchTerm,
 	};
 }
 
 export function searchComplete(result) {
 	return {
-		'type': 'SEARCH_COMPLETE',
+		'type': SEARCH_COMPLETE,
 		'payload': result,
 	};
 }
 
 export function clearSearchResults() {
 	return {
-		'type': 'CLEAR_SEARCH_RESULTS',
+		'type': CLEAR_SEARCH_RESULTS,
 	};
 }
 
 // pattern search limit
 export function setPatternSearchLimit(patternSearchLimit) {
 	return {
-		'type': 'SET_PATTERN_SEARCH_LIMIT',
+		'type': SET_PATTERN_SEARCH_LIMIT,
 		'payload': patternSearchLimit,
 	};
 }
@@ -61,7 +61,7 @@ export const showMorePatterns = () => (dispatch, getState) => {
 // user search limit
 export function setUserSearchLimit(userSearchLimit) {
 	return {
-		'type': 'SET_USER_SEARCH_LIMIT',
+		'type': SET_USER_SEARCH_LIMIT,
 		'payload': userSearchLimit,
 	};
 }

@@ -1,7 +1,9 @@
 import React, { PureComponent } from 'react';
 import { Button, ButtonGroup, ButtonToolbar } from 'reactstrap';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import {
+	editTwillPatternChart,
 	setIsEditingWeaving,
 } from '../modules/pattern';
 import './WeavingDesignBrokenTwill.scss';
@@ -21,14 +23,10 @@ class WeavingDesignBrokenTwill extends PureComponent {
 		super(props);
 
 		const {
-			pattern,
-		} = props;
-
-		const {
 			'patternDesign': {
 				twillPatternChart,
 			},
-		} = pattern;
+		} = props;
 
 		this.state = {
 			'isEditing': false,
@@ -116,9 +114,8 @@ class WeavingDesignBrokenTwill extends PureComponent {
 		const {
 			dispatch,
 			'pattern': { _id },
-			// twillPatternChart,
 		} = this.props;
-		const { isEditing } = this.state;
+		const { editMode, isEditing } = this.state;
 
 		if (!isEditing) {
 			return;
@@ -126,6 +123,16 @@ class WeavingDesignBrokenTwill extends PureComponent {
 
 		console.log('rowIndex', rowIndex);
 		console.log('tabletIndex', tabletIndex);
+
+		if (editMode === 'color') {
+			dispatch(editTwillPatternChart({
+				_id,
+				rowIndex,
+				tabletIndex,
+			}));
+		} else if (editMode === 'twillDirection') {
+
+		}
 	}
 
 	handleClickRemoveRow(rowIndex) {
@@ -196,11 +203,9 @@ class WeavingDesignBrokenTwill extends PureComponent {
 
 	renderCell(rowIndex, tabletIndex) {
 		const {
-			'pattern': {
-				'patternDesign': {
-					twillChangeChart,
-					twillPatternChart,
-				},
+			'patternDesign': {
+				twillDirectionChangeChart,
+				twillPatternChart,
 			},
 		} = this.props;
 
@@ -219,7 +224,7 @@ class WeavingDesignBrokenTwill extends PureComponent {
 		}
 
 		const isForeground = twillPatternChart[rowIndex][tabletIndex] === 'X';
-		const isDirectionChange = twillChangeChart[rowIndex][tabletIndex] === 'X';
+		const isDirectionChange = twillDirectionChangeChart[rowIndex][tabletIndex] === 'X';
 
 		return (
 			<li
@@ -421,6 +426,13 @@ WeavingDesignBrokenTwill.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'numberOfTablets': PropTypes.number.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
+	'patternDesign': PropTypes.objectOf(PropTypes.any).isRequired, // updated in state
 };
 
-export default WeavingDesignBrokenTwill;
+function mapStateToProps(state) {
+	return {
+		'patternDesign': state.pattern.patternDesign,
+	};
+}
+
+export default connect(mapStateToProps)(WeavingDesignBrokenTwill);

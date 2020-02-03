@@ -6,6 +6,7 @@ import { createSelector } from 'reselect';
 // import createCachedSelector from 're-reselect';
 import { logErrors, clearErrors } from './errors';
 import {
+	buildTwillWeavingInstructionsByTablet,
 	buiildWeavingInstructionsByTablet,
 	calculatePicksForTablet,
 	findPatternTwist,
@@ -46,7 +47,11 @@ export const UPDATE_WEAVING_CELL_TURNS = 'UPDATE_WEAVING_CELL_TURNS';
 // 'allTogether' patternType
 export const UPDATE_WEAVING_ROW_DIRECTION = 'UPDATE_WEAVING_ROW_DIRECTION';
 
-// general patternType
+// 'brokenTwill' patternType
+export const UPDATE_TWILL_PATTERN_CHART = 'UPDATE_TWILL_PATTERN_CHART';
+export const UPDATE_TWILL_DIRECTION_CHANGE_CHART = 'UPDATE_TWILL_DIRECTION_CHANGE_CHART';
+
+// more than one patternType
 export const UPDATE_THREADING_CELL = 'UPDATE_THREADING_CELL';
 export const UPDATE_ORIENTATION = 'UPDATE_ORIENTATION';
 export const UPDATE_PALETTE_COLOR = 'UPDATE_PALETTE_COLOR';
@@ -94,7 +99,7 @@ export const getPatternCount = () => (dispatch, getState) => {
 // should the pattern count only include patterns belonging to a particular user?
 export function setPatternCountUserId(userId) {
 	return {
-		'type': 'SET_PATTERN_COUNT_USERID',
+		'type': SET_PATTERN_COUNT_USERID,
 		'payload': userId,
 	};
 }
@@ -110,21 +115,21 @@ export const changePage = (newPageNumber, history) => (dispatch) => {
 // waiting for data subscription to be ready
 export function setIsLoading(isLoading) {
 	return {
-		'type': 'SET_ISLOADING',
+		'type': SET_ISLOADING,
 		'payload': isLoading,
 	};
 }
 
 export function setIsEditingWeaving(isEditingWeaving) {
 	return {
-		'type': 'SET_IS_EDITING_WEAVING',
+		'type': SET_IS_EDITING_WEAVING,
 		'payload': isEditingWeaving,
 	};
 }
 
 export function setIsEditingThreading(isEditingThreading) {
 	return {
-		'type': 'SET_IS_EDITING_THREADING',
+		'type': SET_IS_EDITING_THREADING,
 		'payload': isEditingThreading,
 	};
 }
@@ -133,21 +138,21 @@ export function setIsEditingThreading(isEditingThreading) {
 // save pattern data in store for calculating charts
 export function setPatternId(_id) {
 	return {
-		'type': 'SET_PATTERN_ID',
+		'type': SET_PATTERN_ID,
 		'payload': _id,
 	};
 }
 // build and save the weaving instructions from pattern design
 export function setWeavingInstructions(weavingInstructionsByTablet) {
 	return {
-		'type': 'SET_WEAVING_INSTRUCTIONS',
+		'type': SET_WEAVING_INSTRUCTIONS,
 		'payload': weavingInstructionsByTablet,
 	};
 }
 
 export function clearPatternData() {
 	return {
-		'type': 'CLEAR_PATTERN_DATA',
+		'type': CLEAR_PATTERN_DATA,
 		'payload': false,
 	};
 }
@@ -169,7 +174,7 @@ export function setPatternData({
 	} = patternObj;
 
 	return {
-		'type': 'SET_PATTERN_DATA',
+		'type': SET_PATTERN_DATA,
 		'payload': {
 			picks,
 			holes,
@@ -357,7 +362,7 @@ export function editIsPublic({
 // Weaving (individual)
 export function updateWeavingCellDirection(data) {
 	return {
-		'type': 'UPDATE_WEAVING_CELL_DIRECTION',
+		'type': UPDATE_WEAVING_CELL_DIRECTION,
 		'payload': data,
 	};
 }
@@ -394,7 +399,7 @@ export function editWeavingCellDirection({
 // number of turns
 export function updateWeavingCellNumberOfTurns(data) {
 	return {
-		'type': 'UPDATE_WEAVING_CELL_TURNS',
+		'type': UPDATE_WEAVING_CELL_TURNS,
 		'payload': data,
 	};
 }
@@ -433,7 +438,7 @@ export function editWeavingCellNumberOfTurns({
 // number of turns
 export function updateWeavingRowDirection(data) {
 	return {
-		'type': 'UPDATE_WEAVING_ROW_DIRECTION',
+		'type': UPDATE_WEAVING_ROW_DIRECTION,
 		'payload': data,
 	};
 }
@@ -462,10 +467,48 @@ export function editWeavingRowDirection({
 }
 
 // ///////////////////////////////
+// brokenTwill
+export function updateTwillPatternChart(data) {
+	// TO DO call method
+	return {
+		'type': UPDATE_TWILL_PATTERN_CHART,
+		'payload': data,
+	};
+}
+
+export function editTwillPatternChart({
+	_id,
+	rowIndex,
+	tabletIndex,
+}) {
+	return (dispatch) => {
+		Meteor.call('pattern.edit', {
+			_id,
+			'data': {
+				'type': 'editTwillPatternChart',
+				_id,
+				rowIndex,
+				tabletIndex,
+			},
+		}, (error) => {
+			if (error) {
+				return dispatch(logErrors({ 'edit twill pattern chart': error.reason }));
+			}
+		});
+
+		dispatch(updateTwillPatternChart({
+			_id,
+			rowIndex,
+			tabletIndex,
+		}));
+	};
+}
+
+// ///////////////////////////////
 // add weaving rows
 export function updateAddWeavingRows(data) {
 	return {
-		'type': 'UPDATE_ADD_WEAVING_ROWS',
+		'type': UPDATE_ADD_WEAVING_ROWS,
 		'payload': data,
 	};
 }
@@ -499,7 +542,7 @@ export function addWeavingRows({
 // remove weaving rows
 export function updateRemoveWeavingRows(data) {
 	return {
-		'type': 'UPDATE_REMOVE_WEAVING_ROWS',
+		'type': UPDATE_REMOVE_WEAVING_ROWS,
 		'payload': data,
 	};
 }
@@ -533,7 +576,7 @@ export function removeWeavingRows({
 // Threading
 export function updateThreadingCell(data) {
 	return {
-		'type': 'UPDATE_THREADING_CELL',
+		'type': UPDATE_THREADING_CELL,
 		'payload': data,
 	};
 }
@@ -570,7 +613,7 @@ export function editThreadingCell({
 // add tablets
 export function updateAddTablets(data) {
 	return {
-		'type': 'UPDATE_ADD_TABLETS',
+		'type': UPDATE_ADD_TABLETS,
 		'payload': data,
 	};
 }
@@ -607,7 +650,7 @@ export function addTablets({
 // remove tablet
 export function updateRemoveTablet(data) {
 	return {
-		'type': 'UPDATE_REMOVE_TABLET',
+		'type': UPDATE_REMOVE_TABLET,
 		'payload': data,
 	};
 }
@@ -639,7 +682,7 @@ export function removeTablet({
 // Tablet orientation
 export function updateOrientation(data) {
 	return {
-		'type': 'UPDATE_ORIENTATION',
+		'type': UPDATE_ORIENTATION,
 		'payload': data,
 	};
 }
@@ -676,7 +719,7 @@ export function editOrientation({
 // Palette color
 export function updatePaletteColor(data) {
 	return {
-		'type': 'UPDATE_PALETTE_COLOR',
+		'type': UPDATE_PALETTE_COLOR,
 		'payload': data,
 	};
 }
@@ -773,7 +816,7 @@ export function editTextField({
 // filter pattern list on number of tablets
 export function setFilterMaxTablets(maxTablets) {
 	return {
-		'type': 'SET_FILTER_MAX_TABLETS',
+		'type': SET_FILTER_MAX_TABLETS,
 		'payload': maxTablets,
 	};
 }
@@ -797,7 +840,7 @@ export function updateFilterMaxTablets(maxTablets, history) {
 
 export function setFilterMinTablets(minTablets) {
 	return {
-		'type': 'SET_FILTER_MIN_TABLETS',
+		'type': SET_FILTER_MIN_TABLETS,
 		'payload': minTablets,
 	};
 }
@@ -821,7 +864,7 @@ export function updateFilterMinTablets(minTablets, history) {
 
 export function removeTabletFilter() {
 	return {
-		'type': 'REMOVE_TABLET_FILTER',
+		'type': REMOVE_TABLET_FILTER,
 		'payload': {
 			'maxTablets': undefined,
 			'minTablets': undefined,
@@ -885,7 +928,6 @@ export default function pattern(state = initialPatternState, action) {
 
 		case SET_PATTERN_DATA: {
 			const {
-				//_id,
 				holes,
 				numberOfRows,
 				numberOfTablets,
@@ -895,11 +937,9 @@ export default function pattern(state = initialPatternState, action) {
 				patternType,
 				picks,
 				threadingByTablet,
-				// weavingInstructionsByTablet,
 			} = action.payload;
 
 			return updeep({
-				//_id,
 				holes,
 				numberOfRows,
 				numberOfTablets,
@@ -910,7 +950,6 @@ export default function pattern(state = initialPatternState, action) {
 				patternType,
 				picks,
 				threadingByTablet,
-				// weavingInstructionsByTablet,
 			}, state);
 		}
 
@@ -1004,6 +1043,54 @@ export default function pattern(state = initialPatternState, action) {
 				'patternDesign': { 'weavingInstructions': newWeavingInstructions },
 				'picks': newPicks,
 				'weavingInstructionsByTablet': newWeavingInstructionsByTablet,
+			}, state);
+		}
+
+		case UPDATE_TWILL_PATTERN_CHART: {
+			const { rowIndex, tabletIndex } = action.payload;
+
+			const {
+				numberOfRows,
+				numberOfTablets,
+				patternDesign,
+				weavingInstructionsByTablet,
+			} = state;
+
+
+			// const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tabletIndex]];
+
+			// toggle '.' or 'X' in the chart
+			// original arrays are immutable
+			const newTwillPatternChart = [...patternDesign.twillPatternChart];
+			const newRow = [...newTwillPatternChart[rowIndex]];
+			const currentValue = newTwillPatternChart[rowIndex][tabletIndex];
+			const newValue = currentValue === '.' ? 'X' : '.';
+			newRow[tabletIndex] = newValue;
+			newTwillPatternChart[rowIndex] = newRow;
+
+			// find the new weavingInstructions for the changed tablet
+			const newPatternDesign = {
+				'twillDirection': patternDesign.twillDirection,
+				'twillPatternChart': newTwillPatternChart,
+				'twillDirectionChangeChart': patternDesign.twillDirectionChangeChart,
+			};
+
+			const newWeavingInstructions = buildTwillWeavingInstructionsByTablet({
+				numberOfRows,
+				numberOfTablets,
+				'patternDesign': newPatternDesign,
+			});
+
+			const picksForTablet = reCalculatePicksForTablet({
+				'currentPicks': state.picks[tabletIndex],
+				'weavingInstructionsForTablet': newWeavingInstructions[tabletIndex],
+				'row': rowIndex * 2,
+			});
+
+			return updeep({
+				'patternDesign': { 'twillPatternChart': newTwillPatternChart },
+				'weavingInstructionsByTablet': { [tabletIndex]: newWeavingInstructions[tabletIndex] },
+				'picks': { [tabletIndex]: picksForTablet },
 			}, state);
 		}
 

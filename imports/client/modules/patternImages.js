@@ -17,14 +17,14 @@ export const UPDATE_IMAGE_UPLOAD_PREVIEW = 'UPDATE_IMAGE_UPLOAD_PREVIEW';
 
 export function updateImageUploadPreview(url) {
 	return {
-		'type': 'UPDATE_IMAGE_UPLOAD_PREVIEW',
+		'type': UPDATE_IMAGE_UPLOAD_PREVIEW,
 		'payload': url,
 	};
 }
 
 export function updateImageUploadProgress(imageUploadProgress) {
 	return {
-		'type': 'UPDATE_IMAGE_UPLOAD_PROGRESS',
+		'type': UPDATE_IMAGE_UPLOAD_PROGRESS,
 		'payload': imageUploadProgress,
 	};
 }

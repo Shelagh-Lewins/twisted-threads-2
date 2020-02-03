@@ -16,7 +16,7 @@ export const SET_COLORBOOK_ADDED = 'SET_COLORBOOK_ADDED';
 
 export function setColorBookAdded(colorBookId) {
 	return {
-		'type': 'SET_COLORBOOK_ADDED',
+		'type': SET_COLORBOOK_ADDED,
 		'payload': colorBookId,
 	};
 }

@@ -116,7 +116,7 @@ export function editTextField({
 // used in pagination
 export function setUserCount(userCount) {
 	return {
-		'type': 'SET_USER_COUNT',
+		'type': SET_USER_COUNT,
 		'payload': userCount,
 	};
 }
@@ -134,7 +134,7 @@ export const getIsLoading = (state) => state.auth.isLoading;
 // waiting for data subscription to be ready
 export function setIsLoading(isLoading) {
 	return {
-		'type': 'SET_ISLOADING',
+		'type': SET_ISLOADING,
 		'payload': isLoading,
 	};
 }
@@ -145,26 +145,26 @@ export function setIsLoading(isLoading) {
 // allow UI feedback of email resend success
 export function verificationEmailSent() {
 	return {
-		'type': 'VERIFICATION_EMAIL_SENT',
+		'type': VERIFICATION_EMAIL_SENT,
 	};
 }
 
 export function verificationEmailNotSent() {
 	return {
-		'type': 'VERIFICATION_EMAIL_NOT_SENT',
+		'type': VERIFICATION_EMAIL_NOT_SENT,
 	};
 }
 
 // UI feedback of email verification success
 export function emailVerified() {
 	return {
-		'type': 'EMAIL_VERIFIED',
+		'type': EMAIL_VERIFIED,
 	};
 }
 
 export function emailNotVerified() {
 	return {
-		'type': 'EMAIL_NOT_VERIFIED',
+		'type': EMAIL_NOT_VERIFIED,
 	};
 }
 
@@ -196,13 +196,13 @@ export const sendVerificationEmail = (userId) => (dispatch) => {
 // user forgot password
 export function forgotPasswordEmailSent() {
 	return {
-		'type': 'FORGOT_PASSWORD_EMAIL_SENT',
+		'type': FORGOT_PASSWORD_EMAIL_SENT,
 	};
 }
 
 export function forgotPasswordEmailNotSent() {
 	return {
-		'type': 'FORGOT_PASSWORD_EMAIL_NOT_SENT',
+		'type': FORGOT_PASSWORD_EMAIL_NOT_SENT,
 	};
 }
 
@@ -222,13 +222,13 @@ export const forgotPassword = (email) => (dispatch) => {
 // reset password
 export function passwordReset() {
 	return {
-		'type': 'PASSWORD_RESET',
+		'type': PASSWORD_RESET,
 	};
 }
 
 export function passwordNotReset() {
 	return {
-		'type': 'PASSWORD_NOT_RESET',
+		'type': PASSWORD_NOT_RESET,
 	};
 }
 
@@ -253,13 +253,13 @@ export const resetPassword = ({
 // change password
 export function passwordChanged() {
 	return {
-		'type': 'PASSWORD_CHANGED',
+		'type': PASSWORD_CHANGED,
 	};
 }
 
 export function passwordNotChanged() {
 	return {
-		'type': 'PASSWORD_NOT_CHANGED',
+		'type': PASSWORD_NOT_CHANGED,
 	};
 }
 
@@ -289,35 +289,35 @@ export const changePassword = ({
 // track user status
 export function setUser(result) {
 	return {
-		'type': 'SET_USER',
+		'type': SET_USER,
 		'payload': result,
 	};
 }
 
 export function setNumberOfPatterns(result) {
 	return {
-		'type': 'SET_NUMBER_OF_PATTERNS',
+		'type': SET_NUMBER_OF_PATTERNS,
 		'payload': result,
 	};
 }
 
 export function setNumberOfColorBooks(result) {
 	return {
-		'type': 'SET_NUMBER_OF_COLOR_BOOKS',
+		'type': SET_NUMBER_OF_COLOR_BOOKS,
 		'payload': result,
 	};
 }
 
 export function setNumberOfPatternImages(result) {
 	return {
-		'type': 'SET_NUMBER_OF_PATTERN_IMAGES',
+		'type': SET_NUMBER_OF_PATTERN_IMAGES,
 		'payload': result,
 	};
 }
 
 export function setUserRoles(result) {
 	return {
-		'type': 'SET_USER_ROLES',
+		'type': SET_USER_ROLES,
 		'payload': result,
 	};
 }

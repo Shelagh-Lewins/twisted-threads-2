@@ -7,7 +7,7 @@ export const SET_MAIN_MENU_ITEM = 'SET_MAIN_MENU_ITEM';
 // Actions that change the Store
 export function setSelectedMainMenuItem(selectedMainMenuItem) {
 	return {
-		'type': 'SET_MAIN_MENU_ITEM',
+		'type': SET_MAIN_MENU_ITEM,
 		'payload': selectedMainMenuItem,
 	};
 }
