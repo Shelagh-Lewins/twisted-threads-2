@@ -39,6 +39,7 @@ class WeavingDesignBrokenTwill extends PureComponent {
 		// bind onClick functions to provide context
 		const functionsToBind = [
 			'toggleEditWeaving',
+			'handleClickEditMode',
 			'handleClickRemoveRow',
 			'handleClickWeavingCell',
 		];
@@ -50,6 +51,65 @@ class WeavingDesignBrokenTwill extends PureComponent {
 		// ref to find nodes so we can keep controls in view
 		this.weavingRef = React.createRef();
 		this.controlsRef = React.createRef();
+	}
+
+	componentWillUnmount() {
+		document.removeEventListener('scroll', this.trackScrolling);
+		window.removeEventListener('resize', this.trackScrolling);
+	}
+
+	// ensure the edit tools remain in view
+	trackScrolling = () => {
+		const weavingElm = this.weavingRef.current;
+		const constrolsElm = this.controlsRef.current;
+
+		const {
+			'x': weavingPositionX,
+			'y': weavingPositionY,
+		} = weavingElm.getBoundingClientRect();
+
+		// find the containing element's applied styles
+		const weavingCompStyles = window.getComputedStyle(weavingElm);
+
+
+		const controlsCompStyles = window.getComputedStyle(constrolsElm);
+
+		const weavingWidth = parseFloat(weavingElm.clientWidth)
+		- parseFloat(weavingCompStyles.getPropertyValue('padding-left'))
+		- parseFloat(weavingCompStyles.getPropertyValue('padding-right'));
+
+		const weavingHeight = parseFloat(weavingElm.clientHeight)
+		- parseFloat(weavingCompStyles.getPropertyValue('padding-top'))
+		- parseFloat(weavingCompStyles.getPropertyValue('padding-bottom'));
+
+		const windowHeight = window.innerHeight;
+		const controlsPaddingY = parseFloat(controlsCompStyles.getPropertyValue('padding-top')) + parseFloat(controlsCompStyles.getPropertyValue('padding-bottom'));
+		const weavingLeftOffset = weavingPositionX;
+		const weavingBottomOffset = weavingHeight + weavingPositionY - windowHeight + controlsPaddingY + 16; // extra bit to raise panel above bottom of window
+
+		const controlsWidth = constrolsElm.getBoundingClientRect().width;
+
+		const controlsHeight = constrolsElm.getBoundingClientRect().height;
+
+		const widthDifference = weavingWidth - controlsWidth;
+
+		const heightDifference = weavingHeight - controlsHeight;
+
+		let offsetX = 0;
+		let offsetY = 0;
+
+		if (weavingLeftOffset < 0) {
+			offsetX = Math.min(-1 * weavingLeftOffset, widthDifference);
+		}
+
+		if (weavingBottomOffset > 0) {
+			offsetY = Math.min(weavingBottomOffset, heightDifference);
+		}
+
+		this.setState({
+			'controlsOffsetX': offsetX,
+			'controlsOffsetY': offsetY,
+		});
 	}
 
 	handleClickWeavingCell(rowIndex, tabletIndex) {
@@ -98,20 +158,28 @@ class WeavingDesignBrokenTwill extends PureComponent {
 		const { dispatch } = this.props;
 		const { isEditing } = this.state;
 
-		/* if (!isEditing) {
+		if (!isEditing) {
 			document.addEventListener('scroll', this.trackScrolling);
 			window.addEventListener('resize', this.trackScrolling);
 			setTimeout(() => this.trackScrolling(), 100); // give the controls time to render
 		} else {
 			document.removeEventListener('scroll', this.trackScrolling);
 			window.removeEventListener('resize', this.trackScrolling);
-		} */
+		}
 
 		this.setState({
 			'isEditing': !isEditing,
 		});
 
 		dispatch(setIsEditingWeaving(!isEditing));
+	}
+
+	handleClickEditMode(event) {
+		const newEditMode = event.target.value;
+
+		this.setState({
+			'editMode': newEditMode,
+		});
 	}
 
 	renderControls() {
@@ -128,9 +196,20 @@ class WeavingDesignBrokenTwill extends PureComponent {
 
 	renderCell(rowIndex, tabletIndex) {
 		const {
+			'pattern': {
+				'patternDesign': {
+					twillChangeChart,
+					twillPatternChart,
+				},
+			},
+		} = this.props;
+
+		const {
 			isEditing,
 			numberOfChartRows,
 		} = this.state;
+
+		// ensure visible cells and delete row buttons are focusable
 		let tabIndex;
 
 		if (isEditing) {
@@ -139,9 +218,12 @@ class WeavingDesignBrokenTwill extends PureComponent {
 			}
 		}
 
+		const isForeground = twillPatternChart[rowIndex][tabletIndex] === 'X';
+		const isDirectionChange = twillChangeChart[rowIndex][tabletIndex] === 'X';
+
 		return (
 			<li
-				className={`cell value ${tabletIndex === 0 ? 'first-tablet' : ''}`}
+				className={`cell value ${tabletIndex === 0 ? 'first-tablet' : ''} ${isForeground ? 'foreground' : ''} ${isDirectionChange ? 'direction-change' : ''}`}
 				key={`twill-design-cell-${rowIndex}-${tabletIndex}`}
 			>
 				<span
@@ -219,20 +301,13 @@ class WeavingDesignBrokenTwill extends PureComponent {
 
 	renderChart() {
 		const {
-			pattern,
-		} = this.props;
-
-		const {
-			'patternDesign': {
-				twillChangeChart,
-				twillPatternChart,
-			},
-		} = pattern;
+			numberOfChartRows,
+		} = this.state;
 
 		const { isEditing } = this.state;
 
 		const rows = [];
-		for (let i = 0; i < twillPatternChart.length; i += 1) {
+		for (let i = 0; i < numberOfChartRows; i += 1) {
 			rows.push(
 				<li
 					className="weaving-design-row"
@@ -247,7 +322,6 @@ class WeavingDesignBrokenTwill extends PureComponent {
 			<>
 				{isEditing && (
 					<>
-						<p>Each chart row represents two weaving rows.</p>
 						<p>Change the twill direction to create smooth diagonal lines.</p>
 					</>
 				)}
@@ -255,6 +329,40 @@ class WeavingDesignBrokenTwill extends PureComponent {
 				<ul className="weaving-chart">
 					{rows}
 				</ul>
+			</>
+		);
+	}
+
+	renderEditOptions() {
+		const { editMode } = this.state;
+		const options = [
+			{
+				'name': 'Edit colour',
+				'value': 'color',
+			},
+			{
+				'name': 'Edit twill direction',
+				'value': 'twillDirection',
+			},
+		];
+
+		return (
+			<>
+				<ButtonToolbar>
+					<ButtonGroup className="edit-mode">
+						{options.map((option) => (
+							<Button
+								className={editMode === option.value ? 'selected' : ''}
+								color="secondary"
+								key={option.value}
+								onClick={this.handleClickEditMode}
+								value={option.value}
+							>
+								{option.name}
+							</Button>
+						))}
+					</ButtonGroup>
+				</ButtonToolbar>
 			</>
 		);
 	}
@@ -274,12 +382,6 @@ class WeavingDesignBrokenTwill extends PureComponent {
 		let tabletIndex;
 
 		return (
-			<div>
-				toolbar
-			</div>
-		);
-
-		/* return (
 			<div
 				className={`weaving-toolbar ${controlsOffsetY > 0 ? 'scrolling' : ''}`}
 				ref={this.controlsRef}
@@ -290,21 +392,8 @@ class WeavingDesignBrokenTwill extends PureComponent {
 				}}
 			>
 				{this.renderEditOptions()}
-				<EditWeavingCellForm
-					canEdit={editMode === 'numberOfTurns'}
-					handleSubmit={this.handleSubmitEditWeavingCellForm}
-					numberOfTurns={numberOfTurns}
-					rowIndex={rowIndex}
-					tabletIndex={tabletIndex}
-				/>
-				<hr className="clearing" />
-				<AddRowsForm
-					enableReinitialize={true}
-					handleSubmit={this.handleSubmitAddRows}
-					numberOfRows={numberOfRows}
-				/>
 			</div>
-		); */
+		);
 	}
 
 	render() {

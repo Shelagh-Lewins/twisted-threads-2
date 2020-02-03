@@ -220,12 +220,6 @@ class WeavingDesignIndividual extends PureComponent {
 
 	renderCell(rowIndex, tabletIndex) {
 		const { isEditing } = this.state;
-		// const { isEditing, selectedCell } = this.state;
-
-		/* let isSelected = false;
-		if (selectedCell) {
-			isSelected = rowIndex === selectedCell[0] && tabletIndex === selectedCell[1];
-		} */
 
 		return (
 			<li
