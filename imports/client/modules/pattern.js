@@ -1084,7 +1084,8 @@ export default function pattern(state = initialPatternState, action) {
 			const picksForTablet = reCalculatePicksForTablet({
 				'currentPicks': state.picks[tabletIndex],
 				'weavingInstructionsForTablet': newWeavingInstructions[tabletIndex],
-				'row': rowIndex * 2,
+				//'row': 0,
+				'row': Math.min((rowIndex * 2) - 1, 0),
 			});
 
 			return updeep({

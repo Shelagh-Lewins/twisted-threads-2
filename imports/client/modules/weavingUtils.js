@@ -473,34 +473,32 @@ export const buildTwillWeavingInstructionsByTablet = ({
 					twillPosition[i] = (twillPosition[i] + 3) % 4; // go back an extra turn
 				}
 			}
-			if (i === 0) {
+			/* if (i === 0) {
 console.log('*** row', j);
 console.log('*** tablet', i);
 console.log('lastColor', lastColor);
 console.log('currentColor', currentColor);
 console.log('nextColor', nextColor);
 console.log('colour change', colorChange);
-}
+} */
 			const twillChange = doubledChangeChart[j][i];
 
-			// handle long floats
-			// advance in turning sequence
-			if ((!colorChange)) {
+			if ((!colorChange)) { // if there is a colour change, just keep turning the same way
 				twillPosition[i] = (twillPosition[i] + 1) % 4;
 			}
-			if (i === 0) {
-console.log('twillPosition', twillPosition[i]);
-}
+			//if (i === 0) {
+//console.log('twillPosition', twillPosition[i]);
+//}
 
-			if ((twillChange === 'Y')) { // second pick of long float
+			if ((twillChange === 'Y')) { // second pick of twill direction change
 				twillPosition[i] = (twillPosition[i] + 2) % 4;
 			}
 
 			const position = twillPosition[i];
 			const direction = BROKEN_TWILL_SEQUENCE[position];
-			if (i === 0) {
-console.log('direction', direction);
-}
+			//if (i === 0) {
+//console.log('direction', direction);
+//}
 			newTablet.push({
 				direction,
 				position,
