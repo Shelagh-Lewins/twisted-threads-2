@@ -219,12 +219,13 @@ class WeavingDesignIndividual extends PureComponent {
 	}
 
 	renderCell(rowIndex, tabletIndex) {
-		const { isEditing, selectedCell } = this.state;
+		const { isEditing } = this.state;
+		// const { isEditing, selectedCell } = this.state;
 
-		let isSelected = false;
+		/* let isSelected = false;
 		if (selectedCell) {
 			isSelected = rowIndex === selectedCell[0] && tabletIndex === selectedCell[1];
-		}
+		} */
 
 		return (
 			<li
@@ -232,7 +233,6 @@ class WeavingDesignIndividual extends PureComponent {
 				key={`weaving-cell-${rowIndex}-${tabletIndex}`}
 			>
 				<span
-					className={`${isSelected ? 'selected' : ''}`}
 					type={isEditing ? 'button' : undefined}
 					onClick={isEditing ? () => this.handleClickWeavingCell(rowIndex, tabletIndex) : undefined}
 					onKeyPress={isEditing ? () => this.handleClickWeavingCell(rowIndex, tabletIndex) : undefined}

@@ -31,6 +31,7 @@ import PageWrapper from '../components/PageWrapper';
 import Loading from '../components/Loading';
 import WeavingDesignIndividual from '../components/WeavingDesignIndividual';
 import WeavingDesignAllTogether from '../components/WeavingDesignAllTogether';
+import WeavingDesignBrokenTwill from '../components/WeavingDesignBrokenTwill';
 import Weft from '../components/Weft';
 import PatternPreview from '../components/PatternPreview';
 import Threading from '../components/Threading';
@@ -384,7 +385,7 @@ class Pattern extends PureComponent {
 			case 'individual':
 				weavingInstructions = (
 					<>
-						<h2>Weaving chart</h2>
+						<h2>Weaving design</h2>
 						<WeavingDesignIndividual
 							dispatch={dispatch}
 							numberOfRows={numberOfRows}
@@ -398,10 +399,23 @@ class Pattern extends PureComponent {
 			case 'allTogether':
 				weavingInstructions = (
 					<>
-						<h2>Weaving instructions</h2>
+						<h2>Weaving design</h2>
 						<WeavingDesignAllTogether
 							dispatch={dispatch}
 							numberOfRows={numberOfRows}
+							pattern={pattern}
+						/>
+					</>
+				);
+				break;
+
+			case 'brokenTwill':
+				weavingInstructions = (
+					<>
+						<h2>Weaving design</h2>
+						<WeavingDesignBrokenTwill
+							dispatch={dispatch}
+							numberOfTablets={numberOfTablets}
 							pattern={pattern}
 						/>
 					</>
