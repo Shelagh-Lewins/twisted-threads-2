@@ -70,11 +70,13 @@ export const ALLOWED_DIRECTIONS = [
 // defaults for 3/1 broken twill
 export const DEFAULT_TWILL_DIRECTION = 'S';
 export const BROKEN_TWILL_THREADING = [
-	[1, 3, 3, 3],
-	[1, 1, 3, 1],
-	[3, 1, 1, 1],
-	[3, 3, 1, 3],
+	['F', 'B', 'B', 'B'],
+	['F', 'F', 'B', 'F'],
+	['B', 'F', 'F', 'F'],
+	['B', 'B', 'F', 'B'],
 ];
+export const BROKEN_TWILL_FOREGROUND = 1;
+export const BROKEN_TWILL_BACKGROUND = 3;
 // turning sequence for an individual tablet to weave background twill
 export const BROKEN_TWILL_SEQUENCE = ['F', 'F', 'B', 'B'];
 

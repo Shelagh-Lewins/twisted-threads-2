@@ -5,6 +5,24 @@
 	float: left;
 	padding-right: 8px;
 
+	&.editing {
+		.content {
+			background: $color-chart-editing-background;
+			border: 1px solid $color-focus;
+		}
+
+		.controls {
+			margin-bottom: 8px;
+		}
+	}
+
+	.content {
+		border: 1px solid transparent;
+		border-radius: 4px;
+		margin: 0;
+		padding: 8px;
+	}
+
 	.weaving-design-row {
 		ul {
 			overflow-x: visible;
@@ -72,8 +90,28 @@
 			}
 		}
 
-		.row-label {
+		.delete {
+			background-color: $color-twill-design-cell-background;
+			border-bottom: 1px solid $color-twill-design-cell-border;
+			border-right: 1px solid $color-twill-design-cell-border;
+			border-top: 1px solid $color-twill-design-cell-border;
+			color: $color-twill-design-cell-color;
+			display: inline-block;
+			font-size: 16px;
+			height: 32px;
+			line-height: 32px;
+			margin: 0;
+			padding: 0;
+			position: relative;
+			text-align: center;
+			vertical-align: top;
+			width: 32px;
 
+			span{
+				-moz-appearance: none; /* Mozilla */
+				-webkit-appearance: none; /* WebKit */
+				appearance: none; /* CSS3 */
+			}
 		}
 	}
 

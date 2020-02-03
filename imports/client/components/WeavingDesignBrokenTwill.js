@@ -85,7 +85,7 @@ class WeavingDesignBrokenTwill extends PureComponent {
 			<div className="controls">
 				{isEditing
 					? <Button color="primary" onClick={this.toggleEditWeaving}>Done</Button>
-					: <Button color="primary" onClick={this.toggleEditWeaving}>Edit weaving chart</Button>}
+					: <Button color="primary" onClick={this.toggleEditWeaving}>Edit weaving design</Button>}
 			</div>
 		);
 	}
@@ -191,6 +191,8 @@ class WeavingDesignBrokenTwill extends PureComponent {
 			},
 		} = pattern;
 
+		const { isEditing } = this.state;
+
 		const rows = [];
 		for (let i = 0; i < twillPatternChart.length; i += 1) {
 			rows.push(
@@ -205,12 +207,66 @@ class WeavingDesignBrokenTwill extends PureComponent {
 
 		return (
 			<>
+				{isEditing && (
+					<>
+						<p>Each chart row represents two weaving rows.</p>
+						<p>Change the twill direction to create smooth diagonal lines.</p>
+					</>
+				)}
 				{this.renderTabletLabels()}
 				<ul className="weaving-chart">
 					{rows}
 				</ul>
 			</>
 		);
+	}
+
+	renderToolbar() {
+		const {
+			numberOfRows,
+		} = this.props;
+		const {
+			controlsOffsetX,
+			controlsOffsetY,
+			editMode,
+			numberOfTurns,
+		} = this.state;
+
+		let rowIndex;
+		let tabletIndex;
+
+		return (
+			<div>
+				toolbar
+			</div>
+		);
+
+		/* return (
+			<div
+				className={`weaving-toolbar ${controlsOffsetY > 0 ? 'scrolling' : ''}`}
+				ref={this.controlsRef}
+				style={{
+					'left': `${controlsOffsetX}px`,
+					'bottom': `${controlsOffsetY}px`,
+					'position': 'relative',
+				}}
+			>
+				{this.renderEditOptions()}
+				<EditWeavingCellForm
+					canEdit={editMode === 'numberOfTurns'}
+					handleSubmit={this.handleSubmitEditWeavingCellForm}
+					numberOfTurns={numberOfTurns}
+					rowIndex={rowIndex}
+					tabletIndex={tabletIndex}
+				/>
+				<hr className="clearing" />
+				<AddRowsForm
+					enableReinitialize={true}
+					handleSubmit={this.handleSubmitAddRows}
+					numberOfRows={numberOfRows}
+				/>
+			</div>
+		); */
 	}
 
 	render() {

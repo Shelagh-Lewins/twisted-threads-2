@@ -16,6 +16,8 @@ import {
 	ALLOWED_PATTERN_TYPES,
 	ALLOWED_PREVIEW_ORIENTATIONS,
 	BROKEN_TWILL_THREADING,
+	BROKEN_TWILL_FOREGROUND,
+	BROKEN_TWILL_BACKGROUND,
 	DEFAULT_COLOR,
 	DEFAULT_DIRECTION,
 	DEFAULT_NUMBER_OF_TURNS,
@@ -151,7 +153,8 @@ Meteor.methods({
 				// broken twill threading is set up with two colours in a repeating pattern
 				for (let i = 0; i < holes; i += 1) {
 					for (let j = 0; j < tablets; j += 1) {
-						threading[i][j] = BROKEN_TWILL_THREADING[i][j % holes];
+						const colorRole = BROKEN_TWILL_THREADING[i][j % holes];
+						threading[i][j] = colorRole === 'F' ? BROKEN_TWILL_FOREGROUND : BROKEN_TWILL_BACKGROUND;
 					}
 				}
 
