@@ -48,8 +48,7 @@ export const UPDATE_WEAVING_CELL_TURNS = 'UPDATE_WEAVING_CELL_TURNS';
 export const UPDATE_WEAVING_ROW_DIRECTION = 'UPDATE_WEAVING_ROW_DIRECTION';
 
 // 'brokenTwill' patternType
-export const UPDATE_TWILL_PATTERN_CHART = 'UPDATE_TWILL_PATTERN_CHART';
-export const UPDATE_TWILL_DIRECTION_CHANGE_CHART = 'UPDATE_TWILL_DIRECTION_CHANGE_CHART';
+export const UPDATE_TWILL_CHART = 'UPDATE_TWILL_CHART';
 
 // more than one patternType
 export const UPDATE_THREADING_CELL = 'UPDATE_THREADING_CELL';
@@ -468,27 +467,29 @@ export function editWeavingRowDirection({
 
 // ///////////////////////////////
 // brokenTwill
-export function updateTwillPatternChart(data) {
+export function updateTwillChart(data) {
 	// TO DO call method
 	return {
-		'type': UPDATE_TWILL_PATTERN_CHART,
+		'type': UPDATE_TWILL_CHART,
 		'payload': data,
 	};
 }
 
-export function editTwillPatternChart({
+export function editTwillChart({
 	_id,
 	rowIndex,
 	tabletIndex,
+	twillChart, // which chart to update
 }) {
 	return (dispatch) => {
 		Meteor.call('pattern.edit', {
 			_id,
 			'data': {
-				'type': 'editTwillPatternChart',
+				'type': 'editTwillChart',
 				_id,
 				rowIndex,
 				tabletIndex,
+				twillChart,
 			},
 		}, (error) => {
 			if (error) {
@@ -496,10 +497,11 @@ export function editTwillPatternChart({
 			}
 		});
 
-		dispatch(updateTwillPatternChart({
+		dispatch(updateTwillChart({
 			_id,
 			rowIndex,
 			tabletIndex,
+			twillChart,
 		}));
 	};
 }
@@ -1046,8 +1048,8 @@ export default function pattern(state = initialPatternState, action) {
 			}, state);
 		}
 
-		case UPDATE_TWILL_PATTERN_CHART: {
-			const { rowIndex, tabletIndex } = action.payload;
+		case UPDATE_TWILL_CHART: {
+			const { rowIndex, tabletIndex, twillChart } = action.payload;
 
 			const {
 				numberOfRows,
@@ -1061,35 +1063,35 @@ export default function pattern(state = initialPatternState, action) {
 
 			// toggle '.' or 'X' in the chart
 			// original arrays are immutable
-			const newTwillPatternChart = [...patternDesign.twillPatternChart];
-			const newRow = [...newTwillPatternChart[rowIndex]];
-			const currentValue = newTwillPatternChart[rowIndex][tabletIndex];
+			const newTwillChart = [...patternDesign[twillChart]];
+			const newRow = [...newTwillChart[rowIndex]];
+			const currentValue = newTwillChart[rowIndex][tabletIndex];
 			const newValue = currentValue === '.' ? 'X' : '.';
 			newRow[tabletIndex] = newValue;
-			newTwillPatternChart[rowIndex] = newRow;
+			newTwillChart[rowIndex] = newRow;
 
 			// find the new weavingInstructions for the changed tablet
-			const newPatternDesign = {
-				'twillDirection': patternDesign.twillDirection,
-				'twillPatternChart': newTwillPatternChart,
-				'twillDirectionChangeChart': patternDesign.twillDirectionChangeChart,
-			};
-
+			const newPatternDesign = { ...patternDesign };
+console.log('*** patternDesign', patternDesign);
+			newPatternDesign[twillChart] = newTwillChart;
+console.log('*** newPatternDesign', newPatternDesign);
 			const newWeavingInstructions = buildTwillWeavingInstructionsByTablet({
 				numberOfRows,
 				numberOfTablets,
-				'patternDesign': newPatternDesign,
+				'patternDesign': patternDesignpatternDesign, // TO DO find out why this isn't working
 			});
-
-			const picksForTablet = reCalculatePicksForTablet({
+console.log('newWeavingInstructions', newWeavingInstructions);
+			const picksForTablet = reCalculatePicksForTablet({ // TO DO this crashes!!!
 				'currentPicks': state.picks[tabletIndex],
 				'weavingInstructionsForTablet': newWeavingInstructions[tabletIndex],
 				//'row': 0,
 				'row': Math.min((rowIndex * 2) - 1, 0),
 			});
-
+console.log('*** twillChart', twillChart);
+console.log('newTwillChart', newTwillChart);
 			return updeep({
-				'patternDesign': { 'twillPatternChart': newTwillPatternChart },
+				'patternDesign': { [twillChart]: newTwillChart },
+				// 'patternDesign': { 'twillPatternChart': newTwillPatternChart },
 				'weavingInstructionsByTablet': { [tabletIndex]: newWeavingInstructions[tabletIndex] },
 				'picks': { [tabletIndex]: picksForTablet },
 			}, state);

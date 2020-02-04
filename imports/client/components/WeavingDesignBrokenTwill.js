@@ -3,7 +3,7 @@ import { Button, ButtonGroup, ButtonToolbar } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import {
-	editTwillPatternChart,
+	editTwillChart,
 	setIsEditingWeaving,
 } from '../modules/pattern';
 import './WeavingDesignBrokenTwill.scss';
@@ -124,15 +124,12 @@ class WeavingDesignBrokenTwill extends PureComponent {
 		console.log('rowIndex', rowIndex);
 		console.log('tabletIndex', tabletIndex);
 
-		if (editMode === 'color') {
-			dispatch(editTwillPatternChart({
-				_id,
-				rowIndex,
-				tabletIndex,
-			}));
-		} else if (editMode === 'twillDirection') {
-
-		}
+		dispatch(editTwillChart({
+			_id,
+			rowIndex,
+			tabletIndex,
+			'twillChart': editMode === 'color' ? 'twillPatternChart' : 'twillDirectionChangeChart',
+		}));
 	}
 
 	handleClickRemoveRow(rowIndex) {

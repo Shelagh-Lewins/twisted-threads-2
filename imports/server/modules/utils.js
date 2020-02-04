@@ -49,6 +49,13 @@ export const validPaletteIndexCheck = Match.Where((x) => {
 	return x >= -1 && x < DEFAULT_PALETTE.length; // -1 is empty hole, 0 + are colors
 });
 
+export const validTwillChartCheck = Match.Where((x) => {
+	check(x, String);
+
+	const twillCharts = ['twillPatternChart', 'twillDirectionChangeChart'];
+	return twillCharts.indexOf(x) !== -1;
+});
+
 // check whether the current logged in user can create a pattern
 // this may be a new pattern, or a copy
 export const checkUserCanCreatePattern = () => {

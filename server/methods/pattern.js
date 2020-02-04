@@ -7,11 +7,17 @@ import {
 	updatePublicPatternsCount,
 	validHolesCheck,
 	validRowsCheck,
-	validTabletsCheck,
 	validPaletteIndexCheck,
 	validPatternTypeCheck,
+	validTabletsCheck,
+	validTwillChartCheck,
 } from '../../imports/server/modules/utils';
-import { PatternImages, PatternPreviews, Patterns, Tags } from '../../imports/modules/collection';
+import {
+	PatternImages,
+	PatternPreviews,
+	Patterns,
+	Tags,
+} from '../../imports/modules/collection';
 import {
 	ALLOWED_PATTERN_TYPES,
 	ALLOWED_PREVIEW_ORIENTATIONS,
@@ -405,6 +411,7 @@ Meteor.methods({
 		let colorHexValue;
 		let colorIndex;
 		let fieldName;
+		let fieldValue;
 		let hole;
 		let isPublic;
 		let insertNRows;
@@ -420,7 +427,7 @@ Meteor.methods({
 		let tablet;
 		let tabletIndex;
 		let tabletOrientation;
-		let fieldValue;
+		let twillChart;
 
 		switch (type) {
 			case 'editIsPublic':
@@ -485,23 +492,24 @@ Meteor.methods({
 						throw new Meteor.Error('edit-weaving-row-direction-unknown-pattern-type', `Unable to edit weaving row direction because the pattern type ${patternType} was not recognised`);
 				}
 
-			case 'editTwillPatternChart':
-				({ rowIndex, tabletIndex } = data);
+			case 'editTwillChart':
+				({ rowIndex, tabletIndex, twillChart } = data);
 				check(rowIndex, Match.Integer);
 				check(tabletIndex, validTabletsCheck);
+				check(twillChart, validTwillChartCheck);
 
 				switch (patternType) {
 					case 'brokenTwill':
-						const { twillPatternChart } = patternDesign;
-						const chartLength = twillPatternChart.length;
+						const chartToEdit = patternDesign[twillChart];
+						const chartLength = chartToEdit.length;
 						if (rowIndex > chartLength - 1) {
 							throw new Meteor.Error('edit-twill-pattern-chart-unknown-pattern-type', `Unable to edit twill pattern chart because the rowIndex was greater than the number of chart rows`);
 						}
 
-						const currentValue = twillPatternChart[rowIndex][tabletIndex];
+						const currentValue = chartToEdit[rowIndex][tabletIndex];
 						const newValue = currentValue === '.' ? 'X' : '.';
 
-						return Patterns.update({ _id }, { '$set': { [`patternDesign.twillPatternChart.${rowIndex}.${tabletIndex}`]: newValue } });
+						return Patterns.update({ _id }, { '$set': { [`patternDesign.${twillChart}.${rowIndex}.${tabletIndex}`]: newValue } });
 
 					default:
 						throw new Meteor.Error('edit-twill-pattern-chart-unknown-pattern-type', `Unable to edit twill pattern chart because the pattern type ${patternType} was not recognised`);
