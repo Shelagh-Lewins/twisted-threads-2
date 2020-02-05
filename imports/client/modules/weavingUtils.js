@@ -347,7 +347,7 @@ export const buildTwillDoubledChartsForTablet = ({
 	};
 }; */
 
-export const buildTwillDoubledCharts = ({
+/* export const buildTwillDoubledCharts = ({
 	numberOfTablets,
 	twillPatternChart,
 	twillDirectionChangeChart,
@@ -417,7 +417,7 @@ export const buildTwillDoubledCharts = ({
 		doubledChangeChart,
 		doubledPatternChart,
 	};
-};
+}; */
 
 export const buildIndividualWeavingInstructionsByTablet = ({
 	numberOfRows,
