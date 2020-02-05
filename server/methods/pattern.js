@@ -489,7 +489,7 @@ Meteor.methods({
 						return Patterns.update({ _id }, { '$set': { [`patternDesign.weavingInstructions.${row}`]: newDirection } });
 
 					default:
-						throw new Meteor.Error('edit-weaving-row-direction-unknown-pattern-type', `Unable to edit weaving row direction because the pattern type ${patternType} was not recognised`);
+						throw new Meteor.Error('edit-weaving-row-direction-unknown-pattern-type', `Unable to edit weaving is not allTogether`);
 				}
 
 			case 'editTwillChart':
@@ -503,7 +503,11 @@ Meteor.methods({
 						const chartToEdit = patternDesign[twillChart];
 						const chartLength = chartToEdit.length;
 						if (rowIndex > chartLength - 1) {
-							throw new Meteor.Error('edit-twill-pattern-chart-unknown-pattern-type', `Unable to edit twill pattern chart because the rowIndex was greater than the number of chart rows`);
+							throw new Meteor.Error('edit-twill-pattern-chart-invalid-rowIndex', `Unable to edit twill pattern chart because the rowIndex was greater than the number of chart rows`);
+						}
+
+						if (tabletIndex % 2 === 1 && rowIndex === 0) {
+							throw new Meteor.Error('edit-twill-pattern-chart-invalid-chart-cell', `Unable to edit twill pattern chart because the first row of an even tablet cannot be edited`);
 						}
 
 						const currentValue = chartToEdit[rowIndex][tabletIndex];
@@ -512,7 +516,7 @@ Meteor.methods({
 						return Patterns.update({ _id }, { '$set': { [`patternDesign.${twillChart}.${rowIndex}.${tabletIndex}`]: newValue } });
 
 					default:
-						throw new Meteor.Error('edit-twill-pattern-chart-unknown-pattern-type', `Unable to edit twill pattern chart because the pattern type ${patternType} was not recognised`);
+						throw new Meteor.Error('edit-twill-pattern-chart-unknown-pattern-type', `Unable to edit twill pattern chart because the pattern type ${patternType} is not brokenTwill`);
 				}
 
 			case 'addWeavingRows':

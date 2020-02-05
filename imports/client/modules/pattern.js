@@ -1050,6 +1050,12 @@ export default function pattern(state = initialPatternState, action) {
 		case UPDATE_TWILL_CHART: {
 			const { rowIndex, tabletIndex, twillChart } = action.payload;
 
+			// first row of an even tablet cannot be edited
+			if (tabletIndex % 2 === 1 && rowIndex === 0) {
+				console.log('invalid');
+				return state;
+			}
+
 			const {
 				numberOfRows,
 				numberOfTablets,

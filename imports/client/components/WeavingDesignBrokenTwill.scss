@@ -84,6 +84,10 @@
 			.cell {
 				&:nth-child(even) {
 					height: 32px;
+
+					span {
+						pointer-events: none;
+					}
 				}
 			}
 		}
@@ -144,6 +148,7 @@
 			border-right: 1px solid $color-twill-design-cell-border;
 			border-top: 1px solid $color-twill-design-cell-border;
 			color: $color-twill-design-cell-color;
+			pointer-events: auto;
 			display: inline-block;
 			font-size: 16px;
 			height: 33px;
