@@ -543,6 +543,16 @@ class Pattern extends PureComponent {
 						break;
 				}
 
+				let previewAtSide = true;
+
+				if (previewOrientation !== 'up') {
+					previewAtSide = false;
+				}
+
+				if (patternType === 'allTogether') {
+					previewAtSide = false;
+				}
+
 				tabContent = (
 					<div className={`tab-content ${isEditing ? 'is-editing' : ''} ${previewClassName}`}>
 						{repeatText}
@@ -554,7 +564,7 @@ class Pattern extends PureComponent {
 							dispatch={dispatch}
 							pattern={pattern}
 						/>
-						{previewOrientation !== 'up' && this.renderPreview({
+						{!previewAtSide && this.renderPreview({
 							_id,
 							canEdit,
 							dispatch,
@@ -572,7 +582,7 @@ class Pattern extends PureComponent {
 							<div className="weaving-outer">
 								{pattern.patternDesign && this.renderWeavingInstructions()}
 							</div>
-							{previewOrientation === 'up' && this.renderPreview({
+							{previewAtSide && this.renderPreview({
 								_id,
 								canEdit,
 								dispatch,
