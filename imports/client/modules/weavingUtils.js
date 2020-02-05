@@ -63,48 +63,20 @@ export const getThreadingByTablet = (pattern) => {
 	return threadingByTablet;
 };
 
-export const calculatePicksForTablet = (weavingInstructionsForTablet, numberOfRows) => {
-	const picks = [];
-
-	for (let i = 0; i < numberOfRows; i += 1) {
-		const { direction, numberOfTurns } = weavingInstructionsForTablet[i];
-
-		let adjustedDirection = direction;
-
-		// idle tablet
-		if (numberOfTurns === 0) {
-			if (i === 0) {
-				// first row: take direction from the following pick
-				// because idle, forward is the same as forward, idle
-				// will fail if pattern starts with two idles
-				// but that doesn't seem a common scenario
-				adjustedDirection = weavingInstructionsForTablet[i + 1].direction;
-			} else {
-				// use direction of previous row
-				adjustedDirection = picks[i - 1].direction;
-			}
-		}
-
-		picks[i] = turnTablet({
-			'direction': adjustedDirection,
-			'numberOfTurns': numberOfTurns,
-			'totalTurns': i === 0
-				? 0
-				: picks[i - 1].totalTurns,
-		});
-	}
-
-	return picks;
-};
-
-// recalculate picks for the tablet
-// from the row of the change onward
-export const reCalculatePicksForTablet = ({
+// calculate picks for the tablet
+// from scratch, or
+// from the row of a change onward
+export const calculatePicksForTablet = ({
 	currentPicks,
 	weavingInstructionsForTablet,
 	row,
 }) => {
-	const picks = [...currentPicks].slice(0, row);
+	let picks = []; // build picks from scratch
+
+	if (currentPicks) { // rebuild picks from row onwards
+		picks = [...currentPicks].slice(0, row);
+	}
+
 	const numberOfRows = weavingInstructionsForTablet.length;
 
 	for (let i = row; i < numberOfRows; i += 1) {
@@ -149,7 +121,12 @@ export const calculateAllPicks = ({
 	const picks = [];
 
 	for (let i = 0; i < numberOfTablets; i += 1) {
-		const picksForTablet = calculatePicksForTablet(weavingInstructionsByTablet[i], numberOfRows);
+		const picksForTablet = calculatePicksForTablet({
+			'weavingInstructionsForTablet': weavingInstructionsByTablet[i],
+			'row': 0,
+			numberOfRows,
+		});
+
 		picks.push(picksForTablet);
 	}
 
@@ -288,8 +265,7 @@ export const buildTwillDoubledCharts = ({
 	const doubledPatternChart = [];
 	const doubledChangeChart = [];
 	const designChartRows = twillPatternChart.length; // the charts have an extra row because of offset
-//console.log('buildTwillDoubledCharts');
-//console.log('designChartRows', designChartRows);
+
 	for (let i = 0; i < designChartRows; i += 1) {
 		const evenPatternRow = [];
 		const oddPatternRow = [];
@@ -344,7 +320,7 @@ export const buildTwillDoubledCharts = ({
 		doubledChangeChart.push(evenChangeRow);
 		doubledChangeChart.push(oddChangeRow);
 	}
-console.log('doubledPatternChart', doubledPatternChart);
+
 	return {
 		doubledChangeChart,
 		doubledPatternChart,
@@ -410,7 +386,7 @@ export const buildTwillWeavingInstructionsByTablet = ({
 		twillPatternChart,
 		twillDirectionChangeChart,
 	} = patternDesign;
-//console.log('got PatternDesign', patternDesign);
+
 	const {
 		doubledChangeChart,
 		doubledPatternChart,
@@ -419,8 +395,7 @@ export const buildTwillWeavingInstructionsByTablet = ({
 		twillPatternChart,
 		twillDirectionChangeChart,
 	});
-//console.log('doubledChangeChart', doubledChangeChart);
-//console.log('doubledPatternChart', doubledPatternChart);
+
 	// build the weaving instructions
 	const weavingInstructionsByTablet = [];
 	const twillPosition = []; // TODO maybe build this into weavingInstructions? Tracks twillPosition of last woven row
@@ -452,7 +427,7 @@ export const buildTwillWeavingInstructionsByTablet = ({
 			// 'X' is foreground colour
 			const currentColor = doubledPatternChart[j][i];
 			let nextColor = currentColor;
-			let lastColor = '.';
+			let prevColor = '.';
 			let colorChange = false;
 
 			if (j < (numberOfRows - 1)) { // last row has no next row
@@ -460,35 +435,26 @@ export const buildTwillWeavingInstructionsByTablet = ({
 			}
 
 			if (j > 0) {
-				lastColor = doubledPatternChart[j - 1][i];
+				prevColor = doubledPatternChart[j - 1][i];
 			}
 
+			// color change if either previous or next color is different
 			if (nextColor !== currentColor) {
 				colorChange = true;
 			}
 
-			if (lastColor !== currentColor) {
+			if (prevColor !== currentColor) {
 				colorChange = true;
 				if (j === 0) { // tablet starts with foreground color
 					twillPosition[i] = (twillPosition[i] + 3) % 4; // go back an extra turn
 				}
 			}
-			/* if (i === 0) {
-console.log('*** row', j);
-console.log('*** tablet', i);
-console.log('lastColor', lastColor);
-console.log('currentColor', currentColor);
-console.log('nextColor', nextColor);
-console.log('colour change', colorChange);
-} */
+
 			const twillChange = doubledChangeChart[j][i];
 
-			if ((!colorChange)) { // if there is a colour change, just keep turning the same way
+			if ((!colorChange)) { // if there is a color change, just keep turning the same way
 				twillPosition[i] = (twillPosition[i] + 1) % 4;
 			}
-			//if (i === 0) {
-//console.log('twillPosition', twillPosition[i]);
-//}
 
 			if ((twillChange === 'Y')) { // second pick of twill direction change
 				twillPosition[i] = (twillPosition[i] + 2) % 4;
@@ -496,9 +462,7 @@ console.log('colour change', colorChange);
 
 			const position = twillPosition[i];
 			const direction = BROKEN_TWILL_SEQUENCE[position];
-			//if (i === 0) {
-//console.log('direction', direction);
-//}
+
 			newTablet.push({
 				direction,
 				position,

@@ -12,7 +12,6 @@ import {
 	findPatternTwist,
 	calculateAllPicks,
 	getThreadingByTablet,
-	reCalculatePicksForTablet,
 } from './weavingUtils';
 import {
 	DEFAULT_DIRECTION,
@@ -969,7 +968,7 @@ export default function pattern(state = initialPatternState, action) {
 
 			weavingInstructionsForTablet[row] = obj;
 
-			const picksForTablet = reCalculatePicksForTablet({
+			const picksForTablet = calculatePicksForTablet({
 				'currentPicks': state.picks[tablet],
 				weavingInstructionsForTablet,
 				row,
@@ -994,7 +993,7 @@ export default function pattern(state = initialPatternState, action) {
 				weavingInstructionsForTablet[i] = obj;
 			}
 
-			const picksForTablet = reCalculatePicksForTablet({
+			const picksForTablet = calculatePicksForTablet({
 				'currentPicks': state.picks[tablet],
 				weavingInstructionsForTablet,
 				row,
@@ -1031,7 +1030,7 @@ export default function pattern(state = initialPatternState, action) {
 				obj.direction = obj.direction === 'F' ? 'B' : 'F';
 				weavingInstructionsForTablet[row] = obj;
 
-				const picksForTablet = reCalculatePicksForTablet({
+				const picksForTablet = calculatePicksForTablet({
 					'currentPicks': state.picks[i],
 					weavingInstructionsForTablet,
 					row,
@@ -1084,7 +1083,7 @@ console.log('weavingInstructionsByTablet[tabletIndex]', weavingInstructionsByTab
 				'patternDesign': newPatternDesign, // TO DO find out why this isn't working
 			});
 console.log('newWeavingInstructions[tabletIndex]', newWeavingInstructions[tabletIndex]);
-			const picksForTablet = reCalculatePicksForTablet({ // TO DO this crashes!!!
+			const picksForTablet = calculatePicksForTablet({ // TO DO this crashes!!!
 				'currentPicks': state.picks[tabletIndex],
 				'weavingInstructionsForTablet': newWeavingInstructions[tabletIndex],
 				'row': Math.max((rowIndex * 2) - 1, 0),
@@ -1119,8 +1118,8 @@ console.log('newWeavingInstructions[tabletIndex]', newWeavingInstructions[tablet
 
 			// to calculate new picks for this tablet
 			const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tablet]];
-			// weavingInstructionsForTablet[row] = obj;
-			const picksForTablet = reCalculatePicksForTablet({
+
+			const picksForTablet = calculatePicksForTablet({
 				'currentPicks': state.picks[tablet],
 				weavingInstructionsForTablet,
 				'row': 0,
@@ -1167,7 +1166,7 @@ console.log('newWeavingInstructions[tabletIndex]', newWeavingInstructions[tablet
 					newWeavingInstructionsForTablet.splice(insertRowsAt, 0, obj);
 				}
 
-				const picksForTablet = reCalculatePicksForTablet({
+				const picksForTablet = calculatePicksForTablet({
 					'currentPicks': picks[i],
 					'weavingInstructionsForTablet': newWeavingInstructionsForTablet,
 					'row': insertRowsAt,
@@ -1226,7 +1225,7 @@ console.log('newWeavingInstructions[tabletIndex]', newWeavingInstructions[tablet
 
 				newWeavingInstructionsForTablet.splice(removeRowsAt, removeNRows);
 
-				const picksForTablet = reCalculatePicksForTablet({
+				const picksForTablet = calculatePicksForTablet({
 					'currentPicks': state.picks[i],
 					'weavingInstructionsForTablet': newWeavingInstructionsForTablet,
 					'row': removeRowsAt,
@@ -1324,8 +1323,11 @@ console.log('newWeavingInstructions[tabletIndex]', newWeavingInstructions[tablet
 
 				newWeavingInstructionsByTablet.splice(insertTabletsAt, 0, newWeavingInstructionsForTablet);
 
-				// update picks
-				const picksForTablet = calculatePicksForTablet(newWeavingInstructionsByTablet[insertTabletsAt], numberOfRows);
+				const picksForTablet = calculatePicksForTablet({
+					'weavingInstructionsForTablet': newWeavingInstructionsByTablet[insertTabletsAt],
+					'row': 0,
+					numberOfRows,
+				});
 
 				newPicks.splice(insertTabletsAt, 0, picksForTablet);
 			}

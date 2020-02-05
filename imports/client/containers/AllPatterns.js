@@ -56,7 +56,6 @@ class AllPatterns extends Component {
 			currentPageNumber,
 			dispatch,
 			errors,
-			handle,
 			history,
 			isLoading,
 			patternCount,
@@ -89,7 +88,6 @@ class AllPatterns extends Component {
 							<PaginatedList
 								currentPageNumber={currentPageNumber}
 								dispatch={dispatch}
-								handle={handle}
 								history={history}
 								itemCount={patternCount}
 							>
@@ -120,7 +118,6 @@ AllPatterns.propTypes = {
 	// eslint doesn't realise the filters are used in Tracker
 	'filterMaxTablets': PropTypes.number,
 	'filterMinTablets': PropTypes.number,
-	'handle': PropTypes.objectOf(PropTypes.any).isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'patternCount': PropTypes.number.isRequired,
