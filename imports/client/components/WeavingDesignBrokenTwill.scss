@@ -6,7 +6,7 @@
 	padding-right: 8px;
 
 	:focus {
-		outline: 1px solid $color-focus;
+		outline: 1px dashed $color-focus;
 	}
 
 	&.editing {
@@ -55,6 +55,7 @@
 
 		ul {
 			overflow-x: visible;
+			pointer-events: none; /* allow clicks to reach offset cells from other rows */
 			position: relative;
 			white-space: nowrap;
 		}
@@ -126,10 +127,11 @@
 					appearance: none; /* CSS3 */
 					display: inline-block;
 					height: 100%;
+					pointer-events: auto;
 					width: 100%;
 
 					&:focus {
-						outline: 2px solid $color-focus;
+						outline: 2px dashed $color-focus;
 						outline-offset: -2px;
 					}
 				}
@@ -163,7 +165,7 @@
 				width: 100%;
 
 				&:focus {
-					outline: 2px solid $color-focus;
+					outline: 2px dashed $color-focus;
 					outline-offset: -2px;
 				}
 			}

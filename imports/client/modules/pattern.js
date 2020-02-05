@@ -1070,28 +1070,28 @@ export default function pattern(state = initialPatternState, action) {
 			newRow[tabletIndex] = newValue;
 			newTwillChart[rowIndex] = newRow;
 
+console.log('weavingInstructionsByTablet[tabletIndex]', weavingInstructionsByTablet[tabletIndex]);
+
 			// find the new weavingInstructions for the changed tablet
 			const newPatternDesign = { ...patternDesign };
-console.log('*** patternDesign', patternDesign);
 			newPatternDesign[twillChart] = newTwillChart;
-console.log('*** newPatternDesign', newPatternDesign);
+			console.log('*** newPatternDesign', newPatternDesign);
+
+// TODO only rebuild from change onwards (row, tablet)
 			const newWeavingInstructions = buildTwillWeavingInstructionsByTablet({
 				numberOfRows,
 				numberOfTablets,
-				'patternDesign': patternDesignpatternDesign, // TO DO find out why this isn't working
+				'patternDesign': newPatternDesign, // TO DO find out why this isn't working
 			});
-console.log('newWeavingInstructions', newWeavingInstructions);
+console.log('newWeavingInstructions[tabletIndex]', newWeavingInstructions[tabletIndex]);
 			const picksForTablet = reCalculatePicksForTablet({ // TO DO this crashes!!!
 				'currentPicks': state.picks[tabletIndex],
 				'weavingInstructionsForTablet': newWeavingInstructions[tabletIndex],
-				//'row': 0,
-				'row': Math.min((rowIndex * 2) - 1, 0),
+				'row': Math.max((rowIndex * 2) - 1, 0),
 			});
-console.log('*** twillChart', twillChart);
-console.log('newTwillChart', newTwillChart);
+
 			return updeep({
 				'patternDesign': { [twillChart]: newTwillChart },
-				// 'patternDesign': { 'twillPatternChart': newTwillPatternChart },
 				'weavingInstructionsByTablet': { [tabletIndex]: newWeavingInstructions[tabletIndex] },
 				'picks': { [tabletIndex]: picksForTablet },
 			}, state);
