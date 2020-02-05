@@ -29,7 +29,7 @@ export default function PreviewOrientation(props) {
 	return (
 		<div className="preview-orientation">
 			<label htmlFor="previewOrientation">
-				<span className="text">Orientation:</span>
+				<span className="text">Orientation of woven band:</span>
 				<select
 					className="form-control"
 					disabled={disabled}

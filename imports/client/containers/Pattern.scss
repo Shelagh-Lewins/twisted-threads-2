@@ -86,7 +86,28 @@
 		}
 	}
 
-	/* forms in edit weaving, threading */
+	// vertical preview is by the side of the weaving chart
+	.orientation-change-container {
+		clear: both;
+		display: flex;
+	}
+
+	.preview-outer {
+		clear: both;
+	}
+
+	.weaving-outer {
+		margin-top: 8px;
+	}
+
+	.preview-up {
+		.weaving-outer {
+			margin-right: 16px;
+			margin-top: 0;
+		}
+	}
+
+	// forms in edit weaving, threading
 	.edit-pattern-form {
 		label {
 			width: auto;
@@ -114,7 +135,7 @@
 	}
 
 	.preview-orientation {
-		margin: 8px;
+		margin: 8px 0;
 	}
 
 	.menu {

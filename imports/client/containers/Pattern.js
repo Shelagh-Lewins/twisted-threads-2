@@ -429,6 +429,45 @@ class Pattern extends PureComponent {
 		return weavingInstructions;
 	}
 
+	renderPreview({ /* eslint-disable-line class-methods-use-this */
+		_id,
+		canEdit,
+		dispatch,
+		holes,
+		isEditing,
+		numberOfRows,
+		numberOfTablets,
+		palette,
+		pattern,
+		patternWillRepeat,
+		previewOrientation,
+		totalTurnsByTablet,
+	}) {
+		return (
+			<div className="preview-outer">
+				<h2>Woven band</h2>
+				{canEdit && (
+					<PreviewOrientation
+						_id={_id}
+						disabled={isEditing ? 'disabled' : ''}
+						dispatch={dispatch}
+						previewOrientation={previewOrientation}
+					/>
+				)}
+				<PatternPreview
+					dispatch={dispatch}
+					holes={holes}
+					numberOfRows={numberOfRows}
+					numberOfTablets={numberOfTablets}
+					palette={palette}
+					pattern={pattern}
+					patternWillRepeat={patternWillRepeat}
+					totalTurnsByTablet={totalTurnsByTablet}
+				/>
+			</div>
+		);
+	}
+
 	renderTabContent({
 		colorBooks,
 		createdByUser,
@@ -485,9 +524,27 @@ class Pattern extends PureComponent {
 					<span className="hint">{repeatHint}</span>
 				);
 
+				let previewClassName = '';
+
+				switch (previewOrientation) {
+					case 'left':
+						previewClassName = 'preview-left';
+						break;
+
+					case 'right':
+						previewClassName = 'preview-right';
+						break;
+
+					case 'up':
+						previewClassName = 'preview-up';
+						break;
+
+					default:
+						break;
+				}
+
 				tabContent = (
-					<div className={`tab-content ${isEditing ? 'is-editing' : ''}`}>
-						<h2>Woven band</h2>
+					<div className={`tab-content ${isEditing ? 'is-editing' : ''} ${previewClassName}`}>
 						{repeatText}
 						{twistNeutralText}
 						<Weft
@@ -497,27 +554,39 @@ class Pattern extends PureComponent {
 							dispatch={dispatch}
 							pattern={pattern}
 						/>
-						{canEdit && (
-							<PreviewOrientation
-								_id={_id}
-								disabled={isEditing ? 'disabled' : ''}
-								dispatch={dispatch}
-								previewOrientation={previewOrientation}
-							/>
-						)}
-						{
-							<PatternPreview
-								dispatch={dispatch}
-								holes={holes}
-								numberOfRows={numberOfRows}
-								numberOfTablets={numberOfTablets}
-								palette={palette}
-								pattern={pattern}
-								patternWillRepeat={patternWillRepeat}
-								totalTurnsByTablet={totalTurnsByTablet}
-							/>
-						}
-						{pattern.patternDesign && this.renderWeavingInstructions()}
+						{previewOrientation !== 'up' && this.renderPreview({
+							_id,
+							canEdit,
+							dispatch,
+							holes,
+							isEditing,
+							numberOfRows,
+							numberOfTablets,
+							palette,
+							pattern,
+							patternWillRepeat,
+							previewOrientation,
+							totalTurnsByTablet,
+						})}
+						<div className="orientation-change-container">
+							<div className="weaving-outer">
+								{pattern.patternDesign && this.renderWeavingInstructions()}
+							</div>
+							{previewOrientation === 'up' && this.renderPreview({
+								_id,
+								canEdit,
+								dispatch,
+								holes,
+								isEditing,
+								numberOfRows,
+								numberOfTablets,
+								palette,
+								pattern,
+								patternWillRepeat,
+								previewOrientation,
+								totalTurnsByTablet,
+							})}
+						</div>
 						<EditableText
 							canEdit={canEdit}
 							fieldName="weavingNotes"
