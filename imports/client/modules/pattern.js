@@ -6,7 +6,8 @@ import { createSelector } from 'reselect';
 // import createCachedSelector from 're-reselect';
 import { logErrors, clearErrors } from './errors';
 import {
-	buildTwillWeavingInstructionsByTablet,
+	// buildTwillWeavingInstructionsByTablet,
+	buildTwillWeavingInstructionsForTablet,
 	buiildWeavingInstructionsByTablet,
 	calculatePicksForTablet,
 	findPatternTwist,
@@ -1052,19 +1053,18 @@ export default function pattern(state = initialPatternState, action) {
 
 			// first row of an even tablet cannot be edited
 			if (tabletIndex % 2 === 1 && rowIndex === 0) {
-				console.log('invalid');
 				return state;
 			}
 
 			const {
 				numberOfRows,
-				numberOfTablets,
+				// numberOfTablets,
 				patternDesign,
 				weavingInstructionsByTablet,
 			} = state;
 
 
-			// const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tabletIndex]];
+			const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tabletIndex]];
 
 			// toggle '.' or 'X' in the chart
 			// original arrays are immutable
@@ -1075,29 +1075,37 @@ export default function pattern(state = initialPatternState, action) {
 			newRow[tabletIndex] = newValue;
 			newTwillChart[rowIndex] = newRow;
 
-console.log('weavingInstructionsByTablet[tabletIndex]', weavingInstructionsByTablet[tabletIndex]);
+// console.log('weavingInstructionsByTablet[tabletIndex]', weavingInstructionsByTablet[tabletIndex]);
 
 			// find the new weavingInstructions for the changed tablet
 			const newPatternDesign = { ...patternDesign };
 			newPatternDesign[twillChart] = newTwillChart;
-			console.log('*** newPatternDesign', newPatternDesign);
+			// console.log('*** newPatternDesign', newPatternDesign);
 
 // TODO only rebuild from change onwards (row, tablet)
-			const newWeavingInstructions = buildTwillWeavingInstructionsByTablet({
+			/* const newWeavingInstructions = buildTwillWeavingInstructionsByTablet({
 				numberOfRows,
 				numberOfTablets,
 				'patternDesign': newPatternDesign, // TO DO find out why this isn't working
+			}); */
+//console.log('start row', rowIndex);
+			const newWeavingInstructions = buildTwillWeavingInstructionsForTablet({
+				numberOfRows,
+				'patternDesign': newPatternDesign,
+				'startRow': Math.max(rowIndex * 2 - 2, 0), // reweave from previous block to catch color change
+				tabletIndex,
+				weavingInstructionsForTablet,
 			});
-console.log('newWeavingInstructions[tabletIndex]', newWeavingInstructions[tabletIndex]);
+//console.log('newWeavingInstructions[tabletIndex]', newWeavingInstructions);
 			const picksForTablet = calculatePicksForTablet({ // TO DO this crashes!!!
 				'currentPicks': state.picks[tabletIndex],
-				'weavingInstructionsForTablet': newWeavingInstructions[tabletIndex],
+				'weavingInstructionsForTablet': newWeavingInstructions,
 				'row': Math.max((rowIndex * 2) - 1, 0),
 			});
 
 			return updeep({
 				'patternDesign': { [twillChart]: newTwillChart },
-				'weavingInstructionsByTablet': { [tabletIndex]: newWeavingInstructions[tabletIndex] },
+				'weavingInstructionsByTablet': { [tabletIndex]: newWeavingInstructions },
 				'picks': { [tabletIndex]: picksForTablet },
 			}, state);
 		}

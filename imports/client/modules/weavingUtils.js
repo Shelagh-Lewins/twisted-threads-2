@@ -364,14 +364,17 @@ export const buildAllTogetherWeavingInstructionsByTablet = ({
 	return weavingInstructionsByTablet;
 };
 
+// This is the magic function that defines 3/1 broken twill weaving
 // 3/1 broken twill patterns are defined by two charts
 // note that twill direction change is the TWT name for GTT's long floats
-// 3/1 broken twill patterns are defined by two charts
-// note that twill direction change is the TWT name for GTT's long floats
+// build the weaving instructions for a tablet
+// from the specified row
 export const buildTwillWeavingInstructionsForTablet = ({
 	numberOfRows,
 	patternDesign,
+	startRow, // this is weaving chart row, not pattern chart row
 	tabletIndex,
+	weavingInstructionsForTablet,
 }) => {
 	const {
 		twillDirection,
@@ -379,7 +382,8 @@ export const buildTwillWeavingInstructionsForTablet = ({
 		twillDirectionChangeChart,
 	} = patternDesign;
 
-	const weavingInstructionsForTablet = [];
+	const weavingInstructions = weavingInstructionsForTablet || [];
+
 	let position;
 
 	const {
@@ -390,26 +394,33 @@ export const buildTwillWeavingInstructionsForTablet = ({
 		twillDirectionChangeChart,
 		twillPatternChart,
 	});
-
+//console.log('doubledPatternChart', doubledPatternChart);
+	if (startRow === 0) {
 	// set the tablet's start position
-	switch (twillDirection) {
-		case 'S':
-			position = (tabletIndex + 3) % 4;
-			break;
+		switch (twillDirection) {
+			case 'S':
+				position = (tabletIndex + 3) % 4;
+				break;
 
-		case 'Z':
-			position = 3 - ((tabletIndex + 0) % 4);
-			break;
+			case 'Z':
+				position = 3 - ((tabletIndex + 0) % 4);
+				break;
 
-		default:
-			console.log(`Error: unknown twill direction: ${twillDirection}`);
-			break;
+			default:
+				console.log(`Error: unknown twill direction: ${twillDirection}`);
+				break;
+		}
+	} else {
+		position = (weavingInstructions[startRow - 1].position) % 4;
 	}
-
-	for (let i = 0; i < numberOfRows; i += 1) {
+	//console.log('*** tablet', tabletIndex);
+//console.log('start position', position);
+	for (let i = startRow; i < numberOfRows; i += 1) {
 		// read the pattern chart for colour change
 		// '.' is background colour
 		// 'X' is foreground colour
+//console.log('*** i', i);
+
 		const currentColor = doubledPatternChart[i];
 		let nextColor = currentColor;
 		let prevColor = '.';
@@ -435,9 +446,11 @@ export const buildTwillWeavingInstructionsForTablet = ({
 			}
 		}
 
-		const twillChange = doubledChangeChart[i];
-
-		if ((!colorChange)) { // if there is a color change, just keep turning the same way
+		const twillChange = doubledChangeChart[i];// read the change chart for twill direction change
+		// '.' is no change
+		// 'X' is first pick of change, 'Y' is second pick of change
+//console.log('color change', colorChange);
+		if ((!colorChange)) { // if there is a color change, just keep turning the same way, otherwise advance in twill sequence
 			position = (position + 1) % 4;
 		}
 
@@ -446,15 +459,15 @@ export const buildTwillWeavingInstructionsForTablet = ({
 		}
 
 		const direction = BROKEN_TWILL_SEQUENCE[position];
-
-		weavingInstructionsForTablet.push({
+//console.log('*** new position', position);
+		weavingInstructions[i] = {
 			direction,
 			position,
 			'numberOfTurns': 1,
-		});
+		};
 	}
 
-	return weavingInstructionsForTablet;
+	return weavingInstructions;
 };
 
 export const buildTwillWeavingInstructionsByTablet = ({
@@ -462,114 +475,18 @@ export const buildTwillWeavingInstructionsByTablet = ({
 	numberOfTablets,
 	patternDesign,
 }) => {
-	const {
-		twillDirection,
-		twillPatternChart,
-		twillDirectionChangeChart,
-	} = patternDesign;
-
 	// build the weaving instructions
 	const weavingInstructionsByTablet = [];
-	const twillPosition = []; // TODO maybe build this into weavingInstructions? Tracks twillPosition of last woven row
 
 	for (let i = 0; i < numberOfTablets; i += 1) {
 		const weavingInstructionsForTablet = buildTwillWeavingInstructionsForTablet({
 			numberOfRows,
 			patternDesign,
+			'startRow': 0,
 			'tabletIndex': i,
 		});
 
 		weavingInstructionsByTablet.push(weavingInstructionsForTablet);
-	}
-
-	return weavingInstructionsByTablet;
-
-	
-
-	// for each tablet, what stage is it at in the twill_sequence? 0, 1, 2, 3
-	// set the start row
-	// tablets start with the previous row, so that if there is a color change in row 1, they will continue as in the non-existent previous row
-	for (let i = 0; i < numberOfTablets; i += 1) {
-		const {
-			doubledChangeChart,
-			doubledPatternChart,
-		} = buildTwillDoubledChartsForTablet({
-			'tabletIndex': i,
-			twillDirectionChangeChart,
-			twillPatternChart,
-		});
-
-		switch (twillDirection) {
-			case 'S':
-				twillPosition.push((i + 3) % 4);
-				break;
-
-			case 'Z':
-				twillPosition.push(3 - ((i + 0) % 4));
-				break;
-
-			default:
-				console.log(`Error: unknown twill direction: ${twillDirection}`);
-				break;
-		}
-
-		// for this tablet, chart each row
-		const newTablet = [];
-
-		for (let j = 0; j < numberOfRows; j += 1) {
-			// read the pattern chart for colour change
-			// '.' is background colour
-			// 'X' is foreground colour
-			const currentColor = doubledPatternChart[j];
-			// const currentColor = doubledPatternChart[j][i];
-			let nextColor = currentColor;
-			let prevColor = '.';
-			let colorChange = false;
-
-			if (j < (numberOfRows - 1)) { // last row has no next row
-				nextColor = doubledPatternChart[j + 1]; // problem
-				// nextColor = doubledPatternChart[j + 1][i]; // problem
-			}
-
-			if (j > 0) {
-				prevColor = doubledPatternChart[j - 1];
-				// prevColor = doubledPatternChart[j - 1][i];
-			}
-
-			// color change if either previous or next color is different
-			if (nextColor !== currentColor) {
-				colorChange = true;
-			}
-
-			if (prevColor !== currentColor) {
-				colorChange = true;
-				if (j === 0) { // tablet starts with foreground color
-					twillPosition[i] = (twillPosition[i] + 3) % 4; // go back an extra turn
-				}
-			}
-
-			const twillChange = doubledChangeChart[j];
-			// const twillChange = doubledChangeChart[j][i];
-
-			if ((!colorChange)) { // if there is a color change, just keep turning the same way
-				twillPosition[i] = (twillPosition[i] + 1) % 4;
-			}
-
-			if ((twillChange === 'Y')) { // second pick of twill direction change
-				twillPosition[i] = (twillPosition[i] + 2) % 4;
-			}
-
-			const position = twillPosition[i];
-			const direction = BROKEN_TWILL_SEQUENCE[position];
-
-			newTablet.push({
-				direction,
-				position,
-				'numberOfTurns': 1,
-			});
-		}
-
-		weavingInstructionsByTablet.push(newTablet);
 	}
 
 	return weavingInstructionsByTablet;
