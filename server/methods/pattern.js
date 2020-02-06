@@ -4,6 +4,7 @@ import {
 	getTabletFilter,
 	nonEmptyStringCheck,
 	positiveIntegerCheck,
+	setupTwillThreading,
 	updatePublicPatternsCount,
 	validHolesCheck,
 	validRowsCheck,
@@ -21,9 +22,6 @@ import {
 import {
 	ALLOWED_PATTERN_TYPES,
 	ALLOWED_PREVIEW_ORIENTATIONS,
-	BROKEN_TWILL_THREADING,
-	BROKEN_TWILL_FOREGROUND,
-	BROKEN_TWILL_BACKGROUND,
 	DEFAULT_COLOR,
 	DEFAULT_DIRECTION,
 	DEFAULT_NUMBER_OF_TURNS,
@@ -70,7 +68,7 @@ Meteor.methods({
 		// one column per tablet
 		// note that if you use fill to create new Arrays per tablet, it's really just one array! We need to make sure each array is a new entity.
 		// most pattern types use the same threading, so set up the default for all and change later if necessary
-		const threading = new Array(holes);
+		let threading = new Array(holes);
 		for (let i = 0; i < holes; i += 1) {
 			threading[i] = new Array(tablets).fill(DEFAULT_COLOR);
 		}
@@ -156,13 +154,12 @@ Meteor.methods({
 					twillDirectionChangeChart,
 				};
 
-				// broken twill threading is set up with two colours in a repeating pattern
-				for (let i = 0; i < holes; i += 1) {
-					for (let j = 0; j < tablets; j += 1) {
-						const colorRole = BROKEN_TWILL_THREADING[i][j % holes];
-						threading[i][j] = colorRole === 'F' ? BROKEN_TWILL_FOREGROUND : BROKEN_TWILL_BACKGROUND;
-					}
-				}
+				threading = setupTwillThreading({
+					holes,
+					'startTablet': 0,
+					tablets,
+					threading,
+				});
 
 				// broken twill uses the default orientation, same as other patterns (/ or S)
 				tags.push('3/1 broken twill');

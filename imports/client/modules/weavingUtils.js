@@ -394,7 +394,7 @@ export const buildTwillWeavingInstructionsForTablet = ({
 		twillDirectionChangeChart,
 		twillPatternChart,
 	});
-//console.log('doubledPatternChart', doubledPatternChart);
+
 	if (startRow === 0) {
 	// set the tablet's start position
 		switch (twillDirection) {
@@ -413,13 +413,11 @@ export const buildTwillWeavingInstructionsForTablet = ({
 	} else {
 		position = (weavingInstructions[startRow - 1].position) % 4;
 	}
-	//console.log('*** tablet', tabletIndex);
-//console.log('start position', position);
+
 	for (let i = startRow; i < numberOfRows; i += 1) {
 		// read the pattern chart for colour change
 		// '.' is background colour
 		// 'X' is foreground colour
-//console.log('*** i', i);
 
 		const currentColor = doubledPatternChart[i];
 		let nextColor = currentColor;
@@ -449,7 +447,7 @@ export const buildTwillWeavingInstructionsForTablet = ({
 		const twillChange = doubledChangeChart[i];// read the change chart for twill direction change
 		// '.' is no change
 		// 'X' is first pick of change, 'Y' is second pick of change
-//console.log('color change', colorChange);
+
 		if ((!colorChange)) { // if there is a color change, just keep turning the same way, otherwise advance in twill sequence
 			position = (position + 1) % 4;
 		}
@@ -459,7 +457,7 @@ export const buildTwillWeavingInstructionsForTablet = ({
 		}
 
 		const direction = BROKEN_TWILL_SEQUENCE[position];
-//console.log('*** new position', position);
+
 		weavingInstructions[i] = {
 			direction,
 			position,

@@ -15,6 +15,9 @@ import {
 	getThreadingByTablet,
 } from './weavingUtils';
 import {
+	BROKEN_TWILL_BACKGROUND,
+	BROKEN_TWILL_FOREGROUND,
+	BROKEN_TWILL_THREADING,
 	DEFAULT_DIRECTION,
 	DEFAULT_NUMBER_OF_TURNS,
 	DEFAULT_ORIENTATION,
@@ -1296,54 +1299,85 @@ export default function pattern(state = initialPatternState, action) {
 			const newPicks = [...picks];
 			const newNumberOfTablets = numberOfTablets + insertNTablets;
 
-			for (let i = 0; i < insertNTablets; i += 1) {
-				// update orientations
-				newOrientations.splice(insertTabletsAt, 0, DEFAULT_ORIENTATION);
+			if (patternType === 'brokenTwill') {
+				// orientations
+				for (let i = 0; i < insertNTablets; i += 1) {
+					// set orientation of new tablet
+					newOrientations.splice(insertTabletsAt, 0, DEFAULT_ORIENTATION);
 
-				// update threading
-				const newThreadingTablet = [];
-				for (let j = 0; j < holes; j += 1) {
-					newThreadingTablet.push(colorIndex);
-				}
-
-				newThreadingByTablet.splice(insertTabletsAt, 0, newThreadingTablet);
-
-				// update weaving instructions
-				const newWeavingInstructionsForTablet = [];
-				for (let j = 0; j < numberOfRows; j += 1) {
-					let direction;
-					let numberOfTurns;
-
-					switch (patternType) {
-						case 'individual':
-							direction = DEFAULT_DIRECTION;
-							numberOfTurns = DEFAULT_NUMBER_OF_TURNS;
-							break;
-
-						case 'allTogether':
-							direction = weavingInstructions[j];
-							numberOfTurns = 1;
-							break;
-
-						default:
-							break;
+					// set placeholder threading for new tablet
+					// update threading
+					const newThreadingTablet = [];
+					for (let j = 0; j < holes; j += 1) {
+						newThreadingTablet.push(colorIndex);
 					}
-					const obj = {
-						direction,
-						numberOfTurns,
-					};
-					newWeavingInstructionsForTablet.push(obj);
+
+					newThreadingByTablet.splice(insertTabletsAt, 0, newThreadingTablet);
 				}
 
-				newWeavingInstructionsByTablet.splice(insertTabletsAt, 0, newWeavingInstructionsForTablet);
+				// broken twill threading is set up with two colours in a repeating pattern
+				// inserted tablets will affect subsequent tablets
+				// calculate new threading from insertion point to end of band
+				for (let i = insertTabletsAt; i < newNumberOfTablets; i += 1) {
+					for (let j = 0; j < holes; j += 1) {
+						const colorRole = BROKEN_TWILL_THREADING[j][i % holes];
+						newThreadingByTablet[j][i] = colorRole === 'F' ? BROKEN_TWILL_FOREGROUND : BROKEN_TWILL_BACKGROUND;
+					}
+				}
+				// pattern design
+				// threading
 
-				const picksForTablet = calculatePicksForTablet({
-					'weavingInstructionsForTablet': newWeavingInstructionsByTablet[insertTabletsAt],
-					'row': 0,
-					numberOfRows,
-				});
+				// then calculate new weaving in one go
+			} else { // other pattern types
+				for (let i = 0; i < insertNTablets; i += 1) {
+					// update orientations
+					newOrientations.splice(insertTabletsAt, 0, DEFAULT_ORIENTATION);
 
-				newPicks.splice(insertTabletsAt, 0, picksForTablet);
+					// update threading
+					const newThreadingTablet = [];
+					for (let j = 0; j < holes; j += 1) {
+						newThreadingTablet.push(colorIndex);
+					}
+
+					newThreadingByTablet.splice(insertTabletsAt, 0, newThreadingTablet);
+
+					// update weaving instructions
+					const newWeavingInstructionsForTablet = [];
+					for (let j = 0; j < numberOfRows; j += 1) {
+						let direction;
+						let numberOfTurns;
+
+						switch (patternType) {
+							case 'individual':
+								direction = DEFAULT_DIRECTION;
+								numberOfTurns = DEFAULT_NUMBER_OF_TURNS;
+								break;
+
+							case 'allTogether':
+								direction = weavingInstructions[j];
+								numberOfTurns = 1;
+								break;
+
+							default:
+								break;
+						}
+						const obj = {
+							direction,
+							numberOfTurns,
+						};
+						newWeavingInstructionsForTablet.push(obj);
+					}
+
+					newWeavingInstructionsByTablet.splice(insertTabletsAt, 0, newWeavingInstructionsForTablet);
+
+					const picksForTablet = calculatePicksForTablet({
+						'weavingInstructionsForTablet': newWeavingInstructionsByTablet[insertTabletsAt],
+						'row': 0,
+						numberOfRows,
+					});
+
+					newPicks.splice(insertTabletsAt, 0, picksForTablet);
+				}
 			}
 
 			return updeep({

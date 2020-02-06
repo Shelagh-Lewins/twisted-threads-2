@@ -2,6 +2,9 @@ import { ColorBooks, PatternImages, Patterns } from '../../modules/collection';
 import {
 	ALLOWED_HOLES,
 	ALLOWED_PATTERN_TYPES,
+	BROKEN_TWILL_FOREGROUND,
+	BROKEN_TWILL_BACKGROUND,
+	BROKEN_TWILL_THREADING,
 	DEFAULT_PALETTE,
 	MAX_ROWS,
 	MAX_TABLETS,
@@ -229,4 +232,23 @@ export const getTabletFilter = ({ filterMaxTablets, filterMinTablets }) => {
 			{ 'numberOfTablets': { '$lte': max } },
 		],
 	};
+};
+
+export const setupTwillThreading = ({
+	holes,
+	startTablet,
+	tablets,
+	threading,
+}) => {
+	// broken twill threading is set up with two colours in a repeating pattern
+	const newThreading = [...threading];
+
+	for (let i = 0; i < holes; i += 1) {
+		for (let j = startTablet; j < tablets; j += 1) {
+			const colorRole = BROKEN_TWILL_THREADING[i][j % holes];
+			newThreading[i][j] = colorRole === 'F' ? BROKEN_TWILL_FOREGROUND : BROKEN_TWILL_BACKGROUND;
+		}
+	}
+
+	return newThreading;
 };
