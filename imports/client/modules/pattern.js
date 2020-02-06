@@ -629,8 +629,8 @@ export function addTablets({
 	insertNTablets,
 	insertTabletsAt,
 }) {
-	return (dispatch) => {
-		Meteor.call('pattern.edit', {
+	return (dispatch) => { //todo reinstate and code
+		/*Meteor.call('pattern.edit', {
 			_id,
 			'data': {
 				'type': 'addTablets',
@@ -642,7 +642,7 @@ export function addTablets({
 			if (error) {
 				return dispatch(logErrors({ 'add tablets': error.reason }));
 			}
-		});
+		}); */
 
 		dispatch(updateAddTablets({
 			colorIndex,
@@ -1078,20 +1078,10 @@ export default function pattern(state = initialPatternState, action) {
 			newRow[tabletIndex] = newValue;
 			newTwillChart[rowIndex] = newRow;
 
-// console.log('weavingInstructionsByTablet[tabletIndex]', weavingInstructionsByTablet[tabletIndex]);
-
 			// find the new weavingInstructions for the changed tablet
 			const newPatternDesign = { ...patternDesign };
 			newPatternDesign[twillChart] = newTwillChart;
-			// console.log('*** newPatternDesign', newPatternDesign);
 
-// TODO only rebuild from change onwards (row, tablet)
-			/* const newWeavingInstructions = buildTwillWeavingInstructionsByTablet({
-				numberOfRows,
-				numberOfTablets,
-				'patternDesign': newPatternDesign, // TO DO find out why this isn't working
-			}); */
-//console.log('start row', rowIndex);
 			const newWeavingInstructions = buildTwillWeavingInstructionsForTablet({
 				numberOfRows,
 				'patternDesign': newPatternDesign,
@@ -1099,8 +1089,8 @@ export default function pattern(state = initialPatternState, action) {
 				tabletIndex,
 				weavingInstructionsForTablet,
 			});
-//console.log('newWeavingInstructions[tabletIndex]', newWeavingInstructions);
-			const picksForTablet = calculatePicksForTablet({ // TO DO this crashes!!!
+
+			const picksForTablet = calculatePicksForTablet({
 				'currentPicks': state.picks[tabletIndex],
 				'weavingInstructionsForTablet': newWeavingInstructions,
 				'row': Math.max((rowIndex * 2) - 1, 0),
@@ -1299,35 +1289,85 @@ export default function pattern(state = initialPatternState, action) {
 			const newPicks = [...picks];
 			const newNumberOfTablets = numberOfTablets + insertNTablets;
 
+			// build update for updeep / state
+			const update = {
+				'numberOfTablets': newNumberOfTablets,
+				'orientations': newOrientations,
+				'threadingByTablet': newThreadingByTablet,
+				'weavingInstructionsByTablet': newWeavingInstructionsByTablet,
+				'picks': newPicks,
+			};
+
 			if (patternType === 'brokenTwill') {
+				const {
+					twillDirection,
+					twillPatternChart,
+					twillDirectionChangeChart,
+				} = state.patternDesign;
+				const chartLength = twillPatternChart.length;
+				const newTwillPatternChart = [...twillPatternChart];
+				const newTwillDirectionChangeChart = [...twillDirectionChangeChart];
+
 				// orientations
 				for (let i = 0; i < insertNTablets; i += 1) {
 					// set orientation of new tablet
 					newOrientations.splice(insertTabletsAt, 0, DEFAULT_ORIENTATION);
 
-					// set placeholder threading for new tablet
-					// update threading
-					const newThreadingTablet = [];
-					for (let j = 0; j < holes; j += 1) {
-						newThreadingTablet.push(colorIndex);
-					}
+					// insert new tablet to twill design charts
+					// these are by row, tablet
+					for (let j = 0; j < chartLength; j += 1) {
+						newTwillPatternChart[j] = [...newTwillPatternChart[j]];
+						newTwillPatternChart[j].splice(insertTabletsAt, 0, '.');
 
-					newThreadingByTablet.splice(insertTabletsAt, 0, newThreadingTablet);
+						newTwillDirectionChangeChart[j] = [...newTwillDirectionChangeChart[j]];
+						newTwillDirectionChangeChart[j].splice(insertTabletsAt, 0, '.');
+					}
 				}
 
 				// broken twill threading is set up with two colours in a repeating pattern
 				// inserted tablets will affect subsequent tablets
 				// calculate new threading from insertion point to end of band
 				for (let i = insertTabletsAt; i < newNumberOfTablets; i += 1) {
+					newThreadingByTablet[i] = [];
+
 					for (let j = 0; j < holes; j += 1) {
 						const colorRole = BROKEN_TWILL_THREADING[j][i % holes];
-						newThreadingByTablet[j][i] = colorRole === 'F' ? BROKEN_TWILL_FOREGROUND : BROKEN_TWILL_BACKGROUND;
+						newThreadingByTablet[i][j] = colorRole === 'F' ? BROKEN_TWILL_FOREGROUND : BROKEN_TWILL_BACKGROUND;
 					}
 				}
-				// pattern design
-				// threading
 
+console.log('new threading 2', newThreadingByTablet);
 				// then calculate new weaving in one go
+				for (let i = insertTabletsAt; i < newNumberOfTablets; i += 1) {
+					newThreadingByTablet[i] = [];
+
+					for (let j = 0; j < holes; j += 1) {
+						const colorRole = BROKEN_TWILL_THREADING[j][i % holes];
+						newThreadingByTablet[i][j] = colorRole === 'F' ? BROKEN_TWILL_FOREGROUND : BROKEN_TWILL_BACKGROUND;
+					}
+
+					const newWeavingInstructions = buildTwillWeavingInstructionsForTablet({
+						numberOfRows,
+						'patternDesign': {
+							twillDirection,
+							'twillPatternChart': newTwillPatternChart,
+							'twillDirectionChangeChart': newTwillDirectionChangeChart,
+						},
+						'startRow': 0, // reweave entire tablet
+						'tabletIndex': i,
+					});
+
+					newPicks[i] = calculatePicksForTablet({
+						//'currentPicks': state.picks[tabletIndex],
+						'weavingInstructionsForTablet': newWeavingInstructions,
+						'row': 0,
+					});
+				}
+
+				update.patternDesign = {
+					'twillPatternChart': newTwillPatternChart,
+					'twillDirectionChangeChart': newTwillDirectionChangeChart,
+				};
 			} else { // other pattern types
 				for (let i = 0; i < insertNTablets; i += 1) {
 					// update orientations
@@ -1380,13 +1420,15 @@ export default function pattern(state = initialPatternState, action) {
 				}
 			}
 
-			return updeep({
+			return updeep(update, state);
+
+			/* return updeep({
 				'numberOfTablets': newNumberOfTablets,
 				'orientations': newOrientations,
 				'threadingByTablet': newThreadingByTablet,
 				'weavingInstructionsByTablet': newWeavingInstructionsByTablet,
 				'picks': newPicks,
-			}, state);
+			}, state); */
 		}
 
 		case UPDATE_REMOVE_TABLET: {
