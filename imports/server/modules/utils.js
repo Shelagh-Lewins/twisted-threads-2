@@ -237,18 +237,26 @@ export const getTabletFilter = ({ filterMaxTablets, filterMinTablets }) => {
 export const setupTwillThreading = ({
 	holes,
 	startTablet,
-	tablets,
-	threading,
+	numberOfTablets,
 }) => {
 	// broken twill threading is set up with two colours in a repeating pattern
-	const newThreading = [...threading];
+	// this returns twill threading from a specified start tablet onwards
+	// useful when inserting tablets; the return is all tablets from the insertion onwards
+
+	const threadingForNewTablets = [];
 
 	for (let i = 0; i < holes; i += 1) {
-		for (let j = startTablet; j < tablets; j += 1) {
-			const colorRole = BROKEN_TWILL_THREADING[i][j % holes];
-			newThreading[i][j] = colorRole === 'F' ? BROKEN_TWILL_FOREGROUND : BROKEN_TWILL_BACKGROUND;
+		const threadingForHole = [];
+
+		for (let j = 0; j < numberOfTablets - startTablet; j += 1) {
+			const positionInThreadingSequence = j + startTablet;
+			const colorRole = BROKEN_TWILL_THREADING[i][positionInThreadingSequence % holes];
+
+			threadingForHole.push(colorRole === 'F' ? BROKEN_TWILL_FOREGROUND : BROKEN_TWILL_BACKGROUND);
 		}
+
+		threadingForNewTablets.push(threadingForHole);
 	}
 
-	return newThreading;
+	return threadingForNewTablets;
 };

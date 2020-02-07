@@ -157,8 +157,7 @@ Meteor.methods({
 				threading = setupTwillThreading({
 					holes,
 					'startTablet': 0,
-					tablets,
-					threading,
+					'numberOfTablets': tablets,
 				});
 
 				// broken twill uses the default orientation, same as other patterns (/ or S)
@@ -397,11 +396,12 @@ Meteor.methods({
 
 		// same for any pattern type
 		const {
+			holes,
 			numberOfRows,
 			numberOfTablets,
 			patternType,
 			patternDesign,
-			// 'patternDesign': { weavingInstructions },
+			threading,
 		} = pattern;
 
 		// to be filled in by data depending on case
@@ -675,41 +675,48 @@ Meteor.methods({
 					throw new Meteor.Error('add-tablets-invalid position', 'Unable to add tablets because the position is invalid');
 				}
 
-				// new tablets to be added to each threading row
-				const newTablets = [];
+				const update = {};
 
-				for (let j = 0; j < insertNTablets; j += 1) {
-					newTablets.push(colorIndex);
-				}
+				// all pattern types have the new number of tablets
+				const newNumberOfTablets = pattern.numberOfTablets + insertNTablets;
 
-				// new tablets to be added to orientation
+				update.$set = {
+					'numberOfTablets': newNumberOfTablets,
+				};
+
+				// all pattern types have the new orientations
 				const newOrientations = [];
 
 				for (let j = 0; j < insertNTablets; j += 1) {
 					newOrientations.push(DEFAULT_ORIENTATION);
 				}
 
-				const update = {};
-
-				// updates for threading and orientation are the same for all pattern types
 				update.$push = {
-					'threading.$[]': {
-						'$each': newTablets,
-						'$position': insertTabletsAt,
-					},
 					'orientations': {
 						'$each': newOrientations,
 						'$position': insertTabletsAt,
 					},
 				};
 
-				// updates for weaving depend on pattern type
-				let newWeaving;
+				if (patternType === 'individual' || patternType === 'allTogether') {
+					// new tablets to be added to each threading row
+					const newTabletsForThreading = [];
 
+					for (let j = 0; j < insertNTablets; j += 1) {
+						newTabletsForThreading.push(colorIndex);
+					}
+
+					update.$push['threading.$[]'] = {
+						'$each': newTabletsForThreading,
+						'$position': insertTabletsAt,
+					};
+				}
+
+				// updates for weaving and threading depend on pattern type
 				switch (patternType) {
 					case 'individual':
 						// new picks to be added to each weaving row
-						newWeaving = [];
+						const newWeaving = [];
 
 						for (let j = 0; j < insertNTablets; j += 1) {
 							newWeaving.push({
@@ -724,19 +731,55 @@ Meteor.methods({
 						};
 						break;
 
+					case 'brokenTwill':
+						// set threading for new and subsequent tablets
+						const threadingForNewTablets = setupTwillThreading({
+							holes,
+							'startTablet': insertTabletsAt,
+							'numberOfTablets': newNumberOfTablets,
+						});
+
+						// recreate the entire threading
+						// there does not seem to be an elegant way to update segments of a MongoDB array atomically
+						// however at least we have only recalculated the changed tablets
+						const newThreading = [...threading];
+
+						for (let i = 0; i < holes; i += 1) {
+							// truncate the threading array for this hole
+							newThreading[i].length = insertTabletsAt;
+							newThreading[i] = newThreading[i].concat(threadingForNewTablets[i]);
+						}
+
+						update.$set.threading = newThreading;
+
+						// insert new tablets into pattern design charts
+						const newChartCells = [];
+
+						for (let j = 0; j < insertNTablets; j += 1) {
+							newChartCells.push('.');
+						}
+
+						update.$push['patternDesign.twillPatternChart.$[]'] = {
+							'$each': newChartCells,
+							'$position': insertTabletsAt,
+						};
+
+						update.$push['patternDesign.twillDirectionChangeChart.$[]'] = {
+							'$each': newChartCells,
+							'$position': insertTabletsAt,
+						};
+
+						break;
+
 					default:
 						break;
 				}
 
-				update.$set = {
-					'numberOfTablets': pattern.numberOfTablets + insertNTablets,
-				};
 				return Patterns.update(
 					{ _id },
 					update,
 					{ 'bypassCollection2': true },
 				); // schema rejects the operation. This may be a bug in Simple Schema; I have logged in issue
-
 
 			case 'removeTablet':
 				({ tablet } = data);

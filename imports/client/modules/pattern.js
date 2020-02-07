@@ -629,8 +629,8 @@ export function addTablets({
 	insertNTablets,
 	insertTabletsAt,
 }) {
-	return (dispatch) => { //todo reinstate and code
-		/*Meteor.call('pattern.edit', {
+	return (dispatch) => {
+		Meteor.call('pattern.edit', {
 			_id,
 			'data': {
 				'type': 'addTablets',
@@ -642,7 +642,7 @@ export function addTablets({
 			if (error) {
 				return dispatch(logErrors({ 'add tablets': error.reason }));
 			}
-		}); */
+		});
 
 		dispatch(updateAddTablets({
 			colorIndex,
@@ -1276,10 +1276,11 @@ export default function pattern(state = initialPatternState, action) {
 				numberOfRows,
 				numberOfTablets,
 				orientations,
+				patternDesign,
 				patternType,
 				picks,
 				threadingByTablet,
-				'patternDesign': { weavingInstructions },
+				// 'patternDesign': { weavingInstructions },
 				weavingInstructionsByTablet,
 			} = state;
 
@@ -1303,7 +1304,7 @@ export default function pattern(state = initialPatternState, action) {
 					twillDirection,
 					twillPatternChart,
 					twillDirectionChangeChart,
-				} = state.patternDesign;
+				} = patternDesign;
 				const chartLength = twillPatternChart.length;
 				const newTwillPatternChart = [...twillPatternChart];
 				const newTwillDirectionChangeChart = [...twillDirectionChangeChart];
@@ -1324,21 +1325,9 @@ export default function pattern(state = initialPatternState, action) {
 					}
 				}
 
-				// broken twill threading is set up with two colours in a repeating pattern
-				// inserted tablets will affect subsequent tablets
-				// calculate new threading from insertion point to end of band
+				// threading and weaving of subsequent tablets is affected
 				for (let i = insertTabletsAt; i < newNumberOfTablets; i += 1) {
-					newThreadingByTablet[i] = [];
-
-					for (let j = 0; j < holes; j += 1) {
-						const colorRole = BROKEN_TWILL_THREADING[j][i % holes];
-						newThreadingByTablet[i][j] = colorRole === 'F' ? BROKEN_TWILL_FOREGROUND : BROKEN_TWILL_BACKGROUND;
-					}
-				}
-
-console.log('new threading 2', newThreadingByTablet);
-				// then calculate new weaving in one go
-				for (let i = insertTabletsAt; i < newNumberOfTablets; i += 1) {
+					// broken twill threading is set up with two colours in a repeating pattern
 					newThreadingByTablet[i] = [];
 
 					for (let j = 0; j < holes; j += 1) {
@@ -1358,7 +1347,6 @@ console.log('new threading 2', newThreadingByTablet);
 					});
 
 					newPicks[i] = calculatePicksForTablet({
-						//'currentPicks': state.picks[tabletIndex],
 						'weavingInstructionsForTablet': newWeavingInstructions,
 						'row': 0,
 					});
@@ -1394,7 +1382,7 @@ console.log('new threading 2', newThreadingByTablet);
 								break;
 
 							case 'allTogether':
-								direction = weavingInstructions[j];
+								direction = patternDesign.weavingInstructions[j];
 								numberOfTurns = 1;
 								break;
 
@@ -1421,14 +1409,6 @@ console.log('new threading 2', newThreadingByTablet);
 			}
 
 			return updeep(update, state);
-
-			/* return updeep({
-				'numberOfTablets': newNumberOfTablets,
-				'orientations': newOrientations,
-				'threadingByTablet': newThreadingByTablet,
-				'weavingInstructionsByTablet': newWeavingInstructionsByTablet,
-				'picks': newPicks,
-			}, state); */
 		}
 
 		case UPDATE_REMOVE_TABLET: {
