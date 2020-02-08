@@ -1325,16 +1325,18 @@ export default function pattern(state = initialPatternState, action) {
 					}
 				}
 
-				// threading and weaving of subsequent tablets is affected
-				for (let i = insertTabletsAt; i < newNumberOfTablets; i += 1) {
-					// broken twill threading is set up with two colours in a repeating pattern
+				// add the new tablets to threading - just continue the twill threading sequence
+				for (let i = numberOfTablets; i < newNumberOfTablets; i += 1) {
 					newThreadingByTablet[i] = [];
 
 					for (let j = 0; j < holes; j += 1) {
 						const colorRole = BROKEN_TWILL_THREADING[j][i % holes];
-						newThreadingByTablet[i][j] = colorRole === 'F' ? BROKEN_TWILL_FOREGROUND : BROKEN_TWILL_BACKGROUND;
+						newThreadingByTablet[i].push(colorRole === 'F' ? BROKEN_TWILL_FOREGROUND : BROKEN_TWILL_BACKGROUND);
 					}
+				}
 
+				// calculate weaving for new and subsequent tablets
+				for (let i = insertTabletsAt; i < newNumberOfTablets; i += 1) {
 					const newWeavingInstructions = buildTwillWeavingInstructionsForTablet({
 						numberOfRows,
 						'patternDesign': {
