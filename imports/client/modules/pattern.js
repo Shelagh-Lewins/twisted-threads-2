@@ -981,6 +981,8 @@ export default function pattern(state = initialPatternState, action) {
 			});
 
 			return updeep({
+				'isEditingWeaving': false,
+				'isEditingThreading': false,
 				'weavingInstructionsByTablet': { [tablet]: { [row]: obj } },
 				'picks': { [tablet]: picksForTablet },
 			}, state);
@@ -1158,6 +1160,64 @@ export default function pattern(state = initialPatternState, action) {
 				picks,
 				weavingInstructionsByTablet,
 			} = state;
+
+			const newNumberOfRows = numberOfRows + insertNRows;
+
+			const update = {
+				'numberOfRows': newNumberOfRows,
+			};
+
+			switch (patternType) {
+				// each tablet is independent so just remove it
+				case 'individual':
+				case 'allTogether':
+					// individual weaving instruction
+					const obj = {
+						'direction': DEFAULT_DIRECTION,
+						'numberOfTurns': DEFAULT_NUMBER_OF_TURNS,
+					};
+
+					const newPicks = [];
+					const newWeavingInstructionsByTablet = [];
+
+					for (let i = 0; i < numberOfTablets; i += 1) {
+						const newWeavingInstructionsForTablet = [...weavingInstructionsByTablet[i]];
+
+						for (let j = 0; j < insertNRows; j += 1) {
+							newWeavingInstructionsForTablet.splice(insertRowsAt, 0, obj);
+						}
+
+						const picksForTablet = calculatePicksForTablet({
+							'currentPicks': picks[i],
+							'weavingInstructionsForTablet': newWeavingInstructionsForTablet,
+							'row': insertRowsAt,
+						});
+
+						newWeavingInstructionsByTablet.push(newWeavingInstructionsForTablet);
+						newPicks.push(picksForTablet);
+					}
+
+					update.weavingInstructionsByTablet =  newWeavingInstructionsByTablet;
+					update.picks = newPicks;
+
+					// update patternDesign for patterns will be used for UI
+					const newPatternDesignRows = [];
+					let newWeavingInstructions = [];
+
+					if (patternType === 'allTogether') {
+						for (let i = 0; i < insertNRows; i += 1) {
+							newPatternDesignRows.push(DEFAULT_DIRECTION);
+						}
+						newWeavingInstructions = patternDesign.weavingInstructions.concat(newPatternDesignRows);
+						update.patternDesign = { 'weavingInstructions': newWeavingInstructions };
+					}
+					break;
+
+				case 'brokenTwill':
+					console.log('broken twill');
+					break;
+
+			}
 
 			// individual weaving instruction
 			const obj = {

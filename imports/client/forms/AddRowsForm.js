@@ -9,40 +9,59 @@ import {
 } from '../../modules/parameters';
 import './AddPatternForm.scss';
 
-const validate = (values, numberOfRows) => {
+const validate = (values, numberOfRows, patternType) => {
 	const errors = {};
-	if (!values.insertNRows) {
+	const { insertNRows, insertRowsAt } = values;
+
+	if (!insertNRows) {
 		errors.insertNRows = 'Required';
-	} else if (values.insertNRows < 1) {
+	} else if (insertNRows < 1) {
 		errors.insertNRows = 'Must be at least 1';
-	} else if (!Number.isInteger(values.insertNRows)) {
+	} else if (!Number.isInteger(insertNRows)) {
 		errors.insertNRows = 'Must be a whole number';
-	} else if (values.insertNRows > MAX_ROWS) {
+	} else if (insertNRows > MAX_ROWS) {
 		errors.insertNRows = `Number of rows in pattern cannot be greater than ${MAX_ROWS - numberOfRows}`;
+	} else if (patternType === 'brokenTwill') {
+		// broken twill has special requirements
+		if (insertNRows % 2 !== 0) {
+			errors.insertNRows = 'Must be an even number';
+		} else if (insertNRows < 2) {
+			errors.insertNRows = 'Must be at least 2';
+		}
 	}
 
-	if (!values.insertRowsAt) {
+	if (!insertRowsAt) {
 		errors.insertRowsAt = 'Required';
-	} else if (values.insertRowsAt < 1) {
+	} else if (insertRowsAt < 1) {
 		errors.insertRowsAt = 'Must be at least 1';
-	} else if (values.insertRowsAt > numberOfRows) {
+	} else if (insertRowsAt > numberOfRows) {
 		errors.insertRowsAt = `Must not be greater than ${MAX_ROWS}`;
-	} else if (!Number.isInteger(values.insertRowsAt)) {
+	} else if (!Number.isInteger(insertRowsAt)) {
 		errors.insertRowsAt = 'Must be a whole number';
+	} else if (patternType === 'brokenTwill') {
+		// broken twill has special requirements
+		if (insertRowsAt % 2 !== 1) {
+			errors.insertNRows = 'Must be an odd number';
+		}
 	}
 
 	return errors;
 };
 
 const AddRowsForm = (props) => {
-	const { numberOfRows } = props;
+	const { numberOfRows, patternType } = props;
+	const initialNRows = patternType === 'brokenTwill' ? 2 : 1;
+	const stepNRows = patternType === 'brokenTwill' ? 2 : 1;
+	const stepInsertAt = patternType === 'brokenTwill' ? 2 : 1;
+	const minNRows = patternType === 'brokenTwill' ? 2 : 1;
+
 	const formik = useFormik({
 		'initialValues': {
-			'insertNRows': 1,
+			'insertNRows': initialNRows,
 			'insertRowsAt': numberOfRows + 1,
 		},
 		'validate': (values) => {
-			validate(values, numberOfRows);
+			validate(values, numberOfRows, patternType);
 		},
 		'onSubmit': (values, { resetForm }) => {
 			props.handleSubmit(values, { resetForm });
@@ -53,7 +72,7 @@ const AddRowsForm = (props) => {
 	if (numberOfRows + 1 !== formik.initialValues.insertRowsAt) {
 		formik.resetForm({
 			'values': {
-				'insertNRows': 1,
+				'insertNRows': initialNRows,
 				'insertRowsAt': numberOfRows + 1,
 			},
 		});
@@ -73,8 +92,9 @@ const AddRowsForm = (props) => {
 							placeholder="Number of rows"
 							id="insertNRows"
 							max={MAX_ROWS - numberOfRows}
-							min="1"
+							min={minNRows}
 							name="insertNRows"
+							step={stepNRows}
 							type="number"
 							onChange={formik.handleChange}
 							onBlur={formik.handleBlur}
@@ -94,6 +114,7 @@ const AddRowsForm = (props) => {
 							max={numberOfRows + 1}
 							min="1"
 							name="insertRowsAt"
+							step={stepInsertAt}
 							type="number"
 							onChange={formik.handleChange}
 							onBlur={formik.handleBlur}
@@ -115,6 +136,7 @@ const AddRowsForm = (props) => {
 AddRowsForm.propTypes = {
 	'handleSubmit': PropTypes.func.isRequired,
 	'numberOfRows': PropTypes.number.isRequired,
+	'patternType': PropTypes.string,
 };
 
 export default AddRowsForm;

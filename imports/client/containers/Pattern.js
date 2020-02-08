@@ -415,6 +415,7 @@ class Pattern extends PureComponent {
 						<h2>Weaving design</h2>
 						<WeavingDesignBrokenTwill
 							dispatch={dispatch}
+							numberOfRows={numberOfRows}
 							numberOfTablets={numberOfTablets}
 							pattern={pattern}
 						/>

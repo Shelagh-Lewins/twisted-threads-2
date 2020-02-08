@@ -7,6 +7,7 @@ import {
 	setIsEditingWeaving,
 } from '../modules/pattern';
 import calculateScrolling from '../modules/calculateScrolling';
+import AddRowsForm from '../forms/AddRowsForm';
 import './WeavingDesignBrokenTwill.scss';
 
 // row and tablet have nothing to identify them except index
@@ -37,6 +38,7 @@ class WeavingDesignBrokenTwill extends PureComponent {
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
+			'handleSubmitAddRows',
 			'toggleEditWeaving',
 			'handleClickEditMode',
 			'handleClickRemoveRow',
@@ -87,6 +89,19 @@ class WeavingDesignBrokenTwill extends PureComponent {
 			tabletIndex,
 			'twillChart': editMode === 'color' ? 'twillPatternChart' : 'twillDirectionChangeChart',
 		}));
+	}
+
+	handleSubmitAddRows(data) {
+		const { dispatch, 'pattern': { _id } } = this.props;
+		console.log('add rows', data);
+
+		/* dispatch(addWeavingRows({
+			_id,
+			'insertNRows': parseInt(data.insertNRows, 10),
+			'insertRowsAt': parseInt(data.insertRowsAt - 1, 10),
+		})); */
+
+		setTimeout(() => this.trackScrolling(), 100); // give the new rows time to render
 	}
 
 	handleClickRemoveRow(rowIndex) {
@@ -351,6 +366,12 @@ class WeavingDesignBrokenTwill extends PureComponent {
 				}}
 			>
 				{this.renderEditOptions()}
+				<AddRowsForm
+					enableReinitialize={true}
+					handleSubmit={this.handleSubmitAddRows}
+					numberOfRows={numberOfRows}
+					patternType="brokenTwill"
+				/>
 			</div>
 		);
 	}
@@ -378,6 +399,7 @@ class WeavingDesignBrokenTwill extends PureComponent {
 
 WeavingDesignBrokenTwill.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
+	'numberOfRows': PropTypes.number.isRequired,
 	'numberOfTablets': PropTypes.number.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 	'patternDesign': PropTypes.objectOf(PropTypes.any).isRequired, // updated in state
