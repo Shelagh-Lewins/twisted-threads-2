@@ -948,6 +948,8 @@ export default function pattern(state = initialPatternState, action) {
 
 			return updeep({
 				holes,
+				'isEditingWeaving': false,
+				'isEditingThreading': false,
 				numberOfRows,
 				numberOfTablets,
 				orientations,
@@ -981,8 +983,6 @@ export default function pattern(state = initialPatternState, action) {
 			});
 
 			return updeep({
-				'isEditingWeaving': false,
-				'isEditingThreading': false,
 				'weavingInstructionsByTablet': { [tablet]: { [row]: obj } },
 				'picks': { [tablet]: picksForTablet },
 			}, state);
@@ -1069,7 +1069,6 @@ export default function pattern(state = initialPatternState, action) {
 				patternDesign,
 				weavingInstructionsByTablet,
 			} = state;
-
 
 			const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tabletIndex]];
 
@@ -1167,6 +1166,9 @@ export default function pattern(state = initialPatternState, action) {
 				'numberOfRows': newNumberOfRows,
 			};
 
+			const newPicks = [];
+			const newWeavingInstructionsByTablet = [];
+
 			switch (patternType) {
 				// each tablet is independent so just remove it
 				case 'individual':
@@ -1176,9 +1178,6 @@ export default function pattern(state = initialPatternState, action) {
 						'direction': DEFAULT_DIRECTION,
 						'numberOfTurns': DEFAULT_NUMBER_OF_TURNS,
 					};
-
-					const newPicks = [];
-					const newWeavingInstructionsByTablet = [];
 
 					for (let i = 0; i < numberOfTablets; i += 1) {
 						const newWeavingInstructionsForTablet = [...weavingInstructionsByTablet[i]];
@@ -1197,14 +1196,11 @@ export default function pattern(state = initialPatternState, action) {
 						newPicks.push(picksForTablet);
 					}
 
-					update.weavingInstructionsByTablet =  newWeavingInstructionsByTablet;
-					update.picks = newPicks;
-
-					// update patternDesign for patterns will be used for UI
-					const newPatternDesignRows = [];
-					let newWeavingInstructions = [];
-
 					if (patternType === 'allTogether') {
+						// update patternDesign for patterns will be used for UI
+						const newPatternDesignRows = [];
+						let newWeavingInstructions = [];
+
 						for (let i = 0; i < insertNRows; i += 1) {
 							newPatternDesignRows.push(DEFAULT_DIRECTION);
 						}
@@ -1215,63 +1211,65 @@ export default function pattern(state = initialPatternState, action) {
 
 				case 'brokenTwill':
 					console.log('broken twill');
-					break;
+					const {
+						twillDirection,
+						twillPatternChart,
+						twillDirectionChangeChart,
+					} = patternDesign;
 
-			}
+					const newTwillPatternChart = [...twillPatternChart];
+					const newTwillDirectionChangeChart = [...twillDirectionChangeChart];
 
-			// individual weaving instruction
-			const obj = {
-				'direction': DEFAULT_DIRECTION,
-				'numberOfTurns': DEFAULT_NUMBER_OF_TURNS,
-			};
+					for (let i = 0; i < insertNRows / 2; i += 1) {
+						const newRow1 = new Array(numberOfTablets);
+						newRow1.fill('.');
+						newTwillPatternChart.push(newRow1);
 
-			const newPicks = [];
-			const newWeavingInstructionsByTablet = [];
-
-			for (let i = 0; i < numberOfTablets; i += 1) {
-				const newWeavingInstructionsForTablet = [...weavingInstructionsByTablet[i]];
-
-				for (let j = 0; j < insertNRows; j += 1) {
-					newWeavingInstructionsForTablet.splice(insertRowsAt, 0, obj);
-				}
-
-				const picksForTablet = calculatePicksForTablet({
-					'currentPicks': picks[i],
-					'weavingInstructionsForTablet': newWeavingInstructionsForTablet,
-					'row': insertRowsAt,
-				});
-
-				newWeavingInstructionsByTablet.push(newWeavingInstructionsForTablet);
-				newPicks.push(picksForTablet);
-			}
-
-			const newNumberOfRows = numberOfRows + insertNRows;
-
-			const update = {
-				'numberOfRows': newNumberOfRows,
-				'weavingInstructionsByTablet': newWeavingInstructionsByTablet,
-				'picks': newPicks,
-			};
-
-			// update patternDesign for patterns will be used for UI
-			const newPatternDesignRows = [];
-			let newWeavingInstructions = [];
-
-			switch (patternType) {
-				case 'individual':
-					break;
-
-				case 'allTogether':
-					for (let i = 0; i < insertNRows; i += 1) {
-						newPatternDesignRows.push(DEFAULT_DIRECTION);
+						const newRow2 = new Array(numberOfTablets);
+						newRow2.fill('.');
+						newTwillDirectionChangeChart.push(newRow2);
 					}
-					newWeavingInstructions = patternDesign.weavingInstructions.concat(newPatternDesignRows);
-					update.patternDesign = { 'weavingInstructions': newWeavingInstructions };
+
+					// calculate weaving from removed row onwards
+					for (let i = 0; i < numberOfTablets; i += 1) {
+						for (let j = insertRowsAt; j < newNumberOfRows; j += 1) {
+							const weavingInstructionsForTablet = [...weavingInstructionsByTablet[i]];
+
+							const newWeavingInstructionsForTablet = buildTwillWeavingInstructionsForTablet({
+								'numberOfRows': newNumberOfRows,
+								'patternDesign': {
+									twillDirection,
+									'twillPatternChart': newTwillPatternChart,
+									'twillDirectionChangeChart': newTwillDirectionChangeChart,
+								},
+								'startRow': insertRowsAt, // reweave entire tablet
+								'tabletIndex': i,
+								weavingInstructionsForTablet,
+							});
+
+							const picksForTablet = calculatePicksForTablet({
+								'weavingInstructionsForTablet': newWeavingInstructionsForTablet,
+								'row': 0,
+							});
+
+							newWeavingInstructionsByTablet.push(newWeavingInstructionsForTablet);
+							newPicks.push(picksForTablet);
+						}
+					}
+
+					update.patternDesign = {
+						'twillPatternChart': newTwillPatternChart,
+						'twillDirectionChangeChart': newTwillDirectionChangeChart,
+					};
+
 					break;
 
 				default:
 					break;
 			}
+
+			update.weavingInstructionsByTablet = newWeavingInstructionsByTablet;
+			update.picks = newPicks;
 
 			return updeep(update, state);
 		}

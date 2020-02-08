@@ -3,6 +3,7 @@ import { Button, ButtonGroup, ButtonToolbar } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import {
+	addWeavingRows,
 	editTwillChart,
 	setIsEditingWeaving,
 } from '../modules/pattern';
@@ -95,11 +96,11 @@ class WeavingDesignBrokenTwill extends PureComponent {
 		const { dispatch, 'pattern': { _id } } = this.props;
 		console.log('add rows', data);
 
-		/* dispatch(addWeavingRows({
+		dispatch(addWeavingRows({
 			_id,
 			'insertNRows': parseInt(data.insertNRows, 10),
 			'insertRowsAt': parseInt(data.insertRowsAt - 1, 10),
-		})); */
+		}));
 
 		setTimeout(() => this.trackScrolling(), 100); // give the new rows time to render
 	}

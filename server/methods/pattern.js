@@ -401,7 +401,7 @@ Meteor.methods({
 			numberOfTablets,
 			patternType,
 			patternDesign,
-			threading,
+			//threading,
 		} = pattern;
 
 		// to be filled in by data depending on case
@@ -425,6 +425,8 @@ Meteor.methods({
 		let tabletIndex;
 		let tabletOrientation;
 		let twillChart;
+
+		const update = {}; // builds the Mongo update
 
 		switch (type) {
 			case 'editIsPublic':
@@ -517,6 +519,7 @@ Meteor.methods({
 				}
 
 			case 'addWeavingRows':
+			console.log('addWeavingRows');
 				({ insertNRows, insertRowsAt } = data);
 				check(insertNRows, Match.Integer);
 				check(insertRowsAt, Match.Integer);
@@ -528,6 +531,12 @@ Meteor.methods({
 				if (insertRowsAt < 0 || insertRowsAt > numberOfRows) {
 					throw new Meteor.Error('add-rows-invalid position', 'Unable to add rows because the position is invalid');
 				}
+
+				//const update = {};
+
+				update.$set = {
+					'numberOfRows': numberOfRows + insertNRows,
+				};
 
 				switch (patternType) {
 					case 'individual':
@@ -545,18 +554,19 @@ Meteor.methods({
 							newRows.push(newRow);
 						}
 
-						const update = {};
+						//const update = {};
 						update.$push = {
 							'patternDesign.weavingInstructions': {
 								'$each': newRows,
 								'$position': insertRowsAt,
 							},
 						};
-						update.$set = {
-							'numberOfRows': numberOfRows + insertNRows,
-						};
+						break;
+						//update.$set = {
+							//'numberOfRows': numberOfRows + insertNRows,
+						//};
 
-						return Patterns.update({ _id }, update);
+						//return Patterns.update({ _id }, update);
 
 					case 'allTogether':
 						const newRows2 = [];
@@ -567,23 +577,26 @@ Meteor.methods({
 							newRows2.push(newRow);
 						}
 
-						const update2 = {};
-						update2.$push = {
+						//const update2 = {};
+						update.$push = {
 							'patternDesign.weavingInstructions': {
 								'$each': newRows2,
 								'$position': insertRowsAt,
 							},
 						};
+						break;
 
-						update2.$set = {
-							'numberOfRows': numberOfRows + insertNRows,
-						};
+						//update.$set = {
+							//'numberOfRows': numberOfRows + insertNRows,
+						//};
 
-						return Patterns.update({ _id }, update2);
+						//return Patterns.update({ _id }, update2);
 
 					default:
 						throw new Meteor.Error('add-rows-unknown-pattern-type', `Unable to add rows because the pattern type ${patternType} was not recognised`);
 				}
+return;
+				return Patterns.update({ _id }, update);
 
 			case 'removeWeavingRows':
 				({
@@ -593,7 +606,7 @@ Meteor.methods({
 				check(_id, nonEmptyStringCheck);
 				check(removeNRows, Match.Maybe(Match.Integer));
 				check(removeRowsAt, Match.Maybe(Match.Integer));
-
+console.log('case remove');
 				if (pattern.numberOfRows <= removeNRows) {
 					throw new Meteor.Error('remove-rows-last-row', 'Unable to remove rows because the last row would be removed');
 				}
@@ -615,7 +628,7 @@ Meteor.methods({
 
 						// NOTE if the pull fails, the numberOfRows will then be incorrect
 						// however if the following updates don't take place atomically, the client will likely show errors
-						const update = {};
+						//const update = {};
 						update.$pull = { 'patternDesign.weavingInstructions': { '$elemMatch': { 'toBeRemoved': true } } };
 						update.$set = {
 							'numberOfRows': pattern.numberOfRows - removeNRows,
@@ -637,13 +650,13 @@ Meteor.methods({
 
 						// NOTE if the pull fails, the numberOfRows will then be incorrect
 						// however if the following updates don't take place atomically, the client will likely show errors
-						const update2 = {};
-						update2.$pull = { 'patternDesign.weavingInstructions': 'toBeRemoved' };
-						update2.$set = {
+						//const update = {};
+						update.$pull = { 'patternDesign.weavingInstructions': 'toBeRemoved' };
+						update.$set = {
 							'numberOfRows': pattern.numberOfRows - removeNRows,
 						};
 
-						Patterns.update({ _id }, update2);
+						Patterns.update({ _id }, update);
 						return;
 
 					default:
@@ -675,7 +688,7 @@ Meteor.methods({
 					throw new Meteor.Error('add-tablets-invalid position', 'Unable to add tablets because the position is invalid');
 				}
 
-				const update = {};
+				//const update3 = {};
 
 				// all pattern types have the new number of tablets
 				const newNumberOfTablets = pattern.numberOfTablets + insertNTablets;
@@ -787,10 +800,10 @@ Meteor.methods({
 				// an element cannot be removed from an array by index
 				// so first we mark the element to remove
 				// then use 'pull'
-				const update1 = {};
+				//const update = {};
 
 				// updates for orientation are the same for all pattern types
-				update1.$set = {
+				update.$set = {
 					[`orientations.${tablet}`]: 'toBeRemoved',
 				};
 
@@ -799,19 +812,19 @@ Meteor.methods({
 					case 'individual':
 					case 'allTogether':
 						// remove the specified tablet
-						update1.$set = {
+						update.$set = {
 							[`threading.$[].${tablet}`]: 'toBeRemoved',
 						};
 
 						if (patternType === 'individual') {
 							// new picks to be added to each weaving row
-							update1.$set[`patternDesign.weavingInstructions.$[].${tablet}.toBeRemoved`] = true;
+							update.$set[`patternDesign.weavingInstructions.$[].${tablet}.toBeRemoved`] = true;
 						}
 						break;
 
 					case 'brokenTwill':
 						// threading follows a sequence, so remove the last tablet
-						update1.$set = {
+						update.$set = {
 							[`threading.$[].${numberOfTablets - 1}`]: 'toBeRemoved',
 							[`patternDesign.twillDirectionChangeChart.$[].${numberOfTablets - 1}`]: 'toBeRemoved',
 							[`patternDesign.twillPatternChart.$[].${numberOfTablets - 1}`]: 'toBeRemoved',
@@ -825,7 +838,7 @@ Meteor.methods({
 
 				Patterns.update(
 					{ _id },
-					update1,
+					update,
 					{ 'bypassCollection2': true },
 				);
 
@@ -929,15 +942,15 @@ Meteor.methods({
 					check(fieldValue, String);
 				}
 
-				const update3 = {};
-				update3[fieldName] = fieldValue;
+				//const update4 = {};
+				update[fieldName] = fieldValue;
 
 				// if the pattern name changes, we must also update nameSort
 				if (fieldName === 'name') {
-					update3.nameSort = fieldValue.toLowerCase();
+					update.nameSort = fieldValue.toLowerCase();
 				}
 
-				return Patterns.update({ _id }, { '$set': update3 });
+				return Patterns.update({ _id }, { '$set': update });
 
 			default:
 				break;
