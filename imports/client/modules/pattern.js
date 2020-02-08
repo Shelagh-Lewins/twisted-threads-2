@@ -26,6 +26,8 @@ import {
 
 const updeep = require('updeep');
 
+/* eslint-disable no-case-declarations */
+
 // ////////////////////////////////
 // Action creators
 
@@ -1299,115 +1301,118 @@ export default function pattern(state = initialPatternState, action) {
 				'picks': newPicks,
 			};
 
-			if (patternType === 'brokenTwill') {
-				const {
-					twillDirection,
-					twillPatternChart,
-					twillDirectionChangeChart,
-				} = patternDesign;
-				const chartLength = twillPatternChart.length;
-				const newTwillPatternChart = [...twillPatternChart];
-				const newTwillDirectionChangeChart = [...twillDirectionChangeChart];
-
-				// orientations
-				for (let i = 0; i < insertNTablets; i += 1) {
-					// set orientation of new tablet
-					newOrientations.splice(insertTabletsAt, 0, DEFAULT_ORIENTATION);
-
-					// insert new tablet to twill design charts
-					// these are by row, tablet
-					for (let j = 0; j < chartLength; j += 1) {
-						newTwillPatternChart[j] = [...newTwillPatternChart[j]];
-						newTwillPatternChart[j].splice(insertTabletsAt, 0, '.');
-
-						newTwillDirectionChangeChart[j] = [...newTwillDirectionChangeChart[j]];
-						newTwillDirectionChangeChart[j].splice(insertTabletsAt, 0, '.');
-					}
-				}
-
-				// add the new tablets to threading - just continue the twill threading sequence
-				for (let i = numberOfTablets; i < newNumberOfTablets; i += 1) {
-					newThreadingByTablet[i] = [];
-
-					for (let j = 0; j < holes; j += 1) {
-						const colorRole = BROKEN_TWILL_THREADING[j][i % holes];
-						newThreadingByTablet[i].push(colorRole === 'F' ? BROKEN_TWILL_FOREGROUND : BROKEN_TWILL_BACKGROUND);
-					}
-				}
-
-				// calculate weaving for new and subsequent tablets
-				for (let i = insertTabletsAt; i < newNumberOfTablets; i += 1) {
-					const newWeavingInstructions = buildTwillWeavingInstructionsForTablet({
-						numberOfRows,
-						'patternDesign': {
-							twillDirection,
-							'twillPatternChart': newTwillPatternChart,
-							'twillDirectionChangeChart': newTwillDirectionChangeChart,
-						},
-						'startRow': 0, // reweave entire tablet
-						'tabletIndex': i,
-					});
-
-					newPicks[i] = calculatePicksForTablet({
-						'weavingInstructionsForTablet': newWeavingInstructions,
-						'row': 0,
-					});
-				}
-
-				update.patternDesign = {
-					'twillPatternChart': newTwillPatternChart,
-					'twillDirectionChangeChart': newTwillDirectionChangeChart,
-				};
-			} else { // other pattern types
-				for (let i = 0; i < insertNTablets; i += 1) {
+			switch (patternType) {
+				// each tablet is independent so just remove it
+				case 'individual':
+				case 'allTogether':
+					for (let i = 0; i < insertNTablets; i += 1) {
 					// update orientations
-					newOrientations.splice(insertTabletsAt, 0, DEFAULT_ORIENTATION);
+						newOrientations.splice(insertTabletsAt, 0, DEFAULT_ORIENTATION);
 
-					// update threading
-					const newThreadingTablet = [];
-					for (let j = 0; j < holes; j += 1) {
-						newThreadingTablet.push(colorIndex);
-					}
+						// update threading
+						const newThreadingTablet = [];
+						for (let j = 0; j < holes; j += 1) {
+							newThreadingTablet.push(colorIndex);
+						}
 
-					newThreadingByTablet.splice(insertTabletsAt, 0, newThreadingTablet);
+						newThreadingByTablet.splice(insertTabletsAt, 0, newThreadingTablet);
 
-					// update weaving instructions
-					const newWeavingInstructionsForTablet = [];
-					for (let j = 0; j < numberOfRows; j += 1) {
-						let direction;
-						let numberOfTurns;
+						// update weaving instructions
+						const newWeavingInstructionsForTablet = [];
+						for (let j = 0; j < numberOfRows; j += 1) {
+							let direction;
+							let numberOfTurns;
 
-						switch (patternType) {
-							case 'individual':
+							if (patternType === 'individual') {
 								direction = DEFAULT_DIRECTION;
 								numberOfTurns = DEFAULT_NUMBER_OF_TURNS;
-								break;
-
-							case 'allTogether':
+							} else if (patternType === 'allTogether') {
 								direction = patternDesign.weavingInstructions[j];
 								numberOfTurns = 1;
-								break;
+							}
 
-							default:
-								break;
+							const obj = {
+								direction,
+								numberOfTurns,
+							};
+							newWeavingInstructionsForTablet.push(obj);
 						}
-						const obj = {
-							direction,
-							numberOfTurns,
-						};
-						newWeavingInstructionsForTablet.push(obj);
+
+						newWeavingInstructionsByTablet.splice(insertTabletsAt, 0, newWeavingInstructionsForTablet);
+
+						const picksForTablet = calculatePicksForTablet({
+							'weavingInstructionsForTablet': newWeavingInstructionsByTablet[insertTabletsAt],
+							'row': 0,
+							numberOfRows,
+						});
+
+						newPicks.splice(insertTabletsAt, 0, picksForTablet);
+					}
+					break;
+
+				case 'brokenTwill':
+					const {
+						twillDirection,
+						twillPatternChart,
+						twillDirectionChangeChart,
+					} = patternDesign;
+					const chartLength = twillPatternChart.length;
+					const newTwillPatternChart = [...twillPatternChart];
+					const newTwillDirectionChangeChart = [...twillDirectionChangeChart];
+
+					// orientations
+					for (let i = 0; i < insertNTablets; i += 1) {
+						// set orientation of new tablet
+						newOrientations.splice(insertTabletsAt, 0, DEFAULT_ORIENTATION);
+
+						// insert new tablet to twill design charts
+						// these are by row, tablet
+						for (let j = 0; j < chartLength; j += 1) {
+							newTwillPatternChart[j] = [...newTwillPatternChart[j]];
+							newTwillPatternChart[j].splice(insertTabletsAt, 0, '.');
+
+							newTwillDirectionChangeChart[j] = [...newTwillDirectionChangeChart[j]];
+							newTwillDirectionChangeChart[j].splice(insertTabletsAt, 0, '.');
+						}
 					}
 
-					newWeavingInstructionsByTablet.splice(insertTabletsAt, 0, newWeavingInstructionsForTablet);
+					// add the new tablets to threading - just continue the twill threading sequence
+					for (let i = numberOfTablets; i < newNumberOfTablets; i += 1) {
+						newThreadingByTablet[i] = [];
 
-					const picksForTablet = calculatePicksForTablet({
-						'weavingInstructionsForTablet': newWeavingInstructionsByTablet[insertTabletsAt],
-						'row': 0,
-						numberOfRows,
-					});
+						for (let j = 0; j < holes; j += 1) {
+							const colorRole = BROKEN_TWILL_THREADING[j][i % holes];
+							newThreadingByTablet[i].push(colorRole === 'F' ? BROKEN_TWILL_FOREGROUND : BROKEN_TWILL_BACKGROUND);
+						}
+					}
 
-					newPicks.splice(insertTabletsAt, 0, picksForTablet);
-				}
+					// calculate weaving for new and subsequent tablets
+					for (let i = insertTabletsAt; i < newNumberOfTablets; i += 1) {
+						const newWeavingInstructions = buildTwillWeavingInstructionsForTablet({
+							numberOfRows,
+							'patternDesign': {
+								twillDirection,
+								'twillPatternChart': newTwillPatternChart,
+								'twillDirectionChangeChart': newTwillDirectionChangeChart,
+							},
+							'startRow': 0, // reweave entire tablet
+							'tabletIndex': i,
+						});
+
+						newPicks[i] = calculatePicksForTablet({
+							'weavingInstructionsForTablet': newWeavingInstructions,
+							'row': 0,
+						});
+					}
+
+					update.patternDesign = {
+						'twillPatternChart': newTwillPatternChart,
+						'twillDirectionChangeChart': newTwillDirectionChangeChart,
+					};
+					break;
+
+				default:
+					break;
 			}
 
 			return updeep(update, state);
@@ -1416,8 +1421,10 @@ export default function pattern(state = initialPatternState, action) {
 		case UPDATE_REMOVE_TABLET: {
 			const { tablet } = action.payload;
 			const {
+				numberOfRows,
 				numberOfTablets,
 				orientations,
+				patternDesign,
 				patternType,
 				picks,
 				threadingByTablet,
@@ -1425,34 +1432,84 @@ export default function pattern(state = initialPatternState, action) {
 			} = state;
 
 			const newPicks = [...picks];
-			const newWeavingInstructionsByTablet = [...weavingInstructionsByTablet];
+			let newWeavingInstructionsByTablet = [...weavingInstructionsByTablet];
 			const newThreadingByTablet = [...threadingByTablet];
 			const newOrientations = [...orientations];
 			const newNumberOfTablets = numberOfTablets - 1;
 
-			newPicks.splice(tablet, 1);
-			newThreadingByTablet.splice(tablet, 1);
-
-			switch (patternType) {
-				case 'individual':
-					break;
-
-				case 'allTogether':
-					break;
-
-				default:
-					break;
-			}
-			newWeavingInstructionsByTablet.splice(tablet, 1);
-			newOrientations.splice(tablet, 1);
-
-			return updeep({
+			// build update for updeep / state
+			const update = {
 				'numberOfTablets': newNumberOfTablets,
 				'orientations': newOrientations,
 				'threadingByTablet': newThreadingByTablet,
 				'weavingInstructionsByTablet': newWeavingInstructionsByTablet,
 				'picks': newPicks,
-			}, state);
+			};
+
+			switch (patternType) {
+				// each tablet is independent so just remove it
+				case 'individual':
+				case 'allTogether':
+					newOrientations.splice(tablet, 1);
+					newPicks.splice(tablet, 1);
+					newThreadingByTablet.splice(tablet, 1);
+					newWeavingInstructionsByTablet.splice(tablet, 1);
+					break;
+
+				case 'brokenTwill':
+					newOrientations.pop(); // all tablets have the same orientation
+					newThreadingByTablet.pop(); // threading follows a sequence
+
+					const {
+						twillDirection,
+						twillPatternChart,
+						twillDirectionChangeChart,
+					} = patternDesign;
+					const chartLength = twillPatternChart.length;
+					const newTwillPatternChart = [...twillPatternChart];
+					const newTwillDirectionChangeChart = [...twillDirectionChangeChart];
+
+					// design charts are by row, tablet
+					// for each row, remove the tablet
+					for (let j = 0; j < chartLength; j += 1) {
+						newTwillPatternChart[j] = [...newTwillPatternChart[j]];
+						newTwillPatternChart[j].splice(tablet, 1);
+
+						newTwillDirectionChangeChart[j] = [...newTwillDirectionChangeChart[j]];
+						newTwillDirectionChangeChart[j].splice(tablet, 1);
+					}
+
+					// calculate weaving from removed tablet onwards
+					for (let i = tablet; i < newNumberOfTablets; i += 1) {
+						newWeavingInstructionsByTablet = buildTwillWeavingInstructionsForTablet({
+							numberOfRows,
+							'patternDesign': {
+								twillDirection,
+								'twillPatternChart': newTwillPatternChart,
+								'twillDirectionChangeChart': newTwillDirectionChangeChart,
+							},
+							'startRow': 0, // reweave entire tablet
+							'tabletIndex': i,
+						});
+
+						newPicks[i] = calculatePicksForTablet({
+							'weavingInstructionsForTablet': newWeavingInstructionsByTablet,
+							'row': 0,
+						});
+					}
+
+					update.patternDesign = {
+						'twillPatternChart': newTwillPatternChart,
+						'twillDirectionChangeChart': newTwillDirectionChangeChart,
+					};
+
+					break;
+
+				default:
+					break;
+			}
+
+			return updeep(update, state);
 		}
 
 		case SET_FILTER_MAX_TABLETS: {

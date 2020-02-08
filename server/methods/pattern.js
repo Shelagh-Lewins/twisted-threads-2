@@ -754,12 +754,12 @@ Meteor.methods({
 							newChartCells.push('.');
 						}
 
-						update.$push['patternDesign.twillPatternChart.$[]'] = {
+						update.$push['patternDesign.twillDirectionChangeChart.$[]'] = {
 							'$each': newChartCells,
 							'$position': insertTabletsAt,
 						};
 
-						update.$push['patternDesign.twillDirectionChangeChart.$[]'] = {
+						update.$push['patternDesign.twillPatternChart.$[]'] = {
 							'$each': newChartCells,
 							'$position': insertTabletsAt,
 						};
@@ -785,25 +785,38 @@ Meteor.methods({
 				}
 
 				// an element cannot be removed from an array by index
-				// so first we mark the tablet to remove
+				// so first we mark the element to remove
 				// then use 'pull'
-
 				const update1 = {};
 
-				// updates for threading and orientation are the same for all pattern types
+				// updates for orientation are the same for all pattern types
 				update1.$set = {
-					[`threading.$[].${tablet}`]: 'toBeRemoved',
 					[`orientations.${tablet}`]: 'toBeRemoved',
 				};
 
 				// updates for weaving depend on pattern type
 				switch (patternType) {
 					case 'individual':
-						// new picks to be added to each weaving row
-						update1.$set[`patternDesign.weavingInstructions.$[].${tablet}.toBeRemoved`] = true;
+					case 'allTogether':
+						// remove the specified tablet
+						update1.$set = {
+							[`threading.$[].${tablet}`]: 'toBeRemoved',
+						};
+
+						if (patternType === 'individual') {
+							// new picks to be added to each weaving row
+							update1.$set[`patternDesign.weavingInstructions.$[].${tablet}.toBeRemoved`] = true;
+						}
 						break;
 
-					case 'allTogether':
+					case 'brokenTwill':
+						// threading follows a sequence, so remove the last tablet
+						update1.$set = {
+							[`threading.$[].${numberOfTablets - 1}`]: 'toBeRemoved',
+							[`patternDesign.twillDirectionChangeChart.$[].${numberOfTablets - 1}`]: 'toBeRemoved',
+							[`patternDesign.twillPatternChart.$[].${numberOfTablets - 1}`]: 'toBeRemoved',
+						};
+
 						break;
 
 					default:
@@ -823,6 +836,7 @@ Meteor.methods({
 					'threading.$[]': 'toBeRemoved',
 					'orientations': 'toBeRemoved',
 				};
+
 				update2.$set = {
 					'numberOfTablets': pattern.numberOfTablets - 1,
 				};
@@ -835,6 +849,12 @@ Meteor.methods({
 						break;
 
 					case 'allTogether':
+						break;
+
+					case 'brokenTwill':
+						// remove picks from each pattern design chart
+						update2.$pull['patternDesign.twillDirectionChangeChart.$[]'] = { 'toBeRemoved': true };
+						update2.$pull['patternDesign.twillPatternChart.$[]'] = { 'toBeRemoved': true };
 						break;
 
 					default:
