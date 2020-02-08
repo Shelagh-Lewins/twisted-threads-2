@@ -519,7 +519,6 @@ Meteor.methods({
 				}
 
 			case 'addWeavingRows':
-			console.log('addWeavingRows');
 				({ insertNRows, insertRowsAt } = data);
 				check(insertNRows, Match.Integer);
 				check(insertRowsAt, Match.Integer);
@@ -531,8 +530,6 @@ Meteor.methods({
 				if (insertRowsAt < 0 || insertRowsAt > numberOfRows) {
 					throw new Meteor.Error('add-rows-invalid position', 'Unable to add rows because the position is invalid');
 				}
-
-				//const update = {};
 
 				update.$set = {
 					'numberOfRows': numberOfRows + insertNRows,
@@ -554,7 +551,6 @@ Meteor.methods({
 							newRows.push(newRow);
 						}
 
-						//const update = {};
 						update.$push = {
 							'patternDesign.weavingInstructions': {
 								'$each': newRows,
@@ -562,11 +558,6 @@ Meteor.methods({
 							},
 						};
 						break;
-						//update.$set = {
-							//'numberOfRows': numberOfRows + insertNRows,
-						//};
-
-						//return Patterns.update({ _id }, update);
 
 					case 'allTogether':
 						const newRows2 = [];
@@ -577,7 +568,6 @@ Meteor.methods({
 							newRows2.push(newRow);
 						}
 
-						//const update2 = {};
 						update.$push = {
 							'patternDesign.weavingInstructions': {
 								'$each': newRows2,
@@ -586,16 +576,41 @@ Meteor.methods({
 						};
 						break;
 
-						//update.$set = {
-							//'numberOfRows': numberOfRows + insertNRows,
-						//};
+					case 'brokenTwill':
+						if (insertNRows % 2 !== 0) {
+							throw new Meteor.Error('add-rows-unknown-pattern-type', 'Unable to add rows because the number of rows must be even for broken twill');
+						}
 
-						//return Patterns.update({ _id }, update2);
+						if (insertRowsAt % 2 !== 0) {
+							throw new Meteor.Error('add-rows-unknown-pattern-type', 'Unable to add rows because the new rows must be inserted at an odd row for broken twill');
+						}
+						const newDesignRow = new Array(numberOfTablets);
+						newDesignRow.fill('.');
+						const newDesignRows = [];
+
+						for (let i = 0; i < insertNRows / 2; i += 1) {
+							newDesignRows.push(newDesignRow);
+						}
+
+						const chartPosition = ((insertRowsAt) / 2);
+
+						update.$push = {
+							'patternDesign.twillDirectionChangeChart': {
+								'$each': newDesignRows,
+								'$position': chartPosition,
+							},
+							'patternDesign.twillPatternChart': {
+								'$each': newDesignRows,
+								'$position': chartPosition,
+							},
+						};
+
+						break;
 
 					default:
 						throw new Meteor.Error('add-rows-unknown-pattern-type', `Unable to add rows because the pattern type ${patternType} was not recognised`);
 				}
-return;
+
 				return Patterns.update({ _id }, update);
 
 			case 'removeWeavingRows':

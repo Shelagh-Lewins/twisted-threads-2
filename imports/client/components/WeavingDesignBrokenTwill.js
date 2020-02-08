@@ -25,16 +25,9 @@ class WeavingDesignBrokenTwill extends PureComponent {
 	constructor(props) {
 		super(props);
 
-		const {
-			'patternDesign': {
-				twillPatternChart,
-			},
-		} = props;
-
 		this.state = {
 			'isEditing': false,
 			'editMode': 'color',
-			'numberOfChartRows': twillPatternChart.length,
 		};
 
 		// bind onClick functions to provide context
@@ -178,10 +171,10 @@ class WeavingDesignBrokenTwill extends PureComponent {
 				twillPatternChart,
 			},
 		} = this.props;
+		const numberOfChartRows = twillPatternChart.length;
 
 		const {
 			isEditing,
-			numberOfChartRows,
 		} = this.state;
 
 		// ensure visible cells and delete row buttons are focusable
@@ -215,12 +208,11 @@ class WeavingDesignBrokenTwill extends PureComponent {
 	renderRow(rowIndex) {
 		const {
 			numberOfTablets,
+			'patternDesign': {
+				twillPatternChart,
+			},
 		} = this.props;
-
-		const {
-			numberOfChartRows,
-		} = this.state;
-
+		const numberOfChartRows = twillPatternChart.length;
 		const { isEditing } = this.state;
 		const rowLabel = numberOfChartRows - rowIndex;
 
@@ -276,9 +268,11 @@ class WeavingDesignBrokenTwill extends PureComponent {
 
 	renderChart() {
 		const {
-			numberOfChartRows,
-		} = this.state;
-
+			'patternDesign': {
+				twillPatternChart,
+			},
+		} = this.props;
+		const numberOfChartRows = twillPatternChart.length;
 		const { isEditing } = this.state;
 
 		const rows = [];

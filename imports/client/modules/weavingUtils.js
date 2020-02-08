@@ -383,7 +383,6 @@ export const buildTwillWeavingInstructionsForTablet = ({
 	} = patternDesign;
 
 	const weavingInstructions = weavingInstructionsForTablet || [];
-
 	let position;
 
 	const {

@@ -525,6 +525,7 @@ export function addWeavingRows({
 	insertNRows,
 	insertRowsAt,
 }) {
+
 	return (dispatch) => {
 		Meteor.call('pattern.edit', {
 			_id,
@@ -1004,7 +1005,7 @@ export default function pattern(state = initialPatternState, action) {
 			const picksForTablet = calculatePicksForTablet({
 				'currentPicks': state.picks[tablet],
 				weavingInstructionsForTablet,
-				row,
+				row,insertRowsAt
 			});
 
 			return updeep({
@@ -1210,7 +1211,6 @@ export default function pattern(state = initialPatternState, action) {
 					break;
 
 				case 'brokenTwill':
-					console.log('broken twill');
 					const {
 						twillDirection,
 						twillPatternChart,
@@ -1232,29 +1232,27 @@ export default function pattern(state = initialPatternState, action) {
 
 					// calculate weaving from removed row onwards
 					for (let i = 0; i < numberOfTablets; i += 1) {
-						for (let j = insertRowsAt; j < newNumberOfRows; j += 1) {
-							const weavingInstructionsForTablet = [...weavingInstructionsByTablet[i]];
+						const weavingInstructionsForTablet = [...weavingInstructionsByTablet[i]];
 
-							const newWeavingInstructionsForTablet = buildTwillWeavingInstructionsForTablet({
-								'numberOfRows': newNumberOfRows,
-								'patternDesign': {
-									twillDirection,
-									'twillPatternChart': newTwillPatternChart,
-									'twillDirectionChangeChart': newTwillDirectionChangeChart,
-								},
-								'startRow': insertRowsAt, // reweave entire tablet
-								'tabletIndex': i,
-								weavingInstructionsForTablet,
-							});
+						const newWeavingInstructionsForTablet = buildTwillWeavingInstructionsForTablet({
+							'numberOfRows': newNumberOfRows,
+							'patternDesign': {
+								twillDirection,
+								'twillPatternChart': newTwillPatternChart,
+								'twillDirectionChangeChart': newTwillDirectionChangeChart,
+							},
+							'startRow': insertRowsAt, // reweave from new row
+							'tabletIndex': i,
+							weavingInstructionsForTablet,
+						});
 
-							const picksForTablet = calculatePicksForTablet({
-								'weavingInstructionsForTablet': newWeavingInstructionsForTablet,
-								'row': 0,
-							});
+						const picksForTablet = calculatePicksForTablet({
+							'weavingInstructionsForTablet': newWeavingInstructionsForTablet,
+							'row': 0,
+						});
 
-							newWeavingInstructionsByTablet.push(newWeavingInstructionsForTablet);
-							newPicks.push(picksForTablet);
-						}
+						newWeavingInstructionsByTablet.push(newWeavingInstructionsForTablet);
+						newPicks.push(picksForTablet);
 					}
 
 					update.patternDesign = {
