@@ -732,25 +732,20 @@ Meteor.methods({
 						break;
 
 					case 'brokenTwill':
-						// set threading for new and subsequent tablets
-						const threadingForNewTablets = setupTwillThreading({
+						// extend the threading chart
+						// because it is a fixed sequence we can simply add the new tablets at the end
+						const newTabletsForThreading = setupTwillThreading({
 							holes,
-							'startTablet': insertTabletsAt,
+							'startTablet': numberOfTablets,
 							'numberOfTablets': newNumberOfTablets,
 						});
 
-						// recreate the entire threading
-						// there does not seem to be an elegant way to update segments of a MongoDB array atomically
-						// however at least we have only recalculated the changed tablets
-						const newThreading = [...threading];
-
 						for (let i = 0; i < holes; i += 1) {
-							// truncate the threading array for this hole
-							newThreading[i].length = insertTabletsAt;
-							newThreading[i] = newThreading[i].concat(threadingForNewTablets[i]);
+							update.$push[`threading.${i}`] = {
+								'$each': newTabletsForThreading[i],
+								'$position': numberOfTablets,
+							};
 						}
-
-						update.$set.threading = newThreading;
 
 						// insert new tablets into pattern design charts
 						const newChartCells = [];
