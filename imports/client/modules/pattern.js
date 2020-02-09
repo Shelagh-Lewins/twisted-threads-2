@@ -54,6 +54,7 @@ export const UPDATE_WEAVING_ROW_DIRECTION = 'UPDATE_WEAVING_ROW_DIRECTION';
 
 // 'brokenTwill' patternType
 export const UPDATE_TWILL_CHART = 'UPDATE_TWILL_CHART';
+export const UPDATE_TWILL_WEAVING_START_ROW = 'UPDATE_TWILL_WEAVING_START_ROW';
 
 // more than one patternType
 export const UPDATE_THREADING_CELL = 'UPDATE_THREADING_CELL';
@@ -473,7 +474,6 @@ export function editWeavingRowDirection({
 // ///////////////////////////////
 // brokenTwill
 export function updateTwillChart(data) {
-	// TO DO call method
 	return {
 		'type': UPDATE_TWILL_CHART,
 		'payload': data,
@@ -508,6 +508,36 @@ export function editTwillChart({
 			tabletIndex,
 			twillChart,
 		}));
+	};
+}
+
+// set weaving start row
+export function updateTwillWeavingStartRow(data) {
+	return {
+		'type': UPDATE_TWILL_WEAVING_START_ROW,
+		'payload': data,
+	};
+}
+
+export function editTwillWeavingStartRow({
+	_id,
+	weavingStartRow,
+}) {
+	return (dispatch) => {
+		Meteor.call('pattern.edit', {
+			_id,
+			'data': {
+				'type': 'editTwillWeavingStartRow',
+				_id,
+				weavingStartRow,
+			},
+		}, (error) => {
+			if (error) {
+				return dispatch(logErrors({ 'edit twill weaving start row': error.reason }));
+			}
+		});
+
+		dispatch(updateTwillWeavingStartRow(weavingStartRow));
 	};
 }
 
@@ -1003,7 +1033,7 @@ export default function pattern(state = initialPatternState, action) {
 			const picksForTablet = calculatePicksForTablet({
 				'currentPicks': state.picks[tablet],
 				weavingInstructionsForTablet,
-				row,insertRowsAt
+				row,
 			});
 
 			return updeep({
@@ -1103,6 +1133,10 @@ export default function pattern(state = initialPatternState, action) {
 				'weavingInstructionsByTablet': { [tabletIndex]: newWeavingInstructions },
 				'picks': { [tabletIndex]: picksForTablet },
 			}, state);
+		}
+
+		case UPDATE_TWILL_WEAVING_START_ROW: {
+			return updeep({ 'patternDesign': { 'weavingStartRow': action.payload } }, state);
 		}
 
 		case SET_IS_EDITING_WEAVING: {

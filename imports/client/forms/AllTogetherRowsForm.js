@@ -1,28 +1,16 @@
 // set number of rows in an 'allTogether' type pattern
 
 import React from 'react';
-import { Button, Col, Row } from 'reactstrap';
+import { Button } from 'reactstrap';
 import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
+import validateInteger from '../modules/validateInteger';
 import {
 	MAX_ROWS,
 } from '../../modules/parameters';
 import './AllTogetherRowsForm.scss';
 
-const validate = (values) => {
-	const errors = {};
-	if (!values.numberOfRows) {
-		errors.numberOfRows = 'Required';
-	} else if (values.numberOfRows < 1) {
-		errors.numberOfRows = 'Must be at least 1';
-	} else if (!Number.isInteger(values.numberOfRows)) {
-		errors.insertNRows = 'Must be a whole number';
-	} else if (values.numberOfRows > MAX_ROWS) {
-		errors.numberOfRows = `Cannot be greater than ${MAX_ROWS}`;
-	}
-
-	return errors;
-};
+// much jiggery-pokery enables a form that updates immediately on change, with no submit button, but validates before submitting
 
 const AllTogetherRowsForm = (props) => {
 	const {
@@ -30,9 +18,34 @@ const AllTogetherRowsForm = (props) => {
 		numberOfRows,
 	} = props;
 
-	let setFieldValue;
+	const validate = (values) => {
+		const errors = {};
 
-	const handleChangeNumberOfTablets = (e) => {
+		const numberOfRowsError = validateInteger({
+			'max': MAX_ROWS,
+			'min': 1,
+			'value': values.numberOfRows,
+		});
+
+		if (numberOfRowsError) {
+			errors.numberOfRows = numberOfRowsError;
+		}
+
+		return errors;
+	};
+
+	const formik = useFormik({
+		'initialValues': {
+			numberOfRows,
+		},
+		validate,
+		'onSubmit': () => {},
+	});
+
+	const { setFieldValue } = formik;
+	global.allTogetherRowsErrors = formik.errors; // formik.errors is not updated in the timeout but the global var is
+
+	const handleChangeNumberOfRows = (e) => {
 		const { value } = e.target;
 
 		setFieldValue('numberOfRows', value);
@@ -40,21 +53,11 @@ const AllTogetherRowsForm = (props) => {
 		clearTimeout(global.allTogetherRowsTimeout);
 
 		global.allTogetherRowsTimeout = setTimeout(() => {
-			props.handleSubmit(value);
+			if (Object.keys(global.allTogetherRowsErrors).length === 0) {
+				props.handleSubmit(value);
+			}
 		}, 800);
 	};
-
-	const formik = useFormik({
-		'initialValues': {
-			numberOfRows,
-		},
-		'validate': (values) => {
-			validate(values, numberOfRows);
-		},
-		'onSubmit': () => {},
-	});
-
-	setFieldValue = formik.setFieldValue;
 
 	// note firefox doesn't support the 'label' shorthand in option
 	// https://bugzilla.mozilla.org/show_bug.cgi?id=40545#c11
@@ -75,7 +78,7 @@ const AllTogetherRowsForm = (props) => {
 							min="1"
 							name="numberOfRows"
 							type="number"
-							onChange={handleChangeNumberOfTablets}
+							onChange={handleChangeNumberOfRows}
 							onBlur={formik.handleBlur}
 							value={formik.values.numberOfRows}
 						/>

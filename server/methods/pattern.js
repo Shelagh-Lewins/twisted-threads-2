@@ -152,6 +152,7 @@ Meteor.methods({
 					twillDirection,
 					twillPatternChart,
 					twillDirectionChangeChart,
+					'weavingStartRow': 1,
 				};
 
 				threading = setupTwillThreading({

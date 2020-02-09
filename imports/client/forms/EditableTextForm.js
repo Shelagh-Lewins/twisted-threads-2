@@ -2,7 +2,6 @@ import React from 'react';
 import { Button } from 'reactstrap';
 import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
-// import './AddColorBookForm.scss';
 
 const validate = (optional, values) => {
 	const errors = {};

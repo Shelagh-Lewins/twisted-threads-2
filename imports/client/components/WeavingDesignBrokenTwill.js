@@ -5,11 +5,13 @@ import { connect } from 'react-redux';
 import {
 	addWeavingRows,
 	editTwillChart,
+	editTwillWeavingStartRow,
 	removeWeavingRows,
 	setIsEditingWeaving,
 } from '../modules/pattern';
 import calculateScrolling from '../modules/calculateScrolling';
 import AddRowsForm from '../forms/AddRowsForm';
+import TwillWeavingStartRowForm from '../forms/TwillWeavingStartRowForm';
 import './WeavingDesignBrokenTwill.scss';
 
 // row and tablet have nothing to identify them except index
@@ -34,6 +36,7 @@ class WeavingDesignBrokenTwill extends PureComponent {
 		// bind onClick functions to provide context
 		const functionsToBind = [
 			'handleSubmitAddRows',
+			'handleSubmitWeavingStartRow',
 			'toggleEditWeaving',
 			'handleClickEditMode',
 			'handleClickRemoveRow',
@@ -96,6 +99,15 @@ class WeavingDesignBrokenTwill extends PureComponent {
 		}));
 
 		setTimeout(() => this.trackScrolling(), 100); // give the new rows time to render
+	}
+
+	handleSubmitWeavingStartRow(value) {
+		const { dispatch, 'pattern': { _id } } = this.props;
+		console.log('set start row', value);
+		dispatch(editTwillWeavingStartRow({
+			_id,
+			'weavingStartRow': parseInt(value, 10),
+		}));
 	}
 
 	handleClickRemoveRow(rowIndex) {
@@ -339,7 +351,9 @@ class WeavingDesignBrokenTwill extends PureComponent {
 	renderToolbar() {
 		const {
 			numberOfRows,
+			'pattern': { patternDesign },
 		} = this.props;
+		const { twillPatternChart, weavingStartRow } = patternDesign;
 		const {
 			controlsOffsetX,
 			controlsOffsetY,
@@ -361,6 +375,11 @@ class WeavingDesignBrokenTwill extends PureComponent {
 					handleSubmit={this.handleSubmitAddRows}
 					numberOfRows={numberOfRows}
 					patternType="brokenTwill"
+				/>
+				<TwillWeavingStartRowForm
+					numberOfRows={numberOfRows}
+					handleSubmit={this.handleSubmitWeavingStartRow}
+					weavingStartRow={weavingStartRow}
 				/>
 			</div>
 		);

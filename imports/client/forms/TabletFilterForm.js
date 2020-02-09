@@ -1,4 +1,4 @@
-// add rows to an 'individual' type pattern
+// filter a paginated list
 
 import React from 'react';
 import { Button, Col, Row } from 'reactstrap';
@@ -6,6 +6,7 @@ import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { useHistory } from 'react-router-dom';
+import validateInteger from '../modules/validateInteger';
 import {
 	updateFilterRemove,
 	updateFilterMaxTablets,
@@ -16,37 +17,7 @@ import {
 } from '../../modules/parameters';
 import './TabletFilterForm.scss';
 
-const validate = (values) => {
-	const errors = {};
-
-	// can be null, that means no limit
-	if (values.minTablets) {
-		const minTablets = parseFloat(values.minTablets, 10);
-		if (minTablets < 1) {
-			errors.minTablets = 'Must be at least 1';
-		} else if (minTablets > MAX_TABLETS) {
-			errors.minTablets = `Must not be greater than ${MAX_TABLETS}`;
-		} else if (!Number.isInteger(minTablets)) {
-			errors.minTablets = 'Must be a whole number';
-		}
-	}
-
-	// can be null, that means no limit
-	if (values.maxTablets) {
-		const maxTablets = parseFloat(values.maxTablets, 10);
-		if (maxTablets < 1) {
-			errors.maxTablets = 'Must be at least 1';
-		} else if (maxTablets > MAX_TABLETS) {
-			errors.maxTablets = `Must not be greater than ${MAX_TABLETS}`;
-		} else if (!Number.isInteger(maxTablets)) {
-			errors.maxTablets = 'Must be a whole number';
-		} else if (maxTablets <= values.minTablets) {
-			errors.maxTablets = 'Must be > minimum tablets';
-		}
-	}
-
-	return errors;
-};
+// much jiggery-pokery enables a form that updates immediately on change, with no submit button, but validates before submitting
 
 const TabletFilterForm = (props) => {
 	const {
@@ -56,8 +27,51 @@ const TabletFilterForm = (props) => {
 	} = props;
 	const history = useHistory();
 
-	let setFieldValue;
+	const validate = (values) => {
+		const errors = {};
+
+		const minTabletsError = validateInteger({
+			'max': MAX_TABLETS,
+			'min': 1,
+			'required': false,
+			'value': values.minTablets,
+		});
+
+		if (minTabletsError) {
+			errors.minTablets = minTabletsError;
+		}
+
+		const maxTabletsError = validateInteger({
+			'max': MAX_TABLETS,
+			'min': 1,
+			'required': false,
+			'value': values.maxTablets,
+		});
+
+		if (maxTabletsError) {
+			errors.maxTablets = maxTabletsError;
+		}
+
+		if (values.maxTablets && (values.maxTablets <= values.minTablets)) {
+			errors.maxTablets = 'Must be > minimum tablets';
+		}
+
+		return errors;
+	};
+
 	const filterActive = maxTablets || minTablets;
+
+	const formik = useFormik({
+		'initialValues': {
+			'minTablets': minTablets || '',
+			'maxTablets': maxTablets || '',
+		},
+		validate,
+		'onSubmit': () => {},
+	});
+
+	const { setFieldValue } = formik;
+	global.tabletFilterErrors = formik.errors; // formik.errors is not updated in the timeout but the global var is
 
 	const handleChangeMinTablets = (e) => {
 		const { value } = e.target;
@@ -67,19 +81,9 @@ const TabletFilterForm = (props) => {
 		clearTimeout(global.filterTabletsTimeout);
 
 		global.filterTabletsTimeout = setTimeout(() => {
-			dispatch(updateFilterMinTablets(value, history));
-		}, 800);
-	};
-
-	const handleChangeMaxTablets = (e) => {
-		const { value } = e.target;
-
-		setFieldValue('maxTablets', value);
-
-		clearTimeout(global.filterTabletsTimeout);
-
-		global.filterTabletsTimeout = setTimeout(() => {
-			dispatch(updateFilterMaxTablets(value, history));
+			if (Object.keys(global.tabletFilterErrors).length === 0) {
+				dispatch(updateFilterMinTablets(value, history));
+			}
 		}, 800);
 	};
 
@@ -91,16 +95,19 @@ const TabletFilterForm = (props) => {
 		dispatch(updateFilterRemove(history));
 	};
 
-	const formik = useFormik({
-		'initialValues': {
-			'minTablets': minTablets || '',
-			'maxTablets': maxTablets || '',
-		},
-		validate,
-		'onSubmit': () => {},
-	});
+	const handleChangeMaxTablets = (e) => {
+		const { value } = e.target;
 
-	setFieldValue = formik.setFieldValue;
+		setFieldValue('maxTablets', value);
+
+		clearTimeout(global.filterTabletsTimeout);
+
+		global.filterTabletsTimeout = setTimeout(() => {
+			if (Object.keys(global.tabletFilterErrors).length === 0) {
+				dispatch(updateFilterMaxTablets(value, history));
+			}
+		}, 800);
+	};
 
 	// note firefox doesn't support the 'label' shorthand in option
 	// https://bugzilla.mozilla.org/show_bug.cgi?id=40545#c11

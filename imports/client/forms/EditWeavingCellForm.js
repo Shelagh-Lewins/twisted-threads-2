@@ -2,43 +2,31 @@ import React from 'react';
 import { Button } from 'reactstrap';
 import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
+import validateInteger from '../modules/validateInteger';
 import {
 	ALLOWED_NUMBER_OF_TURNS,
 } from '../../modules/parameters';
 import './EditWeavingCellForm.scss';
 
-const validate = (values) => {
-	const errors = {};
-
-	const numberOfTurns = parseFloat(values.numberOfTurns);
-
-	if (!values.numberOfTurns && numberOfTurns !== 0) {
-		errors.numberOfTurns = 'Required';
-	} else if (numberOfTurns < 0) {
-		errors.numberOfTurns = 'Must be at least 0';
-	} else if (numberOfTurns > ALLOWED_NUMBER_OF_TURNS) {
-		errors.numberOfTurns = `Must not be greater than ${ALLOWED_NUMBER_OF_TURNS}`;
-	} else if (!Number.isInteger(numberOfTurns)) {
-		errors.numberOfTurns = 'Must be a whole number';
-	}
-
-	return errors;
-};
+// much jiggery-pokery enables a form that updates immediately on change, with no submit button, but validates
 
 const EditWeavingCellForm = (props) => {
 	const { canEdit, numberOfTurns } = props;
-	let setFieldValue;
 
-	const handleChangeNumberOfTurns = (e) => {
-		const { value } = e.target;
+	const validate = (values) => {
+		const errors = {};
 
-		setFieldValue('numberOfTurns', value);
+		const numberOfTurnsError = validateInteger({
+			'max': ALLOWED_NUMBER_OF_TURNS,
+			'min': 0,
+			'value': values.numberOfTurns,
+		});
 
-		clearTimeout(global.editWeavingCellTimeout);
+		if (numberOfTurnsError) {
+			errors.numberOfTurns = numberOfTurnsError;
+		}
 
-		global.editWeavingCellTimeout = setTimeout(() => {
-			props.handleSubmit(value);
-		}, 800);
+		return errors;
 	};
 
 	const formik = useFormik({
@@ -50,6 +38,23 @@ const EditWeavingCellForm = (props) => {
 		'onSubmit': () => {},
 	});
 
+	const { setFieldValue } = formik;
+	global.editWeavingCellErrors = formik.errors; // formik.errors is not updated in the timeout but the global var is
+
+	const handleChangeNumberOfTurns = (e) => {
+		const { value } = e.target;
+
+		setFieldValue('numberOfTurns', value);
+
+		clearTimeout(global.editWeavingCellTimeout);
+
+		global.editWeavingCellTimeout = setTimeout(() => {
+			if (Object.keys(global.editWeavingCellErrors).length === 0) {
+				props.handleSubmit(value);
+			}
+		}, 800);
+	};
+
 	// change initial values after selecting a different cell
 	if (numberOfTurns !== formik.initialValues.numberOfTurns) {
 		formik.resetForm({
@@ -58,8 +63,6 @@ const EditWeavingCellForm = (props) => {
 			},
 		});
 	}
-
-	setFieldValue = formik.setFieldValue;
 
 	return (
 		<div className="edit-pattern-form">
