@@ -535,11 +535,26 @@ export const buiildWeavingInstructionsByTablet = ({
 };
 
 export const buildOffsetThreadingForTwill = ({
+	holes,
+	numberOfTablets,
 	picks,
 	threadingByTablet,
 	weavingStartRow,
 }) => {
 	const offsetThreadingByTablets = [];
+console.log('picks', picks);
+	for (let i = 0; i < numberOfTablets; i += 1) {
+		const tabletOffset = picks[i][weavingStartRow - 1];
+		console.log('i', i);
+		console.log('tabletOffset', tabletOffset);
+
+		const threadingForTablet = [];
+
+		for (let j = 0; j < holes; j += 1) {
+			//TODO do offset and modulus
+			threadingForTablet.push(threadingByTablet[i][j]);
+		}
+	}
 
 	return offsetThreadingByTablets;
 };

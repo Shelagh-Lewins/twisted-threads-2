@@ -55,7 +55,7 @@ export const UPDATE_WEAVING_ROW_DIRECTION = 'UPDATE_WEAVING_ROW_DIRECTION';
 // 'brokenTwill' patternType
 export const UPDATE_TWILL_CHART = 'UPDATE_TWILL_CHART';
 export const UPDATE_TWILL_WEAVING_START_ROW = 'UPDATE_TWILL_WEAVING_START_ROW';
-export const UPDATE_OFFSET_THREADING_FOR_TWILL = 'UPDATE_OFFSET_THREADING_FOR_TWILL';
+//export const UPDATE_OFFSET_THREADING_FOR_TWILL = 'UPDATE_OFFSET_THREADING_FOR_TWILL';
 
 // more than one patternType
 export const UPDATE_THREADING_CELL = 'UPDATE_THREADING_CELL';
@@ -165,9 +165,10 @@ export function clearPatternData() {
 
 export function setPatternData({
 	picks,
+	patternDesign,
 	patternObj,
 	threadingByTablet,
-	weavingInstructionsByTablet,
+	//weavingInstructionsByTablet,
 }) {
 	const {
 		holes,
@@ -175,7 +176,7 @@ export function setPatternData({
 		numberOfTablets,
 		orientations,
 		palette,
-		patternDesign,
+		//patternDesign,
 		patternType,
 	} = patternObj;
 
@@ -191,14 +192,19 @@ export function setPatternData({
 			patternDesign,
 			patternType,
 			threadingByTablet,
-			weavingInstructionsByTablet,
 		},
 	};
 }
 
 // build chart data and save it in the store
 export const savePatternData = (patternObj) => (dispatch) => {
-	const { numberOfRows, numberOfTablets } = patternObj;
+	const {
+		holes,
+		numberOfRows,
+		numberOfTablets,
+		patternDesign,
+		patternType,
+	} = patternObj;
 	const weavingInstructionsByTablet = buiildWeavingInstructionsByTablet(patternObj);
 
 	dispatch(setWeavingInstructions(weavingInstructionsByTablet));
@@ -211,11 +217,25 @@ export const savePatternData = (patternObj) => (dispatch) => {
 		weavingInstructionsByTablet,
 	});
 
+	if (patternType === 'brokenTwill') {
+		// offset threading chart
+		const { weavingStartRow } = patternDesign;
+		const offsetThreadingByTablets = buildOffsetThreadingForTwill({
+			holes,
+			numberOfTablets,
+			picks,
+			threadingByTablet,
+			weavingStartRow,
+		});
+
+		patternDesign.offsetThreadingByTablets = offsetThreadingByTablets;
+	}
+
 	dispatch(setPatternData({
 		picks,
+		patternDesign,
 		patternObj,
 		threadingByTablet,
-		weavingInstructionsByTablet,
 	}));
 };
 
@@ -539,31 +559,6 @@ export function editTwillWeavingStartRow({
 		});
 
 		dispatch(updateTwillWeavingStartRow(weavingStartRow));
-	};
-}
-
-// build offset threading chart
-export function updateOffsetThreadingForTwill(data) {
-	return {
-		'type': UPDATE_OFFSET_THREADING_FOR_TWILL,
-		'payload': data,
-	};
-}
-
-export function OffsetThreadingForTwill() {
-	return (dispatch, getState) => {
-		const {
-			'patternDesign': { weavingStartRow },
-			picks,
-			threadingByTablet,
-		} = getState().pattern;
-
-		const offsetThreadingByTablets = buildOffsetThreadingForTwill({
-			picks,
-			threadingByTablet,
-			weavingStartRow,
-		});
-		dispatch(updateOffsetThreadingForTwill(offsetThreadingByTablets));
 	};
 }
 
