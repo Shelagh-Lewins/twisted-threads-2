@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import {
 	addWeavingRows,
 	editTwillChart,
+	removeWeavingRows,
 	setIsEditingWeaving,
 } from '../modules/pattern';
 import calculateScrolling from '../modules/calculateScrolling';
@@ -87,7 +88,6 @@ class WeavingDesignBrokenTwill extends PureComponent {
 
 	handleSubmitAddRows(data) {
 		const { dispatch, 'pattern': { _id } } = this.props;
-		console.log('add rows', data);
 
 		dispatch(addWeavingRows({
 			_id,
@@ -115,12 +115,12 @@ class WeavingDesignBrokenTwill extends PureComponent {
 		const response = confirm(`Do you want to delete rows ${rowFirst} and ${rowFirst + 1}?`); // eslint-disable-line no-restricted-globals
 
 		if (response === true) {
-			/* dispatch(removeWeavingRows({
+			dispatch(removeWeavingRows({
 				_id,
-				'removeNRows': 1,
+				'removeNRows': 2,
 				'removeRowsAt': rowIndex,
 			}));
-			setTimeout(() => this.trackScrolling(), 100); // give time for the deleted rows to be removed */
+			setTimeout(() => this.trackScrolling(), 100); // give time for the deleted rows to be removed
 		}
 	}
 
@@ -343,12 +343,7 @@ class WeavingDesignBrokenTwill extends PureComponent {
 		const {
 			controlsOffsetX,
 			controlsOffsetY,
-			editMode,
-			numberOfTurns,
 		} = this.state;
-
-		let rowIndex;
-		let tabletIndex;
 
 		return (
 			<div

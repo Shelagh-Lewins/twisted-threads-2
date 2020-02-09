@@ -401,7 +401,6 @@ Meteor.methods({
 			numberOfTablets,
 			patternType,
 			patternDesign,
-			//threading,
 		} = pattern;
 
 		// to be filled in by data depending on case
@@ -578,11 +577,11 @@ Meteor.methods({
 
 					case 'brokenTwill':
 						if (insertNRows % 2 !== 0) {
-							throw new Meteor.Error('add-rows-unknown-pattern-type', 'Unable to add rows because the number of rows must be even for broken twill');
+							throw new Meteor.Error('add-rows-invalid-number', 'Unable to add rows because the number of rows must be even for broken twill');
 						}
 
 						if (insertRowsAt % 2 !== 0) {
-							throw new Meteor.Error('add-rows-unknown-pattern-type', 'Unable to add rows because the new rows must be inserted at an odd row for broken twill');
+							throw new Meteor.Error('add-rows-invalid-number', 'Unable to add rows because the new rows must be inserted at an odd row for broken twill');
 						}
 						const newDesignRow = new Array(numberOfTablets);
 						newDesignRow.fill('.');
@@ -621,7 +620,7 @@ Meteor.methods({
 				check(_id, nonEmptyStringCheck);
 				check(removeNRows, Match.Maybe(Match.Integer));
 				check(removeRowsAt, Match.Maybe(Match.Integer));
-console.log('case remove');
+
 				if (pattern.numberOfRows <= removeNRows) {
 					throw new Meteor.Error('remove-rows-last-row', 'Unable to remove rows because the last row would be removed');
 				}
@@ -629,6 +628,10 @@ console.log('case remove');
 				if (pattern.numberOfRows < removeRowsAt) {
 					throw new Meteor.Error('remove-rows-invalid-row', 'Unable to remove row because the row does not exist');
 				}
+
+				update.$set = {
+					'numberOfRows': numberOfRows - removeNRows,
+				};
 
 				switch (patternType) {
 					case 'individual':
@@ -643,13 +646,10 @@ console.log('case remove');
 
 						// NOTE if the pull fails, the numberOfRows will then be incorrect
 						// however if the following updates don't take place atomically, the client will likely show errors
-						//const update = {};
-						update.$pull = { 'patternDesign.weavingInstructions': { '$elemMatch': { 'toBeRemoved': true } } };
-						update.$set = {
-							'numberOfRows': pattern.numberOfRows - removeNRows,
-						};
 
-						return Patterns.update({ _id }, update);
+						update.$pull = { 'patternDesign.weavingInstructions': { '$elemMatch': { 'toBeRemoved': true } } };
+
+						break;
 
 					case 'allTogether':
 						// an element cannot be removed from an array by index
@@ -665,18 +665,69 @@ console.log('case remove');
 
 						// NOTE if the pull fails, the numberOfRows will then be incorrect
 						// however if the following updates don't take place atomically, the client will likely show errors
-						//const update = {};
+
 						update.$pull = { 'patternDesign.weavingInstructions': 'toBeRemoved' };
-						update.$set = {
-							'numberOfRows': pattern.numberOfRows - removeNRows,
+
+						break;
+
+					case 'brokenTwill':
+					console.log('removeRowsAt', removeRowsAt);
+						if (removeNRows % 2 !== 0) {
+							throw new Meteor.Error('remove-rows-invalid-number', 'Unable to remove rows because the number of rows must be even for broken twill');
+						}
+
+						if (removeRowsAt % 2 !== 0) {
+							throw new Meteor.Error('add-rows-invalid-number', 'Unable to remove rows because the rows must be removed at an even row for broken twill');
+						}
+
+						for (let i = 0; i < removeNRows / 2; i += 1) {
+							rowIndex = i + (removeRowsAt / 2);
+
+							Patterns.update({ _id }, {
+								'$set': {
+									[`patternDesign.twillDirectionChangeChart.${rowIndex}`]: 'toBeRemoved',
+									[`patternDesign.twillPatternChart.${rowIndex}`]: 'toBeRemoved',
+								},
+							});
+						}
+
+						// odd rows of twill charts cannot start with 'X'
+						// what will be the new start row?
+						let newFirstRow = 0;
+						if (removeRowsAt === 0) {
+							newFirstRow = removeNRows / 2;
+						}
+
+						for (let i = 1; i < numberOfTablets; i += 2) {
+							if (pattern.patternDesign.twillDirectionChangeChart[newFirstRow][i] === 'X') {
+								Patterns.update({ _id }, {
+									'$set': {
+										[`patternDesign.twillDirectionChangeChart.${newFirstRow}.${i}`]: '.',
+									},
+								});
+							}
+
+							if (pattern.patternDesign.twillPatternChart[newFirstRow][i] === 'X') {
+								Patterns.update({ _id }, {
+									'$set': {
+										[`patternDesign.twillPatternChart.${newFirstRow}.${i}`]: '.',
+									},
+								});
+							}
+						}
+
+						update.$pull = {
+							'patternDesign.twillDirectionChangeChart': 'toBeRemoved',
+							'patternDesign.twillPatternChart': 'toBeRemoved',
 						};
 
-						Patterns.update({ _id }, update);
-						return;
+						break;
 
 					default:
 						throw new Meteor.Error('remove-row-unknown-pattern-type', `Unable to remove row because the pattern type ${patternType} was not recognised`);
 				}
+
+				return Patterns.update({ _id }, update);
 
 			case 'editThreadingCell':
 				({ hole, tablet, colorIndex } = data);
@@ -702,8 +753,6 @@ console.log('case remove');
 				if (insertTabletsAt < 0 || insertTabletsAt > numberOfTablets) {
 					throw new Meteor.Error('add-tablets-invalid position', 'Unable to add tablets because the position is invalid');
 				}
-
-				//const update3 = {};
 
 				// all pattern types have the new number of tablets
 				const newNumberOfTablets = pattern.numberOfTablets + insertNTablets;
@@ -815,21 +864,19 @@ console.log('case remove');
 				// an element cannot be removed from an array by index
 				// so first we mark the element to remove
 				// then use 'pull'
-				//const update = {};
 
 				// updates for orientation are the same for all pattern types
 				update.$set = {
 					[`orientations.${tablet}`]: 'toBeRemoved',
 				};
+				// !warning! don't overwrite the update object in future
 
 				// updates for weaving depend on pattern type
 				switch (patternType) {
 					case 'individual':
 					case 'allTogether':
 						// remove the specified tablet
-						update.$set = {
-							[`threading.$[].${tablet}`]: 'toBeRemoved',
-						};
+						update.$set[`threading.$[].${tablet}`] = 'toBeRemoved';
 
 						if (patternType === 'individual') {
 							// new picks to be added to each weaving row
@@ -839,11 +886,9 @@ console.log('case remove');
 
 					case 'brokenTwill':
 						// threading follows a sequence, so remove the last tablet
-						update.$set = {
-							[`threading.$[].${numberOfTablets - 1}`]: 'toBeRemoved',
-							[`patternDesign.twillDirectionChangeChart.$[].${numberOfTablets - 1}`]: 'toBeRemoved',
-							[`patternDesign.twillPatternChart.$[].${numberOfTablets - 1}`]: 'toBeRemoved',
-						};
+						update.$set[`threading.$[].${numberOfTablets - 1}`] = 'toBeRemoved';
+						update.$set[`patternDesign.twillDirectionChangeChart.$[].${tablet}`] = 'toBeRemoved';
+						update.$set[`patternDesign.twillPatternChart.$[].${tablet}`] = 'toBeRemoved';
 
 						break;
 
@@ -869,10 +914,9 @@ console.log('case remove');
 					'numberOfTablets': pattern.numberOfTablets - 1,
 				};
 
-				// updates for weaving depend on pattern type
 				switch (patternType) {
 					case 'individual':
-						// remove picks from each weaving row
+						// remove tablets from each weaving row
 						update2.$pull['patternDesign.weavingInstructions.$[]'] = { 'toBeRemoved': true };
 						break;
 
@@ -880,9 +924,9 @@ console.log('case remove');
 						break;
 
 					case 'brokenTwill':
-						// remove picks from each pattern design chart
-						update2.$pull['patternDesign.twillDirectionChangeChart.$[]'] = { 'toBeRemoved': true };
-						update2.$pull['patternDesign.twillPatternChart.$[]'] = { 'toBeRemoved': true };
+						// remove tablets from each pattern design chart
+						update2.$pull['patternDesign.twillDirectionChangeChart.$[]'] = 'toBeRemoved';
+						update2.$pull['patternDesign.twillPatternChart.$[]'] = 'toBeRemoved';
 						break;
 
 					default:
@@ -957,7 +1001,6 @@ console.log('case remove');
 					check(fieldValue, String);
 				}
 
-				//const update4 = {};
 				update[fieldName] = fieldValue;
 
 				// if the pattern name changes, we must also update nameSort

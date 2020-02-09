@@ -44,6 +44,8 @@ import {
 	clearPatternData,
 	getIsLoading,
 	getPatternId,
+	setIsEditingWeaving,
+	setIsEditingThreading,
 	setIsLoading,
 	savePatternData,
 	setPatternId,
@@ -251,6 +253,8 @@ export const withDatabase = withTracker((props) => {
 						if (!state.pattern.patternDataReady) {
 							// once the data are loaded, build the charts
 							dispatch(savePatternData(pattern));
+							dispatch(setIsEditingWeaving(false));
+							dispatch(setIsEditingThreading(false));
 						} else {
 							// everything is ready to render
 							dispatch(setIsLoading(false));
