@@ -19,13 +19,25 @@ function OrientationCell(props) {
 		tabletIndex,
 	} = props;
 
+	let onClick;
+	let role;
+	let tabIndex;
+	let type;
+
+	if (handleClickOrientation && isEditing) {
+		onClick = () => handleClickOrientation(tabletIndex);
+		role = 'button';
+		tabIndex = 0;
+		type = 'button';
+	}
+
 	return (
 		<span
-			type={isEditing ? 'button' : undefined}
-			onClick={isEditing ? () => handleClickOrientation(tabletIndex) : undefined}
-			onKeyPress={isEditing ? () => handleClickOrientation(tabletIndex) : undefined}
-			role={isEditing ? 'button' : undefined}
-			tabIndex={isEditing ? '0' : undefined}
+			type={type}
+			onClick={onClick}
+			onKeyPress={onClick}
+			role={role}
+			tabIndex={tabIndex}
 			title={`${orientation === '/' ? 'Orientation S' : 'Orientation Z'}`}
 		>
 			<span

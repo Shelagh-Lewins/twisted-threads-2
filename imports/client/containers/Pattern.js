@@ -620,6 +620,7 @@ class Pattern extends PureComponent {
 								numberOfTablets={numberOfTablets}
 								palette={palette}
 								patternId={pattern._id}
+								patternType={patternType}
 							/>
 						)}
 						<EditableText

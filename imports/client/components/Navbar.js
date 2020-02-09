@@ -100,7 +100,7 @@ class Navbar extends Component {
 					title="Download pattern"
 				>
 					<FontAwesomeIcon icon={['fas', 'file-download']} style={{ 'color': iconColors.contrast }} size="1x" />
-					<span className="d-inline d-sm-none button-text nav-link">Download pattern</span>
+					<span className="d-inline d-md-none button-text nav-link">Download pattern</span>
 				</Button>
 			);
 
@@ -111,7 +111,7 @@ class Navbar extends Component {
 					title="Copy pattern"
 				>
 					<FontAwesomeIcon icon={['fas', 'clone']} style={{ 'color': iconColors.contrast }} size="1x" />
-					<span className="d-inline d-sm-none button-text nav-link">Copy pattern</span>
+					<span className="d-inline d-md-none button-text nav-link">Copy pattern</span>
 				</Button>
 			);
 
@@ -122,7 +122,7 @@ class Navbar extends Component {
 					title="Delete pattern"
 				>
 					<FontAwesomeIcon icon={['fas', 'trash']} style={{ 'color': iconColors.contrast }} size="1x" />
-					<span className="d-inline d-sm-none button-text nav-link">Delete pattern</span>
+					<span className="d-inline d-md-none button-text nav-link">Delete pattern</span>
 				</Button>
 			);
 

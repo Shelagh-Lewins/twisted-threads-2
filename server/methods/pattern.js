@@ -965,8 +965,12 @@ Meteor.methods({
 				({ tablet, tabletOrientation } = data);
 				check(tablet, validTabletsCheck);
 
+				if (patternType === 'brokenTwill') {
+					throw new Meteor.Error('edit-orientation-broken-twill', 'Unable to edit orientation because the pattern type is broken twill');
+				}
+
 				if (tablet >= numberOfTablets) {
-					throw new Meteor.Error('edit-pattern-invalid-tablet', 'Unable to edit pattern because an invalid tablet number was specified');
+					throw new Meteor.Error('edit-orientation-invalid-tablet', 'Unable to edit orientation because an invalid tablet number was specified');
 				}
 
 				// update the value in the nested arrays
