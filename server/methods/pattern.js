@@ -425,6 +425,7 @@ Meteor.methods({
 		let tabletIndex;
 		let tabletOrientation;
 		let twillChart;
+		let weavingStartRow;
 
 		const update = {}; // builds the Mongo update
 
@@ -516,6 +517,26 @@ Meteor.methods({
 
 					default:
 						throw new Meteor.Error('edit-twill-pattern-chart-unknown-pattern-type', `Unable to edit twill pattern chart because the pattern type ${patternType} is not brokenTwill`);
+				}
+
+			case 'editTwillWeavingStartRow':
+				({ weavingStartRow } = data);
+				check(weavingStartRow, validRowsCheck);
+
+				switch (patternType) {
+					case 'brokenTwill':
+						if (weavingStartRow >= numberOfRows) {
+							throw new Meteor.Error('edit-twill-weaving-start-row-invalid-rowIndex', `Unable to edit twill pattern chart because the weaving start row must be less than the number of rows`);
+						}
+
+						if (weavingStartRow % 2 !== 1) {
+							throw new Meteor.Error('edit-twill-weaving-start-row-invalid-rowIndex', `Unable to edit twill pattern chart because the weaving start row must be an odd number`);
+						}
+
+						return Patterns.update({ _id }, { '$set': { 'patternDesign.weavingStartRow': weavingStartRow } });
+
+					default:
+						throw new Meteor.Error('edit-twill-weaving-start-row-unknown-pattern-type', `Unable to edit twill weaving start row because the pattern type ${patternType} is not brokenTwill`);
 				}
 
 			case 'addWeavingRows':

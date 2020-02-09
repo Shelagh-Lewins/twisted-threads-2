@@ -103,7 +103,7 @@ class WeavingDesignBrokenTwill extends PureComponent {
 
 	handleSubmitWeavingStartRow(value) {
 		const { dispatch, 'pattern': { _id } } = this.props;
-		console.log('set start row', value);
+
 		dispatch(editTwillWeavingStartRow({
 			_id,
 			'weavingStartRow': parseInt(value, 10),
@@ -222,6 +222,7 @@ class WeavingDesignBrokenTwill extends PureComponent {
 			numberOfTablets,
 			'patternDesign': {
 				twillPatternChart,
+				weavingStartRow,
 			},
 		} = this.props;
 		const numberOfChartRows = twillPatternChart.length;
@@ -235,14 +236,14 @@ class WeavingDesignBrokenTwill extends PureComponent {
 
 		return (
 			<>
-				<ul className={`${rowIndex === 0 ? 'last-row' : ''} ${(rowIndex === numberOfChartRows - 1) ? 'first-row' : ''}`}>
+				<ul className={`${rowIndex === 0 ? 'last-row' : ''} ${(rowIndex === numberOfChartRows - 1) ? 'first-row' : ''} ${rowLabel * 2 < weavingStartRow ? 'inactive' : ''}`}>
 					<li className="row-label even"><span>{rowLabel * 2}</span></li>
 					<li className="row-label odd"><span>{(rowLabel * 2) - 1}</span></li>
 					{cells}
 					{isEditing && numberOfChartRows > 2 && rowIndex !== 0 && (
 						<li className="delete">
 							<span
-								title={`delete row ${rowLabel}`}
+								title={`delete rows ${rowLabel * 2 - 1} and ${rowLabel * 2}`}
 								type="button"
 								onClick={() => this.handleClickRemoveRow(rowLabel - 1)}
 								onKeyPress={() => this.handleClickRemoveRow(rowLabel - 1)}
