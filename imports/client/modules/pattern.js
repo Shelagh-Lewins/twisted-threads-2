@@ -6,7 +6,7 @@ import { createSelector } from 'reselect';
 // import createCachedSelector from 're-reselect';
 import { logErrors, clearErrors } from './errors';
 import {
-	// buildTwillWeavingInstructionsByTablet,
+	buildOffsetThreadingForTwill,
 	buildTwillWeavingInstructionsForTablet,
 	buiildWeavingInstructionsByTablet,
 	calculatePicksForTablet,
@@ -55,6 +55,7 @@ export const UPDATE_WEAVING_ROW_DIRECTION = 'UPDATE_WEAVING_ROW_DIRECTION';
 // 'brokenTwill' patternType
 export const UPDATE_TWILL_CHART = 'UPDATE_TWILL_CHART';
 export const UPDATE_TWILL_WEAVING_START_ROW = 'UPDATE_TWILL_WEAVING_START_ROW';
+export const UPDATE_OFFSET_THREADING_FOR_TWILL = 'UPDATE_OFFSET_THREADING_FOR_TWILL';
 
 // more than one patternType
 export const UPDATE_THREADING_CELL = 'UPDATE_THREADING_CELL';
@@ -541,6 +542,31 @@ export function editTwillWeavingStartRow({
 	};
 }
 
+// build offset threading chart
+export function updateOffsetThreadingForTwill(data) {
+	return {
+		'type': UPDATE_OFFSET_THREADING_FOR_TWILL,
+		'payload': data,
+	};
+}
+
+export function OffsetThreadingForTwill() {
+	return (dispatch, getState) => {
+		const {
+			'patternDesign': { weavingStartRow },
+			picks,
+			threadingByTablet,
+		} = getState().pattern;
+
+		const offsetThreadingByTablets = buildOffsetThreadingForTwill({
+			picks,
+			threadingByTablet,
+			weavingStartRow,
+		});
+		dispatch(updateOffsetThreadingForTwill(offsetThreadingByTablets));
+	};
+}
+
 // ///////////////////////////////
 // add weaving rows
 export function updateAddWeavingRows(data) {
@@ -933,8 +959,9 @@ const initialPatternState = {
 	'patternCount': 0,
 	'patternCountUserId': undefined,
 	'patternDataReady': false,
+	'patternDesign': undefined,
 	'picks': [],
-	'threading': [],
+	'threadingByTablet': undefined,
 };
 
 // state updates

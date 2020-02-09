@@ -533,3 +533,13 @@ export const buiildWeavingInstructionsByTablet = ({
 
 	return weavingInstructionsByTablet;
 };
+
+export const buildOffsetThreadingForTwill = ({
+	picks,
+	threadingByTablet,
+	weavingStartRow,
+}) => {
+	const offsetThreadingByTablets = [];
+
+	return offsetThreadingByTablets;
+};
