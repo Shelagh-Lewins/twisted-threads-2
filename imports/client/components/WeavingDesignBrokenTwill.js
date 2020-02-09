@@ -110,7 +110,7 @@ class WeavingDesignBrokenTwill extends PureComponent {
 			return;
 		}
 
-		const rowFirst = (rowIndex * 2) + 1;
+		const rowFirst = (rowIndex * 2) + 1; // convert from chart row to weaving row
 
 		const response = confirm(`Do you want to delete rows ${rowFirst} and ${rowFirst + 1}?`); // eslint-disable-line no-restricted-globals
 
@@ -118,7 +118,7 @@ class WeavingDesignBrokenTwill extends PureComponent {
 			dispatch(removeWeavingRows({
 				_id,
 				'removeNRows': 2,
-				'removeRowsAt': rowIndex,
+				'removeRowsAt': rowIndex * 2, // convert from chart row to weaving row
 			}));
 			setTimeout(() => this.trackScrolling(), 100); // give time for the deleted rows to be removed
 		}

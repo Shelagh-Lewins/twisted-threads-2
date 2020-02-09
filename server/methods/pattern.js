@@ -671,7 +671,6 @@ Meteor.methods({
 						break;
 
 					case 'brokenTwill':
-					console.log('removeRowsAt', removeRowsAt);
 						if (removeNRows % 2 !== 0) {
 							throw new Meteor.Error('remove-rows-invalid-number', 'Unable to remove rows because the number of rows must be even for broken twill');
 						}
