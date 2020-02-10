@@ -6,6 +6,7 @@ import { createSelector } from 'reselect';
 // import createCachedSelector from 're-reselect';
 import { logErrors, clearErrors } from './errors';
 import {
+	buildTwillOffsetThreadingForTablet,
 	buildTwillOffsetThreading,
 	buildTwillWeavingInstructionsForTablet,
 	buiildWeavingInstructionsByTablet,
@@ -55,7 +56,6 @@ export const UPDATE_WEAVING_ROW_DIRECTION = 'UPDATE_WEAVING_ROW_DIRECTION';
 // 'brokenTwill' patternType
 export const UPDATE_TWILL_CHART = 'UPDATE_TWILL_CHART';
 export const UPDATE_TWILL_WEAVING_START_ROW = 'UPDATE_TWILL_WEAVING_START_ROW';
-export const UPDATE_TWILL_OFFSET_THREADING = 'UPDATE_TWILL_OFFSET_THREADING';
 
 // more than one patternType
 export const UPDATE_THREADING_CELL = 'UPDATE_THREADING_CELL';
@@ -197,11 +197,9 @@ export function setPatternData({
 // build chart data and save it in the store
 export const savePatternData = (patternObj) => (dispatch) => {
 	const {
-		holes,
 		numberOfRows,
 		numberOfTablets,
 		patternDesign,
-		patternType,
 	} = patternObj;
 	const weavingInstructionsByTablet = buiildWeavingInstructionsByTablet(patternObj);
 
@@ -214,20 +212,6 @@ export const savePatternData = (patternObj) => (dispatch) => {
 		numberOfTablets,
 		weavingInstructionsByTablet,
 	});
-
-	if (patternType === 'brokenTwill') {
-		// offset threading chart
-		const { weavingStartRow } = patternDesign;
-		const offsetThreadingByTablets = buildTwillOffsetThreading({
-			holes,
-			numberOfTablets,
-			picks,
-			threadingByTablet,
-			weavingStartRow,
-		});
-
-		patternDesign.offsetThreadingByTablets = offsetThreadingByTablets;
-	}
 
 	dispatch(setPatternData({
 		picks,
@@ -307,29 +291,6 @@ export const getTotalTurnsByTabletSelector = createSelector(
 	getNumberOfRows,
 	(picks, numberOfRows) => picks.map((picksForTablet) => picksForTablet[numberOfRows - 1].totalTurns),
 );
-
-// this next is unnecessary because threading has been recast, but it's a useful example of how to get array props
-
-// use re-reselect to cache processed threading for tablet
-// otherwise, passing an array triggers re-render even when there is no change
-/* export const getThreading = (state) => state.pattern.threadingByTablet;
-
-export const getTabletIndex = (state, tabletIndex) => tabletIndex;
-
-export const getThreadingForTabletCached = createCachedSelector(
-	getThreading,
-	getTabletIndex,
-
-	// resultFunc
-	(threading, tabletIndex) => threading[tabletIndex],
-)(
-	// re-reselect keySelector (receives selectors' arguments)
-	// Use "tabletIndex_rowIndex" as cacheKey
-	(_state_, tabletIndex) => tabletIndex,
-); */
-
-// ///////////////////////////////////
-
 
 // ///////////////////////////
 // Action that call Meteor methods
@@ -545,35 +506,6 @@ export function editTwillChart({
 	};
 }
 
-// update offset threading
-export function updateTwillOffsetThreading(data) {
-	return {
-		'type': UPDATE_TWILL_OFFSET_THREADING,
-		'payload': data,
-	};
-}
-
-export function setTwillOffsetThreading(weavingStartRow) {
-	return (dispatch, getState) => {
-		const {
-			holes,
-			numberOfTablets,
-			picks,
-			threadingByTablet,
-		} = getState().pattern;
-
-		const offsetThreadingByTablets = buildTwillOffsetThreading({
-			holes,
-			numberOfTablets,
-			picks,
-			threadingByTablet,
-			weavingStartRow,
-		});
-
-		dispatch(updateTwillOffsetThreading(offsetThreadingByTablets));
-	};
-}
-
 // set weaving start row
 export function updateTwillWeavingStartRow(data) {
 	return {
@@ -601,7 +533,6 @@ export function editTwillWeavingStartRow({
 		});
 
 		dispatch(updateTwillWeavingStartRow(weavingStartRow));
-		dispatch(setTwillOffsetThreading(weavingStartRow));
 	};
 }
 
@@ -619,7 +550,6 @@ export function addWeavingRows({
 	insertNRows,
 	insertRowsAt,
 }) {
-
 	return (dispatch) => {
 		Meteor.call('pattern.edit', {
 			_id,
@@ -726,7 +656,7 @@ export function addTablets({
 	insertNTablets,
 	insertTabletsAt,
 }) {
-	return (dispatch, getState) => {
+	return (dispatch) => {
 		Meteor.call('pattern.edit', {
 			_id,
 			'data': {
@@ -746,12 +676,6 @@ export function addTablets({
 			insertNTablets,
 			insertTabletsAt,
 		}));
-
-		const patternState = getState().pattern;
-
-		if (patternState.patternType === 'brokenTwill') {
-			dispatch(setTwillOffsetThreading(patternState.patternDesign.weavingStartRow));
-		}
 	};
 }
 
@@ -767,7 +691,7 @@ export function removeTablet({
 	_id,
 	tablet,
 }) {
-	return (dispatch, getState) => {
+	return (dispatch) => {
 		Meteor.call('pattern.edit', {
 			_id,
 			tablet,
@@ -784,12 +708,6 @@ export function removeTablet({
 		dispatch(updateRemoveTablet({
 			tablet,
 		}));
-
-		const patternState = getState().pattern;
-
-		if (patternState.patternType === 'brokenTwill') {
-			dispatch(setTwillOffsetThreading(patternState.patternDesign.weavingStartRow));
-		}
 	};
 }
 
@@ -1054,6 +972,20 @@ export default function pattern(state = initialPatternState, action) {
 				threadingByTablet,
 			} = action.payload;
 
+			if (patternType === 'brokenTwill') {
+				// offset threading chart
+				const { weavingStartRow } = patternDesign;
+				const offsetThreadingByTablets = buildTwillOffsetThreading({
+					holes,
+					numberOfTablets,
+					picks,
+					threadingByTablet,
+					weavingStartRow,
+				});
+
+				patternDesign.offsetThreadingByTablets = offsetThreadingByTablets;
+			}
+
 			return updeep({
 				holes,
 				numberOfRows,
@@ -1213,11 +1145,28 @@ export default function pattern(state = initialPatternState, action) {
 		}
 
 		case UPDATE_TWILL_WEAVING_START_ROW: {
-			return updeep({ 'patternDesign': { 'weavingStartRow': action.payload } }, state);
-		}
+			const {
+				holes,
+				numberOfTablets,
+				'patternDesign': weavingStartRow,
+				picks,
+				threadingByTablet,
+			} = state;
 
-		case UPDATE_TWILL_OFFSET_THREADING: {
-			return updeep({ 'patternDesign': { 'offsetThreadingByTablets': action.payload } }, state);
+			const offsetThreadingByTablets = buildTwillOffsetThreading({
+				holes,
+				numberOfTablets,
+				picks,
+				threadingByTablet,
+				weavingStartRow,
+			});
+
+			return updeep({
+				'patternDesign': {
+					offsetThreadingByTablets,
+					'weavingStartRow': action.payload,
+				},
+			}, state);
 		}
 
 		case SET_IS_EDITING_WEAVING: {
@@ -1509,7 +1458,6 @@ export default function pattern(state = initialPatternState, action) {
 				patternType,
 				picks,
 				threadingByTablet,
-				// 'patternDesign': { weavingInstructions },
 				weavingInstructionsByTablet,
 			} = state;
 
@@ -1579,13 +1527,16 @@ export default function pattern(state = initialPatternState, action) {
 
 				case 'brokenTwill':
 					const {
+						offsetThreadingByTablets,
 						twillDirection,
 						twillPatternChart,
 						twillDirectionChangeChart,
+						weavingStartRow,
 					} = patternDesign;
 					const chartLength = twillPatternChart.length;
 					const newTwillPatternChart = [...twillPatternChart];
 					const newTwillDirectionChangeChart = [...twillDirectionChangeChart];
+					const newOffsetThreading = [...offsetThreadingByTablets];
 
 					// orientations
 					for (let i = 0; i < insertNTablets; i += 1) {
@@ -1630,9 +1581,18 @@ export default function pattern(state = initialPatternState, action) {
 							'weavingInstructionsForTablet': newWeavingInstructions,
 							'row': 0,
 						});
+
+						// add the new tablets to offset threading - this depends on picks
+						newOffsetThreading[i] = buildTwillOffsetThreadingForTablet({
+							holes,
+							'pick': newPicks[i],
+							'threadingForTablet': newThreadingByTablet[i],
+							weavingStartRow,
+						});
 					}
 
 					update.patternDesign = {
+						'offsetThreadingByTablets': newOffsetThreading,
 						'twillPatternChart': newTwillPatternChart,
 						'twillDirectionChangeChart': newTwillDirectionChangeChart,
 					};
@@ -1648,6 +1608,7 @@ export default function pattern(state = initialPatternState, action) {
 		case UPDATE_REMOVE_TABLET: {
 			const { tablet } = action.payload;
 			const {
+				holes,
 				numberOfRows,
 				numberOfTablets,
 				orientations,
@@ -1684,17 +1645,23 @@ export default function pattern(state = initialPatternState, action) {
 					break;
 
 				case 'brokenTwill':
-					newOrientations.pop(); // all tablets have the same orientation
-					newThreadingByTablet.pop(); // threading follows a sequence
-
 					const {
+						offsetThreadingByTablets,
 						twillDirection,
 						twillPatternChart,
 						twillDirectionChangeChart,
+						weavingStartRow,
 					} = patternDesign;
 					const chartLength = twillPatternChart.length;
 					const newTwillPatternChart = [...twillPatternChart];
 					const newTwillDirectionChangeChart = [...twillDirectionChangeChart];
+					const newOffsetThreading = [...offsetThreadingByTablets];
+
+					newOrientations.pop(); // all tablets have the same orientation
+					newThreadingByTablet.pop(); // threading follows a sequence
+					newWeavingInstructionsByTablet.pop(); // this will be rewoven
+					newPicks.pop(); // this will be rewoven
+					newOffsetThreading.pop(); // this will be recalculated
 
 					// design charts are by row, tablet
 					// for each row, remove the tablet
@@ -1723,9 +1690,18 @@ export default function pattern(state = initialPatternState, action) {
 							'weavingInstructionsForTablet': newWeavingInstructionsByTablet,
 							'row': 0,
 						});
+
+						// calculate offset threading from removed tablet onwards
+						newOffsetThreading[i] = buildTwillOffsetThreadingForTablet({
+							holes,
+							'pick': newPicks[i],
+							'threadingForTablet': newThreadingByTablet[i],
+							weavingStartRow,
+						});
 					}
 
 					update.patternDesign = {
+						'offsetThreadingByTablets': newOffsetThreading,
 						'twillPatternChart': newTwillPatternChart,
 						'twillDirectionChangeChart': newTwillDirectionChangeChart,
 					};
