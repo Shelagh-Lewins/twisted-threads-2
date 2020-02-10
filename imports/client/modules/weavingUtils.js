@@ -534,27 +534,36 @@ export const buiildWeavingInstructionsByTablet = ({
 	return weavingInstructionsByTablet;
 };
 
-export const buildOffsetThreadingForTwill = ({
+export const buildTwillOffsetThreading = ({
 	holes,
 	numberOfTablets,
 	picks,
 	threadingByTablet,
 	weavingStartRow,
 }) => {
+	//console.log('threadingByTablet', threadingByTablet);
+	//console.log('weavingStartRow', weavingStartRow);
 	const offsetThreadingByTablets = [];
-console.log('picks', picks);
+//console.log('picks', picks);
 	for (let i = 0; i < numberOfTablets; i += 1) {
-		const tabletOffset = picks[i][weavingStartRow - 1];
-		console.log('i', i);
-		console.log('tabletOffset', tabletOffset);
+		//console.log('tablet', i);
+		let tabletOffset = 0;
+
+		if (weavingStartRow > 1) {
+			tabletOffset = picks[i][weavingStartRow - 2].totalTurns;
+		}
+
+		//console.log('i', i);
+		//console.log('tabletOffset', tabletOffset);
 
 		const threadingForTablet = [];
 
 		for (let j = 0; j < holes; j += 1) {
-			//TODO do offset and modulus
-			threadingForTablet.push(threadingByTablet[i][j]);
+			threadingForTablet.push(threadingByTablet[i][modulus(j + tabletOffset, holes)]);
 		}
+		offsetThreadingByTablets.push(threadingForTablet);
+		//console.log('threadingForTablet', threadingForTablet);
 	}
-
+//console.log('offsetThreadingByTablets', offsetThreadingByTablets);
 	return offsetThreadingByTablets;
 };

@@ -6,7 +6,7 @@ import { createSelector } from 'reselect';
 // import createCachedSelector from 're-reselect';
 import { logErrors, clearErrors } from './errors';
 import {
-	buildOffsetThreadingForTwill,
+	buildTwillOffsetThreading,
 	buildTwillWeavingInstructionsForTablet,
 	buiildWeavingInstructionsByTablet,
 	calculatePicksForTablet,
@@ -55,7 +55,7 @@ export const UPDATE_WEAVING_ROW_DIRECTION = 'UPDATE_WEAVING_ROW_DIRECTION';
 // 'brokenTwill' patternType
 export const UPDATE_TWILL_CHART = 'UPDATE_TWILL_CHART';
 export const UPDATE_TWILL_WEAVING_START_ROW = 'UPDATE_TWILL_WEAVING_START_ROW';
-//export const UPDATE_OFFSET_THREADING_FOR_TWILL = 'UPDATE_OFFSET_THREADING_FOR_TWILL';
+export const UPDATE_TWILL_OFFSET_THREADING = 'UPDATE_TWILL_OFFSET_THREADING';
 
 // more than one patternType
 export const UPDATE_THREADING_CELL = 'UPDATE_THREADING_CELL';
@@ -168,7 +168,6 @@ export function setPatternData({
 	patternDesign,
 	patternObj,
 	threadingByTablet,
-	//weavingInstructionsByTablet,
 }) {
 	const {
 		holes,
@@ -176,7 +175,6 @@ export function setPatternData({
 		numberOfTablets,
 		orientations,
 		palette,
-		//patternDesign,
 		patternType,
 	} = patternObj;
 
@@ -220,7 +218,7 @@ export const savePatternData = (patternObj) => (dispatch) => {
 	if (patternType === 'brokenTwill') {
 		// offset threading chart
 		const { weavingStartRow } = patternDesign;
-		const offsetThreadingByTablets = buildOffsetThreadingForTwill({
+		const offsetThreadingByTablets = buildTwillOffsetThreading({
 			holes,
 			numberOfTablets,
 			picks,
@@ -261,7 +259,22 @@ export const getPicksForTablet = (state, tabletIndex) => state.pattern.picks[tab
 
 export const getThreadingForTablet = (state, tabletIndex) => state.pattern.threadingByTablet[tabletIndex];
 
-export const getThreadingForHole = (state, tabletIndex, holeIndex) => state.pattern.threadingByTablet[tabletIndex][holeIndex];
+// used for the threading chart
+export const getThreadingForHole = (state, tabletIndex, holeIndex) => {
+	// broken twill displays an offset threading diagram
+	// based on the weaving start row
+	if (state.pattern.patternType === 'brokenTwill') {
+		// after a tablet is added there may be a delay before the new tablet is ready
+		const threadingForTablet = state.pattern.patternDesign.offsetThreadingByTablets[tabletIndex];
+
+		if (threadingForTablet) {
+			return threadingForTablet[holeIndex];
+		}
+
+		return undefined;
+	}
+	return state.pattern.threadingByTablet[tabletIndex][holeIndex];
+};
 
 export const getTotalTurnsByTablet = (state) => state.pattern.picks.map((picksForTablet) => picksForTablet[state.pattern.numberOfRows - 1].totalTurns);
 
@@ -532,6 +545,35 @@ export function editTwillChart({
 	};
 }
 
+// update offset threading
+export function updateTwillOffsetThreading(data) {
+	return {
+		'type': UPDATE_TWILL_OFFSET_THREADING,
+		'payload': data,
+	};
+}
+
+export function setTwillOffsetThreading(weavingStartRow) {
+	return (dispatch, getState) => {
+		const {
+			holes,
+			numberOfTablets,
+			picks,
+			threadingByTablet,
+		} = getState().pattern;
+
+		const offsetThreadingByTablets = buildTwillOffsetThreading({
+			holes,
+			numberOfTablets,
+			picks,
+			threadingByTablet,
+			weavingStartRow,
+		});
+
+		dispatch(updateTwillOffsetThreading(offsetThreadingByTablets));
+	};
+}
+
 // set weaving start row
 export function updateTwillWeavingStartRow(data) {
 	return {
@@ -559,6 +601,7 @@ export function editTwillWeavingStartRow({
 		});
 
 		dispatch(updateTwillWeavingStartRow(weavingStartRow));
+		dispatch(setTwillOffsetThreading(weavingStartRow));
 	};
 }
 
@@ -683,7 +726,7 @@ export function addTablets({
 	insertNTablets,
 	insertTabletsAt,
 }) {
-	return (dispatch) => {
+	return (dispatch, getState) => {
 		Meteor.call('pattern.edit', {
 			_id,
 			'data': {
@@ -703,6 +746,12 @@ export function addTablets({
 			insertNTablets,
 			insertTabletsAt,
 		}));
+
+		const patternState = getState().pattern;
+
+		if (patternState.patternType === 'brokenTwill') {
+			dispatch(setTwillOffsetThreading(patternState.patternDesign.weavingStartRow));
+		}
 	};
 }
 
@@ -718,7 +767,7 @@ export function removeTablet({
 	_id,
 	tablet,
 }) {
-	return (dispatch) => {
+	return (dispatch, getState) => {
 		Meteor.call('pattern.edit', {
 			_id,
 			tablet,
@@ -735,6 +784,12 @@ export function removeTablet({
 		dispatch(updateRemoveTablet({
 			tablet,
 		}));
+
+		const patternState = getState().pattern;
+
+		if (patternState.patternType === 'brokenTwill') {
+			dispatch(setTwillOffsetThreading(patternState.patternDesign.weavingStartRow));
+		}
 	};
 }
 
@@ -1159,6 +1214,10 @@ export default function pattern(state = initialPatternState, action) {
 
 		case UPDATE_TWILL_WEAVING_START_ROW: {
 			return updeep({ 'patternDesign': { 'weavingStartRow': action.payload } }, state);
+		}
+
+		case UPDATE_TWILL_OFFSET_THREADING: {
+			return updeep({ 'patternDesign': { 'offsetThreadingByTablets': action.payload } }, state);
 		}
 
 		case SET_IS_EDITING_WEAVING: {
