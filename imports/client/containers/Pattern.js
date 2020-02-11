@@ -18,6 +18,7 @@ import {
 	getIsEditing,
 	getIsLoading,
 	getNumberOfRows,
+	getNumberOfRowsForChart,
 	getNumberOfTablets,
 	getPalette,
 	getPatternTwistSelector,
@@ -430,20 +431,23 @@ class Pattern extends PureComponent {
 		return weavingInstructions;
 	}
 
-	renderPreview({ /* eslint-disable-line class-methods-use-this */
+	renderPreview({
 		_id,
 		canEdit,
-		dispatch,
-		holes,
-		isEditing,
-		numberOfRows,
-		numberOfTablets,
-		palette,
 		pattern,
-		patternWillRepeat,
 		previewOrientation,
-		totalTurnsByTablet,
 	}) {
+		const {
+			dispatch,
+			holes,
+			isEditing,
+			numberOfRowsForChart,
+			numberOfTablets,
+			palette,
+			patternWillRepeat,
+			totalTurnsByTablet,
+		} = this.props;
+
 		return (
 			<div className="preview-outer">
 				<h2>Woven band</h2>
@@ -458,7 +462,7 @@ class Pattern extends PureComponent {
 				<PatternPreview
 					dispatch={dispatch}
 					holes={holes}
-					numberOfRows={numberOfRows}
+					numberOfRows={numberOfRowsForChart}
 					numberOfTablets={numberOfTablets}
 					palette={palette}
 					pattern={pattern}
@@ -483,6 +487,7 @@ class Pattern extends PureComponent {
 			holes,
 			isEditing,
 			numberOfRows,
+			//numberOfRowsForChart,
 			numberOfTablets,
 			palette,
 			patternIsTwistNeutral,
@@ -565,20 +570,7 @@ class Pattern extends PureComponent {
 							dispatch={dispatch}
 							pattern={pattern}
 						/>
-						{!previewAtSide && this.renderPreview({
-							_id,
-							canEdit,
-							dispatch,
-							holes,
-							isEditing,
-							numberOfRows,
-							numberOfTablets,
-							palette,
-							pattern,
-							patternWillRepeat,
-							previewOrientation,
-							totalTurnsByTablet,
-						})}
+						{!previewAtSide && this.renderPreview()}
 						<div className="orientation-change-container">
 							<div className="weaving-outer">
 								{pattern.patternDesign && this.renderWeavingInstructions()}
@@ -586,16 +578,8 @@ class Pattern extends PureComponent {
 							{previewAtSide && this.renderPreview({
 								_id,
 								canEdit,
-								dispatch,
-								holes,
-								isEditing,
-								numberOfRows,
-								numberOfTablets,
-								palette,
 								pattern,
-								patternWillRepeat,
 								previewOrientation,
-								totalTurnsByTablet,
 							})}
 						</div>
 						<EditableText
@@ -616,7 +600,6 @@ class Pattern extends PureComponent {
 								colorBooks={colorBooks}
 								dispatch={dispatch}
 								holes={holes}
-								numberOfRows={numberOfRows}
 								numberOfTablets={numberOfTablets}
 								palette={palette}
 								patternId={pattern._id}
@@ -758,6 +741,7 @@ Pattern.propTypes = {
 	'isEditing': PropTypes.bool.isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'numberOfRows': PropTypes.number.isRequired,
+	'numberOfRowsForChart': PropTypes.number.isRequired,
 	'numberOfTablets': PropTypes.number.isRequired,
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'patternIsTwistNeutral': PropTypes.bool.isRequired,
@@ -779,6 +763,7 @@ function mapStateToProps(state, ownProps) {
 		'isEditing': getIsEditing(state),
 		'isLoading': getIsLoading(state),
 		'numberOfRows': getNumberOfRows(state),
+		'numberOfRowsForChart': getNumberOfRowsForChart(state),
 		'numberOfTablets': getNumberOfTablets(state),
 		'palette': getPalette(state),
 		'patternIsTwistNeutral': patternIsTwistNeutral,

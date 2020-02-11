@@ -230,6 +230,22 @@ export const getPatternId = (state) => state.pattern._id;
 
 export const getNumberOfRows = (state) => state.pattern.numberOfRows || 0;
 
+export const getNumberOfRowsForChart = (state) => {
+	const {
+		numberOfRows,
+		patternDesign,
+		patternType,
+	} = state.pattern;
+
+	let numberOfRowsForChart = numberOfRows || 0;
+
+	if (patternType === 'brokenTwill') {
+		numberOfRowsForChart = numberOfRows - patternDesign.weavingStartRow + 1;
+	}
+
+	return numberOfRowsForChart;
+};
+
 export const getNumberOfTablets = (state) => state.pattern.numberOfTablets || 0;
 
 export const getHoles = (state) => state.pattern.holes;
@@ -241,6 +257,21 @@ export const getPicks = (state) => state.pattern.picks;
 export const getPick = (state, tabletIndex, rowIndex) => state.pattern.picks[tabletIndex][rowIndex];
 
 export const getPicksForTablet = (state, tabletIndex) => state.pattern.picks[tabletIndex];
+
+export const getPicksForTabletForChart = (state, tabletIndex) => {
+	const {
+		patternDesign,
+		patternType,
+	} = state.pattern;
+
+	const picksForTablet = [...state.pattern.picks[tabletIndex]];
+
+	if (patternType === 'brokenTwill') {
+		picksForTablet.splice(0, patternDesign.weavingStartRow - 1);
+	}
+
+	return picksForTablet;
+};
 
 export const getThreadingForTablet = (state, tabletIndex) => state.pattern.threadingByTablet[tabletIndex];
 

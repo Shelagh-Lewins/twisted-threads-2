@@ -20,7 +20,7 @@ import './PatternPreview.scss';
 /* eslint-disable react/no-array-index-key */
 
 class PatternPreview extends Component {
-	shouldComponentUpdate(nextProps, nextState) {
+	shouldComponentUpdate(nextProps) {
 		const { componentShouldUpdate } = nextProps;
 
 		return componentShouldUpdate;
@@ -212,6 +212,7 @@ class PatternPreview extends Component {
 					<PreviewCell
 						currentRepeat={currentRepeat}
 						numberOfRepeats={numberOfRepeats}
+						numberOfRows={numberOfRows}
 						patternWillRepeat={patternWillRepeat}
 						rowIndex={rowIndex}
 						tabletIndex={tabletIndex}
@@ -369,7 +370,7 @@ PatternPreview.propTypes = {
 	'totalTurnsByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
-function mapStateToProps(state, ownProps) {
+function mapStateToProps(state) {
 	return {
 		'componentShouldUpdate': !getIsEditing(state),
 	};

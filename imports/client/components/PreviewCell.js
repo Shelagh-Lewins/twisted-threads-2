@@ -6,10 +6,11 @@ import PreviewSVG from './PreviewSVG';
 import {
 	getIsEditing,
 	getHoles,
-	getNumberOfRows,
+	//getNumberOfRows,
 	getOrientationForTablet,
 	getPalette,
-	getPicksForTablet,
+	//getPicksForTablet,
+	getPicksForTabletForChart,
 	getThreadingForTablet,
 } from '../modules/pattern';
 
@@ -75,10 +76,11 @@ function mapStateToProps(state, ownProps) {
 	return {
 		'componentShouldUpdate': !getIsEditing(state),
 		'holes': getHoles(state),
-		'numberOfRows': getNumberOfRows(state),
+		//'numberOfRows': getNumberOfRows(state),
 		'orientation': getOrientationForTablet(state, tabletIndex),
 		'palette': getPalette(state),
-		'picksForTablet': getPicksForTablet(state, tabletIndex),
+		'picksForTablet': getPicksForTabletForChart(state, tabletIndex),
+		// 'picksForTablet': getPicksForTablet(state, tabletIndex),
 		'threadingForTablet': getThreadingForTablet(state, tabletIndex),
 	};
 }
