@@ -409,7 +409,7 @@ Meteor.methods({
 		let colorIndex;
 		let fieldName;
 		let fieldValue;
-		let hole;
+		let holesToSet;
 		let isPublic;
 		let insertNRows;
 		let insertRowsAt;
@@ -751,14 +751,20 @@ Meteor.methods({
 				return Patterns.update({ _id }, update);
 
 			case 'editThreadingCell':
-				({ hole, tablet, colorIndex } = data);
+				// broken twill sets two holes at once
+				// other pattern types only set the one the user clicked
+				({ holesToSet, tablet, colorIndex } = data);
 
-				check(hole, Match.Integer);
+				check(holesToSet, [Match.Integer]);
 				check(tablet, validTabletsCheck);
 				check(colorIndex, validPaletteIndexCheck);
 
 				// update the value in the nested arrays
-				return Patterns.update({ _id }, { '$set': { [`threading.${hole}.${tablet}`]: colorIndex } });
+				holesToSet.forEach((holeIndex) => {
+					Patterns.update({ _id }, { '$set': { [`threading.${holeIndex}.${tablet}`]: colorIndex } });
+				});
+
+				return;
 
 			case 'addTablets':
 				({ colorIndex, insertNTablets, insertTabletsAt } = data);
