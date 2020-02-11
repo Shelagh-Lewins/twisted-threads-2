@@ -14,6 +14,7 @@ import {
 	calculatePicksForTablet,
 	findPatternTwist,
 	getThreadingByTablet,
+	getTotalTurnsForTablet,
 	modulus,
 } from './weavingUtils';
 import {
@@ -228,8 +229,13 @@ export const getIsLoading = (state) => state.pattern.isLoading;
 
 export const getPatternId = (state) => state.pattern._id;
 
+export const getPatternType = (state) => state.pattern.patternType;
+
+export const getPatternDesign = (state) => state.pattern.patternDesign;
+
 export const getNumberOfRows = (state) => state.pattern.numberOfRows || 0;
 
+// chart may be truncated for broken twill
 export const getNumberOfRowsForChart = (state) => {
 	const {
 		numberOfRows,
@@ -254,10 +260,29 @@ export const getPalette = (state) => state.pattern.palette;
 
 export const getPicks = (state) => state.pattern.picks;
 
+export const getPicksForChart = (state) => {
+	const {
+		patternDesign,
+		patternType,
+	} = state.pattern;
+
+	const picks = [...state.pattern.picks];
+
+	if (patternType === 'brokenTwill') {
+		for (let i = 0; i < picks.length; i += 1) {
+			picks[i] = [...picks[i]];
+			picks[i].splice(0, patternDesign.weavingStartRow - 1);
+		}
+	}
+
+	return picks;
+};
+
 export const getPick = (state, tabletIndex, rowIndex) => state.pattern.picks[tabletIndex][rowIndex];
 
 export const getPicksForTablet = (state, tabletIndex) => state.pattern.picks[tabletIndex];
 
+// picks may be truncated for broken twill
 export const getPicksForTabletForChart = (state, tabletIndex) => {
 	const {
 		patternDesign,
@@ -304,24 +329,42 @@ export const getPatternTwistSelector = createSelector(
 	getHoles,
 	getNumberOfRows,
 	getNumberOfTablets,
+	getPatternDesign,
+	getPatternType,
 	getPicks,
 	(
 		holes,
 		numberOfRows,
 		numberOfTablets,
+		patternDesign,
+		patternType,
 		picks,
 	) => findPatternTwist({
 		holes,
 		numberOfRows,
 		numberOfTablets,
+		patternDesign,
+		patternType,
 		picks,
 	}),
 );
 
 export const getTotalTurnsByTabletSelector = createSelector(
-	getPicks,
 	getNumberOfRows,
-	(picks, numberOfRows) => picks.map((picksForTablet) => picksForTablet[numberOfRows - 1].totalTurns),
+	getPatternDesign,
+	getPatternType,
+	getPicks,
+	(
+		numberOfRows,
+		patternDesign,
+		patternType,
+		picks,
+	) => picks.map((picksForTablet) => getTotalTurnsForTablet({
+		numberOfRows,
+		patternDesign,
+		patternType,
+		picksForTablet,
+	})),
 );
 
 // ///////////////////////////

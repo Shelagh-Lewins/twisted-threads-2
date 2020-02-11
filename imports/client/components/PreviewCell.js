@@ -6,16 +6,14 @@ import PreviewSVG from './PreviewSVG';
 import {
 	getIsEditing,
 	getHoles,
-	//getNumberOfRows,
 	getOrientationForTablet,
 	getPalette,
-	//getPicksForTablet,
 	getPicksForTabletForChart,
 	getThreadingForTablet,
 } from '../modules/pattern';
 
 class PreviewCell extends Component {
-	shouldComponentUpdate(nextProps, nextState) {
+	shouldComponentUpdate(nextProps) {
 		const { componentShouldUpdate } = nextProps;
 
 		return componentShouldUpdate;
@@ -76,11 +74,9 @@ function mapStateToProps(state, ownProps) {
 	return {
 		'componentShouldUpdate': !getIsEditing(state),
 		'holes': getHoles(state),
-		//'numberOfRows': getNumberOfRows(state),
 		'orientation': getOrientationForTablet(state, tabletIndex),
 		'palette': getPalette(state),
 		'picksForTablet': getPicksForTabletForChart(state, tabletIndex),
-		// 'picksForTablet': getPicksForTablet(state, tabletIndex),
 		'threadingForTablet': getThreadingForTablet(state, tabletIndex),
 	};
 }

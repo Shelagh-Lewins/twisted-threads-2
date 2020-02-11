@@ -34,10 +34,6 @@ export const modulus = (n, m) => ((n % m) + m) % m;
 // provide weaving data to components
 // const getPattern = (pattern) => pattern || {};
 
-//export const getNumberOfRows = (pattern) => pattern.numberOfRows;
-
-//export const getNumberOfTablets = (pattern) => pattern.numberOfTablets;
-
 export const getWeavingInstructionsForTablet = (pattern, tabletIndex) => pattern.weavingInstructionsByTablet[tabletIndex];
 
 // recast threading by tablet, row
@@ -162,10 +158,30 @@ export const getPrevColor = ({
 	return palette[colorIndex];
 };
 
+export const getTotalTurnsForTablet = ({
+	numberOfRows,
+	patternDesign,
+	patternType,
+	picksForTablet,
+}) => {
+	let startTurns = 0;
+
+	if (patternType === 'brokenTwill') {
+		const { weavingStartRow } = patternDesign;
+
+		if (weavingStartRow > 1) {
+			startTurns = picksForTablet[weavingStartRow - 2].totalTurns;
+		}
+	}
+	return picksForTablet[numberOfRows - 1].totalTurns - startTurns;
+};
+
 export const findPatternTwist = ({
 	holes,
 	numberOfRows,
 	numberOfTablets,
+	patternDesign,
+	patternType,
 	picks,
 }) => {
 	let patternWillRepeat = false;
@@ -176,7 +192,24 @@ export const findPatternTwist = ({
 		patternIsTwistNeutral = true;
 
 		for (let j = 0; j < numberOfTablets; j += 1) {
-			const { totalTurns } = picks[j][numberOfRows - 1];
+			const totalTurns = getTotalTurnsForTablet({
+				numberOfRows,
+				patternDesign,
+				patternType,
+				'picksForTablet': picks[j],
+			});
+			/* let startTurns = 0;
+
+			if (patternType === 'brokenTwill') {
+				const { weavingStartRow } = patternDesign;
+
+				if (weavingStartRow > 1) {
+					startTurns = picks[j][weavingStartRow - 2].totalTurns;
+				}
+			}
+
+			const endTurns = picks[j][numberOfRows - 1].totalTurns;
+			const totalTurns = endTurns - startTurns; */
 			const startPosition = modulus(totalTurns, holes) === 0; // tablet is back at start position
 
 			if (totalTurns !== 0) {
