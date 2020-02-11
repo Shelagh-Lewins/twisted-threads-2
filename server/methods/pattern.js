@@ -291,6 +291,7 @@ Meteor.methods({
 			'numberOfTablets': tablets,
 			patternType,
 		} = pattern;
+
 		Object.assign(data, {
 			holes,
 			name,
@@ -300,6 +301,10 @@ Meteor.methods({
 		});
 
 		data.name += ' (copy)';
+
+		if (patternType === 'brokenTwill') {
+			data.twillDirection = pattern.patternDesign.twillDirection;
+		}
 
 		const newPatternId = Meteor.call('pattern.add', data);
 
