@@ -570,7 +570,12 @@ class Pattern extends PureComponent {
 							dispatch={dispatch}
 							pattern={pattern}
 						/>
-						{!previewAtSide && this.renderPreview()}
+						{!previewAtSide && this.renderPreview({
+							_id,
+							canEdit,
+							pattern,
+							previewOrientation,
+						})}
 						<div className="orientation-change-container">
 							<div className="weaving-outer">
 								{pattern.patternDesign && this.renderWeavingInstructions()}

@@ -198,18 +198,7 @@ export const findPatternTwist = ({
 				patternType,
 				'picksForTablet': picks[j],
 			});
-			/* let startTurns = 0;
 
-			if (patternType === 'brokenTwill') {
-				const { weavingStartRow } = patternDesign;
-
-				if (weavingStartRow > 1) {
-					startTurns = picks[j][weavingStartRow - 2].totalTurns;
-				}
-			}
-
-			const endTurns = picks[j][numberOfRows - 1].totalTurns;
-			const totalTurns = endTurns - startTurns; */
 			const startPosition = modulus(totalTurns, holes) === 0; // tablet is back at start position
 
 			if (totalTurns !== 0) {
