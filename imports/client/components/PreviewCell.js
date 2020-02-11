@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import PreviewSVG from './PreviewSVG';
 
 import {
-	getIsEditing,
+	getPreviewShouldUpdate,
 	getHoles,
 	getOrientationForTablet,
 	getPalette,
@@ -72,7 +72,7 @@ function mapStateToProps(state, ownProps) {
 	const { tabletIndex } = ownProps;
 
 	return {
-		'componentShouldUpdate': !getIsEditing(state),
+		'componentShouldUpdate': getPreviewShouldUpdate(state),
 		'holes': getHoles(state),
 		'orientation': getOrientationForTablet(state, tabletIndex),
 		'palette': getPalette(state),

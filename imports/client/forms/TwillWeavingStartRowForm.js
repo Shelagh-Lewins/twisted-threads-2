@@ -61,12 +61,11 @@ const TwillWeavingStartRowForm = (props) => {
 	// note firefox doesn't support the 'label' shorthand in option
 	// https://bugzilla.mozilla.org/show_bug.cgi?id=40545#c11
 	return (
-		<div className="twill-start-row-form">
+		<div className="twill-start-row-form edit-pattern-form">
 			<form onSubmit={formik.handleSubmit}>
 				<div className="form-group">
-					Start weaving from row:
 					<label htmlFor="weavingStartRow">
-						Start weaving from row
+						Start weaving from row:
 						<input
 							className={`form-control ${formik.touched.weavingStartRow && formik.errors.weavingStartRow ? 'is-invalid' : ''
 							}`}

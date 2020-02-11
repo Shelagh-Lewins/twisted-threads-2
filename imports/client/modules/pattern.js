@@ -60,6 +60,7 @@ export const UPDATE_TWILL_CHART = 'UPDATE_TWILL_CHART';
 export const UPDATE_TWILL_WEAVING_START_ROW = 'UPDATE_TWILL_WEAVING_START_ROW';
 
 // more than one patternType
+export const SET_UPDATE_PREVIEW_WHILE_EDITING = 'SET_UPDATE_PREVIEW_WHILE_EDITING';
 export const UPDATE_THREADING_CELL = 'UPDATE_THREADING_CELL';
 export const UPDATE_ORIENTATION = 'UPDATE_ORIENTATION';
 export const UPDATE_PALETTE_COLOR = 'UPDATE_PALETTE_COLOR';
@@ -328,6 +329,8 @@ export const getTotalTurnsByTablet = (state) => state.pattern.picks.map((picksFo
 export const getOrientationForTablet = (state, tabletIndex) => state.pattern.orientations[tabletIndex];
 
 export const getIsEditing = (state) => state.pattern.isEditingWeaving || state.pattern.isEditingThreading;
+
+export const getPreviewShouldUpdate = (state) => (!state.pattern.isEditingWeaving && !state.pattern.isEditingThreading) || state.pattern.updatePreviewWhileEditing;
 
 // ///////////////////////
 // cached selectors to provide props without triggering re-render
@@ -683,6 +686,14 @@ export function removeWeavingRows({
 			removeNRows,
 			removeRowsAt,
 		}));
+	};
+}
+
+// Preview
+export function setUpdatePreviewWhileEditing(data) {
+	return {
+		'type': SET_UPDATE_PREVIEW_WHILE_EDITING,
+		'payload': data,
 	};
 }
 
@@ -1057,6 +1068,7 @@ const initialPatternState = {
 	'patternDesign': undefined,
 	'picks': [],
 	'threadingByTablet': undefined,
+	'updatePreviewWhileEditing': false,
 };
 
 // state updates
@@ -1230,7 +1242,6 @@ export default function pattern(state = initialPatternState, action) {
 
 			const {
 				numberOfRows,
-				// numberOfTablets,
 				patternDesign,
 				weavingInstructionsByTablet,
 			} = state;
@@ -1302,6 +1313,10 @@ export default function pattern(state = initialPatternState, action) {
 
 		case SET_IS_EDITING_THREADING: {
 			return updeep({ 'isEditingThreading': action.payload }, state);
+		}
+
+		case SET_UPDATE_PREVIEW_WHILE_EDITING: {
+			return updeep({ 'updatePreviewWhileEditing': action.payload }, state);
 		}
 
 		case UPDATE_THREADING_CELL: {

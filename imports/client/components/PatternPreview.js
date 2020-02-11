@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import PreviewCell from './PreviewCell';
 import {
-	getIsEditing,
+	getPreviewShouldUpdate,
 } from '../modules/pattern';
 import { getNumberOfRepeats, modulus } from '../modules/weavingUtils';
 import { PathWeft } from '../modules/previewPaths';
@@ -372,7 +372,8 @@ PatternPreview.propTypes = {
 
 function mapStateToProps(state) {
 	return {
-		'componentShouldUpdate': !getIsEditing(state),
+		'componentShouldUpdate': getPreviewShouldUpdate(state)
+		,
 	};
 }
 

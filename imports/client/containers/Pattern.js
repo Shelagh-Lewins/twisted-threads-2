@@ -24,6 +24,7 @@ import {
 	getPatternTwistSelector,
 	getTotalTurnsByTabletSelector,
 	savePatternData,
+	setUpdatePreviewWhileEditing,
 } from '../modules/pattern';
 import { editPatternImageCaption, removePatternImage } from '../modules/patternImages';
 import AppContext from '../modules/appContext';
@@ -69,6 +70,7 @@ class Pattern extends PureComponent {
 			'onClickPatternImageThumbnail',
 			'onRemovePatternImage',
 			'onToggleImageUploader',
+			'handleChangeUpdatePreviewWhileEditing',
 		];
 
 		functionsToBind.forEach((functionName) => {
@@ -166,6 +168,13 @@ class Pattern extends PureComponent {
 		this.setState({
 			'showImageUploader': !showImageUploader,
 		});
+	}
+
+	handleChangeUpdatePreviewWhileEditing(event) {
+		const { dispatch } = this.props;
+		console.log('changed', event.target.checked);
+
+		dispatch(setUpdatePreviewWhileEditing(event.target.checked));
 	}
 
 	// title and any other elements above tabs
@@ -431,6 +440,27 @@ class Pattern extends PureComponent {
 		return weavingInstructions;
 	}
 
+	renderUpdatePreviewControl() {
+		const { updatePreviewWhileEditing } = this.props;
+
+		return (
+			<div className="update-preview-control">
+				<label htmlFor="updatePreviewControl">
+					<input
+						checked={updatePreviewWhileEditing}
+						id="updatePreviewControl"
+						name="updatePreviewControl"
+						type="checkbox"
+						onChange={this.handleChangeUpdatePreviewWhileEditing}
+						onBlur={this.handleChangeUpdatePreviewWhileEditing}
+
+					/>
+					Update woven band while editing
+				</label>
+			</div>
+		);
+	}
+
 	renderPreview({
 		_id,
 		canEdit,
@@ -487,13 +517,11 @@ class Pattern extends PureComponent {
 			holes,
 			isEditing,
 			numberOfRows,
-			//numberOfRowsForChart,
 			numberOfTablets,
 			palette,
 			patternIsTwistNeutral,
 			patternWillRepeat,
 			tab,
-			totalTurnsByTablet,
 		} = this.props;
 
 		const {
@@ -570,6 +598,7 @@ class Pattern extends PureComponent {
 							dispatch={dispatch}
 							pattern={pattern}
 						/>
+						{this.renderUpdatePreviewControl()}
 						{!previewAtSide && this.renderPreview({
 							_id,
 							canEdit,
@@ -753,6 +782,7 @@ Pattern.propTypes = {
 	'patternWillRepeat': PropTypes.bool.isRequired,
 	'tab': PropTypes.string.isRequired,
 	'totalTurnsByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'updatePreviewWhileEditing': PropTypes.bool.isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
@@ -775,6 +805,7 @@ function mapStateToProps(state, ownProps) {
 		'patternWillRepeat': patternWillRepeat,
 		'tab': ownProps.match.params.tab || 'design',
 		'totalTurnsByTablet': getTotalTurnsByTabletSelector(state),
+		'updatePreviewWhileEditing': state.pattern.updatePreviewWhileEditing,
 	};
 }
 
