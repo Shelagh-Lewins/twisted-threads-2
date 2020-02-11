@@ -736,11 +736,11 @@ export function editThreadingCell({
 			const originalHole = modulus(hole - tabletOffset, holes);
 
 			// find the role of the clicked cell F / B
-			const colorRole = BROKEN_TWILL_THREADING[originalHole][tablet];
+			const colorRole = BROKEN_TWILL_THREADING[originalHole][tablet % holes];
 			// set the new colour for both affected cells in that tablet
 
 			for (let i = 0; i < holes; i += 1) {
-				if (BROKEN_TWILL_THREADING[i][tablet] === colorRole) {
+				if (BROKEN_TWILL_THREADING[i][tablet % holes] === colorRole) {
 					holesToSet.push(i);
 					newThreadingForTablet[i] = colorIndex;
 				}
