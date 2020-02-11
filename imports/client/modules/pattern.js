@@ -298,6 +298,12 @@ export const getPicksForTabletForChart = (state, tabletIndex) => {
 	return picksForTablet;
 };
 
+export const getPickForChart = (state, tabletIndex, rowIndex) => {
+	const picksForTablet = getPicksForTabletForChart(state, tabletIndex);
+	return picksForTablet[rowIndex]
+	//state.pattern.picks[tabletIndex][rowIndex];
+};
+
 export const getThreadingForTablet = (state, tabletIndex) => state.pattern.threadingByTablet[tabletIndex];
 
 // used for the threading chart

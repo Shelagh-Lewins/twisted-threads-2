@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import PageWrapper from '../components/PageWrapper';
 import {
 	getIsLoading,
-	getNumberOfRows,
+	getNumberOfRowsForChart,
 	getNumberOfTablets,
 } from '../modules/pattern';
 import { addRecentPattern } from '../modules/auth';
@@ -232,7 +232,7 @@ function mapStateToProps(state) {
 	return {
 		'errors': state.errors,
 		'isLoading': getIsLoading(state),
-		'numberOfRows': getNumberOfRows(state),
+		'numberOfRows': getNumberOfRowsForChart(state),
 		'numberOfTablets': getNumberOfTablets(state),
 	};
 }
