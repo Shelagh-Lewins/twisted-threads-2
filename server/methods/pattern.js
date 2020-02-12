@@ -172,13 +172,9 @@ Meteor.methods({
 				const weavingChart = new Array(rows); // construct an empty array to hold the chart cells
 				for (let i = 0; i < rows; i += 1) {
 					weavingChart[i] = new Array(tablets);
-				}
 
-				for (let i = 0; i < tablets; i += 1) {
-					weavingChart[i] = [];
-
-					for (let j = 0; j < rows; j += 1) {
-						weavingChart[j][i] = {
+					for (let j = 0; j < tablets; j += 1) {
+						weavingChart[i][j] = {
 							'direction': DEFAULT_DIRECTION,
 							'threadColor': DEFAULT_COLOR,
 							'threadShape': DEFAULT_THREAD_SHAPE,

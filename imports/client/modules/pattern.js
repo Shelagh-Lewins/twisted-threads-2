@@ -1399,21 +1399,26 @@ export default function pattern(state = initialPatternState, action) {
 
 		case UPDATE_ORIENTATION: {
 			const { tablet, tabletOrientation } = action.payload;
-			const { weavingInstructionsByTablet } = state;
+			const { patternType, weavingInstructionsByTablet } = state;
 
-			// to calculate new picks for this tablet
-			const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tablet]];
-
-			const picksForTablet = calculatePicksForTablet({
-				'currentPicks': state.picks[tablet],
-				weavingInstructionsForTablet,
-				'row': 0,
-			});
-
-			return updeep({
+			const update = {
 				'orientations': { [tablet]: tabletOrientation },
-				'picks': { [tablet]: picksForTablet },
-			}, state);
+			};
+
+			if (patternType !== 'freehand') { // freehand doesn't calculate picks
+				// to calculate new picks for this tablet
+				const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tablet]];
+
+				const picksForTablet = calculatePicksForTablet({
+					'currentPicks': state.picks[tablet],
+					weavingInstructionsForTablet,
+					'row': 0,
+				});
+
+				update.picks = { [tablet]: picksForTablet };
+			}
+
+			return updeep(update, state);
 		}
 
 		case UPDATE_PALETTE_COLOR: {

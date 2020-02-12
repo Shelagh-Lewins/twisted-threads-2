@@ -91,62 +91,6 @@ SVGPaletteEmpty.propTypes = {
 
 // /////////////////////////
 // Weaving chart only
-export function SVGVerticalLeftWarp(props) {
-	const { fill, stroke } = props;
-
-	return (
-		<svg
-			className="v-left-warp"
-			viewBox="0 0 256 256"
-			style={{ 'fill': fill, 'stroke': stroke }}
-		>
-			<g><ellipse rx="116.44" ry="70.643" transform="matrix(0,-1,-1,0,0,0)" cy="-82.313" cx="-127.41" strokeWidth="9.0518" /></g>
-		</svg>
-	);
-}
-
-SVGVerticalLeftWarp.propTypes = {
-	'fill': PropTypes.string.isRequired,
-	'stroke': PropTypes.string.isRequired,
-};
-
-export function SVGVerticalCenterWarp(props) {
-	const { fill, stroke } = props;
-
-	return (
-		<svg
-			className="v-center-warp"
-			viewBox="0 0 256 256"
-			style={{ 'fill': fill, 'stroke': stroke }}
-		>
-			<g><ellipse rx="116.44" ry="70.643" transform="matrix(0,-1,-1,0,0,0)" cy="-126.31" cx="-127.41" strokeWidth="9.0518" /></g>
-		</svg>
-	);
-}
-
-SVGVerticalCenterWarp.propTypes = {
-	'fill': PropTypes.string.isRequired,
-	'stroke': PropTypes.string.isRequired,
-};
-
-export function SVGVerticalRightWarp(props) {
-	const { fill, stroke } = props;
-
-	return (
-		<svg
-			className="v-center-warp"
-			viewBox="0 0 256 256"
-			style={{ 'fill': fill, 'stroke': stroke }}
-		>
-			<g><ellipse rx="116.44" ry="70.643" transform="matrix(0,-1,-1,0,0,0)" cy="-174.31" cx="-127.41" strokeWidth="9.0518" /></g>
-		</svg>
-	);
-}
-
-SVGVerticalRightWarp.propTypes = {
-	'fill': PropTypes.string.isRequired,
-	'stroke': PropTypes.string.isRequired,
-};
 
 // ///////////////////////////
 // 0, 2, 3 turns
@@ -246,4 +190,84 @@ SVGBackwardWarp3.propTypes = {
 	'fill': PropTypes.string.isRequired,
 	'stroke1': PropTypes.string.isRequired,
 	'stroke2': PropTypes.string.isRequired,
+};
+
+// ///////////////////////////////////
+// Freehand chart only
+export function SVGVerticalLeftWarp(props) {
+	const { fill, stroke } = props;
+
+	return (
+		<svg
+			className="v-left-warp"
+			viewBox="0 0 256 256"
+			style={{ 'fill': fill, 'stroke': stroke }}
+		>
+			<g><ellipse rx="116.44" ry="70.643" transform="matrix(0,-1,-1,0,0,0)" cy="-82.313" cx="-127.41" strokeWidth="9.0518" /></g>
+		</svg>
+	);
+}
+
+SVGVerticalLeftWarp.propTypes = {
+	'fill': PropTypes.string.isRequired,
+	'stroke': PropTypes.string.isRequired,
+};
+
+export function SVGVerticalCenterWarp(props) {
+	const { fill, stroke } = props;
+
+	return (
+		<svg
+			className="v-center-warp"
+			viewBox="0 0 256 256"
+			style={{ 'fill': fill, 'stroke': stroke }}
+		>
+			<g><ellipse rx="116.44" ry="70.643" transform="matrix(0,-1,-1,0,0,0)" cy="-126.31" cx="-127.41" strokeWidth="9.0518" /></g>
+		</svg>
+	);
+}
+
+SVGVerticalCenterWarp.propTypes = {
+	'fill': PropTypes.string.isRequired,
+	'stroke': PropTypes.string.isRequired,
+};
+
+//
+export function SVGVerticalRightWarp(props) {
+	const { fill, stroke } = props;
+
+	return (
+		<svg
+			className="v-center-warp"
+			viewBox="0 0 256 256"
+			style={{ 'fill': fill, 'stroke': stroke }}
+		>
+			<g><ellipse rx="116.44" ry="70.643" transform="matrix(0,-1,-1,0,0,0)" cy="-174.31" cx="-127.41" strokeWidth="9.0518" /></g>
+		</svg>
+	);
+}
+
+SVGVerticalRightWarp.propTypes = {
+	'fill': PropTypes.string.isRequired,
+	'stroke': PropTypes.string.isRequired,
+};
+
+//
+export function SVGBlock(props) {
+	const { fill, stroke } = props;
+
+	return (
+		<svg
+			className="block"
+			viewBox="0 0 256 256"
+			style={{ 'fill': fill, 'stroke': stroke }}
+		>
+			<g><rect x="10" y="10" width="30" height="30" stroke="black" fill="transparent" strokeWidth="9.0518" /></g>
+		</svg>
+	);
+}
+
+SVGBlock.propTypes = {
+	'fill': PropTypes.string.isRequired,
+	'stroke': PropTypes.string.isRequired,
 };
