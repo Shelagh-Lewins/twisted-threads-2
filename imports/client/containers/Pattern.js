@@ -34,6 +34,7 @@ import Loading from '../components/Loading';
 import WeavingDesignIndividual from '../components/WeavingDesignIndividual';
 import WeavingDesignAllTogether from '../components/WeavingDesignAllTogether';
 import WeavingDesignBrokenTwill from '../components/WeavingDesignBrokenTwill';
+import WeavingDesignFreehand from '../components/WeavingDesignFreehand';
 import Weft from '../components/Weft';
 import PatternPreview from '../components/PatternPreview';
 import Threading from '../components/Threading';
@@ -433,6 +434,20 @@ class Pattern extends PureComponent {
 				);
 				break;
 
+			case 'freehand':
+				weavingInstructions = (
+					<>
+						<h2>Weaving design</h2>
+						<WeavingDesignFreehand
+							dispatch={dispatch}
+							numberOfRows={numberOfRows}
+							numberOfTablets={numberOfTablets}
+							pattern={pattern}
+						/>
+					</>
+				);
+				break;
+
 			default:
 				break;
 		}
@@ -475,6 +490,12 @@ class Pattern extends PureComponent {
 			patternWillRepeat,
 			totalTurnsByTablet,
 		} = this.props;
+
+//TODO fix preview to work for freehand
+console.log('*** patternType', pattern.patternType);
+		if (pattern.patternType === 'freehand') {
+			return;
+		}
 
 		return (
 			<div className="preview-outer">
@@ -777,15 +798,26 @@ Pattern.propTypes = {
 	'numberOfRowsForChart': PropTypes.number.isRequired,
 	'numberOfTablets': PropTypes.number.isRequired,
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'patternIsTwistNeutral': PropTypes.bool.isRequired,
-	'patternWillRepeat': PropTypes.bool.isRequired,
+	'patternIsTwistNeutral': PropTypes.bool,
+	'patternWillRepeat': PropTypes.bool,
 	'tab': PropTypes.string.isRequired,
 	'totalTurnsByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'updatePreviewWhileEditing': PropTypes.bool.isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
-	const { patternIsTwistNeutral, patternWillRepeat } = getPatternTwistSelector(state);
+	const { patternType } = state.pattern;
+
+	// defaults for freehand pattern
+	let patternIsTwistNeutral = false;
+	let patternWillRepeat = false;
+	let totalTurnsByTablet = [];
+
+	if (patternType !== 'freehand') { // all simulation patterns
+		({ patternIsTwistNeutral, patternWillRepeat } = getPatternTwistSelector(state));
+
+		totalTurnsByTablet = getTotalTurnsByTabletSelector(state);
+	}
 
 	// pattern chart info like numberOfRows must be got from store or it may not be correct
 	return {
@@ -803,7 +835,7 @@ function mapStateToProps(state, ownProps) {
 		'patternIsTwistNeutral': patternIsTwistNeutral,
 		'patternWillRepeat': patternWillRepeat,
 		'tab': ownProps.match.params.tab || 'design',
-		'totalTurnsByTablet': getTotalTurnsByTabletSelector(state),
+		totalTurnsByTablet,
 		'updatePreviewWhileEditing': state.pattern.updatePreviewWhileEditing,
 	};
 }

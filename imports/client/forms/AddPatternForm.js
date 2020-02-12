@@ -141,6 +141,10 @@ const AddPatternForm = (props) => {
 			typeHint = 'Weave a double-faced band in two colours, using offset floats to create a diagonal texture.';
 			break;
 
+		case 'freehand':
+			typeHint = 'Draw the weaving chart freehand; errors will not be corrected. Ideal for brocade and warp pickup patterns.';
+			break;
+
 		default:
 			break;
 	}

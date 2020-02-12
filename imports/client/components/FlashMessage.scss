@@ -4,6 +4,8 @@
 	background: $color-flash-background;
 	border-radius: 8px;
 	padding: 8px;
+	position: relative;
+	z-index: 20;
 
 	&.error {
 		border: 1px solid $color-invalid;

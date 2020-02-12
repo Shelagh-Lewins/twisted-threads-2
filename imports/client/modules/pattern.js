@@ -203,6 +203,7 @@ export const savePatternData = (patternObj) => (dispatch) => {
 		numberOfRows,
 		numberOfTablets,
 		patternDesign,
+		patternType,
 	} = patternObj;
 	const weavingInstructionsByTablet = buiildWeavingInstructionsByTablet(patternObj);
 
@@ -210,11 +211,25 @@ export const savePatternData = (patternObj) => (dispatch) => {
 
 	const threadingByTablet = getThreadingByTablet(patternObj);
 
-	const picks = calculateAllPicks({
-		numberOfRows,
-		numberOfTablets,
-		weavingInstructionsByTablet,
-	});
+	let picks;
+
+	switch (patternType) {
+		// all simulation patterns
+		case 'individual':
+		case 'allTogether':
+		case 'brokenTwill': {
+			picks = calculateAllPicks({
+				numberOfRows,
+				numberOfTablets,
+				weavingInstructionsByTablet,
+			});
+
+			break;
+		}
+
+		default:
+			break;
+	}
 
 	dispatch(setPatternData({
 		picks,
@@ -301,8 +316,7 @@ export const getPicksForTabletForChart = (state, tabletIndex) => {
 
 export const getPickForChart = (state, tabletIndex, rowIndex) => {
 	const picksForTablet = getPicksForTabletForChart(state, tabletIndex);
-	return picksForTablet[rowIndex]
-	//state.pattern.picks[tabletIndex][rowIndex];
+	return picksForTablet[rowIndex];
 };
 
 export const getThreadingForTablet = (state, tabletIndex) => state.pattern.threadingByTablet[tabletIndex];
@@ -1111,6 +1125,52 @@ export default function pattern(state = initialPatternState, action) {
 				threadingByTablet,
 			} = action.payload;
 
+			const update = {
+				holes,
+				numberOfRows,
+				numberOfTablets,
+				orientations,
+				palette,
+				'patternDataReady': true,
+				patternDesign,
+				patternType,
+				picks,
+				threadingByTablet,
+			};
+
+			switch (patternType) {
+				case 'individual':
+					update.picks = picks;
+					break;
+
+				case 'allTogether':
+					update.picks = picks;
+					break;
+
+				case 'brokenTwill': {
+					// offset threading chart
+				const { weavingStartRow } = patternDesign;
+				const offsetThreadingByTablets = buildTwillOffsetThreading({
+					holes,
+					numberOfTablets,
+					picks,
+					threadingByTablet,
+					weavingStartRow,
+				});
+
+				patternDesign.offsetThreadingByTablets = offsetThreadingByTablets;
+
+					break;
+				}
+
+				case 'allTogether':
+					update.picks = picks;
+					break;
+
+				default:
+					break;
+			}
+
 			if (patternType === 'brokenTwill') {
 				// offset threading chart
 				const { weavingStartRow } = patternDesign;
@@ -1125,18 +1185,7 @@ export default function pattern(state = initialPatternState, action) {
 				patternDesign.offsetThreadingByTablets = offsetThreadingByTablets;
 			}
 
-			return updeep({
-				holes,
-				numberOfRows,
-				numberOfTablets,
-				orientations,
-				palette,
-				'patternDataReady': true,
-				patternDesign,
-				patternType,
-				picks,
-				threadingByTablet,
-			}, state);
+			return updeep(update, state);
 		}
 
 		case UPDATE_WEAVING_CELL_TURNS: {

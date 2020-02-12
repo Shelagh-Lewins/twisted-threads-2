@@ -44,7 +44,14 @@ export const ALLOWED_PATTERN_TYPES = [
 		'previewOrientation': 'up',
 
 	},
-	// TODO build and add freehand
+	{ // threading is standard, but the weaving chart is hand drawn
+		// and can have errors
+		// best for warp pickup patterns and brocade
+		'name': 'freehand',
+		'displayName': 'Freehand',
+		'previewOrientation': 'right',
+
+	},
 ];
 export const findPatternTypeDisplayName = (patternType) => ALLOWED_PATTERN_TYPES.find((type) => type.name === patternType).displayName;
 
@@ -66,6 +73,7 @@ export const ALLOWED_DIRECTIONS = [
 		'value': 'B',
 	},
 ];
+export const DEFAULT_THREAD_SHAPE = 'forwardWarp'; // default shape for freehand patterns
 
 // defaults for 3/1 broken twill
 export const DEFAULT_TWILL_DIRECTION = 'S';

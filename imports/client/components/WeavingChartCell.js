@@ -7,7 +7,6 @@ import {
 	getHoles,
 	getOrientationForTablet,
 	getPalette,
-	getPick,
 	getPickForChart,
 	getThreadingForTablet,
 } from '../modules/pattern';

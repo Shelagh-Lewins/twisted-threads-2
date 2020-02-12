@@ -27,6 +27,7 @@ import {
 	DEFAULT_NUMBER_OF_TURNS,
 	DEFAULT_ORIENTATION,
 	DEFAULT_PALETTE,
+	DEFAULT_THREAD_SHAPE,
 	DEFAULT_WEFT_COLOR,
 	MAX_ROWS,
 	MAX_TABLETS,
@@ -165,6 +166,29 @@ Meteor.methods({
 				tags.push('3/1 broken twill');
 				break;
 
+			case 'freehand':
+				// standard threading diagram
+				// draw the weaving chart freehand
+				const weavingChart = new Array(rows); // construct an empty array to hold the chart cells
+				for (let i = 0; i < rows; i += 1) {
+					weavingChart[i] = new Array(tablets);
+				}
+
+				for (let i = 0; i < tablets; i += 1) {
+					weavingChart[i] = [];
+
+					for (let j = 0; j < rows; j += 1) {
+						weavingChart[j][i] = {
+							'direction': DEFAULT_DIRECTION,
+							'threadColor': DEFAULT_COLOR,
+							'threadShape': DEFAULT_THREAD_SHAPE,
+						};
+					}
+				}
+
+				patternDesign = { weavingChart };
+				tags.push('freehand');
+				break;
 
 			default:
 				break;
