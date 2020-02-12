@@ -122,6 +122,12 @@
 		],
 		"react/jsx-boolean-value": [
 			"off"
-		]
+		],
+		"jsx-a11y/label-has-associated-control": [
+			1,
+      {
+      	"assert": "either"
+      }
+    ]
 	}
 }

@@ -444,19 +444,17 @@ class Pattern extends PureComponent {
 		const { updatePreviewWhileEditing } = this.props;
 
 		return (
-			<div className="update-preview-control">
-				<label htmlFor="updatePreviewControl">
-					<input
-						checked={updatePreviewWhileEditing}
-						id="updatePreviewControl"
-						name="updatePreviewControl"
-						type="checkbox"
-						onChange={this.handleChangeUpdatePreviewWhileEditing}
-						onBlur={this.handleChangeUpdatePreviewWhileEditing}
-
-					/>
-					Update woven band while editing
-				</label>
+			<div className="update-preview-control custom-checkbox custom-control">
+				<input
+					checked={updatePreviewWhileEditing}
+					type="checkbox"
+					id="updatePreviewControl"
+					className="custom-control-input"
+					name="updatePreviewControl"
+					onChange={this.handleChangeUpdatePreviewWhileEditing}
+					onBlur={this.handleChangeUpdatePreviewWhileEditing}
+				/>
+				<label className="custom-control-label" htmlFor="updatePreviewControl">Update woven band while editing</label>
 			</div>
 		);
 	}
@@ -522,6 +520,7 @@ class Pattern extends PureComponent {
 			patternIsTwistNeutral,
 			patternWillRepeat,
 			tab,
+			updatePreviewWhileEditing,
 		} = this.props;
 
 		const {
@@ -588,7 +587,7 @@ class Pattern extends PureComponent {
 				}
 
 				tabContent = (
-					<div className={`tab-content ${isEditing ? 'is-editing' : ''} ${previewClassName}`}>
+					<div className={`tab-content ${(isEditing && !updatePreviewWhileEditing) ? 'is-editing' : ''} ${previewClassName}`}>
 						{repeatText}
 						{twistNeutralText}
 						<Weft
