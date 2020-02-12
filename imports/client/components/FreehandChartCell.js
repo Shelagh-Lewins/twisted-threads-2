@@ -4,35 +4,19 @@ import PropTypes from 'prop-types';
 import FreehandSVG from './FreehandSVG';
 
 import {
-	//getHoles,
-	//getOrientationForTablet,
 	getPalette,
 	getPatternDesign,
-	//getPickForChart,
-	//getThreadingForTablet,
 } from '../modules/pattern';
-//import {
-	//modulus,
-//} from '../modules/weavingUtils';
 
 function FreehandChartCell(props) {
 	const {
-		//direction,
-		//holes,
-		//numberOfTurns,
-		//orientation,
 		chartCell,
 		palette,
-		//tabletIndex,
-		//threadingForTablet,
-		//totalTurns,
 	} = props;
 
 	const { direction } = chartCell;
 
-	//const netTurns = modulus(totalTurns, holes);
-
-	// if not idle, show direction
+	// show direction
 	let directionClass = '';
 
 	if (direction === 'F') {
