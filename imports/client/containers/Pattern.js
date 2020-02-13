@@ -19,6 +19,7 @@ import {
 	getNumberOfRows,
 	getNumberOfRowsForChart,
 	getNumberOfTablets,
+	getPatternDesign,
 	getPatternTwistSelector,
 	getTotalTurnsByTabletSelector,
 	savePatternData,
@@ -383,6 +384,7 @@ class Pattern extends PureComponent {
 			dispatch,
 			numberOfRows,
 			numberOfTablets,
+			patternDesign,
 		} = this.props;
 		const {
 			patternType,
@@ -442,6 +444,7 @@ class Pattern extends PureComponent {
 							numberOfRows={numberOfRows}
 							numberOfTablets={numberOfTablets}
 							pattern={pattern}
+							patternDesign={patternDesign}
 						/>
 					</>
 				);
@@ -783,6 +786,7 @@ Pattern.propTypes = {
 	'numberOfRows': PropTypes.number.isRequired,
 	'numberOfRowsForChart': PropTypes.number.isRequired,
 	'numberOfTablets': PropTypes.number.isRequired,
+	'patternDesign': PropTypes.objectOf(PropTypes.any).isRequired,
 	'patternIsTwistNeutral': PropTypes.bool,
 	'patternWillRepeat': PropTypes.bool,
 	'tab': PropTypes.string.isRequired,
@@ -814,6 +818,7 @@ function mapStateToProps(state, ownProps) {
 		'numberOfRows': getNumberOfRows(state),
 		'numberOfRowsForChart': getNumberOfRowsForChart(state),
 		'numberOfTablets': getNumberOfTablets(state),
+		'patternDesign': getPatternDesign(state),
 		'patternIsTwistNeutral': patternIsTwistNeutral,
 		'patternWillRepeat': patternWillRepeat,
 		'tab': ownProps.match.params.tab || 'design',

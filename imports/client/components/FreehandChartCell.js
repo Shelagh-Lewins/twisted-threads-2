@@ -5,7 +5,6 @@ import FreehandSVG from './FreehandSVG';
 
 import {
 	getPalette,
-	getPatternDesign,
 } from '../modules/pattern';
 
 function FreehandChartCell(props) {
@@ -42,11 +41,8 @@ FreehandChartCell.propTypes = {
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
-function mapStateToProps(state, ownProps) {
-	const { tabletIndex, rowIndex } = ownProps;
-
+function mapStateToProps(state) {
 	return {
-		'chartCell': getPatternDesign(state, rowIndex, tabletIndex).weavingChart[rowIndex][tabletIndex],
 		'palette': getPalette(state),
 	};
 }

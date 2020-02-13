@@ -21,6 +21,9 @@ import {
 
 const getSVGComponent = (name) => {
 	switch (name) {
+		case 'idle':
+			return SVGIdle;
+
 		case 'backwardEmpty':
 			return SVGBackwardEmpty;
 
@@ -44,9 +47,6 @@ const getSVGComponent = (name) => {
 
 		case 'forwardWarp3':
 			return SVGForwardWarp3;
-
-		case 'idle':
-			return SVGIdle;
 
 		case 'verticalLeftWarp':
 			return SVGVerticalLeftWarp;

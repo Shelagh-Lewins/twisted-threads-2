@@ -30,7 +30,7 @@ export default function FreehandSVG(props) {
 			);
 			break;
 
-		case 'SVGForwardEmpty':
+		case 'forwardEmpty':
 			svg = (
 				<Svgname />
 			);

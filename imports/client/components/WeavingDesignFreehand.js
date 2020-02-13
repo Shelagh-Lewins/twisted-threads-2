@@ -10,6 +10,7 @@ import calculateScrolling from '../modules/calculateScrolling';
 import FreehandChartCell from './FreehandChartCell';
 import AddRowsForm from '../forms/AddRowsForm';
 import Palette from './Palette';
+import FreehandThreads from './FreehandThreads';
 import { DEFAULT_PALETTE_COLOR } from '../../modules/parameters';
 import './Threading.scss';
 import './WeavingDesignFreehand.scss';
@@ -43,6 +44,7 @@ class WeavingDesignFreehand extends PureComponent {
 			'handleClickRemoveRow',
 			'handleSubmitAddRows',
 			'selectColor',
+			'selectThread',
 			'toggleEditWeaving',
 		];
 
@@ -75,6 +77,10 @@ class WeavingDesignFreehand extends PureComponent {
 
 	selectColor(index) {
 		console.log('select color', index);
+	}
+
+	selectThread(thread) {
+		console.log('select thread', thread);
 	}
 
 	handleClickChartCell(rowIndex, tabletIndex) {
@@ -177,6 +183,7 @@ class WeavingDesignFreehand extends PureComponent {
 	}
 
 	renderCell(rowIndex, tabletIndex) {
+		const { patternDesign } = this.props;
 		const { isEditing } = this.state;
 
 		return (
@@ -192,8 +199,7 @@ class WeavingDesignFreehand extends PureComponent {
 					tabIndex={isEditing ? '0' : undefined}
 				>
 					<FreehandChartCell
-						rowIndex={rowIndex}
-						tabletIndex={tabletIndex}
+						chartCell={patternDesign.weavingChart[rowIndex][tabletIndex]}
 					/>
 				</span>
 			</li>
@@ -336,6 +342,9 @@ class WeavingDesignFreehand extends PureComponent {
 		if (editMode === 'thread') {
 			content = (
 				<>
+					<FreehandThreads
+						selectThread={this.selectThread}
+					/>
 					<Palette
 						_id={_id}
 						colorBooks={colorBooks}
@@ -377,7 +386,7 @@ class WeavingDesignFreehand extends PureComponent {
 		const canEdit = createdBy === Meteor.userId();
 
 		return (
-			<div className={`weaving ${isEditing ? 'editing' : ''}`}>
+			<div className={`weaving weaving-freehand ${isEditing ? 'editing' : ''}`}>
 				{canEdit && this.renderControls()}
 				<div
 					className="content"
@@ -398,6 +407,7 @@ WeavingDesignFreehand.propTypes = {
 	'numberOfRows': PropTypes.number.isRequired,
 	'numberOfTablets': PropTypes.number.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
+	'patternDesign': PropTypes.objectOf(PropTypes.any).isRequired,
 };
 
 export default WeavingDesignFreehand;

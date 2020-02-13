@@ -201,7 +201,6 @@ class Palette extends PureComponent {
 					className={`empty-hole ${selectedColorIndex === -1 ? 'selected' : ''}`}
 					id="empty-hole"
 					name="empty-hole"
-
 					onClick={() => this.handleClickEmptyHole()}
 					onKeyPress={() => this.handleClickEmptyHole()}
 					role="button"

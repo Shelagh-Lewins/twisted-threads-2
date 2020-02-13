@@ -28,3 +28,13 @@
 		}
 	}
 }
+
+.weaving-freehand {
+	label {
+		margin-bottom: 0;
+
+		&[for="empty-hole"] {
+			display: none;
+		}
+	}
+}

@@ -247,7 +247,7 @@ export const getPatternId = (state) => state.pattern._id;
 
 export const getPatternType = (state) => state.pattern.patternType;
 
-export const getPatternDesign = (state) => state.pattern.patternDesign;
+export const getPatternDesign = (state) => state.pattern.patternDesign || {};
 
 export const getNumberOfRows = (state) => state.pattern.numberOfRows || 0;
 
