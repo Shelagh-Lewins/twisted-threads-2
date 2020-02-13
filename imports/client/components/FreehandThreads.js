@@ -15,6 +15,8 @@ function FreehandThreads(props) {
 	const {
 		palette,
 		selectThread,
+		selectedThread,
+		threadColorIndex,
 	} = props;
 
 	const svgNames = [
@@ -36,12 +38,13 @@ function FreehandThreads(props) {
 	const renderThreads = () => svgNames.map((svgName) => {
 		const chartCell = {
 			'direction': DEFAULT_DIRECTION,
-			'threadColor': 0,
+			'threadColor': threadColorIndex,
 			'threadShape': svgName,
 		};
 
 		return (
 			<li
+				className={selectedThread === svgName ? 'selected' : ''}
 				key={`freehand-thread-${svgName}`}
 				onClick={() => selectThread(svgName)}
 				onKeyPress={() => selectThread(svgName)}
@@ -67,7 +70,9 @@ function FreehandThreads(props) {
 
 FreehandThreads.propTypes = {
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'threadColorIndex': PropTypes.number.isRequired,
 	'selectThread': PropTypes.func.isRequired,
+	'selectedThread': PropTypes.string.isRequired,
 };
 
 function mapStateToProps(state) {

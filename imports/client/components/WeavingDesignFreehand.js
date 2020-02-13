@@ -5,6 +5,8 @@ import {
 	addWeavingRows,
 	removeWeavingRows,
 	setIsEditingWeaving,
+	updateFreehandCellDirection,
+	editFreehandCellThread,
 } from '../modules/pattern';
 import calculateScrolling from '../modules/calculateScrolling';
 import FreehandChartCell from './FreehandChartCell';
@@ -35,6 +37,7 @@ class WeavingDesignFreehand extends PureComponent {
 			'editMode': 'thread',
 			'isEditing': false,
 			'selectedColorIndex': DEFAULT_PALETTE_COLOR,
+			'selectedThread': 'forwardWarp',
 		};
 
 		// bind onClick functions to provide context
@@ -76,16 +79,25 @@ class WeavingDesignFreehand extends PureComponent {
 	}
 
 	selectColor(index) {
-		console.log('select color', index);
+		this.setState({
+			'selectedColorIndex': index,
+		});
 	}
 
 	selectThread(thread) {
-		console.log('select thread', thread);
+		this.setState({
+			'selectedThread': thread,
+		});
 	}
 
 	handleClickChartCell(rowIndex, tabletIndex) {
 		const { dispatch, 'pattern': { _id } } = this.props;
-		const { isEditing, editMode } = this.state;
+		const {
+			isEditing,
+			editMode,
+			selectedColorIndex,
+			selectedThread,
+		} = this.state;
 
 		if (!isEditing) {
 			return;
@@ -93,19 +105,20 @@ class WeavingDesignFreehand extends PureComponent {
 
 		if (editMode === 'thread') {
 			console.log('edit thread');
-			/* dispatch(editFreehandThread({
+			dispatch(editFreehandCellThread({
 				_id,
 				'row': rowIndex,
 				'tablet': tabletIndex,
-			})); */
+				'threadColor': selectedColorIndex,
+				'threadShape': selectedThread,
+			}));
 		} else if (editMode === 'background') {
 			console.log('edit background');
-			/* dispatch(editFreehandBackground({
+			dispatch(updateFreehandCellDirection({
 				_id,
 				'row': rowIndex,
 				'tablet': tabletIndex,
-				'numberOfTurns': parseInt(numberOfTurns, 10),
-			})); */
+			}));
 		}
 	}
 
@@ -184,7 +197,7 @@ class WeavingDesignFreehand extends PureComponent {
 
 	renderCell(rowIndex, tabletIndex) {
 		const { patternDesign } = this.props;
-		const { isEditing } = this.state;
+		const { isEditing, selectedThread } = this.state;
 
 		return (
 			<li
@@ -200,6 +213,7 @@ class WeavingDesignFreehand extends PureComponent {
 				>
 					<FreehandChartCell
 						chartCell={patternDesign.weavingChart[rowIndex][tabletIndex]}
+						selectedThread={selectedThread}
 					/>
 				</span>
 			</li>
@@ -335,6 +349,7 @@ class WeavingDesignFreehand extends PureComponent {
 			controlsOffsetY,
 			editMode,
 			selectedColorIndex,
+			selectedThread,
 		} = this.state;
 
 		let content;
@@ -344,6 +359,8 @@ class WeavingDesignFreehand extends PureComponent {
 				<>
 					<FreehandThreads
 						selectThread={this.selectThread}
+						selectedThread={selectedThread}
+						threadColorIndex={selectedColorIndex}
 					/>
 					<Palette
 						_id={_id}

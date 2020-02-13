@@ -262,7 +262,7 @@ export function SVGBlock(props) {
 			viewBox="0 0 256 256"
 			style={{ 'fill': fill, 'stroke': stroke }}
 		>
-			<g><rect x="10" y="10" width="30" height="30" stroke="black" fill="transparent" strokeWidth="9.0518" /></g>
+			<g><rect x="10" y="10" width="236" height="236" strokeWidth="9.0518" /></g>
 		</svg>
 	);
 }

@@ -449,6 +449,8 @@ Meteor.methods({
 		let tablet;
 		let tabletIndex;
 		let tabletOrientation;
+		let threadColor;
+		let threadShape;
 		let twillChart;
 		let weavingStartRow;
 
@@ -562,6 +564,26 @@ Meteor.methods({
 
 					default:
 						throw new Meteor.Error('edit-twill-weaving-start-row-unknown-pattern-type', `Unable to edit twill weaving start row because the pattern type ${patternType} is not brokenTwill`);
+				}
+
+			case 'editFreehandCellThread':
+				({ row, tablet, threadColor, threadShape } = data);
+				check(row, Match.Integer);
+				check(tablet, validTabletsCheck);
+				check(threadColor, validPaletteIndexCheck);
+				check(threadShape, String);
+
+				switch (patternType) {
+					case 'freehand':
+						return Patterns.update({ _id }, {
+							'$set': {
+								[`patternDesign.weavingChart.${row}.${tablet}.threadColor`]: threadColor,
+								[`patternDesign.weavingChart.${row}.${tablet}.threadShape`]: threadShape,
+							},
+						});
+
+					default:
+						throw new Meteor.Error('edit-freehand-cell-thread-unknown-pattern-type', `Unable to edit freehand cell thread because the pattern type ${patternType} is not freehand`);
 				}
 
 			case 'addWeavingRows':

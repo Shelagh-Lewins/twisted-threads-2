@@ -59,6 +59,10 @@ export const UPDATE_WEAVING_ROW_DIRECTION = 'UPDATE_WEAVING_ROW_DIRECTION';
 export const UPDATE_TWILL_CHART = 'UPDATE_TWILL_CHART';
 export const UPDATE_TWILL_WEAVING_START_ROW = 'UPDATE_TWILL_WEAVING_START_ROW';
 
+// 'freehand' patternType
+export const UPDATE_FREEHAND_CELL_THREAD = 'UPDATE_FREEHAND_CELL_THREAD';
+export const UPDATE_FREEHAND_CELL_DIRECTION = 'UPDATE_FREEHAND_CELL_DIRECTION';
+
 // more than one patternType
 export const SET_UPDATE_PREVIEW_WHILE_EDITING = 'SET_UPDATE_PREVIEW_WHILE_EDITING';
 export const UPDATE_THREADING_CELL = 'UPDATE_THREADING_CELL';
@@ -631,6 +635,68 @@ export function editTwillWeavingStartRow({
 		});
 
 		dispatch(updateTwillWeavingStartRow(weavingStartRow));
+	};
+}
+
+// ///////////////////////////////
+// freehand patterns
+
+// set thread (colour and shape)
+export function updateFreehandCellThread({
+	'row': rowIndex,
+	'tablet': tabletIndex,
+	'threadColor': selectedColorIndex,
+	'threadShape': selectedThread,
+}) {
+	return {
+		'type': UPDATE_FREEHAND_CELL_THREAD,
+		'payload': {
+			'row': rowIndex,
+			'tablet': tabletIndex,
+			'threadColor': selectedColorIndex,
+			'threadShape': selectedThread,
+		},
+	};
+}
+
+export function editFreehandCellThread({
+	_id,
+	'row': rowIndex,
+	'tablet': tabletIndex,
+	'threadColor': selectedColorIndex,
+	'threadShape': selectedThread,
+}) {
+	return (dispatch) => {
+		Meteor.call('pattern.edit', {
+			_id,
+			'data': {
+				'type': 'editFreehandCellThread',
+				_id,
+				'row': rowIndex,
+				'tablet': tabletIndex,
+				'threadColor': selectedColorIndex,
+				'threadShape': selectedThread,
+			},
+		}, (error) => {
+			if (error) {
+				return dispatch(logErrors({ 'edit freehand cell thread': error.reason }));
+			}
+		});
+
+		dispatch(updateFreehandCellThread({
+			'row': rowIndex,
+			'tablet': tabletIndex,
+			'threadColor': selectedColorIndex,
+			'threadShape': selectedThread,
+		}));
+	};
+}
+
+// set background (white or grey)
+export function updateFreehandCellDirection({ direction }) {
+	return {
+		'type': UPDATE_FREEHAND_CELL_DIRECTION,
+		'payload': data,
 	};
 }
 
@@ -1354,6 +1420,20 @@ export default function pattern(state = initialPatternState, action) {
 					'weavingStartRow': newWeavingStartRow,
 				},
 			}, state);
+		}
+
+		case UPDATE_FREEHAND_CELL_THREAD: {
+			const {
+				row,
+				tablet,
+				threadColor,
+				threadShape,
+			} = action.payload;
+			return updeep({ 'patternDesign': { 'weavingChart': { [row]: { [tablet]: { threadColor, threadShape } } } } }, state);
+		}
+
+		case UPDATE_FREEHAND_CELL_DIRECTION: {
+			return updeep({ 'isEditingWeaving': action.payload }, state);
 		}
 
 		case SET_IS_EDITING_WEAVING: {
