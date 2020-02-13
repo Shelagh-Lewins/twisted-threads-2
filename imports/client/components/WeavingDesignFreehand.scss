@@ -76,3 +76,31 @@
 		}
 	}
 }
+
+.freehand-directions {
+	font-size: 0;
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+
+	li {
+		border: 1px solid $color-panel-border;
+		display: inline-block;
+		height: 32px;
+		margin-right: 8px;
+		width: 32px;
+
+		&:focus {
+			outline: 2px dashed $color-focus;
+			outline-offset: 2px;
+		}
+
+		&.selected {
+			outline: 4px solid $color-palette-outline;
+		}
+
+		&.backward {
+			background: $color-weaving-backwards-bg;
+		}
+	}
+}

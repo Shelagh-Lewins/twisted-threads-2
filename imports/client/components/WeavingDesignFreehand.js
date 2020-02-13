@@ -5,7 +5,7 @@ import {
 	addWeavingRows,
 	removeWeavingRows,
 	setIsEditingWeaving,
-	updateFreehandCellDirection,
+	editFreehandCellDirection,
 	editFreehandCellThread,
 } from '../modules/pattern';
 import calculateScrolling from '../modules/calculateScrolling';
@@ -13,7 +13,7 @@ import FreehandChartCell from './FreehandChartCell';
 import AddRowsForm from '../forms/AddRowsForm';
 import Palette from './Palette';
 import FreehandThreads from './FreehandThreads';
-import { DEFAULT_PALETTE_COLOR } from '../../modules/parameters';
+import { ALLOWED_DIRECTIONS, DEFAULT_PALETTE_COLOR } from '../../modules/parameters';
 import './Threading.scss';
 import './WeavingDesignFreehand.scss';
 
@@ -37,6 +37,7 @@ class WeavingDesignFreehand extends PureComponent {
 			'editMode': 'thread',
 			'isEditing': false,
 			'selectedColorIndex': DEFAULT_PALETTE_COLOR,
+			'selectedDirection': ALLOWED_DIRECTIONS[0].value,
 			'selectedThread': 'forwardWarp',
 		};
 
@@ -47,6 +48,7 @@ class WeavingDesignFreehand extends PureComponent {
 			'handleClickRemoveRow',
 			'handleSubmitAddRows',
 			'selectColor',
+			'selectDirection',
 			'selectThread',
 			'toggleEditWeaving',
 		];
@@ -90,12 +92,19 @@ class WeavingDesignFreehand extends PureComponent {
 		});
 	}
 
+	selectDirection(direction) {
+		this.setState({
+			'selectedDirection': direction,
+		});
+	}
+
 	handleClickChartCell(rowIndex, tabletIndex) {
 		const { dispatch, 'pattern': { _id } } = this.props;
 		const {
 			isEditing,
 			editMode,
 			selectedColorIndex,
+			selectedDirection,
 			selectedThread,
 		} = this.state;
 
@@ -104,7 +113,6 @@ class WeavingDesignFreehand extends PureComponent {
 		}
 
 		if (editMode === 'thread') {
-			console.log('edit thread');
 			dispatch(editFreehandCellThread({
 				_id,
 				'row': rowIndex,
@@ -113,10 +121,10 @@ class WeavingDesignFreehand extends PureComponent {
 				'threadShape': selectedThread,
 			}));
 		} else if (editMode === 'background') {
-			console.log('edit background');
-			dispatch(updateFreehandCellDirection({
+			dispatch(editFreehandCellDirection({
 				_id,
 				'row': rowIndex,
+				'direction': selectedDirection,
 				'tablet': tabletIndex,
 			}));
 		}
@@ -349,6 +357,7 @@ class WeavingDesignFreehand extends PureComponent {
 			controlsOffsetY,
 			editMode,
 			selectedColorIndex,
+			selectedDirection,
 			selectedThread,
 		} = this.state;
 
@@ -372,7 +381,24 @@ class WeavingDesignFreehand extends PureComponent {
 				</>
 			);
 		} else if (editMode === 'background') {
+			content = (
+				<ul className="freehand-directions">
+					{ALLOWED_DIRECTIONS.map((direction) => {
+						const { value } = direction;
 
+						return (
+							<li
+								className={`direction-${value} ${selectedDirection === value ? 'selected' : ''}`}
+								key={`freehand-direction-${value}`}
+								onClick={() => this.selectDirection(value)}
+								onKeyPress={() => this.selectDirection(value)}
+								role="menuitem"
+								tabIndex="0"
+							/>
+						);
+					})}
+				</ul>
+			);
 		}
 
 		return (

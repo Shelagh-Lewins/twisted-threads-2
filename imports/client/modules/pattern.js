@@ -693,10 +693,48 @@ export function editFreehandCellThread({
 }
 
 // set background (white or grey)
-export function updateFreehandCellDirection({ direction }) {
+export function updateFreehandCellDirection({
+	direction,
+	'row': rowIndex,
+	'tablet': tabletIndex,
+}) {
 	return {
 		'type': UPDATE_FREEHAND_CELL_DIRECTION,
-		'payload': data,
+		'payload': {
+			direction,
+			'row': rowIndex,
+			'tablet': tabletIndex,
+		},
+	};
+}
+
+export function editFreehandCellDirection({
+	_id,
+	direction,
+	'row': rowIndex,
+	'tablet': tabletIndex,
+}) {
+	return (dispatch) => {
+		Meteor.call('pattern.edit', {
+			_id,
+			'data': {
+				'type': 'editFreehandCellDirection',
+				_id,
+				direction,
+				'row': rowIndex,
+				'tablet': tabletIndex,
+			},
+		}, (error) => {
+			if (error) {
+				return dispatch(logErrors({ 'edit freehand cell direction': error.reason }));
+			}
+		});
+
+		dispatch(updateFreehandCellDirection({
+			direction,
+			'row': rowIndex,
+			'tablet': tabletIndex,
+		}));
 	};
 }
 
@@ -1429,11 +1467,18 @@ export default function pattern(state = initialPatternState, action) {
 				threadColor,
 				threadShape,
 			} = action.payload;
+
 			return updeep({ 'patternDesign': { 'weavingChart': { [row]: { [tablet]: { threadColor, threadShape } } } } }, state);
 		}
 
 		case UPDATE_FREEHAND_CELL_DIRECTION: {
-			return updeep({ 'isEditingWeaving': action.payload }, state);
+			const {
+				direction,
+				row,
+				tablet,
+			} = action.payload;
+
+			return updeep({ 'patternDesign': { 'weavingChart': { [row]: { [tablet]: { direction } } } } }, state);
 		}
 
 		case SET_IS_EDITING_WEAVING: {

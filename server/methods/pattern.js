@@ -432,6 +432,7 @@ Meteor.methods({
 		// to be filled in by data depending on case
 		let colorHexValue;
 		let colorIndex;
+		let direction;
 		let fieldName;
 		let fieldValue;
 		let holesToSet;
@@ -567,7 +568,12 @@ Meteor.methods({
 				}
 
 			case 'editFreehandCellThread':
-				({ row, tablet, threadColor, threadShape } = data);
+				({
+					row,
+					tablet,
+					threadColor,
+					threadShape,
+				} = data);
 				check(row, Match.Integer);
 				check(tablet, validTabletsCheck);
 				check(threadColor, validPaletteIndexCheck);
@@ -584,6 +590,28 @@ Meteor.methods({
 
 					default:
 						throw new Meteor.Error('edit-freehand-cell-thread-unknown-pattern-type', `Unable to edit freehand cell thread because the pattern type ${patternType} is not freehand`);
+				}
+//TODO validDirectionCheck
+			case 'editFreehandCellDirection':
+				({
+					direction,
+					row,
+					tablet,
+				} = data);
+				check(direction, String);
+				check(row, Match.Integer);
+				check(tablet, validTabletsCheck);
+
+				switch (patternType) {
+					case 'freehand':
+						return Patterns.update({ _id }, {
+							'$set': {
+								[`patternDesign.weavingChart.${row}.${tablet}.direction`]: direction,
+							},
+						});
+
+					default:
+						throw new Meteor.Error('edit-freehand-cell-direction-unknown-pattern-type', `Unable to edit freehand cell direction because the pattern type ${patternType} is not freehand`);
 				}
 
 			case 'addWeavingRows':
