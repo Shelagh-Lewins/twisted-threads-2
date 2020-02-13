@@ -27,20 +27,4 @@
 			}
 		}
 	}
-
-	.weaving-freehand {
-		width: calc(100vw - 40px); // use width of viewport but don't trigger a horizontal scroll bar
-
-		.content {
-			margin: 8px 0;
-		}
-
-		&.editing {
-			.content {
-				background: $color-chart-editing-background;
-				border: 1px solid $color-focus;
-				padding: 8px;
-			}
-		}
-	}
 }

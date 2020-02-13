@@ -70,7 +70,6 @@ class Weft extends PureComponent {
 				_id={_id}
 				colorBooks={colorBooks}
 				elementId="weft-palette"
-				handleEditColor={this.handleEditColor}
 				selectColor={this.selectColor}
 				initialColorIndex={weftColor}
 			/>

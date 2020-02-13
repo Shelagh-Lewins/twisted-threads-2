@@ -376,6 +376,7 @@ class Pattern extends PureComponent {
 
 	renderWeavingInstructions() {
 		const {
+			colorBooks,
 			pattern,
 		} = this.context;
 		const {
@@ -436,6 +437,7 @@ class Pattern extends PureComponent {
 					<>
 						<h2>Weaving design</h2>
 						<WeavingDesignFreehand
+							colorBooks={colorBooks}
 							dispatch={dispatch}
 							numberOfRows={numberOfRows}
 							numberOfTablets={numberOfTablets}

@@ -42,6 +42,7 @@ class WeavingDesignFreehand extends PureComponent {
 			'handleClickEditMode',
 			'handleClickRemoveRow',
 			'handleSubmitAddRows',
+			'selectColor',
 			'toggleEditWeaving',
 		];
 
@@ -70,6 +71,10 @@ class WeavingDesignFreehand extends PureComponent {
 			controlsOffsetX,
 			controlsOffsetY,
 		});
+	}
+
+	selectColor(index) {
+		console.log('select color', index);
 	}
 
 	handleClickChartCell(rowIndex, tabletIndex) {
@@ -315,13 +320,15 @@ class WeavingDesignFreehand extends PureComponent {
 
 	renderToolbar() {
 		const {
+			colorBooks,
 			numberOfRows,
-			'pattern': { _id, palette },
+			'pattern': { _id },
 		} = this.props;
 		const {
 			controlsOffsetX,
 			controlsOffsetY,
 			editMode,
+			selectedColorIndex,
 		} = this.state;
 
 		let content;
@@ -331,14 +338,10 @@ class WeavingDesignFreehand extends PureComponent {
 				<>
 					<Palette
 						_id={_id}
-						canCreateColorBook={canCreateColorBook}
-						colorBookAdded={colorBookAdded}
 						colorBooks={colorBooks}
-						dispatch={dispatch}
-						elementId={this.paletteId}
-						palette={palette}
+						elementId="freehand-chart-palette"
 						selectColor={this.selectColor}
-						initialColorIndex={0}
+						initialColorIndex={selectedColorIndex}
 					/>
 				</>
 			);
@@ -357,9 +360,7 @@ class WeavingDesignFreehand extends PureComponent {
 				}}
 			>
 				{this.renderEditOptions()}
-				<div className="content">
-					{content}
-				</div>
+				{content}
 				<hr className="clearing" />
 				<AddRowsForm
 					enableReinitialize={true}
@@ -392,6 +393,7 @@ class WeavingDesignFreehand extends PureComponent {
 }
 
 WeavingDesignFreehand.propTypes = {
+	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'numberOfRows': PropTypes.number.isRequired,
 	'numberOfTablets': PropTypes.number.isRequired,
