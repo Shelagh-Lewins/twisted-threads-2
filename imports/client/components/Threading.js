@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import {
 	addTablets,
 	editOrientation,
-	editPaletteColor,
 	editThreadingCell,
 	removeTablet,
 	setIsEditingThreading,
@@ -13,7 +12,7 @@ import ThreadingChartCell from './ThreadingChartCell';
 import OrientationCell from './OrientationCell';
 import AddTabletsForm from '../forms/AddTabletsForm';
 import './Threading.scss';
-import { DEFAULT_PALETTE, HOLE_LABELS } from '../../modules/parameters';
+import { DEFAULT_PALETTE_COLOR, HOLE_LABELS } from '../../modules/parameters';
 import Palette from './Palette';
 
 // row and tablet have nothing to identify them except index
@@ -27,23 +26,19 @@ import Palette from './Palette';
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
 class Threading extends PureComponent {
-	paletteId = 'threading-palette';
-
 	constructor(props) {
 		super(props);
 
 		this.state = {
 			'controlsOffset': 0,
 			'isEditing': false,
-			'selectedColorIndex': 0,
+			'selectedColorIndex': DEFAULT_PALETTE_COLOR,
 		};
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
 			'handleClickOrientation',
 			'handleClickRemoveTablet',
-			'handleClickRestoreDefaults',
-			'handleEditColor',
 			'handleSubmitAddTablets',
 			'selectColor',
 			'toggleEditThreading',
@@ -102,7 +97,7 @@ class Threading extends PureComponent {
 	}
 
 	handleClickRemoveTablet(tabletIndex) {
-		const { dispatch, 'patternId': _id } = this.props;
+		const { dispatch, 'pattern': { _id } } = this.props;
 		const { isEditing } = this.state;
 
 		if (!isEditing) {
@@ -118,31 +113,8 @@ class Threading extends PureComponent {
 		}
 	}
 
-	handleClickRestoreDefaults() {
-		const { dispatch, 'patternId': _id } = this.props;
-
-		DEFAULT_PALETTE.forEach((colorHexValue, index) => {
-			dispatch(editPaletteColor({
-				_id,
-				'colorHexValue': colorHexValue,
-				'colorIndex': index,
-			}));
-		});
-	}
-
-	handleEditColor(colorHexValue) {
-		const { dispatch, 'patternId': _id } = this.props;
-		const { selectedColorIndex } = this.state;
-
-		dispatch(editPaletteColor({
-			_id,
-			'colorHexValue': colorHexValue,
-			'colorIndex': selectedColorIndex,
-		}));
-	}
-
 	handleSubmitAddTablets(data) {
-		const { dispatch, 'patternId': _id } = this.props;
+		const { dispatch, 'pattern': { _id } } = this.props;
 		const { selectedColorIndex } = this.state;
 
 		dispatch(addTablets({
@@ -162,7 +134,7 @@ class Threading extends PureComponent {
 			return;
 		}
 
-		const { dispatch, 'patternId': _id } = this.props;
+		const { dispatch, 'pattern': { _id } } = this.props;
 		const { selectedColorIndex } = this.state;
 
 		dispatch(editThreadingCell({
@@ -174,7 +146,7 @@ class Threading extends PureComponent {
 	}
 
 	handleClickOrientation(tabletIndex) {
-		const { dispatch, 'patternId': _id } = this.props;
+		const { dispatch, 'pattern': { _id } } = this.props;
 		const { isEditing } = this.state;
 
 		if (!isEditing) {
@@ -346,7 +318,7 @@ class Threading extends PureComponent {
 	}
 
 	renderOrientation(tabletIndex) {
-		const { patternType } = this.props;
+		const { 'pattern': { patternType } } = this.props;
 		const { isEditing } = this.state;
 
 		return (
@@ -396,26 +368,17 @@ class Threading extends PureComponent {
 
 	renderPalette() {
 		const {
-			canCreateColorBook,
-			colorBookAdded,
 			colorBooks,
-			dispatch,
-			palette,
+			'pattern': { _id },
 		} = this.props;
-		const { selectedColorIndex } = this.state;
 
 		return (
 			<Palette
-				canCreateColorBook={canCreateColorBook}
-				colorBookAdded={colorBookAdded}
+				_id={_id}
 				colorBooks={colorBooks}
-				dispatch={dispatch}
-				elementId={this.paletteId}
-				handleClickRestoreDefaults={this.handleClickRestoreDefaults}
-				handleEditColor={this.handleEditColor}
-				palette={palette}
+				elementId="threading-palette"
 				selectColor={this.selectColor}
-				selectedColorIndex={selectedColorIndex}
+				initialColorIndex={DEFAULT_PALETTE_COLOR}
 			/>
 		);
 	}
@@ -454,16 +417,12 @@ class Threading extends PureComponent {
 }
 
 Threading.propTypes = {
-	'canCreateColorBook': PropTypes.bool.isRequired,
 	'canEdit': PropTypes.bool.isRequired,
-	'colorBookAdded': PropTypes.string.isRequired,
 	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'holes': PropTypes.number.isRequired,
 	'numberOfTablets': PropTypes.number.isRequired,
-	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'patternId': PropTypes.string.isRequired,
-	'patternType': PropTypes.string.isRequired,
+	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 };
 
 export default Threading;

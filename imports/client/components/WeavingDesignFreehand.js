@@ -3,15 +3,14 @@ import { Button, ButtonGroup, ButtonToolbar } from 'reactstrap';
 import PropTypes from 'prop-types';
 import {
 	addWeavingRows,
-	//editWeavingCellDirection,
-	//editWeavingCellNumberOfTurns,
 	removeWeavingRows,
 	setIsEditingWeaving,
 } from '../modules/pattern';
 import calculateScrolling from '../modules/calculateScrolling';
 import FreehandChartCell from './FreehandChartCell';
-//import AddRowsForm from '../forms/AddRowsForm';
-//import EditWeavingCellForm from '../forms/EditWeavingCellForm';
+import AddRowsForm from '../forms/AddRowsForm';
+import Palette from './Palette';
+import { DEFAULT_PALETTE_COLOR } from '../../modules/parameters';
 import './Threading.scss';
 import './WeavingDesignFreehand.scss';
 
@@ -32,18 +31,17 @@ class WeavingDesignFreehand extends PureComponent {
 		this.state = {
 			'controlsOffsetX': 0,
 			'controlsOffsetY': 0,
-			'editMode': 'direction',
+			'editMode': 'thread',
 			'isEditing': false,
-			//'numberOfTurns': 1,
+			'selectedColorIndex': DEFAULT_PALETTE_COLOR,
 		};
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
+			'handleClickChartCell',
 			'handleClickEditMode',
 			'handleClickRemoveRow',
-			//'handleClickWeavingCell',
 			'handleSubmitAddRows',
-			//'handleSubmitEditWeavingCellForm',
 			'toggleEditWeaving',
 		];
 
@@ -74,29 +72,31 @@ class WeavingDesignFreehand extends PureComponent {
 		});
 	}
 
-	/* handleClickWeavingCell(rowIndex, tabletIndex) {
+	handleClickChartCell(rowIndex, tabletIndex) {
 		const { dispatch, 'pattern': { _id } } = this.props;
-		const { isEditing, editMode, numberOfTurns } = this.state;
+		const { isEditing, editMode } = this.state;
 
 		if (!isEditing) {
 			return;
 		}
 
-		if (editMode === 'direction') {
-			dispatch(editWeavingCellDirection({
+		if (editMode === 'thread') {
+			console.log('edit thread');
+			/* dispatch(editFreehandThread({
 				_id,
 				'row': rowIndex,
 				'tablet': tabletIndex,
-			}));
-		} else if (editMode === 'numberOfTurns') {
-			dispatch(editWeavingCellNumberOfTurns({
+			})); */
+		} else if (editMode === 'background') {
+			console.log('edit background');
+			/* dispatch(editFreehandBackground({
 				_id,
 				'row': rowIndex,
 				'tablet': tabletIndex,
 				'numberOfTurns': parseInt(numberOfTurns, 10),
-			}));
+			})); */
 		}
-	} */
+	}
 
 	handleClickRemoveRow(rowIndex) {
 		const { dispatch, 'pattern': { _id } } = this.props;
@@ -130,12 +130,6 @@ class WeavingDesignFreehand extends PureComponent {
 		setTimeout(() => this.trackScrolling(), 100); // give the new rows time to render
 	}
 
-	/* handleSubmitEditWeavingCellForm(numberOfTurns) {
-		this.setState({
-			'numberOfTurns': parseInt(numberOfTurns, 10),
-		});
-	} */
-
 	handleClickEditMode(event) {
 		const newEditMode = event.target.value;
 
@@ -160,7 +154,6 @@ class WeavingDesignFreehand extends PureComponent {
 		this.setState({
 			'controlsOffsetX': 0,
 			'isEditing': !isEditing,
-			'numberOfTurns': 1,
 		});
 
 		dispatch(setIsEditingWeaving(!isEditing));
@@ -188,8 +181,8 @@ class WeavingDesignFreehand extends PureComponent {
 			>
 				<span
 					type={isEditing ? 'button' : undefined}
-					onClick={isEditing ? () => this.handleClickWeavingCell(rowIndex, tabletIndex) : undefined}
-					onKeyPress={isEditing ? () => this.handleClickWeavingCell(rowIndex, tabletIndex) : undefined}
+					onClick={isEditing ? () => this.handleClickChartCell(rowIndex, tabletIndex) : undefined}
+					onKeyPress={isEditing ? () => this.handleClickChartCell(rowIndex, tabletIndex) : undefined}
 					role={isEditing ? 'button' : undefined}
 					tabIndex={isEditing ? '0' : undefined}
 				>
@@ -290,12 +283,12 @@ class WeavingDesignFreehand extends PureComponent {
 		const { editMode } = this.state;
 		const options = [
 			{
-				'name': 'Edit turning direction',
-				'value': 'direction',
+				'name': 'Thread',
+				'value': 'thread',
 			},
 			{
-				'name': 'Edit number of turns',
-				'value': 'numberOfTurns',
+				'name': 'Background',
+				'value': 'background',
 			},
 		];
 
@@ -323,16 +316,35 @@ class WeavingDesignFreehand extends PureComponent {
 	renderToolbar() {
 		const {
 			numberOfRows,
+			'pattern': { _id, palette },
 		} = this.props;
 		const {
 			controlsOffsetX,
 			controlsOffsetY,
 			editMode,
-			numberOfTurns,
 		} = this.state;
 
-		let rowIndex;
-		let tabletIndex;
+		let content;
+
+		if (editMode === 'thread') {
+			content = (
+				<>
+					<Palette
+						_id={_id}
+						canCreateColorBook={canCreateColorBook}
+						colorBookAdded={colorBookAdded}
+						colorBooks={colorBooks}
+						dispatch={dispatch}
+						elementId={this.paletteId}
+						palette={palette}
+						selectColor={this.selectColor}
+						initialColorIndex={0}
+					/>
+				</>
+			);
+		} else if (editMode === 'background') {
+
+		}
 
 		return (
 			<div
@@ -345,19 +357,15 @@ class WeavingDesignFreehand extends PureComponent {
 				}}
 			>
 				{this.renderEditOptions()}
-				{/* <EditWeavingCellForm
-					canEdit={editMode === 'numberOfTurns'}
-					handleSubmit={this.handleSubmitEditWeavingCellForm}
-					numberOfTurns={numberOfTurns}
-					rowIndex={rowIndex}
-					tabletIndex={tabletIndex}
-				/> */}
+				<div className="content">
+					{content}
+				</div>
 				<hr className="clearing" />
-				{/* <AddRowsForm
+				<AddRowsForm
 					enableReinitialize={true}
 					handleSubmit={this.handleSubmitAddRows}
 					numberOfRows={numberOfRows}
-				/> */}
+				/>
 			</div>
 		);
 	}

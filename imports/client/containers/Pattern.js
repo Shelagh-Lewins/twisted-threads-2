@@ -9,7 +9,6 @@ import PropTypes from 'prop-types';
 import {
 	addRecentPattern,
 	getCanAddPatternImage,
-	getCanCreateColorBook,
 } from '../modules/auth';
 import {
 	editIsPublic,
@@ -20,7 +19,6 @@ import {
 	getNumberOfRows,
 	getNumberOfRowsForChart,
 	getNumberOfTablets,
-	getPalette,
 	getPatternTwistSelector,
 	getTotalTurnsByTabletSelector,
 	savePatternData,
@@ -173,7 +171,6 @@ class Pattern extends PureComponent {
 
 	handleChangeUpdatePreviewWhileEditing(event) {
 		const { dispatch } = this.props;
-		console.log('changed', event.target.checked);
 
 		dispatch(setUpdatePreviewWhileEditing(event.target.checked));
 	}
@@ -486,7 +483,6 @@ class Pattern extends PureComponent {
 			isEditing,
 			numberOfRowsForChart,
 			numberOfTablets,
-			palette,
 			patternWillRepeat,
 			totalTurnsByTablet,
 		} = this.props;
@@ -513,7 +509,6 @@ console.log('*** patternType', pattern.patternType);
 					holes={holes}
 					numberOfRows={numberOfRowsForChart}
 					numberOfTablets={numberOfTablets}
-					palette={palette}
 					pattern={pattern}
 					patternWillRepeat={patternWillRepeat}
 					totalTurnsByTablet={totalTurnsByTablet}
@@ -530,14 +525,11 @@ console.log('*** patternType', pattern.patternType);
 	}) {
 		const {
 			canAddPatternImage,
-			canCreateColorBook,
-			colorBookAdded,
 			dispatch,
 			holes,
 			isEditing,
 			numberOfRows,
 			numberOfTablets,
-			palette,
 			patternIsTwistNeutral,
 			patternWillRepeat,
 			tab,
@@ -612,8 +604,6 @@ console.log('*** patternType', pattern.patternType);
 						{repeatText}
 						{twistNeutralText}
 						<Weft
-							canCreateColorBook={canCreateColorBook}
-							colorBookAdded={colorBookAdded}
 							colorBooks={colorBooks}
 							dispatch={dispatch}
 							pattern={pattern}
@@ -648,16 +638,12 @@ console.log('*** patternType', pattern.patternType);
 						<h2>Threading chart</h2>
 						{pattern.threading && (
 							<Threading
-								canCreateColorBook={canCreateColorBook}
 								canEdit={canEdit}
-								colorBookAdded={colorBookAdded}
 								colorBooks={colorBooks}
 								dispatch={dispatch}
 								holes={holes}
 								numberOfTablets={numberOfTablets}
-								palette={palette}
-								patternId={pattern._id}
-								patternType={patternType}
+								pattern={pattern}
 							/>
 						)}
 						<EditableText
@@ -787,8 +773,6 @@ Pattern.contextType = AppContext;
 
 Pattern.propTypes = {
 	'canAddPatternImage': PropTypes.bool.isRequired,
-	'canCreateColorBook': PropTypes.bool.isRequired,
-	'colorBookAdded': PropTypes.string.isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 	'holes': PropTypes.number.isRequired,
@@ -797,7 +781,6 @@ Pattern.propTypes = {
 	'numberOfRows': PropTypes.number.isRequired,
 	'numberOfRowsForChart': PropTypes.number.isRequired,
 	'numberOfTablets': PropTypes.number.isRequired,
-	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'patternIsTwistNeutral': PropTypes.bool,
 	'patternWillRepeat': PropTypes.bool,
 	'tab': PropTypes.string.isRequired,
@@ -822,8 +805,6 @@ function mapStateToProps(state, ownProps) {
 	// pattern chart info like numberOfRows must be got from store or it may not be correct
 	return {
 		'canAddPatternImage': getCanAddPatternImage(state),
-		'canCreateColorBook': getCanCreateColorBook(state),
-		'colorBookAdded': state.colorBook.colorBookAdded,
 		'errors': state.errors,
 		'holes': getHoles(state),
 		'isEditing': getIsEditing(state),
@@ -831,7 +812,6 @@ function mapStateToProps(state, ownProps) {
 		'numberOfRows': getNumberOfRows(state),
 		'numberOfRowsForChart': getNumberOfRowsForChart(state),
 		'numberOfTablets': getNumberOfTablets(state),
-		'palette': getPalette(state),
 		'patternIsTwistNeutral': patternIsTwistNeutral,
 		'patternWillRepeat': patternWillRepeat,
 		'tab': ownProps.match.params.tab || 'design',

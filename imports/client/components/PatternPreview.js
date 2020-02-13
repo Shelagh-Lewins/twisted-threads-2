@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import PreviewCell from './PreviewCell';
 import {
+	getPalette,
 	getPreviewShouldUpdate,
 } from '../modules/pattern';
 import { getNumberOfRepeats, modulus } from '../modules/weavingUtils';
@@ -374,6 +375,7 @@ function mapStateToProps(state) {
 	return {
 		'componentShouldUpdate': getPreviewShouldUpdate(state)
 		,
+		'palette': getPalette(state),
 	};
 }
 

@@ -1,9 +1,19 @@
 import React, { PureComponent } from 'react';
 import ReactDOM from 'react-dom';
 import { Button, ButtonGroup, ButtonToolbar } from 'reactstrap';
+import { connect } from 'react-redux';
 import { PhotoshopPicker } from 'react-color';
 import PropTypes from 'prop-types';
+import {
+	editPaletteColor,
+	getPalette,
+} from '../modules/pattern';
+import {
+	getCanAddPatternImage,
+	getCanCreateColorBook,
+} from '../modules/auth';
 import { SVGPaletteEmpty } from '../modules/svg';
+import { DEFAULT_PALETTE } from '../../modules/parameters';
 import ColorBooks from './ColorBooks';
 import './Palette.scss';
 
@@ -19,7 +29,8 @@ class Palette extends PureComponent {
 		this.state = {
 			'editMode': 'colorPicker',
 			'isEditing': false,
-			'newColor': props.palette[props.selectedColorIndex],
+			'colorValue': props.palette[props.initialColorIndex],
+			'selectedColorIndex': props.initialColorIndex,
 			'showEditColorPanel': false,
 		};
 
@@ -38,6 +49,8 @@ class Palette extends PureComponent {
 			'acceptColorChange',
 			'cancelColorChange',
 			'handleClickEditMode',
+			'handleClickRestoreDefaults',
+			'handleEditColor',
 		];
 
 		functionsToBind.forEach((functionName) => {
@@ -61,7 +74,8 @@ class Palette extends PureComponent {
 	}
 
 	handleClickEdit() {
-		const { selectColor, selectedColorIndex } = this.props;
+		const { selectColor } = this.props;
+		const { selectedColorIndex } = this.state;
 
 		// cannot edit empty hole cell
 		if (selectedColorIndex === -1) {
@@ -74,8 +88,8 @@ class Palette extends PureComponent {
 	}
 
 	handleClickColor(colorIndex) {
-		const { palette, selectColor, selectedColorIndex } = this.props;
-		const { isEditing, showEditColorPanel } = this.state;
+		const { palette, selectColor } = this.props;
+		const { isEditing, selectedColorIndex, showEditColorPanel } = this.state;
 
 		if (isEditing) {
 			if (!showEditColorPanel) {
@@ -94,7 +108,8 @@ class Palette extends PureComponent {
 		selectColor(colorIndex);
 
 		this.setState({
-			'newColor': palette[colorIndex],
+			'colorValue': palette[colorIndex],
+			'selectedColorIndex': colorIndex,
 		});
 	}
 
@@ -128,10 +143,9 @@ class Palette extends PureComponent {
 	}
 
 	acceptColorChange() {
-		const { handleEditColor } = this.props;
-		const { newColor } = this.state;
+		const { colorValue } = this.state;
 
-		handleEditColor(newColor);
+		this.handleEditColor(colorValue);
 
 		this.setState({
 			'showEditColorPanel': false,
@@ -146,13 +160,36 @@ class Palette extends PureComponent {
 
 	handleColorChange(colorObject) {
 		this.setState({
-			'newColor': colorObject.hex,
+			'colorValue': colorObject.hex,
 		});
 	}
 
+	handleClickRestoreDefaults() {
+		const { _id, dispatch } = this.props;
+
+		DEFAULT_PALETTE.forEach((colorHexValue, index) => {
+			dispatch(editPaletteColor({
+				_id,
+				'colorHexValue': colorHexValue,
+				'colorIndex': index,
+			}));
+		});
+	}
+
+	handleEditColor(colorHexValue) {
+		const { _id, dispatch } = this.props;
+		const { selectedColorIndex } = this.state;
+
+		dispatch(editPaletteColor({
+			_id,
+			'colorHexValue': colorHexValue,
+			'colorIndex': selectedColorIndex,
+		}));
+	}
+
 	renderEmptyHole() {
-		const { selectedColorIndex } = this.props;
 		const { isEditing } = this.state;
+		const { selectedColorIndex } = this.state;
 
 		return (
 			<label // eslint-disable-line jsx-a11y/label-has-associated-control
@@ -179,7 +216,8 @@ class Palette extends PureComponent {
 	}
 
 	renderColors() {
-		const { palette, selectedColorIndex } = this.props;
+		const { palette } = this.props;
+		const { selectedColorIndex } = this.state;
 
 		return (
 			<div className="color-holder">
@@ -218,16 +256,15 @@ class Palette extends PureComponent {
 			colorBookAdded,
 			colorBooks,
 			dispatch,
-			handleEditColor,
 		} = this.props;
-		const { editMode, newColor } = this.state;
+		const { editMode, colorValue } = this.state;
 
 		if (editMode === 'colorPicker') {
 			return (
 				ReactDOM.createPortal(
 					<div className="color-picker">
 						<PhotoshopPicker
-							color={newColor}
+							color={colorValue}
 							onChangeComplete={this.handleColorChange}
 							onAccept={this.acceptColorChange}
 							onCancel={this.cancelColorChange}
@@ -245,7 +282,7 @@ class Palette extends PureComponent {
 					colorBookAdded={colorBookAdded}
 					colorBooks={colorBooks}
 					dispatch={dispatch}
-					onSelectColor={handleEditColor}
+					onSelectColor={this.handleEditColor}
 					cancelColorChange={this.cancelColorChange}
 				/>,
 				this.el,
@@ -254,7 +291,6 @@ class Palette extends PureComponent {
 	}
 
 	renderEditOptions() {
-		const { handleClickRestoreDefaults } = this.props;
 		const { editMode } = this.state;
 		const options = [
 			{
@@ -286,7 +322,7 @@ class Palette extends PureComponent {
 					<Button
 						className="restore-defaults"
 						color="secondary"
-						onClick={handleClickRestoreDefaults}
+						onClick={this.handleClickRestoreDefaults}
 					>
 						Restore default colors
 					</Button>
@@ -324,16 +360,24 @@ class Palette extends PureComponent {
 }
 
 Palette.propTypes = {
+	'_id': PropTypes.string.isRequired,
 	'canCreateColorBook': PropTypes.bool.isRequired,
 	'colorBookAdded': PropTypes.string.isRequired,
 	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'elementId': PropTypes.string.isRequired,
-	'handleEditColor': PropTypes.func.isRequired,
-	'handleClickRestoreDefaults': PropTypes.func.isRequired,
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'selectColor': PropTypes.func.isRequired,
-	'selectedColorIndex': PropTypes.number.isRequired,
+	'initialColorIndex': PropTypes.number.isRequired,
 };
 
-export default Palette;
+function mapStateToProps(state) {
+	return {
+		'canAddPatternImage': getCanAddPatternImage(state),
+		'canCreateColorBook': getCanCreateColorBook(state),
+		'colorBookAdded': state.colorBook.colorBookAdded,
+		'palette': getPalette(state),
+	};
+}
+
+export default connect(mapStateToProps)(Palette);

@@ -4,12 +4,10 @@ import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 
 import {
-	editPaletteColor,
 	editWeftColor,
 } from '../modules/pattern';
 
 import './Threading.scss';
-import { DEFAULT_PALETTE } from '../../modules/parameters';
 import Palette from './Palette';
 import './Weft.scss';
 
@@ -17,17 +15,12 @@ class Weft extends PureComponent {
 	constructor(props) {
 		super(props);
 
-		const { 'pattern': weftColor } = props;
-
 		this.state = {
 			'isEditing': false,
-			'selectedColorIndex': weftColor,
 		};
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
-			'handleClickRestoreDefaults',
-			'handleEditColor',
 			'selectColor',
 			'toggleEditWeft',
 		];
@@ -43,33 +36,6 @@ class Weft extends PureComponent {
 		dispatch(editWeftColor({
 			_id,
 			'colorIndex': index,
-		}));
-
-		this.setState({
-			'selectedColorIndex': index,
-		});
-	}
-
-	handleClickRestoreDefaults() {
-		const { dispatch, 'pattern': { _id } } = this.props;
-
-		DEFAULT_PALETTE.forEach((colorHexValue, index) => {
-			dispatch(editPaletteColor({
-				_id,
-				'colorHexValue': colorHexValue,
-				'colorIndex': index,
-			}));
-		});
-	}
-
-	handleEditColor(colorHexValue) {
-		const { dispatch, 'pattern': { _id } } = this.props;
-		const { selectedColorIndex } = this.state;
-
-		dispatch(editPaletteColor({
-			_id,
-			'colorHexValue': colorHexValue,
-			'colorIndex': selectedColorIndex,
 		}));
 	}
 
@@ -95,25 +61,18 @@ class Weft extends PureComponent {
 
 	renderPalette() {
 		const {
-			canCreateColorBook,
-			colorBookAdded,
 			colorBooks,
-			dispatch,
-			'pattern': { palette, weftColor },
+			'pattern': { _id, weftColor },
 		} = this.props;
 
 		return (
 			<Palette
-				canCreateColorBook={canCreateColorBook}
-				colorBookAdded={colorBookAdded}
+				_id={_id}
 				colorBooks={colorBooks}
-				dispatch={dispatch}
 				elementId="weft-palette"
-				handleClickRestoreDefaults={this.handleClickRestoreDefaults}
 				handleEditColor={this.handleEditColor}
-				palette={palette}
 				selectColor={this.selectColor}
-				selectedColorIndex={weftColor}
+				initialColorIndex={weftColor}
 			/>
 		);
 	}
@@ -154,8 +113,6 @@ class Weft extends PureComponent {
 }
 
 Weft.propTypes = {
-	'canCreateColorBook': PropTypes.bool.isRequired,
-	'colorBookAdded': PropTypes.string.isRequired,
 	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
