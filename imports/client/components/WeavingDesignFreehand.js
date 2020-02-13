@@ -395,7 +395,9 @@ class WeavingDesignFreehand extends PureComponent {
 								role="menuitem"
 								tabIndex="0"
 								title={displayName}
-							>{value}</li>
+							>
+								{value}
+							</li>
 						);
 					})}
 				</ul>

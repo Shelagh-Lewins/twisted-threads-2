@@ -21,9 +21,11 @@ import {
 	BROKEN_TWILL_BACKGROUND,
 	BROKEN_TWILL_FOREGROUND,
 	BROKEN_TWILL_THREADING,
+	DEFAULT_COLOR,
 	DEFAULT_DIRECTION,
 	DEFAULT_NUMBER_OF_TURNS,
 	DEFAULT_ORIENTATION,
+	DEFAULT_THREAD_SHAPE,
 	MAX_TABLETS,
 } from '../../modules/parameters';
 
@@ -1612,6 +1614,10 @@ export default function pattern(state = initialPatternState, action) {
 						newWeavingInstructions = patternDesign.weavingInstructions.concat(newPatternDesignRows);
 						update.patternDesign = { 'weavingInstructions': newWeavingInstructions };
 					}
+
+					update.weavingInstructionsByTablet = newWeavingInstructionsByTablet;
+					update.picks = newPicks;
+
 					break;
 
 				case 'brokenTwill':
@@ -1666,14 +1672,41 @@ export default function pattern(state = initialPatternState, action) {
 						'twillDirectionChangeChart': newTwillDirectionChangeChart,
 					};
 
+					update.weavingInstructionsByTablet = newWeavingInstructionsByTablet;
+					update.picks = newPicks;
+
+					break;
+
+				case 'freehand':
+					const {
+						weavingChart,
+					} = patternDesign;
+
+					const newWeavingChart = [...weavingChart];
+
+					for (let i = 0; i < insertNRows; i += 1) {
+						const newChartRow = [];
+
+						for (let j = 0; j < numberOfTablets; j += 1) {
+							newChartRow.push({
+								'direction': DEFAULT_DIRECTION,
+								'threadColor': DEFAULT_COLOR,
+								'threadShape': DEFAULT_THREAD_SHAPE,
+							});
+						}
+
+						newWeavingChart.push(newChartRow);
+					}
+
+					update.patternDesign = {
+						'weavingChart': newWeavingChart,
+					};
+
 					break;
 
 				default:
 					break;
 			}
-
-			update.weavingInstructionsByTablet = newWeavingInstructionsByTablet;
-			update.picks = newPicks;
 
 			return updeep(update, state);
 		}
