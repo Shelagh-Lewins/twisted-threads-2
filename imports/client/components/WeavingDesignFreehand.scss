@@ -78,16 +78,21 @@
 }
 
 .freehand-directions {
+	clear: both;
 	font-size: 0;
 	list-style-type: none;
 	margin: 0;
 	padding: 0;
 
 	li {
+		background: $color-chart-background;
 		border: 1px solid $color-panel-border;
 		display: inline-block;
+		font-size: 1rem;
 		height: 32px;
-		margin-right: 8px;
+		line-height: 32px;
+		margin-right: 8px !important;
+		text-align: center;
 		width: 32px;
 
 		&:focus {
@@ -99,7 +104,7 @@
 			outline: 4px solid $color-palette-outline;
 		}
 
-		&.backward {
+		&.direction-B {
 			background: $color-weaving-backwards-bg;
 		}
 	}

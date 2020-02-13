@@ -384,7 +384,7 @@ class WeavingDesignFreehand extends PureComponent {
 			content = (
 				<ul className="freehand-directions">
 					{ALLOWED_DIRECTIONS.map((direction) => {
-						const { value } = direction;
+						const { displayName, value } = direction;
 
 						return (
 							<li
@@ -394,7 +394,8 @@ class WeavingDesignFreehand extends PureComponent {
 								onKeyPress={() => this.selectDirection(value)}
 								role="menuitem"
 								tabIndex="0"
-							/>
+								title={displayName}
+							>{value}</li>
 						);
 					})}
 				</ul>
