@@ -4,12 +4,10 @@ import PropTypes from 'prop-types';
 import FreehandPreviewSVG from './FreehandPreviewSVG';
 
 import {
-	getPreviewShouldUpdate,
-	getHoles,
 	getOrientationForTablet,
+	getPreviewShouldUpdate,
 	getPalette,
-	getPicksForTabletForChart,
-	getThreadingForTablet,
+	getPatternDesign,
 } from '../modules/pattern';
 
 class FreehandPreviewCell extends Component {
@@ -21,14 +19,18 @@ class FreehandPreviewCell extends Component {
 
 	render() {
 		const {
+			orientation,
 			palette,
+			'patternDesign': { freehandChart },
 			rowIndex,
 			tabletIndex,
-
 		} = this.props;
 
 		return (
 			<FreehandPreviewSVG
+				freehandChart={freehandChart}
+				orientation={orientation}
+				palette={palette}
 				rowIndex={rowIndex}
 				tabletIndex={tabletIndex}
 			/>
@@ -39,18 +41,11 @@ class FreehandPreviewCell extends Component {
 // some props are briefly unavailable after a row or tablet has been deleted
 FreehandPreviewCell.propTypes = {
 	'componentShouldUpdate': PropTypes.bool.isRequired,
-	//'currentRepeat': PropTypes.number.isRequired,
-	//'holes': PropTypes.number.isRequired,
-	//'numberOfRepeats': PropTypes.number.isRequired,
-	//'numberOfRows': PropTypes.number.isRequired,
-	//'orientation': PropTypes.string,
+	'orientation': PropTypes.string.isRequired,
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
-	//'patternType': PropTypes.string.isRequired,
-	//'patternWillRepeat': PropTypes.bool.isRequired,
-	//'picksForTablet': PropTypes.arrayOf(PropTypes.any),
+	'patternDesign': PropTypes.objectOf(PropTypes.any).isRequired,
 	'rowIndex': PropTypes.number.isRequired, // eslint-disable-line react/no-unused-prop-types
 	'tabletIndex': PropTypes.number.isRequired,
-	//'threadingForTablet': PropTypes.arrayOf(PropTypes.any),
 };
 
 function mapStateToProps(state, ownProps) {
@@ -58,11 +53,9 @@ function mapStateToProps(state, ownProps) {
 
 	return {
 		'componentShouldUpdate': getPreviewShouldUpdate(state),
-		//'holes': getHoles(state),
-		//'orientation': getOrientationForTablet(state, tabletIndex),
+		'orientation': getOrientationForTablet(state, tabletIndex),
 		'palette': getPalette(state),
-		//'picksForTablet': getPicksForTabletForChart(state, tabletIndex),
-		//'threadingForTablet': getThreadingForTablet(state, tabletIndex),
+		'patternDesign': getPatternDesign(state),
 	};
 }
 

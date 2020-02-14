@@ -798,14 +798,10 @@ function mapStateToProps(state, ownProps) {
 	const { patternType } = state.pattern;
 
 	// defaults for freehand pattern
-	//let patternIsTwistNeutral = false;
-	//let patternWillRepeat = false;
 	const { patternIsTwistNeutral, patternWillRepeat } = getPatternTwistSelector(state);
 	let totalTurnsByTablet = [];
 
 	if (patternType !== 'freehand') { // all simulation patterns
-		//({ patternIsTwistNeutral, patternWillRepeat } = getPatternTwistSelector(state));
-
 		totalTurnsByTablet = getTotalTurnsByTabletSelector(state);
 	}
 

@@ -59,7 +59,7 @@ PreviewCell.propTypes = {
 	'holes': PropTypes.number.isRequired,
 	'numberOfRepeats': PropTypes.number.isRequired,
 	'numberOfRows': PropTypes.number.isRequired,
-	'orientation': PropTypes.string,
+	'orientation': PropTypes.string.isRequired,
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'patternWillRepeat': PropTypes.bool.isRequired,
 	'picksForTablet': PropTypes.arrayOf(PropTypes.any),

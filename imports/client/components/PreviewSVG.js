@@ -6,7 +6,6 @@ import {
 	PathBackwardWarp,
 	PathBackwardWarp2,
 	PathBackwardWarp3,
-	PathBlock,
 	PathForwardWarp,
 	PathForwardWarp2,
 	PathForwardWarp3,
@@ -16,9 +15,6 @@ import {
 	PathTriangleRight,
 	PathTriangleRight2,
 	PathTriangleRight3,
-	PathVerticalCenterWarp,
-	PathVerticalLeftWarp,
-	PathVerticalRightWarp,
 } from '../modules/previewPaths';
 import {
 	getPrevColor,

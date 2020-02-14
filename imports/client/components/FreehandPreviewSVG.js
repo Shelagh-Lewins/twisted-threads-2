@@ -20,41 +20,50 @@ import {
 	PathVerticalLeftWarp,
 	PathVerticalRightWarp,
 } from '../modules/previewPaths';
-import {
-	getPrevColor,
-	getThread,
-	modulus,
-} from '../modules/weavingUtils';
 
 export default function FreehandPreviewSVG({
-	holes,
-	numberOfRows,
+	freehandChart,
 	orientation,
 	palette,
-	patternWillRepeat,
-	picksForTablet,
 	rowIndex,
 	tabletIndex,
-	threadingForTablet,
 }) {
-
 	let svg;
 	const borderColor = '#444';
-	const threadColor = 'FF0000';
+	const cell = freehandChart[rowIndex][tabletIndex];
+	const { direction, threadColor, threadShape } = cell;
+	const colorValue = palette[threadColor];
 
-	svg = <PathForwardWarp fill={threadColor} stroke={borderColor}	/>;
+	let threadAngle = '/'; // which way does the thread twist?
 
-	
+	if (direction === 'F') {
+		if (orientation === '\\') {
+			threadAngle = '\\';
+		}
+	} else if (orientation === '/') {
+		threadAngle = '\\';
+	}
+
+	switch (threadShape) {
+		case 'forwardWarp':
+		case 'backwardWarp':
+			svg = threadAngle === '\\'
+				? <PathBackwardWarp fill={colorValue} stroke={borderColor}	/>
+				: <PathForwardWarp fill={colorValue} stroke={borderColor}	/>;
+			break;
+
+		default:
+			svg = <PathForwardWarp fill={colorValue} stroke={borderColor}	/>;
+			break;
+	}
+
 
 	return svg;
 }
 
 FreehandPreviewSVG.propTypes = {
-	//'currentRepeat': PropTypes.number.isRequired,
-	//'numberOfRepeats': PropTypes.number.isRequired,
-	//'numberOfRows': PropTypes.number.isRequired,
-	//'patternWillRepeat': PropTypes.bool.isRequired,
-	//'picksForTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'orientation': PropTypes.string.isRequired,
+	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'rowIndex': PropTypes.number.isRequired,
 	'tabletIndex': PropTypes.number.isRequired,
 };
