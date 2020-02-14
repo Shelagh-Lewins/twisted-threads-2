@@ -901,18 +901,28 @@ Meteor.methods({
 					},
 				};
 
-				if (patternType === 'individual' || patternType === 'allTogether') {
-					// new tablets to be added to each threading row
-					const newTabletsForThreading = [];
+				switch (patternType) {
+					// all these pattern types use the same threading chart
+					case 'individual':
+					case 'allTogether':
+					case 'freehand':
 
-					for (let j = 0; j < insertNTablets; j += 1) {
-						newTabletsForThreading.push(colorIndex);
-					}
+						// new tablets to be added to each threading row
+						const newTabletsForThreading = [];
 
-					update.$push['threading.$[]'] = {
-						'$each': newTabletsForThreading,
-						'$position': insertTabletsAt,
-					};
+						for (let j = 0; j < insertNTablets; j += 1) {
+							newTabletsForThreading.push(colorIndex);
+						}
+
+						update.$push['threading.$[]'] = {
+							'$each': newTabletsForThreading,
+							'$position': insertTabletsAt,
+						};
+
+						break;
+
+					default:
+						break;
 				}
 
 				// updates for weaving and threading depend on pattern type
@@ -969,6 +979,23 @@ Meteor.methods({
 
 						break;
 
+					case 'freehand':
+						// new cells to be added to each chart row
+						const newFreehandChartCells = [];
+						const newChartCell = DEFAULT_FREEHAND_CELL;
+						newChartCell.threadColor = colorIndex;
+
+						for (let j = 0; j < insertNTablets; j += 1) {
+							newFreehandChartCells.push(newChartCell);
+						}
+
+						update.$push['patternDesign.freehandChart.$[]'] = {
+							'$each': newFreehandChartCells,
+							'$position': insertTabletsAt,
+						};
+
+						break;
+
 					default:
 						break;
 				}
@@ -1015,6 +1042,10 @@ Meteor.methods({
 						update.$set[`threading.$[].${numberOfTablets - 1}`] = 'toBeRemoved';
 						update.$set[`patternDesign.twillDirectionChangeChart.$[].${tablet}`] = 'toBeRemoved';
 						update.$set[`patternDesign.twillPatternChart.$[].${tablet}`] = 'toBeRemoved';
+						break;
+
+					case 'freehand':
+						update.$set[`patternDesign.freehandChart.$[].${tablet}`] = 'toBeRemoved';
 
 						break;
 
@@ -1053,6 +1084,10 @@ Meteor.methods({
 						// remove tablets from each pattern design chart
 						update2.$pull['patternDesign.twillDirectionChangeChart.$[]'] = 'toBeRemoved';
 						update2.$pull['patternDesign.twillPatternChart.$[]'] = 'toBeRemoved';
+						break;
+
+					case 'freehand':
+						update2.$pull['patternDesign.freehandChart.$[]'] = 'toBeRemoved';
 						break;
 
 					default:

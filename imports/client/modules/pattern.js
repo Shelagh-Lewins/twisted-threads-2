@@ -306,14 +306,19 @@ export const getPicksForTablet = (state, tabletIndex) => state.pattern.picks[tab
 // picks may be truncated for broken twill
 export const getPicksForTabletForChart = (state, tabletIndex) => {
 	const {
+		numberOfTablets,
 		patternDesign,
 		patternType,
 	} = state.pattern;
 
-	const picksForTablet = [...state.pattern.picks[tabletIndex]];
+	let picksForTablet = [];
 
-	if (patternType === 'brokenTwill') {
-		picksForTablet.splice(0, patternDesign.weavingStartRow - 1);
+	if (tabletIndex < numberOfTablets) { // can happen when preview re-renders after remove tablet
+		picksForTablet = [...state.pattern.picks[tabletIndex]];
+
+		if (patternType === 'brokenTwill') {
+			picksForTablet.splice(0, patternDesign.weavingStartRow - 1);
+		}
 	}
 
 	return picksForTablet;
@@ -1847,8 +1852,6 @@ export default function pattern(state = initialPatternState, action) {
 
 			const newThreadingByTablet = [...threadingByTablet];
 			const newOrientations = [...orientations];
-			const newWeavingInstructionsByTablet = [...weavingInstructionsByTablet];
-			const newPicks = [...picks];
 			const newNumberOfTablets = numberOfTablets + insertNTablets;
 
 			// build update for updeep / state
@@ -1856,16 +1859,26 @@ export default function pattern(state = initialPatternState, action) {
 				'numberOfTablets': newNumberOfTablets,
 				'orientations': newOrientations,
 				'threadingByTablet': newThreadingByTablet,
-				'weavingInstructionsByTablet': newWeavingInstructionsByTablet,
-				'picks': newPicks,
 			};
 
+			let newWeavingInstructionsByTablet;
+			let newPicks;
+
+			if (patternType !== 'freehand') {
+				newWeavingInstructionsByTablet = [...weavingInstructionsByTablet];
+				newPicks = [...picks];
+
+				update.weavingInstructionsByTablet = newWeavingInstructionsByTablet;
+				update.picks = newPicks;
+			}
+
+			// threading chart is the same for all these patterns
 			switch (patternType) {
-				// each tablet is independent so just remove it
 				case 'individual':
 				case 'allTogether':
+				case 'freehand':
 					for (let i = 0; i < insertNTablets; i += 1) {
-					// update orientations
+						// update orientations
 						newOrientations.splice(insertTabletsAt, 0, DEFAULT_ORIENTATION);
 
 						// update threading
@@ -1875,8 +1888,17 @@ export default function pattern(state = initialPatternState, action) {
 						}
 
 						newThreadingByTablet.splice(insertTabletsAt, 0, newThreadingTablet);
+					}
+					break;
 
-						// update weaving instructions
+				default:
+					break;
+			}
+
+			switch (patternType) {
+				case 'individual':
+				case 'allTogether':
+					for (let i = 0; i < insertNTablets; i += 1) {
 						const newWeavingInstructionsForTablet = [];
 						for (let j = 0; j < numberOfRows; j += 1) {
 							let direction;
@@ -1982,6 +2004,29 @@ export default function pattern(state = initialPatternState, action) {
 					};
 					break;
 
+				case 'freehand':
+					const { freehandChart } = patternDesign;
+					const newFreehandChart = [...freehandChart];
+					//const newChartCell = DEFAULT_FREEHAND_CELL;
+					//newChartCell.threadColor = colorIndex;
+
+					for (let i = 0; i < insertNTablets; i += 1) {
+						for (let j = 0; j < numberOfRows; j += 1) {
+							const newChartCell = { ...DEFAULT_FREEHAND_CELL };
+							newChartCell.threadColor = colorIndex;
+
+							newFreehandChart[j] = [...newFreehandChart[j]];
+							newFreehandChart[j].splice(insertTabletsAt, 0, newChartCell);
+							//console.log('new cell', 
+						}
+					}
+
+					update.patternDesign = {
+						'freehandChart': newFreehandChart,
+					};
+
+					break;
+
 				default:
 					break;
 			}
@@ -2003,8 +2048,9 @@ export default function pattern(state = initialPatternState, action) {
 				weavingInstructionsByTablet,
 			} = state;
 
-			const newPicks = [...picks];
-			let newWeavingInstructionsByTablet = [...weavingInstructionsByTablet];
+			let newWeavingInstructionsByTablet;
+			let newPicks;
+
 			const newThreadingByTablet = [...threadingByTablet];
 			const newOrientations = [...orientations];
 			const newNumberOfTablets = numberOfTablets - 1;
@@ -2014,9 +2060,19 @@ export default function pattern(state = initialPatternState, action) {
 				'numberOfTablets': newNumberOfTablets,
 				'orientations': newOrientations,
 				'threadingByTablet': newThreadingByTablet,
-				'weavingInstructionsByTablet': newWeavingInstructionsByTablet,
-				'picks': newPicks,
 			};
+
+			if (patternType === 'brokenTwill') {
+				newThreadingByTablet.splice(tablet, 1);
+			}
+
+			if (patternType !== 'freehand') {
+				newWeavingInstructionsByTablet = [...weavingInstructionsByTablet];
+				newPicks = [...picks];
+
+				update.weavingInstructionsByTablet = newWeavingInstructionsByTablet;
+				update.picks = newPicks;
+			}
 
 			switch (patternType) {
 				// each tablet is independent so just remove it
@@ -2024,7 +2080,6 @@ export default function pattern(state = initialPatternState, action) {
 				case 'allTogether':
 					newOrientations.splice(tablet, 1);
 					newPicks.splice(tablet, 1);
-					newThreadingByTablet.splice(tablet, 1);
 					newWeavingInstructionsByTablet.splice(tablet, 1);
 					break;
 
@@ -2049,12 +2104,12 @@ export default function pattern(state = initialPatternState, action) {
 
 					// design charts are by row, tablet
 					// for each row, remove the tablet
-					for (let j = 0; j < chartLength; j += 1) {
-						newTwillPatternChart[j] = [...newTwillPatternChart[j]];
-						newTwillPatternChart[j].splice(tablet, 1);
+					for (let i = 0; i < chartLength; i += 1) {
+						newTwillPatternChart[i] = [...newTwillPatternChart[i]];
+						newTwillPatternChart[i].splice(tablet, 1);
 
-						newTwillDirectionChangeChart[j] = [...newTwillDirectionChangeChart[j]];
-						newTwillDirectionChangeChart[j].splice(tablet, 1);
+						newTwillDirectionChangeChart[i] = [...newTwillDirectionChangeChart[i]];
+						newTwillDirectionChangeChart[i].splice(tablet, 1);
 					}
 
 					// calculate weaving from removed tablet onwards
@@ -2088,6 +2143,23 @@ export default function pattern(state = initialPatternState, action) {
 						'offsetThreadingByTablets': newOffsetThreading,
 						'twillPatternChart': newTwillPatternChart,
 						'twillDirectionChangeChart': newTwillDirectionChangeChart,
+					};
+
+					break;
+
+				case 'freehand':
+					const { freehandChart } = patternDesign;
+					const newFreehandChart = [...freehandChart];
+
+					// freehand chart is by row, tablet
+					// for each row, remove the tablet
+					for (let i = 0; i < numberOfRows; i += 1) {
+						newFreehandChart[i] = [...newFreehandChart[i]];
+						newFreehandChart[i].splice(tablet, 1);
+					}
+
+					update.patternDesign = {
+						'freehandChart': newFreehandChart,
 					};
 
 					break;
