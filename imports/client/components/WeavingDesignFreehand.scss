@@ -37,6 +37,10 @@
 			display: none;
 		}
 	}
+
+	&.editing {
+		min-width: 715px;
+	}
 }
 
 .freehand-threads {
@@ -107,5 +111,11 @@
 		&.direction-B {
 			background: $color-weaving-backwards-bg;
 		}
+	}
+}
+
+#freehand-chart-palette {
+	.color-holder {
+		margin-left: 0;
 	}
 }
