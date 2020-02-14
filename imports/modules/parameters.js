@@ -74,7 +74,12 @@ export const ALLOWED_DIRECTIONS = [
 		'value': 'B',
 	},
 ];
-export const DEFAULT_THREAD_SHAPE = 'forwardWarp'; // default shape for freehand patterns
+
+export const DEFAULT_FREEHAND_CELL = {
+	'direction': DEFAULT_DIRECTION,
+	'threadColor': DEFAULT_COLOR,
+	'threadShape': 'forwardWarp',
+};
 
 // defaults for 3/1 broken twill
 export const DEFAULT_TWILL_DIRECTION = 'S';

@@ -24,10 +24,10 @@ import {
 	ALLOWED_PREVIEW_ORIENTATIONS,
 	DEFAULT_COLOR,
 	DEFAULT_DIRECTION,
+	DEFAULT_FREEHAND_CELL,
 	DEFAULT_NUMBER_OF_TURNS,
 	DEFAULT_ORIENTATION,
 	DEFAULT_PALETTE,
-	DEFAULT_THREAD_SHAPE,
 	DEFAULT_WEFT_COLOR,
 	MAX_ROWS,
 	MAX_TABLETS,
@@ -169,20 +169,16 @@ Meteor.methods({
 			case 'freehand':
 				// standard threading diagram
 				// draw the weaving chart freehand
-				const weavingChart = new Array(rows); // construct an empty array to hold the chart cells
+				const freehandChart = new Array(rows); // construct an empty array to hold the chart cells
 				for (let i = 0; i < rows; i += 1) {
-					weavingChart[i] = new Array(tablets);
+					freehandChart[i] = new Array(tablets);
 
 					for (let j = 0; j < tablets; j += 1) {
-						weavingChart[i][j] = {
-							'direction': DEFAULT_DIRECTION,
-							'threadColor': DEFAULT_COLOR,
-							'threadShape': DEFAULT_THREAD_SHAPE,
-						};
+						freehandChart[i][j] = DEFAULT_FREEHAND_CELL;
 					}
 				}
 
-				patternDesign = { weavingChart };
+				patternDesign = { freehandChart };
 				tags.push('freehand');
 				break;
 
@@ -583,8 +579,8 @@ Meteor.methods({
 					case 'freehand':
 						return Patterns.update({ _id }, {
 							'$set': {
-								[`patternDesign.weavingChart.${row}.${tablet}.threadColor`]: threadColor,
-								[`patternDesign.weavingChart.${row}.${tablet}.threadShape`]: threadShape,
+								[`patternDesign.freehandChart.${row}.${tablet}.threadColor`]: threadColor,
+								[`patternDesign.freehandChart.${row}.${tablet}.threadShape`]: threadShape,
 							},
 						});
 
@@ -606,7 +602,7 @@ Meteor.methods({
 					case 'freehand':
 						return Patterns.update({ _id }, {
 							'$set': {
-								[`patternDesign.weavingChart.${row}.${tablet}.direction`]: direction,
+								[`patternDesign.freehandChart.${row}.${tablet}.direction`]: direction,
 							},
 						});
 
@@ -701,6 +697,23 @@ Meteor.methods({
 							},
 						};
 
+						break;
+
+					case 'freehand':
+						const newChartRow = new Array(numberOfTablets);
+						newChartRow.fill(DEFAULT_FREEHAND_CELL);
+						const newChartRows = [];
+
+						for (let i = 0; i < insertNRows / 2; i += 1) {
+							newChartRows.push(newChartRow);
+						}
+
+						update.$push = {
+							'patternDesign.freehandChart': {
+								'$each': newChartRows,
+								'$position': insertRowsAt,
+							},
+						};
 						break;
 
 					default:
@@ -816,6 +829,17 @@ Meteor.methods({
 							'patternDesign.twillDirectionChangeChart': 'toBeRemoved',
 							'patternDesign.twillPatternChart': 'toBeRemoved',
 						};
+
+						break;
+
+					case 'freehand':
+						for (let i = 0; i < removeNRows; i += 1) {
+							rowIndex = i + removeRowsAt;
+
+							Patterns.update({ _id }, { '$set': { [`patternDesign.freehandChart.${rowIndex}.${0}.toBeRemoved`]: true } });
+						}
+
+						update.$pull = { 'patternDesign.freehandChart': { '$elemMatch': { 'toBeRemoved': true } } };
 
 						break;
 

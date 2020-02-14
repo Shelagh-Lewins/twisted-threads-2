@@ -220,7 +220,7 @@ class WeavingDesignFreehand extends PureComponent {
 					tabIndex={isEditing ? '0' : undefined}
 				>
 					<FreehandChartCell
-						chartCell={patternDesign.weavingChart[rowIndex][tabletIndex]}
+						chartCell={patternDesign.freehandChart[rowIndex][tabletIndex]}
 						selectedThread={selectedThread}
 					/>
 				</span>

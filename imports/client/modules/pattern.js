@@ -21,11 +21,10 @@ import {
 	BROKEN_TWILL_BACKGROUND,
 	BROKEN_TWILL_FOREGROUND,
 	BROKEN_TWILL_THREADING,
-	DEFAULT_COLOR,
+	DEFAULT_FREEHAND_CELL,
 	DEFAULT_DIRECTION,
 	DEFAULT_NUMBER_OF_TURNS,
 	DEFAULT_ORIENTATION,
-	DEFAULT_THREAD_SHAPE,
 	MAX_TABLETS,
 } from '../../modules/parameters';
 
@@ -1470,7 +1469,7 @@ export default function pattern(state = initialPatternState, action) {
 				threadShape,
 			} = action.payload;
 
-			return updeep({ 'patternDesign': { 'weavingChart': { [row]: { [tablet]: { threadColor, threadShape } } } } }, state);
+			return updeep({ 'patternDesign': { 'freehandChart': { [row]: { [tablet]: { threadColor, threadShape } } } } }, state);
 		}
 
 		case UPDATE_FREEHAND_CELL_DIRECTION: {
@@ -1480,7 +1479,7 @@ export default function pattern(state = initialPatternState, action) {
 				tablet,
 			} = action.payload;
 
-			return updeep({ 'patternDesign': { 'weavingChart': { [row]: { [tablet]: { direction } } } } }, state);
+			return updeep({ 'patternDesign': { 'freehandChart': { [row]: { [tablet]: { direction } } } } }, state);
 		}
 
 		case SET_IS_EDITING_WEAVING: {
@@ -1679,27 +1678,23 @@ export default function pattern(state = initialPatternState, action) {
 
 				case 'freehand':
 					const {
-						weavingChart,
+						freehandChart,
 					} = patternDesign;
 
-					const newWeavingChart = [...weavingChart];
+					const newWeavingChart = [...freehandChart];
 
 					for (let i = 0; i < insertNRows; i += 1) {
 						const newChartRow = [];
 
 						for (let j = 0; j < numberOfTablets; j += 1) {
-							newChartRow.push({
-								'direction': DEFAULT_DIRECTION,
-								'threadColor': DEFAULT_COLOR,
-								'threadShape': DEFAULT_THREAD_SHAPE,
-							});
+							newChartRow.push(DEFAULT_FREEHAND_CELL);
 						}
 
 						newWeavingChart.push(newChartRow);
 					}
 
 					update.patternDesign = {
-						'weavingChart': newWeavingChart,
+						'freehandChart': newWeavingChart,
 					};
 
 					break;
@@ -1808,6 +1803,20 @@ export default function pattern(state = initialPatternState, action) {
 					update.patternDesign = {
 						'twillPatternChart': newTwillPatternChart,
 						'twillDirectionChangeChart': newTwillDirectionChangeChart,
+					};
+
+					break;
+
+				case 'freehand':
+					const {
+						freehandChart,
+					} = patternDesign;
+					const newFreehandChart = [...freehandChart];
+
+					newFreehandChart.splice(removeRowsAt, removeNRows);
+
+					update.patternDesign = {
+						'freehandChart': newFreehandChart,
 					};
 
 					break;
