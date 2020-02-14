@@ -5,6 +5,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import PreviewCell from './PreviewCell';
+import FreehandPreviewCell from './FreehandPreviewCell';
 import {
 	getPalette,
 	getPreviewShouldUpdate,
@@ -38,6 +39,7 @@ class PatternPreview extends Component {
 			'pattern': {
 				_id,
 				createdBy,
+				patternType,
 				previewOrientation,
 				weftColor,
 			},
@@ -204,20 +206,36 @@ class PatternPreview extends Component {
 			const yOffset = yOffsetForRow(rowIndex, repeatOffset);
 			const transform = `translate(${xOffset} ${yOffset})`;
 
+			let cell;
+
+			if (patternType === 'freehand') {
+				cell = (
+					<FreehandPreviewCell
+						rowIndex={rowIndex}
+						tabletIndex={tabletIndex}
+					/>
+				);
+			} else {
+				cell = (
+					<PreviewCell
+						currentRepeat={currentRepeat}
+						numberOfRepeats={numberOfRepeats}
+						numberOfRows={numberOfRows}
+						patternWillRepeat={patternWillRepeat}
+						patternType={patternType}
+						rowIndex={rowIndex}
+						tabletIndex={tabletIndex}
+					/>
+				);
+			}
+
 			return (
 				<g
 					key={`prevew-cell-${rowIndex}-${tabletIndex}`}
 					transform={transform}
 					className={currentRepeat !== 1 ? 'repeat' : ''}
 				>
-					<PreviewCell
-						currentRepeat={currentRepeat}
-						numberOfRepeats={numberOfRepeats}
-						numberOfRows={numberOfRows}
-						patternWillRepeat={patternWillRepeat}
-						rowIndex={rowIndex}
-						tabletIndex={tabletIndex}
-					/>
+					{cell}
 				</g>
 			);
 		};
@@ -315,11 +333,15 @@ class PatternPreview extends Component {
 			);
 		}
 
-		const totalTurnsDisplay = (
-			<span className="total-turns" style={totalTurnsDisplayStyle}>
-				{totalTurnCells}
-			</span>
-		);
+		let totalTurnsDisplay;
+
+		if (patternType !== 'freehand') {
+			totalTurnsDisplay = (
+				<span className="total-turns" style={totalTurnsDisplayStyle}>
+					{totalTurnCells}
+				</span>
+			);
+		}
 
 		// tablet labels
 		const tabletLabelCells = [];
@@ -368,13 +390,13 @@ PatternPreview.propTypes = {
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 	'patternWillRepeat': PropTypes.bool.isRequired,
-	'totalTurnsByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'totalTurnsByTablet': PropTypes.arrayOf(PropTypes.any),
+	// 'totalTurnsByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 function mapStateToProps(state) {
 	return {
-		'componentShouldUpdate': getPreviewShouldUpdate(state)
-		,
+		'componentShouldUpdate': getPreviewShouldUpdate(state),
 		'palette': getPalette(state),
 	};
 }

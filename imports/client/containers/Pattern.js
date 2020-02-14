@@ -494,9 +494,9 @@ class Pattern extends PureComponent {
 
 //TODO fix preview to work for freehand
 console.log('*** patternType', pattern.patternType);
-		if (pattern.patternType === 'freehand') {
+		/* if (pattern.patternType === 'freehand') {
 			return;
-		}
+		} */
 
 		return (
 			<div className="preview-outer">
@@ -798,12 +798,13 @@ function mapStateToProps(state, ownProps) {
 	const { patternType } = state.pattern;
 
 	// defaults for freehand pattern
-	let patternIsTwistNeutral = false;
-	let patternWillRepeat = false;
+	//let patternIsTwistNeutral = false;
+	//let patternWillRepeat = false;
+	const { patternIsTwistNeutral, patternWillRepeat } = getPatternTwistSelector(state);
 	let totalTurnsByTablet = [];
 
 	if (patternType !== 'freehand') { // all simulation patterns
-		({ patternIsTwistNeutral, patternWillRepeat } = getPatternTwistSelector(state));
+		//({ patternIsTwistNeutral, patternWillRepeat } = getPatternTwistSelector(state));
 
 		totalTurnsByTablet = getTotalTurnsByTabletSelector(state);
 	}

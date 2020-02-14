@@ -187,30 +187,32 @@ export const findPatternTwist = ({
 	let patternWillRepeat = false;
 	let patternIsTwistNeutral = false;
 
-	if (picks[0]) {
-		patternWillRepeat = true;
-		patternIsTwistNeutral = true;
+	if (patternType !== 'freehand') {
+		if (picks[0]) {
+			patternWillRepeat = true;
+			patternIsTwistNeutral = true;
 
-		for (let j = 0; j < numberOfTablets; j += 1) {
-			const totalTurns = getTotalTurnsForTablet({
-				numberOfRows,
-				patternDesign,
-				patternType,
-				'picksForTablet': picks[j],
-			});
+			for (let j = 0; j < numberOfTablets; j += 1) {
+				const totalTurns = getTotalTurnsForTablet({
+					numberOfRows,
+					patternDesign,
+					patternType,
+					'picksForTablet': picks[j],
+				});
 
-			const startPosition = modulus(totalTurns, holes) === 0; // tablet is back at start position
+				const startPosition = modulus(totalTurns, holes) === 0; // tablet is back at start position
 
-			if (totalTurns !== 0) {
-				patternIsTwistNeutral = false;
-			}
+				if (totalTurns !== 0) {
+					patternIsTwistNeutral = false;
+				}
 
-			if (!startPosition) {
-				patternWillRepeat = false;
-			}
+				if (!startPosition) {
+					patternWillRepeat = false;
+				}
 
-			if (!patternIsTwistNeutral && !patternWillRepeat) {
-				break;
+				if (!patternIsTwistNeutral && !patternWillRepeat) {
+					break;
+				}
 			}
 		}
 	}
