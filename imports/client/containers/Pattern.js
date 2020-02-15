@@ -600,8 +600,8 @@ class Pattern extends PureComponent {
 
 				tabContent = (
 					<div className={`tab-content ${(isEditing && !updatePreviewWhileEditing) ? 'is-editing' : ''} ${previewClassName}`}>
-						{repeatText}
-						{twistNeutralText}
+						{patternType !== 'freehand' && repeatText}
+						{patternType !== 'freehand' && twistNeutralText}
 						<Weft
 							colorBooks={colorBooks}
 							dispatch={dispatch}
