@@ -708,7 +708,7 @@ Meteor.methods({
 						newChartRow.fill(DEFAULT_FREEHAND_CELL);
 						const newChartRows = [];
 
-						for (let i = 0; i < insertNRows / 2; i += 1) {
+						for (let i = 0; i < insertNRows; i += 1) {
 							newChartRows.push(newChartRow);
 						}
 

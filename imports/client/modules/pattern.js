@@ -1696,7 +1696,7 @@ export default function pattern(state = initialPatternState, action) {
 							newChartRow.push(DEFAULT_FREEHAND_CELL);
 						}
 
-						newWeavingChart.push(newChartRow);
+						newWeavingChart.splice(insertRowsAt + i, 0, newChartRow);
 					}
 
 					update.patternDesign = {

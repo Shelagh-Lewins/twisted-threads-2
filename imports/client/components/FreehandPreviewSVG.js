@@ -30,9 +30,26 @@ export default function FreehandPreviewSVG({
 }) {
 	let svg;
 	const borderColor = '#444';
+	const emptyHoleColor = 'transparent'; // transparent to show weft
+	const defaultColor = '#fff'; // used when multiple turns and we don't know the previous colours
 	const cell = freehandChart[rowIndex][tabletIndex];
 	const { direction, threadColor, threadShape } = cell;
 	const colorValue = palette[threadColor];
+	let previousColor;
+
+	// check for reversal
+	let reversal = false;
+	let previousCell;
+
+	if (rowIndex !== 0) {
+		// there is a previous row
+		previousCell = freehandChart[rowIndex - 1][tabletIndex];
+		previousColor = palette[previousCell.threadColor];
+	}
+
+	if (previousCell && direction !== previousCell.direction) {
+		reversal = true;
+	}
 
 	let threadAngle = '/'; // which way does the thread twist?
 
@@ -45,11 +62,81 @@ export default function FreehandPreviewSVG({
 	}
 
 	switch (threadShape) {
+		case 'idle':
+			svg = threadAngle === '\\'
+				? <PathBackwardWarp fill={previousColor} stroke={borderColor}	/>
+				: <PathForwardWarp fill={previousColor} stroke={borderColor}	/>;
+			break;
+
+		case 'forwardEmpty':
+		case 'backwardEmpty':
+			svg = threadAngle === '\\'
+				? <PathBackwardWarp fill={emptyHoleColor} stroke={borderColor}	/>
+				: <PathForwardWarp fill={emptyHoleColor} stroke={borderColor}	/>;
+
+			if (reversal) {
+				svg = threadAngle === '\\'
+					? <PathTriangleRight fill={emptyHoleColor} stroke={borderColor}	/>
+					: <PathTriangleLeft fill={emptyHoleColor} stroke={borderColor}	/>;
+			}
+			break;
+
 		case 'forwardWarp':
 		case 'backwardWarp':
 			svg = threadAngle === '\\'
 				? <PathBackwardWarp fill={colorValue} stroke={borderColor}	/>
 				: <PathForwardWarp fill={colorValue} stroke={borderColor}	/>;
+
+			if (reversal) {
+				svg = threadAngle === '\\'
+					? <PathTriangleRight fill={colorValue} stroke={borderColor}	/>
+					: <PathTriangleLeft fill={colorValue} stroke={borderColor}	/>;
+			}
+
+			break;
+
+		case 'forwardWarp2':
+		case 'backwardWarp2':
+			svg = threadAngle === '\\'
+				? <PathBackwardWarp2 fill1={defaultColor} fill2={colorValue} stroke={borderColor}	/>
+				: <PathForwardWarp2 fill1={defaultColor} fill2={colorValue} stroke={borderColor}	/>;
+
+			if (reversal) {
+				svg = threadAngle === '\\'
+					? <PathTriangleRight2 fill1={colorValue} fill2={defaultColor} stroke={borderColor}	/>
+					: <PathTriangleLeft2 fill1={colorValue} fill2={defaultColor} stroke={borderColor}	/>;
+			}
+
+			break;
+
+		case 'forwardWarp3':
+		case 'backwardWarp3':
+			svg = threadAngle === '\\'
+				? <PathBackwardWarp3 fill1={defaultColor} fill2={defaultColor} fill3={colorValue} stroke={borderColor}	/>
+				: <PathForwardWarp3 fill1={defaultColor} fill2={defaultColor} fill3={colorValue} stroke={borderColor}	/>;
+
+			if (reversal) {
+				svg = threadAngle === '\\'
+					? <PathTriangleRight3 fill1={colorValue} fill2={colorValue} fill3={defaultColor} stroke={borderColor}	/>
+					: <PathTriangleLeft3 fill1={colorValue} fill2={colorValue} fill3={defaultColor} stroke={borderColor}	/>;
+			}
+
+			break;
+
+		case 'block':
+			svg = <PathBlock fill={colorValue} stroke={borderColor}	/>;
+			break;
+
+		case 'verticalLeftWarp':
+			svg = <PathVerticalLeftWarp fill={colorValue} stroke={borderColor}	/>;
+			break;
+
+		case 'verticalCenterWarp':
+			svg = <PathVerticalCenterWarp fill={colorValue} stroke={borderColor}	/>;
+			break;
+
+		case 'verticalRightWarp':
+			svg = <PathVerticalRightWarp fill={colorValue} stroke={borderColor}	/>;
 			break;
 
 		default:

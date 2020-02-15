@@ -492,12 +492,6 @@ class Pattern extends PureComponent {
 			totalTurnsByTablet,
 		} = this.props;
 
-//TODO fix preview to work for freehand
-console.log('*** patternType', pattern.patternType);
-		/* if (pattern.patternType === 'freehand') {
-			return;
-		} */
-
 		return (
 			<div className="preview-outer">
 				<h2>Woven band</h2>
