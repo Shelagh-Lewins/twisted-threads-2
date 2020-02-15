@@ -2035,8 +2035,6 @@ export default function pattern(state = initialPatternState, action) {
 				case 'freehand':
 					const { freehandChart } = patternDesign;
 					const newFreehandChart = [...freehandChart];
-					//const newChartCell = DEFAULT_FREEHAND_CELL;
-					//newChartCell.threadColor = colorIndex;
 
 					for (let i = 0; i < insertNTablets; i += 1) {
 						for (let j = 0; j < numberOfRows; j += 1) {
@@ -2045,7 +2043,6 @@ export default function pattern(state = initialPatternState, action) {
 
 							newFreehandChart[j] = [...newFreehandChart[j]];
 							newFreehandChart[j].splice(insertTabletsAt, 0, newChartCell);
-							//console.log('new cell', 
 						}
 					}
 
@@ -2090,10 +2087,6 @@ export default function pattern(state = initialPatternState, action) {
 				'threadingByTablet': newThreadingByTablet,
 			};
 
-			if (patternType === 'brokenTwill') {
-				newThreadingByTablet.splice(tablet, 1);
-			}
-
 			if (patternType !== 'freehand') {
 				newWeavingInstructionsByTablet = [...weavingInstructionsByTablet];
 				newPicks = [...picks];
@@ -2125,10 +2118,38 @@ export default function pattern(state = initialPatternState, action) {
 					const newOffsetThreading = [...offsetThreadingByTablets];
 
 					newOrientations.pop(); // all tablets have the same orientation
-					newThreadingByTablet.pop(); // threading follows a sequence
+					// newThreadingByTablet.pop(); // threading follows a sequence
 					newWeavingInstructionsByTablet.pop(); // this will be rewoven
 					newPicks.pop(); // this will be rewoven
 					newOffsetThreading.pop(); // this will be recalculated
+
+					// remove the tablet from threading
+					// find the foreground / background colour for each tablet from the change onwards
+					const colorsForRolesByTablet = getColorsForRolesByTablet({
+						holes,
+						numberOfTablets,
+						'startAt': tablet + 1,
+						'threading': threadingByTablet,
+						'threadingStructure': 'byTablet',
+					});
+
+					// shorten the threading array
+					newThreadingByTablet.pop();
+console.log('colorsForRolesByTablet', colorsForRolesByTablet);
+					// reset the threading of the subsequence tablets
+					for (let i = 0; i < colorsForRolesByTablet.length; i += 1) {
+						const { B, F } = colorsForRolesByTablet[i];
+
+						const tabletIndex = i + tablet;
+
+						newThreadingByTablet[tabletIndex] = [];
+
+						for (let j = 0; j < holes; j += 1) {
+							const colorRole = BROKEN_TWILL_THREADING[j][tabletIndex % holes];
+
+							newThreadingByTablet[tabletIndex].push(colorRole === 'F' ? F : B);
+						}
+					}
 
 					// design charts are by row, tablet
 					// for each row, remove the tablet

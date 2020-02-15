@@ -34,7 +34,7 @@ class PreviewCell extends Component {
 			threadingForTablet,
 		} = this.props;
 
-		return (
+		return orientation && (
 			<PreviewSVG
 				currentRepeat={currentRepeat}
 				holes={holes}
@@ -59,7 +59,7 @@ PreviewCell.propTypes = {
 	'holes': PropTypes.number.isRequired,
 	'numberOfRepeats': PropTypes.number.isRequired,
 	'numberOfRows': PropTypes.number.isRequired,
-	'orientation': PropTypes.string.isRequired,
+	'orientation': PropTypes.string, // can be temporarily missing after remove last tablet
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'patternWillRepeat': PropTypes.bool.isRequired,
 	'picksForTablet': PropTypes.arrayOf(PropTypes.any),

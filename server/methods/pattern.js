@@ -964,6 +964,7 @@ Meteor.methods({
 						});
 
 						const newThreading = [...threading];
+
 						// insert the new tablets
 						for (let i = 0; i < holes; i += 1) {
 							newThreading[i] = [...newThreading[i]];
