@@ -7,6 +7,8 @@
 	padding-right: 8px;
 
 	&.editing {
+		min-width: 728px;
+
 		.content {
 			background: $color-chart-editing-background;
 			border: 1px solid $color-focus;

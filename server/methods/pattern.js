@@ -978,7 +978,6 @@ Meteor.methods({
 
 						// reset the threading of the subsequence tablets
 						for (let i = 0; i < holes; i += 1) {
-
 							for (let j = 0; j < colorsForRolesByTablet.length; j += 1) {
 								const { B, F } = colorsForRolesByTablet[j];
 								const changedTabletIndex = j + insertTabletsAt + insertNTablets;
@@ -1068,8 +1067,6 @@ Meteor.methods({
 						break;
 
 					case 'brokenTwill':
-						// threading follows a sequence, so remove the last tablet
-						update.$set[`threading.$[].${numberOfTablets - 1}`] = 'toBeRemoved';
 						update.$set[`patternDesign.twillDirectionChangeChart.$[].${tablet}`] = 'toBeRemoved';
 						update.$set[`patternDesign.twillPatternChart.$[].${tablet}`] = 'toBeRemoved';
 						break;
@@ -1091,9 +1088,8 @@ Meteor.methods({
 
 				const update2 = {};
 
-				// updates for threading and orientation are the same for all pattern types
+				// update for orientation is the same for all pattern types
 				update2.$pull = {
-					'threading.$[]': 'toBeRemoved',
 					'orientations': 'toBeRemoved',
 				};
 
@@ -1111,6 +1107,40 @@ Meteor.methods({
 						break;
 
 					case 'brokenTwill':
+						// shorten and recalculate the threading chart
+						// it is probably as quick, and certainly easier, to calculate an entirely new threading chart and set it as one operation
+						// because subsequent tablets are affected
+						const { threading } = pattern;
+
+						// find the foreground / background colour for each tablet from the change onwards
+						const colorsForRolesByTablet = getColorsForRolesByTablet({
+							holes,
+							numberOfTablets,
+							'startAt': tablet + 1,
+							threading,
+							'threadingStructure': 'byHole',
+						});
+
+						const newThreading = [...threading];
+
+						// remove the tablet
+						for (let i = 0; i < holes; i += 1) {
+							newThreading[i] = [...threading[i]];
+							// shorten the row
+							newThreading[i].pop();
+
+							// reset the threading of the subsequence tablets
+							for (let j = 0; j < colorsForRolesByTablet.length; j += 1) {
+								const { B, F } = colorsForRolesByTablet[j];
+								const changedTabletIndex = j + tablet;
+								const colorRole = BROKEN_TWILL_THREADING[i][changedTabletIndex % holes];
+
+								newThreading[i][changedTabletIndex] = colorRole === 'F' ? F : B;
+							}
+						}
+
+						update2.$set.threading = newThreading;
+
 						// remove tablets from each pattern design chart
 						update2.$pull['patternDesign.twillDirectionChangeChart.$[]'] = 'toBeRemoved';
 						update2.$pull['patternDesign.twillPatternChart.$[]'] = 'toBeRemoved';

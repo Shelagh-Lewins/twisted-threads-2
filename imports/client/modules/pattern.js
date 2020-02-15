@@ -2135,11 +2135,10 @@ export default function pattern(state = initialPatternState, action) {
 
 					// shorten the threading array
 					newThreadingByTablet.pop();
-console.log('colorsForRolesByTablet', colorsForRolesByTablet);
+
 					// reset the threading of the subsequence tablets
 					for (let i = 0; i < colorsForRolesByTablet.length; i += 1) {
 						const { B, F } = colorsForRolesByTablet[i];
-
 						const tabletIndex = i + tablet;
 
 						newThreadingByTablet[tabletIndex] = [];
