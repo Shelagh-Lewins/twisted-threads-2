@@ -22,6 +22,9 @@ import {
 import {
 	ALLOWED_PATTERN_TYPES,
 	ALLOWED_PREVIEW_ORIENTATIONS,
+	BROKEN_TWILL_BACKGROUND,
+	BROKEN_TWILL_FOREGROUND,
+	BROKEN_TWILL_THREADING,
 	DEFAULT_COLOR,
 	DEFAULT_DIRECTION,
 	DEFAULT_FREEHAND_CELL,
@@ -35,6 +38,7 @@ import {
 import {
 	getPatternPermissionQuery,
 } from '../../imports/modules/permissionQueries';
+import getColorsForRolesByTablet from '../../imports/modules/getColorsForRolesByTablet';
 
 const tinycolor = require('tinycolor2');
 
@@ -946,19 +950,44 @@ Meteor.methods({
 
 					case 'brokenTwill':
 						// extend the threading chart
-						// because it is a fixed sequence we can simply add the new tablets at the end
-						const newTabletsForThreading = setupTwillThreading({
+						// it is probably as quick, and certainly easier, to calculate an entirely new threading chart and set it as one operation
+						// because subsequent tablets are affected
+						const { threading } = pattern;
+
+						// find the foreground / background colour for each tablet from the change onwards
+						const colorsForRolesByTablet = getColorsForRolesByTablet({
 							holes,
-							'startTablet': numberOfTablets,
-							'numberOfTablets': newNumberOfTablets,
+							numberOfTablets,
+							'startAt': insertTabletsAt,
+							threading,
+							'threadingStructure': 'byHole',
 						});
 
+						const newThreading = [...threading];
+						// insert the new tablets
 						for (let i = 0; i < holes; i += 1) {
-							update.$push[`threading.${i}`] = {
-								'$each': newTabletsForThreading[i],
-								'$position': numberOfTablets,
-							};
+							newThreading[i] = [...newThreading[i]];
+
+							for (let j = insertTabletsAt; j < insertTabletsAt + insertNTablets; j += 1) {
+								const colorRole = BROKEN_TWILL_THREADING[i][j % holes];
+
+								newThreading[i].splice(j, 0, colorRole === 'F' ? BROKEN_TWILL_FOREGROUND : BROKEN_TWILL_BACKGROUND);
+							}
 						}
+
+						// reset the threading of the subsequence tablets
+						for (let i = 0; i < holes; i += 1) {
+
+							for (let j = 0; j < colorsForRolesByTablet.length; j += 1) {
+								const { B, F } = colorsForRolesByTablet[j];
+								const changedTabletIndex = j + insertTabletsAt + insertNTablets;
+								const colorRole = BROKEN_TWILL_THREADING[i][changedTabletIndex % holes];
+
+								newThreading[i][changedTabletIndex] = colorRole === 'F' ? F : B;
+							}
+						}
+
+						update.$set.threading = newThreading;
 
 						// insert new tablets into pattern design charts
 						const newChartCells = [];
