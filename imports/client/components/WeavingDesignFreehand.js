@@ -152,11 +152,17 @@ class WeavingDesignFreehand extends PureComponent {
 
 	handleSubmitAddRows(data) {
 		const { dispatch, 'pattern': { _id } } = this.props;
+		const { selectedColorIndex, selectedDirection, selectedThread } = this.state;
 
 		dispatch(addWeavingRows({
 			_id,
 			'insertNRows': parseInt(data.insertNRows, 10),
 			'insertRowsAt': parseInt(data.insertRowsAt - 1, 10),
+			'chartCell': {
+				'direction': selectedDirection,
+				'threadColor': selectedColorIndex,
+				'threadShape': selectedThread,
+			},
 		}));
 
 		setTimeout(() => this.trackScrolling(), 100); // give the new rows time to render

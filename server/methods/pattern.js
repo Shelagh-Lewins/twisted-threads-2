@@ -430,6 +430,7 @@ Meteor.methods({
 		} = pattern;
 
 		// to be filled in by data depending on case
+		let chartCell;
 		let colorHexValue;
 		let colorIndex;
 		let direction;
@@ -591,7 +592,7 @@ Meteor.methods({
 					default:
 						throw new Meteor.Error('edit-freehand-cell-thread-unknown-pattern-type', `Unable to edit freehand cell thread because the pattern type ${patternType} is not freehand`);
 				}
-//TODO validDirectionCheck
+
 			case 'editFreehandCellDirection':
 				({
 					direction,
@@ -704,8 +705,15 @@ Meteor.methods({
 						break;
 
 					case 'freehand':
+						({ chartCell } = data);
+
+						check(chartCell, Match.ObjectIncluding({
+							'direction': String,
+							'threadColor': Number,
+							'threadShape': String,
+						}));
 						const newChartRow = new Array(numberOfTablets);
-						newChartRow.fill(DEFAULT_FREEHAND_CELL);
+						newChartRow.fill(chartCell);
 						const newChartRows = [];
 
 						for (let i = 0; i < insertNRows; i += 1) {
@@ -1051,29 +1059,28 @@ Meteor.methods({
 				update.$set = {
 					[`orientations.${tablet}`]: 'toBeRemoved',
 				};
-				// !warning! don't overwrite the update object in future
+				// !warning! don't overwrite the update object
 
 				// updates for weaving depend on pattern type
 				switch (patternType) {
 					case 'individual':
 					case 'allTogether':
+					case 'freehand':
 						// remove the specified tablet
 						update.$set[`threading.$[].${tablet}`] = 'toBeRemoved';
 
 						if (patternType === 'individual') {
-							// new picks to be added to each weaving row
 							update.$set[`patternDesign.weavingInstructions.$[].${tablet}.toBeRemoved`] = true;
+						}
+
+						if (patternType === 'freehand') {
+							update.$set[`patternDesign.freehandChart.$[].${tablet}`] = 'toBeRemoved';
 						}
 						break;
 
 					case 'brokenTwill':
 						update.$set[`patternDesign.twillDirectionChangeChart.$[].${tablet}`] = 'toBeRemoved';
 						update.$set[`patternDesign.twillPatternChart.$[].${tablet}`] = 'toBeRemoved';
-						break;
-
-					case 'freehand':
-						update.$set[`patternDesign.freehandChart.$[].${tablet}`] = 'toBeRemoved';
-
 						break;
 
 					default:
@@ -1099,11 +1106,19 @@ Meteor.methods({
 
 				switch (patternType) {
 					case 'individual':
-						// remove tablets from each weaving row
-						update2.$pull['patternDesign.weavingInstructions.$[]'] = { 'toBeRemoved': true };
+					case 'allTogether':
+					case 'freehand':
+						update2.$pull['threading.$[]'] = 'toBeRemoved';
 						break;
 
-					case 'allTogether':
+					default:
+						break;
+				}
+
+				switch (patternType) {
+					case 'individual':
+						// remove tablets from each weaving row
+						update2.$pull['patternDesign.weavingInstructions.$[]'] = { 'toBeRemoved': true };
 						break;
 
 					case 'brokenTwill':

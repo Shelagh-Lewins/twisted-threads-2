@@ -756,6 +756,7 @@ export function updateAddWeavingRows(data) {
 
 export function addWeavingRows({
 	_id,
+	chartCell,
 	insertNRows,
 	insertRowsAt,
 }) {
@@ -764,6 +765,7 @@ export function addWeavingRows({
 			_id,
 			'data': {
 				'type': 'addWeavingRows',
+				chartCell,
 				insertNRows,
 				insertRowsAt,
 			},
@@ -774,6 +776,7 @@ export function addWeavingRows({
 		});
 
 		dispatch(updateAddWeavingRows({
+			chartCell,
 			insertNRows,
 			insertRowsAt,
 		}));
@@ -1562,7 +1565,7 @@ export default function pattern(state = initialPatternState, action) {
 		}
 
 		case UPDATE_ADD_WEAVING_ROWS: {
-			const { insertNRows, insertRowsAt } = action.payload;
+			const { chartCell, insertNRows, insertRowsAt } = action.payload;
 			const {
 				numberOfRows,
 				numberOfTablets,
@@ -1693,7 +1696,7 @@ export default function pattern(state = initialPatternState, action) {
 						const newChartRow = [];
 
 						for (let j = 0; j < numberOfTablets; j += 1) {
-							newChartRow.push(DEFAULT_FREEHAND_CELL);
+							newChartRow.push(chartCell);
 						}
 
 						newWeavingChart.splice(insertRowsAt + i, 0, newChartRow);
@@ -2102,6 +2105,7 @@ export default function pattern(state = initialPatternState, action) {
 					newOrientations.splice(tablet, 1);
 					newPicks.splice(tablet, 1);
 					newWeavingInstructionsByTablet.splice(tablet, 1);
+					newThreadingByTablet.splice(tablet, 1);
 					break;
 
 				case 'brokenTwill':
@@ -2118,7 +2122,6 @@ export default function pattern(state = initialPatternState, action) {
 					const newOffsetThreading = [...offsetThreadingByTablets];
 
 					newOrientations.pop(); // all tablets have the same orientation
-					// newThreadingByTablet.pop(); // threading follows a sequence
 					newWeavingInstructionsByTablet.pop(); // this will be rewoven
 					newPicks.pop(); // this will be rewoven
 					newOffsetThreading.pop(); // this will be recalculated
@@ -2196,6 +2199,9 @@ export default function pattern(state = initialPatternState, action) {
 					break;
 
 				case 'freehand':
+					newOrientations.splice(tablet, 1);
+					newThreadingByTablet.splice(tablet, 1);
+
 					const { freehandChart } = patternDesign;
 					const newFreehandChart = [...freehandChart];
 

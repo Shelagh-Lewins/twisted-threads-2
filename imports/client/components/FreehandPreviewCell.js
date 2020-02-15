@@ -26,7 +26,7 @@ class FreehandPreviewCell extends Component {
 			tabletIndex,
 		} = this.props;
 
-		return (
+		return orientation && (
 			<FreehandPreviewSVG
 				freehandChart={freehandChart}
 				orientation={orientation}
@@ -41,7 +41,7 @@ class FreehandPreviewCell extends Component {
 // some props are briefly unavailable after a row or tablet has been deleted
 FreehandPreviewCell.propTypes = {
 	'componentShouldUpdate': PropTypes.bool.isRequired,
-	'orientation': PropTypes.string.isRequired,
+	'orientation': PropTypes.string, // can be temporarily missing after remove last tablet
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'patternDesign': PropTypes.objectOf(PropTypes.any).isRequired,
 	'rowIndex': PropTypes.number.isRequired, // eslint-disable-line react/no-unused-prop-types

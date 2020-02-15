@@ -371,6 +371,7 @@ class Threading extends PureComponent {
 			colorBooks,
 			'pattern': { _id },
 		} = this.props;
+		const { selectedColorIndex } = this.state;
 
 		return (
 			<Palette
@@ -378,7 +379,7 @@ class Threading extends PureComponent {
 				colorBooks={colorBooks}
 				elementId="threading-palette"
 				selectColor={this.selectColor}
-				initialColorIndex={DEFAULT_PALETTE_COLOR}
+				initialColorIndex={selectedColorIndex}
 			/>
 		);
 	}
