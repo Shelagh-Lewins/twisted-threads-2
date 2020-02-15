@@ -1960,15 +1960,80 @@ export default function pattern(state = initialPatternState, action) {
 						}
 					}
 
-					// add the new tablets to threading - just continue the twill threading sequence
-					for (let i = numberOfTablets; i < newNumberOfTablets; i += 1) {
+					// add the new tablets to threading.
+					// First find the foreground / background colour for each tablet from the change onwards
+					const colorRolesByTablet = [];
+					const BROKEN_TWILL_THREADING_BY_TABLET = [];
+
+					// recast threading sequence by tablet
+					for (let i = 0; i < holes; i += 1) {
+						BROKEN_TWILL_THREADING_BY_TABLET[i] = [];
+						for (let j = 0; j < holes; j += 1) {
+							BROKEN_TWILL_THREADING_BY_TABLET[i].push(BROKEN_TWILL_THREADING[j][i % holes]);
+						}
+					}
+
+					// record colour roles for each tablet from the change onwards
+					for (let i = insertTabletsAt; i < numberOfTablets; i += 1) {
+						const colorRolesForTablet = {};
+
+						for (let j = 0; j < holes; j += 1) {
+							if (BROKEN_TWILL_THREADING_BY_TABLET[i % holes][j % holes] === 'F') {
+								colorRolesForTablet.F = threadingByTablet[i][j];
+							} else if (BROKEN_TWILL_THREADING_BY_TABLET[i % holes][j % holes] === 'B') {
+								colorRolesForTablet.B = threadingByTablet[i][j];
+							}
+
+							if (colorRolesForTablet.B && colorRolesForTablet.A) {
+								break;
+							}
+						}
+						colorRolesByTablet.push(colorRolesForTablet);
+					}
+console.log('colorRolesByTablet', colorRolesByTablet);
+console.log('insertTabletsAt', insertTabletsAt);
+					// insert the new tablets
+					for (let i = insertTabletsAt; i < insertTabletsAt + insertNTablets; i += 1) {
+						const newThreadingForTablet = [];
+
+						for (let j = 0; j < holes; j += 1) {
+							const colorRole = BROKEN_TWILL_THREADING[j][i % holes];
+							newThreadingForTablet.push(colorRole === 'F' ? BROKEN_TWILL_FOREGROUND : BROKEN_TWILL_BACKGROUND);
+						}
+
+						newThreadingByTablet.splice(insertTabletsAt, 0, newThreadingForTablet);
+					}
+console.log('newThreadingByTablet', newThreadingByTablet);
+					// reset the threading of the subsequence tablets
+					//const affectedTablets = numberOfTablets - insertTabletsAt;
+
+					for (let i = 0; i < colorRolesByTablet.length; i += 1) {
+						console.log('i', i);
+						// console.log('i - insertTabletsAt', i - insertTabletsAt);
+						const { B, F } = colorRolesByTablet[i];
+
+						const tabletIndex = i + insertTabletsAt + insertNTablets;
+						console.log('tabletIndex', tabletIndex);
+						newThreadingByTablet[tabletIndex] = [];
+						
+						for (let j = 0; j < holes; j += 1) {
+							const colorRole = BROKEN_TWILL_THREADING[j][tabletIndex % holes];
+
+							newThreadingByTablet[tabletIndex].push(colorRole === 'F' ? F : B);
+						}
+					}
+
+
+///////////////////
+					// reconstruct the threading
+					/* for (let i = numberOfTablets; i < newNumberOfTablets; i += 1) {
 						newThreadingByTablet[i] = [];
 
 						for (let j = 0; j < holes; j += 1) {
 							const colorRole = BROKEN_TWILL_THREADING[j][i % holes];
 							newThreadingByTablet[i].push(colorRole === 'F' ? BROKEN_TWILL_FOREGROUND : BROKEN_TWILL_BACKGROUND);
 						}
-					}
+					} */
 
 					// calculate weaving for new and subsequent tablets
 					for (let i = insertTabletsAt; i < newNumberOfTablets; i += 1) {
