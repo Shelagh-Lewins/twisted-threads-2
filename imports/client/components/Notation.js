@@ -36,7 +36,7 @@ function Notation() {
 					</span>
 					<span className="text">Idle tablet</span>
 				</span>
-				<p>A circle means don&apos;t turn the tablet at all this pick.</p>
+				<p>A circle means don&apos;t turn the tablet this pick.</p>
 			</div>
 			<h2>Tablet labels</h2>
 			<img src="/images/tablet_labels.png" alt="Tablet labels" title="Labels and turning direction" width="237" height="148" />
