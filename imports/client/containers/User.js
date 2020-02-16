@@ -22,6 +22,7 @@ import {
 	copyColorBook,
 	editIsPublic,
 	removeColorBook,
+	setColorBookAdded,
 } from '../modules/colorBook';
 
 import {
@@ -88,8 +89,8 @@ class User extends PureComponent {
 		document.body.classList.add(bodyClass);
 	}
 
-	componentDidUpdate() {
-		const { dispatch, user } = this.props;
+	componentDidUpdate(prevProps) {
+		const { colorBookAdded, dispatch, user } = this.props;
 		const { gotUser, isLoading } = this.state;
 
 		// wait for user details to load
@@ -99,6 +100,14 @@ class User extends PureComponent {
 			this.setState({
 				'gotUser': true,
 			});
+		}
+
+		// automatically select a new color book
+		if (prevProps.colorBookAdded === '' && colorBookAdded !== '') {
+			this.setState({ // eslint-disable-line react/no-did-update-set-state
+				'selectedColorBook': colorBookAdded,
+			});
+			dispatch(setColorBookAdded(''));
 		}
 	}
 
@@ -389,6 +398,7 @@ class User extends PureComponent {
 
 User.propTypes = {
 	'canCreatePattern': PropTypes.bool.isRequired,
+	'colorBookAdded': PropTypes.string.isRequired,
 	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'currentPageNumber': PropTypes.number,
 	'dispatch': PropTypes.func.isRequired,
@@ -419,6 +429,7 @@ function mapStateToProps(state, ownProps) {
 
 	return {
 		'_id': ownProps.match.params.id, // read the url parameter to find the id of the pattern
+		'colorBookAdded': state.colorBook.colorBookAdded,
 		'canCreateColorBook': getCanCreateColorBook(state),
 		'canCreatePattern': getCanCreatePattern(state),
 		'currentPageNumber': currentPageNumber, // read the url parameter to find the currentPage

@@ -42,6 +42,7 @@ class ColorBooks extends PureComponent {
 	componentDidUpdate(prevProps) {
 		const { colorBookAdded, dispatch } = this.props;
 
+		// automatically select a new color book
 		if (prevProps.colorBookAdded === '' && colorBookAdded !== '') {
 			this.setState({ // eslint-disable-line react/no-did-update-set-state
 				'selectedColorBook': colorBookAdded,

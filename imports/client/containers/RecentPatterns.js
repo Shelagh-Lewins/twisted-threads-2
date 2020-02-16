@@ -97,9 +97,13 @@ class RecentPatterns extends Component {
 						</PaginatedList>
 					)}
 					{!isLoading && patternCount === 0 && (
-						<div className="no-patterns">
-							There are no recently viewed patterns to display
-						</div>
+						<Container>
+							<Row>
+								<Col lg="12">
+									There are no patterns to display
+								</Col>
+							</Row>
+						</Container>
 					)}
 				</div>
 			</PageWrapper>

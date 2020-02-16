@@ -54,7 +54,7 @@ class People extends Component {
 
 		if (users.length === 0) {
 			return (
-				<div className="item-list empty">There are no people to display</div>
+				<div className="empty">There are no people to display</div>
 			);
 		}
 

@@ -490,6 +490,7 @@ class Pattern extends PureComponent {
 			numberOfTablets,
 			patternWillRepeat,
 			totalTurnsByTablet,
+			updatePreviewWhileEditing,
 		} = this.props;
 
 		return (
@@ -498,7 +499,7 @@ class Pattern extends PureComponent {
 				{canEdit && (
 					<PreviewOrientation
 						_id={_id}
-						disabled={isEditing ? 'disabled' : ''}
+						disabled={(isEditing && !updatePreviewWhileEditing) ? 'disabled' : ''}
 						dispatch={dispatch}
 						previewOrientation={previewOrientation}
 					/>

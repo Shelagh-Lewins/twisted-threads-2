@@ -29,31 +29,33 @@ const UserListPreview = (props) => {
 			style={{ 'width': divWidth }}
 		>
 			<h1>{listName}</h1>
-			<Button
-				className="more"
-				color="secondary"
-				tag={Link}
-				to={url}
-			>
-				More...
-			</Button>
 			{usersToShow.length === 0 && (
-				<div className="clearing">No people to show</div>
+				<div className="clearing">No people in list</div>
 			)}
 			{usersToShow.length > 0 && (
-				<ul>
-					{usersToShow.map((user) => {
-						const { _id } = user;
+				<>
+					<Button
+						className="more"
+						color="secondary"
+						tag={Link}
+						to={url}
+					>
+						More...
+					</Button>
+					<ul>
+						{usersToShow.map((user) => {
+							const { _id } = user;
 
-						return (
-							<div key={`user-summary-${url}-${_id}`}>
-								<UserSummary
-									user={user}
-								/>
-							</div>
-						);
-					})}
-				</ul>
+							return (
+								<div key={`user-summary-${url}-${_id}`}>
+									<UserSummary
+										user={user}
+									/>
+								</div>
+							);
+						})}
+					</ul>
+				</>
 			)}
 		</div>
 	);

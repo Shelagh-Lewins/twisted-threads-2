@@ -18,7 +18,7 @@ const PatternList = (props) => {
 
 	if (patterns.length === 0) {
 		return (
-			<div className="item-list empty">There are no patterns to display</div>
+			<div className="empty">There are no patterns to display</div>
 		);
 	}
 

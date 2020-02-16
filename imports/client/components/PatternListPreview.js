@@ -34,7 +34,7 @@ const PatternListPreview = (props) => {
 		>
 			<h1>{listName}</h1>
 			{patternsToShow.length === 0 && (
-				<div className="clearing">No items in list</div>
+				<div className="clearing">No patterns in list</div>
 			)}
 			{patternsToShow.length > 0 && (
 				<>
