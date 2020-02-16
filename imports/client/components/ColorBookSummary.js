@@ -29,7 +29,6 @@ function ColorBookSummary({
 	} = colorBook;
 
 	const onSelectColor = () => {
-		// console.log('onSelectColor');
 		// do nothing, there is no pattern palette
 	};
 

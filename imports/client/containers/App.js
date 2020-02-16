@@ -262,6 +262,9 @@ export const withDatabase = withTracker((props) => {
 					} else if (!isLoading && !handle.ready()) {
 						dispatch(setIsLoading(true));
 					}
+				} else if (handle.ready()) {
+					// pattern doesn't exist or isn't visible to user
+					dispatch(setIsLoading(false));
 				}
 				values.patternId = patternIdParam; // passed separately in case pattern isn't found
 			}

@@ -186,7 +186,7 @@ export const findPatternTwist = ({
 }) => {
 	let patternWillRepeat = false;
 	let patternIsTwistNeutral = false;
-console.log('findPatternTwist', patternType);
+
 	if (patternType !== 'freehand') {
 		if (picks[0]) {
 			patternWillRepeat = true;
