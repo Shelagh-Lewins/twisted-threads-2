@@ -175,7 +175,7 @@ class InteractiveWeavingChart extends PureComponent {
 
 		if (!isLoading) {
 			if (pattern) {
-				const { _id, name } = pattern;
+				const { _id, name, patternType } = pattern;
 
 				const links = (
 					<div className="links">
@@ -196,6 +196,7 @@ class InteractiveWeavingChart extends PureComponent {
 									handleClickUp={this.handleClickUp}
 									numberOfRows={numberOfRows}
 									numberOfTablets={numberOfTablets}
+									patternType={patternType}
 									selectedRow={selectedRow}
 								/>
 							)}

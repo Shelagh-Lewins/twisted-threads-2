@@ -5,13 +5,18 @@ import FreehandSVG from './FreehandSVG';
 
 import {
 	getPalette,
+	getPatternDesign,
 } from '../modules/pattern';
 
 function FreehandChartCell(props) {
 	const {
-		chartCell,
 		palette,
+		patternDesign,
+		rowIndex,
+		tabletIndex,
 	} = props;
+
+	const chartCell = patternDesign.freehandChart[rowIndex][tabletIndex];
 
 	const { direction } = chartCell;
 
@@ -37,13 +42,16 @@ function FreehandChartCell(props) {
 }
 
 FreehandChartCell.propTypes = {
-	'chartCell': PropTypes.objectOf(PropTypes.any).isRequired,
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'patternDesign': PropTypes.objectOf(PropTypes.any).isRequired,
+	'rowIndex': PropTypes.number.isRequired,
+	'tabletIndex': PropTypes.number.isRequired,
 };
 
 function mapStateToProps(state) {
 	return {
 		'palette': getPalette(state),
+		'patternDesign': getPatternDesign(state),
 	};
 }
 

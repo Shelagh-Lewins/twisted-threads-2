@@ -210,8 +210,7 @@ class WeavingDesignFreehand extends PureComponent {
 	}
 
 	renderCell(rowIndex, tabletIndex) {
-		const { patternDesign } = this.props;
-		const { isEditing, selectedThread } = this.state;
+		const { isEditing } = this.state;
 
 		return (
 			<li
@@ -226,8 +225,8 @@ class WeavingDesignFreehand extends PureComponent {
 					tabIndex={isEditing ? '0' : undefined}
 				>
 					<FreehandChartCell
-						chartCell={patternDesign.freehandChart[rowIndex][tabletIndex]}
-						selectedThread={selectedThread}
+						rowIndex={rowIndex}
+						tabletIndex={tabletIndex}
 					/>
 				</span>
 			</li>
@@ -459,7 +458,7 @@ WeavingDesignFreehand.propTypes = {
 	'numberOfRows': PropTypes.number.isRequired,
 	'numberOfTablets': PropTypes.number.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
-	'patternDesign': PropTypes.objectOf(PropTypes.any).isRequired,
+	//'patternDesign': PropTypes.objectOf(PropTypes.any).isRequired,
 };
 
 export default WeavingDesignFreehand;

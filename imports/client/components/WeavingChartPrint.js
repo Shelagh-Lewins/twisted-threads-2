@@ -3,6 +3,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import WeavingChartCell from './WeavingChartCell';
+import FreehandChartCell from './FreehandChartCell';
 
 import './Threading.scss';
 import './WeavingChartPrint.scss';
@@ -13,17 +14,35 @@ import './WeavingChartPrint.scss';
 /* eslint-disable react/no-array-index-key */
 
 function WeavingChartPrint(props) {
-	const renderCell = (rowIndex, tabletIndex) => (
-		<li
-			className="cell value"
-			key={`weaving-cell-${rowIndex}-${tabletIndex}`}
-		>
-			<WeavingChartCell
-				rowIndex={rowIndex}
-				tabletIndex={tabletIndex}
-			/>
-		</li>
-	);
+	const renderCell = (rowIndex, tabletIndex) => {
+		const { patternType } = props;
+		let cell;
+
+		if (patternType === 'freehand') {
+			cell = (
+				<FreehandChartCell
+					rowIndex={rowIndex}
+					tabletIndex={tabletIndex}
+				/>
+			);
+		} else {
+			cell = (
+				<WeavingChartCell
+					rowIndex={rowIndex}
+					tabletIndex={tabletIndex}
+				/>
+			);
+		}
+
+		return (
+			<li
+				className="cell value"
+				key={`weaving-cell-${rowIndex}-${tabletIndex}`}
+			>
+				{cell}
+			</li>
+		);
+	};
 
 	const renderRow = (rowIndex) => {
 		const { numberOfRows, numberOfTablets } = props;
@@ -98,6 +117,7 @@ function WeavingChartPrint(props) {
 WeavingChartPrint.propTypes = {
 	'numberOfRows': PropTypes.number.isRequired,
 	'numberOfTablets': PropTypes.number.isRequired,
+	'patternType': PropTypes.string.isRequired,
 };
 
 export default WeavingChartPrint;

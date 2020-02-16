@@ -127,17 +127,14 @@ class PrintView extends PureComponent {
 				switch (patternType) {
 					case 'individual':
 					case 'brokenTwill':
+					case 'freehand':
 						weavingInstructions = (
 							<>
 								<h2>Weaving chart</h2>
 								<WeavingChartPrint
-									dispatch={dispatch}
-									holes={holes}
 									numberOfRows={numberOfRows}
 									numberOfTablets={numberOfTablets}
-									palette={palette}
-									pattern={pattern}
-									patternWillRepeat={patternWillRepeat}
+									patternType={patternType}
 								/>
 							</>
 						);
@@ -186,8 +183,8 @@ class PrintView extends PureComponent {
 						{pattern.patternDesign && (
 							<>
 								<h2>Woven band</h2>
-								{repeatText}
-								{twistNeutralText}
+								{patternType !== 'freehand' && repeatText}
+								{patternType !== 'freehand' && twistNeutralText}
 								<PatternPreview
 									dispatch={dispatch}
 									holes={holes}
@@ -246,7 +243,6 @@ PrintView.propTypes = {
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 	'holes': PropTypes.number.isRequired,
 	'isLoading': PropTypes.bool.isRequired,
-	//'numberOfRows': PropTypes.number.isRequired,
 	'numberOfRows': PropTypes.number.isRequired,
 	'numberOfTablets': PropTypes.number.isRequired,
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
@@ -258,19 +254,25 @@ PrintView.propTypes = {
 PrintView.contextType = AppContext;
 
 function mapStateToProps(state) {
+	const { patternType } = state.pattern;
 	const { patternIsTwistNeutral, patternWillRepeat } = getPatternTwistSelector(state);
+
+	let totalTurnsByTablet = [];
+
+	if (patternType !== 'freehand') { // all simulation patterns
+		totalTurnsByTablet = getTotalTurnsByTabletSelector(state);
+	}
 
 	return {
 		'errors': state.errors,
 		'holes': getHoles(state),
 		'isLoading': getIsLoading(state),
-		//'numberOfRows': getNumberOfRows(state),
 		'numberOfRows': getNumberOfRowsForChart(state),
 		'numberOfTablets': getNumberOfTablets(state),
 		'palette': getPalette(state),
 		'patternIsTwistNeutral': patternIsTwistNeutral,
 		'patternWillRepeat': patternWillRepeat,
-		'totalTurnsByTablet': getTotalTurnsByTabletSelector(state),
+		totalTurnsByTablet,
 	};
 }
 

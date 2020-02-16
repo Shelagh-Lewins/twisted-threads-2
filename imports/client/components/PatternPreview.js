@@ -391,7 +391,6 @@ PatternPreview.propTypes = {
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 	'patternWillRepeat': PropTypes.bool.isRequired,
 	'totalTurnsByTablet': PropTypes.arrayOf(PropTypes.any),
-	// 'totalTurnsByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 function mapStateToProps(state) {
