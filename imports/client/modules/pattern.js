@@ -1261,24 +1261,19 @@ export default function pattern(state = initialPatternState, action) {
 					update.picks = picks;
 					break;
 
-				case 'brokenTwill': {
+				case 'brokenTwill':
 					// offset threading chart
-				const { weavingStartRow } = patternDesign;
-				const offsetThreadingByTablets = buildTwillOffsetThreading({
-					holes,
-					numberOfTablets,
-					picks,
-					threadingByTablet,
-					weavingStartRow,
-				});
+					const { weavingStartRow } = patternDesign;
+					const offsetThreadingByTablets = buildTwillOffsetThreading({
+						holes,
+						numberOfTablets,
+						picks,
+						threadingByTablet,
+						weavingStartRow,
+					});
 
-				patternDesign.offsetThreadingByTablets = offsetThreadingByTablets;
+					patternDesign.offsetThreadingByTablets = offsetThreadingByTablets;
 
-					break;
-				}
-
-				case 'allTogether':
-					update.picks = picks;
 					break;
 
 				default:

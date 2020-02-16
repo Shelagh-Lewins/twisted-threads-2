@@ -58,6 +58,7 @@ class Pattern extends PureComponent {
 
 		this.state = {
 			'gotUser': false, // add to recents after user has loaded
+			'recentPatternId': null, // id that has been added to recent patterns list. This lets us check for navigation to a new pattern, e.g. because of copy
 			'selectedPatternImage': null,
 			'showImageUploader': false,
 		};
@@ -79,13 +80,16 @@ class Pattern extends PureComponent {
 	}
 
 	componentDidMount() {
+		const { dispatch } = this.props;
+
 		document.body.classList.add(bodyClass);
+		dispatch(setUpdatePreviewWhileEditing(false));
 	}
 
 	componentDidUpdate(prevProps) {
 		const { dispatch, isEditing } = this.props;
-		const { gotUser } = this.state;
-		const { isLoadingUser, patternId } = this.context;
+		const { gotUser, recentPatternId } = this.state;
+		const { isLoadingUser, pattern, patternId } = this.context;
 
 		// wait for user details to load
 		if (!gotUser && !isLoadingUser && patternId) {
@@ -93,6 +97,15 @@ class Pattern extends PureComponent {
 
 			this.setState({
 				'gotUser': true,
+			});
+		}
+
+		// catch navigation to new pattern, e.g. after copy pattern
+		if (gotUser && (patternId !== recentPatternId) && pattern) {
+			dispatch(addRecentPattern({ patternId }));
+
+			this.setState({
+				'recentPatternId': patternId,
 			});
 		}
 
