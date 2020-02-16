@@ -2,7 +2,13 @@ import '../imports/server/modules/publications';
 import '../imports/server/modules/slingshot';
 import { ROLES } from '../imports/modules/parameters';
 
+import runDataMigration from './migration/runDataMigration';
+
 Meteor.startup(() => {
+	//TODO run this once live
+	//and then remove it
+	runDataMigration();
+
 	Accounts.config({
 		'sendVerificationEmail': true,
 	});
