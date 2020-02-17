@@ -198,7 +198,7 @@ Meteor.methods({
 			'nameSort': name.toLowerCase(),
 			'numberOfRows': rows,
 			'numberOfTablets': tablets,
-			'createdAt': new Date(),
+			//'createdAt': new Date(),
 			'createdBy': Meteor.userId(),
 			holes,
 			'isPublic': false,

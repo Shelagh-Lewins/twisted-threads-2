@@ -1,11 +1,13 @@
 import SimpleSchema from 'simpl-schema';
 
 const PatternsSchema = new SimpleSchema({
+	// set using collection hooks in collection.js
 	'createdAt': {
 		'type': Date,
-		'label': 'Date created',
+		'label': 'Created at date',
 		'index': 1,
 	},
+	// set using collection hooks in collection.js
 	'createdBy': {
 		'type': String,
 		'label': 'Created by',
@@ -27,6 +29,11 @@ const PatternsSchema = new SimpleSchema({
 		'type': Boolean,
 		'label': 'Is public',
 		'min': 1,
+		'index': 1,
+	},
+	'modifiedAt': {
+		'type': Date,
+		'label': 'Modified at date',
 		'index': 1,
 	},
 	'name': {
