@@ -2,7 +2,9 @@
 // on the live server this should run exactly once
 // and then be disabled and never spoken of again
 
-const migrateProfiles = () => {
+import migratePatterns from './migratePatterns';
+
+const migrateUserProfiles = () => {
 	const allUsers = Meteor.users.find().fetch();
 
 	allUsers.map((user) => {
@@ -20,11 +22,11 @@ const migrateProfiles = () => {
 			});
 		}
 
-		if (user.username === 'Shelagh') {
+		/* if (user.username === 'Shelagh') {
 			console.log('oldProfile', oldProfile);
 			console.log('oldRecentPatterns', oldRecentPatterns);
 			console.log('newRecentPatterns', newRecentPatterns);
-		}
+		} */
 		const newProfile = {
 			'nameSort': oldProfile.name_sort,
 			'recentPatterns': newRecentPatterns,
@@ -45,13 +47,14 @@ const migrateProfiles = () => {
 };
 
 const runDataMigration = () => {
-	console.log('run migration');
+	console.log('*** run migration');
 
 	// Migrate roles from 1.x to 3.x
 	Package['alanning:roles'].Roles._forwardMigrate();
 	Package['alanning:roles'].Roles._forwardMigrate2();
 
-	migrateProfiles();
+	migrateUserProfiles();
+	migratePatterns();
 };
 
 export default runDataMigration;
