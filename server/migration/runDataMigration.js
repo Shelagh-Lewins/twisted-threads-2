@@ -5,6 +5,7 @@
 import migratePatterns from './migratePatterns';
 
 const migrateUserProfiles = () => {
+	console.log('*** starting to migrate user profiles');
 	const allUsers = Meteor.users.find().fetch();
 
 	allUsers.map((user) => {
@@ -44,6 +45,8 @@ const migrateUserProfiles = () => {
 				},
 			});
 	});
+
+	console.log('*** finished migrating user profiles');
 };
 
 const runDataMigration = () => {
@@ -55,6 +58,8 @@ const runDataMigration = () => {
 
 	migrateUserProfiles();
 	migratePatterns();
+
+	//TODO update count of public patterns for all users
 };
 
 export default runDataMigration;

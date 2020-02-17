@@ -456,6 +456,7 @@ const Tracker = withTracker((props) => {
 
 	Meteor.subscribe('users', [_id]);
 	Meteor.subscribe('colorBooks', _id);
+	Meteor.subscribe('tags');
 
 	const patterns = Patterns.find({ 'createdBy': _id }, {
 		'sort': { 'nameSort': 1 },
