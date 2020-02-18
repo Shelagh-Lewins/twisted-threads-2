@@ -162,3 +162,6 @@ export const ITEMS_PER_PREVIEW_LIST = 10;
 export const FLASH_MESSAGE_TEXTS = {
 	'emailVerified': 'Your email address has been verified',
 };
+
+export const MAX_TAG_LENGTH = 200;
+export const MIN_TAG_LENGTH = 3;

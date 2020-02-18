@@ -4,13 +4,21 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
-import { login } from '../modules/auth';
+import {
+	getIsLoading,
+	login,
+	setIsLoading,
+} from '../modules/auth';
 import { clearErrors } from '../modules/errors';
 import PageWrapper from '../components/PageWrapper';
 import LoginForm from '../forms/LoginForm';
+import Loading from '../components/Loading';
 
 class Login extends Component {
 	componentDidMount() {
+		const { dispatch } = this.props;
+		dispatch(setIsLoading(false));
+
 		this.clearErrors();
 	}
 
@@ -31,7 +39,7 @@ class Login extends Component {
 	}
 
 	render() {
-		const { dispatch, errors } = this.props;
+		const { dispatch, isLoading, errors } = this.props;
 
 		return (
 			<PageWrapper
@@ -39,6 +47,7 @@ class Login extends Component {
 				errors={errors}
 			>
 				<Container>
+					{isLoading && <Loading />}
 					<Row>
 						<Col lg="12">
 							<h1>Login</h1>
@@ -61,11 +70,13 @@ class Login extends Component {
 Login.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
+	'isLoading': PropTypes.bool.isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 };
 
 const mapStateToProps = (state) => ({
 	'errors': state.errors,
+	'isLoading': getIsLoading(state),
 });
 
 export default connect(mapStateToProps)(Login);

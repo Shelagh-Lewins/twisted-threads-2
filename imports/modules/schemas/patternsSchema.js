@@ -6,6 +6,7 @@ const PatternsSchema = new SimpleSchema({
 		'type': Date,
 		'label': 'Created at date',
 		'index': 1,
+		'optional': true, // automatically created by hook but if required here, an error is thrown
 	},
 	// set using collection hooks in collection.js
 	'createdBy': {
@@ -35,6 +36,7 @@ const PatternsSchema = new SimpleSchema({
 		'type': Date,
 		'label': 'Modified at date',
 		'index': 1,
+		'optional': true, // automatically created by hook but if required here, an error is thrown
 	},
 	'name': {
 		'type': String,

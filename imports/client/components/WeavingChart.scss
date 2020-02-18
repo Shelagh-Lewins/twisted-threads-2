@@ -147,7 +147,9 @@
 	.tablet-labels {
 		margin-left: 32px;
 		overflow-x: auto;
+		position: relative;
 		white-space: nowrap;
+		z-index: 10;
 	}
 
 	.weaving-chart {

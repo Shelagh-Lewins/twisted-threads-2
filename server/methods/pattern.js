@@ -198,7 +198,6 @@ Meteor.methods({
 			'nameSort': name.toLowerCase(),
 			'numberOfRows': rows,
 			'numberOfTablets': tablets,
-			//'createdAt': new Date(),
 			'createdBy': Meteor.userId(),
 			holes,
 			'isPublic': false,
@@ -224,7 +223,7 @@ Meteor.methods({
 			if (existing) {
 				Meteor.call('tags.assignToPattern', {
 					patternId,
-					'tagId': existing._id,
+					'name': existing.name,
 				});
 			} else {
 				Meteor.call('tags.add', {

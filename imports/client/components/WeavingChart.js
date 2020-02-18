@@ -101,7 +101,11 @@ function WeavingChart(props) {
 	};
 
 	const renderTabletLabels = () => {
-		const { numberOfTablets } = props;
+		const {
+			numberOfTablets,
+			selectedRow,
+		} = props;
+		const offset = 33 * selectedRow;
 
 		const labels = [];
 		for (let i = 0; i < numberOfTablets; i += 1) {
@@ -115,7 +119,14 @@ function WeavingChart(props) {
 			));
 		}
 
-		return <ul className="tablet-labels">{labels}</ul>;
+		return (
+			<ul
+				className="tablet-labels"
+				style={{ 'top': `${offset}px` }}
+			>
+				{labels}
+			</ul>
+		);
 	};
 
 	const renderChart = () => {

@@ -48,6 +48,34 @@ export const SET_NUMBER_OF_COLOR_BOOKS = 'SET_NUMBER_OF_COLOR_BOOKS';
 export const SET_USER_ROLES = 'SET_USER_ROLES';
 export const SET_NUMBER_OF_PATTERN_IMAGES = 'SET_NUMBER_OF_PATTERN_IMAGES';
 
+// ////////////////////////////////
+// Provide information to the UI
+// used in pagination
+export function setUserCount(userCount) {
+	return {
+		'type': SET_USER_COUNT,
+		'payload': userCount,
+	};
+}
+
+export const getUserCount = () => (dispatch) => Meteor.call('auth.getUserCount', (error, result) => {
+	if (error) {
+		return dispatch(logErrors({ 'get user count': error.reason }));
+	}
+
+	dispatch(setUserCount(result));
+});
+
+export const getIsLoading = (state) => state.auth.isLoading;
+
+// waiting for data subscription to be ready
+export function setIsLoading(isLoading) {
+	return {
+		'type': SET_ISLOADING,
+		'payload': isLoading,
+	};
+}
+
 // ///////////////////////////
 // Action that call Meteor methods; these may not change the Store but are located here in order to keep server interactions away from UI
 
@@ -58,12 +86,13 @@ export const register = ({
 	history,
 }) => (dispatch) => {
 	dispatch(clearErrors());
+	dispatch(setIsLoading(true));
 
 	Accounts.createUser({ email, username, password }, (error) => {
 		if (error) {
 			return dispatch(logErrors({ 'register': error.reason }));
 		}
-
+		dispatch(setIsLoading(false));
 		history.push('/welcome');
 	});
 };
@@ -108,34 +137,6 @@ export function editTextField({
 				return dispatch(logErrors({ 'edit text field': error.reason }));
 			}
 		});
-	};
-}
-
-// ////////////////////////////////
-// Provide information to the UI
-// used in pagination
-export function setUserCount(userCount) {
-	return {
-		'type': SET_USER_COUNT,
-		'payload': userCount,
-	};
-}
-
-export const getUserCount = () => (dispatch) => Meteor.call('auth.getUserCount', (error, result) => {
-	if (error) {
-		return dispatch(logErrors({ 'get user count': error.reason }));
-	}
-
-	dispatch(setUserCount(result));
-});
-
-export const getIsLoading = (state) => state.auth.isLoading;
-
-// waiting for data subscription to be ready
-export function setIsLoading(isLoading) {
-	return {
-		'type': SET_ISLOADING,
-		'payload': isLoading,
 	};
 }
 

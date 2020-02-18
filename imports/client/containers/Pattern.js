@@ -126,8 +126,8 @@ class Pattern extends PureComponent {
 		// resync with database when user starts editing
 		// in case they have made changes to the pattern in another window or on another machine
 		if (!prevProps.isEditing && isEditing) {
-			const { pattern } = this.context;
-			dispatch(savePatternData(pattern));
+			const { patternObj } = this.context;
+			dispatch(savePatternData({ 'pattern': patternObj }));
 		}
 	}
 
@@ -366,11 +366,12 @@ class Pattern extends PureComponent {
 
 		if (allTags) {
 			// only suggest tags that have not been selected
-			tagSuggestions = allTags.filter((tag) => tags.indexOf(tag._id) === -1);
+			tagSuggestions = allTags.filter((tag) => tags.indexOf(tag.name) === -1);
 
 			// build the list of tag objects from the array of tag ids
-			tags.forEach((patternTagId) => {
-				const tagObject = allTags.find((allTag) => patternTagId === allTag._id);
+			tags.forEach((patternTagName) => {
+				const tagObject = allTags.find((allTag) => patternTagName === allTag.name);
+				// const tagObject = allTags.find((allTag) => patternTagId === allTag.name);
 
 				if (tagObject) {
 					tagObjects.push(tagObject);

@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import ReactTags from 'react-tag-autocomplete';
 import PropTypes from 'prop-types';
 import { assignTagToPattern, addTag, removeTagFromPattern } from '../modules/tags';
+import { MAX_TAG_LENGTH, MIN_TAG_LENGTH } from '../../modules/parameters';
 import './TagInput.scss';
 
 class TagInput extends PureComponent {
@@ -23,9 +24,9 @@ class TagInput extends PureComponent {
 	onDelete(i) {
 		const { dispatch, patternId, tags } = this.props;
 
-		const tagId = tags[i]._id;
+		const { name } = tags[i];
 
-		dispatch(removeTagFromPattern({ patternId, tagId }));
+		dispatch(removeTagFromPattern({ patternId, name }));
 	}
 
 	onAddition(tag) {
@@ -34,7 +35,7 @@ class TagInput extends PureComponent {
 
 		if (tagId) {
 			// user selected an existing tag
-			dispatch(assignTagToPattern({ patternId, tagId }));
+			dispatch(assignTagToPattern({ patternId, name }));
 		} else {
 			// user has entered a new tag
 			dispatch(addTag({ patternId, name }));
@@ -42,7 +43,7 @@ class TagInput extends PureComponent {
 	}
 
 	onValidate(tag) { // eslint-disable-line class-methods-use-this
-		return tag.name.length >= 3;
+		return (tag.name.length >= MIN_TAG_LENGTH && tag.name.length <= MAX_TAG_LENGTH);
 	}
 
 	render() {

@@ -19,18 +19,18 @@ export const addTag = ({ patternId, name }) => (dispatch) => {
 };
 
 // assign an existing tag to the pattern
-export const assignTagToPattern = ({ patternId, tagId }) => (dispatch) => {
+export const assignTagToPattern = ({ patternId, name }) => (dispatch) => {
 	dispatch(clearErrors());
 
-	Meteor.call('tags.assignToPattern', { patternId, tagId }, (error, result) => {
+	Meteor.call('tags.assignToPattern', { patternId, name }, (error, result) => {
 		if (error) {
 			return dispatch(logErrors({ 'assign-to-pattern': error.reason }));
 		}
 	});
 };
 
-export function removeTagFromPattern({ patternId, tagId }) {
+export function removeTagFromPattern({ patternId, name }) {
 	return () => {
-		Meteor.call('tags.removeTagFromPattern', { patternId, tagId });
+		Meteor.call('tags.removeTagFromPattern', { patternId, name });
 	};
 }
