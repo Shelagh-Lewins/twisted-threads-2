@@ -13,7 +13,7 @@ const findRecentPatterns = () => {
 	let recentPatterns = [];
 	let recentPatternsList = [];
 
-	if (Meteor.user()) {
+	if (Meteor.user() && Meteor.user().profile) {
 		if (Meteor.user().profile.recentPatterns) {
 			recentPatternsList = Meteor.user().profile.recentPatterns;
 		}

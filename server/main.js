@@ -7,7 +7,7 @@ import runDataMigration from './migration/runDataMigration';
 Meteor.startup(() => {
 	//TODO run this once live
 	//and then remove it
-	//runDataMigration();
+	runDataMigration();
 
 	Accounts.config({
 		'sendVerificationEmail': true,
