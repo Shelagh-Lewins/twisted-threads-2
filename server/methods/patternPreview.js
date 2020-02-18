@@ -13,19 +13,22 @@ Meteor.methods({
 	}) {
 		check(_id, String);
 		check(uri, String);
+		this.unblock();
 
-		if (!Meteor.userId()) {
-			throw new Meteor.Error('save-preview-not-logged-in', 'Unable to save preview because the user is not logged in');
-		}
+		if (process.env.MIGRATIONS !== 'migrations') {
+			if (!Meteor.userId()) {
+				throw new Meteor.Error('save-preview-not-logged-in', 'Unable to save preview because the user is not logged in');
+			}
 
-		const pattern = Patterns.findOne({ _id });
+			const pattern = Patterns.findOne({ _id });
 
-		if (!pattern) {
-			throw new Meteor.Error('save-preview-not-found', 'Unable to save preview because the pattern was not found');
-		}
+			if (!pattern) {
+				throw new Meteor.Error('save-preview-not-found', 'Unable to save preview because the pattern was not found');
+			}
 
-		if (pattern.createdBy !== Meteor.userId()) {
-			throw new Meteor.Error('save-preview-not-created-by-user', 'Unable to save preview because pattern was not created by the current logged in user');
+			if (pattern.createdBy !== Meteor.userId()) {
+				throw new Meteor.Error('save-preview-not-created-by-user', 'Unable to save preview because pattern was not created by the current logged in user');
+			}
 		}
 
 		// the image should have been rotated and sized correctly by the client

@@ -4,10 +4,15 @@ import { ROLES } from '../imports/modules/parameters';
 
 import runDataMigration from './migration/runDataMigration';
 
+//const DomParser = require('dom-parser'); //TODO remove
+
 Meteor.startup(() => {
 	//TODO run this once live
 	//and then remove it
-	runDataMigration();
+
+	if (process.env.MIGRATIONS === 'migrations') {
+		runDataMigration(); // disabled while messing about with client
+	}
 
 	Accounts.config({
 		'sendVerificationEmail': true,

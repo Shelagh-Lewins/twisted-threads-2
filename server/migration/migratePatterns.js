@@ -1,10 +1,13 @@
 // migrate pattern data from TWT1 to TWT2
+import * as svg from 'save-svg-as-png';
 import {
 	PatternImages,
-	PatternPreviews,
 	Patterns,
 	Tags,
 } from '../../imports/modules/collection';
+import {
+	updatePublicPatternsCount,
+} from '../../imports/server/modules/utils';
 
 const migrateTags = () => {
 	console.log('*** starting to migrate tags');
@@ -65,6 +68,16 @@ const migrateTags = () => {
   console.log('*** finished migrating tags');
 };
 
+const migratePublicPatternsCount = () => {
+	console.log('*** starting to migrate user public patterns count');
+	const allUsers = Meteor.users.find().fetch();
+
+	allUsers.forEach((user) => {
+		updatePublicPatternsCount(user._id);
+	});
+	console.log('*** finished migrating user public patterns count');
+};
+
 const migratePatterns = () => {
 	console.log('*** starting to migrate basic pattern metadata');
 	// basic pattern metadata
@@ -77,7 +90,6 @@ const migratePatterns = () => {
 	const patternsToRemove = [];
 	const patternsUnresolved = [];
 	const autoNoRows = [];
-	const simulationWithRows = [];
 
 	console.log('number of patterns', allPatterns.length);
 	allPatterns.map((pattern) => {
@@ -91,13 +103,15 @@ const migratePatterns = () => {
 			name_sort,
 			number_of_rows,
 			number_of_tablets,
-			private,
+			preview_rotation,
 			simulation_mode,
 			threading,
 			threading_notes,
 			weaving,
 			weaving_notes,
 		} = pattern;
+
+		const isPrivate = pattern.private;
 
 		const update = {};
 
@@ -137,16 +151,16 @@ const migratePatterns = () => {
 			}
 		} else {
 			// fields to migrate / add
-			const createdAt = new Date(created_at);
 
 			update.$set = {
 				'createdAt': new Date(created_at),
 				'createdBy': created_by,
 				'holes': 4,
-				'isPublic': !private,
+				'isPublic': !isPrivate,
 				'nameSort': name_sort,
 				'numberOfRows': number_of_rows,
 				'numberOfTablets': number_of_tablets,
+				'previewOrientation': preview_rotation,
 				'threadingNotes': threading_notes,
 				'weavingNotes': weaving_notes,
 			};
@@ -162,10 +176,6 @@ const migratePatterns = () => {
 				'private': 1,
 			};
 
-			if (edit_mode === 'simulation' && simulation_mode === 'manual' && number_of_rows === 0) {
-				autoPatternsWithRows.push(_id);
-			}
-
 			patternsToUpdate.push(_id);
 
 			// fields to carry across unchanged:
@@ -173,14 +183,9 @@ const migratePatterns = () => {
 
 			Patterns.update({ _id }, update);
 		}
-
 	});
 
-	//console.log('patternsToUpdate length', patternsToUpdate.length);
-	//console.log('manualNoRows length', manualNoRows.length);
-	//console.log('autoNoRows length', autoNoRows.length);
-
-	Patterns.remove({'_id':{'$in':patternsToRemove}});
+	Patterns.remove({ '_id': { '$in': patternsToRemove } });
 
 	console.log('*** finished migrating basic pattern metadata');
 	console.log('patterns removed because of unsavable data: ', patternsToRemove);
@@ -188,6 +193,7 @@ const migratePatterns = () => {
 	console.log('number of patterns migrated: ', Patterns.find().fetch().length);
 
 	migrateTags();
+	migratePublicPatternsCount();
 };
 
 export default migratePatterns;

@@ -23,11 +23,6 @@ const migrateUserProfiles = () => {
 			});
 		}
 
-		/* if (user.username === 'Shelagh') {
-			console.log('oldProfile', oldProfile);
-			console.log('oldRecentPatterns', oldRecentPatterns);
-			console.log('newRecentPatterns', newRecentPatterns);
-		} */
 		const newProfile = {
 			'nameSort': oldProfile.name_sort,
 			'recentPatterns': newRecentPatterns,
@@ -58,8 +53,6 @@ const runDataMigration = () => {
 
 	migrateUserProfiles();
 	migratePatterns();
-
-	//TODO update count of public patterns for all users
 };
 
 export default runDataMigration;

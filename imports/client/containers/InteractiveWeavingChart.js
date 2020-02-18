@@ -33,6 +33,7 @@ class InteractiveWeavingChart extends PureComponent {
 			'handleClickDown',
 			'handleClickRow',
 			'handleClickUp',
+			'handleKeyUp',
 		];
 
 		functionsToBind.forEach((functionName) => {
@@ -42,6 +43,7 @@ class InteractiveWeavingChart extends PureComponent {
 
 	componentDidMount() {
 		document.body.classList.add(bodyClass);
+		document.addEventListener('keyup', this.handleKeyUp);
 	}
 
 	componentDidUpdate() {
@@ -107,6 +109,7 @@ class InteractiveWeavingChart extends PureComponent {
 
 	componentWillUnmount() {
 		document.body.classList.remove(bodyClass);
+		document.removeEventListener('keyup', this.handleKeyUp);
 	}
 
 	getCurrentWeavingRow(selectedRow) {
@@ -130,6 +133,22 @@ class InteractiveWeavingChart extends PureComponent {
 			'currentWeavingRow': this.getCurrentWeavingRow(selectedRow),
 			'patternId': _id,
 		}));
+	}
+
+	handleKeyUp(event) {
+		// use up / down arrow to change weaving row
+		switch(event.keyCode) {
+			case 38: // up arrow
+				this.handleKeyUp();
+				break;
+
+			case 40: // down arrow
+				this.handleKeyDown();
+				break;
+
+			default:
+				break;
+		}
 	}
 
 	handleClickDown() {
