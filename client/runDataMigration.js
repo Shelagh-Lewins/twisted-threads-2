@@ -38,7 +38,7 @@ const migrateAPreview = () => {
 	});
 	// without a delay, the method doesn't seem to get called
 	// the timeout gives the server a chance to keep up
-	if (global.previewCount < global.previewIds.length) {
+	if (global.previewCount + 1 < global.previewIds.length) {
 		setTimeout(() => {
 			global.previewCount += 1;
 			migrateAPreview(global.previewIds[global.previewCount]);
@@ -66,7 +66,7 @@ const migratePreviews = () => {
 const runDataMigration = () => {
 	console.log('*** runDataMigration');
 
-	migratePreviews();
+	//migratePreviews();
 };
 
 export default runDataMigration;
