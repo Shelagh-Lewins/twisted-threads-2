@@ -7,6 +7,10 @@ import runDataMigration from './migration/runDataMigration';
 //const DomParser = require('dom-parser'); //TODO remove
 
 Meteor.startup(() => {
+	// ensure user roles exist
+	ROLES.forEach((role) => {
+		Roles.createRole(role, { 'unlessExists': true });
+	});
 	//TODO run this once live
 	//and then remove it
 
@@ -55,11 +59,6 @@ Meteor.startup(() => {
 
 		return text;
 	};
-
-	// ensure user roles exist
-	ROLES.forEach((role) => {
-		Roles.createRole(role, { 'unlessExists': true });
-	});
 
 	// make sure the current user has correct role based on whether their email address is verified
 	Meteor.users.find().observeChanges({

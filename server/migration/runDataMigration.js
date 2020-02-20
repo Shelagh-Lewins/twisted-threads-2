@@ -59,6 +59,11 @@ const fixRoles = () => {
 		'ydgxPdGdrtE2MK2AM',
 	];
 
+	// administrators are identified by _id AND username, to be extra careful
+	const administrators = [
+		{ '_id': 'ydgxPdGdrtE2MK2AM', 'username': 'Shelagh' },
+	];
+
 	// duplicate entries in role-assignment, verified as of 29 Feb 2020
 	/* const duplicateUsers = [
 		'ydgxPdGdrtE2MK2AM', // me!
@@ -67,17 +72,33 @@ const fixRoles = () => {
 		'9cA56RaRWEBkic7Y6',
 	]; */
 
-	// removing the duplicate users from the roles takes out one entry
-	// for some reason getRolesForUser then correctly returns not in role, but I don't like having a mysteriously inactive entry in roles-assignment. So delete all role assignments and recreate
+	// removing the duplicate users from the roles takes out only one entry
+	// although getRolesForUser then correctly returns not in role, I don't like having a mysteriously inactive entry in roles-assignment. So delete all role assignments and recreate
 
 	Meteor.roleAssignment.remove({}); // we're going to rebuild this from scratch
 
+	administrators.forEach((user) => {
+		const { _id, username } = user;
+
+		const userFromDB = Meteor.users.find({ _id, username });
+
+		if (userFromDB) {
+			console.log('adding administrator user', _id);
+			Roles.addUsersToRoles(_id, 'administrator');
+		} else {
+			console.log('administrator user not found', _id);
+		}
+		console.log('');
+	});
+
 	// four of the premium users don't appear as verified, but they should
 	premiumUsers.forEach((userId) => {
-		console.log('premium user', userId);
+		console.log('adding premium user', userId);
 		Roles.addUsersToRoles(userId, 'premium');
-		console.log('getRolesForUser premium', Roles.getRolesForUser(userId));
+		// console.log('getRolesForUser premium', Roles.getRolesForUser(userId));
 	});
+
+	console.log('');
 
 	const allUsers = Meteor.users.find().fetch();
 

@@ -132,6 +132,7 @@ export const ROLES = [
 	'registered',
 	'verified',
 	'premium',
+	'administrator', // does not get a database allowance. Gets the ability to add and remove users from roles.
 ];
 
 export const ROLE_LIMITS = {
