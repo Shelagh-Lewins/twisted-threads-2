@@ -4,8 +4,6 @@ import { ROLES } from '../imports/modules/parameters';
 
 import runDataMigration from './migration/runDataMigration';
 
-//const DomParser = require('dom-parser'); //TODO remove
-
 Meteor.startup(() => {
 	// ensure user roles exist
 	ROLES.forEach((role) => {

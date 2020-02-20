@@ -327,6 +327,7 @@ export const getPicksForTabletForChart = (state, tabletIndex) => {
 
 export const getPickForChart = (state, tabletIndex, rowIndex) => {
 	const picksForTablet = getPicksForTabletForChart(state, tabletIndex);
+
 	return picksForTablet[rowIndex];
 };
 
