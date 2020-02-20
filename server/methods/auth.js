@@ -119,4 +119,85 @@ Meteor.methods({
 			{ '$set': update },
 		);
 	},
+	'auth.addUserToRole': function ({ _id, role }) {
+		// user is logged in
+		if (!Meteor.userId()) {
+			throw new Meteor.Error('add-user-to-role-not-logged-in', 'Unable to add user to role because the current user is not logged in');
+		}
+		// user is administrator
+		const userRoles = Roles.getRolesForUser(Meteor.userId());
+
+		if (userRoles.indexOf('administrator') === -1) {
+			throw new Meteor.Error('add-user-to-role-not-administrator', 'Unable to add user to role because the current user is not an administrator');
+		}
+
+		// user to add exists
+		const userToAdd = Meteor.users.findOne({ _id });
+
+		if (!userToAdd) {
+			throw new Meteor.Error('add-user-to-role-user-not-found', 'Unable to add user to role because the user to add was not found');
+		}
+
+		// role exists
+		const allRoles = Roles.getAllRoles().fetch();
+		const thisRole = allRoles.find((roleObj) => roleObj._id === role);
+
+		if (!thisRole) {
+			throw new Meteor.Error('add-user-to-role-role-not-found', 'Unable to add user to role because the role was not found');
+		}
+
+		// user is not already in role
+		const userToAddRoles = Roles.getRolesForUser(_id);
+
+		if (userToAddRoles.indexOf(role) !== -1) {
+			throw new Meteor.Error('add-user-to-role-already-in-role', 'Unable to add user to role because the user is already in the role');
+		}
+
+		Roles.addUsersToRoles(_id, [role]);
+
+		return 'success';
+	},
+	'auth.removeUserFromRole': function ({ _id, role }) {
+		// user is logged in
+		if (!Meteor.userId()) {
+			throw new Meteor.Error('add-user-to-role-not-logged-in', 'Unable to add user to role because the current user is not logged in');
+		}
+		// user is administrator
+		const userRoles = Roles.getRolesForUser(Meteor.userId());
+
+		if (userRoles.indexOf('administrator') === -1) {
+			throw new Meteor.Error('remove-user-from-role-not-administrator', 'Unable to remove user from role because the current user is not an administrator');
+		}
+
+		// user to add exists
+		const userToAdd = Meteor.users.findOne({ _id });
+
+		if (!userToAdd) {
+			throw new Meteor.Error('remove-user-from-role-user-not-found', 'Unable to remove user from role because the user to remove was not found');
+		}
+
+		// role exists
+		const allRoles = Roles.getAllRoles().fetch();
+		const thisRole = allRoles.find((roleObj) => roleObj._id === role);
+
+		if (!thisRole) {
+			throw new Meteor.Error('remove-user-from-role-role-not-found', 'Unable to remove user from role because the role was not found');
+		}
+
+		// user is in role
+		const userToAddRoles = Roles.getRolesForUser(_id);
+
+		if (userToAddRoles.indexOf(role) === -1) {
+			throw new Meteor.Error('remove-user-from-role-not-in-role', 'Unable to remove user from role because the user is not in the role');
+		}
+
+		// do not allow administrator to remove themselves
+		if (_id === Meteor.userId() && role === 'administrator') {
+			throw new Meteor.Error('remove-user-from-role-administrator-not-remove-self', 'Unable to remove user from role because an administrator cannot remove themself');
+		}
+
+		Roles.removeUsersFromRoles(_id, [role]);
+
+		return 'success';
+	},
 });

@@ -14,6 +14,7 @@ import PageWrapper from '../components/PageWrapper';
 import VerifyEmailForm from '../forms/VerifyEmailForm';
 import {
 	emailNotVerified,
+	getIsAdministrator,
 	getIsAuthenticated,
 	getIsVerified,
 	getUserEmail,
@@ -65,6 +66,7 @@ class Account extends Component {
 			dispatch,
 			emailVerified,
 			errors,
+			isAdministrator,
 			isAuthenticated,
 			isVerified,
 			userEmail,
@@ -104,12 +106,70 @@ class Account extends Component {
 
 		if (verificationEmailSent) {
 			message = 'Verification email has been re-sent. If you do not receive the email within a few minutes, please check your Junk or Spam folder.';
-			onClick = this.onCloseFlashMessage;
+			//onClick = this.onCloseFlashMessage;
 			type = 'success';
 		} else if (emailVerified) {
 			message = FLASH_MESSAGE_TEXTS.emailVerified;
-			onClick = this.onCloseFlashMessage;
+			//onClick = this.onCloseFlashMessage;
 			type = 'success';
+		}
+
+		let administratorControls;
+
+		if (isAdministrator) {
+			administratorControls = (
+				<>
+					<hr />
+					<div className="administrator-controls">
+						<form onSubmit={(event) => {
+							event.preventDefault();
+							const _id = event.target['add-user-id'].value;
+							const role = event.target['add-user-role'].value;
+
+							Meteor.call('auth.addUserToRole', { _id, role }, (err, response) => {
+								console.log('auth.addUserToRole completed');
+								console.log(`operation: add user ${_id} to role ${role}`);
+								console.log('err', err);
+								console.log('response', response);
+							});
+						}}
+						>
+							user id: <input type="text" id="add-user-id" name="add-user-id" />
+							role: <input type="text" id="add-user-role" name="add-user-role" />
+							<Button
+								color="secondary"
+								type="submit"
+							>
+								Add user to role
+							</Button>
+						</form>
+						<hr />
+						<form onSubmit={(event) => {
+							event.preventDefault();
+							const _id = event.target['remove-user-id'].value;
+							const role = event.target['remove-user-role'].value;
+
+							Meteor.call('auth.removeUserFromRole', { _id, role }, (err, response) => {
+								console.log('auth.removeUserFromRole completed');
+								console.log(`operation: remove user ${_id} from role ${role}`);
+								console.log('err', err);
+								console.log('response', response);
+							});
+						}}
+						>
+							user id: <input type="text" id="remove-user-id" name="remove-user-id" />
+							role: <input type="text" id="remove-user-role" name="remove-user-role" />
+							<Button
+								color="secondary"
+								type="submit"
+							>
+								Remove user from role
+							</Button>
+						</form>
+						Look in the console log for feedback
+					</div>
+				</>
+			);
 		}
 
 		return (
@@ -156,6 +216,11 @@ class Account extends Component {
 									</p>
 								</Col>
 							</Row>
+							<Row>
+								<Col>
+									{administratorControls}
+								</Col>
+							</Row>
 						</>
 					)}
 					{!isAuthenticated && 'Log in to access this page'}
@@ -180,6 +245,7 @@ Account.propTypes = {
 const mapStateToProps = (state) => ({
 	'emailVerified': state.auth.emailVerified,
 	'errors': state.errors,
+	'isAdministrator': getIsAdministrator(state),
 	'isAuthenticated': getIsAuthenticated(state),
 	'isVerified': getIsVerified(state),
 	'userEmail': getUserEmail(state),

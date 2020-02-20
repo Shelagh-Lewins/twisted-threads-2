@@ -412,6 +412,20 @@ export const getUserRoles = (state) => state.auth.userRoles;
 
 export const getIsAuthenticated = (state) => Boolean(Meteor.userId());
 
+export const getIsAdministrator = (state) => {
+	const userRoles = getUserRoles(state);
+
+	if (userRoles.length === 0) {
+		return false;
+	}
+
+	if (userRoles.indexOf('administrator') !== -1) {
+		return true;
+	}
+
+	return false;
+};
+
 // is the user logged in AND has a verified email address?
 // used on Accounts page to show resend verification email link
 export const getIsVerified = (state) => getUserRoles(state).indexOf('verified') !== -1;
