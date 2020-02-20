@@ -22,7 +22,7 @@ const IsPublicIndicator = (props) => {
 
 	function onChangeIsPublic(e) {
 		if (!canPublish) {
-			alert('To publish patterns or colour books, please verify your email address');
+			alert('To change the privacy of patterns or colour books, please verify your email address');
 		} else {
 		// map from button data to true / false
 			const value = (e.target.dataset.ispublic === 'public');

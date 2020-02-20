@@ -155,7 +155,7 @@ class Pattern extends PureComponent {
 		const { 'pattern': { _id, isPublic } } = this.context;
 
 		if (!canPublish) {
-			alert('To publish patterns or colour books, please verify your email address');
+			alert('To change the privacy of patterns or colour books, please verify your email address');
 		} else {
 			dispatch(editIsPublic({ _id, 'isPublic': !isPublic }));
 		}
