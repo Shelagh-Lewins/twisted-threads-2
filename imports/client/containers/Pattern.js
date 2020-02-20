@@ -9,6 +9,7 @@ import PropTypes from 'prop-types';
 import {
 	addRecentPattern,
 	getCanAddPatternImage,
+	getCanPublish,
 } from '../modules/auth';
 import {
 	editIsPublic,
@@ -150,10 +151,14 @@ class Pattern extends PureComponent {
 	}
 
 	onChangeIsPublic = () => {
-		const { dispatch } = this.props;
+		const { canPublish, dispatch } = this.props;
 		const { 'pattern': { _id, isPublic } } = this.context;
 
-		dispatch(editIsPublic({ _id, 'isPublic': !isPublic }));
+		if (!canPublish) {
+			alert('To publish patterns or colour books, please verify your email address');
+		} else {
+			dispatch(editIsPublic({ _id, 'isPublic': !isPublic }));
+		}
 	};
 
 	onClickPatternImageThumbnail(_id) {
@@ -787,6 +792,7 @@ Pattern.contextType = AppContext;
 
 Pattern.propTypes = {
 	'canAddPatternImage': PropTypes.bool.isRequired,
+	'canPublish': PropTypes.bool.isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 	'holes': PropTypes.number.isRequired,
@@ -817,6 +823,7 @@ function mapStateToProps(state, ownProps) {
 	// pattern chart info like numberOfRows must be got from store or it may not be correct
 	return {
 		'canAddPatternImage': getCanAddPatternImage(state),
+		'canPublish': getCanPublish(state),
 		'errors': state.errors,
 		'holes': getHoles(state),
 		'isEditing': getIsEditing(state),

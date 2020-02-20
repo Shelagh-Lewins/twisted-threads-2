@@ -472,6 +472,21 @@ export const getCanCreatePattern = (state) => {
 	return false;
 };
 
+// only verified users can make a pattern or color book public
+export const getCanPublish = (state) => {
+	const userRoles = getUserRoles(state);
+
+	if (userRoles.length === 0) {
+		return false;
+	}
+
+	if (userRoles.indexOf('verified') === -1) {
+		return false;
+	}
+
+	return true;
+};
+
 export const getCanCreateColorBook = (state) => {
 	const userRoles = getUserRoles(state);
 

@@ -4,23 +4,30 @@
 
 import React from 'react';
 import { Button } from 'reactstrap';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+	getCanPublish,
+} from '../modules/auth';
 import './IsPublicIndicator.scss';
 
 import { iconColors } from '../../modules/parameters';
 
 const IsPublicIndicator = (props) => {
-	const { isPublic, targetId } = props;
+	const { canPublish, isPublic, targetId } = props;
 	const isPublicData = isPublic ? 'public' : 'private';
 	const iconName = isPublic ? 'lock-open' : 'lock';
 	const tooltip = isPublic ? 'Public: click to make it private' : 'Private: click to make it public';
 
 	function onChangeIsPublic(e) {
+		if (!canPublish) {
+			alert('To publish patterns or colour books, please verify your email address');
+		} else {
 		// map from button data to true / false
-		const value = (e.target.dataset.ispublic === 'public');
-		props.onChangeIsPublic({ '_id': e.target.dataset.targetid, 'isPublic': !value });
+			const value = (e.target.dataset.ispublic === 'public');
+			props.onChangeIsPublic({ '_id': e.target.dataset.targetid, 'isPublic': !value });
+		}
 	}
 
 	return (
@@ -40,9 +47,16 @@ const IsPublicIndicator = (props) => {
 };
 
 IsPublicIndicator.propTypes = {
+	'canPublish': PropTypes.bool.isRequired,
 	'isPublic': PropTypes.bool.isRequired,
 	'onChangeIsPublic': PropTypes.func.isRequired,
 	'targetId': PropTypes.string.isRequired,
 };
 
-export default IsPublicIndicator;
+function mapStateToProps(state) {
+	return {
+		'canPublish': getCanPublish(state),
+	};
+}
+
+export default connect(mapStateToProps)(IsPublicIndicator);
