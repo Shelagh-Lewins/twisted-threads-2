@@ -407,7 +407,7 @@ export const getNumberOfColorBooks = (state) => state.auth.numberOfColorBooks;
 export const getNumberOfPatternImages = (state) => state.auth.numberOfPatternImages;
 
 // Roles.getRolesForUser is not reactive
-// so we save it in state when it changes
+// so we save it in state when it changes (e.g. because user verified their email address)
 export const getUserRoles = (state) => state.auth.userRoles;
 
 export const getIsAuthenticated = (state) => Boolean(Meteor.userId());
@@ -433,6 +433,10 @@ export const getCanCreatePattern = (state) => {
 	const userRoles = getUserRoles(state);
 
 	if (userRoles.length === 0) {
+		return false;
+	}
+
+	if (userRoles.indexOf('registered') === -1) {
 		return false;
 	}
 

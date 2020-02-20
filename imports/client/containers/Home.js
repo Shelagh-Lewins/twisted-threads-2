@@ -248,7 +248,7 @@ const Tracker = withTracker(({ dispatch }) => {
 	if (Accounts.loginServicesConfigured()) {
 		if (Meteor.userId()) {
 			myPatterns = Patterns.find(
-				{ 'createdBy': Meteor.userId },
+				{ 'createdBy': Meteor.userId() },
 				{
 					'limit': ITEMS_PER_PREVIEW_LIST,
 					'sort': { 'nameSort': 1 },
