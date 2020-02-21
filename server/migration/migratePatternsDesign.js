@@ -4,8 +4,10 @@
 // so patternDesign holds everything that varies with pattern type
 import {
 	Patterns,
+	Tags,
 } from '../../imports/modules/collection';
 import {
+	ALLOWED_PATTERN_TYPES,
 	DEFAULT_PALETTE,
 } from '../../imports/modules/parameters';
 
@@ -28,6 +30,16 @@ const migratePatternsDesign = () => {
 	const processedPatterns = [];
 	const patternsMissingData = new Set();
 
+	// make sure tags exist for each pattern type
+	ALLOWED_PATTERN_TYPES.forEach((patternTypeDef) => {
+		const existing = Tags.find({ 'name': patternTypeDef.name });
+		if (existing.count() === 0) {
+			Tags.insert({
+				'name': patternTypeDef.name,
+			});
+		}
+	});
+
 	allPatterns.forEach((pattern) => {
 		const {
 			_id,
@@ -38,16 +50,20 @@ const migratePatternsDesign = () => {
 			simulation_mode, // for simulation patterns, auto or manual
 			special_styles,
 			styles,
+			tags,
 			threading,
 			weft_color,
 		} = pattern;
 		const holes = 4; // TWT1 only had 4-hole tablets
+		const oldTags = tags || [];
 
 		let missingData = false; // some patterns are missing threading, orientations...vital stuff...
 
 		if (processedPatterns.indexOf(_id) !== -1) {
 			console.log('*** duplicate', _id);
 		}
+
+		const update = {};
 
 		if (patternType) {
 			patternsWithPatternType.push(_id);
@@ -82,7 +98,9 @@ const migratePatternsDesign = () => {
 					missingData = true;
 				}
 
-				if (!missingData) {
+				if (missingData) {
+					Patterns.remove({ _id });
+				} else {
 					processedPatterns.push(_id);
 					const oldStyles = JSON.parse(styles);
 					const oldOrientation = JSON.parse(orientation);
@@ -120,33 +138,8 @@ const migratePatternsDesign = () => {
 						newPatternType = 'allTogether';
 						newPatternDesign.weavingInstructions = auto_turn_sequence;
 						newNumberOfRows = auto_turn_sequence.length; // just in case of error in old data
-						Patterns.update({ _id }, {
-							// set new fields
-							'$set': {
-								'numberOfRows': newNumberOfRows,
-								'numberOfTablets': newNumberOfTablets,
-								'orientations': newOrientations,
-								'palette': newPalette,
-								'patternDesign': newPatternDesign,
-								'patternType': newPatternType,
-								'threading': newThreading,
-								'weftColor': 8,
-							},
-							'$unset': {
-								// remove unused fields
-								'auto_turn_sequence': '',
-								'edit_mode': '',
-								'number_of_rows': '',
-								'number_of_tablets': '',
-								'orientation': '',
-								'simulation_mode': '',
-								'special_styles': '',
-								'styles': '',
-								'weft_color': '',
-							},
-						});
 					} else if (simulation_mode === 'manual') {
-						newPatternType = 'individual';
+						//newPatternType = 'individual';
 					} else {
 						console.log('pattern has unrecognised simulation_mode', _id);
 						console.log('simulation_mode', simulation_mode);
@@ -159,12 +152,51 @@ const migratePatternsDesign = () => {
 					oldSpecialStyles = JSON.parse(special_styles);
 				}
 			}
+
+			if (newPatternType) {
+				update.$set = {
+					// set new fields
+					'numberOfRows': newNumberOfRows,
+					'numberOfTablets': newNumberOfTablets,
+					'orientations': newOrientations,
+					'palette': newPalette,
+					'patternDesign': newPatternDesign,
+					'patternType': newPatternType,
+					'threading': newThreading,
+					'weftColor': 8,
+				};
+				update.$unset = {
+					// remove unused fields
+					'auto_turn_sequence': '',
+					'edit_mode': '',
+					'number_of_rows': '',
+					'number_of_tablets': '',
+					'orientation': '',
+					'simulation_mode': '',
+					'special_styles': '',
+					'styles': '',
+					'weft_color': '',
+				};
+
+				const newTag = ALLOWED_PATTERN_TYPES.find((patternTypeDef) => patternTypeDef.name === newPatternType).tag;
+
+				if (oldTags.indexOf(newTag) === -1) {
+					update.$push = {
+						'tags': newTag,
+					};
+				}
+
+				Patterns.update({ _id }, update);
+			}
 		}
 	});
+
+	Patterns.remove({ '_id': patternsMissingData });
 	console.log('*** report');
 	console.log('!!! patternsWithPatternType ie already migrated', patternsWithPatternType);
 	console.log('number of patterns migrated', processedPatterns.length);
 	console.log('patterns with missing data ', patternsMissingData);
+	console.log('patterns now in database', Patterns.find().count());
 	console.log('*** finished migrating pattern design');
 };
 

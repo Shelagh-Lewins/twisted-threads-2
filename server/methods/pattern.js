@@ -82,7 +82,7 @@ Meteor.methods({
 		// and will be used to calculated picks, from which the weaving chart and preview will be drawn
 		// 'for individual' pattern, patternDesign is simply picks
 		let patternDesign = {};
-		const tags = [];
+		const tags = [ALLOWED_PATTERN_TYPES.find((patternTypeDef) => patternTypeDef.name === patternType).tag];
 
 		const weavingInstructions = new Array(rows); // construct an empty array to hold the picks
 		for (let i = 0; i < rows; i += 1) {
@@ -103,7 +103,6 @@ Meteor.methods({
 				}
 
 				patternDesign = { weavingInstructions };
-				tags.push('individual');
 				break;
 
 			case 'allTogether':
@@ -114,7 +113,6 @@ Meteor.methods({
 				}
 
 				patternDesign = { weavingInstructions };
-				tags.push('all together');
 				break;
 
 			case 'brokenTwill':
@@ -167,7 +165,6 @@ Meteor.methods({
 				});
 
 				// broken twill uses the default orientation, same as other patterns (/ or S)
-				tags.push('3/1 broken twill');
 				break;
 
 			case 'freehand':
@@ -183,7 +180,6 @@ Meteor.methods({
 				}
 
 				patternDesign = { freehandChart };
-				tags.push('freehand');
 				break;
 
 			default:

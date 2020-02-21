@@ -22,7 +22,7 @@ const PatternListPreview = (props) => {
 		users,
 		width,
 	} = props;
-
+//console.log('PatternListPreview says tags', tags);
 	const { divWidth, numberToShow } = getListPreviewDimensions(width);
 
 	const patternsToShow = patterns.slice(0, numberToShow);
@@ -55,7 +55,7 @@ const PatternListPreview = (props) => {
 							// ensure tags subscription is ready
 							if (patternTags && tags && tags.length > 0) {
 								patternTags.forEach((patternTag) => {
-									const tagObject = tags.find((tag) => tag._id === patternTag);
+									const tagObject = tags.find((tag) => tag.name === patternTag);
 									if (tagObject && tagObject.name) {
 										tagTexts.push(tagObject.name);
 									}

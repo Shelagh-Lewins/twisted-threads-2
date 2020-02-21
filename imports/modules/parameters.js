@@ -32,16 +32,19 @@ export const ALLOWED_PATTERN_TYPES = [
 		'name': 'individual',
 		'displayName': 'Individual',
 		'previewOrientation': 'right',
+		'tag': 'individual',
 	},
 	{ // simulation pattern, woven by turning all tablets together
 		'name': 'allTogether',
 		'displayName': 'All together',
 		'previewOrientation': 'right',
+		'tag': 'all together',
 	},
 	{ // 3 / 1 broken twill, designed on special graph paper
 		'name': 'brokenTwill',
 		'displayName': '3/1 broken twill',
 		'previewOrientation': 'up',
+		'tag': '3/1 broken twill',
 
 	},
 	{ // threading is standard, but the weaving chart is hand drawn
@@ -50,7 +53,7 @@ export const ALLOWED_PATTERN_TYPES = [
 		'name': 'freehand',
 		'displayName': 'Freehand',
 		'previewOrientation': 'right',
-
+		'tag': 'freehand',
 	},
 ];
 export const findPatternTypeDisplayName = (patternType) => ALLOWED_PATTERN_TYPES.find((type) => type.name === patternType).displayName;

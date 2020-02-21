@@ -121,7 +121,7 @@ const runDataMigration = () => {
 	console.log('*** run migration');
 
 	// Migrate roles from 1.x to 3.x
-	//Package['alanning:roles'].Roles._forwardMigrate();
+	////Package['alanning:roles'].Roles._forwardMigrate();
 	//Package['alanning:roles'].Roles._forwardMigrate2();
 	//fixRoles();
 
