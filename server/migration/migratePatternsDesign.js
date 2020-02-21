@@ -52,33 +52,38 @@ const migratePatternsDesign = () => {
 	// number of rows, tablets have been read from old data
 	// but let's make sure they are correct
 	let newNumberOfRows;
-	let newNumberOfTablets = threading[0].length;
+	const newNumberOfTablets = oldThreading[0].length;
 	const newPalette = DEFAULT_PALETTE;
 	const newThreading = [];
 	let newPatternType;
 	const newPatternDesign = {};
-
+console.log('oldThreading[0]', oldThreading[0]);
+console.log('newNumberOfTablets', newNumberOfTablets);
 	// palette
 	if (testPattern.edit_mode === 'simulation') {
 		// simulation patterns only have 7 thread colours
 		for (let i = 0; i < 7; i += 1) {
-			newPalette[i] = oldStyles[i].line_color;
+			newPalette[i] = oldStyles[i].background_color;
 		}
+
+		newPalette[8] = weft_color; // weft color is now saved as an indexed color in the palette. 8 is the first unused palette slot.
 
 		console.log('newPalette', newPalette);
 
 		// threading
 		for (let i = 0; i < holes; i += 1) {
 			newThreading[i] = [];
-
+console.log('i', i);
 			for (let j = 0; j < newNumberOfTablets; j += 1) {
 				const oldStyle = oldThreading[i][j];
-
+console.log('j', j);
+console.log('oldStyle', oldStyle);
 				if (oldStyle === 'S7') {
 					newThreading[i][j] = -1; // empty hole
 				} else {
 					newThreading[i][j] = oldStyle - 1; // old styles start at 1
 				}
+				console.log('newThreading', newThreading[i][j]);
 			}
 		}
 
@@ -90,13 +95,15 @@ const migratePatternsDesign = () => {
 			newPatternDesign.weaviingInstructions = auto_turn_sequence;
 			newNumberOfRows = auto_turn_sequence.length; // just in case of error in old data
 			Patterns.update({ _id }, {
-				'numberOfRows': newNumberOfRows,
-				'numberOfTablets': newNumberOfTablets,
-				'palette': newPalette,
-				'patternDesign': newPatternDesign,
-				'patternType': newPatternType,
-				'threading': newThreading,
-				'weftColor': weft_color,
+				'$set': {
+					'numberOfRows': newNumberOfRows,
+					'numberOfTablets': newNumberOfTablets,
+					'palette': newPalette,
+					'patternDesign': newPatternDesign,
+					'patternType': newPatternType,
+					'threading': newThreading,
+					'weftColor': 8,
+				},
 			});
 		} else if (simulation_mode === 'manual') {
 			newPatternType = 'individual';
