@@ -100,8 +100,7 @@ const migratePatternsMetadata = () => {
 			edit_mode,
 			manual_weaving_turns,
 			name_sort,
-			number_of_rows,
-			number_of_tablets,
+			number_of_rows, // this is rewritten later, but used as a check here
 			preview_rotation,
 			simulation_mode,
 			threading,
@@ -110,7 +109,11 @@ const migratePatternsMetadata = () => {
 			weaving_notes,
 		} = pattern;
 
-		const isPrivate = pattern.private;
+		let isPublic = !pattern.private;
+
+		if (process.env.ALL_PATTERNS_ARE_PUBLIC === 'migrations') {
+			isPublic = true;
+		}
 
 		const update = {};
 
@@ -155,10 +158,8 @@ const migratePatternsMetadata = () => {
 				'createdAt': new Date(created_at),
 				'createdBy': created_by,
 				'holes': 4,
-				'isPublic': !isPrivate,
+				isPublic,
 				'nameSort': name_sort,
-				'numberOfRows': number_of_rows,
-				'numberOfTablets': number_of_tablets,
 				'previewOrientation': preview_rotation,
 				'threadingNotes': threading_notes,
 				'weavingNotes': weaving_notes,
@@ -166,13 +167,12 @@ const migratePatternsMetadata = () => {
 
 			// fields no longer used
 			update.$unset = {
-				'created_at': 1,
-				'created_by': 1,
-				'created_by_username': 1,
-				'name_sort': 1,
-				'number_of_rows': 1,
-				'number_of_tablets': 1,
-				'private': 1,
+				'created_at': '',
+				'created_by': '',
+				'created_by_username': '',
+				'name_sort': '',
+				'number_of_rows': '',
+				'private': '',
 			};
 
 			patternsToUpdate.push(_id);
