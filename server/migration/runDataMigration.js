@@ -16,13 +16,11 @@ const migrateUserProfiles = () => {
 		let newRecentPatterns = [];
 
 		if (oldRecentPatterns) {
-			newRecentPatterns = oldRecentPatterns.map((recentPattern) => {
-				return {
-					'patternId': recentPattern.pattern_id,
-					'updatedAt': new Date(recentPattern.accessed_at),
-					'currentWeavingRow': recentPattern.current_weave_row,
-				};
-			});
+			newRecentPatterns = oldRecentPatterns.map((recentPattern) => ({
+				'patternId': recentPattern.pattern_id,
+				'updatedAt': new Date(recentPattern.accessed_at),
+				'currentWeavingRow': recentPattern.current_weave_row,
+			}));
 		}
 
 		const newProfile = {
