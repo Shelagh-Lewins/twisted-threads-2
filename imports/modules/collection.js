@@ -22,12 +22,12 @@ ColorBooks.attachSchema(ColorBooksSchema);
 export const Patterns = new Mongo.Collection('patterns');
 Patterns.attachSchema(PatternsSchema);
 Patterns.before.insert((userId, pattern) => {
-	pattern.createdAt = Date.now();
+	pattern.createdAt = new Date();
 });
 
 Patterns.before.update((userId, doc, fieldNames, modifier, options) => {
 	modifier.$set = modifier.$set || {};
-	modifier.$set.modifiedAt = Date.now();
+	modifier.$set.modifiedAt = new Date();
 });
 
 // Pattern preview

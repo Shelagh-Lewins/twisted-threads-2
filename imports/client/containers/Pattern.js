@@ -24,6 +24,8 @@ import {
 	getPatternTwistSelector,
 	getTotalTurnsByTabletSelector,
 	savePatternData,
+	setIsEditingThreading,
+	setIsEditingWeaving,
 	setUpdatePreviewWhileEditing,
 } from '../modules/pattern';
 import { editPatternImageCaption, removePatternImage } from '../modules/patternImages';
@@ -85,6 +87,8 @@ class Pattern extends PureComponent {
 
 		document.body.classList.add(bodyClass);
 		dispatch(setUpdatePreviewWhileEditing(false));
+		dispatch(setIsEditingThreading(false));
+		dispatch(setIsEditingWeaving(false));
 	}
 
 	componentDidUpdate(prevProps) {

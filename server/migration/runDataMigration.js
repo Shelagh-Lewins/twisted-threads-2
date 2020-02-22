@@ -3,6 +3,7 @@
 // and then be disabled and never spoken of again
 
 import migratePatternsMetadata from './migratePatternsMetadata';
+import migrateTags from './migrateTags';
 import migratePatternsDesign from './migratePatternsDesign';
 
 const migrateUserProfiles = () => {
@@ -127,7 +128,8 @@ const runDataMigration = () => {
 
 	//migrateUserProfiles();
 	//migratePatternsMetadata();
-	migratePatternsDesign();
+	migrateTags();
+	//migratePatternsDesign();
 };
 
 export default runDataMigration;
