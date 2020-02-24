@@ -127,14 +127,15 @@ const runDataMigration = () => {
 	console.log('*** run migration');
 
 	// Migrate roles from 1.x to 3.x
-	Package['alanning:roles'].Roles._forwardMigrate();
-	Package['alanning:roles'].Roles._forwardMigrate2();
-	fixRoles();
+	//Package['alanning:roles'].Roles._forwardMigrate();
+	//Package['alanning:roles'].Roles._forwardMigrate2();
+	//fixRoles();
 
-	migrateUserProfiles();
-	migratePatternsMetadata();
-	migrateTags();
+	//migrateUserProfiles();
+	//migratePatternsMetadata();
+	//migrateTags();
 	//migratePatternsDesign();
+	console.log('drop test', Meteor.ActionsLog);
 };
 
 export default runDataMigration;

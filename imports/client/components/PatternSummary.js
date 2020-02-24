@@ -31,8 +31,7 @@ function PatternSummary(props) {
 	if (user) {
 		username = user.username;
 	}
-//console.log('*** PatternSummary', _id);
-//console.log('tagTexts', tagTexts);
+
 	const onChangeIsPublic = () => {
 		dispatch(editIsPublic({ _id, 'isPublic': !isPublic }));
 	};

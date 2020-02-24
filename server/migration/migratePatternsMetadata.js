@@ -101,7 +101,6 @@ const migratePatternsMetadata = () => {
 			update.$set = {
 				'createdAt': new Date(created_at),
 				'createdBy': created_by,
-				'holeHandedness': hole_handedness,
 				'holes': 4,
 				isPublic,
 				'nameSort': name_sort,
@@ -116,6 +115,10 @@ const migratePatternsMetadata = () => {
 				update.$set.modifiedAt = new Date(pattern_edited_at);
 			}
 
+			if (hole_handedness) {
+				update.$set.holeHandedness = hole_handedness;
+			}
+
 			// fields no longer used
 			update.$unset = {
 				'created_at': '',
@@ -128,6 +131,7 @@ const migratePatternsMetadata = () => {
 				'pattern_edited_at': '',
 				'preview_rotation': '',
 				'private': '',
+				'text_edited_at': '',
 				'threading_notes': '',
 				'weaving_notes': '',
 			};
