@@ -55,6 +55,13 @@ const migratePatternsMetadata = () => {
 			isPublic = true;
 		}
 
+		console.log('*** migrating metatdata for ', _id);
+		console.log('created_at', created_at);
+		console.log('createdAt', new Date(created_at));
+
+		console.log('pattern_edited_at', pattern_edited_at);
+		console.log('modifiedAt', new Date(pattern_edited_at));
+
 		const update = {};
 
 		if (number_of_rows === 0) {
@@ -99,12 +106,15 @@ const migratePatternsMetadata = () => {
 				'createdBy': created_by,
 				'holes': 4,
 				isPublic,
-				'modifiedAt': new Date(pattern_edited_at),
 				'nameSort': name_sort,
 				'previewOrientation': preview_rotation,
 				'threadingNotes': threading_notes,
 				'weavingNotes': weaving_notes,
 			};
+
+			if (pattern_edited_at) {
+				update.$set.modifiedAt = new Date(pattern_edited_at);
+			}
 
 			// fields no longer used
 			update.$unset = {

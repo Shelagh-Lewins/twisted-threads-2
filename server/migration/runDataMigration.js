@@ -5,6 +5,7 @@
 import migratePatternsMetadata from './migratePatternsMetadata';
 import migrateTags from './migrateTags';
 import migratePatternsDesign from './migratePatternsDesign';
+import { ROLES } from '../../imports/modules/parameters';
 
 const migrateUserProfiles = () => {
 	console.log('*** starting to migrate user profiles');
@@ -48,6 +49,10 @@ const migrateUserProfiles = () => {
 const fixRoles = () => {
 	// after migration from Roles 1.x, 2.x, some users are entered in role-assignment twice as verified
 	// and 'premium' was never properly added to the roles list in TWT1 so is not carried over
+	// ensure user roles exist
+	ROLES.forEach((role) => {
+		Roles.createRole(role, { 'unlessExists': true });
+	});
 
 	const premiumUsers = [ // have premium role in TWT1
 		'2r9oYwLH7CyHz2MWM',
@@ -122,13 +127,13 @@ const runDataMigration = () => {
 	console.log('*** run migration');
 
 	// Migrate roles from 1.x to 3.x
-	////Package['alanning:roles'].Roles._forwardMigrate();
+	//Package['alanning:roles'].Roles._forwardMigrate();
 	//Package['alanning:roles'].Roles._forwardMigrate2();
 	//fixRoles();
 
 	//migrateUserProfiles();
 	//migratePatternsMetadata();
-	migrateTags();
+	//migrateTags();
 	//migratePatternsDesign();
 };
 

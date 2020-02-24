@@ -34,13 +34,13 @@ const migrateTags = () => {
 		const { tags } = pattern;
 
 		if (tags) {
-			//const oldTags = new Set(tags.map((tag) => tag.toLowerCase()));
+			const oldTags = new Set(tags.map((tag) => tag.toLowerCase()));
 			const newTags = [];
-			const oldTags = new Set(tags);
+			//const oldTags = new Set(tags);
 
 			oldTags.forEach((tag) => {
 				let tagId;
-				const existingTag = Tags.findOne({ '_id': tag });
+				const existingTag = Tags.findOne({ 'name': tag });
 
 				if (existingTag) { // use an existing tag
 					tagId = existingTag._id;

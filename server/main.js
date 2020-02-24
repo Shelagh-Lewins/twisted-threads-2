@@ -5,15 +5,18 @@ import { ROLES } from '../imports/modules/parameters';
 import runDataMigration from './migration/runDataMigration';
 
 Meteor.startup(() => {
-	// ensure user roles exist
-	ROLES.forEach((role) => {
-		Roles.createRole(role, { 'unlessExists': true });
-	});
 	//TODO run this once live
 	//and then remove it
 
 	if (process.env.MIGRATIONS === 'migrations') {
+		console.log('main says runDataMigration');
 		runDataMigration(); // disabled while messing about with client
+	} else {
+		// ensure user roles exist
+		// when migrating, this is done after migrating roles and before fixing them
+		ROLES.forEach((role) => {
+			Roles.createRole(role, { 'unlessExists': true });
+		});
 	}
 
 	Accounts.config({
