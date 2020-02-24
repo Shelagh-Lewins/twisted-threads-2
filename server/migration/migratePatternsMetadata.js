@@ -57,7 +57,14 @@ const migratePatternsMetadata = () => {
 			isPublic = true;
 		}
 
-		//console.log('*** migrating metatdata for ', _id);
+		let previewOrientation = 'up';
+
+		// direction has changed
+		if (preview_rotation === 'left') {
+			previewOrientation = 'right';
+		} else if (preview_rotation === 'right') {
+			previewOrientation = 'left';
+		}
 
 		const update = {};
 
@@ -97,7 +104,6 @@ const migratePatternsMetadata = () => {
 			}
 		} else {
 			// fields to migrate / add
-
 			update.$set = {
 				'createdAt': new Date(created_at),
 				'createdBy': created_by,
@@ -106,7 +112,7 @@ const migratePatternsMetadata = () => {
 				'nameSort': name_sort,
 				'numberOfRows': number_of_rows,
 				'numberOfTablets': number_of_tablets,
-				'previewOrientation': preview_rotation,
+				previewOrientation,
 				'threadingNotes': threading_notes,
 				'weavingNotes': weaving_notes,
 			};

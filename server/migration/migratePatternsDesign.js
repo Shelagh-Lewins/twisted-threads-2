@@ -32,7 +32,6 @@ const migratePatternsDesign = () => {
 
 	// make sure tags exist for each pattern type
 	ALLOWED_PATTERN_TYPES.forEach((patternTypeDef) => {
-		console.log('ensure tag', patternTypeDef.tag);
 		const existing = Tags.find({ 'name': patternTypeDef.tag });
 		if (existing.count() === 0) {
 			Tags.insert({
@@ -40,6 +39,8 @@ const migratePatternsDesign = () => {
 			});
 		}
 	});
+
+	const manualWithNoRows = [];
 
 	allPatterns.forEach((pattern) => {
 		const {
@@ -137,33 +138,39 @@ const migratePatternsDesign = () => {
 
 					// patternDesign
 					if (simulation_mode === 'auto') {
-						//TODO reinstate and retest when individual done
 						newPatternType = 'allTogether';
 						newPatternDesign.weavingInstructions = auto_turn_sequence;
 						newNumberOfRows = auto_turn_sequence.length; // just in case of error in old data
 					} else if (simulation_mode === 'manual') {
-						//if (_id === '23uf5DbE7vxwczfeX') {
-						//console.log('converting manual pattern', _id);
-						newPatternType = 'individual';
-						const weavingInstructions = []; // these will be built by row from manual_weaving_turns
+						// manual patterns have a dummy row at start for working
+						// so only one row means the pattern has not been designed
 						const oldTurns = JSON.parse(manual_weaving_turns);
+						newNumberOfRows = oldTurns.length - 1;
 
-						for (let i = 0; i < oldTurns.length; i += 1) {
-							weavingInstructions[i] = [];
-							//console.log('oldTurns[i]', oldTurns[i]);
-							const { tablets, packs } = oldTurns[i];
+						if (newNumberOfRows < 1) {
+							manualWithNoRows.push(_id);
+						} else {
+							newPatternType = 'individual';
+							const weavingInstructions = []; // these will be built by row from manual_weaving_turns
 
-							for (let j = 0; j < tablets.length; j += 1) {
-								const oldPick = packs[tablets[j] - 1];
-								const newPick = {
-									'direction': oldPick.direction,
-									'numberOfTurns': oldPick.number_of_turns,
-								};
-								weavingInstructions[i][j] = newPick;
+							newNumberOfTablets = oldTurns[0].tablets.length;
+							// manual patterns have a dummy row at start for working
+							for (let i = 0; i < newNumberOfRows; i += 1) {
+								weavingInstructions[i] = [];
+								const { tablets, packs } = oldTurns[i + 1];
+
+								for (let j = 0; j < tablets.length; j += 1) {
+									const oldPick = packs[tablets[j] - 1];
+									const newPick = {
+										'direction': oldPick.direction,
+										'numberOfTurns': oldPick.number_of_turns,
+									};
+									weavingInstructions[i][j] = newPick;
+								}
 							}
-						}
 
-						newPatternDesign.weavingInstructions = weavingInstructions;
+							newPatternDesign.weavingInstructions = weavingInstructions;
+						}
 					} else {
 						console.log('pattern has unrecognised simulation_mode', _id);
 						console.log('simulation_mode', simulation_mode);
@@ -233,7 +240,8 @@ const migratePatternsDesign = () => {
 
 	Patterns.remove({ '_id': patternsMissingData });
 	console.log('*** report');
-	//console.log('!!! patternsWithPatternType ie already migrated', patternsWithPatternType);
+	console.log('!!! patternsWithPatternType ie already migrated', patternsWithPatternType);
+	console.log('number of simulation/manual patterns with no rows', manualWithNoRows.length);
 	console.log('number of patterns migrated', processedPatterns.length);
 	console.log('patterns with missing data ', patternsMissingData);
 	console.log('patterns now in database', Patterns.find().count());
