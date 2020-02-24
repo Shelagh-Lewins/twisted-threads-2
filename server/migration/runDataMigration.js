@@ -134,8 +134,7 @@ const runDataMigration = () => {
 	//migrateUserProfiles();
 	//migratePatternsMetadata();
 	//migrateTags();
-	//migratePatternsDesign();
-	console.log('drop test', Meteor.ActionsLog);
+	migratePatternsDesign();
 };
 
 export default runDataMigration;

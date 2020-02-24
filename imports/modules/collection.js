@@ -61,8 +61,8 @@ export const PatternsIndex = new Index({
 			// but there are likely to be fewer tags than patterns, and it should be quicker than doing the whole search as an aggregated regex. There is just one search to find matching tagIds.
 			const searchTerm = searchObject.nameSort;
 			const matchingTags = Tags.find({ 'name': { '$regex': searchTerm } }).fetch();
-			const matchingTagIds = matchingTags.map((tag) => tag._id);
-			selector.$or.push({ 'tags': { '$in': matchingTagIds } });
+			const matchingTagNames = matchingTags.map((tag) => tag.name);
+			selector.$or.push({ 'tags': { '$in': matchingTagNames } });
 
 			const newSelector = {
 				'$and': [

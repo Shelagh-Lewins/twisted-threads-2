@@ -137,13 +137,13 @@ class InteractiveWeavingChart extends PureComponent {
 
 	handleKeyUp(event) {
 		// use up / down arrow to change weaving row
-		switch(event.keyCode) {
+		switch (event.keyCode) {
 			case 38: // up arrow
-				this.handleKeyUp();
+				this.handleClickUp();
 				break;
 
 			case 40: // down arrow
-				this.handleKeyDown();
+				this.handleClickDown();
 				break;
 
 			default:
