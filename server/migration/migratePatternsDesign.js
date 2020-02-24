@@ -200,9 +200,8 @@ const migratePatternsDesign = () => {
 					// remove unused fields
 					'auto_turn_sequence': '',
 					'auto_turn_threads': '',
+					'manual_weaving_threads': '',
 					'manual_weaving_turns': '',
-					'number_of_rows': '',
-					'number_of_tablets': '',
 					'orientation': '',
 					'simulation_mode': '',
 					'special_styles': '',
@@ -224,10 +223,7 @@ const migratePatternsDesign = () => {
 
 		// remove from all when done
 		// auto_turn_sequence
-		// manual_weaviing_threads
-		// weft_color
 		// edit_mode
-		// simulation_mode
 		// position_of_a
 		// styles
 		// special_styles
