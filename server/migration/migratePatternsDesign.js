@@ -24,11 +24,10 @@ const buildThreading = ({
 	const oldOrientation = JSON.parse(orientation);
 	const oldThreading = JSON.parse(threading);
 
-	let newNumberOfRows;
 	const newThreading = new Array(holes);
 	const newPalette = DEFAULT_PALETTE;
-
 	const newNumberOfTablets = oldThreading[0].length;
+
 	// simulation patterns only have 7 thread colours
 	for (let i = 0; i < 7; i += 1) {
 		newPalette[i] = oldStyles[i].background_color;
@@ -56,7 +55,6 @@ const buildThreading = ({
 	const newOrientations = oldOrientation.map((entry) => ((entry === 'S') ? '/' : '\\'));
 
 	return {
-		newNumberOfRows,
 		newNumberOfTablets,
 		newOrientations,
 		newPalette,
@@ -107,12 +105,11 @@ const migratePatternsDesign = () => {
 			twill_change_chart,
 			twill_direction,
 			twill_pattern_chart,
+			weaving_start_row,
 			weft_color,
 		} = pattern;
 		const holes = 4; // TWT1 only had 4-hole tablets
 		const oldTags = tags || [];
-
-		let missingData = false; // some patterns are missing threading, orientations...vital stuff...
 
 		if (processedPatterns.indexOf(_id) !== -1) {
 			console.log('*** duplicate', _id);
@@ -123,101 +120,95 @@ const migratePatternsDesign = () => {
 		if (patternType) {
 			// pattern has already been migrated
 			patternsWithPatternType.push(_id);
+		} else if (!orientation || !threading || !styles) {
+			console.log('missing simulation data for', _id);
+			patternsMissingData.add(_id);
 		} else {
 			const newPatternDesign = {};
-			// number of rows, tablets have been read from old data
-			// but let's make sure they are correct
-			let newNumberOfRows;
-			let newNumberOfTablets;
-			let newOrientations;
-			let newPalette;
-			let newThreading;
 			let newPatternType;
+			let newNumberOfRows;
+			let weftColor = 8; // for everything except maybe freehand
 
-			if (!orientation) {
-				console.log('no orientation for', _id);
-				patternsMissingData.add(_id);
-				missingData = true;
-			}
-			if (!threading) {
-				console.log('no threading for', _id);
-				patternsMissingData.add(_id);
-				missingData = true;
-			}
-			if (!styles) {
-				console.log('no styles for', _id);
-				patternsMissingData.add(_id);
-				missingData = true;
-			}
+			const {
+				newNumberOfTablets, // double check
+				newOrientations,
+				newPalette,
+				newThreading,
+			} = buildThreading({
+				holes,
+				orientation,
+				styles,
+				threading,
+				weft_color,
+			});
 
-			if (!missingData) {
-				({
-					newNumberOfRows,
-					newNumberOfTablets,
-					newOrientations,
-					newPalette,
-					newThreading,
-				} = buildThreading({
-					holes,
-					orientation,
-					styles,
-					threading,
-					weft_color,
-				}));
+			if (edit_mode === 'simulation') {
+				// patternDesign
+				if (simulation_mode === 'auto') {
+					newPatternType = 'allTogether';
+					processedPatterns.push(_id);
+					newPatternDesign.weavingInstructions = auto_turn_sequence;
+					newNumberOfRows = auto_turn_sequence.length; // just in case of error in old data
+				} else if (simulation_mode === 'manual') {
+					// manual patterns have a dummy row at start for working
+					// so only one row means the pattern has not been designed
+					const oldTurns = JSON.parse(manual_weaving_turns);
+					newNumberOfRows = oldTurns.length - 1;
 
-				if (edit_mode === 'simulation') {
-					// patternDesign
-					if (simulation_mode === 'auto') {
-						newPatternType = 'allTogether';
-						processedPatterns.push(_id);
-						newPatternDesign.weavingInstructions = auto_turn_sequence;
-						newNumberOfRows = auto_turn_sequence.length; // just in case of error in old data
-					} else if (simulation_mode === 'manual') {
-						// manual patterns have a dummy row at start for working
-						// so only one row means the pattern has not been designed
-						const oldTurns = JSON.parse(manual_weaving_turns);
-						newNumberOfRows = oldTurns.length - 1;
-
-						if (newNumberOfRows < 1) {
-							manualWithNoRows.push(_id);
-						} else {
-							newPatternType = 'individual';
-							processedPatterns.push(_id);
-							const weavingInstructions = []; // these will be built by row from manual_weaving_turns
-
-							// manual patterns have a dummy row at start for working
-							for (let i = 0; i < newNumberOfRows; i += 1) {
-								weavingInstructions[i] = [];
-								const { tablets, packs } = oldTurns[i + 1];
-
-								for (let j = 0; j < tablets.length; j += 1) {
-									const oldPick = packs[tablets[j] - 1];
-									const newPick = {
-										'direction': oldPick.direction,
-										'numberOfTurns': oldPick.number_of_turns,
-									};
-									weavingInstructions[i][j] = newPick;
-								}
-							}
-
-							newPatternDesign.weavingInstructions = weavingInstructions;
-						}
+					if (newNumberOfRows < 1) {
+						manualWithNoRows.push(_id);
 					} else {
-						console.log('pattern has unrecognised simulation_mode', _id);
-						console.log('simulation_mode', simulation_mode);
+						newPatternType = 'individual';
+						processedPatterns.push(_id);
+						const weavingInstructions = []; // these will be built by row from manual_weaving_turns
+
+						// manual patterns have a dummy row at start for working
+						for (let i = 0; i < newNumberOfRows; i += 1) {
+							weavingInstructions[i] = [];
+							const { tablets, packs } = oldTurns[i + 1];
+
+							for (let j = 0; j < tablets.length; j += 1) {
+								const oldPick = packs[tablets[j] - 1];
+								const newPick = {
+									'direction': oldPick.direction,
+									'numberOfTurns': oldPick.number_of_turns,
+								};
+								weavingInstructions[i][j] = newPick;
+							}
+						}
+
+						newPatternDesign.weavingInstructions = weavingInstructions;
 					}
-				} else if (edit_mode === 'broken_twill') {
-				//console.log('broken twill');
-				//check for missing data
-				// read 2 x design charts
-				// build new chart
-				// get threading etc
-				} else if (edit_mode === 'freehand') {
-					// some freehand patterns e.g. MtJ27N9QARhPwWZCP do not have special styles
-					let oldSpecialStyles;
-					if (special_styles) {
-						oldSpecialStyles = JSON.parse(special_styles);
-					}
+				} else {
+					console.log('pattern has unrecognised simulation_mode', _id);
+					console.log('simulation_mode', simulation_mode);
+				}
+			} else if (edit_mode === 'broken_twill') {
+				if (!twill_direction
+					|| !twill_pattern_chart
+					|| !twill_change_chart) {
+					console.log('missing twill data for', _id);
+					patternsMissingData.add(_id);
+				} else {
+					newPatternType = 'brokenTwill';
+					const twillPatternChart = JSON.parse(twill_pattern_chart);
+					const twillDirectionChangeChart = JSON.parse(twill_change_chart);
+
+					// twill charts have an extra row at the end for determining the last even row
+					newNumberOfRows = (twillPatternChart.length - 1) * 2;
+					newPatternDesign.twillDirection = twill_direction;
+					newPatternDesign.twillPatternChart = twillPatternChart;
+					newPatternDesign.twillDirectionChangeChart = twillDirectionChangeChart;
+					newPatternDesign.weavingStartRow = weaving_start_row || 1;
+				}
+			// read 2 x design charts
+			// build new chart
+			// get threading etc
+			} else if (edit_mode === 'freehand') {
+				// some freehand patterns e.g. MtJ27N9QARhPwWZCP do not have special styles
+				let oldSpecialStyles;
+				if (special_styles) {
+					oldSpecialStyles = JSON.parse(special_styles);
 				}
 			}
 
@@ -231,18 +222,25 @@ const migratePatternsDesign = () => {
 					'patternDesign': newPatternDesign,
 					'patternType': newPatternType,
 					'threading': newThreading,
-					'weftColor': 8,
+					weftColor,
 				};
 				update.$unset = {
 					// remove unused fields
 					'auto_turn_sequence': '',
 					'auto_turn_threads': '',
+					'edit_mode': '',
 					'manual_weaving_threads': '',
 					'manual_weaving_turns': '',
 					'orientation': '',
+					'position_of_a': '',
 					'simulation_mode': '',
 					'special_styles': '',
 					'styles': '',
+					'twill_direction': '',
+					'twill_change_chart': '',
+					'twill_pattern_chart': '',
+					'weaving': '',
+					'weaving_start_row': '',
 					'weft_color': '',
 				};
 
@@ -257,18 +255,6 @@ const migratePatternsDesign = () => {
 				Patterns.update({ _id }, update);
 			}
 		}
-
-		// remove from all when done
-		// auto_turn_sequence
-		// edit_mode
-		// position_of_a
-		// styles
-		// special_styles
-		// weaving
-		// weaving_start_row
-		// twill_direction
-		// twill_pattern_chart
-		// twill_weaving_chart
 	});
 
 	Patterns.remove({ '_id': patternsMissingData });
