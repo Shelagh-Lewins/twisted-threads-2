@@ -26,6 +26,12 @@
 		}
 	}
 
+	// for when scaled
+	&.left,
+	&.right {
+		overflow-y: hidden;
+	}
+
 	&.left {
 		max-width: 800px;
 

@@ -81,8 +81,6 @@ class PatternPreview extends Component {
 		// if the size are not whole numbers, there is a cumulative error which becomes an issue in large patterns
 		const unitWidth = 42;
 		const unitHeight = 113;
-		// const unitWidth = 41.560534;
-		// const unitHeight = 113.08752;
 
 		// screen pixel size of pick graphic, used to calculate final size of preview holder
 		const cellHeight = 54;
@@ -129,9 +127,12 @@ class PatternPreview extends Component {
 		let totalTurnsDisplayStyle = {};
 		let rowNumbersStyle = {};
 		const tabletLabelsAllowance = 60; // allow for labels which aren't part of the svg
+		const rowLabelsAllowance = 60;
 		const tabletLabelsOffset = 15; // push the labels to the side
 		const adjustedHeight = imageHeight + tabletLabelsAllowance;
+		const adjustedWidth = imageWidth + rowLabelsAllowance;
 		const rowNumbersAllowance = cellWidth * 1.5;
+		const horizontalScale = 0.7; // scale the preview when horizontal for better page fit
 
 		// corrections for rotation
 		switch (previewOrientation) {
@@ -147,6 +148,7 @@ class PatternPreview extends Component {
 
 			case 'left':
 				previewStyle = {
+					'height': `${adjustedWidth * horizontalScale}px`,
 					'width': `${adjustedHeight}px`,
 				};
 				holderStyle = {
@@ -154,9 +156,9 @@ class PatternPreview extends Component {
 					'width': `${imageHeight}px`,
 				};
 				wrapperStyle = {
-					'msTransform': `translate(0, ${imageWidth + rowNumbersAllowance}px) rotate(-90deg)`,
-					'WebkitTransform': `translate(0, ${imageWidth + rowNumbersAllowance}px)rotate(-90deg)`,
-					'transform': `translate(0, ${imageWidth + rowNumbersAllowance}px)rotate(-90deg)`,
+					'msTransform': `scale(${horizontalScale}) translate(0, ${imageWidth + rowNumbersAllowance}px) rotate(-90deg)`,
+					'WebkitTransform': `scale(${horizontalScale}) translate(0, ${imageWidth + rowNumbersAllowance}px)rotate(-90deg)`,
+					'transform': `scale(${horizontalScale}) translate(0, ${imageWidth + rowNumbersAllowance}px)rotate(-90deg)`,
 					'transformOrigin': 'top left',
 					'width': `${imageWidth}px`,
 				};
@@ -167,6 +169,7 @@ class PatternPreview extends Component {
 
 			case 'right':
 				previewStyle = {
+					'height': `${adjustedWidth * horizontalScale}px`, // scale parent when preview scaled
 					'width': `${adjustedHeight}px`,
 				};
 				holderStyle = {
@@ -175,9 +178,9 @@ class PatternPreview extends Component {
 					'transform': `translate(0, -${tabletLabelsOffset}px)`,
 				};
 				wrapperStyle = {
-					'msTransform': `translate(${imageHeight + rowNumbersAllowance}px, 0) rotate(90deg)`,
-					'WebkitTransform': `translate(${imageHeight + rowNumbersAllowance}px, 0) rotate(90deg)`,
-					'transform': `translate(${imageHeight + rowNumbersAllowance}px, 0) rotate(90deg)`,
+					'msTransform': `scale(${horizontalScale}) translate(${imageHeight + rowNumbersAllowance}px, 0) rotate(90deg)`,
+					'WebkitTransform': `scale(${horizontalScale}) translate(${imageHeight + rowNumbersAllowance}px, 0) rotate(90deg)`,
+					'transform': `scale(${horizontalScale}) translate(${imageHeight + rowNumbersAllowance}px, 0) rotate(90deg)`,
 					'transformOrigin': 'top left',
 					'width': `${imageWidth}px`,
 				};
