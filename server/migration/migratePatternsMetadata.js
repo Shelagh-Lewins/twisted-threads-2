@@ -21,13 +21,13 @@ const migratePatternsMetadata = () => {
 	// basic pattern metadata
 	const allPatterns = Patterns.find().fetch();
 
+	// some patterns have corrupted / missing data and there's nothing that can be done to make them meaningful
+	const patternsMissingData = [];
+	const patternsUnresolved = [];
+	const autoNoRows = [];
 	const manualNoRows = [];
 	const patternsToUpdate = [];
 
-	// some patterns have corrupted / missing data and there's nothing that can be done to make them meaningful
-	const patternsToRemove = [];
-	const patternsUnresolved = [];
-	const autoNoRows = [];
 
 	console.log('number of patterns', allPatterns.length);
 	allPatterns.map((pattern) => {
@@ -37,9 +37,11 @@ const migratePatternsMetadata = () => {
 			created_at,
 			created_by,
 			edit_mode,
+			hole_handedness,
 			manual_weaving_turns,
 			name_sort,
-			number_of_rows, // this is rewritten later, but used as a check here
+			number_of_rows, // this is rewritten later from data, but used as a check here
+			number_of_tablets, // this is rewritten later from data, but allows unmigrated patterns to be seen in All Patterns etc (tablet filters)
 			pattern_edited_at,
 			preview_rotation,
 			simulation_mode,
@@ -51,16 +53,11 @@ const migratePatternsMetadata = () => {
 
 		let isPublic = !pattern.private;
 
-		if (process.env.ALL_PATTERNS_ARE_PUBLIC === 'migrations') {
+		if (process.env.ALL_PATTERNS_ARE_PUBLIC) {
 			isPublic = true;
 		}
 
-		console.log('*** migrating metatdata for ', _id);
-		console.log('created_at', created_at);
-		console.log('createdAt', new Date(created_at));
-
-		console.log('pattern_edited_at', pattern_edited_at);
-		console.log('modifiedAt', new Date(pattern_edited_at));
+		//console.log('*** migrating metatdata for ', _id);
 
 		const update = {};
 
@@ -74,7 +71,7 @@ const migratePatternsMetadata = () => {
 				} else {
 					// P2PHXKsb5PLENmh6k for example. 13 of these found with missing data, nothing after styles is present
 					if (!threading || !threading.length) {
-						patternsToRemove.push(_id);
+						patternsMissingData.push(_id);
 					} else {
 						patternsUnresolved.push(_id);
 					}
@@ -88,7 +85,7 @@ const migratePatternsMetadata = () => {
 				// 1 found, QuwQ7boLv3mhEwjML
 				// it is freehand with weaving []
 				if (!weaving || JSON.parse(weaving).length === 0) {
-					patternsToRemove.push(_id);
+					patternsMissingData.push(_id);
 				} else {
 					patternsUnresolved.push(_id);
 				}
@@ -104,9 +101,12 @@ const migratePatternsMetadata = () => {
 			update.$set = {
 				'createdAt': new Date(created_at),
 				'createdBy': created_by,
+				'holeHandedness': hole_handedness,
 				'holes': 4,
 				isPublic,
 				'nameSort': name_sort,
+				'numberOfRows': number_of_rows,
+				'numberOfTablets': number_of_tablets,
 				'previewOrientation': preview_rotation,
 				'threadingNotes': threading_notes,
 				'weavingNotes': weaving_notes,
@@ -121,11 +121,15 @@ const migratePatternsMetadata = () => {
 				'created_at': '',
 				'created_by': '',
 				'created_by_username': '',
+				'hole_handedness': '',
 				'name_sort': '',
 				'number_of_rows': '',
+				'number_of_tablets': '',
 				'pattern_edited_at': '',
 				'preview_rotation': '',
 				'private': '',
+				'threading_notes': '',
+				'weaving_notes': '',
 			};
 
 			patternsToUpdate.push(_id);
@@ -137,12 +141,18 @@ const migratePatternsMetadata = () => {
 		}
 	});
 
-	Patterns.remove({ '_id': { '$in': patternsToRemove } });
+	Patterns.remove({ '_id': { '$in': manualNoRows } });
+	Patterns.remove({ '_id': { '$in': autoNoRows } });
+	Patterns.remove({ '_id': { '$in': patternsMissingData } });
 
 	console.log('*** finished migrating basic pattern metadata');
-	console.log('patterns removed because of unsavable data: ', patternsToRemove);
+	console.log('manual patterns removed because of 0 rows: ', manualNoRows);
+	console.log('auto patterns removed because of 0 rows: ', autoNoRows);
+	console.log('patterns removed because of missing data: ', patternsMissingData);
 	console.log('unresolved patterns', patternsUnresolved);
-	console.log('number of patterns migrated: ', Patterns.find().fetch().length);
+	console.log('number of patterns migrated: ', patternsToUpdate.length);
+
+	console.log('total patterns analysed', manualNoRows.length + autoNoRows.length + patternsMissingData.length + patternsUnresolved.length + patternsToUpdate.length);
 
 	migratePublicPatternsCount();
 };
