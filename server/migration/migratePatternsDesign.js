@@ -8,25 +8,21 @@ import {
 } from '../../imports/modules/collection';
 import {
 	ALLOWED_PATTERN_TYPES,
+	DEFAULT_COLOR,
 	DEFAULT_PALETTE,
 } from '../../imports/modules/parameters';
 
 const simSpecialStyles = JSON.parse('[{\"background_color\":\"#FFFFFF\",\"name\":\"forward_2\",\"warp\":\"forward\",\"image\":\"/images/special_forward_2.svg\",\"style\":\"S1\"},{\"background_color\":\"#FFFFFF\",\"name\":\"backward_2\",\"warp\":\"backward\",\"image\":\"/images/special_backward_2.svg\",\"style\":\"S2\"},{\"background_color\":\"#FFFFFF\",\"name\":\"forward_3\",\"warp\":\"forward\",\"image\":\"/images/special_forward_3.svg\",\"style\":\"S3\"},{\"background_color\":\"#FFFFFF\",\"name\":\"backward_3\",\"warp\":\"backward\",\"image\":\"/images/special_backward_3.svg\",\"style\":\"S4\"},{\"background_color\":\"#FFFFFF\",\"name\":\"forward_4\",\"warp\":\"forward\",\"image\":\"/images/special_forward_4.svg\",\"style\":\"S5\"},{\"background_color\":\"#FFFFFF\",\"name\":\"backward_4\",\"warp\":\"backward\",\"image\":\"/images/special_backward_4.svg\",\"style\":\"S6\"},{\"background_color\":\"#FFFFFF\",\"image\":\"/images/special_empty.svg\",\"style\":\"S7\"},{\"background_color\":\"#FFFFFF\",\"image\":\"\",\"style\":\"S8\"},{\"background_color\":\"#BBBBBB\",\"name\":\"backward_2_gray\",\"warp\":\"backward\",\"image\":\"/images/special_backward_2.svg\",\"style\":\"S9\"},{\"background_color\":\"#BBBBBB\",\"name\":\"forward_2_gray\",\"warp\":\"forward\",\"image\":\"/images/special_forward_2.svg\",\"style\":\"S10\"},{\"background_color\":\"#BBBBBB\",\"name\":\"backward_3_gray\",\"warp\":\"backward\",\"image\":\"/images/special_backward_3.svg\",\"style\":\"S11\"},{\"background_color\":\"#BBBBBB\",\"name\":\"forward_3_gray\",\"warp\":\"forward\",\"image\":\"/images/special_forward_3.svg\",\"style\":\"S12\"},{\"background_color\":\"#BBBBBB\",\"name\":\"backward_4_gray\",\"warp\":\"backward\",\"image\":\"/images/special_backward_4.svg\",\"style\":\"S13\"},{\"background_color\":\"#BBBBBB\",\"name\":\"forward_4_gray\",\"warp\":\"forward\",\"image\":\"/images/special_forward_4.svg\",\"style\":\"S14\"},{\"background_color\":\"#FFFFFF\",\"name\":\"idle\",\"image\":\"/images/special_idle.svg\",\"style\":\"S15\"},{\"background_color\":\"#FFFFFF\",\"image\":\"\",\"style\":\"S16\"}]');
 
-const buildThreading = ({
+const buildSimThreading = ({
 	holes,
-	orientation,
-	styles,
-	threading,
+	newNumberOfTablets,
+	oldStyles,
+	oldThreading,
 	weft_color,
 }) => {
-	const oldStyles = JSON.parse(styles);
-	const oldOrientation = JSON.parse(orientation);
-	const oldThreading = JSON.parse(threading);
-
 	const newThreading = new Array(holes);
-	const newPalette = DEFAULT_PALETTE;
-	const newNumberOfTablets = oldThreading[0].length;
+	const newPalette = [...DEFAULT_PALETTE];
 
 	// simulation patterns only have 7 thread colours
 	for (let i = 0; i < 7; i += 1) {
@@ -51,31 +47,58 @@ const buildThreading = ({
 		}
 	}
 
-	// orientations
-	const newOrientations = oldOrientation.map((entry) => ((entry === 'S') ? '/' : '\\'));
-
 	return {
-		newNumberOfTablets,
-		newOrientations,
 		newPalette,
 		newThreading,
 	};
+};
+
+const getCellFromStyle = (styleNumber, styles) => {
+	const { background_color, line_color, warp } = styles[styleNumber];
+	let threadColor = DEFAULT_PALETTE[0];
+
+
+	// if thread, use thread colour
+	switch (warp) {
+		case 'forward':
+		case 'backward':
+		case 'v_left':
+		case 'v_center':
+		case 'v_right':
+			threadColor = line_color;
+			break;
+
+		case 'forward_empty':
+		case 'backward_empty':
+			threadColor = ''; // this will be mapped to empty hole, -1
+			break;
+
+		case 'none':
+			threadColor = background_color;
+			break;
+
+		default:
+			break;
+	}
+	// if empty, use empty
+	// if no thread, use background colour
+
+	return { threadColor };
 };
 
 const migratePatternsDesign = () => {
 	console.log('*** starting to migrate pattern design');
 	const allPatterns = Patterns.find().fetch();
 	console.log('Number of patterns', allPatterns.length);
-	// initially, work with one single pattern, simulation / auto
-	// RabtJrCDWfpf489je from TWT1
-
-	// check the pattern has not already been converted
-	// threading has the same name in both so causes problems
-	// const testPattern = Patterns.findOne({ '_id': 'RabtJrCDWfpf489je' });
-
 	const patternsWithPatternType = [];
 	const processedPatterns = [];
 	const patternsMissingData = new Set();
+	const freehandMissingData = [];
+
+	const allTogetherPatterns = [];
+	const individualPatterns = [];
+	const brokenTwillPatterns = [];
+	const freehandPatterns = [];
 
 	// make sure tags exist for each pattern type
 	ALLOWED_PATTERN_TYPES.forEach((patternTypeDef) => {
@@ -101,11 +124,12 @@ const migratePatternsDesign = () => {
 			special_styles,
 			styles,
 			tags,
-			threading,
+			threading, // note name is the same in both schemes
 			twill_change_chart,
 			twill_direction,
 			twill_pattern_chart,
 			weaving_start_row,
+			weaving,
 			weft_color,
 		} = pattern;
 		const holes = 4; // TWT1 only had 4-hole tablets
@@ -126,27 +150,32 @@ const migratePatternsDesign = () => {
 		} else {
 			const newPatternDesign = {};
 			let newPatternType;
+			const newOrientations = JSON.parse(orientation).map((entry) => ((entry === 'S') ? '/' : '\\'));
+			const oldStyles = JSON.parse(styles);
+			const oldThreading = JSON.parse(threading);
+			const newNumberOfTablets = oldThreading[0].length;
 			let newNumberOfRows;
-			let weftColor = 8; // for everything except maybe freehand
+			let weftColor = 8; // for everything except freehand
 
-			const {
-				newNumberOfTablets, // double check
-				newOrientations,
-				newPalette,
-				newThreading,
-			} = buildThreading({
-				holes,
-				orientation,
-				styles,
-				threading,
-				weft_color,
-			});
+			let newPalette;
+			let newThreading;
 
 			if (edit_mode === 'simulation') {
-				// patternDesign
+				({
+					newPalette,
+					newThreading,
+				} = buildSimThreading({
+					holes,
+					newNumberOfTablets,
+					oldStyles,
+					oldThreading,
+					weft_color,
+				}));
+
 				if (simulation_mode === 'auto') {
 					newPatternType = 'allTogether';
 					processedPatterns.push(_id);
+					allTogetherPatterns.push(_id);
 					newPatternDesign.weavingInstructions = auto_turn_sequence;
 					newNumberOfRows = auto_turn_sequence.length; // just in case of error in old data
 				} else if (simulation_mode === 'manual') {
@@ -159,6 +188,7 @@ const migratePatternsDesign = () => {
 						manualWithNoRows.push(_id);
 					} else {
 						newPatternType = 'individual';
+						individualPatterns.push(_id);
 						processedPatterns.push(_id);
 						const weavingInstructions = []; // these will be built by row from manual_weaving_turns
 
@@ -190,7 +220,20 @@ const migratePatternsDesign = () => {
 					console.log('missing twill data for', _id);
 					patternsMissingData.add(_id);
 				} else {
+					({
+						newPalette,
+						newThreading,
+					} = buildSimThreading({
+						holes,
+						newNumberOfTablets,
+						oldStyles,
+						oldThreading,
+						weft_color,
+					}));
+
 					newPatternType = 'brokenTwill';
+					processedPatterns.push(_id);
+					brokenTwillPatterns.push(_id);
 					const twillPatternChart = JSON.parse(twill_pattern_chart);
 					const twillDirectionChangeChart = JSON.parse(twill_change_chart);
 
@@ -210,6 +253,83 @@ const migratePatternsDesign = () => {
 				if (special_styles) {
 					oldSpecialStyles = JSON.parse(special_styles);
 				}
+				// handle missing data. zwgDuwA3jGB2586wt has null in threading, but this could be filled in with default.
+				// fTzb2cA6mYG4r9iKD is interlaceby
+
+				// process a few test patterns
+				if (_id === 'fTzb2cA6mYG4r9iKD') { ///
+					console.log('freehand', _id);
+					// console.log('freehand', _id);
+
+					const oldWeaving = JSON.parse(weaving);
+					if (!weaving) {
+						freehandMissingData.push(_id);
+					} else {
+						// build threading chart
+						//console.log('oldThreading', oldThreading);
+						console.log('oldStyles', oldStyles);
+
+						newThreading = new Array(holes);
+						newPalette = new Array(DEFAULT_PALETTE.length);
+
+						let nextPaletteIndex = 0; // keep track of colours we've migrated from the old styles to the new palette
+						// so we know where to insert pattern colours
+
+						for (let i = 0; i < holes; i += 1) {
+							const rowIndex = holes - i - 1; // new threading runs the other way
+							newThreading[rowIndex] = new Array(newNumberOfTablets);
+
+							// threading for freehand in TWT2 is the same as threading for simulation patterns - a palette colour, or empty hole
+							// so translate as best as possible
+							for (let j = 0; j < newNumberOfTablets; j += 1) {
+								const styleNumber = oldThreading[i][j] - 1;
+								let newPaletteIndex = 0; // default colour
+
+								newThreading[rowIndex][j] = 0; // default for null entry, missing styles or special styles
+								// special styles cannot be edited, and have no thread colour
+
+								if (styleNumber[0] !== 'S') { // regular style
+									if (oldStyles) {
+										const { threadColor } = getCellFromStyle(styleNumber, oldStyles);
+
+										// is this colour already in the palette?
+										const paletteIndex = newPalette.indexOf(threadColor);
+										if (paletteIndex !== -1) {
+											newPaletteIndex = paletteIndex;
+										} else if (nextPaletteIndex < DEFAULT_PALETTE.length) {
+											// add this color to the palette
+											// if we've run out of colors, the default will be used
+											newPalette[nextPaletteIndex] = threadColor;
+											newPaletteIndex = nextPaletteIndex;
+											nextPaletteIndex += 1;
+										}
+									}
+								}
+
+								newThreading[rowIndex][j] = newPaletteIndex;
+							}
+						}
+console.log('DEFAULT_PALETTE', DEFAULT_PALETTE);
+console.log('DEFAULT_COLOR', DEFAULT_COLOR);
+						// fill blanks with default colour
+						console.log('newPalette 1', newPalette);
+						for (let i = 0; i < DEFAULT_PALETTE.length; i += 1) {
+							console.log('i', i);
+							console.log('color', newPalette[i]);
+							if (!newPalette[i]) {
+								newPalette[i] = DEFAULT_PALETTE[DEFAULT_COLOR];
+							}
+						}
+
+						console.log('newPalette 2', newPalette);
+						console.log('newThreading', newThreading);
+
+						// build weaving chart
+					}
+				} ///
+				//newPatternType = 'freehand';
+				processedPatterns.push(_id);
+				freehandPatterns.push(_id);
 			}
 
 			if (newPatternType) {
@@ -259,10 +379,16 @@ const migratePatternsDesign = () => {
 
 	Patterns.remove({ '_id': patternsMissingData });
 	console.log('*** report');
-	console.log('!!! patternsWithPatternType ie already migrated', patternsWithPatternType);
+	console.log('!!! patternsWithPatternType ie already migrated', patternsWithPatternType.length);
 	console.log('number of simulation/manual patterns with no rows', manualWithNoRows.length);
 	console.log('number of patterns migrated', processedPatterns.length);
 	console.log('patterns with missing data ', patternsMissingData);
+	console.log('');
+	console.log('freehandMissingData', freehandMissingData);
+	console.log('allTogetherPatterns', allTogetherPatterns.length);
+	console.log('individualPatterns', individualPatterns.length);
+	console.log('brokenTwillPatterns', brokenTwillPatterns.length);
+	console.log('freehandPatterns', freehandPatterns.length);
 	console.log('patterns now in database', Patterns.find().count());
 	console.log('*** finished migrating pattern design');
 };
