@@ -35,7 +35,7 @@ export default function FreehandPreviewSVG({
 	const cell = freehandChart[rowIndex][tabletIndex];
 	const { direction, threadColor, threadShape } = cell;
 	const colorValue = palette[threadColor];
-	let previousColor;
+	let previousColor = defaultColor;
 
 	// check for reversal
 	let reversal = false;
@@ -44,6 +44,9 @@ export default function FreehandPreviewSVG({
 	if (rowIndex !== 0) {
 		// there is a previous row
 		previousCell = freehandChart[rowIndex - 1][tabletIndex];
+		previousColor = palette[previousCell.threadColor];
+	} else if (freehandChart[rowIndex + 1]) { // try next colour instead
+		previousCell = freehandChart[rowIndex + 1][tabletIndex];
 		previousColor = palette[previousCell.threadColor];
 	}
 
