@@ -571,7 +571,7 @@ const migratePatternsDesign = () => {
 
 	console.log('patterns now in database', Patterns.find().count());
 	console.log('!!! check: migrated patterns equals total now in database', (Patterns.find().count() === processedPatterns.length));
-	console.log('!!! check: migrated patterns + rejected patterns should equal oroginal number of patterns', totalPatternsLogged);
+	console.log('!!! check: migrated patterns + rejected patterns (value should equal original number of patterns)', totalPatternsLogged);
 	console.log('*** finished migrating pattern design');
 };
 
