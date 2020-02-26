@@ -103,6 +103,7 @@ const patternsFields = {
 const patternFields = {
 	...patternsFields,
 	...{
+		'holeHandedness': 1,
 		'orientations': 1,
 		'palette': 1,
 		'patternDesign': 1,

@@ -70,6 +70,7 @@ export const SET_UPDATE_PREVIEW_WHILE_EDITING = 'SET_UPDATE_PREVIEW_WHILE_EDITIN
 export const UPDATE_THREADING_CELL = 'UPDATE_THREADING_CELL';
 export const UPDATE_ORIENTATION = 'UPDATE_ORIENTATION';
 export const UPDATE_PALETTE_COLOR = 'UPDATE_PALETTE_COLOR';
+export const UPDATE_HOLE_HANDEDNESS = 'UPDATE_HOLE_HANDEDNESS';
 
 export const UPDATE_ADD_WEAVING_ROWS = 'UPDATE_ADD_WEAVING_ROWS';
 export const UPDATE_REMOVE_WEAVING_ROWS = 'UPDATE_REMOVE_WEAVING_ROWS';
@@ -179,6 +180,7 @@ export function setPatternData({
 	threadingByTablet,
 }) {
 	const {
+		holeHandedness,
 		holes,
 		numberOfRows,
 		numberOfTablets,
@@ -190,7 +192,7 @@ export function setPatternData({
 	return {
 		'type': SET_PATTERN_DATA,
 		'payload': {
-			picks,
+			holeHandedness,
 			holes,
 			numberOfRows,
 			numberOfTablets,
@@ -198,6 +200,7 @@ export function setPatternData({
 			palette,
 			patternDesign,
 			patternType,
+			picks,
 			threadingByTablet,
 		},
 	};
@@ -279,6 +282,8 @@ export const getNumberOfTablets = (state) => state.pattern.numberOfTablets || 0;
 export const getHoles = (state) => state.pattern.holes;
 
 export const getPalette = (state) => state.pattern.palette;
+
+export const getHoleHandedness = (state) => state.pattern.holeHandedness;
 
 export const getPicks = (state) => state.pattern.picks;
 
@@ -1046,6 +1051,33 @@ export function editPaletteColor({
 	};
 }
 
+// hole handedness (freehand patterns only)
+export function updateHoleHandedness(data) {
+	return {
+		'type': UPDATE_HOLE_HANDEDNESS,
+		'payload': data,
+	};
+}
+
+export function editHoleHandedness({
+	_id,
+}) {
+	return (dispatch) => {
+		Meteor.call('pattern.edit', {
+			_id,
+			'data': {
+				'type': 'holeHandedness',
+			},
+		}, (error) => {
+			if (error) {
+				return dispatch(logErrors({ 'edit hole handedness': error.reason }));
+			}
+		});
+
+		dispatch(updateHoleHandedness());
+	};
+}
+
 // Weft Color
 export function editWeftColor({
 	_id,
@@ -1183,6 +1215,7 @@ const initialPatternState = {
 	'error': null,
 	'filterMaxTablets': undefined,
 	'filterMinTablets': undefined,
+	'holeHandedness': undefined,
 	'holes': 0,
 	'isEditingThreading': false,
 	'isEditingWeaving': false,
@@ -1226,6 +1259,7 @@ export default function pattern(state = initialPatternState, action) {
 
 		case SET_PATTERN_DATA: {
 			const {
+				holeHandedness,
 				holes,
 				numberOfRows,
 				numberOfTablets,
@@ -1272,6 +1306,10 @@ export default function pattern(state = initialPatternState, action) {
 
 					patternDesign.offsetThreadingByTablets = offsetThreadingByTablets;
 
+					break;
+
+				case 'freehand':
+					update.holeHandedness = holeHandedness;
 					break;
 
 				default:
@@ -1557,6 +1595,17 @@ export default function pattern(state = initialPatternState, action) {
 
 			return updeep({
 				'palette': { [colorIndex]: colorHexValue },
+			}, state);
+		}
+
+		case UPDATE_HOLE_HANDEDNESS: {
+			const currentHandedness = state.holeHandedness;
+
+			// toggle handedness
+			const newHandedness = currentHandedness === 'anticlockwise' ? 'clockwise' : 'anticlockwise';
+
+			return updeep({
+				'holeHandedness': newHandedness,
 			}, state);
 		}
 

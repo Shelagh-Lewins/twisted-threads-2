@@ -14,6 +14,7 @@ import {
 import {
 	editIsPublic,
 	editTextField,
+	getHoleHandedness,
 	getHoles,
 	getIsEditing,
 	getIsLoading,
@@ -548,6 +549,7 @@ class Pattern extends PureComponent {
 		const {
 			canAddPatternImage,
 			dispatch,
+			holeHandedness,
 			holes,
 			isEditing,
 			numberOfRows,
@@ -677,7 +679,12 @@ class Pattern extends PureComponent {
 							type="textarea"
 							fieldValue={threadingNotes}
 						/>
-						<Notation />
+						<Notation
+							_id={_id}
+							dispatch={dispatch}
+							holeHandedness={holeHandedness}
+							patternType={patternType}
+						/>
 					</div>
 				);
 				break;
@@ -828,6 +835,7 @@ function mapStateToProps(state, ownProps) {
 		'canAddPatternImage': getCanAddPatternImage(state),
 		'canPublish': getCanPublish(state),
 		'errors': state.errors,
+		'holeHandedness': getHoleHandedness(state),
 		'holes': getHoles(state),
 		'isEditing': getIsEditing(state),
 		'isLoading': getIsLoading(state),

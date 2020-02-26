@@ -21,6 +21,11 @@ const PatternsSchema = new SimpleSchema({
 		'max': 5000,
 		'optional': true,
 	},
+	'holeHandedness': {
+		'type': String,
+		'label': 'Hole handedness',
+		'optional': true,
+	},
 	'holes': {
 		'type': SimpleSchema.Integer,
 		'label': 'Number of holes',

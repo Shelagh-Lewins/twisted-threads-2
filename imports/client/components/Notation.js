@@ -1,9 +1,44 @@
 import React from 'react';
+import { Button } from 'reactstrap';
+import PropTypes from 'prop-types';
 import { SVGBackwardWarp, SVGForwardWarp, SVGIdle } from '../modules/svg';
 import { DEFAULT_PALETTE } from '../../modules/parameters';
+import {
+	editHoleHandedness,
+} from '../modules/pattern';
 import './Notation.scss';
 
-function Notation() {
+function Notation(props) {
+	const {
+		_id,
+		dispatch,
+		holeHandedness,
+		patternType,
+	} = props;
+	let tabletLabelsImage = '/images/tablet_labels.png';
+
+	if (holeHandedness === 'anticlockwise') {
+		tabletLabelsImage = '/images/tablet_labels_rev.png';
+	}
+
+	const handleClickChangeHandedness = () => {
+		dispatch(editHoleHandedness({ _id }));
+	};
+
+	let handednessButton;
+
+	if (patternType === 'freehand') {
+		handednessButton = (
+			<Button
+				color="primary"
+				onClick={handleClickChangeHandedness}
+				title="Change handedness of tablet labels"
+			>
+				Change direction of ABCD
+			</Button>
+		);
+	}
+
 	return (
 		<div className="notation">
 			<div className="weaving-chart-key">
@@ -39,10 +74,18 @@ function Notation() {
 				<p>A circle means don&apos;t turn the tablet this pick.</p>
 			</div>
 			<h2>Tablet labels</h2>
-			<img src="/images/tablet_labels.png" alt="Tablet labels" title="Labels and turning direction" width="237" height="148" />
+			<img src={tabletLabelsImage} alt="Tablet labels" title="Labels and turning direction" width="237" height="148" />
 			<p className="hint">The arrows show turning the tablet forwards.</p>
+			{handednessButton}
 		</div>
 	);
 }
+
+Notation.propTypes = {
+	'_id': PropTypes.string.isRequired,
+	'dispatch': PropTypes.func.isRequired,
+	'holeHandedness': PropTypes.string,
+	'patternType': PropTypes.string.isRequired,
+};
 
 export default Notation;

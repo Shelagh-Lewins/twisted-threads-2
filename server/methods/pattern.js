@@ -1189,6 +1189,15 @@ Meteor.methods({
 				// update the value in the nested arrays
 				return Patterns.update({ _id }, { '$set': { [`palette.${colorIndex}`]: colorHexValue } });
 
+			case 'holeHandedness':
+				if (patternType !== 'freehand') {
+					throw new Meteor.Error('edit-pattern-holehandedness', 'Unable to edit holehandedness because the pattern is not of type freehand');
+				}
+
+				// toggle handedness
+				const newHandedness = pattern.holeHandedness === 'anticlockwise' ? 'clockwise' : 'anticlockwise';
+				return Patterns.update({ _id }, { '$set': { 'holeHandedness': newHandedness } });
+
 			case 'weftColor':
 				({ colorIndex } = data);
 
