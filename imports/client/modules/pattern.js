@@ -28,6 +28,7 @@ import {
 	MAX_TABLETS,
 } from '../../modules/parameters';
 import getColorsForRolesByTablet from '../../modules/getColorsForRolesByTablet';
+import patternAsText from './patternAsText';
 
 const updeep = require('updeep');
 
@@ -180,7 +181,6 @@ export function setPatternData({
 	threadingByTablet,
 }) {
 	const {
-		holeHandedness,
 		holes,
 		numberOfRows,
 		numberOfTablets,
@@ -192,7 +192,6 @@ export function setPatternData({
 	return {
 		'type': SET_PATTERN_DATA,
 		'payload': {
-			holeHandedness,
 			holes,
 			numberOfRows,
 			numberOfTablets,
@@ -283,7 +282,7 @@ export const getHoles = (state) => state.pattern.holes;
 
 export const getPalette = (state) => state.pattern.palette;
 
-export const getHoleHandedness = (state) => state.pattern.holeHandedness;
+export const getHoleHandedness = (state) => (state.pattern.patternDesign ? state.pattern.patternDesign.holeHandedness : undefined);
 
 export const getPicks = (state) => state.pattern.picks;
 
@@ -448,6 +447,21 @@ export const copyPattern = (_id, history) => (dispatch) => {
 
 export const downloadPattern = (_id, patternObj) => (dispatch) => {
 	dispatch(clearErrors());
+	const text = patternAsText({
+		_id,
+	});
+	const filename = 'testfile.twt';
+
+	const element = document.createElement('a');
+	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+	element.setAttribute('download', filename);
+
+	element.style.display = 'none';
+	document.body.appendChild(element);
+
+	element.click();
+
+	document.body.removeChild(element);
 
 	console.log('Pattern data:', patternObj);
 };
@@ -1215,7 +1229,6 @@ const initialPatternState = {
 	'error': null,
 	'filterMaxTablets': undefined,
 	'filterMinTablets': undefined,
-	'holeHandedness': undefined,
 	'holes': 0,
 	'isEditingThreading': false,
 	'isEditingWeaving': false,
@@ -1259,7 +1272,6 @@ export default function pattern(state = initialPatternState, action) {
 
 		case SET_PATTERN_DATA: {
 			const {
-				holeHandedness,
 				holes,
 				numberOfRows,
 				numberOfTablets,
@@ -1306,10 +1318,6 @@ export default function pattern(state = initialPatternState, action) {
 
 					patternDesign.offsetThreadingByTablets = offsetThreadingByTablets;
 
-					break;
-
-				case 'freehand':
-					update.holeHandedness = holeHandedness;
 					break;
 
 				default:
@@ -1599,13 +1607,13 @@ export default function pattern(state = initialPatternState, action) {
 		}
 
 		case UPDATE_HOLE_HANDEDNESS: {
-			const currentHandedness = state.holeHandedness;
+			const currentHandedness = state.patternDesign.holeHandedness;
 
 			// toggle handedness
 			const newHandedness = currentHandedness === 'anticlockwise' ? 'clockwise' : 'anticlockwise';
 
 			return updeep({
-				'holeHandedness': newHandedness,
+				'patternDesign': { 'holeHandedness': newHandedness },
 			}, state);
 		}
 

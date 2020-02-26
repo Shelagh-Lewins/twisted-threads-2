@@ -84,6 +84,8 @@ export const DEFAULT_FREEHAND_CELL = {
 	'threadShape': 'forwardWarp',
 };
 
+export const DEFAULT_HOLE_HANDEDNESS = 'clockwise';
+
 // defaults for 3/1 broken twill
 export const DEFAULT_TWILL_DIRECTION = 'S';
 export const BROKEN_TWILL_THREADING = [

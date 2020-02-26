@@ -28,6 +28,7 @@ import {
 	DEFAULT_COLOR,
 	DEFAULT_DIRECTION,
 	DEFAULT_FREEHAND_CELL,
+	DEFAULT_HOLE_HANDEDNESS,
 	DEFAULT_NUMBER_OF_TURNS,
 	DEFAULT_ORIENTATION,
 	DEFAULT_PALETTE,
@@ -179,7 +180,9 @@ Meteor.methods({
 					}
 				}
 
-				patternDesign = { freehandChart };
+				const holeHandedness = DEFAULT_HOLE_HANDEDNESS;
+
+				patternDesign = { freehandChart, holeHandedness };
 				break;
 
 			default:
@@ -1195,8 +1198,8 @@ Meteor.methods({
 				}
 
 				// toggle handedness
-				const newHandedness = pattern.holeHandedness === 'anticlockwise' ? 'clockwise' : 'anticlockwise';
-				return Patterns.update({ _id }, { '$set': { 'holeHandedness': newHandedness } });
+				const newHandedness = pattern.patternDesign.holeHandedness === 'anticlockwise' ? 'clockwise' : 'anticlockwise';
+				return Patterns.update({ _id }, { '$set': { 'patternDesign.holeHandedness': newHandedness } });
 
 			case 'weftColor':
 				({ colorIndex } = data);
