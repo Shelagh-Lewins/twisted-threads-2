@@ -2,6 +2,6 @@
 . .env
 
 export MIGRATIONS="migrations"
-export ALL_PATTERNS_ARE_PUBLIC=true
+export ALL_PATTERNS_ARE_PUBLIC="false"
 
 meteor
