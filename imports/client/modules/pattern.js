@@ -702,14 +702,12 @@ export function editFreehandCellThread({
 
 // set background (white or grey)
 export function updateFreehandCellDirection({
-	direction,
 	'row': rowIndex,
 	'tablet': tabletIndex,
 }) {
 	return {
 		'type': UPDATE_FREEHAND_CELL_DIRECTION,
 		'payload': {
-			direction,
 			'row': rowIndex,
 			'tablet': tabletIndex,
 		},
@@ -728,7 +726,6 @@ export function editFreehandCellDirection({
 			'data': {
 				'type': 'editFreehandCellDirection',
 				_id,
-				direction,
 				'row': rowIndex,
 				'tablet': tabletIndex,
 			},
@@ -1479,10 +1476,13 @@ export default function pattern(state = initialPatternState, action) {
 
 		case UPDATE_FREEHAND_CELL_DIRECTION: {
 			const {
-				direction,
 				row,
 				tablet,
 			} = action.payload;
+
+			// toggle cel direction
+			const cell = state.patternDesign.freehandChart[row][tablet];
+			const direction = cell.direction === 'F' ? 'B' : 'F';
 
 			return updeep({ 'patternDesign': { 'freehandChart': { [row]: { [tablet]: { direction } } } } }, state);
 		}

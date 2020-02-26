@@ -428,7 +428,7 @@ Meteor.methods({
 		let chartCell;
 		let colorHexValue;
 		let colorIndex;
-		let direction;
+		//let direction;
 		let fieldName;
 		let fieldValue;
 		let holesToSet;
@@ -595,16 +595,18 @@ Meteor.methods({
 
 			case 'editFreehandCellDirection':
 				({
-					direction,
 					row,
 					tablet,
 				} = data);
-				check(direction, String);
 				check(row, Match.Integer);
 				check(tablet, validTabletsCheck);
 
 				switch (patternType) {
 					case 'freehand':
+						// toggle cell direction
+						const cell = patternDesign.freehandChart[row][tablet];
+						const direction = cell.direction === 'F' ? 'B' : 'F';
+
 						return Patterns.update({ _id }, {
 							'$set': {
 								[`patternDesign.freehandChart.${row}.${tablet}.direction`]: direction,
