@@ -31,6 +31,7 @@ import getColorsForRolesByTablet from '../../modules/getColorsForRolesByTablet';
 import patternAsText from './patternAsText';
 
 const updeep = require('updeep');
+const filenamify = require('filenamify');
 
 /* eslint-disable no-case-declarations */
 
@@ -447,14 +448,18 @@ export const copyPattern = (_id, history) => (dispatch) => {
 
 export const downloadPattern = (_id, patternObj) => (dispatch) => {
 	dispatch(clearErrors());
-	const text = patternAsText({
-		_id,
+
+	const text = patternAsText(_id, patternObj);
+	const { name } = patternObj;
+	const filename = filenamify(name, {
+		'replacement': '_',
+		'maxLength': 100,
 	});
-	const filename = 'testfile.twt';
 
 	const element = document.createElement('a');
-	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-	element.setAttribute('download', filename);
+
+	element.setAttribute('href', `data:text/plain;charset=utf-8,${encodeURIComponent(text)}`);
+	element.setAttribute('download', `${filename}.twt`);
 
 	element.style.display = 'none';
 	document.body.appendChild(element);

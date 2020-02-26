@@ -171,3 +171,66 @@ export const FLASH_MESSAGE_TEXTS = {
 
 export const MAX_TAG_LENGTH = 200;
 export const MIN_TAG_LENGTH = 3;
+
+// map from pattern data to human readable names
+// for use in patterns downloaded as text
+// and reimporting these
+// these MUST NOT CHANGE as it will break pattern imports
+export const PATTERN_AS_TEXT_FIELDS = [
+	{
+		'fieldName': 'name',
+		'displayName': 'Name',
+	},
+	{
+		'fieldName': 'description',
+		'displayName': 'Description',
+	},
+	{
+		'fieldName': 'holes',
+		'displayName': 'Number of holes in each tablet',
+	},
+	{
+		'fieldName': 'numberOfTablets',
+		'displayName': 'Number of tablets',
+	},
+	{
+		'fieldName': 'numberOfRows',
+		'displayName': 'Number of weaving rows',
+	},
+	{
+		'fieldName': 'threading',
+		'displayName': 'Threading chart',
+	},
+	{
+		'fieldName': 'orientations',
+		'displayName': 'Tablet orientations',
+	},
+	{
+		'fieldName': 'palette',
+		'displayName': 'Colour palette',
+	},
+	{
+		'fieldName': 'patternDesign',
+		'displayName': 'Pattern design',
+	},
+	{
+		'fieldName': 'patternType',
+		'displayName': 'Pattern type',
+	},
+	{
+		'fieldName': 'tags',
+		'displayName': 'Tags',
+	},
+	{
+		'fieldName': 'threadingNotes',
+		'displayName': 'Threading notes',
+	},
+	{
+		'fieldName': 'weavingNotes',
+		'displayName': 'Weaving notes',
+	},
+	{
+		'fieldName': 'weftColor',
+		'displayName': 'Weft colour',
+	},
+];
