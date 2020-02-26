@@ -6,6 +6,11 @@ const PatternImagesSchema = new SimpleSchema({
 		'label': 'Date created',
 		'index': 1,
 	},
+	'createdBy': {
+		'type': String,
+		'label': 'Created by user id',
+		'index': 1,
+	},
 	'caption': {
 		'type': String,
 		'label': 'Caption',

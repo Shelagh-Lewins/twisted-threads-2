@@ -28,6 +28,12 @@ const migratePatternsMetadata = () => {
 	const manualNoRows = [];
 	const patternsToUpdate = [];
 
+	if (process.env.ALL_PATTERNS_ARE_PUBLIC === 'true') {
+		console.log('!!! setting all patterns to public');
+	} else {
+		console.log('!!! leaving isPublic unchanged');
+	}
+
 
 	console.log('number of patterns', allPatterns.length);
 	allPatterns.map((pattern) => {
@@ -54,10 +60,7 @@ const migratePatternsMetadata = () => {
 		let isPublic = !pattern.private;
 
 		if (process.env.ALL_PATTERNS_ARE_PUBLIC === 'true') {
-			console.log('!!! setting all patterns to public');
 			isPublic = true;
-		} else {
-			console.log('!!! leaviing pattern isPublic unchanged');
 		}
 
 		let previewOrientation = 'up';

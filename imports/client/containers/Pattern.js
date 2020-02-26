@@ -314,7 +314,7 @@ class Pattern extends PureComponent {
 					<div
 						className="full-size"
 						style={{
-							'backgroundImage': `url(${url})`,
+							'backgroundImage': `url("${url}")`,
 							'maxHeight': height,
 							'maxWidth': width,
 						}}
@@ -344,7 +344,7 @@ class Pattern extends PureComponent {
 						onClick={() => this.onClickPatternImageThumbnail(patternImage._id)}
 						onKeyPress={() => this.onClickPatternImageThumbnail(patternImage._id)}
 						role="button"
-						style={{ 'backgroundImage': `url(${patternImage.url})` }}
+						style={{ 'backgroundImage': `url("${patternImage.url}")` }}
 						tabIndex="0"
 					>
 						<div className="controls">

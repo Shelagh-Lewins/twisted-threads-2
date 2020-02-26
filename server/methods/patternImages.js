@@ -32,6 +32,7 @@ Meteor.methods({
 				'key': key,
 				'caption': '',
 				'createdAt': moment().valueOf(), // current time
+				'createdBy': Meteor.userId(),
 				'patternId': _id,
 			});
 			// return imageId;
