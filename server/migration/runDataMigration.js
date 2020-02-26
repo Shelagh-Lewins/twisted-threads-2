@@ -128,20 +128,20 @@ const runDataMigration = () => {
 	console.log('*** run migration');
 
 	// Migrate roles from 1.x to 3.x
-	//Package['alanning:roles'].Roles._forwardMigrate();
-	//Package['alanning:roles'].Roles._forwardMigrate2();
-	//fixRoles();
+	Package['alanning:roles'].Roles._forwardMigrate();
+	Package['alanning:roles'].Roles._forwardMigrate2();
+	fixRoles();
 
-	//migrateUserProfiles();
-	//migratePatternsMetadata();
-	//migrateTags();
-	//migratePatternsDesign();
+	migrateUserProfiles();
+	migratePatternsMetadata();
+	migrateTags();
+	migratePatternsDesign();
 	migrateImages();
 
 	// remove unwanted collections
 	// declare it so we can manipulate it in meteor
-	//const actions_log = new Mongo.Collection('actions_log');
-	//actions_log.rawCollection().drop();
+	const actions_log = new Mongo.Collection('actions_log');
+	actions_log.rawCollection().drop();
 };
 
 export default runDataMigration;

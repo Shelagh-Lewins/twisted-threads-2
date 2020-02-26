@@ -6,7 +6,6 @@ import {
 const migrateImages = () => {
 	console.log('*** starting to migrate images');
 	const images = new Mongo.Collection('images');
-
 	const oldImages = images.find().fetch();
 
 	oldImages.forEach((oldImage) => {
@@ -31,11 +30,11 @@ const migrateImages = () => {
 			url,
 			width,
 		};
-		// console.log('newImage', newImage);
+
 		PatternImages.insert(newImage);
 	});
 
-	// images.rawCollection().drop();
+	images.rawCollection().drop();
 	console.log('*** finished migrating images');
 };
 
