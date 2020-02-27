@@ -8,6 +8,9 @@ import migratePatternsDesign from './migratePatternsDesign';
 import migrateImages from './migrateImages';
 import { ROLES } from '../../imports/modules/parameters';
 
+// various info that was in the profile is now in the main user record
+// profile is confusing with the auto-publish for self
+// it is now used only for recent patterns, which never need to be shown to another user
 const migrateUserProfiles = () => {
 	console.log('*** starting to migrate user profiles');
 	const allUsers = Meteor.users.find().fetch();
@@ -27,9 +30,7 @@ const migrateUserProfiles = () => {
 		}
 
 		const newProfile = {
-			'nameSort': oldProfile.name_sort,
 			'recentPatterns': newRecentPatterns,
-
 		};
 
 		const publicPatternsCount = oldProfile.public_patterns_count;
@@ -37,6 +38,8 @@ const migrateUserProfiles = () => {
 		Meteor.users.update({ '_id': user._id },
 			{
 				'$set': {
+					'description': oldProfile.description,
+					'nameSort': user.username.toLowerCase(),
 					'profile': newProfile,
 					'publicPatternsCount': publicPatternsCount,
 					'publicColorBooksCount': 0,

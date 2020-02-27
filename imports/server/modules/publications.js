@@ -354,6 +354,16 @@ Meteor.publish('patternPreviews', function ({ patternIds }) {
 	);
 });
 
+// ////////////////////////
+const UsersFields = {
+	'_id': 1,
+	'description': 1,
+	'nameSort': 1,
+	'publicColorBooksCount': 1,
+	'publicPatternsCount': 1,
+	'username': 1,
+};
+
 // Public information about particular users
 Meteor.publish('users', function (userIds) {
 	if (userIds.length === 0) {
@@ -378,25 +388,10 @@ Meteor.publish('users', function (userIds) {
 			],
 		},
 		{
-			'fields': {
-				'_id': 1,
-				'description': 1,
-				'publicColorBooksCount': 1,
-				'publicPatternsCount': 1,
-				'username': 1,
-			},
+			'fields': UsersFields,
 		},
 	);
 });
-
-// ////////////////////////
-const UsersFields = {
-	'_id': 1,
-	'nameSort': 1,
-	'publicColorBooksCount': 1,
-	'publicPatternsCount': 1,
-	'username': 1,
-};
 
 // ////////////////////////
 // all users page
@@ -418,6 +413,7 @@ Meteor.publish('allUsers', function (skip = 0, limit = ITEMS_PER_PAGE) {
 // preview list for users
 // displayed on Home page
 Meteor.publish('allUsersPreview', function () {
+
 	return Meteor.users.find(
 		getUserPermissionQuery(),
 		{

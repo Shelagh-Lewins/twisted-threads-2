@@ -43,6 +43,15 @@ class People extends Component {
 		document.body.classList.add(bodyClass);
 	}
 
+	componentDidUpdate(prevProps) {
+		const { currentPageNumber, handle } = this.props;
+
+		// clear out users from previously viewed pages
+		if (prevProps.currentPageNumber !== currentPageNumber) {
+			handle.stop();
+		}
+	}
+
 	componentWillUnmount() {
 		document.body.classList.remove(bodyClass);
 	}
@@ -122,6 +131,7 @@ People.propTypes = {
 	'currentPageNumber': PropTypes.number,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
+	'handle': PropTypes.func.isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'userCount': PropTypes.number.isRequired,
@@ -154,7 +164,7 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 	const users = Meteor.users.find(
 		{},
 		{
-			'sort': { 'username': 1 },
+			'sort': { 'nameSort': 1 },
 			'limit': ITEMS_PER_PAGE,
 		},
 	).fetch();
@@ -169,6 +179,7 @@ const Tracker = withTracker(({ pageSkip, dispatch }) => {
 	}
 
 	return {
+		handle,
 		users,
 	};
 })(People);
