@@ -390,6 +390,15 @@ Meteor.publish('users', function (userIds) {
 });
 
 // ////////////////////////
+const UsersFields = {
+	'_id': 1,
+	'nameSort': 1,
+	'publicColorBooksCount': 1,
+	'publicPatternsCount': 1,
+	'username': 1,
+};
+
+// ////////////////////////
 // all users page
 Meteor.publish('allUsers', function (skip = 0, limit = ITEMS_PER_PAGE) {
 	// this needs to return the same number of users as the getUserCount method, for pagination
@@ -398,13 +407,8 @@ Meteor.publish('allUsers', function (skip = 0, limit = ITEMS_PER_PAGE) {
 	return Meteor.users.find(
 		getUserPermissionQuery(),
 		{
-			'fields': {
-				'_id': 1,
-				'publicColorBooksCount': 1,
-				'publicPatternsCount': 1,
-				'username': 1,
-			},
-			'sort': { 'username': 1 },
+			'fields': UsersFields,
+			'sort': { 'nameSort': 1 },
 			'skip': skip,
 			'limit': limit,
 		},
@@ -417,12 +421,7 @@ Meteor.publish('allUsersPreview', function () {
 	return Meteor.users.find(
 		getUserPermissionQuery(),
 		{
-			'fields': {
-				'_id': 1,
-				'publicColorBooksCount': 1,
-				'publicPatternsCount': 1,
-				'username': 1,
-			},
+			'fields': UsersFields,
 			'limit': ITEMS_PER_PREVIEW_LIST,
 			'sort': { 'nameSort': 1 },
 		},

@@ -261,6 +261,7 @@ const Tracker = withTracker(({ dispatch }) => {
 		'limit': ITEMS_PER_PREVIEW_LIST,
 		'sort': { 'nameSort': 1 },
 	}).fetch();
+	console.log('allUsers', allUsers);
 
 	Meteor.subscribe('tags');
 

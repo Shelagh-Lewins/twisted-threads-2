@@ -66,7 +66,7 @@ const migratePreviews = () => {
 const runDataMigration = () => {
 	console.log('*** runDataMigration');
 
-	//migratePreviews();
+	migratePreviews();
 };
 
 export default runDataMigration;
