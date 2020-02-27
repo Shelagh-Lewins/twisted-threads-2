@@ -2,6 +2,14 @@
 // allowing for consistent validation
 
 export const ITEMS_PER_PAGE = 10;
+export const USER_FIELDS = {
+	'_id': 1,
+	'description': 1,
+	'nameSort': 1,
+	'publicColorBooksCount': 1,
+	'publicPatternsCount': 1,
+	'username': 1,
+};
 
 export const DEFAULT_PALETTE = [
 	'#7A1313',

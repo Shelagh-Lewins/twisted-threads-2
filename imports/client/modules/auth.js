@@ -19,6 +19,7 @@ const updeep = require('updeep');
 // define action types so they are visible
 // and export them so other reducers can use them
 export const SET_USER_COUNT = 'SET_USER_COUNT';
+export const SET_USERS_FOR_PAGE = 'SET_USERS_FOR_PAGE';
 export const SET_ISLOADING = 'SET_ISLOADING';
 
 export const REGISTER = 'REGISTER';
@@ -51,6 +52,7 @@ export const SET_NUMBER_OF_PATTERN_IMAGES = 'SET_NUMBER_OF_PATTERN_IMAGES';
 // ////////////////////////////////
 // Provide information to the UI
 // used in pagination
+// find total number of users
 export function setUserCount(userCount) {
 	return {
 		'type': SET_USER_COUNT,
@@ -64,6 +66,24 @@ export const getUserCount = () => (dispatch) => Meteor.call('auth.getUserCount',
 	}
 
 	dispatch(setUserCount(result));
+});
+
+// find users to show on People page
+// if we use subscriptions, there seems to be no way to exclude the current user and users shown on previous pages from the page list
+// using a method is not reactive, but is consistent with getUserCount and gives us a reliable list
+export function setUsersForPage(usersForPage) {
+	return {
+		'type': SET_USERS_FOR_PAGE,
+		'payload': usersForPage,
+	};
+}
+
+export const getUsersForPage = ({ skip, limit	}) => (dispatch) => Meteor.call('auth.getUsersForPage', { skip, limit }, (error, result) => {
+	if (error) {
+		return dispatch(logErrors({ 'get users for page': error.reason }));
+	}
+
+	dispatch(setUsersForPage(result));
 });
 
 export const getIsLoading = (state) => state.auth.isLoading;
@@ -554,6 +574,7 @@ const initialAuthState = {
 	'user': null,
 	'userCount': 0,
 	'userRoles': [],
+	'usersForPage': [],
 };
 
 // state updates
@@ -561,6 +582,10 @@ export default function auth(state = initialAuthState, action) {
 	switch (action.type) {
 		case SET_USER_COUNT: {
 			return updeep({ 'userCount': action.payload }, state);
+		}
+
+		case SET_USERS_FOR_PAGE: {
+			return updeep({ 'usersForPage': action.payload }, state);
 		}
 
 		case SET_ISLOADING: {

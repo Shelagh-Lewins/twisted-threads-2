@@ -1,5 +1,8 @@
 import { check } from 'meteor/check';
-import { MAX_RECENTS } from '../../imports/modules/parameters';
+import {
+	MAX_RECENTS,
+	USER_FIELDS,
+} from '../../imports/modules/parameters';
 import { Patterns } from '../../imports/modules/collection';
 import {
 	checkCanCreateColorBook,
@@ -93,6 +96,17 @@ Meteor.methods({
 
 		// return all users visible to this user
 		return Meteor.users.find(getUserPermissionQuery()).count();
+	},
+	'auth.getUsersForPage': function ({ skip, limit	}) {
+		// required for pagination
+		// return the users for a particular page
+		return Meteor.users.find(getUserPermissionQuery(),
+			{
+				'fields': USER_FIELDS,
+				'sort': { 'nameSort': 1 },
+				skip,
+				limit,
+			}).fetch();
 	},
 	'auth.editTextField': function ({ _id, fieldName, fieldValue }) {
 		if (_id !== Meteor.userId()) {

@@ -9,6 +9,7 @@ import {
 import {
 	ITEMS_PER_PAGE,
 	ITEMS_PER_PREVIEW_LIST,
+	USER_FIELDS,
 } from '../../modules/parameters';
 import {
 	getTabletFilter,
@@ -354,16 +355,6 @@ Meteor.publish('patternPreviews', function ({ patternIds }) {
 	);
 });
 
-// ////////////////////////
-const UsersFields = {
-	'_id': 1,
-	'description': 1,
-	'nameSort': 1,
-	'publicColorBooksCount': 1,
-	'publicPatternsCount': 1,
-	'username': 1,
-};
-
 // Public information about particular users
 Meteor.publish('users', function (userIds) {
 	if (userIds.length === 0) {
@@ -388,24 +379,7 @@ Meteor.publish('users', function (userIds) {
 			],
 		},
 		{
-			'fields': UsersFields,
-		},
-	);
-});
-
-// ////////////////////////
-// all users page
-Meteor.publish('allUsers', function (skip = 0, limit = ITEMS_PER_PAGE) {
-	// this needs to return the same number of users as the getUserCount method, for pagination
-	check(skip, positiveIntegerCheck);
-
-	return Meteor.users.find(
-		getUserPermissionQuery(),
-		{
-			'fields': UsersFields,
-			'sort': { 'nameSort': 1 },
-			'skip': skip,
-			'limit': limit,
+			'fields': USER_FIELDS,
 		},
 	);
 });
@@ -413,11 +387,10 @@ Meteor.publish('allUsers', function (skip = 0, limit = ITEMS_PER_PAGE) {
 // preview list for users
 // displayed on Home page
 Meteor.publish('allUsersPreview', function () {
-
 	return Meteor.users.find(
 		getUserPermissionQuery(),
 		{
-			'fields': UsersFields,
+			'fields': USER_FIELDS,
 			'limit': ITEMS_PER_PREVIEW_LIST,
 			'sort': { 'nameSort': 1 },
 		},

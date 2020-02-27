@@ -5,13 +5,12 @@ import {
 	Container,
 	Row,
 } from 'reactstrap';
-import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import PageWrapper from '../components/PageWrapper';
-import store from '../modules/store';
 import {
 	getIsLoading,
 	getUserCount,
+	getUsersForPage,
 	setIsLoading,
 } from '../modules/auth';
 import UserSummary from '../components/UserSummary';
@@ -40,15 +39,28 @@ class People extends Component {
 	}
 
 	componentDidMount() {
+		const { dispatch, pageSkip } = this.props;
+
 		document.body.classList.add(bodyClass);
+
+		dispatch(getUserCount());
+		dispatch(getUsersForPage({
+			'skip': pageSkip,
+			'limit': ITEMS_PER_PAGE,
+		}));
+
+		setTimeout(() => dispatch(setIsLoading(false)), 100); // give time for user list to load
 	}
 
 	componentDidUpdate(prevProps) {
-		const { currentPageNumber, handle } = this.props;
+		const { currentPageNumber, dispatch, pageSkip } = this.props;
 
-		// clear out users from previously viewed pages
-		if (prevProps.currentPageNumber !== currentPageNumber) {
-			handle.stop();
+		if (currentPageNumber !== prevProps.currentPageNumber) {
+			dispatch(getUserCount());
+			dispatch(getUsersForPage({
+				'skip': pageSkip,
+				'limit': ITEMS_PER_PAGE,
+			}));
 		}
 	}
 
@@ -131,9 +143,9 @@ People.propTypes = {
 	'currentPageNumber': PropTypes.number,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
-	'handle': PropTypes.func.isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isLoading': PropTypes.bool.isRequired,
+	'pageSkip': PropTypes.number.isRequired,
 	'userCount': PropTypes.number.isRequired,
 	'users': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
@@ -154,34 +166,8 @@ function mapStateToProps(state, ownProps) {
 		'isLoading': getIsLoading(state),
 		'pageSkip': (currentPageNumber - 1) * ITEMS_PER_PAGE,
 		'userCount': state.auth.userCount,
+		'users': state.auth.usersForPage,
 	};
 }
 
-const Tracker = withTracker(({ pageSkip, dispatch }) => {
-	const state = store.getState();
-	const isLoading = getIsLoading(state);
-
-	const users = Meteor.users.find(
-		{},
-		{
-			'sort': { 'nameSort': 1 },
-			'limit': ITEMS_PER_PAGE,
-		},
-	).fetch();
-
-	const handle = Meteor.subscribe('allUsers', pageSkip, ITEMS_PER_PAGE);
-
-	if (isLoading && handle.ready()) {
-		dispatch(getUserCount());
-		setTimeout(() => dispatch(setIsLoading(false)), 50);
-	} else if (!isLoading && !handle.ready()) {
-		dispatch(setIsLoading(true));
-	}
-
-	return {
-		handle,
-		users,
-	};
-})(People);
-
-export default connect(mapStateToProps)(Tracker);
+export default connect(mapStateToProps)(People);
