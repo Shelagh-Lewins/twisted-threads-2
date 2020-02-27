@@ -30,6 +30,7 @@ const patternAsText = (_id, patternObj) => {
 	// header has no function, it is just to make the file more readable
 	const patternData = {
 		'header': 'A tablet weaving pattern designed in Twisted Threads',
+		'fileType': 'twt',
 		'version': '2.0',
 		[getDisplayName('name')]: name,
 		[getDisplayName('description')]: description,

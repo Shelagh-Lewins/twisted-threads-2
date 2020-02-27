@@ -471,6 +471,20 @@ export const downloadPattern = (_id, patternObj) => (dispatch) => {
 	console.log('Pattern data:', patternObj);
 };
 
+export const importFileFromText = (text) => (dispatch) => {
+	dispatch(clearErrors());
+
+	console.log('importFileFromText', text);
+
+	// check if json or xml
+
+	// check for valid TWT2 or GTT data
+
+	// parse
+
+	// send to server
+};
+
 // Edit pattern
 // Pattern as a whole
 export function editIsPublic({

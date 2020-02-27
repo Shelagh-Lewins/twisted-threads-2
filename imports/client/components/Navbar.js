@@ -14,10 +14,12 @@ import {
 import {
 	copyPattern,
 	downloadPattern,
+	importFileFromText,
 	removePattern,
 } from '../modules/pattern';
 import AppContext from '../modules/appContext';
 import Search from './Search';
+import UploadPatternForm from '../forms/UploadPatternForm';
 import './Navbar.scss';
 import { iconColors } from '../../modules/parameters';
 
@@ -26,7 +28,17 @@ class Navbar extends Component {
 		super(props);
 		this.state = {
 			'showDropdown': false,
+			'showUploadPatternForm': false,
 		};
+
+		// bind onClick functions to provide context
+		const functionsToBind = [
+			'handleSubmitButtonUpload',
+		];
+
+		functionsToBind.forEach((functionName) => {
+			this[functionName] = this[functionName].bind(this);
+		});
 	}
 
 	handleClickButtonRemove = ({ _id, name }) => {
@@ -47,6 +59,31 @@ class Navbar extends Component {
 		dispatch(downloadPattern(_id, pattern));
 	}
 
+	handleClickButtonUpload() {
+		const { showUploadPatternForm } = this.state;
+
+		this.setState({
+			'showUploadPatternForm': !showUploadPatternForm,
+		});
+	}
+
+	handleSubmitButtonUpload(values, { resetForm }) {
+		const { dispatch } = this.props;
+
+		if (!values) {
+			console.log('submit nothing selected');
+		} else {
+			const reader = new FileReader();
+
+			reader.onload = function fileReadCompleted() {
+				// when the reader is done, the content is in reader.result.
+				dispatch(importFileFromText(reader.result));
+			};
+			reader.readAsText(values.selectFile);
+		}
+		//TODO show feedback when invalid selection on submit
+	}
+
 	handleClickButtonCopy({ _id }) {
 		const { dispatch, history } = this.props;
 
@@ -58,6 +95,14 @@ class Navbar extends Component {
 		this.setState((prevState) => ({
 			'showDropdown': !prevState.showDropdown,
 		}));
+	}
+
+	renderUploadPatternForm() {
+		return (
+			<UploadPatternForm
+				handleSubmit={this.handleSubmitButtonUpload}
+			/>
+		);
 	}
 
 	render() {
@@ -72,6 +117,8 @@ class Navbar extends Component {
 			username,
 		} = this.props;
 
+		const { showDropdown, showUploadPatternForm } = this.state;
+
 		const {
 			pattern,
 			patternId,
@@ -85,14 +132,35 @@ class Navbar extends Component {
 
 		const showPatternMenu = !isLoading && patternId && (canCreatePattern || isOwner);
 
+		let uploadMenu;
 		let patternMenu;
 		let myPatternsLink;
 
-		if (showPatternMenu) {
+		if (canCreatePattern) {
+			// allow patterns to be uploaded / created from file
+			uploadMenu = (
+				<ul className="upload-menu navbar-nav">
+					<li className="nav-item">
+						<Button
+							type="button"
+							onClick={() => this.handleClickButtonUpload({ '_id': patternId })}
+							title="Download pattern"
+						>
+							<FontAwesomeIcon icon={['fas', 'file-upload']} style={{ 'color': iconColors.contrast }} size="1x" />
+							<span className="d-inline d-md-none button-text nav-link">Import pattern</span>
+						</Button>
+					</li>
+				</ul>
+			);
+		}
+
+		if (Meteor.user()) {
 			myPatternsLink = (
 				<Link to={`/user/${Meteor.userId()}`} className="nav-link">My patterns</Link>
 			);
+		}
 
+		if (showPatternMenu) {
 			const buttonDownload = (
 				<Button
 					type="button"
@@ -135,7 +203,7 @@ class Navbar extends Component {
 			);
 		}
 
-		const { showDropdown } = this.state;
+// 		const { showDropdown } = this.state;
 		const authLinks = (
 			<ul className="navbar-nav ml-auto">
 				<li className="nav-item"><Link to="/account" className="nav-link">{username}</Link></li>
@@ -154,6 +222,7 @@ class Navbar extends Component {
 
 		return (
 			<nav className="navbar navbar-expand-md navbar-dark">
+				{showUploadPatternForm && this.renderUploadPatternForm()}
 				<Link className="navbar-brand" to="/"><span className="logo" />Twisted Threads</Link>
 				<Search
 					dispatch={dispatch}
@@ -166,6 +235,7 @@ class Navbar extends Component {
 					<span className="navbar-toggler-icon" />
 				</button>
 				<div className={`collapse navbar-collapse ${showDropdown ? 'show' : ''}`} id="navbarSupportedContent">
+					{uploadMenu}
 					{showPatternMenu && patternMenu}
 					{isAuthenticated ? authLinks : guestLinks}
 				</div>

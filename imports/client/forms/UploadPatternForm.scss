@@ -1,0 +1,23 @@
+@import "../constants/variables";
+
+.upload-pattern-form {
+	color: $color-text;
+	left: 50%;
+	position: absolute;
+	top: 100px;
+	width: 350px;
+	z-index: 100;
+
+	form {
+		background: $color-panel-background;
+		border: 1px solid $color-panel-border;
+		border-radius: 4px;
+		margin-left: -50%;
+		padding: 8px;
+	}
+
+	input {
+		border: 0;
+		width: auto;
+	}
+}
