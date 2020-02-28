@@ -454,7 +454,7 @@ export const downloadPattern = (_id, patternObj) => (dispatch) => {
 	const { name } = patternObj;
 	const filename = filenamify(name, {
 		'replacement': '_',
-		'maxLength': 100000, // 1MB
+		'maxLength': 100000, // 0.1MB
 	});
 
 	const element = document.createElement('a');
@@ -468,25 +468,15 @@ export const downloadPattern = (_id, patternObj) => (dispatch) => {
 	element.click();
 
 	document.body.removeChild(element);
-
-	console.log('Pattern data:', patternObj);
 };
 
 export const importFileFromText = (text) => (dispatch) => {
 	dispatch(clearErrors());
 
-	console.log('importFileFromText', text);
-
-	const { isValid, patternObj } = newPatternFromFile(newPatternFromFile);
+	const { isValid, patternObj } = newPatternFromFile(text);
 
 	console.log('isValid', isValid);
 	console.log('patternObj', patternObj);
-
-	// check if json or xml
-
-	// check for valid TWT2 or GTT data
-
-	// parse
 
 	// send to server
 };

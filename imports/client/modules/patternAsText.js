@@ -18,6 +18,7 @@ const patternAsText = (_id, patternObj) => {
 		numberOfRows,
 		numberOfTablets,
 		orientations,
+		palette,
 		patternDesign,
 		patternType,
 		tags,
@@ -50,6 +51,7 @@ const patternAsText = (_id, patternObj) => {
 
 	patternData[getDisplayName('patternType')] = patternType;
 	patternData[getDisplayName('holes')] = holes;
+	patternData[getDisplayName('palette')] = palette;
 	patternData[getDisplayName('weftColor')] = weftColor;
 	patternData[getDisplayName('numberOfTablets')] = numberOfTablets;
 	patternData[getDisplayName('numberOfRows')] = numberOfRows;

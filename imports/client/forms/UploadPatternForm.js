@@ -6,7 +6,7 @@ import './UploadPatternForm.scss';
 
 const validate = (values) => {
 	const errors = {};
-
+console.log('validate');
 	if (!values.selectFile) {
 		errors.selectFile = 'A file must be selected';
 	} else {
@@ -14,16 +14,21 @@ const validate = (values) => {
 
 		if (type !== 'text/plain' && type !== '') {
 			errors.selectFile = 'File extension must be .twt, .txt or .gtt';
-		} else if (size > 1000) {
-			errors.selectFile = 'File size must be < 1000';
+		} else if (size > 1000000) {
+			errors.selectFile = 'File size must be < 1000000';
+		} else if (!name || name === '') {
+			errors.selectFile = 'File must have a name';
 		}
 	}
-
+console.log('errors', errors);
 	return errors;
 };
 
 const UploadPatternForm = (props) => {
 	const { handleClose, handleSubmit } = props;
+	let customTouched = false; // register touched on select, not on clicking the button to open the file picker
+	// so validation only happens after the user has made a selection
+	//TODO this doesn't work right
 
 	const formik = useFormik({
 		'initialValues': {
@@ -31,6 +36,7 @@ const UploadPatternForm = (props) => {
 		},
 		validate,
 		'onSubmit': (values) => {
+			console.log('submit. values', formik.errors);
 			handleSubmit(values);
 		},
 	});
@@ -39,12 +45,29 @@ const UploadPatternForm = (props) => {
 	const onChange = (event) => {
 		if (event.currentTarget.files.length !== 0) {
 			setFieldValue('selectFile', event.currentTarget.files[0]);
+			customTouched = true;
 		}
+	};
+	const test = (event) => {
+		console.log('test', event);
+		event.persist();
+		event.preventDefault();
+		customTouched = true;
+		const errors = validate(formik.values);
+		console.log('test. errors', errors);
+		const thatEvent = event;
+
+		setTimeout(() => {
+			if (Object.keys(errors).length === 0) {
+				console.log('no errors');
+				//thatEvent.preventDefault();
+				handleSubmit(thatEvent) } }, 100);
+		//formik.handleSubmit(event);
 	};
 
 	return (
 		<div className="upload-pattern-form">
-			<form onSubmit={formik.handleSubmit}>
+			<form onSubmit={test}>
 				<Button className="close" type="button" color="secondary" title="Close" onClick={handleClose}>X</Button>
 				<div className="form-group">
 					<h3>Upload pattern from file</h3>
@@ -58,7 +81,7 @@ const UploadPatternForm = (props) => {
 						Select a pattern file:
 						<input
 							accept="text/plain, .txt, .gtt, .twt"
-							className={`form-control ${formik.touched.selectFile &&	formik.errors.selectFile ? 'is-invalid' : ''
+							className={`form-control ${customTouched.selectFile &&	formik.errors.selectFile ? 'is-invalid' : ''
 							}`}
 							id="selectFile"
 							name="selectFile"
@@ -66,7 +89,7 @@ const UploadPatternForm = (props) => {
 							onChange={onChange}
 							onBlur={formik.handleBlur}
 						/>
-						{formik.touched.selectFile && formik.errors.selectFile ? (
+						{customTouched.selectFile && formik.errors.selectFile ? (
 							<div className="invalid-feedback invalid">{formik.errors.selectFile}</div>
 						) : null}
 					</label>

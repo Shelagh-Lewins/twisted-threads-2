@@ -7,10 +7,6 @@ import {
 	PATTERN_AS_TEXT_FIELDS,
 } from '../../modules/parameters';
 
-const getFieldName = (displayName) => {
-	return PATTERN_AS_TEXT_FIELDS.find((field) => displayName === field.displayName).fieldName;
-};
-
 // Can this be a GTT pattern?
 const testIsXML = (text) => {
 	if (typeof text !== 'string') {
@@ -34,7 +30,7 @@ const testIsJSON = (text) => {
 
 const newPatternFromJSON = (data) => {
 	let isValid = true;
-	let patternObj;
+	const patternObj = {};
 
 	const {
 		fileType,
@@ -60,7 +56,7 @@ const newPatternFromJSON = (data) => {
 	} else {
 		isValid = false;
 	}
-console.log('newPatternFromJSON, isValid', isValid);
+
 	return { isValid, patternObj };
 };
 

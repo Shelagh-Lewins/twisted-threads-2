@@ -69,21 +69,17 @@ class Navbar extends Component {
 	}
 
 	handleSubmitButtonUpload(values) {
-		console.log('handleSubmitButtonUpload');
 		const { dispatch } = this.props;
+		const that = this;
 
-		if (!values) {
-			console.log('submit nothing selected');
-		} else {
-			const reader = new FileReader();
+		const reader = new FileReader();
 
-			reader.onload = function fileReadCompleted() {
-				// when the reader is done, the content is in reader.result.
-				dispatch(importFileFromText(reader.result));
-			};
-			reader.readAsText(values.selectFile);
-		}
-		//TODO show feedback when invalid selection on submit
+		reader.onload = function fileReadCompleted() {
+			// when the reader is done, the content is in reader.result.
+			dispatch(importFileFromText(reader.result));
+			that.handleClickButtonUpload();
+		};
+		reader.readAsText(values.selectFile);
 	}
 
 	handleClickButtonCopy({ _id }) {
