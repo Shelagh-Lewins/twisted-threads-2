@@ -29,6 +29,7 @@ import {
 } from '../../modules/parameters';
 import getColorsForRolesByTablet from '../../modules/getColorsForRolesByTablet';
 import patternAsText from './patternAsText';
+import newPatternFromFile from './newPatternFromFile';
 
 const updeep = require('updeep');
 const filenamify = require('filenamify');
@@ -453,7 +454,7 @@ export const downloadPattern = (_id, patternObj) => (dispatch) => {
 	const { name } = patternObj;
 	const filename = filenamify(name, {
 		'replacement': '_',
-		'maxLength': 100,
+		'maxLength': 100000, // 1MB
 	});
 
 	const element = document.createElement('a');
@@ -475,6 +476,11 @@ export const importFileFromText = (text) => (dispatch) => {
 	dispatch(clearErrors());
 
 	console.log('importFileFromText', text);
+
+	const { isValid, patternObj } = newPatternFromFile(newPatternFromFile);
+
+	console.log('isValid', isValid);
+	console.log('patternObj', patternObj);
 
 	// check if json or xml
 

@@ -33,6 +33,7 @@ class Navbar extends Component {
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
+			'handleClickButtonUpload',
 			'handleSubmitButtonUpload',
 		];
 
@@ -67,7 +68,8 @@ class Navbar extends Component {
 		});
 	}
 
-	handleSubmitButtonUpload(values, { resetForm }) {
+	handleSubmitButtonUpload(values) {
+		console.log('handleSubmitButtonUpload');
 		const { dispatch } = this.props;
 
 		if (!values) {
@@ -100,6 +102,7 @@ class Navbar extends Component {
 	renderUploadPatternForm() {
 		return (
 			<UploadPatternForm
+				handleClose={this.handleClickButtonUpload}
 				handleSubmit={this.handleSubmitButtonUpload}
 			/>
 		);

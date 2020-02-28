@@ -188,57 +188,81 @@ export const PATTERN_AS_TEXT_FIELDS = [
 	{
 		'fieldName': 'name',
 		'displayName': 'Name',
+		'required': true,
+		'type': 'string',
 	},
 	{
 		'fieldName': 'description',
 		'displayName': 'Description',
+		'type': 'string',
 	},
 	{
 		'fieldName': 'holes',
-		'displayName': 'Number of holes in each tablet',
+		'displayName': 'Number of holes',
+		'required': true,
+		'type': 'integer',
 	},
 	{
 		'fieldName': 'numberOfTablets',
 		'displayName': 'Number of tablets',
+		'required': true,
+		'type': 'integer',
 	},
 	{
 		'fieldName': 'numberOfRows',
 		'displayName': 'Number of weaving rows',
+		'required': true,
+		'type': 'integer',
 	},
 	{
 		'fieldName': 'threading',
 		'displayName': 'Threading chart',
+		'required': true,
+		'type': 'array',
 	},
 	{
 		'fieldName': 'orientations',
 		'displayName': 'Tablet orientations',
+		'required': true,
+		'type': 'array',
 	},
 	{
 		'fieldName': 'palette',
 		'displayName': 'Colour palette',
+		'required': true,
+		'type': 'array',
 	},
 	{
 		'fieldName': 'patternDesign',
 		'displayName': 'Pattern design',
+		'required': true,
+		'type': 'object',
 	},
 	{
 		'fieldName': 'patternType',
 		'displayName': 'Pattern type',
+		'required': true,
+		'type': 'string',
 	},
 	{
 		'fieldName': 'tags',
 		'displayName': 'Tags',
+		'type': 'array',
 	},
 	{
 		'fieldName': 'threadingNotes',
 		'displayName': 'Threading notes',
+		'type': 'string',
 	},
 	{
 		'fieldName': 'weavingNotes',
 		'displayName': 'Weaving notes',
+		'type': 'string',
 	},
 	{
 		'fieldName': 'weftColor',
 		'displayName': 'Weft colour',
+		'required': true,
+		'type': 'integer',
 	},
 ];

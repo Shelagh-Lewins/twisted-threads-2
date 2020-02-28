@@ -20,4 +20,16 @@
 		border: 0;
 		width: auto;
 	}
+
+	label {
+		font-size: 0;
+
+		.invalid {
+			font-size: 1rem;
+		}
+	}
+
+	.close {
+		float: right;
+	}
 }

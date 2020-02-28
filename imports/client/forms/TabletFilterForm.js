@@ -78,9 +78,9 @@ const TabletFilterForm = (props) => {
 
 		setFieldValue('minTablets', value);
 
-		clearTimeout(global.filterTabletsTimeout);
+		clearTimeout(global.tabletFilterTimeout);
 
-		global.filterTabletsTimeout = setTimeout(() => {
+		global.tabletFilterTimeout = setTimeout(() => {
 			if (Object.keys(global.tabletFilterErrors).length === 0) {
 				dispatch(updateFilterMinTablets(value, history));
 			}
@@ -100,9 +100,9 @@ const TabletFilterForm = (props) => {
 
 		setFieldValue('maxTablets', value);
 
-		clearTimeout(global.filterTabletsTimeout);
+		clearTimeout(global.tabletFilterTimeout);
 
-		global.filterTabletsTimeout = setTimeout(() => {
+		global.tabletFilterTimeout = setTimeout(() => {
 			if (Object.keys(global.tabletFilterErrors).length === 0) {
 				dispatch(updateFilterMaxTablets(value, history));
 			}
