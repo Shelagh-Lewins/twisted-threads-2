@@ -1,15 +1,13 @@
 // list global vars here
+// not required, but helps to avoid duplication
 
 global.savePatternPreviewTimeout = null;
 
-global.allTogetherRowsErrors = null;
+// UploadPatternForm
+global.touchedUploadPatternInput = null;
+
+// forms that need to wait for the user to stop typing
 global.allTogetherRowsTimeout = null;
-
-global.twillStartRowErrors = null;
 global.twillStartRowTimeout = null;
-
-global.editWeavingCellErrors = null;
 global.editWeavingCellTimeout = null;
-
-global.tabletFilterErrors = null;
 global.tabletFilterTimeout = null;

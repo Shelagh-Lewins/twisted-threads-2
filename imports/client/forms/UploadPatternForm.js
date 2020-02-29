@@ -4,9 +4,12 @@ import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
 import './UploadPatternForm.scss';
 
+// this form submits when the user selects a file
+// timeout enables a form that submits immediately and validates (setFieldValue is async)
+
 const validate = (values) => {
 	const errors = {};
-console.log('validate');
+
 	if (!values.selectFile) {
 		errors.selectFile = 'A file must be selected';
 	} else {
@@ -20,15 +23,12 @@ console.log('validate');
 			errors.selectFile = 'File must have a name';
 		}
 	}
-console.log('errors', errors);
+
 	return errors;
 };
 
 const UploadPatternForm = (props) => {
 	const { handleClose, handleSubmit } = props;
-	let customTouched = false; // register touched on select, not on clicking the button to open the file picker
-	// so validation only happens after the user has made a selection
-	//TODO this doesn't work right
 
 	const formik = useFormik({
 		'initialValues': {
@@ -36,39 +36,36 @@ const UploadPatternForm = (props) => {
 		},
 		validate,
 		'onSubmit': (values) => {
-			console.log('submit. values', formik.errors);
+			global.touchedUploadPatternInput = null;
 			handleSubmit(values);
 		},
 	});
 
 	const { setFieldValue } = formik;
+
+
 	const onChange = (event) => {
 		if (event.currentTarget.files.length !== 0) {
-			setFieldValue('selectFile', event.currentTarget.files[0]);
-			customTouched = true;
+			const selectFile = event.currentTarget.files[0];
+			setFieldValue('selectFile', selectFile);
+			global.touchedUploadPatternInput = 'touched'; // we don't want to show errors when the user opens the file picker
+			// so mark the input as touched only when the user makes a selection
+
+			setTimeout(() => {
+				formik.handleSubmit();
+			}, 50);
 		}
 	};
-	const test = (event) => {
-		console.log('test', event);
-		event.persist();
-		event.preventDefault();
-		customTouched = true;
-		const errors = validate(formik.values);
-		console.log('test. errors', errors);
-		const thatEvent = event;
 
-		setTimeout(() => {
-			if (Object.keys(errors).length === 0) {
-				console.log('no errors');
-				//thatEvent.preventDefault();
-				handleSubmit(thatEvent) } }, 100);
-		//formik.handleSubmit(event);
+	const onClickClose = () => {
+		global.touchedUploadPatternInput = null;
+		handleClose();
 	};
 
 	return (
 		<div className="upload-pattern-form">
-			<form onSubmit={test}>
-				<Button className="close" type="button" color="secondary" title="Close" onClick={handleClose}>X</Button>
+			<form onSubmit={formik.handleSubmit}>
+				<Button className="close" type="button" color="secondary" title="Close" onClick={onClickClose}>X</Button>
 				<div className="form-group">
 					<h3>Upload pattern from file</h3>
 					<p>Supported file types:</p>
@@ -81,7 +78,7 @@ const UploadPatternForm = (props) => {
 						Select a pattern file:
 						<input
 							accept="text/plain, .txt, .gtt, .twt"
-							className={`form-control ${customTouched.selectFile &&	formik.errors.selectFile ? 'is-invalid' : ''
+							className={`form-control ${global.touchedUploadPatternInput &&	formik.errors.selectFile ? 'is-invalid' : ''
 							}`}
 							id="selectFile"
 							name="selectFile"
@@ -89,7 +86,7 @@ const UploadPatternForm = (props) => {
 							onChange={onChange}
 							onBlur={formik.handleBlur}
 						/>
-						{customTouched.selectFile && formik.errors.selectFile ? (
+						{global.touchedUploadPatternInput && formik.errors.selectFile ? (
 							<div className="invalid-feedback invalid">{formik.errors.selectFile}</div>
 						) : null}
 					</label>
@@ -99,7 +96,7 @@ const UploadPatternForm = (props) => {
 		</div>
 	);
 };
-
+// accept="text/plain, .txt, .gtt, .twt"
 UploadPatternForm.propTypes = {
 	'handleClose': PropTypes.func.isRequired,
 	'handleSubmit': PropTypes.func.isRequired,

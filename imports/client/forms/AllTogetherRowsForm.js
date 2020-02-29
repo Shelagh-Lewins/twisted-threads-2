@@ -10,11 +10,13 @@ import {
 } from '../../modules/parameters';
 import './AllTogetherRowsForm.scss';
 
-// much jiggery-pokery enables a form that updates immediately on change, with no submit button, but validates before submitting
+// timeout enables a form that updates immediately on change, with no submit button, but validates before submitting
+// setFieldValue is async: also we want to wait for the user to stop typing
 
 const AllTogetherRowsForm = (props) => {
 	const {
 		canEdit,
+		handleSubmit,
 		numberOfRows,
 	} = props;
 
@@ -39,11 +41,12 @@ const AllTogetherRowsForm = (props) => {
 			numberOfRows,
 		},
 		validate,
-		'onSubmit': () => {},
+		'onSubmit': (values) => {
+			handleSubmit(values.numberOfRows);
+		},
 	});
 
 	const { setFieldValue } = formik;
-	global.allTogetherRowsErrors = formik.errors; // formik.errors is not updated in the timeout but the global var is
 
 	const handleChangeNumberOfRows = (e) => {
 		const { value } = e.target;
@@ -53,9 +56,7 @@ const AllTogetherRowsForm = (props) => {
 		clearTimeout(global.allTogetherRowsTimeout);
 
 		global.allTogetherRowsTimeout = setTimeout(() => {
-			if (Object.keys(global.allTogetherRowsErrors).length === 0) {
-				props.handleSubmit(value);
-			}
+			formik.handleSubmit();
 		}, 800);
 	};
 

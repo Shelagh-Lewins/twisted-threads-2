@@ -17,7 +17,8 @@ import {
 } from '../../modules/parameters';
 import './TabletFilterForm.scss';
 
-// much jiggery-pokery enables a form that updates immediately on change, with no submit button, but validates before submitting
+// timeouts enable a form that updates immediately on change, with no submit button, but validates before submitting
+// setFieldValue is async: also we want to wait for the user to stop typing
 
 const TabletFilterForm = (props) => {
 	const {
@@ -67,11 +68,13 @@ const TabletFilterForm = (props) => {
 			'maxTablets': maxTablets || '',
 		},
 		validate,
-		'onSubmit': () => {},
+		'onSubmit': (values) => {
+			dispatch(updateFilterMinTablets(values.minTablets, history));
+			dispatch(updateFilterMaxTablets(values.maxTablets, history));
+		},
 	});
 
 	const { setFieldValue } = formik;
-	global.tabletFilterErrors = formik.errors; // formik.errors is not updated in the timeout but the global var is
 
 	const handleChangeMinTablets = (e) => {
 		const { value } = e.target;
@@ -81,9 +84,7 @@ const TabletFilterForm = (props) => {
 		clearTimeout(global.tabletFilterTimeout);
 
 		global.tabletFilterTimeout = setTimeout(() => {
-			if (Object.keys(global.tabletFilterErrors).length === 0) {
-				dispatch(updateFilterMinTablets(value, history));
-			}
+			formik.handleSubmit();
 		}, 800);
 	};
 
@@ -103,9 +104,7 @@ const TabletFilterForm = (props) => {
 		clearTimeout(global.tabletFilterTimeout);
 
 		global.tabletFilterTimeout = setTimeout(() => {
-			if (Object.keys(global.tabletFilterErrors).length === 0) {
-				dispatch(updateFilterMaxTablets(value, history));
-			}
+			formik.handleSubmit();
 		}, 800);
 	};
 

@@ -8,10 +8,15 @@ import {
 } from '../../modules/parameters';
 import './EditWeavingCellForm.scss';
 
-// much jiggery-pokery enables a form that updates immediately on change, with no submit button, but validates
+// timeout enables a form that updates immediately on change, with no submit button, but validates before submitting
+// setFieldValue is async: also we want to wait for the user to stop typing
 
 const EditWeavingCellForm = (props) => {
-	const { canEdit, numberOfTurns } = props;
+	const {
+		canEdit,
+		handleSubmit,
+		numberOfTurns,
+	} = props;
 
 	const validate = (values) => {
 		const errors = {};
@@ -35,11 +40,12 @@ const EditWeavingCellForm = (props) => {
 			'numberOfTurns': numberOfTurns,
 		},
 		validate,
-		'onSubmit': () => {},
+		'onSubmit': (values) => {
+			handleSubmit(values.numberOfTurns);
+		},
 	});
 
 	const { setFieldValue } = formik;
-	global.editWeavingCellErrors = formik.errors; // formik.errors is not updated in the timeout but the global var is
 
 	const handleChangeNumberOfTurns = (e) => {
 		const { value } = e.target;
@@ -49,9 +55,7 @@ const EditWeavingCellForm = (props) => {
 		clearTimeout(global.editWeavingCellTimeout);
 
 		global.editWeavingCellTimeout = setTimeout(() => {
-			if (Object.keys(global.editWeavingCellErrors).length === 0) {
-				props.handleSubmit(value);
-			}
+			formik.handleSubmit();
 		}, 800);
 	};
 

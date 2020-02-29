@@ -32,4 +32,8 @@
 	.close {
 		float: right;
 	}
+
+	[type="submit"] {
+		display: none;
+	}
 }

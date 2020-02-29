@@ -11,6 +11,7 @@ import './TwillWeavingStartRowForm.scss';
 
 const TwillWeavingStartRowForm = (props) => {
 	const {
+		handleSubmit,
 		numberOfRows,
 		weavingStartRow,
 	} = props;
@@ -38,11 +39,12 @@ const TwillWeavingStartRowForm = (props) => {
 			weavingStartRow,
 		},
 		validate,
-		'onSubmit': () => {},
+		'onSubmit': (values) => {
+			handleSubmit(values.weavingStartRow);
+		},
 	});
 
 	const { setFieldValue } = formik;
-	global.twillStartRowErrors = formik.errors; // formik.errors is not updated in the timeout but the global var is
 
 	const handleChangeweavingStartRow = (e) => {
 		const { value } = e.target;
@@ -52,9 +54,7 @@ const TwillWeavingStartRowForm = (props) => {
 		clearTimeout(global.twillStartRowTimeout);
 
 		global.twillStartRowTimeout = setTimeout(() => {
-			if (Object.keys(global.twillStartRowErrors).length === 0) {
-				props.handleSubmit(value);
-			}
+			formik.handleSubmit(value);
 		}, 800);
 	};
 
