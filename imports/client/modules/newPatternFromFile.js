@@ -43,14 +43,18 @@ const newPatternFromJSON = (data) => {
 		// pattern data needs fieldName
 		// field may be required
 		for (let i = 0; i < PATTERN_AS_TEXT_FIELDS.length; i += 1) {
-			const { fieldName, displayName, required } = PATTERN_AS_TEXT_FIELDS[i];
+			const {
+				fieldName,
+				displayName,
+				required,
+			} = PATTERN_AS_TEXT_FIELDS[i];
 			const fieldValue = data[displayName];
 
 			if (required && !fieldValue) {
 				isValid = false;
 				break;
 			} else if (fieldValue) {
-				patternObj[fieldName] = data[displayName];
+				patternObj[fieldName] = fieldValue;
 			}
 		}
 	} else {

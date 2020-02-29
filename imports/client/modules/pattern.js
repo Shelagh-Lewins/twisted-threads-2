@@ -479,6 +479,13 @@ export const importFileFromText = (text) => (dispatch) => {
 	console.log('patternObj', patternObj);
 
 	// send to server
+	Meteor.call('pattern.newPatternFromData', {
+		patternObj,
+	}, (error) => {
+		if (error) {
+			return dispatch(logErrors({ 'add new pattern from data': error.reason }));
+		}
+	});
 };
 
 // Edit pattern

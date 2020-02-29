@@ -234,6 +234,36 @@ Meteor.methods({
 
 		return patternId;
 	},
+	'pattern.newPatternFromData': function ({ patternObj }) {
+		console.log('new from patternObj data', patternObj);
+		check(patternObj, Match.ObjectIncluding({
+			'description': Match.Maybe(String),
+			'holes': positiveIntegerCheck,
+			'name': String,
+			'numberOfRows': positiveIntegerCheck,
+			'numberOfTablets': positiveIntegerCheck,
+			'orientations': [String],
+			'palette': [Match.OneOf(Number, String)],
+			'patternDesign': Object,
+			'patternType': String,
+			'tags': Match.Maybe([String]),
+			'threading': [[Number]],
+			'threadingNotes': Match.Maybe(String),
+			'weavingNotes': Match.Maybe(String),
+			'weftColor': Match.OneOf(Number, String), // number may come in as tring
+		}));
+
+		const { error, result } = checkUserCanCreatePattern();
+
+		//TODO check numbers of holes, rows, tablets valid and match charts
+
+		//TODO cast strings to number e.g. weftColor, threading, values in pattern design?
+		// check palette references are suitable integers
+
+		if (error) {
+			throw error;
+		}
+	},
 	'pattern.remove': function (_id) {
 		check(_id, nonEmptyStringCheck);
 
