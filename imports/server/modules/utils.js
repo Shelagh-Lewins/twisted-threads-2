@@ -1,5 +1,6 @@
 import { ColorBooks, PatternImages, Patterns } from '../../modules/collection';
 import {
+	ALLOWED_DIRECTIONS,
 	ALLOWED_HOLES,
 	ALLOWED_PATTERN_TYPES,
 	BROKEN_TWILL_FOREGROUND,
@@ -50,6 +51,12 @@ export const positiveIntegerCheck = Match.Where((x) => {
 export const validPaletteIndexCheck = Match.Where((x) => {
 	check(x, Match.Integer);
 	return x >= -1 && x < DEFAULT_PALETTE.length; // -1 is empty hole, 0 + are colors
+});
+
+export const validDirectionCheck = Match.Where((x) => {
+	check(x, String);
+	const directionDefFound = ALLOWED_DIRECTIONS.find((directionDef) => directionDef.value === x);
+	return typeof directionDefFound !== 'undefined';
 });
 
 export const validTwillChartCheck = Match.Where((x) => {
