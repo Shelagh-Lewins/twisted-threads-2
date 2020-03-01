@@ -226,7 +226,7 @@ Meteor.methods({
 		return patternId;
 	},
 	'pattern.newPatternFromData': function ({ patternObj }) {
-		console.log('new from patternObj data', patternObj);
+		// console.log('new from patternObj data', patternObj);
 		check(patternObj, Match.ObjectIncluding({
 			'description': Match.Maybe(String),
 			'holes': positiveIntegerCheck,
@@ -263,6 +263,10 @@ Meteor.methods({
 
 		const { error, result } = checkUserCanCreatePattern();
 
+		if (error) {
+			throw error;
+		}
+
 		// ////////////////////////////
 		// check the data
 
@@ -298,13 +302,36 @@ Meteor.methods({
 
 		// weft colour
 		check(weftColor, validPaletteIndexCheck);
-		const { weavingInstructions } = patternDesign;
+		const {
+			freehandChart, // freehand
+			twillDirection, // broken twill
+			twillPatternChart, // broken twill
+			twillDirectionChangeChart, // broken twill
+			weavingInstructions, // individual and freehand
+			weavingStartRow, // broken twill
+		} = patternDesign;
 
 		// pattern design
 		switch (patternType) {
 			case 'individual':
 				if (weavingInstructions.length !== numberOfRows) {
 					throw new Meteor.Error('new-pattern-from-data-invalid-data', 'Unable to create new pattern from data because the number of rows does not match the pattern design');
+				}
+
+				if (weavingInstructions[0].length !== numberOfTablets) {
+					throw new Meteor.Error('new-pattern-from-data-invalid-data', 'Unable to create new pattern from data because the number of tablets does not match the pattern design');
+				}
+
+				// check each pick is valid
+				for (let i = 0; i < numberOfRows; i += 1) {
+					for (let j = 0; j < numberOfTablets; j += 1) {
+						const { direction, numberOfTurns } = weavingInstructions[i][j];
+						check(direction, validDirectionCheck);
+						check(numberOfTurns, Match.Integer);
+						if (numberOfTurns >= holes || numberOfTurns < 0) {
+							throw new Meteor.Error('new-pattern-from-data-invalid-data', 'Unable to create new pattern from data because the number of turns is invalid');
+						}
+					}
 				}
 				break;
 
@@ -317,18 +344,112 @@ Meteor.methods({
 				break;
 
 			case 'brokenTwill':
+				// twill charts should have one row per two weaving rows, plus one extra
+				if (numberOfRows !== (twillPatternChart.length - 1) * 2) {
+					throw new Meteor.Error('new-pattern-from-data-invalid-data', 'Unable to create new pattern from data because the number of rows is invalid');
+				}
+
+				if (twillDirectionChangeChart.length !== twillPatternChart.length) {
+					throw new Meteor.Error('new-pattern-from-data-invalid-data', 'Unable to create new pattern from data because the twill charts are not the same length');
+				}
+
+				if (twillPatternChart[0].length !== numberOfTablets
+					|| twillDirectionChangeChart[0].length !== numberOfTablets) {
+					throw new Meteor.Error('new-pattern-from-data-invalid-data', 'Unable to create new pattern from data because a twill chart does not have the correct number of tablets');
+				}
+
+				// twill chart entries should be . or X
+				for (let i = 0; i < twillPatternChart.length; i += 1) {
+					for (let j = 0; j < numberOfTablets; j += 1) {
+						if (['.', 'X'].indexOf(twillPatternChart[i][j]) === -1) {
+							throw new Meteor.Error('new-pattern-from-data-invalid-data', 'Unable to create new pattern from data because the pattern chart contains an invalid value');
+						}
+
+						if (['.', 'X'].indexOf(twillDirectionChangeChart[i][j]) === -1) {
+							throw new Meteor.Error('new-pattern-from-data-invalid-data', 'Unable to create new pattern from data because the direction change chart contains an invalid value');
+						}
+					}
+				}
+
+				if (['S', 'Z'].indexOf(twillDirection)) {
+					throw new Meteor.Error('new-pattern-from-data-invalid-data', 'Unable to create new pattern from data because the twill direction is invalid');
+				}
+
+				check(weavingStartRow, positiveIntegerCheck);
+
+				if (weavingStartRow >= numberOfRows) {
+					throw new Meteor.Error('new-pattern-from-data-invalid-data', 'Unable to create new pattern from data because the weaving start row is invalid');
+				}
 				break;
 
 			case 'freehand':
+				if (freehandChart.length !== numberOfRows) {
+					throw new Meteor.Error('new-pattern-from-data-invalid-data', 'Unable to create new pattern from data because the number of rows does not match the pattern design');
+				}
+
+				if (freehandChart[0].length !== numberOfTablets) {
+					throw new Meteor.Error('new-pattern-from-data-invalid-data', 'Unable to create new pattern from data because the number of tablets does not match the pattern design');
+				}
+
+				// check each pick is valid
+				for (let i = 0; i < numberOfRows; i += 1) {
+					for (let j = 0; j < numberOfTablets; j += 1) {
+						const { direction, threadColor, threadShape } = freehandChart[i][j];
+						check(direction, validDirectionCheck);
+						check(threadColor, validPaletteIndexCheck);
+						check(threadShape, String); // not bothering to check the value
+					}
+				}
+
 				break;
 
 			default:
 				throw new Meteor.Error('new-pattern-from-datainvalid-data', 'Unable to create new pattern from data because the pattern type is unrecognised');
 		}
 
-		if (error) {
-			throw error;
+		// create a new blank pattern
+		const patternId = Meteor.call('pattern.add', {
+			holes,
+			name,
+			'rows': numberOfRows,
+			'tablets': numberOfTablets,
+			patternType,
+			twillDirection,
+		});
+
+		// set the pattern details
+		const update = {
+			'$set': {
+				description,
+				orientations,
+				palette,
+				patternDesign,
+				threading,
+				weftColor,
+			},
+		};
+
+		if (threadingNotes) {
+			update.$set.threadingNotes = threadingNotes;
 		}
+
+		if (threadingNotes) {
+			update.$set.weavingNotes = weavingNotes;
+		}
+
+		Patterns.update({ '_id': patternId }, update);
+
+		if (tags) {
+			// add each tag
+			tags.forEach((tagName) => {
+				Meteor.call('tags.ensureExistsAndAssignToPattern', {
+					patternId,
+					'name': tagName,
+				});
+			});
+		}
+
+		return patternId;
 	},
 	'pattern.remove': function (_id) {
 		check(_id, nonEmptyStringCheck);

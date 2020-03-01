@@ -106,6 +106,33 @@ Meteor.methods({
 			{ '$push': { 'tags': name } },
 		);
 	},
+	'tags.ensureExistsAndAssignToPattern': function ({
+		name,
+		patternId,
+	}) {
+		check(patternId, nonEmptyStringCheck);
+		check(name, nonEmptyStringCheck);
+
+		// create the tag if it does not already exist
+		const existing = Tags.findOne({ name });
+
+		if (!existing) {
+			Meteor.call('tags.add', {
+				patternId,
+				name,
+			});
+		} else {
+			// check the tag isn't already assigned to the pattern
+			const pattern = Patterns.findOne({ '_id': patternId });
+			const { tags } = pattern;
+			if (tags.indexOf(name) === -1) {
+				Meteor.call('tags.assignToPattern', {
+					patternId,
+					name,
+				});
+			}
+		}
+	},
 	'tags.removeTagFromPattern': function ({
 		patternId,
 		name,

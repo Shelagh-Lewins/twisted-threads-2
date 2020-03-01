@@ -14,7 +14,7 @@ import {
 import {
 	copyPattern,
 	downloadPattern,
-	importFileFromText,
+	importPatternFromText,
 	removePattern,
 } from '../modules/pattern';
 import AppContext from '../modules/appContext';
@@ -69,14 +69,14 @@ class Navbar extends Component {
 	}
 
 	handleSubmitButtonUpload(values) {
-		const { dispatch } = this.props;
+		const { dispatch, history } = this.props;
 		const that = this;
 
 		const reader = new FileReader();
 
 		reader.onload = function fileReadCompleted() {
 			// when the reader is done, the content is in reader.result.
-			dispatch(importFileFromText(reader.result));
+			dispatch(importPatternFromText(reader.result, history));
 			that.handleClickButtonUpload();
 		};
 		reader.readAsText(values.selectFile);
@@ -143,7 +143,7 @@ class Navbar extends Component {
 						<Button
 							type="button"
 							onClick={() => this.handleClickButtonUpload({ '_id': patternId })}
-							title="Download pattern"
+							title="Import pattern from file"
 						>
 							<FontAwesomeIcon icon={['fas', 'file-upload']} style={{ 'color': iconColors.contrast }} size="1x" />
 							<span className="d-inline d-md-none button-text nav-link">Import pattern</span>

@@ -470,7 +470,7 @@ export const downloadPattern = (_id, patternObj) => (dispatch) => {
 	document.body.removeChild(element);
 };
 
-export const importFileFromText = (text) => (dispatch) => {
+export const importPatternFromText = (text, history) => (dispatch) => {
 	dispatch(clearErrors());
 
 	const { isValid, patternObj } = newPatternFromFile(text);
@@ -481,10 +481,12 @@ export const importFileFromText = (text) => (dispatch) => {
 	// send to server
 	Meteor.call('pattern.newPatternFromData', {
 		patternObj,
-	}, (error) => {
+	}, (error, result) => {
 		if (error) {
 			return dispatch(logErrors({ 'add new pattern from data': error.reason }));
 		}
+
+		history.push(`/pattern/${result}`);
 	});
 };
 
