@@ -470,24 +470,28 @@ export const downloadPattern = (_id, patternObj) => (dispatch) => {
 	document.body.removeChild(element);
 };
 
-export const importPatternFromText = (text, history) => (dispatch) => {
+export const importPatternFromText = ({ filename, text, history }) => (dispatch) => {
 	dispatch(clearErrors());
 
-	const { isValid, patternObj } = newPatternFromFile(text);
+	const { isValid, patternObj } = newPatternFromFile({ filename, text });
 
 	console.log('isValid', isValid);
 	console.log('patternObj', patternObj);
 
 	// send to server
-	Meteor.call('pattern.newPatternFromData', {
-		patternObj,
-	}, (error, result) => {
-		if (error) {
-			return dispatch(logErrors({ 'add new pattern from data': error.reason }));
-		}
+	if (isValid) {
+		Meteor.call('pattern.newPatternFromData', {
+			patternObj,
+		}, (error, result) => {
+			if (error) {
+				return dispatch(logErrors({ 'add new pattern from data': error.reason }));
+			}
 
-		history.push(`/pattern/${result}`);
-	});
+			history.push(`/pattern/${result}`);
+		});
+	} else {
+		dispatch(logErrors({ 'add new pattern from data': 'file is not valid. Imported file must be a Twisted Threads or Guntram\'s Tablet Weaving Thingy file.' }));
+	}
 };
 
 // Edit pattern

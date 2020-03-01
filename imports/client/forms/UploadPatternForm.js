@@ -13,11 +13,11 @@ const validate = (values) => {
 	if (!values.selectFile) {
 		errors.selectFile = 'A file must be selected';
 	} else {
-		const { name, size, type } = values.selectFile;
+		// there's no reliable way to check file type
+		// we'll check for valid data later
+		const { name, size } = values.selectFile;
 
-		if (type !== 'text/plain' && type !== '') {
-			errors.selectFile = 'File extension must be .twt, .txt or .gtt';
-		} else if (size > 1000000) {
+		if (size > 1000000) {
 			errors.selectFile = 'File size must be < 1000000';
 		} else if (!name || name === '') {
 			errors.selectFile = 'File must have a name';

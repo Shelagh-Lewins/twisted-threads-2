@@ -76,7 +76,11 @@ class Navbar extends Component {
 
 		reader.onload = function fileReadCompleted() {
 			// when the reader is done, the content is in reader.result.
-			dispatch(importPatternFromText(reader.result, history));
+			dispatch(importPatternFromText({
+				'filename': values.selectFile.name,
+				'text': reader.result,
+				history,
+			}));
 			that.handleClickButtonUpload();
 		};
 		reader.readAsText(values.selectFile);
