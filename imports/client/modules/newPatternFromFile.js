@@ -12,8 +12,8 @@ const convert = require('xml-js');
 
 
 // Try analysing as a TWT pattern
-// this definition form is required to make it a global function that can be called by variable name as a method of the window object
-newPatternFromJSON = function ({ text }) { // eslint-disable-line no-undef
+// this definition form is required to make it a function that can be called by variable name as a method of the Meteor object
+Meteor.newPatternFromJSON = function newPatternFromJSON({ text }) { // eslint-disable-line no-undef
 	let isValid = false;
 	let patternObj = {};
 
@@ -67,8 +67,8 @@ const convertWindowsColorToHexRGB = (windowsColor) => {
 	return `#${hexColor}`;
 };
 
-// this definition form is required to make it a global function that can be called by variable name as a method of the window object
-newPatternFromGTT = function ({ filename, text }) { // eslint-disable-line no-undef
+// this definition form is required to make it a function that can be called by variable name as a method of the Meteor object
+Meteor.newPatternFromGTT = function newPatternFromGTT({ filename, text }) { // eslint-disable-line no-undef
 	// data is an object
 	// created by parsing XML from a GTT file
 	let isValid = true;
@@ -338,10 +338,10 @@ const newPatternFromFile = ({ filename, text }) => {
 		secondFormat = 'newPatternFromJSON';
 	}
 
-	({ isValid, patternObj } = window[firstFormat]({ filename, text }));
+	({ isValid, patternObj } = Meteor[firstFormat]({ filename, text }));
 
 	if (!isValid) {
-		({ isValid, patternObj } = window[secondFormat]({ filename, text }));
+		({ isValid, patternObj } = Meteor[secondFormat]({ filename, text }));
 	}
 
 	return { isValid, patternObj };
