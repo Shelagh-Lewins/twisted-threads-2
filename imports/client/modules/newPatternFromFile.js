@@ -5,7 +5,6 @@
 
 import {
 	DEFAULT_PALETTE,
-	DEFAULT_WEFT_COLOR,
 	PATTERN_AS_TEXT_FIELDS,
 } from '../../modules/parameters';
 
@@ -13,7 +12,8 @@ const convert = require('xml-js');
 
 
 // Try analysing as a TWT pattern
-const newPatternFromJSON = ({ text }) => {
+// this definition form is required to make it a global function that can be called by variable name as a method of the window object
+newPatternFromJSON = function ({ text }) { // eslint-disable-line no-undef
 	let isValid = false;
 	let patternObj = {};
 
@@ -23,11 +23,11 @@ const newPatternFromJSON = ({ text }) => {
 			isValid = true;
 
 			const {
-				fileType,
+				source,
 				version,
 			} = patternObj;
 
-			if (fileType === 'twt' && version === '2.0') {
+			if (source === 'Twisted Threads' && version === '2.0') {
 				// extract the expected pattern fields from data
 				// text file uses displayName
 				// pattern data needs fieldName
@@ -67,7 +67,8 @@ const convertWindowsColorToHexRGB = (windowsColor) => {
 	return `#${hexColor}`;
 };
 
-const newPatternFromGTT = ({ filename, text }) => {
+// this definition form is required to make it a global function that can be called by variable name as a method of the window object
+newPatternFromGTT = function ({ filename, text }) { // eslint-disable-line no-undef
 	// data is an object
 	// created by parsing XML from a GTT file
 	let isValid = true;
@@ -95,7 +96,7 @@ const newPatternFromGTT = ({ filename, text }) => {
 		const {
 			Pattern,
 			Source,
-			Version,
+			// Version,
 		} = TWData;
 
 		// console.log('Version', Version._text);
@@ -322,10 +323,25 @@ const newPatternFromFile = ({ filename, text }) => {
 	let patternObj;
 	let isValid;
 
-	({ isValid, patternObj } = newPatternFromJSON({ text }));
+	// the only sure test for whether the text is JSON or XML is to parse it
+	// however it is wasteful to try to parse it as JSON and on fail, try again as XML
+	// so use the file extension to make a guess which to try first
+
+	// find file extension
+	const filenameArray = filename.split('.');
+	const fileExtension = filenameArray.pop();
+
+	let firstFormat = 'newPatternFromJSON';
+	let secondFormat = 'newPatternFromGTT';
+	if (fileExtension === 'gtt') {
+		firstFormat = 'newPatternFromGTT';
+		secondFormat = 'newPatternFromJSON';
+	}
+
+	({ isValid, patternObj } = window[firstFormat]({ filename, text }));
 
 	if (!isValid) {
-		({ isValid, patternObj } = newPatternFromGTT({ filename, text }));
+		({ isValid, patternObj } = window[secondFormat]({ filename, text }));
 	}
 
 	return { isValid, patternObj };

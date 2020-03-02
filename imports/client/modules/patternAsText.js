@@ -28,10 +28,9 @@ const patternAsText = (_id, patternObj) => {
 		weftColor,
 	} = patternObj;
 
-	// header has no function, it is just to make the file more readable
+	// source is just info to indicate where the file was generated
 	const patternData = {
-		'header': 'A tablet weaving pattern designed in Twisted Threads',
-		'fileType': 'twt',
+		'source': 'Twisted Threads',
 		'version': '2.0',
 		[getDisplayName('name')]: name,
 		[getDisplayName('description')]: description,
