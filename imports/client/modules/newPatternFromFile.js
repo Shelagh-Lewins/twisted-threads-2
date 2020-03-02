@@ -98,36 +98,43 @@ const newPatternFromGTT = ({ filename, text }) => {
 			Version,
 		} = TWData;
 
-		console.log('Version', Version._text);
-		console.log('Pattern', Pattern);
+		// console.log('Version', Version._text);
+		// console.log('Pattern', Pattern);
 
 		if (Source._text !== 'Guntram\'s Tabletweaving Thingy') {
 			isValid = false;
 		} else {
 			const {
 				Cards,
+				Data, // broken twill only
 				Name,
 				Notes,
 				Packs,
+				Palette, // GTT 1.11 does not include Palette data
 				Picks,
-				Palette,
+				Reversals, // GTT 1.11, broken twill only
 			} = Pattern;
 
-			const { Pack } = Packs; // array of packs, may or may not exist
-			const { Pick } = Picks; // array of pick data for threaded, threaded-in patterns
+			let Pack; // array of pack data for threaded patterns using packs
+			let Pick; // array of pick data for threaded patterns
+			const LongFloats = Pattern.LongFloats || {}; // broken twill only, later versions
+
+			// build threading
+			const { Card } = Cards; // array of card data
+			const holes = parseInt(Card[0]._attributes.Holes, 10); // assume all tablets have the same number of holes
+			const numberOfTablets = Card.length;
 
 			let description = 'A pattern imported from Guntram\'s Tablet Weaving Thingy';
-			let holes;
 			let name = filename;
 			let numberOfRows;
-			let numberOfTablets;
 			const orientations = [];
 			const palette = DEFAULT_PALETTE;
 			const patternDesign = {};
 			let patternType;
 			const threading = [];
-
 			const weavingInstructions = []; // for individual patterns
+			const twillPatternChart = []; // for broken twill
+			const twillDirectionChangeChart = []; // for broken twill
 
 			// name
 			if (Name._cdata) {
@@ -146,26 +153,39 @@ const newPatternFromGTT = ({ filename, text }) => {
 			}
 
 			// build the color palette
-			for (let i = 0; i < DEFAULT_PALETTE.length; i += 1) {
-				const GTTColour = Palette.Colour[i];
-				if (GTTColour) {
-					palette[i] = convertWindowsColorToHexRGB(GTTColour._text);
-				}
-			}
 
-			// build threading
-			const { Card } = Cards; // array of card data
-			holes = parseInt(Card[0]._attributes.Holes, 10); // assume all tablets have the same number of holes
-			numberOfTablets = Card.length;
+			// GTT 1.11 does not include Palette data
+			const GTTPalette = Palette ? Palette.Colour.map((colourDef) => colourDef._text)
+				: [
+					0,
+					128,
+					32768,
+					32896,
+					8388608,
+					8388736,
+					8421376,
+					8421504,
+					12632256,
+					255,
+					65280,
+					65535,
+					16711680,
+					16711935,
+					16776960,
+					16777215,
+				];
+			for (let i = 0; i < DEFAULT_PALETTE.length; i += 1) {
+				palette[i] = convertWindowsColorToHexRGB(GTTPalette[i]);
+			}
 
 			for (let i = 0; i < holes; i += 1) {
 				threading[i] = [];
 
 				for (let j = 0; j < numberOfTablets; j += 1) {
-					threading[i][j] = parseInt(Card[j].Holes.Colour[i]._text, 10); // TODO tablet labels are probably the wrong way round, check.
+					threading[i][j] = parseInt(Card[j].Holes.Colour[i]._text, 10);
 
 					if (i === 0) { // only need to do this once per tablet
-						orientations[j] = (Card[j].Threading === 'S') ? '/' : '\\';
+						orientations[j] = (Card[j].Threading._text === 'S') ? '/' : '\\';
 					}
 				}
 			}
@@ -175,6 +195,8 @@ const newPatternFromGTT = ({ filename, text }) => {
 				case 'Threaded': // GTT v1.05
 				case 'Threaded-in': // GTT v1.17
 					patternType = 'individual';
+					({ Pack } = Packs);
+					({ Pick } = Picks);
 					numberOfRows = Pick.length;
 
 					// has this pattern been woven with packs?
@@ -234,6 +256,41 @@ const newPatternFromGTT = ({ filename, text }) => {
 					break;
 
 				case 'BrokenTwill':
+					patternType = 'brokenTwill';
+					const chartLength = Object.keys(Data).length; // eslint-disable-line no-case-declarations
+					numberOfRows = chartLength * 2;
+
+					if (Reversals) { // GTT 1.11
+						// "Reversals" are the old form of LongFloats
+						// in reverse order
+						for (let i = 0; i < chartLength; i += 1) {
+							const identifier = `P${i + 1}`;
+							const reverseIdentifier = `P${chartLength - i}`;
+
+							LongFloats[identifier] = Reversals[reverseIdentifier];
+						}
+					}
+
+					// copy the chart data
+					for (let i = 0; i < chartLength; i += 1) {
+						twillPatternChart[i] = [];
+						twillDirectionChangeChart[i] = [];
+
+						const identifier = `P${i + 1}`;
+						twillPatternChart[i] = Array.from(Data[identifier]._text);
+						twillDirectionChangeChart[i] = Array.from(LongFloats[identifier]._text);
+					}
+
+					// add an extra blank row at the end of each chart
+					// this extra row is not shown in preview or weaving chart but is used to determine the last even row
+					twillPatternChart.push(new Array(numberOfTablets).fill('.'));
+					twillDirectionChangeChart.push(new Array(numberOfTablets).fill('.'));
+
+					// GTT 1.11 does not store twill direction
+					patternDesign.twillDirection = Pattern.BackgroundTwill ? Pattern.BackgroundTwill._text : 'S';
+					patternDesign.weavingStartRow = 1;
+					patternDesign.twillPatternChart = twillPatternChart;
+					patternDesign.twillDirectionChangeChart = twillDirectionChangeChart;
 					break;
 
 				default:
@@ -251,7 +308,7 @@ const newPatternFromGTT = ({ filename, text }) => {
 			patternObj.patternDesign = patternDesign;
 			patternObj.patternType = patternType;
 			patternObj.threading = threading;
-			patternObj.weftColor = DEFAULT_WEFT_COLOR;
+			patternObj.weftColor = 15; // white
 		}
 	} catch (error) {
 		console.log('error', error);
@@ -269,7 +326,6 @@ const newPatternFromFile = ({ filename, text }) => {
 
 	if (!isValid) {
 		({ isValid, patternObj } = newPatternFromGTT({ filename, text }));
-		isValid = false;
 	}
 
 	return { isValid, patternObj };

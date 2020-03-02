@@ -361,6 +361,9 @@ Meteor.methods({
 				// twill chart entries should be . or X
 				for (let i = 0; i < twillPatternChart.length; i += 1) {
 					for (let j = 0; j < numberOfTablets; j += 1) {
+						console.log('i', i);
+						console.log('j', j);
+						console.log('value', twillPatternChart[i][j]);
 						if (['.', 'X'].indexOf(twillPatternChart[i][j]) === -1) {
 							throw new Meteor.Error('new-pattern-from-data-invalid-data', 'Unable to create new pattern from data because the pattern chart contains an invalid value');
 						}
