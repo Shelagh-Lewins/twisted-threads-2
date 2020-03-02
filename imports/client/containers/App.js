@@ -66,6 +66,7 @@ import RecentPatterns from './RecentPatterns';
 import AllPatterns from './AllPatterns';
 import NewPatterns from './NewPatterns';
 import People from './People';
+import About from './About';
 import Pattern from './Pattern';
 import User from './User';
 import InteractiveWeavingChart from './InteractiveWeavingChart';
@@ -113,6 +114,7 @@ const DefaultContainer = () => (
 			<Route exact path="/new-patterns" component={NewPatterns} />
 			<Route exact path="/all-patterns" component={AllPatterns} />
 			<Route exact path="/people" component={People} />
+			<Route exact path="/about" component={About} />
 			<Route exact path="/pattern/:id/:tab(design|info)?" component={Pattern} />
 			<Route exact path="/pattern/:id/weaving" component={InteractiveWeavingChart} />
 			<Route exact path="/user/:id" component={User} />

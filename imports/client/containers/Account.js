@@ -101,16 +101,14 @@ class Account extends Component {
 		}
 
 		let message = null;
-		let onClick = this.onCloseFlashMessage;
+		const onClick = this.onCloseFlashMessage;
 		let type = null;
 
 		if (verificationEmailSent) {
 			message = 'Verification email has been re-sent. If you do not receive the email within a few minutes, please check your Junk or Spam folder.';
-			//onClick = this.onCloseFlashMessage;
 			type = 'success';
 		} else if (emailVerified) {
 			message = FLASH_MESSAGE_TEXTS.emailVerified;
-			//onClick = this.onCloseFlashMessage;
 			type = 'success';
 		}
 
@@ -235,6 +233,7 @@ Account.propTypes = {
 	'emailVerified': PropTypes.bool.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
+	'isAdministrator': PropTypes.bool.isRequired,
 	'isAuthenticated': PropTypes.bool.isRequired,
 	'isVerified': PropTypes.bool.isRequired,
 	'userEmail': PropTypes.string,

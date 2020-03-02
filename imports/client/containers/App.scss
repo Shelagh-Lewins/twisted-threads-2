@@ -58,8 +58,13 @@ h4 {
 select {
 	&:disabled {
 		&.form-control {
-			opacity: 0.8;
+			opacity: .8;
 		}
 	}
+}
+
+.notice {
+	color: $color-hint;
+	font-size: .8rem;
 }
 

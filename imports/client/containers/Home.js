@@ -24,6 +24,7 @@ import Loading from '../components/Loading';
 import MainMenu from '../components/MainMenu';
 import PatternListPreview from '../components/PatternListPreview';
 import UserListPreview from '../components/UserListPreview';
+import DonatePayPal from '../components/DonatePayPal';
 import AddPatternButton from '../components/AddPatternButton';
 
 import { ITEMS_PER_PREVIEW_LIST } from '../../modules/parameters';
@@ -123,11 +124,22 @@ class Home extends Component {
 						{isLoading && <Loading />}
 						<Row>
 							<Col lg="12">
-								<h1>Twisted Threads 2</h1>
-								This is the development version of Twisted Threads 2, the online app for tablet weaving. ALL DATA HERE MAY BE DELETED AT ANY TIME.
+								<p><strong>Welcome to Twisted Threads, the online app for tablet weaving.<br />You can use this site to design, weave and share patterns.</strong><br /></p>
 								{!isAuthenticated && <p>To get started, please <Link to="/login">Login</Link>. If you don&apos;t already have an account, please <Link to="/register">Register</Link>.</p>}
 								{isAuthenticated && !canCreatePattern && !isVerified && <p>To create more patterns, please verify your email address. You can request a new verification email from your <Link to="/account">Account</Link> page</p>}
 								{isAuthenticated && !canCreatePattern && isVerified && <p>To create more patterns, please get in touch with the developer of Twisted Threads via the <a href="https://www.facebook.com/groups/927805953974190/">Twisted Threads Facebook group</a>.</p>}
+							</Col>
+						</Row>
+						<Row>
+							<Col>
+								<p>Twisted Threads is free to use, but creating and maintaining it is a lot of work, and the server costs money. If you&apos;d like to support this site, any donations will be very gratefully received!</p>
+								<DonatePayPal />
+							</Col>
+						</Row>
+						<Row>
+							<Col>
+								<p>Join our <a href="https://www.facebook.com/groups/927805953974190/">Facebook group</a> if you&apos;d like to discuss Twisted Threads with other users, request new features or share feedback with the app developer. <Link to="/about">More information</Link></p>
+								<p className="notice">The copyright of any pattern designed using Twisted Threads rests with the designer of the pattern, not with the creator or owner of the software.</p>
 							</Col>
 						</Row>
 						{canCreatePattern && (

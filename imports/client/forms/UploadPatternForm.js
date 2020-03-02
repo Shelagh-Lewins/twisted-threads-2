@@ -73,7 +73,7 @@ const UploadPatternForm = (props) => {
 						<li>Twisted Threads version 2 (*.twt)</li>
 						<li>Guntram&apos;s Tablet Weaving Thingy (*.gtt)</li>
 					</ul>
-					<p>Currently only packs, individual and 3/1 broken twill GTT files can be imported.</p>
+					<p>At present, the only supported GTT pattern types are Threaded and Broken Twill.</p>
 					<label htmlFor="selectFile">
 						Select a pattern file:
 						<input

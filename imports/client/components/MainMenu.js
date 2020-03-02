@@ -53,6 +53,12 @@ class MainMenu extends Component {
 			'url': '/people',
 			'loginRequired': false,
 		},
+		{
+			'value': 'about',
+			'name': 'About',
+			'url': '/about',
+			'loginRequired': false,
+		},
 	];
 
 	componentDidMount() {
