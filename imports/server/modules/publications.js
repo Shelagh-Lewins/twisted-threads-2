@@ -71,15 +71,13 @@ Meteor.publish('colorBooks', function (userId) {
 	}
 
 	// all color books the user can see
-	if (this.userId) {
-		return ColorBooks.find(
-			getPatternPermissionQuery(),
-			{
-				'fields': ColorBooksFields,
-				'sort': { 'nameSort': 1 },
-			},
-		);
-	}
+	return ColorBooks.find(
+		getPatternPermissionQuery(),
+		{
+			'fields': ColorBooksFields,
+			'sort': { 'nameSort': 1 },
+		},
+	);
 });
 
 // //////////////////////////

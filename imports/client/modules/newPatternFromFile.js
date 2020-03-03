@@ -219,6 +219,7 @@ Meteor.newPatternFromGTT = function newPatternFromGTT({ filename, text }) { // e
 						}
 					}
 
+					// packs may be defined but Picks defined by Card turns
 					const usePacks = Pick[0].Actions.Action[0]._attributes.Target === 'Pack'; // eslint-disable-line no-case-declarations
 
 					if (usePacks) {
@@ -242,7 +243,7 @@ Meteor.newPatternFromGTT = function newPatternFromGTT({ filename, text }) { // e
 								});
 							}
 						}
-					} else { // e.g. simple
+					} else {
 						for (let i = 0; i < numberOfRows; i += 1) {
 							weavingInstructions[i] = new Array(numberOfTablets);
 

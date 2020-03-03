@@ -235,13 +235,13 @@ if (Meteor.isServer) {
 				const testPromise = new Promise((resolve, reject) => {
 					collector.collect('colorBooks',
 						(collections) => {
-							resolve(collections.patterns);
+							resolve(collections.colorBooks);
 						});
 				});
 
 				const result = await testPromise;
 
-				assert.equal(result, undefined);
+				assert.equal(result.length, 0);
 			});
 			it('should publish the document if the user is logged in', async () => {
 				const collector = new PublicationCollector({ 'userId': Meteor.user()._id });
