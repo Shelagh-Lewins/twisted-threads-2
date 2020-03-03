@@ -63,6 +63,11 @@ class About extends Component {
 						</Row>
 						<Row>
 							<Col>
+								<p>Join our <a href="https://www.facebook.com/groups/927805953974190/">Facebook group</a> if you&apos;d like to discuss Twisted Threads with other users, request new features or share feedback with the app developer.</p>
+							</Col>
+						</Row>
+						<Row>
+							<Col>
 								<h2>Creating your own patterns</h2>
 								<p>To create your own patterns in Twisted Threads, first <Link to="/register">register</Link> a free account. You should then see the New Pattern button on the <Link to="/">Home</Link> page which will allow to you create these types of pattern:</p>
 								<ul>
@@ -74,7 +79,7 @@ class About extends Component {
 								<p>Any pattern you create is private by default - only you can see it. If you have verified your email address then you&apos;ll be able to make any of your patterns public. Verifying your email address will also increase the number of patterns and colour books you can create.</p>
 								<p>Twisted Threads patterns use the pattern notation developed in the book <a href="https://www.salakirjat.com/product/159/applesies-and-fox-noses---finnish-tabletwoven-bands" target="_blank" rel="noreferrer noopener">Applesies and Fox Noses - Finnish Tablewoven Bands</a>.</p>
 								<h2>Development</h2>
-								<p>My name is Shelagh Lewins and I began work on Twisted Threads in 2016 because I got fed up with trying to keep track of patterns on bits of paper while I weave - and because I wanted an easier way to design patterns. Unfortunately I&apos;ve had very little time for weaving since I started work on Twisted Threads...oops...</p>
+								<p>My name is Shelagh Lewins and I began developing Twisted Threads in 2016 because I got fed up with trying to keep track of patterns on bits of paper while I weave - and because I wanted an easier way to design patterns.</p>
 								<p>In late 2019 I started work on a complete rewrite of the app with improved pattern design tools and better performance. This current app is the all-new Twisted Threads 2: Revenge of the Warped. Enjoy!</p>
 								<p>Twisted Threads is build using <a href="https://www.meteor.com/" target="_blank" rel="noreferrer noopener">Meteor</a>, an open-source NodeJS framework. The front end is built using <a href="https://reactjs.org/" target="_blank" rel="noreferrer noopener">React</a> and <a href="https://redux.js.org/" target="_blank" rel="noreferrer noopener">Redux</a>.</p>
 								<p className="notice">Twisted Threads may not work correctly in the Safari browser. If you have any problems, please try it in Chrome.</p>
