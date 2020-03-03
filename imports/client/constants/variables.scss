@@ -119,6 +119,11 @@ $color-twill-design-foreground: #666;
 $color-twill-design-direction-change: rgb(249, 140, 3);
 $color-twill-inactive: rgba(0, 0, 0, .2);
 
+$color-donate-border: #fff;
+$color-donate-border-focus: rgb(255, 95, 95);
+$color-donate-patreon: rgb(232, 91, 70);
+$color-donate-patreon-text: #fff;
+
 // this is a hack to extract variable values from scss
 // https://stackoverflow.com/questions/3326494/parsing-css-in-javascript-jquery
 // :export { var: $var } is the right way but I can't get it to work

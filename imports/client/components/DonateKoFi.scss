@@ -1,0 +1,15 @@
+@import "../constants/variables";
+
+.donate-ko-fi {
+	a {
+		border: 2px solid $color-donate-border;
+		border-radius: 50%;
+		float: left;
+		overflow: hidden;
+
+		&:hover,
+		&:focus {
+			border: 2px solid $color-donate-border-focus;
+		}
+	}
+}

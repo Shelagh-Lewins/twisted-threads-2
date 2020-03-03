@@ -1,0 +1,33 @@
+@import "../constants/variables";
+
+.donate-patreon {
+	background-color: $color-donate-patreon;
+	border: 2px solid transparent;
+	border-radius: 9999px;
+	cursor: pointer;
+	padding: 8px 16px;
+
+	.patreon-logo {
+		float: left;
+		height: 1rem;
+		margin-right: 12px;
+		width: 1rem;
+	}
+
+	a {
+		color: $color-donate-patreon-text;
+		text-decoration: none;
+
+		&:active,
+		&:focus,
+		&:hover {
+			color: $color-donate-patreon-text;
+			text-decoration: none;
+		}
+	}
+
+	&:hover,
+	&:focus {
+		border: 2px solid $color-donate-border;
+	}
+}

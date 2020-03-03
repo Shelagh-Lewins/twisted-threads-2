@@ -1,0 +1,18 @@
+@import "../constants/variables";
+
+.donate-paypal {
+	float: left;
+
+	input {
+		&[type="image"] {
+			border: 2px solid transparent;
+			border-radius: 8px;
+			padding: 4px;
+
+			&:hover,
+			&:focus {
+				border: 2px solid $color-donate-border-focus;
+			}
+		}
+	}
+}

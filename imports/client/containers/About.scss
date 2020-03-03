@@ -1,7 +1,10 @@
 @import "../constants/variables";
 
 .about {
-	.donate {
-		margin: 8px 0;
+	.donations {
+		align-items: center;
+		display: flex;
+		justify-content: space-evenly;
+		margin-bottom: 8px;
 	}
 }

@@ -10,6 +10,8 @@ import PropTypes from 'prop-types';
 import PageWrapper from '../components/PageWrapper';
 import MainMenu from '../components/MainMenu';
 import DonatePayPal from '../components/DonatePayPal';
+import DonateKoFi from '../components/DonateKoFi';
+import DonatePatreon from '../components/DonatePatreon';
 import './About.scss';
 
 const bodyClass = 'about';
@@ -53,17 +55,21 @@ class About extends Component {
 								<h2>Published patterns</h2>
 								<p>The <Link to="/">Home</Link> page shows patterns that people have shared. Choose any published pattern to see the threading and weaving charts. Then choose &quot;Interactive weaving chart&quot; to step through the rows one by one as you weave. The Printer-friendly view makes it easier to print a page out for offline reference.</p>
 								<h2>Support Twisted Threads</h2>
-								<p>I want to keep Twisted Threads free to use, but creating and maintaining it is a lot of work, and the server costs money. If you&apos;d like to support this site, any donations will be very gratefully received!</p>
-							</Col>
-						</Row>
-						<Row>
-							<Col className="donate">
-								<DonatePayPal />
+								<p>I want to keep Twisted Threads free to use, but creating and maintaining it is a lot of work, and the server costs money. If you&apos;d like to support this site, any donations will be very gratefully received! You can use Patreon, Ko-fi or PayPal.</p>
 							</Col>
 						</Row>
 						<Row>
 							<Col>
-								<p>Join our <a href="https://www.facebook.com/groups/927805953974190/">Facebook group</a> if you&apos;d like to discuss Twisted Threads with other users, request new features or share feedback with the app developer.</p>
+								<div className="donations">
+									<DonatePatreon />
+									<DonateKoFi />
+									<DonatePayPal />
+								</div>
+							</Col>
+						</Row>
+						<Row>
+							<Col>
+								<p>Join our <a href="https://www.facebook.com/groups/twistedthreadsapp/">Facebook group</a> if you&apos;d like to discuss Twisted Threads with other users, request new features or share feedback with the app developer.</p>
 							</Col>
 						</Row>
 						<Row>
