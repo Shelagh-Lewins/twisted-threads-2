@@ -202,11 +202,11 @@ Meteor.newPatternFromGTT = function newPatternFromGTT({ filename, text }) { // e
 
 					// has this pattern been woven with packs?
 					// e.g. 4 hole leaves
+					const packsObj = {}; // eslint-disable-line no-case-declarations
+
 					if (Pack) {
 						// TWT2 doesn't use packs
 						// so convert to individual turning
-						const packsObj = {};
-
 						// extract the pack definitions
 						for (let i = 0; i < Pack.length; i += 1) {
 							let cardsList = [];
@@ -217,7 +217,11 @@ Meteor.newPatternFromGTT = function newPatternFromGTT({ filename, text }) { // e
 
 							packsObj[Pack[i]._attributes.Name] = cardsList;
 						}
+					}
 
+					const usePacks = Pick[0].Actions.Action[0]._attributes.Target === 'Pack'; // eslint-disable-line no-case-declarations
+
+					if (usePacks) {
 						// turn the packs
 						for (let i = 0; i < numberOfRows; i += 1) {
 							weavingInstructions[i] = [];
@@ -240,12 +244,15 @@ Meteor.newPatternFromGTT = function newPatternFromGTT({ filename, text }) { // e
 						}
 					} else { // e.g. simple
 						for (let i = 0; i < numberOfRows; i += 1) {
-							weavingInstructions[i] = [];
+							weavingInstructions[i] = new Array(numberOfTablets);
 
 							for (let j = 0; j < numberOfTablets; j += 1) {
+								// tablets are not necessarily in order
+								// TargetID gives table number
 								const thisPick = Pick[i].Actions.Action[j]._attributes;
+								const tabletIndex = parseInt(thisPick.TargetID, 10) - 1;
 
-								weavingInstructions[i][j] = {
+								weavingInstructions[i][tabletIndex] = {
 									'direction': thisPick.Dir,
 									'numberOfTurns': parseInt(thisPick.Dist, 10),
 								};
