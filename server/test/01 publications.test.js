@@ -9,29 +9,43 @@ import { resetDatabase } from 'meteor/xolvio:cleaner';
 import { assert } from 'chai';
 import '../../imports/server/modules/publications';
 import { ColorBooks, Patterns } from '../../imports/modules/collection';
-import { stubUser, unwrapUser } from './mockUser';
-import { defaultPatternData } from './testData';
+import { stubNoUser, stubUser, unwrapUser } from './mockUser';
+import { defaultColorBookData, defaultPatternData } from './testData';
 
 // fields that should be published for patterns list
 const patternsFields = [
 	'_id',
 	'createdAt',
 	'createdBy',
+	'description',
 	'holes',
 	'isPublic',
 	'name',
 	'nameSort',
+	'numberOfRows',
+	'numberOfTablets',
 	'patternType',
-	'rows',
-	'tablets',
+	'tags',
+];
+
+// pattern fields that are generated programmatically so cannot be checked from default pattern data
+const excludedPatternFields = [
+	'_id',
+	'createdAt',
+	'createdBy',
 ];
 
 // fields that should be published for individual pattern
 const patternFields = patternsFields.concat([
+	'holeHandedness',
 	'orientations',
 	'palette',
 	'patternDesign',
+	'previewOrientation',
 	'threading',
+	'threadingNotes',
+	'weavingNotes',
+	'weftColor',
 ]);
 
 // it seems not to matter where factories are defined, but keep an eye on this.
@@ -43,9 +57,7 @@ Factory.define('user', Meteor.users, {
 	}],
 });
 
-Factory.define('colorBook', ColorBooks, {
-	'name': 'A color book',
-});
+Factory.define('colorBook', ColorBooks, defaultColorBookData);
 
 Factory.define('pattern', Patterns, defaultPatternData);
 
@@ -65,10 +77,14 @@ if (Meteor.isServer) {
 		});
 		describe('publish patterns', () => {
 			it('should publish nothing if user not logged in', async () => {
+				// make sure publications know there is no user
+				unwrapUser();
+				stubNoUser();
+
 				const collector = new PublicationCollector();
 
 				const testPromise = new Promise((resolve, reject) => {
-					collector.collect('patterns',
+					collector.collect('patterns', {},
 						(collections) => {
 							resolve(collections.patterns);
 						});
@@ -76,13 +92,13 @@ if (Meteor.isServer) {
 
 				const result = await testPromise;
 
-				assert.equal(result, undefined);
+				assert.equal(result.length, 0);
 			});
 			it('should publish 2 documents if the user is logged in', async () => {
 				const collector = new PublicationCollector({ 'userId': Meteor.user()._id });
 
 				const testPromise = new Promise((resolve, reject) => {
-					collector.collect('patterns',
+					collector.collect('patterns', {},
 						(collections) => {
 							resolve(collections.patterns);
 						});
@@ -95,17 +111,17 @@ if (Meteor.isServer) {
 				// check the published pattern
 				const testPattern = result[0];
 
-				// the values are correct
-				assert.equal(testPattern.holes, defaultPatternData.holes);
-				assert.equal(testPattern.isPublic, defaultPatternData.isPublic);
-				assert.equal(testPattern.name, defaultPatternData.name);
-				assert.equal(testPattern.patternType, defaultPatternData.patternType);
-				assert.equal(testPattern.rows, defaultPatternData.rows);
-				assert.equal(testPattern.tablets, defaultPatternData.tablets);
+				assert.equal(testPattern.createdBy, Meteor.user()._id);
 
 				// the required fields are published
 				patternsFields.forEach((fieldName) => {
 					assert.notEqual(testPattern[fieldName], undefined);
+					// don't test the fields that are created programmatically
+					if (excludedPatternFields.indexOf(fieldName) === -1) {
+						// the values are correct
+						// use stringify to compare arrays and objects
+						assert.equal(JSON.stringify(testPattern[fieldName]), JSON.stringify(defaultPatternData[fieldName]));
+					}
 				});
 
 				// no extra fields are published
@@ -114,10 +130,14 @@ if (Meteor.isServer) {
 				});
 			});
 			it('should publish 0 documents if a different user is logged in', async () => {
+				// make sure publications know there is no user
+				unwrapUser();
+				stubNoUser();
+
 				const collector = new PublicationCollector({ 'userId': 'xxx' });
 
 				const testPromise = new Promise((resolve, reject) => {
-					collector.collect('patterns',
+					collector.collect('patterns', {},
 						(collections) => {
 							resolve(collections.patterns.length);
 						});
@@ -130,6 +150,9 @@ if (Meteor.isServer) {
 		});
 		describe('publish single pattern', () => {
 			it('should publish nothing if user not logged in', async () => {
+				unwrapUser();
+				stubNoUser();
+
 				const collector = new PublicationCollector();
 
 				const testPromise = new Promise((resolve, reject) => {
@@ -142,7 +165,7 @@ if (Meteor.isServer) {
 
 				const result = await testPromise;
 
-				assert.equal(result, undefined);
+				assert.equal(result.length, 0);
 			});
 			it('should publish the document if the user is logged in', async () => {
 				const collector = new PublicationCollector({ 'userId': Meteor.user()._id });
@@ -162,17 +185,18 @@ if (Meteor.isServer) {
 				// check the published pattern
 				const testPattern = result[0];
 
-				// the values are correct
-				assert.equal(testPattern.holes, defaultPatternData.holes);
-				assert.equal(testPattern.name, defaultPatternData.name);
-				assert.equal(testPattern.patternDesign, defaultPatternData.patternDesign);
-				assert.equal(testPattern.patternType, defaultPatternData.patternType);
-				assert.equal(testPattern.rows, defaultPatternData.rows);
-				assert.equal(testPattern.tablets, defaultPatternData.tablets);
+				assert.equal(testPattern.createdBy, Meteor.user()._id);
 
 				// the required fields are published
-				patternsFields.forEach((fieldName) => {
+				patternFields.forEach((fieldName) => {
 					assert.notEqual(testPattern[fieldName], undefined);
+					// don't test the fields that are created programmatically
+
+					if (excludedPatternFields.indexOf(fieldName) === -1) {
+						// the values are correct
+						// use stringify to compare arrays and objects
+						assert.equal(JSON.stringify(testPattern[fieldName]), JSON.stringify(defaultPatternData[fieldName]));
+					}
 				});
 
 				// no extra fields are published
@@ -181,7 +205,10 @@ if (Meteor.isServer) {
 				});
 			});
 			it('should publish nothing if a different user is logged in', async () => {
-				const collector = new PublicationCollector({ 'userId': 'xxx' });
+				unwrapUser();
+				stubUser();
+
+				const collector = new PublicationCollector({ 'userId': Meteor.user()._id });
 
 				const testPromise = new Promise((resolve, reject) => {
 					collector.collect('pattern',
@@ -199,6 +226,10 @@ if (Meteor.isServer) {
 		// /////////////////////////
 		describe('publish color books', () => {
 			it('should publish nothing if user not logged in', async () => {
+				// make sure publications know there is no user
+				unwrapUser();
+				stubNoUser();
+
 				const collector = new PublicationCollector();
 
 				const testPromise = new Promise((resolve, reject) => {

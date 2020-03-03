@@ -2,24 +2,33 @@
 // it must be updated to include all pattern fields
 
 export const defaultPatternData = {
-	'createdAt': new Date(),
+	'createdAt': new Date('Tue, 03 Mar 2020 17:58:05 GMT'),
 	'createdBy': 'abc',
+	'description': 'A pattern',
+	'holeHandedness': 'clockwise',
 	'holes': 4,
 	'isPublic': false,
 	'name': 'Pattern 1',
 	'nameSort': 'pattern 1',
+	'numberOfRows': 6,
+	'numberOfTablets': 8,
 	'orientations': ['\\', '\\', '\\', '\\', '\\', '\\', '\\', '\\'],
-	'patternDesign': '', // not a valid value, just here to test publication
+	'palette': ['#fff'],
+	'patternDesign': {},
 	'patternType': 'individual',
-	'rows': 6,
-	'tablets': 8,
+	'previewOrientation': 'up',
+	'tags': [],
+	'threadingNotes': 'Some threading notes',
+	'threading': [[1]],
+	'weavingNotes': 'Some weaving notes',
+	'weftColor': 2,
 };
 
 export const defaultColorBookData = {
 	'_id': 'hGyoeA5tfZ4MuwfLj',
 	'name': 'Another book',
 	'nameSort': 'another book',
-	'createdAt': new Date(),
+	'createdAt': new Date('Tue, 03 Mar 2020 17:58:05 GMT'),
 	'createdBy': 'Mh27efDaNFq7xzPjB',
 	'colors': [
 		'#aa1122',
