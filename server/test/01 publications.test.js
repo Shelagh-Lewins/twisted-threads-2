@@ -68,9 +68,9 @@ if (Meteor.isServer) {
 
 			const currentUser = stubUser();
 
-			this.pattern = Factory.create('pattern', { 'name': 'Pattern 1', 'createdBy': currentUser._id });
-			Factory.create('pattern', { 'name': 'Pattern 2', 'createdBy': currentUser._id });
-			Factory.create('colorBook', { 'name': 'My book', 'createdBy': currentUser._id });
+			this.pattern1 = Factory.create('pattern', { 'name': 'Pattern 1', 'createdBy': currentUser._id });
+			this.pattern2 = Factory.create('pattern', { 'name': 'Pattern 2', 'createdBy': currentUser._id });
+			this.colorBook = Factory.create('colorBook', { 'name': 'My book', 'createdBy': currentUser._id });
 		});
 		afterEach(() => {
 			unwrapUser();
@@ -130,22 +130,22 @@ if (Meteor.isServer) {
 				});
 			});
 			it('should publish 0 documents if a different user is logged in', async () => {
-				// make sure publications know there is no user
+				// log in a different user
 				unwrapUser();
-				stubNoUser();
+				stubUser();
 
-				const collector = new PublicationCollector({ 'userId': 'xxx' });
+				const collector = new PublicationCollector({ 'userId': Meteor.user()._id });
 
 				const testPromise = new Promise((resolve, reject) => {
 					collector.collect('patterns', {},
 						(collections) => {
-							resolve(collections.patterns.length);
+							resolve(collections.patterns);
 						});
 				});
 
 				const result = await testPromise;
 
-				assert.equal(result, 0);
+				assert.equal(result.length, 0);
 			});
 		});
 		describe('publish single pattern', () => {
@@ -157,7 +157,7 @@ if (Meteor.isServer) {
 
 				const testPromise = new Promise((resolve, reject) => {
 					collector.collect('pattern',
-						this.pattern._id,
+						this.pattern1._id,
 						(collections) => {
 							resolve(collections.patterns);
 						});
@@ -172,7 +172,7 @@ if (Meteor.isServer) {
 
 				const testPromise = new Promise((resolve, reject) => {
 					collector.collect('pattern',
-						this.pattern._id,
+						this.pattern1._id,
 						(collections) => {
 							resolve(collections.patterns);
 						});
@@ -212,7 +212,7 @@ if (Meteor.isServer) {
 
 				const testPromise = new Promise((resolve, reject) => {
 					collector.collect('pattern',
-						this.pattern._id,
+						this.pattern1._id,
 						(collections) => {
 							resolve(collections.patterns.length);
 						});
@@ -221,6 +221,73 @@ if (Meteor.isServer) {
 				const result = await testPromise;
 
 				assert.equal(result, 0);
+			});
+		});
+		// /////////////////////////
+		describe('publish patternsById', () => {
+			it('should publish nothing if user not logged in', async () => {
+				// make sure publications know there is no user
+				unwrapUser();
+				stubNoUser();
+
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('patternsById', [this.pattern1._id, this.pattern2._id],
+						(collections) => {
+							resolve(collections.patterns);
+						});
+				});
+
+				const result = await testPromise;
+
+				assert.equal(result.length, 0);
+			});
+			it('should publish 2 documents if the user is logged in', async () => {
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('patternsById', [this.pattern1._id, this.pattern2._id],
+						(collections) => {
+							resolve(collections.patterns);
+						});
+				});
+
+				const result = await testPromise;
+
+				assert.equal(result.length, 2);
+			});
+			it('should publish 0 documents if no valid ids specified', async () => {
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('patternsById', ['xxx'],
+						(collections) => {
+							resolve(collections.patterns);
+						});
+				});
+
+				const result = await testPromise;
+
+				assert.equal(result.length, 0);
+			});
+			it('should publish 0 documents if a different user is logged in', async () => {
+				// log in a different user
+				unwrapUser();
+				stubUser();
+
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('patternsById', [this.pattern1._id, this.pattern2._id],
+						(collections) => {
+							resolve(collections.patterns);
+						});
+				});
+
+				const result = await testPromise;
+
+				assert.equal(result.length, 0);
 			});
 		});
 		// /////////////////////////
@@ -248,7 +315,7 @@ if (Meteor.isServer) {
 
 				const testPromise = new Promise((resolve, reject) => {
 					collector.collect('colorBooks',
-						this.pattern._id,
+						Meteor.user()._id,
 						(collections) => {
 							resolve(collections.colorBooks);
 						});
@@ -262,6 +329,10 @@ if (Meteor.isServer) {
 				// TODO update this when color books can be made private / public
 			});
 			it('should publish 0 documents if a different user is logged in', async () => {
+				// log in a different user
+				unwrapUser();
+				stubUser();
+
 				const collector = new PublicationCollector({ 'userId': 'xxx' });
 
 				const testPromise = new Promise((resolve, reject) => {
@@ -275,6 +346,69 @@ if (Meteor.isServer) {
 
 				assert.equal(result, 0);
 			});
+			it('should publish public documents if user not logged in', async () => {
+				// make sure publications know there is no user
+				unwrapUser();
+				stubNoUser();
+
+				ColorBooks.update(
+					{ '_id': this.colorBook._id },
+					{ '$set': { 'isPublic': true } },
+				);
+
+				ColorBooks.findOne({ '_id': this.colorBook._id });
+
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('colorBooks',
+						(collections) => {
+							resolve(collections.colorBooks);
+						});
+				});
+
+				const result = await testPromise;
+
+				assert.equal(result.length, 1);
+			});
+			it('should publish public documents if a different user is logged in', async () => {
+				// make sure publications know there is no user
+				unwrapUser();
+				stubUser();
+
+				ColorBooks.update(
+					{ '_id': this.colorBook._id },
+					{ '$set': { 'isPublic': true } },
+				);
+
+				ColorBooks.findOne({ '_id': this.colorBook._id });
+
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('colorBooks',
+						(collections) => {
+							resolve(collections.colorBooks);
+						});
+				});
+
+				const result = await testPromise;
+
+				assert.equal(result.length, 1);
+			});
 		});
 	});
 }
+
+// TODO
+// allPatternsPreview
+// myPatterns
+// myPatternsPreview
+// newPatterns
+// newPatternsPreview
+// userPatterns
+// patternPreviews
+// users
+// allUsersPreview
+// patternImages
+// in methods, users for pagination
