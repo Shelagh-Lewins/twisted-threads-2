@@ -98,12 +98,12 @@ class Palette extends PureComponent {
 				this.setState({
 					'showEditColorPanel': true,
 				});
-			} else if (colorIndex === selectedColorIndex) {
+			} /* else if (colorIndex === selectedColorIndex) {
 				// close edit color panel if you click the same color again, otherwise just switch to the new color
 				this.setState({
 					//'showEditColorPanel': false,
 				});
-			}
+			} */
 		}
 
 		selectColor(colorIndex);
@@ -333,7 +333,12 @@ class Palette extends PureComponent {
 
 	render() {
 		const { elementId } = this.props;
-		const { isEditing, showEditColorPanel } = this.state;
+		const { editMode, isEditing, showEditColorPanel } = this.state;
+		let showControls = true;
+
+		if (showEditColorPanel && editMode === 'colorBooks') { // panel is tidier if user doesn't see color books and controls at once
+			showControls = false;
+		}
 
 		const controls = (
 			<div className="controls">
@@ -349,7 +354,7 @@ class Palette extends PureComponent {
 		return (
 			<div id={elementId} className={`palette ${isEditing ? 'editing' : ''}`}>
 				{showEditColorPanel && this.renderEditColorPanel()}
-				{controls}
+				{showControls && controls}
 				<div className="swatches">
 					{this.renderEmptyHole()}
 					{this.renderColors()}
