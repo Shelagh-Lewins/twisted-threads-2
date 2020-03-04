@@ -4,7 +4,7 @@ import './DonateKoFi.scss';
 function DonateKoFi() {
 	return (
 		<div className="donate-ko-fi">
-			<a href="https://ko-fi.com/twistedthreads">
+			<a href="https://ko-fi.com/twistedthreads" target="_blank" rel="noreferrer noopener">
 				<img src="/images/ko-fi.png" alt="ko-fi logo" title="Support Twisted Threads on Ko-fi" width="90" height="90" />
 			</a>
 		</div>

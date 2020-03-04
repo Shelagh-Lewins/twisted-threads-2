@@ -69,7 +69,7 @@ class About extends Component {
 						</Row>
 						<Row>
 							<Col>
-								<p>Join our <a href="https://www.facebook.com/groups/twistedthreadsapp/">Facebook group</a> if you&apos;d like to discuss Twisted Threads with other users, request new features or share feedback with the app developer.</p>
+								<p>Join our <a href="https://www.facebook.com/groups/twistedthreadsapp/" target="_blank" rel="noreferrer noopener">Facebook group</a> if you&apos;d like to discuss Twisted Threads with other users, request new features or share feedback with the app developer.</p>
 							</Col>
 						</Row>
 						<Row>
