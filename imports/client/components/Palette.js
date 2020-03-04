@@ -92,6 +92,7 @@ class Palette extends PureComponent {
 		const { isEditing, selectedColorIndex, showEditColorPanel } = this.state;
 
 		if (isEditing) {
+			console.log('click while editing');
 			if (!showEditColorPanel) {
 				// open edit color panel
 				this.setState({
@@ -100,7 +101,7 @@ class Palette extends PureComponent {
 			} else if (colorIndex === selectedColorIndex) {
 				// close edit color panel if you click the same color again, otherwise just switch to the new color
 				this.setState({
-					'showEditColorPanel': false,
+					//'showEditColorPanel': false,
 				});
 			}
 		}
@@ -274,7 +275,7 @@ class Palette extends PureComponent {
 			);
 		}
 		return (
-			ReactDOM.createPortal(
+			//ReactDOM.createPortal(
 				<ColorBooks
 					canCreateColorBook={canCreateColorBook}
 					canEdit={true /* palette is only shown if user can edit */}
@@ -283,9 +284,9 @@ class Palette extends PureComponent {
 					dispatch={dispatch}
 					onSelectColor={this.handleEditColor}
 					cancelColorChange={this.cancelColorChange}
-				/>,
-				this.el,
-			)
+				/>
+				//this.el,
+			//)
 		);
 	}
 

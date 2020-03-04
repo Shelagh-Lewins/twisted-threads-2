@@ -29,6 +29,7 @@
 		clear: both;
 		display: flex;
 		flex-wrap: wrap;
+		margin-bottom: -8px;
 		margin-right: -8px;
 	}
 
@@ -36,6 +37,7 @@
 		border: 1px solid $color-panel-border;
 		display: inline-block;
 		height: 32px;
+		margin-bottom: 8px;
 		margin-right: 8px;
 		width: 32px;
 

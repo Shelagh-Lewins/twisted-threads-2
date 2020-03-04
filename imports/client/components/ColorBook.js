@@ -239,7 +239,7 @@ class ColorBook extends PureComponent {
 			? (
 				<>
 					<div className="buttons">
-						<Button color="secondary" onClick={this.handleClickDone}>Done</Button>
+						<Button color="primary" onClick={this.handleClickDone}>Done</Button>
 					</div>
 					<p className="hint">To open the colour picker, select a colour</p>
 				</>
