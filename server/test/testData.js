@@ -58,3 +58,8 @@ export const defaultColorBookData = {
 	],
 	'isPublic': false,
 };
+
+export const defaultPatternPreviewData = {
+	'patternId': 'xxx',
+	'uri': 'abc',
+};

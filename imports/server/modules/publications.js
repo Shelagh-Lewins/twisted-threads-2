@@ -324,6 +324,7 @@ Meteor.publish('userPatterns', function ({
 Meteor.publish('patternPreviews', function ({ patternIds }) {
 	// we previously explicitly returned nothing when user was not logged in
 	// this is so we can test behaviour when user is not logged in: PublicationCollector passes in undefined userId, and find() is inconsistent between Meteor and MongoDB on undefined
+	check(patternIds, [String]);
 
 	if (patternIds.length === 0) {
 		this.ready();

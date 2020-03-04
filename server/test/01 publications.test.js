@@ -8,10 +8,25 @@ import { PublicationCollector } from 'meteor/johanbrook:publication-collector';
 import { resetDatabase } from 'meteor/xolvio:cleaner';
 import { assert } from 'chai';
 import '../../imports/server/modules/publications';
-import { ColorBooks, Patterns } from '../../imports/modules/collection';
-import { ITEMS_PER_PREVIEW_LIST } from '../../imports/modules/parameters';
-import { stubNoUser, stubUser, unwrapUser } from './mockUser';
-import { defaultColorBookData, defaultPatternData } from './testData';
+import {
+	ColorBooks,
+	Patterns,
+	PatternPreviews,
+} from '../../imports/modules/collection';
+import { ITEMS_PER_PAGE, ITEMS_PER_PREVIEW_LIST } from '../../imports/modules/parameters';
+import {
+	logOutButLeaveUser,
+	stubNoUser,
+	stubOtherUser,
+	stubUser,
+	unwrapUser,
+} from './mockUser';
+import {
+	defaultColorBookData,
+	defaultPatternData,
+	defaultPatternPreviewData,
+} from './testData';
+
 
 // fields that should be published for patterns list
 const patternsFields = [
@@ -56,11 +71,15 @@ Factory.define('user', Meteor.users, {
 		'address': 'jennifer@here.com',
 		'verified': true,
 	}],
+	'publicPatternsCount': 0,
+	'publicColorBooksCount': 0,
 });
 
 Factory.define('colorBook', ColorBooks, defaultColorBookData);
 
 Factory.define('pattern', Patterns, defaultPatternData);
+
+Factory.define('patternPreview', PatternPreviews, defaultPatternPreviewData);
 
 let publicMyPatternNames;
 let privateMyPatternNames;
@@ -131,10 +150,22 @@ const createManyPatterns = () => {
 			'isPublic': false,
 		});
 	}
+
+	// make sure all patterns have different createdAt dates
+	const now = new Date();
+	let count = 0;
+
+	Patterns.find().fetch().forEach((pattern) => {
+		const newDate = pattern.createdAt.setSeconds(now.getSeconds() + (10 * count));
+		Patterns.update({ '_id': pattern._id },
+			{ '$set': { 'createdAt': newDate } });
+		count += 1;
+	});
 };
 
 if (Meteor.isServer) {
-	describe('test publications', () => {
+	describe('test publications', function () { // eslint-disable-line func-names
+		this.timeout(5000);
 		beforeEach(() => {
 			resetDatabase();
 
@@ -143,6 +174,9 @@ if (Meteor.isServer) {
 			this.pattern1 = Factory.create('pattern', { 'name': 'Pattern 1', 'createdBy': currentUser._id });
 			this.pattern2 = Factory.create('pattern', { 'name': 'Pattern 2', 'createdBy': currentUser._id });
 			this.colorBook = Factory.create('colorBook', { 'name': 'My book', 'createdBy': currentUser._id });
+
+			Factory.create('patternPreview', { 'patternId': this.pattern1._id });
+			Factory.create('patternPreview', { 'patternId': this.pattern2._id });
 		});
 		afterEach(() => {
 			unwrapUser();
@@ -667,6 +701,273 @@ if (Meteor.isServer) {
 			});
 		});
 		// /////////////////////////
+		describe('publish newPatterns', () => {
+			it('should publish only public patterns if user not logged in', async () => {
+				createManyPatterns();
+
+				// make sure publications know there is no user
+				unwrapUser();
+				stubNoUser();
+
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('newPatterns', {},
+						(collections) => {
+							resolve(collections.patterns);
+						});
+				});
+
+				const allPatterns = publicMyPatternNames.concat(publicOtherPatternNames);
+
+				const allPatternsObjs = Patterns.find(
+					{ 'name': { '$in': allPatterns } },
+					{
+						'sort': { 'createdAt': -1 },
+						'fields': { 'nameSort': 1, 'createdAt': 1 },
+					},
+				).fetch();
+				const expectedNames = allPatternsObjs.map((pattern) => pattern.nameSort).slice(0, ITEMS_PER_PAGE);
+
+				const result = await testPromise;
+
+				// these should be the first patterns by createdAt
+				result.forEach((pattern) => {
+					assert.notEqual(expectedNames.indexOf(pattern.nameSort), -1);
+				});
+
+				assert.equal(result.length, ITEMS_PER_PAGE);
+			});
+			it('should publish public and user\'s own patterns if user is logged in', async () => {
+				createManyPatterns();
+
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('newPatterns', {},
+						(collections) => {
+							resolve(collections.patterns);
+						});
+				});
+
+				const allPatterns = publicMyPatternNames.concat(publicOtherPatternNames).concat(privateMyPatternNames);
+
+				const allPatternsObjs = Patterns.find(
+					{ 'name': { '$in': allPatterns } },
+					{
+						'sort': { 'createdAt': -1 },
+						'fields': { 'nameSort': 1, 'createdAt': 1 },
+					},
+				).fetch();
+				const expectedNames = allPatternsObjs.map((pattern) => pattern.nameSort).slice(0, ITEMS_PER_PAGE);
+
+				const result = await testPromise;
+
+				// these should be the first patterns by createdAt
+				result.forEach((pattern) => {
+					assert.notEqual(expectedNames.indexOf(pattern.nameSort), -1);
+				});
+
+				assert.equal(result.length, ITEMS_PER_PAGE);
+			});
+			it('should publish only public patterns if a different user is logged in', async () => {
+				createManyPatterns();
+
+				// make sure publications know there is no user
+				unwrapUser();
+				stubUser();
+
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('newPatterns', {},
+						(collections) => {
+							resolve(collections.patterns);
+						});
+				});
+
+				const allPatterns = publicMyPatternNames.concat(publicOtherPatternNames);
+
+				const allPatternsObjs = Patterns.find(
+					{ 'name': { '$in': allPatterns } },
+					{
+						'sort': { 'createdAt': -1 },
+						'fields': { 'nameSort': 1, 'createdAt': 1 },
+					},
+				).fetch();
+				const expectedNames = allPatternsObjs.map((pattern) => pattern.nameSort).slice(0, ITEMS_PER_PAGE);
+
+				const result = await testPromise;
+
+				// these should be the first patterns by createdAt
+				result.forEach((pattern) => {
+					assert.notEqual(expectedNames.indexOf(pattern.nameSort), -1);
+				});
+
+				assert.equal(result.length, ITEMS_PER_PAGE);
+			});
+		});
+		// /////////////////////////
+		describe('publish newPatternsPreview', () => {
+			it('should publish only public patterns if user not logged in', async () => {
+				createManyPatterns();
+
+				// make sure publications know there is no user
+				unwrapUser();
+				stubNoUser();
+
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('newPatternsPreview', {},
+						(collections) => {
+							resolve(collections.patterns);
+						});
+				});
+
+				const allPatterns = publicMyPatternNames.concat(publicOtherPatternNames);
+
+				const allPatternsObjs = Patterns.find(
+					{ 'name': { '$in': allPatterns } },
+					{
+						'sort': { 'createdAt': -1 },
+						'fields': { 'nameSort': 1, 'createdAt': 1 },
+					},
+				).fetch();
+				const expectedNames = allPatternsObjs.map((pattern) => pattern.nameSort).slice(0, ITEMS_PER_PREVIEW_LIST);
+
+				const result = await testPromise;
+
+				// these should be the first patterns by createdAt
+				result.forEach((pattern) => {
+					assert.notEqual(expectedNames.indexOf(pattern.nameSort), -1);
+				});
+
+				assert.equal(result.length, ITEMS_PER_PREVIEW_LIST);
+			});
+			it('should publish public and user\'s own patterns if user is logged in', async () => {
+				createManyPatterns();
+
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('newPatternsPreview', {},
+						(collections) => {
+							resolve(collections.patterns);
+						});
+				});
+
+				const allPatterns = publicMyPatternNames.concat(publicOtherPatternNames).concat(privateMyPatternNames);
+
+				const allPatternsObjs = Patterns.find(
+					{ 'name': { '$in': allPatterns } },
+					{
+						'sort': { 'createdAt': -1 },
+						'fields': { 'nameSort': 1, 'createdAt': 1 },
+					},
+				).fetch();
+				const expectedNames = allPatternsObjs.map((pattern) => pattern.nameSort).slice(0, ITEMS_PER_PREVIEW_LIST);
+
+				const result = await testPromise;
+
+				// these should be the first patterns by createdAt
+				result.forEach((pattern) => {
+					assert.notEqual(expectedNames.indexOf(pattern.nameSort), -1);
+				});
+
+				assert.equal(result.length, ITEMS_PER_PREVIEW_LIST);
+			});
+			it('should publish only public patterns if a different user is logged in', async () => {
+				createManyPatterns();
+
+				// make sure publications know there is no user
+				unwrapUser();
+				stubUser();
+
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('newPatternsPreview', {},
+						(collections) => {
+							resolve(collections.patterns);
+						});
+				});
+
+				const allPatterns = publicMyPatternNames.concat(publicOtherPatternNames);
+
+				const allPatternsObjs = Patterns.find(
+					{ 'name': { '$in': allPatterns } },
+					{
+						'sort': { 'createdAt': -1 },
+						'fields': { 'nameSort': 1, 'createdAt': 1 },
+					},
+				).fetch();
+				const expectedNames = allPatternsObjs.map((pattern) => pattern.nameSort).slice(0, ITEMS_PER_PREVIEW_LIST);
+
+				const result = await testPromise;
+
+				// these should be the first patterns by createdAt
+				result.forEach((pattern) => {
+					assert.notEqual(expectedNames.indexOf(pattern.nameSort), -1);
+				});
+
+				assert.equal(result.length, ITEMS_PER_PREVIEW_LIST);
+			});
+		});
+		// /////////////////////////
+		describe('publish userPatterns', () => {
+			it('should publish all the user\'s patterns if the user is logged in', async () => {
+				createManyPatterns();
+
+				const collector = new PublicationCollector({ 'userId': Meteor.user()._id });
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('userPatterns', { 'userId': Meteor.userId() },
+						(collections) => {
+							resolve(collections.patterns);
+						});
+				});
+
+				const allPatterns = publicMyPatternNames.concat(privateMyPatternNames);
+				const expectedNames = allPatterns.sort().slice(0, ITEMS_PER_PREVIEW_LIST);
+				const result = await testPromise;
+
+				// these should be the first patterns alphabetically
+				result.forEach((pattern) => {
+					assert.notEqual(expectedNames.indexOf(pattern.nameSort), -1);
+				});
+
+				assert.equal(result.length, ITEMS_PER_PAGE);
+			});
+			it('should publish only public patterns if the user is not logged in', async () => {
+				createManyPatterns();
+				const userId = Meteor.userId();
+
+				// make sure publications know there is no user
+				unwrapUser();
+				stubNoUser();
+
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('userPatterns', { userId },
+						(collections) => {
+							resolve(collections.patterns);
+						});
+				});
+
+				const expectedNames = publicMyPatternNames.sort().slice(0, ITEMS_PER_PREVIEW_LIST);
+				const result = await testPromise;
+
+				// these should be the first patterns alphabetically
+				result.forEach((pattern) => {
+					assert.notEqual(expectedNames.indexOf(pattern.nameSort), -1);
+				});
+
+				assert.equal(result.length, ITEMS_PER_PAGE);
+			});
+		});
+		// /////////////////////////
 		describe('publish color books', () => {
 			it('should publish nothing if user not logged in', async () => {
 				// make sure publications know there is no user
@@ -773,15 +1074,158 @@ if (Meteor.isServer) {
 				assert.equal(result.length, 1);
 			});
 		});
+		// /////////////////////////
+		describe('publish pattern previews', () => {
+			it('should publish nothing if user not logged in', async () => {
+				// make sure publications know there is no user
+				unwrapUser();
+				stubNoUser();
+
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('patternPreviews', { 'patternIds': [this.pattern1._id] },
+						(collections) => {
+							resolve(collections.patternPreviews);
+						});
+				});
+
+				const result = await testPromise;
+
+				assert.equal(result.length, 0);
+			});
+			it('should publish preview for public pattern if user not logged in', async () => {
+				// make sure publications know there is no user
+				unwrapUser();
+				stubNoUser();
+
+				Patterns.update(
+					{ '_id': this.pattern1._id },
+					{ '$set': { 'isPublic': true } },
+				);
+
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('patternPreviews', { 'patternIds': [this.pattern1._id] },
+						(collections) => {
+							resolve(collections.patternPreviews);
+						});
+				});
+
+				const result = await testPromise;
+
+				assert.equal(result.length, 1);
+				assert.equal(result[0].patternId, this.pattern1._id);
+			});
+			it('should publish preview if user is logged in', async () => {
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('patternPreviews', { 'patternIds': [this.pattern1._id, this.pattern2._id] },
+						(collections) => {
+							resolve(collections.patternPreviews);
+						});
+				});
+
+				const result = await testPromise;
+
+				assert.equal(result.length, 2);
+			});
+		});
+		// /////////////////////////
+		describe('publish users', () => {
+			it('should publish nothing if user not logged in', async () => {
+				const userId = Meteor.userId();
+
+				// make sure publications know there is no user
+				logOutButLeaveUser();
+
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('users', [userId],
+						(collections) => {
+							resolve(collections.users);
+						});
+				});
+
+				const result = await testPromise;
+
+				assert.equal(result.length, 0);
+			});
+			it('should publish user if user not logged in and user has a public pattern', async () => {
+				const userId = Meteor.userId();
+
+				// make sure publications know there is no user
+				logOutButLeaveUser();
+
+				Meteor.users.update(
+					{ '_id': userId },
+					{ '$set': { 'publicPatternsCount': 1 } },
+				);
+
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('users', [userId],
+						(collections) => {
+							resolve(collections.users);
+						});
+				});
+
+				const result = await testPromise;
+
+				assert.equal(result.length, 1);
+			});
+			it('should publish user if user not logged in and user has a public color book', async () => {
+				const userId = Meteor.userId();
+
+				// make sure publications know there is no user
+				logOutButLeaveUser();
+
+				Meteor.users.update(
+					{ '_id': userId },
+					{ '$set': { 'publicColorBooksCount': 1 } },
+				);
+
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('users', [userId],
+						(collections) => {
+							resolve(collections.users);
+						});
+				});
+
+				const result = await testPromise;
+
+				assert.equal(result.length, 1);
+			});
+			it('should publish nothing if other user logged in and user has no public patterns', async () => {
+				const userId = Meteor.userId();
+
+				// log in other user
+				stubOtherUser();
+
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('users', [userId],
+						(collections) => {
+							resolve(collections.users);
+						});
+				});
+
+				const result = await testPromise;
+
+				assert.equal(result.length, 0);
+			});
+		});
 	});
 }
 
 // TODO
-// newPatterns
-// newPatternsPreview
-// userPatterns
-// patternPreviews
-// users
 // allUsersPreview
 // patternImages
 // in methods, users for pagination
