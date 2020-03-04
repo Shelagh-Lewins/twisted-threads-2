@@ -4,7 +4,7 @@
 export const defaultPatternData = {
 	'createdAt': new Date('Tue, 03 Mar 2020 17:58:05 GMT'),
 	'createdBy': 'abc',
-	'description': 'A pattern',
+	'description': 'Description of a pattern',
 	'holeHandedness': 'clockwise',
 	'holes': 4,
 	'isPublic': false,
