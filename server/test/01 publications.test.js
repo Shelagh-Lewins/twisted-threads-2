@@ -1135,7 +1135,7 @@ if (Meteor.isServer) {
 		});
 		// /////////////////////////
 		describe('publish users', () => {
-			it('should publish nothing if user not logged in', async () => {
+			it('should publish nothing if user not logged in and no public patterns', async () => {
 				const userId = Meteor.userId();
 
 				// make sure publications know there is no user
