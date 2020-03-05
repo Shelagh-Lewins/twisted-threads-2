@@ -15,6 +15,7 @@ import {
 } from '../../imports/modules/collection';
 import { ITEMS_PER_PAGE, ITEMS_PER_PREVIEW_LIST } from '../../imports/modules/parameters';
 import {
+	createManyUsers,
 	logOutButLeaveUser,
 	stubNoUser,
 	stubOtherUser,
@@ -26,7 +27,6 @@ import {
 	defaultPatternData,
 	defaultPatternPreviewData,
 } from './testData';
-
 
 // fields that should be published for patterns list
 const patternsFields = [
@@ -162,6 +162,8 @@ const createManyPatterns = () => {
 		count += 1;
 	});
 };
+
+
 
 if (Meteor.isServer) {
 	describe('test publications', function () { // eslint-disable-line func-names
@@ -770,6 +772,38 @@ if (Meteor.isServer) {
 
 				assert.equal(result.length, ITEMS_PER_PAGE);
 			});
+			it('should respect skip', async () => {
+				createManyPatterns();
+
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('newPatterns', { 'skip': ITEMS_PER_PAGE },
+						(collections) => {
+							resolve(collections.patterns);
+						});
+				});
+
+				const allPatterns = publicMyPatternNames.concat(publicOtherPatternNames).concat(privateMyPatternNames);
+
+				const allPatternsObjs = Patterns.find(
+					{ 'name': { '$in': allPatterns } },
+					{
+						'sort': { 'createdAt': -1 },
+						'fields': { 'nameSort': 1, 'createdAt': 1 },
+					},
+				).fetch();
+				const expectedNames = allPatternsObjs.map((pattern) => pattern.nameSort).slice(ITEMS_PER_PAGE, ITEMS_PER_PAGE * 2);
+
+				const result = await testPromise;
+
+				// these should be the first patterns by createdAt
+				result.forEach((pattern) => {
+					assert.notEqual(expectedNames.indexOf(pattern.nameSort), -1);
+				});
+
+				assert.equal(result.length, ITEMS_PER_PAGE);
+			});
 			it('should publish only public patterns if a different user is logged in', async () => {
 				createManyPatterns();
 
@@ -1220,6 +1254,66 @@ if (Meteor.isServer) {
 				const result = await testPromise;
 
 				assert.equal(result.length, 0);
+			});
+		});
+		// /////////////////////////
+		describe('publish allUsersPreview', () => {
+			it('should publish users with public patterns if user not logged in', async () => {
+				const {
+					publicPatternUserIds,
+					privatePatternUserIds,
+					numberOfUsersWithPublicPatterns,
+					numberOfUsersWithPrivatePatterns,
+					publicPatternUsernames,
+				} = createManyUsers();
+
+				// make sure publications know there is no user
+				logOutButLeaveUser();
+
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('allUsersPreview',
+						(collections) => {
+							resolve(collections.users);
+						});
+				});
+				const expectedUsernames = publicPatternUsernames.sort().slice(0, ITEMS_PER_PREVIEW_LIST);
+				const result = await testPromise;
+
+				// these should be the first usernames alphabetically
+				result.forEach((user) => {
+					assert.notEqual(expectedUsernames.indexOf(user.username), -1);
+				});
+
+				assert.equal(result.length, ITEMS_PER_PREVIEW_LIST);
+			});
+			it('should publish users with public patterns if user is logged in', async () => {
+				const {
+					publicPatternUserIds,
+					privatePatternUserIds,
+					numberOfUsersWithPublicPatterns,
+					numberOfUsersWithPrivatePatterns,
+					publicPatternUsernames,
+				} = createManyUsers();
+
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('allUsersPreview',
+						(collections) => {
+							resolve(collections.users);
+						});
+				});
+				const expectedUsernames = publicPatternUsernames.sort().slice(0, ITEMS_PER_PREVIEW_LIST);
+				const result = await testPromise;
+
+				// these should be the first usernames alphabetically
+				result.forEach((user) => {
+					assert.notEqual(expectedUsernames.indexOf(user.username), -1);
+				});
+
+				assert.equal(result.length, ITEMS_PER_PREVIEW_LIST);
 			});
 		});
 	});

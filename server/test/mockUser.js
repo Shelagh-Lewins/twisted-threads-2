@@ -63,3 +63,61 @@ export function stubOtherUser() {
 
 	return currentUser;
 }
+
+// ////////////////////////
+// lots of users
+export function createManyUsers() {
+	const numberOfUsersWithPublicPatterns = 23;
+	const numberOfUsersWithPrivatePatterns = 13;
+
+	const publicPatternUserIds = [];
+	const privatePatternUserIds = [];
+
+	const publicPatternUsernames = [];
+	const privatePatternUsernames = [];
+
+	Meteor.users.remove({});
+
+	for (let i = 0; i < numberOfUsersWithPublicPatterns; i += 1) {
+		const username = `username_${i}_public`;
+		const user = Factory.create('user', {
+			'username': username,
+			'nameSort': username,
+			'emails': [{
+				'address': `${username}@here.com`,
+				'verified': true,
+			}],
+			'publicPatternsCount': i + 1,
+			'publicColorBooksCount': 0,
+		});
+
+		publicPatternUserIds.push(user._id);
+		publicPatternUsernames.push(user.username);
+	}
+
+	for (let i = 0; i < numberOfUsersWithPrivatePatterns; i += 1) {
+		const username = `username_${i}_private`;
+		const user = Factory.create('user', {
+			'username': username,
+			'nameSort': username,
+			'emails': [{
+				'address': `${username}@here.com`,
+				'verified': true,
+			}],
+			'publicPatternsCount': 0,
+			'publicColorBooksCount': 0,
+		});
+
+		privatePatternUserIds.push(user._id);
+		privatePatternUsernames.push(user.username);
+	}
+
+	return {
+		publicPatternUserIds,
+		privatePatternUserIds,
+		publicPatternUsernames,
+		privatePatternUsernames,
+		numberOfUsersWithPublicPatterns,
+		numberOfUsersWithPrivatePatterns,
+	};
+}
