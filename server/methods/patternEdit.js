@@ -3,6 +3,7 @@
 import { check } from 'meteor/check';
 import {
 	nonEmptyStringCheck,
+	positiveIntegerCheck,
 	updatePublicPatternsCount,
 	validRowsCheck,
 	validPaletteIndexCheck,
@@ -517,6 +518,7 @@ Meteor.methods({
 
 				// update the value in the nested arrays
 				holesToSet.forEach((holeIndex) => {
+					check(holeIndex, positiveIntegerCheck);
 					Patterns.update({ _id }, { '$set': { [`threading.${holeIndex}.${tablet}`]: colorIndex } });
 				});
 
@@ -905,7 +907,7 @@ Meteor.methods({
 				return Patterns.update({ _id }, { '$set': update });
 
 			default:
-				break;
+				throw new Meteor.Error('edit-pattern-unknown-type', 'Unable to edit pattern because the type was unknown');
 		}
 	},
 });

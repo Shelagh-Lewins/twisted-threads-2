@@ -184,9 +184,9 @@ Meteor.methods({
 		}
 
 		// user to add exists
-		const userToAdd = Meteor.users.findOne({ _id });
+		const userToRemove = Meteor.users.findOne({ _id });
 
-		if (!userToAdd) {
+		if (!userToRemove) {
 			throw new Meteor.Error('remove-user-from-role-user-not-found', 'Unable to remove user from role because the user to remove was not found');
 		}
 
@@ -199,9 +199,9 @@ Meteor.methods({
 		}
 
 		// user is in role
-		const userToAddRoles = Roles.getRolesForUser(_id);
+		const userToRemoveRoles = Roles.getRolesForUser(_id);
 
-		if (userToAddRoles.indexOf(role) === -1) {
+		if (userToRemoveRoles.indexOf(role) === -1) {
 			throw new Meteor.Error('remove-user-from-role-not-in-role', 'Unable to remove user from role because the user is not in the role');
 		}
 

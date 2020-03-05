@@ -170,7 +170,7 @@ const createManyPatterns = () => {
 
 if (Meteor.isServer) {
 	describe('test publications', function () { // eslint-disable-line func-names
-		this.timeout(5000);
+		this.timeout(15000);
 		beforeEach(() => {
 			resetDatabase();
 

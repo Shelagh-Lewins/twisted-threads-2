@@ -7,7 +7,7 @@ import '../methods/auth';
 import { stubUser, unwrapUser } from './mockUser';
 
 if (Meteor.isServer) {
-	describe('test methods', () => {
+	describe('test auth methods', () => {
 		beforeEach(() => {
 			resetDatabase();
 		});
@@ -22,7 +22,8 @@ if (Meteor.isServer) {
 		it('throws an error if the users email address is verified', () => {
 			const currentUser = stubUser();
 
-			Meteor.users.update({ '_id': currentUser._id }, { '$set': { 'emails.0.verified': true } });
+			Roles.createRole('verified', { 'unlessExists': true });
+			Roles.addUsersToRoles(currentUser._id, ['verified']);
 
 			function expectedError() {
 				Meteor.call('auth.sendVerificationEmail', currentUser._id);
@@ -33,8 +34,10 @@ if (Meteor.isServer) {
 		});
 		it('sends the email if the user is logged in and unverified', () => {
 			const currentUser = stubUser();
-
 			Meteor.users.update({ '_id': currentUser._id }, { '$set': { 'emails.0.verified': false } });
+
+			Roles.createRole('verified', { 'unlessExists': true });
+			Roles.removeUsersFromRoles(currentUser._id, ['verified']);
 
 			Meteor.call('auth.sendVerificationEmail', currentUser._id);
 
