@@ -171,8 +171,8 @@ class ColorBooks extends PureComponent {
 
 		const colorBookElms = colorBook
 			? (
-				[
-					this.renderColorBookSelect(),
+				<>
+					{this.renderColorBookSelect()}
 					<ColorBook
 						canEdit={canEdit}
 						colorBook={colorBook}
@@ -181,7 +181,8 @@ class ColorBooks extends PureComponent {
 						key="color-book"
 						onSelectColor={onSelectColor}
 						handleClickRemoveColorBook={this.handleClickRemoveColorBook}
-					/>]
+					/>
+				</>
 			)
 			: (
 				<p className="hint">You have no saved colour books</p>

@@ -355,8 +355,8 @@ class Palette extends PureComponent {
 				{isEditing && this.renderEditOptions()}
 				<div className="toggle">
 					{isEditing
-						? <Button color="secondary" onClick={this.handleClickDone}>Done</Button>
-						: <Button color="secondary" onClick={this.handleClickEdit}>Edit thread colors</Button>}
+						? <Button color="primary" onClick={this.handleClickDone}>Done</Button>
+						: <Button color="primary" onClick={this.handleClickEdit}>Edit thread colors</Button>}
 				</div>
 			</div>
 		);
