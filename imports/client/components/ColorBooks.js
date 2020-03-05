@@ -105,13 +105,14 @@ class ColorBooks extends PureComponent {
 	}
 
 	renderColorBookSelect() {
-		const { colorBooks } = this.props;
+		const { colorBooks, isEditingColorBook } = this.props;
 		const { selectedColorBook } = this.state;
 
 		return (
 			<div className="select-color-book">
-				Colour book:&nbsp;
+				Select colour book:&nbsp;
 				<select
+					disabled={isEditingColorBook}
 					key="select-color-book"
 					onChange={this.handleChangeColorBook}
 					value={selectedColorBook}
@@ -137,7 +138,8 @@ class ColorBooks extends PureComponent {
 			cancelColorChange,
 			colorBooks,
 			dispatch,
-			handleEditColorBookColors,
+			handleEditColorBook,
+			isEditingColorBook,
 			onSelectColor,
 		} = this.props;
 
@@ -146,6 +148,7 @@ class ColorBooks extends PureComponent {
 			<Button
 				className="add"
 				color="secondary"
+				disabled={isEditingColorBook}
 				onClick={this.handleClickAddButton}
 				title="Add colour book"
 			>
@@ -174,7 +177,7 @@ class ColorBooks extends PureComponent {
 						canEdit={canEdit}
 						colorBook={colorBook}
 						dispatch={dispatch}
-						handleEditColorBookColors={handleEditColorBookColors}
+						handleEditColorBook={handleEditColorBook}
 						key="color-book"
 						onSelectColor={onSelectColor}
 						handleClickRemoveColorBook={this.handleClickRemoveColorBook}
@@ -207,7 +210,8 @@ ColorBooks.propTypes = {
 	'cancelColorChange': PropTypes.func.isRequired,
 	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,
-	'handleEditColorBookColors': PropTypes.func.isRequired,
+	'handleEditColorBook': PropTypes.func.isRequired,
+	'isEditingColorBook': PropTypes.bool.isRequired,
 	'onSelectColor': PropTypes.func,
 };
 

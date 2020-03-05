@@ -29,7 +29,7 @@ class Palette extends PureComponent {
 		this.state = {
 			'editMode': 'colorPicker',
 			'isEditing': false,
-			'isEditingColorBookColors': false,
+			'isEditingColorBook': false,
 			'colorValue': props.palette[props.initialColorIndex],
 			'selectedColorIndex': props.initialColorIndex,
 			'showEditColorPanel': false,
@@ -47,7 +47,7 @@ class Palette extends PureComponent {
 			'handleClickColor',
 			'handleClickEmptyHole',
 			'handleColorChange',
-			'handleEditColorBookColors',
+			'handleEditColorBook',
 			'acceptColorChange',
 			'cancelColorChange',
 			'handleClickEditMode',
@@ -173,9 +173,9 @@ class Palette extends PureComponent {
 		});
 	}
 
-	handleEditColorBookColors(isEditingColorBookColors) {
+	handleEditColorBook(isEditingColorBook) {
 		this.setState({
-			isEditingColorBookColors,
+			isEditingColorBook,
 		});
 	}
 
@@ -259,7 +259,11 @@ class Palette extends PureComponent {
 			colorBooks,
 			dispatch,
 		} = this.props;
-		const { editMode, colorValue } = this.state;
+		const {
+			editMode,
+			colorValue,
+			isEditingColorBook,
+		} = this.state;
 
 		if (editMode === 'colorPicker') {
 			return (
@@ -283,7 +287,8 @@ class Palette extends PureComponent {
 				colorBookAdded={colorBookAdded}
 				colorBooks={colorBooks}
 				dispatch={dispatch}
-				handleEditColorBookColors={this.handleEditColorBookColors}
+				handleEditColorBook={this.handleEditColorBook}
+				isEditingColorBook={isEditingColorBook}
 				onSelectColor={this.handleEditColor}
 				cancelColorChange={this.cancelColorChange}
 			/>
@@ -336,7 +341,7 @@ class Palette extends PureComponent {
 		const {
 			editMode,
 			isEditing,
-			isEditingColorBookColors,
+			isEditingColorBook,
 			showEditColorPanel,
 		} = this.state;
 		let showControls = true;
@@ -360,7 +365,7 @@ class Palette extends PureComponent {
 			<div id={elementId} className={`palette ${isEditing ? 'editing' : ''}`}>
 				{showEditColorPanel && this.renderEditColorPanel()}
 				{showControls && controls}
-				{!isEditingColorBookColors && (
+				{!isEditingColorBook && (
 					<div className="swatches">
 						{this.renderEmptyHole()}
 						{this.renderColors()}

@@ -102,36 +102,44 @@ class ColorBook extends PureComponent {
 	}
 
 	handleClickDone() {
-		const { handleEditColorBookColors } = this.props;
+		const { handleEditColorBook } = this.props;
 
 		this.setState({
 			'isEditingColors': false,
 			'showEditColorPanel': false,
 		});
 
-		handleEditColorBookColors(false);
+		handleEditColorBook(false);
 	}
 
 	handleClickEditColors() {
-		const { handleEditColorBookColors } = this.props;
+		const { handleEditColorBook } = this.props;
 
 		this.setState({
 			'isEditingColors': true,
 		});
 
-		handleEditColorBookColors(true);
+		handleEditColorBook(true);
 	}
 
 	handleClickEditName() {
+		const { handleEditColorBook } = this.props;
+
 		this.setState({
 			'isEditingName': true,
 		});
+
+		handleEditColorBook(true);
 	}
 
 	handleCancelEditName() {
+		const { handleEditColorBook } = this.props;
+
 		this.setState({
 			'isEditingName': false,
 		});
+
+		handleEditColorBook(false);
 	}
 
 	handleSubmitEditName({ name }) {
@@ -246,6 +254,7 @@ class ColorBook extends PureComponent {
 		const controlElm = isEditingColors
 			? (
 				<>
+					<hr />
 					<div className="buttons">
 						<Button color="primary" onClick={this.handleClickDone}>Done</Button>
 					</div>
@@ -264,11 +273,14 @@ class ColorBook extends PureComponent {
 			);
 
 		const editNameForm = (
-			<EditColorBookNameForm
-				name={name}
-				handleCancel={this.handleCancelEditName}
-				handleSubmit={this.handleSubmitEditName}
-			/>
+			<>
+				<hr />
+				<EditColorBookNameForm
+					name={name}
+					handleCancel={this.handleCancelEditName}
+					handleSubmit={this.handleSubmitEditName}
+				/>
+			</>
 		);
 
 		return (
@@ -294,7 +306,7 @@ ColorBook.propTypes = {
 	'context': PropTypes.string,
 	'dispatch': PropTypes.func.isRequired,
 	'handleClickRemoveColorBook': PropTypes.func.isRequired,
-	'handleEditColorBookColors': PropTypes.func.isRequired,
+	'handleEditColorBook': PropTypes.func.isRequired,
 	'onSelectColor': PropTypes.func,
 };
 

@@ -11,4 +11,15 @@
 			margin-left: 8px;
 		}
 	}
+
+	.form-group {
+		label {
+			font-size: 1rem;
+			//width: unset;
+		}
+	}
+
+	.form-control {
+		//display: inline-block;
+	}
 }
