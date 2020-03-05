@@ -88,6 +88,9 @@ class About extends Component {
 								<p>My name is Shelagh Lewins and I began developing Twisted Threads in 2016 because I got fed up with trying to keep track of patterns on bits of paper while I weave - and because I wanted an easier way to design patterns.</p>
 								<p>In late 2019 I started work on a complete rewrite of the app with improved pattern design tools and better performance. This current app is the all-new Twisted Threads 2: Revenge of the Warped. Enjoy!</p>
 								<p>Twisted Threads is build using <a href="https://www.meteor.com/" target="_blank" rel="noreferrer noopener">Meteor</a>, an open-source NodeJS framework. The front end is built using <a href="https://reactjs.org/" target="_blank" rel="noreferrer noopener">React</a> and <a href="https://redux.js.org/" target="_blank" rel="noreferrer noopener">Redux</a>.</p>
+								<h2>Credits</h2>
+								<p>My humble thanks  to the generous people who support Twisted Threads through donations.</p>
+								<p>I owe a special debt to Mark Roth, design consultant and software tester throughout the development of Twisted Threads 2.</p>
 								<p className="notice">Twisted Threads may not work correctly in the Safari browser. If you have any problems, please try it in Chrome.</p>
 								<p className="notice">The copyright of any pattern designed using Twisted Threads rests with the designer of the pattern, not with the creator or owner of the software.</p>
 							</Col>
