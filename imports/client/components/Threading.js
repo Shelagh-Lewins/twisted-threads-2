@@ -73,9 +73,16 @@ class Threading extends PureComponent {
 		- parseFloat(compStyles.getPropertyValue('padding-left'))
 		- parseFloat(compStyles.getPropertyValue('padding-right'));
 
-		const swatchesNode = this.controlsRef.current.getElementsByClassName('swatches')[0];
+		// usually we can get the palette width from swatches
+		let myNode;
+		[myNode] = this.controlsRef.current.getElementsByClassName('swatches');
 
-		const controlsWidth = swatchesNode.getBoundingClientRect().width;
+		// but the swatches are hidden when editing color book colors
+		if (!myNode) {
+			[myNode] = this.controlsRef.current.getElementsByClassName('color-books');
+		}
+
+		const controlsWidth = myNode.getBoundingClientRect().width;
 
 		const widthDifference = threadingWidth - controlsWidth;
 

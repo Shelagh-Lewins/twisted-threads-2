@@ -1,4 +1,4 @@
-// Partial reducer for page, e.g. selected item
+// Partial reducer for page, e.g. selected main menu item
 const updeep = require('updeep');
 
 export const SET_MAIN_MENU_ITEM = 'SET_MAIN_MENU_ITEM';

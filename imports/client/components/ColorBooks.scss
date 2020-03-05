@@ -4,7 +4,7 @@
 	background: $color-palette-background;
 	border: 1px solid $color-panel-border;
 	border-radius: 4px;
-	float: left;
+	//float: left;
 	margin-bottom: 8px;
 	max-width: 698px; // align with palette
 	padding: 8px;
@@ -16,7 +16,11 @@
 	}
 
 	.select-color-book {
-		margin-top: 8px;
+		clear: botyh;
+
+		select {
+			margin-top: 8px;
+		}
 		//width: 100%;
 	}
 }

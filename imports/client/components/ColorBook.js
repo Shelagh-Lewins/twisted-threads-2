@@ -102,16 +102,24 @@ class ColorBook extends PureComponent {
 	}
 
 	handleClickDone() {
+		const { handleEditColorBookColors } = this.props;
+
 		this.setState({
 			'isEditingColors': false,
 			'showEditColorPanel': false,
 		});
+
+		handleEditColorBookColors(false);
 	}
 
 	handleClickEditColors() {
+		const { handleEditColorBookColors } = this.props;
+
 		this.setState({
 			'isEditingColors': true,
 		});
+
+		handleEditColorBookColors(true);
 	}
 
 	handleClickEditName() {
@@ -286,6 +294,7 @@ ColorBook.propTypes = {
 	'context': PropTypes.string,
 	'dispatch': PropTypes.func.isRequired,
 	'handleClickRemoveColorBook': PropTypes.func.isRequired,
+	'handleEditColorBookColors': PropTypes.func.isRequired,
 	'onSelectColor': PropTypes.func,
 };
 

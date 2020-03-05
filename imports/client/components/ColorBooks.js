@@ -109,22 +109,24 @@ class ColorBooks extends PureComponent {
 		const { selectedColorBook } = this.state;
 
 		return (
-			<select
-				className="select-color-book"
-				key="select-color-book"
-				onChange={this.handleChangeColorBook}
-				value={selectedColorBook}
-			>
-				{colorBooks.map((colorBook) => (
-					<option
-						key={`color-book=${colorBook._id}`}
-						label={colorBook.name}
-						value={colorBook._id}
-					>
-						{colorBook.name}
-					</option>
-				))}
-			</select>
+			<div className="select-color-book">
+				Colour book:&nbsp;
+				<select
+					key="select-color-book"
+					onChange={this.handleChangeColorBook}
+					value={selectedColorBook}
+				>
+					{colorBooks.map((colorBook) => (
+						<option
+							key={`color-book=${colorBook._id}`}
+							label={colorBook.name}
+							value={colorBook._id}
+						>
+							{colorBook.name}
+						</option>
+					))}
+				</select>
+			</div>
 		);
 	}
 
@@ -135,6 +137,7 @@ class ColorBooks extends PureComponent {
 			cancelColorChange,
 			colorBooks,
 			dispatch,
+			handleEditColorBookColors,
 			onSelectColor,
 		} = this.props;
 
@@ -146,7 +149,7 @@ class ColorBooks extends PureComponent {
 				onClick={this.handleClickAddButton}
 				title="Add colour book"
 			>
-				+ New
+				+ New colour book
 			</Button>
 		);
 
@@ -171,6 +174,7 @@ class ColorBooks extends PureComponent {
 						canEdit={canEdit}
 						colorBook={colorBook}
 						dispatch={dispatch}
+						handleEditColorBookColors={handleEditColorBookColors}
 						key="color-book"
 						onSelectColor={onSelectColor}
 						handleClickRemoveColorBook={this.handleClickRemoveColorBook}
@@ -184,7 +188,6 @@ class ColorBooks extends PureComponent {
 			<div className="color-books">
 				{canCreateColorBook && !showAddColorBookForm && addButton}
 				{closeButton}
-				{!showAddColorBookForm && <h2>My colour books</h2>}
 				{showAddColorBookForm && (
 					<AddColorBookForm
 						handleCancel={this.cancelAddColorBook}
@@ -204,6 +207,7 @@ ColorBooks.propTypes = {
 	'cancelColorChange': PropTypes.func.isRequired,
 	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,
+	'handleEditColorBookColors': PropTypes.func.isRequired,
 	'onSelectColor': PropTypes.func,
 };
 
