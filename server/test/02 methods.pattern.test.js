@@ -4,50 +4,83 @@ import { resetDatabase } from 'meteor/xolvio:cleaner';
 import { assert, expect } from 'chai';
 import { Patterns } from '../../imports/modules/collection';
 import '../../imports/server/modules/publications';
+// import all the methods we'll need
 import '../methods/pattern';
+import '../methods/tags';
+import { ROLE_LIMITS } from '../../imports/modules/parameters';
 import { stubUser, unwrapUser } from './mockUser';
-import { defaultPatternData } from './testData';
+import {
+	addPatternDataIndividual,
+} from './testData';
 
 if (Meteor.isServer) {
-	describe('test methods for patterns', () => {
+	describe('test methods for patterns', function () { // eslint-disable-line func-names
+		this.timeout(10000);
 		beforeEach(() => {
 			resetDatabase();
 		});
 		describe('pattern.add method', () => {
 			it('cannot create pattern if not logged in', () => {
 				function expectedError() {
-					Meteor.call('pattern.add', defaultPatternData);
+					Meteor.call('pattern.add', addPatternDataIndividual);
 				}
 				expect(expectedError).to.throw(Meteor.Error(), 'add-pattern-not-logged-in');
 			});
-			it('cannot create pattern if not verified', () => {
-				function expectedError() {
-					stubUser({
-						'emails': [{
-							'address': 'here@there.com',
-							'verified': false,
-						}],
-					});
+			it('can create the correct number of patterns if not verified', () => {
+				stubUser();
 
-					Meteor.call('pattern.add', defaultPatternData);
+				const patternLimit = ROLE_LIMITS.registered.maxPatternsPerUser;
+				for (let i = 0; i < patternLimit; i += 1) {
+					Meteor.call('pattern.add', addPatternDataIndividual);
 				}
 
-				expect(expectedError).to.throw(Meteor.Error(), 'add-pattern-not-verified');
+				assert.equal(Patterns.find().fetch().length, patternLimit);
+
+				function expectedError() {
+					Meteor.call('pattern.add', addPatternDataIndividual);
+				}
+
+				expect(expectedError).to.throw(Meteor.Error(), 'add-pattern-too-many-patterns');
 				unwrapUser();
 			});
-			it('can create pattern if verified', () => {
-				assert.equal(Patterns.find().fetch().length, 0);
+			it('can create the correct number of patterns if verified', () => {
+				const currentUser = stubUser();
 
-				stubUser({
-					'emails': [{
-						'address': 'here@there.com',
-						'verified': true,
-					}],
-				});
+				Roles.createRole('verified', { 'unlessExists': true });
+				Roles.addUsersToRoles(currentUser._id, ['verified']);
 
-				Meteor.call('pattern.add', defaultPatternData);
+				const patternLimit = ROLE_LIMITS.verified.maxPatternsPerUser;
+				for (let i = 0; i < patternLimit; i += 1) {
+					Meteor.call('pattern.add', addPatternDataIndividual);
+				}
 
-				assert.equal(Patterns.find().fetch().length, 1);
+				assert.equal(Patterns.find().fetch().length, patternLimit);
+
+				function expectedError() {
+					Meteor.call('pattern.add', addPatternDataIndividual);
+				}
+
+				expect(expectedError).to.throw(Meteor.Error(), 'add-pattern-too-many-patterns');
+				unwrapUser();
+			});
+			it('can create the correct number of patterns if premium', () => {
+				const currentUser = stubUser();
+
+				Roles.createRole('premium', { 'unlessExists': true });
+				Roles.addUsersToRoles(currentUser._id, ['premium']);
+
+				const patternLimit = ROLE_LIMITS.premium.maxPatternsPerUser;
+				for (let i = 0; i < patternLimit; i += 1) {
+					Meteor.call('pattern.add', addPatternDataIndividual);
+				}
+
+				assert.equal(Patterns.find().fetch().length, patternLimit);
+
+				function expectedError() {
+					Meteor.call('pattern.add', addPatternDataIndividual);
+				}
+
+				expect(expectedError).to.throw(Meteor.Error(), 'add-pattern-too-many-patterns');
 				unwrapUser();
 			});
 		});

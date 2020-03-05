@@ -407,10 +407,12 @@ Meteor.publish('patternImages', function (patternId) {
 	);
 
 	if (!pattern) {
+		this.ready();
 		return;
 	}
 
 	if (!pattern.isPublic && pattern.createdBy !== this.userId) {
+		this.ready();
 		return;
 	}
 

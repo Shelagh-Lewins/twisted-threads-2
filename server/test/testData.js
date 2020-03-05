@@ -24,6 +24,14 @@ export const defaultPatternData = {
 	'weftColor': 2,
 };
 
+export const addPatternDataIndividual = {
+	'holes': 4,
+	'name': 'Pattern 1',
+	'rows': 6,
+	'tablets': 8,
+	'patternType': 'individual',
+};
+
 export const defaultColorBookData = {
 	'_id': 'hGyoeA5tfZ4MuwfLj',
 	'name': 'Another book',
@@ -62,4 +70,15 @@ export const defaultColorBookData = {
 export const defaultPatternPreviewData = {
 	'patternId': 'xxx',
 	'uri': 'abc',
+};
+
+export const defaultPatternImageData = {
+	'caption': 'An image',
+	'createdAt': new Date('Tue, 03 Mar 2020 17:58:05 GMT'),
+	'createdBy': 'abc',
+	'height': 960,
+	'key': 'abc',
+	'patternId': 'xxx',
+	'url': 'abc',
+	'width': 340,
 };

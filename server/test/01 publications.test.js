@@ -10,6 +10,7 @@ import { assert } from 'chai';
 import '../../imports/server/modules/publications';
 import {
 	ColorBooks,
+	PatternImages,
 	Patterns,
 	PatternPreviews,
 } from '../../imports/modules/collection';
@@ -25,6 +26,7 @@ import {
 import {
 	defaultColorBookData,
 	defaultPatternData,
+	defaultPatternImageData,
 	defaultPatternPreviewData,
 } from './testData';
 
@@ -67,6 +69,7 @@ const patternFields = patternsFields.concat([
 // it seems not to matter where factories are defined, but keep an eye on this.
 Factory.define('user', Meteor.users, {
 	'username': 'Jennifer',
+	'nameSort': 'jennifer',
 	'emails': [{
 		'address': 'jennifer@here.com',
 		'verified': true,
@@ -80,6 +83,8 @@ Factory.define('colorBook', ColorBooks, defaultColorBookData);
 Factory.define('pattern', Patterns, defaultPatternData);
 
 Factory.define('patternPreview', PatternPreviews, defaultPatternPreviewData);
+
+Factory.define('patternImage', PatternImages, defaultPatternImageData);
 
 let publicMyPatternNames;
 let privateMyPatternNames;
@@ -163,8 +168,6 @@ const createManyPatterns = () => {
 	});
 };
 
-
-
 if (Meteor.isServer) {
 	describe('test publications', function () { // eslint-disable-line func-names
 		this.timeout(5000);
@@ -177,8 +180,13 @@ if (Meteor.isServer) {
 			this.pattern2 = Factory.create('pattern', { 'name': 'Pattern 2', 'createdBy': currentUser._id });
 			this.colorBook = Factory.create('colorBook', { 'name': 'My book', 'createdBy': currentUser._id });
 
+			// pattern previews
 			Factory.create('patternPreview', { 'patternId': this.pattern1._id });
 			Factory.create('patternPreview', { 'patternId': this.pattern2._id });
+
+			// pattern images
+			Factory.create('patternImage', { 'patternId': this.pattern1._id });
+			Factory.create('patternImage', { 'patternId': this.pattern2._id });
 		});
 		afterEach(() => {
 			unwrapUser();
@@ -1260,10 +1268,6 @@ if (Meteor.isServer) {
 		describe('publish allUsersPreview', () => {
 			it('should publish users with public patterns if user not logged in', async () => {
 				const {
-					publicPatternUserIds,
-					privatePatternUserIds,
-					numberOfUsersWithPublicPatterns,
-					numberOfUsersWithPrivatePatterns,
 					publicPatternUsernames,
 				} = createManyUsers();
 
@@ -1290,10 +1294,6 @@ if (Meteor.isServer) {
 			});
 			it('should publish users with public patterns if user is logged in', async () => {
 				const {
-					publicPatternUserIds,
-					privatePatternUserIds,
-					numberOfUsersWithPublicPatterns,
-					numberOfUsersWithPrivatePatterns,
 					publicPatternUsernames,
 				} = createManyUsers();
 
@@ -1316,10 +1316,44 @@ if (Meteor.isServer) {
 				assert.equal(result.length, ITEMS_PER_PREVIEW_LIST);
 			});
 		});
+		// /////////////////////////
+		describe('publish pattern images', () => {
+			it('should publish nothing if user not logged in', async () => {
+				// make sure publications know there is no user
+				unwrapUser();
+				stubNoUser();
+
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('patternImages', this.pattern1._id,
+						(collections) => {
+							resolve(collections.patternImages);
+						});
+				});
+
+				const result = await testPromise;
+
+				assert.equal(result, undefined);
+			});
+			it('should publish the preview if user is logged in', async () => {
+				const collector = new PublicationCollector({ 'userId': Meteor.user()._id });
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('patternImages', this.pattern1._id,
+						(collections) => {
+							resolve(collections.patternImages);
+						});
+				});
+
+				const result = await testPromise;
+
+				assert.equal(result.length, 1);
+			});
+		});
 	});
 }
 
 // TODO
-// allUsersPreview
 // patternImages
 // in methods, users for pagination

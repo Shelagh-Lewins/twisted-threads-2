@@ -73,10 +73,10 @@ export const checkUserCanCreatePattern = () => {
 
 	// user must be logged in
 	if (!Meteor.userId()) {
-		error = new Meteor.Error('create-pattern-not-logged-in', 'Unable to create pattern because the user is not logged in');
+		error = new Meteor.Error('add-pattern-not-logged-in', 'Unable to add pattern because the user is not logged in');
 	// user must have role 'registered', which is automatically assigned when account is created
 	} else if (!Roles.userIsInRole(Meteor.userId(), 'registered')) {
-		error = new Meteor.Error('create-pattern-not-logged-in', 'Unable to create pattern because the user does not have role \'registered\'');
+		error = new Meteor.Error('add-pattern-not-registered', 'Unable to add pattern because the user does not have role \'registered\'');
 	} else {
 		// user must not have reached the limit on number of patterns
 		const numberOfPatterns = Patterns.find({ 'createdBy': Meteor.userId() }).count();
@@ -91,7 +91,7 @@ export const checkUserCanCreatePattern = () => {
 		const limit = Math.max(...limits); // user can create the largest number of patterns of any role they have
 
 		if (numberOfPatterns >= limit) {
-			error = new Meteor.Error('create-pattern-too-many-patterns', 'Unable to create pattern because the user has reached the pattern limit');
+			error = new Meteor.Error('add-pattern-too-many-patterns', 'Unable to add pattern because the user has reached the pattern limit');
 		}
 	}
 

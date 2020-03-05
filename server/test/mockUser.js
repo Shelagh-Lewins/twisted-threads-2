@@ -4,6 +4,9 @@ export function stubUser(params) {
 	// create a fake logged in user
 	Meteor.users.remove({});
 	const currentUser = Factory.create('user', params);
+	Roles.createRole('registered', { 'unlessExists': true });
+	Roles.addUsersToRoles(currentUser._id, ['registered']);
+
 	sinon.stub(Meteor, 'user');
 	Meteor.user.returns(currentUser); // now Meteor.user() will return the user we just created
 
@@ -55,6 +58,9 @@ export function stubOtherUser() {
 		'publicPatternsCount': 0,
 		'publicColorBooksCount': 0,
 	});
+	Roles.createRole('registered', { 'unlessExists': true });
+	Roles.addUsersToRoles(currentUser._id, ['registered']);
+
 	sinon.stub(Meteor, 'user');
 	Meteor.user.returns(currentUser); // now Meteor.user() will return the user we just created
 
