@@ -8,6 +8,7 @@ import { stubUser, unwrapUser } from './mockUser';
 import {
 	addPatternDataIndividual,
 } from './testData';
+import { MAX_RECENTS } from '../../imports/modules/parameters';
 
 if (Meteor.isServer) {
 	describe('test auth methods', function () { // eslint-disable-line func-names
@@ -79,14 +80,71 @@ if (Meteor.isServer) {
 					assert.equal(error, undefined);
 					done();
 				});
+
+				unwrapUser();
 			});
-			// could check that invalid number of rows is rejected
-			// could check that max number of recents is respected
+			it('sets current weaving row to 1 if invalid', (done) => {
+				const currentUser = stubUser();
+				const patternId = Meteor.call('pattern.add', addPatternDataIndividual);
+
+				Meteor.call('auth.setRecentPatterns', {
+					'userId': currentUser._id,
+					'newRecentPatterns': [{
+						'currentWeavingRow': -1,
+						'patternId': patternId,
+						'updatedAt': new Date(),
+					}],
+				}, (error, result) => {
+					const updated = Meteor.users.findOne({ '_id': currentUser._id });
+					assert.equal(updated.profile.recentPatterns.length, 1);
+					assert.equal(updated.profile.recentPatterns[0].currentWeavingRow, 1);
+					assert.equal(error, undefined);
+					done();
+				});
+
+				unwrapUser();
+			});
+			it('stores the maximum number of recents', (done) => {
+				const currentUser = stubUser();
+				Roles.createRole('verified', { 'unlessExists': true });
+				Roles.addUsersToRoles(currentUser._id, ['verified']);
+
+				const newRecentPatterns = [];
+				const numberOfRecents = MAX_RECENTS + 5;
+				const now = new Date();
+				const initialDateAsString = now.toString();
+
+				for (let i = 0; i < numberOfRecents; i += 1) {
+					const patternId = Meteor.call('pattern.add', addPatternDataIndividual);
+					now.setSeconds(now.getSeconds() - (10 * i));
+					newRecentPatterns.push({
+						'currentWeavingRow': 3,
+						'patternId': patternId,
+						'updatedAt': new Date(now),
+					});
+				}
+
+				Meteor.call('auth.setRecentPatterns', {
+					'userId': currentUser._id,
+					newRecentPatterns,
+				}, (error, result) => {
+					const updated = Meteor.users.findOne({ '_id': currentUser._id });
+					assert.equal(updated.profile.recentPatterns.length, MAX_RECENTS);
+
+					// the most recent date is the first entry
+					assert.equal(
+						updated.profile.recentPatterns[0].updatedAt.toString(),
+						initialDateAsString,
+					);
+					assert.equal(error, undefined);
+					done();
+				});
+
+				unwrapUser();
+			});
 		});
 	});
 }
-
-// set recent patterns
 
 // create user - is registered but nothing else
 
