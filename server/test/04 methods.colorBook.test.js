@@ -5,6 +5,7 @@ import { assert, expect } from 'chai';
 import { ColorBooks } from '../../imports/modules/collection';
 import '../../imports/server/modules/publications';
 import '../methods/colorBook';
+import { ROLE_LIMITS } from '../../imports/modules/parameters';
 import { stubUser, unwrapUser } from './mockUser';
 
 if (Meteor.isServer) {
@@ -19,34 +20,72 @@ if (Meteor.isServer) {
 				}
 				expect(expectedError).to.throw(Meteor.Error(), 'add-color-book-not-logged-in');
 			});
-			it('cannot create color book if not verified', () => {
+			it('cannot create color book if not registered', () => {
 				function expectedError() {
-					stubUser({
-						'emails': [{
-							'address': 'here@there.com',
-							'verified': false,
-						}],
-					});
+					stubUser();
+					Roles.removeUsersFromRoles(Meteor.userId(), ['registered']);
 
 					Meteor.call('colorBook.add', 'A color book');
 				}
 
-				expect(expectedError).to.throw(Meteor.Error(), 'add-color-book-not-verified');
+				expect(expectedError).to.throw(Meteor.Error(), 'add-color-book-not-registered');
 				unwrapUser();
 			});
-			it('can create color book if verified', () => {
-				assert.equal(ColorBooks.find().fetch().length, 0);
+			it('can create the correct number of color books if registered', () => {
+				stubUser();
 
-				stubUser({
-					'emails': [{
-						'address': 'here@there.com',
-						'verified': true,
-					}],
-				});
+				const colorBookLimit = ROLE_LIMITS.registered.maxColorBooksPerUser;
+				for (let i = 0; i < colorBookLimit; i += 1) {
+					Meteor.call('colorBook.add', 'A color book');
+				}
 
-				Meteor.call('colorBook.add', 'A color book');
+				assert.equal(ColorBooks.find().fetch().length, colorBookLimit);
 
-				assert.equal(ColorBooks.find().fetch().length, 1);
+				function expectedError() {
+					Meteor.call('colorBook.add', 'A color book');
+				}
+
+				expect(expectedError).to.throw(Meteor.Error(), 'add-color-book-too-many-color-books');
+				unwrapUser();
+			});
+			it('can create the correct number of color books if verified', () => {
+				const currentUser = stubUser();
+
+				Roles.createRole('verified', { 'unlessExists': true });
+				Roles.addUsersToRoles(currentUser._id, ['verified']);
+
+				const colorBookLimit = ROLE_LIMITS.verified.maxColorBooksPerUser;
+				for (let i = 0; i < colorBookLimit; i += 1) {
+					Meteor.call('colorBook.add', 'A color book');
+				}
+
+				assert.equal(ColorBooks.find().fetch().length, colorBookLimit);
+
+				function expectedError() {
+					Meteor.call('colorBook.add', 'A color book');
+				}
+
+				expect(expectedError).to.throw(Meteor.Error(), 'add-color-book-too-many-color-books');
+				unwrapUser();
+			});
+			it('can create the correct number of color books if premium', () => {
+				const currentUser = stubUser();
+
+				Roles.createRole('premium', { 'unlessExists': true });
+				Roles.addUsersToRoles(currentUser._id, ['premium']);
+
+				const colorBookLimit = ROLE_LIMITS.premium.maxColorBooksPerUser;
+				for (let i = 0; i < colorBookLimit; i += 1) {
+					Meteor.call('colorBook.add', 'A color book');
+				}
+
+				assert.equal(ColorBooks.find().fetch().length, colorBookLimit);
+
+				function expectedError() {
+					Meteor.call('colorBook.add', 'A color book');
+				}
+
+				expect(expectedError).to.throw(Meteor.Error(), 'add-color-book-too-many-color-books');
 				unwrapUser();
 			});
 		});
@@ -81,18 +120,36 @@ if (Meteor.isServer) {
 				unwrapUser();
 			});
 		});
-		describe('colorBook.editColor method', () => {
+		describe('colorBook.edit method', () => {
 			it('cannot edit color book color if not logged in', () => {
 				const colorBook = Factory.create('colorBook', { 'name': 'Color Book 1', 'createdBy': 'abc' });
 
 				function expectedError() {
-					Meteor.call('colorBook.editColor', {
+					Meteor.call('colorBook.edit', {
 						'_id': colorBook._id,
-						'colorHexValue': '#333',
-						'colorIndex': 1,
+						'data': {
+							'colorHexValue': '#333',
+							'colorIndex': 1,
+							'type': 'isPublic',
+						},
 					});
 				}
-				expect(expectedError).to.throw(Meteor.Error(), 'edit-color-book-color-not-logged-in');
+				expect(expectedError).to.throw(Meteor.Error(), 'edit-color-book-not-logged-in');
+			});
+			it('cannot edit color book color if color books doesn\'t exist', () => {
+				stubUser();
+
+				function expectedError() {
+					Meteor.call('colorBook.edit', {
+						'_id': 'abc',
+						'data': {
+							'colorHexValue': '#333',
+							'colorIndex': 1,
+							'type': 'isPublic',
+						},
+					});
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'edit-color-book-not-found');
 			});
 			it('cannot edit color book color if did not create the color book', () => {
 				function expectedError() {
@@ -100,36 +157,23 @@ if (Meteor.isServer) {
 
 					const colorBook = Factory.create('colorBook', { 'name': 'Color Book 1', 'createdBy': 'abc' });
 
-					Meteor.call('colorBook.editColor', {
+					Meteor.call('colorBook.edit', {
 						'_id': colorBook._id,
 						'colorHexValue': '#333',
 						'colorIndex': 1,
 					});
 				}
 
-				expect(expectedError).to.throw(Meteor.Error(), 'edit-color-book-color-not-created-by-user');
+				expect(expectedError).to.throw(Meteor.Error(), 'edit-color-book-not-created-by-user');
 				unwrapUser();
 			});
-			it('cannot edit color book color if color book does not exist', () => {
-				function expectedError() {
-					stubUser();
 
-					Meteor.call('colorBook.editColor', {
-						'_id': 'abc',
-						'colorHexValue': '#333',
-						'colorIndex': 1,
-					});
-				}
-
-				expect(expectedError).to.throw(Meteor.Error(), 'edit-color-book-color-not-found');
-				unwrapUser();
-			});
 			it('cannot edit color book color if user created the color book but color is invalid', () => {
 				function expectedError() {
 					const currentUser = stubUser();
 					const colorBook = Factory.create('colorBook', { 'name': 'Color Book 1', 'createdBy': currentUser._id });
 
-					Meteor.call('colorBook.editColor', {
+					Meteor.call('colorBook.edit', {
 						'_id': colorBook._id,
 						'colorHexValue': 4,
 						'colorIndex': 1,
@@ -146,7 +190,7 @@ if (Meteor.isServer) {
 
 				assert.equal(ColorBooks.find().fetch().length, 1);
 
-				Meteor.call('colorBook.editColor', {
+				Meteor.call('colorBook.edit', {
 					'_id': colorBook._id,
 					'colorHexValue': '#000',
 					'colorIndex': 1,

@@ -137,9 +137,7 @@ Meteor.methods({
 			throw new Meteor.Error('add-user-to-role-not-logged-in', 'Unable to add user to role because the current user is not logged in');
 		}
 		// user is administrator
-		const userRoles = Roles.getRolesForUser(Meteor.userId());
-
-		if (userRoles.indexOf('administrator') === -1) {
+		if (Roles.userIsInRole(Meteor.userId(), 'administrator')) {
 			throw new Meteor.Error('add-user-to-role-not-administrator', 'Unable to add user to role because the current user is not an administrator');
 		}
 

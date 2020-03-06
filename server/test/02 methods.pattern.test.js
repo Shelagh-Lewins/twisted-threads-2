@@ -27,6 +27,16 @@ if (Meteor.isServer) {
 				}
 				expect(expectedError).to.throw(Meteor.Error(), 'add-pattern-not-logged-in');
 			});
+			it('cannot create pattern if not registered', () => {
+				stubUser();
+				Roles.removeUsersFromRoles(Meteor.userId(), ['registered']);
+
+				function expectedError() {
+					Meteor.call('pattern.add', addPatternDataIndividual);
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'add-pattern-not-registered');
+				unwrapUser();
+			});
 			it('can create the correct number of patterns if not verified', () => {
 				stubUser();
 

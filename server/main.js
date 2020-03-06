@@ -89,10 +89,9 @@ Accounts.onCreateUser((options, user) => {
 	newUser.nameSort = user.username.toLowerCase();
 	newUser.publicPatternsCount = 0;
 	newUser.publicColorBooksCount = 0;
-console.log('*** new user', user);
+
 	// assign the user the default role
 	Roles.addUsersToRoles(newUser._id, 'registered');
-const roles = Roles.getRolesForUser(newUser._id);
-				console.log('check at creation roles', roles);
+
 	return newUser;
 });

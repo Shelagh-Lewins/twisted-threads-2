@@ -150,28 +150,26 @@ export const checkCanCreateColorBook = () => {
 	let error;
 
 	if (!Meteor.userId()) {
-		error = new Meteor.Error('create-color-book-not-logged-in', 'Unable to create color book because the user is not logged in');
-	}
+		error = new Meteor.Error('add-color-book-not-logged-in', 'Unable to add color book because the user is not logged in');
+	} else if (!Roles.userIsInRole(Meteor.userId(), 'registered')) {
+		// user must have role 'registered', which is automatically assigned when account is created
+		error = new Meteor.Error('add-color-book-not-registered', 'Unable to add color book because the user does not have role \'registered\'');
+	} else {
+		// user must not have reached the limit on number of color books
+		const numberOfColorBooks = ColorBooks.find({ 'createdBy': Meteor.userId() }).count();
 
-	// user must have role 'registered', which is automatically assigned when account is created
-	if (!Roles.userIsInRole(Meteor.userId(), 'registered')) {
-		error = new Meteor.Error('create-color-book-not-logged-in', 'Unable to create color book because the user does not have role \'registered\'');
-	}
+		const limits = [];
+		Roles.getRolesForUser(Meteor.userId()).forEach((role) => {
+			if (ROLE_LIMITS[role]) {
+				limits.push(ROLE_LIMITS[role].maxColorBooksPerUser);
+			}
+		});
 
-	// user must not have reached the limit on number of color books
-	const numberOfColorBooks = ColorBooks.find({ 'createdBy': Meteor.userId() }).count();
+		const limit = Math.max(...limits); // user can create the largest number of color books of any role they have
 
-	const limits = [];
-	Roles.getRolesForUser(Meteor.userId()).forEach((role) => {
-		if (ROLE_LIMITS[role]) {
-			limits.push(ROLE_LIMITS[role].maxColorBooksPerUser);
+		if (numberOfColorBooks >= limit) {
+			error = new Meteor.Error('add-color-book-too-many-color-books', 'Unable to add color book because the user has reached the color book limit');
 		}
-	});
-
-	const limit = Math.max(...limits); // user can create the largest number of color books of any role they have
-
-	if (numberOfColorBooks >= limit) {
-		error = new Meteor.Error('create-color-book-too-many-color books', 'Unable to create color book because the user has reached the color book limit');
 	}
 
 	return {
