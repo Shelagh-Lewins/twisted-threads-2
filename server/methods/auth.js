@@ -34,7 +34,7 @@ Meteor.methods({
 
 		// recentPatterns is stored in Profile so that it is published to the user
 		if (userId !== Meteor.userId()) {
-			throw new Meteor.Error('add-recent-pattern-not-logged-in', 'Unable to add pattern to recents because the user is not logged in');
+			throw new Meteor.Error('set-recent-patterns-not-logged-in', 'Unable to set recent patterns because the user is not logged in');
 		}
 
 		const recentPatterns = [];
