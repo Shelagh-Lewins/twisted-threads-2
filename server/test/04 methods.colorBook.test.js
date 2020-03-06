@@ -205,7 +205,7 @@ if (Meteor.isServer) {
 						'type': 'color',
 					},
 				});
-				assert.equal(ColorBooks.find().fetch().length, 1);
+
 				const colorBookUpdated = ColorBooks.findOne({ '_id': colorBook._id });
 
 				assert.equal(colorBookUpdated.colors[1], '#333333');
@@ -215,8 +215,6 @@ if (Meteor.isServer) {
 			it('can edit color book name if user created the color book', () => {
 				const currentUser = stubUser();
 				const colorBook = Factory.create('colorBook', { 'name': 'Color Book 1', 'createdBy': currentUser._id });
-
-				assert.equal(ColorBooks.find().fetch().length, 1);
 
 				const newName = 'The new name';
 
@@ -228,10 +226,30 @@ if (Meteor.isServer) {
 						'type': 'name',
 					},
 				});
-				assert.equal(ColorBooks.find().fetch().length, 1);
+
 				const colorBookUpdated = ColorBooks.findOne({ '_id': colorBook._id });
 
 				assert.equal(colorBookUpdated.name, newName);
+
+				unwrapUser();
+			});
+			it('can edit color book isPublic if user created the color book', () => {
+				const currentUser = stubUser();
+				const colorBook = Factory.create('colorBook', { 'name': 'Color Book 1', 'createdBy': currentUser._id });
+
+				assert.equal(ColorBooks.findOne({ '_id': colorBook._id }).isPublic, false);
+
+				Meteor.call('colorBook.edit', {
+					'_id': colorBook._id,
+					'data': {
+						'isPublic': true,
+						'type': 'isPublic',
+					},
+				});
+
+				const colorBookUpdated = ColorBooks.findOne({ '_id': colorBook._id });
+
+				assert.equal(colorBookUpdated.isPublic, true);
 
 				unwrapUser();
 			});

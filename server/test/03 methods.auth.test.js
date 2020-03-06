@@ -173,9 +173,6 @@ if (Meteor.isServer) {
 	});
 }
 
-// check can create color book
-// edit color book
-
 // check can add pattern image
 
 // get user count
@@ -187,3 +184,5 @@ if (Meteor.isServer) {
 // add to role
 
 // remove from role
+
+// tags
