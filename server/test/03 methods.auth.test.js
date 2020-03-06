@@ -143,6 +143,22 @@ if (Meteor.isServer) {
 				unwrapUser();
 			});
 		});
+		describe('register a new user', () => {
+			it('creates an account with role registered', () => {
+				Roles.createRole('registered', { 'unlessExists': true });
+
+				const userId = Accounts.createUser({
+					'email': 'me@there.com',
+					'username': 'newuser',
+					'password': '12345678',
+				});
+
+				const roles = Roles.getRolesForUser(userId);
+				console.log('in test roles', roles);
+
+				assert.equal(roles.length, 1);
+			});
+		});
 	});
 }
 

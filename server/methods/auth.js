@@ -68,8 +68,6 @@ Meteor.methods({
 		// the client provides an array of recent patterns with no duplicates and the most recent at the start
 		// the server only checks that the total number of recents isn't exceeded
 
-		// TO DO test
-
 		while (recentPatterns.length > MAX_RECENTS) {
 			recentPatterns.pop();
 		}
