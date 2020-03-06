@@ -128,9 +128,9 @@ if (Meteor.isServer) {
 					Meteor.call('colorBook.edit', {
 						'_id': colorBook._id,
 						'data': {
-							'colorHexValue': '#333',
+							'colorHexValue': '#333333',
 							'colorIndex': 1,
-							'type': 'isPublic',
+							'type': 'color',
 						},
 					});
 				}
@@ -143,13 +143,14 @@ if (Meteor.isServer) {
 					Meteor.call('colorBook.edit', {
 						'_id': 'abc',
 						'data': {
-							'colorHexValue': '#333',
+							'colorHexValue': '#333333',
 							'colorIndex': 1,
-							'type': 'isPublic',
+							'type': 'color',
 						},
 					});
 				}
 				expect(expectedError).to.throw(Meteor.Error(), 'edit-color-book-not-found');
+				unwrapUser();
 			});
 			it('cannot edit color book color if did not create the color book', () => {
 				function expectedError() {
@@ -159,8 +160,11 @@ if (Meteor.isServer) {
 
 					Meteor.call('colorBook.edit', {
 						'_id': colorBook._id,
-						'colorHexValue': '#333',
-						'colorIndex': 1,
+						'data': {
+							'colorHexValue': '#333333',
+							'colorIndex': 1,
+							'type': 'color',
+						},
 					});
 				}
 
@@ -168,15 +172,18 @@ if (Meteor.isServer) {
 				unwrapUser();
 			});
 
-			it('cannot edit color book color if user created the color book but color is invalid', () => {
+			it('cannot edit color book color if user created the color book but color is not a string', () => {
 				function expectedError() {
 					const currentUser = stubUser();
 					const colorBook = Factory.create('colorBook', { 'name': 'Color Book 1', 'createdBy': currentUser._id });
 
 					Meteor.call('colorBook.edit', {
 						'_id': colorBook._id,
-						'colorHexValue': 4,
-						'colorIndex': 1,
+						'data': {
+							'colorHexValue': 4,
+							'colorIndex': 1,
+							'type': 'color',
+						},
 					});
 				}
 
@@ -192,69 +199,16 @@ if (Meteor.isServer) {
 
 				Meteor.call('colorBook.edit', {
 					'_id': colorBook._id,
-					'colorHexValue': '#000',
-					'colorIndex': 1,
+					'data': {
+						'colorHexValue': '#333333',
+						'colorIndex': 1,
+						'type': 'color',
+					},
 				});
 				assert.equal(ColorBooks.find().fetch().length, 1);
 				const colorBookUpdated = ColorBooks.findOne({ '_id': colorBook._id });
 
-				assert.equal(colorBookUpdated.colors[1], '#000');
-
-				unwrapUser();
-			});
-		});
-		describe('colorBook.editName method', () => {
-			it('cannot edit color book name if not logged in', () => {
-				const colorBook = Factory.create('colorBook', { 'name': 'Color Book 1', 'createdBy': 'abc' });
-
-				function expectedError() {
-					Meteor.call('colorBook.editName', {
-						'_id': colorBook._id,
-						'name': 'Something new',
-					});
-				}
-				expect(expectedError).to.throw(Meteor.Error(), 'edit-color-book-name-not-logged-in');
-			});
-			it('cannot edit color book name if did not create the color book', () => {
-				function expectedError() {
-					stubUser();
-
-					const colorBook = Factory.create('colorBook', { 'name': 'Color Book 1', 'createdBy': 'abc' });
-
-					Meteor.call('colorBook.editName', {
-						'_id': colorBook._id,
-						'name': 'Something new',
-					});
-				}
-
-				expect(expectedError).to.throw(Meteor.Error(), 'edit-color-book-name-not-created-by-user');
-				unwrapUser();
-			});
-			it('cannot edit color book name if color book does not exist', () => {
-				function expectedError() {
-					stubUser();
-
-					Meteor.call('colorBook.editName', {
-						'_id': 'abc',
-						'name': 'Something new',
-					});
-				}
-
-				expect(expectedError).to.throw(Meteor.Error(), 'edit-color-book-name-not-found');
-				unwrapUser();
-			});
-			it('cannot edit color book name if user created the color book but name is invalid', () => {
-				function expectedError() {
-					const currentUser = stubUser();
-					const colorBook = Factory.create('colorBook', { 'name': 'Color Book 1', 'createdBy': currentUser._id });
-
-					Meteor.call('colorBook.editName', {
-						'_id': colorBook._id,
-						'name': '',
-					});
-				}
-
-				expect(expectedError).to.throw(Meteor.Error(), 'Match error');
+				assert.equal(colorBookUpdated.colors[1], '#333333');
 
 				unwrapUser();
 			});
@@ -264,14 +218,20 @@ if (Meteor.isServer) {
 
 				assert.equal(ColorBooks.find().fetch().length, 1);
 
-				Meteor.call('colorBook.editName', {
+				const newName = 'The new name';
+
+				Meteor.call('colorBook.edit', {
 					'_id': colorBook._id,
-					'name': 'Something new',
+					'data': {
+						'name': newName,
+						'colorIndex': 1,
+						'type': 'name',
+					},
 				});
 				assert.equal(ColorBooks.find().fetch().length, 1);
 				const colorBookUpdated = ColorBooks.findOne({ '_id': colorBook._id });
 
-				assert.equal(colorBookUpdated.name, 'Something new');
+				assert.equal(colorBookUpdated.name, newName);
 
 				unwrapUser();
 			});
