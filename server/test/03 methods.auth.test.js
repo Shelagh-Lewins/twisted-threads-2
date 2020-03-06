@@ -6,14 +6,13 @@ import '../../imports/server/modules/publications';
 import '../methods/auth';
 import {
 	createManyUsers,
-	logOutButLeaveUser,
 	stubUser,
 	unwrapUser,
 } from './mockUser';
 import {
 	addPatternDataIndividual,
 } from './testData';
-import { MAX_RECENTS } from '../../imports/modules/parameters';
+import { MAX_RECENTS, MAX_TEXT_AREA_LENGTH } from '../../imports/modules/parameters';
 
 const sinon = require('sinon');
 
@@ -227,7 +226,7 @@ if (Meteor.isServer) {
 				assert.equal(result.length, limit);
 
 				const expectedUsernames = publicPatternUsernames.sort().slice(0, limit);
-console.log('expectedUsernames 1', expectedUsernames);
+
 				expectedUsernames.forEach((username) => {
 					assert.notEqual(expectedUsernames.indexOf(username), -1);
 				});
@@ -248,7 +247,7 @@ console.log('expectedUsernames 1', expectedUsernames);
 				assert.equal(result.length, limit);
 
 				const expectedUsernames = publicPatternUsernames.sort().slice(limit, limit * 2);
-console.log('expectedUsernames 2', expectedUsernames);
+
 				expectedUsernames.forEach((username) => {
 					assert.notEqual(expectedUsernames.indexOf(username), -1);
 				});
@@ -318,13 +317,86 @@ console.log('expectedUsernames 2', expectedUsernames);
 				unwrapUser();
 			});
 		});
+		describe('get edit text field', () => {
+			// the only  editable field for user is description
+			it('cannot edit description if they are not logged in', () => {
+				function expectedError() {
+					Meteor.call('auth.editTextField', {
+						'_id': 'xxx',
+						'fieldName': 'description',
+						'fieldValue': 'someText',
+					});
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'edit-text-field-not-logged-in');
+			});
+			it('cannot edit a different field if they are logged in', () => {
+				const currentUser = stubUser();
+
+				function expectedError() {
+					Meteor.call('auth.editTextField', {
+						'_id': currentUser._id,
+						'fieldName': 'thingy',
+						'fieldValue': 'someText',
+					});
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'edit-text-field-not-allowed');
+				unwrapUser();
+			});
+			it('can edit description if they are logged in', () => {
+				const currentUser = stubUser();
+				assert.equal(currentUser.description, undefined);
+				const newDescription = 'Some text';
+
+				Meteor.call('auth.editTextField', {
+					'_id': currentUser._id,
+					'fieldName': 'description',
+					'fieldValue': newDescription,
+				});
+
+				const updated = Meteor.users.findOne({ '_id': currentUser._id });
+
+				assert.equal(updated.description, newDescription);
+
+				unwrapUser();
+			});
+			it('cannot set a value that is too long', () => {
+				const currentUser = stubUser();
+				assert.equal(currentUser.description, undefined);
+				let newDescription = '';
+
+				for (let i = 0; i < MAX_TEXT_AREA_LENGTH; i += 1) {
+					newDescription += 'a';
+				}
+
+				Meteor.call('auth.editTextField', {
+					'_id': currentUser._id,
+					'fieldName': 'description',
+					'fieldValue': newDescription,
+				});
+
+				const updated = Meteor.users.findOne({ '_id': currentUser._id });
+
+				assert.equal(updated.description, newDescription);
+
+				newDescription += 'longer';
+
+				function expectedError() {
+					Meteor.call('auth.editTextField', {
+						'_id': currentUser._id,
+						'fieldName': 'description',
+						'fieldValue': newDescription,
+					});
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'edit-text-field-too-long');
+
+				unwrapUser();
+			});
+		});
 	});
 }
 
 // check can add pattern image
 // No! It would affect AWS live storage
-
-// edit text field
 
 // add to role
 

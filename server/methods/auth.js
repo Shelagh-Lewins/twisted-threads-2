@@ -1,5 +1,6 @@
 import { check } from 'meteor/check';
 import {
+	MAX_TEXT_AREA_LENGTH,
 	MAX_RECENTS,
 	USER_FIELDS,
 } from '../../imports/modules/parameters';
@@ -113,6 +114,15 @@ Meteor.methods({
 
 		check(fieldName, nonEmptyStringCheck);
 
+		// extra data users can add to their account
+		const allowedFields = [ // we don't have a schema for users so validate here
+			'description',
+		];
+
+		if (allowedFields.indexOf(fieldName) === -1) {
+			throw new Meteor.Error('edit-text-field-not-allowed', 'Unable to edit text field because the field may not be edited');
+		}
+
 		const optionalFields = [
 			'description',
 		];
@@ -121,6 +131,10 @@ Meteor.methods({
 			check(fieldValue, nonEmptyStringCheck);
 		} else {
 			check(fieldValue, String);
+		}
+
+		if (fieldValue.length > MAX_TEXT_AREA_LENGTH) {
+			throw new Meteor.Error('edit-text-field-too-long', 'Unable to edit text field because the text is too long');
 		}
 
 		const update = {};

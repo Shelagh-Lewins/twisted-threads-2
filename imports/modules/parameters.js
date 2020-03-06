@@ -165,6 +165,10 @@ export const ROLE_LIMITS = {
 		'maxImagesPerPattern': 10,
 	},
 };
+
+export const MAX_TEXT_AREA_LENGTH = 5000; // max length of a user-editable text area field such as user description
+export const MAX_TEXT_INPUT_LENGTH = 256; // max length of a user-editable text input field such as pattern name
+
 export const NUMBER_OF_ACTIONS_LOGGED = 20;
 export const PATTERN_IMAGES_KEY = 'test/'; // this is a pseudo-folder that namespaces the pattern images. In the current live version it would be '' but here we are namespacing for testing.
 

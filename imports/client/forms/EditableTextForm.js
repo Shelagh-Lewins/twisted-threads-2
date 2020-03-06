@@ -2,6 +2,10 @@ import React from 'react';
 import { Button } from 'reactstrap';
 import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
+import {
+	MAX_TEXT_AREA_LENGTH,
+	MAX_TEXT_INPUT_LENGTH,
+} from '../../modules/parameters';
 
 const validate = (optional, values) => {
 	const errors = {};
@@ -39,6 +43,7 @@ const EditableTextForm = (props) => {
 				<input
 					className={`form-control ${formik.touched.fieldValue && formik.errors.fieldValue ? 'is-invalid' : ''
 					}`}
+					maxLength={MAX_TEXT_INPUT_LENGTH}
 					placeholder={title}
 					id="fieldValue"
 					name="fieldValue"
@@ -55,6 +60,7 @@ const EditableTextForm = (props) => {
 				<textarea
 					className={`form-control ${formik.touched.fieldValue && formik.errors.fieldValue ? 'is-invalid' : ''
 					}`}
+					maxLength={MAX_TEXT_AREA_LENGTH}
 					placeholder={title}
 					id="fieldValue"
 					name="fieldValue"

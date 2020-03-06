@@ -1,5 +1,7 @@
 import SimpleSchema from 'simpl-schema';
 
+import { MAX_TEXT_INPUT_LENGTH, MAX_TEXT_AREA_LENGTH } from '../parameters';
+
 const PatternsSchema = new SimpleSchema({
 	// set using collection hooks in collection.js
 	'createdAt': {
@@ -18,7 +20,7 @@ const PatternsSchema = new SimpleSchema({
 	'description': {
 		'type': String,
 		'label': 'Description',
-		'max': 5000,
+		'max': MAX_TEXT_AREA_LENGTH,
 		'optional': true,
 	},
 	'holeHandedness': {
@@ -46,12 +48,12 @@ const PatternsSchema = new SimpleSchema({
 	'name': {
 		'type': String,
 		'label': 'Name',
-		'max': 256,
+		'max': MAX_TEXT_INPUT_LENGTH,
 	},
 	'nameSort': {
 		'type': String,
 		'label': 'Sortable name',
-		'max': 256,
+		'max': MAX_TEXT_INPUT_LENGTH,
 		'index': 1,
 	},
 	'numberOfRows': {
@@ -123,13 +125,13 @@ const PatternsSchema = new SimpleSchema({
 	'threadingNotes': {
 		'type': String,
 		'label': 'Threading notes',
-		'max': 5000,
+		'max': MAX_TEXT_AREA_LENGTH,
 		'optional': true,
 	},
 	'weavingNotes': {
 		'type': String,
 		'label': 'Weaving notes',
-		'max': 5000,
+		'max': MAX_TEXT_AREA_LENGTH,
 		'optional': true,
 	},
 	'weftColor': {
