@@ -4,11 +4,18 @@ import { resetDatabase } from 'meteor/xolvio:cleaner';
 import { assert, expect } from 'chai';
 import '../../imports/server/modules/publications';
 import '../methods/auth';
-import { stubUser, unwrapUser } from './mockUser';
+import {
+	createManyUsers,
+	logOutButLeaveUser,
+	stubUser,
+	unwrapUser,
+} from './mockUser';
 import {
 	addPatternDataIndividual,
 } from './testData';
 import { MAX_RECENTS } from '../../imports/modules/parameters';
+
+const sinon = require('sinon');
 
 if (Meteor.isServer) {
 	describe('test auth methods', function () { // eslint-disable-line func-names
@@ -170,14 +177,152 @@ if (Meteor.isServer) {
 				// assert.equal(roles.length, 1);
 			});
 		});
+		describe('get user count', () => {
+			// counts all users with public patterns
+			// plus the user themselves if logged in
+			it('returns the number of users with public patterns if the user is not logged in', () => {
+				const {
+					publicPatternUsernames,
+				} = createManyUsers();
+
+				const result = Meteor.call('auth.getUserCount');
+
+				assert.equal(result, publicPatternUsernames.length);
+			});
+			it('returns the number of users with public patterns plus one for the user if the user is logged in', () => {
+				const {
+					privatePatternUserIds,
+					publicPatternUsernames,
+				} = createManyUsers();
+
+				const currentUser = Meteor.users.findOne({ '_id': privatePatternUserIds[0] });
+				sinon.stub(Meteor, 'user');
+				Meteor.user.returns(currentUser); // now Meteor.user() will return the user we just created
+
+				sinon.stub(Meteor, 'userId');
+				Meteor.userId.returns(currentUser._id);
+
+				const result = Meteor.call('auth.getUserCount');
+
+				assert.equal(result, publicPatternUsernames.length + 1);
+				unwrapUser();
+			});
+		});
+		describe('get users for page', () => {
+			// counts all users with public patterns
+			// returns the number required for the page
+			it('returns the users for the first page, user not logged in', () => {
+				const {
+					publicPatternUsernames,
+				} = createManyUsers();
+
+				const skip = 0;
+				const limit = 10;
+
+				const result = Meteor.call('auth.getUsersForPage', {
+					skip,
+					limit,
+				});
+
+				assert.equal(result.length, limit);
+
+				const expectedUsernames = publicPatternUsernames.sort().slice(0, limit);
+console.log('expectedUsernames 1', expectedUsernames);
+				expectedUsernames.forEach((username) => {
+					assert.notEqual(expectedUsernames.indexOf(username), -1);
+				});
+			});
+			it('returns the users for the second page, user not logged in', () => {
+				const {
+					publicPatternUsernames,
+				} = createManyUsers();
+
+				const skip = 10;
+				const limit = 10;
+
+				const result = Meteor.call('auth.getUsersForPage', {
+					skip,
+					limit,
+				});
+
+				assert.equal(result.length, limit);
+
+				const expectedUsernames = publicPatternUsernames.sort().slice(limit, limit * 2);
+console.log('expectedUsernames 2', expectedUsernames);
+				expectedUsernames.forEach((username) => {
+					assert.notEqual(expectedUsernames.indexOf(username), -1);
+				});
+			});
+			it('returns the users for the first page, user is logged in', () => {
+				const {
+					privatePatternUserIds,
+					publicPatternUsernames,
+				} = createManyUsers();
+
+				const currentUser = Meteor.users.findOne({ '_id': privatePatternUserIds[0] });
+				sinon.stub(Meteor, 'user');
+				Meteor.user.returns(currentUser); // now Meteor.user() will return the user we just created
+
+				sinon.stub(Meteor, 'userId');
+				Meteor.userId.returns(currentUser._id);
+
+				const skip = 0;
+				const limit = 10;
+
+				const result = Meteor.call('auth.getUsersForPage', {
+					skip,
+					limit,
+				});
+
+				assert.equal(result.length, limit);
+
+				publicPatternUsernames.push(currentUser.username);
+
+				const expectedUsernames = publicPatternUsernames.sort().slice(0, limit);
+
+				expectedUsernames.forEach((username) => {
+					assert.notEqual(expectedUsernames.indexOf(username), -1);
+				});
+				unwrapUser();
+			});
+			it('returns the users for the second page, user is logged in', () => {
+				const {
+					privatePatternUserIds,
+					publicPatternUsernames,
+				} = createManyUsers();
+
+				const currentUser = Meteor.users.findOne({ '_id': privatePatternUserIds[0] });
+				sinon.stub(Meteor, 'user');
+				Meteor.user.returns(currentUser); // now Meteor.user() will return the user we just created
+
+				sinon.stub(Meteor, 'userId');
+				Meteor.userId.returns(currentUser._id);
+
+				const skip = 10;
+				const limit = 10;
+
+				const result = Meteor.call('auth.getUsersForPage', {
+					skip,
+					limit,
+				});
+
+				assert.equal(result.length, limit);
+
+				publicPatternUsernames.push(currentUser.username);
+
+				const expectedUsernames = publicPatternUsernames.sort().slice(limit, limit * 2);
+
+				expectedUsernames.forEach((username) => {
+					assert.notEqual(expectedUsernames.indexOf(username), -1);
+				});
+				unwrapUser();
+			});
+		});
 	});
 }
 
 // check can add pattern image
-
-// get user count
-
-// get users for page
+// No! It would affect AWS live storage
 
 // edit text field
 

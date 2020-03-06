@@ -13,6 +13,7 @@ import { stubUser, unwrapUser } from './mockUser';
 import {
 	addPatternDataIndividual,
 } from './testData';
+import createManyPatterns from './createManyPatterns';
 
 if (Meteor.isServer) {
 	describe('test general methods for patterns', function () { // eslint-disable-line func-names
@@ -127,9 +128,8 @@ if (Meteor.isServer) {
 			});
 		});
 		describe('pattern.getPatternCount method', () => {
+			// getPatternCount should count the patterns the user can see, for pagination.
 			it('returns 0 when the user is not logged in', () => {
-				// getPatternCount should count the patterns the user can see, for pagination.
-
 				// create patterns owned by other users
 				Factory.create('pattern', { 'name': 'Other Pattern 1', 'createdBy': 'abc' });
 				Factory.create('pattern', { 'name': 'Other Pattern 2', 'createdBy': 'def' });
@@ -139,8 +139,6 @@ if (Meteor.isServer) {
 				assert.equal(result, 0);
 			});
 			it('returns 2 when the user has 2 patterns in the database', () => {
-				// getPatternCount should count the patterns the user can see, for pagination.
-
 				// create patterns owned by other users
 				Factory.create('pattern', { 'name': 'Other Pattern 1', 'createdBy': 'abc' });
 				Factory.create('pattern', { 'name': 'Other Pattern 2', 'createdBy': 'def' });
@@ -155,9 +153,21 @@ if (Meteor.isServer) {
 				assert.equal(result, 2);
 				unwrapUser();
 			});
+			it('returns the user\'s own patterns plus public patterns', () => {
+				stubUser();
+				const {
+					publicMyPatternNames,
+					privateMyPatternNames,
+					publicOtherPatternNames,
+				} = createManyPatterns();
+
+				const result = Meteor.call('pattern.getPatternCount', {});
+				const expectedNumber = publicMyPatternNames.length
+				+ privateMyPatternNames.length
+				+ publicOtherPatternNames.length;
+				assert.equal(result, expectedNumber);
+				unwrapUser();
+			});
 		});
 	});
 }
-
-// TODO
-// update getPatternCount test when patterns can be public or private

@@ -29,6 +29,7 @@ import {
 	defaultPatternImageData,
 	defaultPatternPreviewData,
 } from './testData';
+import createManyPatterns from './createManyPatterns';
 
 // fields that should be published for patterns list
 const patternsFields = [
@@ -85,88 +86,6 @@ Factory.define('pattern', Patterns, defaultPatternData);
 Factory.define('patternPreview', PatternPreviews, defaultPatternPreviewData);
 
 Factory.define('patternImage', PatternImages, defaultPatternImageData);
-
-let publicMyPatternNames;
-let privateMyPatternNames;
-
-let publicOtherPatternNames;
-let privateOtherPatternNames;
-
-const createManyPatterns = () => {
-	Patterns.remove({});
-
-	publicMyPatternNames = [];
-	privateMyPatternNames = [];
-
-	publicOtherPatternNames = [];
-	privateOtherPatternNames = [];
-
-	const numberOfMyPublicPatterns = 20;
-	const numberOfMyPrivatePatterns = 15;
-	const numberOfOtherPublicPatterns = 9;
-	const numberOfOtherPrivatePatterns = 23;
-
-	// patterns belonging to current user
-	for (let i = 0; i < numberOfMyPublicPatterns; i += 1) {
-		const name = `${i} my public pattern`;
-		publicMyPatternNames.push(name);
-
-		Factory.create('pattern', {
-			'name': name,
-			'nameSort': name,
-			'createdBy': Meteor.user()._id,
-			'isPublic': true,
-		});
-	}
-
-	for (let i = 0; i < numberOfMyPrivatePatterns; i += 1) {
-		const name = `${i} my private pattern`;
-		privateMyPatternNames.push(name);
-
-		Factory.create('pattern', {
-			'name': name,
-			'nameSort': name,
-			'createdBy': Meteor.user()._id,
-			'isPublic': false,
-		});
-	}
-
-	// patterns belongiing to some other user
-	for (let i = 0; i < numberOfOtherPublicPatterns; i += 1) {
-		const name = `${i} other public pattern`;
-		publicOtherPatternNames.push(name);
-
-		Factory.create('pattern', {
-			'name': name,
-			'nameSort': name,
-			'createdBy': 'xxx',
-			'isPublic': true,
-		});
-	}
-
-	for (let i = 0; i < numberOfOtherPrivatePatterns; i += 1) {
-		const name = `${i} other private pattern`;
-		privateOtherPatternNames.push(name);
-
-		Factory.create('pattern', {
-			'name': name,
-			'nameSort': name,
-			'createdBy': 'xxx',
-			'isPublic': false,
-		});
-	}
-
-	// make sure all patterns have different createdAt dates
-	const now = new Date();
-	let count = 0;
-
-	Patterns.find().fetch().forEach((pattern) => {
-		const newDate = pattern.createdAt.setSeconds(now.getSeconds() + (10 * count));
-		Patterns.update({ '_id': pattern._id },
-			{ '$set': { 'createdAt': newDate } });
-		count += 1;
-	});
-};
 
 if (Meteor.isServer) {
 	describe('test publications', function () { // eslint-disable-line func-names
@@ -481,7 +400,10 @@ if (Meteor.isServer) {
 		// /////////////////////////
 		describe('publish allPatternsPreview', () => {
 			it('should publish only public patterns if user not logged in', async () => {
-				createManyPatterns();
+				const {
+					publicMyPatternNames,
+					publicOtherPatternNames,
+				} = createManyPatterns();
 
 				// make sure publications know there is no user
 				unwrapUser();
@@ -508,7 +430,11 @@ if (Meteor.isServer) {
 				assert.equal(result.length, ITEMS_PER_PREVIEW_LIST);
 			});
 			it('should publish private and public patterns if the user is logged in', async () => {
-				createManyPatterns();
+				const {
+					publicMyPatternNames,
+					privateMyPatternNames,
+					publicOtherPatternNames,
+				} = createManyPatterns();
 
 				const collector = new PublicationCollector();
 
@@ -532,7 +458,10 @@ if (Meteor.isServer) {
 				assert.equal(result.length, ITEMS_PER_PREVIEW_LIST);
 			});
 			it('should publish only public patterns if a different user is logged in', async () => {
-				createManyPatterns();
+				const {
+					publicMyPatternNames,
+					publicOtherPatternNames,
+				} = createManyPatterns();
 
 				// log in a different user
 				unwrapUser();
@@ -584,7 +513,10 @@ if (Meteor.isServer) {
 				assert.equal(result, undefined); // this.ready() returns undefined
 			});
 			it('should publish all the user\'s patterns if the user is logged in', async () => {
-				createManyPatterns();
+				const {
+					publicMyPatternNames,
+					privateMyPatternNames,
+				} = createManyPatterns();
 
 				const collector = new PublicationCollector({ 'userId': Meteor.user()._id });
 
@@ -600,7 +532,10 @@ if (Meteor.isServer) {
 				assert.equal(result.length, publicMyPatternNames.length + privateMyPatternNames.length);
 			});
 			it('should respect limit if the user is logged in', async () => {
-				createManyPatterns();
+				const {
+					publicMyPatternNames,
+					privateMyPatternNames,
+				} = createManyPatterns();
 				const limit = 5;
 
 				const collector = new PublicationCollector({ 'userId': Meteor.user()._id });
@@ -667,7 +602,11 @@ if (Meteor.isServer) {
 				assert.equal(result, undefined); // this.ready() returns undefined
 			});
 			it('should publish the user\'s patterns if the user is logged in', async () => {
-				createManyPatterns();
+				const {
+					publicMyPatternNames,
+					privateMyPatternNames,
+
+				} = createManyPatterns();
 
 				const collector = new PublicationCollector({ 'userId': Meteor.user()._id });
 
@@ -713,7 +652,10 @@ if (Meteor.isServer) {
 		// /////////////////////////
 		describe('publish newPatterns', () => {
 			it('should publish only public patterns if user not logged in', async () => {
-				createManyPatterns();
+				const {
+					publicMyPatternNames,
+					publicOtherPatternNames,
+				} = createManyPatterns();
 
 				// make sure publications know there is no user
 				unwrapUser();
@@ -749,7 +691,11 @@ if (Meteor.isServer) {
 				assert.equal(result.length, ITEMS_PER_PAGE);
 			});
 			it('should publish public and user\'s own patterns if user is logged in', async () => {
-				createManyPatterns();
+				const {
+					publicMyPatternNames,
+					privateMyPatternNames,
+					publicOtherPatternNames,
+				} = createManyPatterns();
 
 				const collector = new PublicationCollector();
 
@@ -781,7 +727,11 @@ if (Meteor.isServer) {
 				assert.equal(result.length, ITEMS_PER_PAGE);
 			});
 			it('should respect skip', async () => {
-				createManyPatterns();
+				const {
+					publicMyPatternNames,
+					privateMyPatternNames,
+					publicOtherPatternNames,
+				} = createManyPatterns();
 
 				const collector = new PublicationCollector();
 
@@ -813,7 +763,10 @@ if (Meteor.isServer) {
 				assert.equal(result.length, ITEMS_PER_PAGE);
 			});
 			it('should publish only public patterns if a different user is logged in', async () => {
-				createManyPatterns();
+				const {
+					publicMyPatternNames,
+					publicOtherPatternNames,
+				} = createManyPatterns();
 
 				// make sure publications know there is no user
 				unwrapUser();
@@ -852,7 +805,10 @@ if (Meteor.isServer) {
 		// /////////////////////////
 		describe('publish newPatternsPreview', () => {
 			it('should publish only public patterns if user not logged in', async () => {
-				createManyPatterns();
+				const {
+					publicMyPatternNames,
+					publicOtherPatternNames,
+				} = createManyPatterns();
 
 				// make sure publications know there is no user
 				unwrapUser();
@@ -888,7 +844,11 @@ if (Meteor.isServer) {
 				assert.equal(result.length, ITEMS_PER_PREVIEW_LIST);
 			});
 			it('should publish public and user\'s own patterns if user is logged in', async () => {
-				createManyPatterns();
+				const {
+					publicMyPatternNames,
+					privateMyPatternNames,
+					publicOtherPatternNames,
+				} = createManyPatterns();
 
 				const collector = new PublicationCollector();
 
@@ -920,7 +880,10 @@ if (Meteor.isServer) {
 				assert.equal(result.length, ITEMS_PER_PREVIEW_LIST);
 			});
 			it('should publish only public patterns if a different user is logged in', async () => {
-				createManyPatterns();
+				const {
+					publicMyPatternNames,
+					publicOtherPatternNames,
+				} = createManyPatterns();
 
 				// make sure publications know there is no user
 				unwrapUser();
@@ -959,7 +922,10 @@ if (Meteor.isServer) {
 		// /////////////////////////
 		describe('publish userPatterns', () => {
 			it('should publish all the user\'s patterns if the user is logged in', async () => {
-				createManyPatterns();
+				const {
+					publicMyPatternNames,
+					privateMyPatternNames,
+				} = createManyPatterns();
 
 				const collector = new PublicationCollector({ 'userId': Meteor.user()._id });
 
@@ -982,7 +948,9 @@ if (Meteor.isServer) {
 				assert.equal(result.length, ITEMS_PER_PAGE);
 			});
 			it('should publish only public patterns if the user is not logged in', async () => {
-				createManyPatterns();
+				const {
+					publicMyPatternNames,
+				} = createManyPatterns();
 				const userId = Meteor.userId();
 
 				// make sure publications know there is no user
@@ -1353,7 +1321,3 @@ if (Meteor.isServer) {
 		});
 	});
 }
-
-// TODO
-// patternImages
-// in methods, users for pagination
