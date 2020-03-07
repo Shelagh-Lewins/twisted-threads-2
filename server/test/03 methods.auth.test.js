@@ -6,6 +6,7 @@ import '../../imports/server/modules/publications';
 import '../methods/auth';
 import {
 	createManyUsers,
+	stubOtherUser,
 	stubUser,
 	unwrapUser,
 } from './mockUser';
@@ -328,6 +329,20 @@ if (Meteor.isServer) {
 					});
 				}
 				expect(expectedError).to.throw(Meteor.Error(), 'edit-text-field-not-logged-in');
+			});
+			it('cannot edit description of a different user', () => {
+				function expectedError() {
+					const currentUser = stubUser();
+					stubOtherUser();
+
+					Meteor.call('auth.editTextField', {
+						'_id': currentUser._id,
+						'fieldName': 'description',
+						'fieldValue': 'someText',
+					});
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'edit-text-field-not-logged-in');
+				unwrapUser();
 			});
 			it('cannot edit a different field if they are logged in', () => {
 				const currentUser = stubUser();
