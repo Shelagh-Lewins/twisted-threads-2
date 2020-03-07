@@ -41,12 +41,12 @@ Meteor.methods({
 		}
 
 		// check the name is long enough
-		if (name < MIN_TAG_LENGTH) {
+		if (processedName.length < MIN_TAG_LENGTH) {
 			throw new Meteor.Error('add-tag-too-short', `Unable to add tag because tag must be at least ${MIN_TAG_LENGTH} characters`);
 		}
 
 		// check the name is not too long
-		if (name > MAX_TAG_LENGTH) {
+		if (processedName.length > MAX_TAG_LENGTH) {
 			throw new Meteor.Error('add-tag-too-long', `Unable to add tag because tag must be no longer than ${MAX_TAG_LENGTH} characters`);
 		}
 
@@ -63,7 +63,7 @@ Meteor.methods({
 
 		Patterns.update(
 			{ '_id': patternId },
-			{ '$push': { 'tags': name } },
+			{ '$push': { 'tags': processedName } },
 		);
 
 		return tagId;
