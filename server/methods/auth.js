@@ -151,7 +151,7 @@ Meteor.methods({
 			throw new Meteor.Error('add-user-to-role-not-logged-in', 'Unable to add user to role because the current user is not logged in');
 		}
 		// user is administrator
-		if (Roles.userIsInRole(Meteor.userId(), 'administrator')) {
+		if (!Roles.userIsInRole(Meteor.userId(), 'administrator')) {
 			throw new Meteor.Error('add-user-to-role-not-administrator', 'Unable to add user to role because the current user is not an administrator');
 		}
 
@@ -171,9 +171,7 @@ Meteor.methods({
 		}
 
 		// user is not already in role
-		const userToAddRoles = Roles.getRolesForUser(_id);
-
-		if (userToAddRoles.indexOf(role) !== -1) {
+		if (Roles.userIsInRole(_id, role)) {
 			throw new Meteor.Error('add-user-to-role-already-in-role', 'Unable to add user to role because the user is already in the role');
 		}
 
@@ -184,12 +182,11 @@ Meteor.methods({
 	'auth.removeUserFromRole': function ({ _id, role }) {
 		// user is logged in
 		if (!Meteor.userId()) {
-			throw new Meteor.Error('add-user-to-role-not-logged-in', 'Unable to add user to role because the current user is not logged in');
+			throw new Meteor.Error('remove-user-from-role-not-logged-in', 'Unable to remove user from role because the current user is not logged in');
 		}
-		// user is administrator
-		const userRoles = Roles.getRolesForUser(Meteor.userId());
 
-		if (userRoles.indexOf('administrator') === -1) {
+		// user is administrator
+		if (!Roles.userIsInRole(Meteor.userId(), 'administrator')) {
 			throw new Meteor.Error('remove-user-from-role-not-administrator', 'Unable to remove user from role because the current user is not an administrator');
 		}
 
@@ -209,13 +206,11 @@ Meteor.methods({
 		}
 
 		// user is in role
-		const userToRemoveRoles = Roles.getRolesForUser(_id);
-
-		if (userToRemoveRoles.indexOf(role) === -1) {
+		if (!Roles.userIsInRole(_id, role)) {
 			throw new Meteor.Error('remove-user-from-role-not-in-role', 'Unable to remove user from role because the user is not in the role');
 		}
 
-		// do not allow administrator to remove themselves
+		// do not allow administrator to remove themself
 		if (_id === Meteor.userId() && role === 'administrator') {
 			throw new Meteor.Error('remove-user-from-role-administrator-not-remove-self', 'Unable to remove user from role because an administrator cannot remove themself');
 		}

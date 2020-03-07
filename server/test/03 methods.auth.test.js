@@ -6,6 +6,7 @@ import '../../imports/server/modules/publications';
 import '../methods/auth';
 import {
 	createManyUsers,
+	logOutButLeaveUser,
 	stubOtherUser,
 	stubUser,
 	unwrapUser,
@@ -318,7 +319,7 @@ if (Meteor.isServer) {
 				unwrapUser();
 			});
 		});
-		describe('get edit text field', () => {
+		describe('edit text field', () => {
 			// the only  editable field for user is description
 			it('cannot edit description if they are not logged in', () => {
 				function expectedError() {
@@ -407,14 +408,232 @@ if (Meteor.isServer) {
 				unwrapUser();
 			});
 		});
+		describe('add user to role', () => {
+			it('cannot add a user to a role if the user is not logged in', () => {
+				const targetUser = stubUser(); // the user whose role is to be changed
+				logOutButLeaveUser();
+
+				function expectedError() {
+					Meteor.call('auth.addUserToRole', {
+						'_id': targetUser._id,
+						'role': 'premium',
+					});
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'add-user-to-role-not-logged-in');
+				unwrapUser();
+			});
+			it('cannot add a user to a role if the user is not an administrator', () => {
+				const targetUser = stubUser(); // the user whose role is to be changed
+				stubOtherUser(); // the administrator
+
+				function expectedError() {
+					Meteor.call('auth.addUserToRole', {
+						'_id': targetUser._id,
+						'role': 'premium',
+					});
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'add-user-to-role-not-administrator');
+				unwrapUser();
+			});
+			it('cannot add a user to a role if the user does not exist', () => {
+				stubUser(); // only so stubOtherUser has something to unwrap
+				const currentUser = stubOtherUser(); // the administrator
+
+				Roles.createRole('administrator', { 'unlessExists': true });
+				Roles.addUsersToRoles(currentUser._id, ['administrator']);
+
+				function expectedError() {
+					Meteor.call('auth.addUserToRole', {
+						'_id': 'abc',
+						'role': 'premium',
+					});
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'add-user-to-role-user-not-found');
+				unwrapUser();
+			});
+			it('cannot add a user to a role if the role does not exist', () => {
+				const targetUser = stubUser(); // the user whose role is to be changed
+
+				const currentUser = stubOtherUser(); // the administrator
+
+				Roles.createRole('administrator', { 'unlessExists': true });
+				Roles.addUsersToRoles(currentUser._id, ['administrator']);
+
+				function expectedError() {
+					Meteor.call('auth.addUserToRole', {
+						'_id': targetUser._id,
+						'role': 'aardvark',
+					});
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'add-user-to-role-role-not-found');
+				unwrapUser();
+			});
+			it('cannot add a user to a role if the user is already in the role', () => {
+				const targetUser = stubUser(); // the user whose role is to be changed
+
+				const currentUser = stubOtherUser(); // the administrator
+
+				Roles.createRole('administrator', { 'unlessExists': true });
+				Roles.addUsersToRoles(currentUser._id, ['administrator']);
+
+				Roles.createRole('premium', { 'unlessExists': true });
+				Roles.addUsersToRoles(targetUser._id, ['premium']);
+
+				function expectedError() {
+					Meteor.call('auth.addUserToRole', {
+						'_id': targetUser._id,
+						'role': 'premium',
+					});
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'add-user-to-role-already-in-role');
+				unwrapUser();
+			});
+			it('cannot add a user to a role if the user is already in the role', () => {
+				const targetUser = stubUser(); // the user whose role is to be changed
+
+				const currentUser = stubOtherUser(); // the administrator
+
+				Roles.createRole('administrator', { 'unlessExists': true });
+				Roles.addUsersToRoles(currentUser._id, ['administrator']);
+
+				Roles.createRole('premium', { 'unlessExists': true });
+
+				Meteor.call('auth.addUserToRole', {
+					'_id': targetUser._id,
+					'role': 'premium',
+				});
+
+				assert.equal(Roles.userIsInRole(targetUser._id, 'premium'), true);
+
+				unwrapUser();
+			});
+		});
+		describe('remove user from role', () => {
+			it('cannot remove a user from a role if the user is not logged in', () => {
+				const targetUser = stubUser(); // the user whose role is to be changed
+				logOutButLeaveUser();
+
+				function expectedError() {
+					Meteor.call('auth.removeUserFromRole', {
+						'_id': targetUser._id,
+						'role': 'premium',
+					});
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'remove-user-from-role-not-logged-in');
+				unwrapUser();
+			});
+			it('cannot remove user from a role if the user is not an administrator', () => {
+				const targetUser = stubUser(); // the user whose role is to be changed
+				stubOtherUser(); // the administrator
+
+				function expectedError() {
+					Meteor.call('auth.removeUserFromRole', {
+						'_id': targetUser._id,
+						'role': 'premium',
+					});
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'remove-user-from-role-not-administrator');
+				unwrapUser();
+			});
+			it('cannot remove a user from a role if the user does not exist', () => {
+				stubUser(); // only so stubOtherUser has something to unwrap
+				const currentUser = stubOtherUser(); // the administrator
+
+				Roles.createRole('administrator', { 'unlessExists': true });
+				Roles.addUsersToRoles(currentUser._id, ['administrator']);
+
+				function expectedError() {
+					Meteor.call('auth.removeUserFromRole', {
+						'_id': 'abc',
+						'role': 'premium',
+					});
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'remove-user-from-role-user-not-found');
+				unwrapUser();
+			});
+			it('cannot remove a user from a role if the role does not exist', () => {
+				const targetUser = stubUser(); // the user whose role is to be changed
+
+				const currentUser = stubOtherUser(); // the administrator
+
+				Roles.createRole('administrator', { 'unlessExists': true });
+				Roles.addUsersToRoles(currentUser._id, ['administrator']);
+
+				function expectedError() {
+					Meteor.call('auth.removeUserFromRole', {
+						'_id': targetUser._id,
+						'role': 'aardvark',
+					});
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'remove-user-from-role-role-not-found');
+				unwrapUser();
+			});
+			it('cannot remove a user from a role if the user is not in the role', () => {
+				const targetUser = stubUser(); // the user whose role is to be changed
+
+				const currentUser = stubOtherUser(); // the administrator
+
+				Roles.createRole('administrator', { 'unlessExists': true });
+				Roles.addUsersToRoles(currentUser._id, ['administrator']);
+
+				Roles.createRole('premium', { 'unlessExists': true });
+
+				function expectedError() {
+					Meteor.call('auth.removeUserFromRole', {
+						'_id': targetUser._id,
+						'role': 'premium',
+					});
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'remove-user-from-role-not-in-role');
+				unwrapUser();
+			});
+			it('does not allow an administrator to remove themself', () => {
+				const targetUser = stubUser(); // the user whose role is to be changed
+
+				Roles.createRole('administrator', { 'unlessExists': true });
+				Roles.addUsersToRoles(targetUser._id, ['administrator']);
+
+				assert.equal(Roles.userIsInRole(targetUser._id, 'administrator'), true);
+
+				function expectedError() {
+					Meteor.call('auth.removeUserFromRole', {
+						'_id': targetUser._id,
+						'role': 'administrator',
+					});
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'remove-user-from-role-administrator-not-remove-self');
+
+				assert.equal(Roles.userIsInRole(targetUser._id, 'administrator'), true);
+
+				unwrapUser();
+			});
+			it('can remove a user from a role', () => {
+				const targetUser = stubUser(); // the user whose role is to be changed
+
+				const currentUser = stubOtherUser(); // the administrator
+
+				Roles.createRole('administrator', { 'unlessExists': true });
+				Roles.addUsersToRoles(currentUser._id, ['administrator']);
+
+				Roles.createRole('premium', { 'unlessExists': true });
+				Roles.addUsersToRoles(targetUser._id, ['premium']);
+
+				assert.equal(Roles.userIsInRole(targetUser._id, 'premium'), true);
+
+				Meteor.call('auth.removeUserFromRole', {
+					'_id': targetUser._id,
+					'role': 'premium',
+				});
+
+				assert.equal(Roles.userIsInRole(targetUser._id, 'premium'), false);
+
+				unwrapUser();
+			});
+		});
 	});
 }
 
 // check can add pattern image
 // No! It would affect AWS live storage
-
-// add to role
-
-// remove from role
 
 // tags
