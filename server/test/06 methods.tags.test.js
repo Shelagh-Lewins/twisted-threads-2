@@ -251,5 +251,141 @@ if (Meteor.isServer) {
 				assert.notEqual(updatedPattern.tags.indexOf(tagText), -1);
 			});
 		});
+		describe('tags.ensureExistsAndAssignToPattern method', () => {
+			// create a tag if it doesn't exist and assign it to a pattern
+			// this calls tags.assignToPattern so we don't need to recheck permissions
+			it('can ensureExistsAndAssignToPattern with existing tag', () => {
+				const { patternId } = this; // seems to be a scoping issue otherwise
+
+				const tagText = 'easy';
+				Tags.insert({ 'name': tagText	});
+
+				Meteor.call('tags.ensureExistsAndAssignToPattern', {
+					patternId,
+					'name': tagText,
+				});
+
+				// the tag exists
+				const tag = Tags.findOne({ 'name': tagText });
+				assert.equal(tag.name, tagText);
+
+				// the tag has been assigned to the pattern
+				const updatedPattern = Patterns.findOne({ '_id': patternId });
+				assert.notEqual(updatedPattern.tags.indexOf(tagText), -1);
+			});
+			it('can ensureExistsAndAssignToPattern with new tag', () => {
+				const { patternId } = this; // seems to be a scoping issue otherwise
+
+				const tagText = 'easy';
+
+				Meteor.call('tags.ensureExistsAndAssignToPattern', {
+					patternId,
+					'name': tagText,
+				});
+
+				// the tag exists
+				const tag = Tags.findOne({ 'name': tagText });
+				assert.equal(tag.name, tagText);
+
+				// the tag has been assigned to the pattern
+				const updatedPattern = Patterns.findOne({ '_id': patternId });
+				assert.notEqual(updatedPattern.tags.indexOf(tagText), -1);
+			});
+		});
+		describe('tags.removeTagFromPattern method', () => {
+			it('cannot remove tag if not logged in', () => {
+				const { patternId } = this; // seems to be a scoping issue otherwise
+
+				const tagText = 'easy';
+
+				Meteor.call('tags.ensureExistsAndAssignToPattern', {
+					patternId,
+					'name': tagText,
+				});
+
+				unwrapUser();
+				stubNoUser();
+
+				function expectedError() {
+					Meteor.call('tags.removeTagFromPattern', {
+						patternId,
+						'name': tagText,
+					});
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'remove-tag-not-logged-in');
+			});
+			it('cannot remove tag if pattern not found', () => {
+				const patternId = 'abc'; // seems to be a scoping issue otherwise
+
+				const tagText = 'easy';
+
+				function expectedError() {
+					Meteor.call('tags.removeTagFromPattern', {
+						patternId,
+						'name': tagText,
+					});
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'remove-tag-not-found');
+			});
+			it('cannot remove tag if pattern created by another user', () => {
+				const { patternId } = this; // seems to be a scoping issue otherwise
+
+				const tagText = 'easy';
+
+				Meteor.call('tags.ensureExistsAndAssignToPattern', {
+					patternId,
+					'name': tagText,
+				});
+
+				stubOtherUser();
+
+				function expectedError() {
+					Meteor.call('tags.removeTagFromPattern', {
+						patternId,
+						'name': tagText,
+					});
+				}
+
+				expect(expectedError).to.throw(Meteor.Error(), 'remove-tag-not-created-by-user');
+			});
+			it('cannot remove tag if tag not assigned to the pattern', () => {
+				const { patternId } = this; // seems to be a scoping issue otherwise
+
+				const tagText = 'easy';
+
+				function expectedError() {
+					Meteor.call('tags.removeTagFromPattern', {
+						patternId,
+						'name': tagText,
+					});
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'remove-tag-not-assigned');
+			});
+			it('can remove the tag', () => {
+				const { patternId } = this; // seems to be a scoping issue otherwise
+
+				const tagText = 'easy';
+
+				Meteor.call('tags.ensureExistsAndAssignToPattern', {
+					patternId,
+					'name': tagText,
+				});
+
+				Meteor.call('tags.removeTagFromPattern', {
+					patternId,
+					'name': tagText,
+				});
+
+				// the tag has been removed from the pattern
+				// effectively testing tags.removeUnused
+				const updatedPattern = Patterns.findOne({ '_id': patternId });
+				assert.equal(updatedPattern.tags.indexOf(tagText), -1);
+
+				// the tag no longer exists
+				const tag = Tags.findOne({ 'name': tagText });
+
+				assert.equal(tag, undefined);
+			});
+		});
 	});
 }
