@@ -181,7 +181,7 @@ export const FLASH_MESSAGE_TEXTS = {
 	'emailVerified': 'Your email address has been verified',
 };
 
-export const MAX_TAG_LENGTH = 200;
+export const MAX_TAG_LENGTH = 32;
 export const MIN_TAG_LENGTH = 3;
 
 // map from pattern data to human readable names

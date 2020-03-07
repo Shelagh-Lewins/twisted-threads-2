@@ -19,6 +19,10 @@ class TagInput extends PureComponent {
 		functionsToBind.forEach((functionName) => {
 			this[functionName] = this[functionName].bind(this);
 		});
+
+		this.state = {
+			'isValid': true,
+		};
 	}
 
 	onDelete(i) {
@@ -43,33 +47,43 @@ class TagInput extends PureComponent {
 	}
 
 	onValidate(tag) { // eslint-disable-line class-methods-use-this
-		return (tag.name.length >= MIN_TAG_LENGTH && tag.name.length <= MAX_TAG_LENGTH);
+		const isValid = tag.name.length >= MIN_TAG_LENGTH && tag.name.length <= MAX_TAG_LENGTH;
+
+		this.setState({
+			isValid,
+		});
+
+		return isValid;
 	}
 
 	render() {
 		const { tagSuggestions, tags } = this.props;
+		const { isValid } = this.state;
 
 		return (
-			<ReactTags
-				allowNew={true}
-				classNames={{
-					'root': 'react-tags',
-					'rootFocused': 'is-focused',
-					'selected': 'selected',
-					'selectedTag': 'selected-tag',
-					'selectedTagName': 'selected-tag-name',
-					'search': 'search',
-					'searchInput': 'search-input',
-					'suggestions': 'suggestions',
-					'suggestionActive': 'is-active',
-					'suggestionDisabled': 'is-disabled',
-				}}
-				tags={tags}
-				suggestions={tagSuggestions}
-				onDelete={this.onDelete}
-				onAddition={this.onAddition}
-				onValidate={this.onValidate}
-			/>
+			<div className="edit-tags">
+				<ReactTags
+					allowNew={true}
+					classNames={{
+						'root': 'react-tags',
+						'rootFocused': 'is-focused',
+						'selected': 'selected',
+						'selectedTag': 'selected-tag',
+						'selectedTagName': 'selected-tag-name',
+						'search': 'search',
+						'searchInput': 'search-input',
+						'suggestions': 'suggestions',
+						'suggestionActive': 'is-active',
+						'suggestionDisabled': 'is-disabled',
+					}}
+					tags={tags}
+					suggestions={tagSuggestions}
+					onDelete={this.onDelete}
+					onAddition={this.onAddition}
+					onValidate={this.onValidate}
+				/>
+				{!isValid && <div className="invalid-feedback">{`Tags must be between ${MIN_TAG_LENGTH} and ${MAX_TAG_LENGTH} characters long`}</div>}
+			</div>
 		);
 	}
 }

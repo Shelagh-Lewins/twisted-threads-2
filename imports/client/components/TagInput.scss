@@ -1,134 +1,142 @@
 @import "../constants/variables";
 
-.react-tags {
-	background: $color-tags-background;
-	border: 1px solid $color-tags-border;
-	border-radius: 1px;
-	color: $color-text;
-	cursor: text;
-	font-size: 1em;
-	line-height: 1.2;
+.edit-tags{
 	margin-bottom: 8px;
-	padding: 6px 0 0 6px;
-	position: relative;
 
-	button {
-		color: $color-text;
-	}
-
-	.is-focused {
-		border-color: $color-tags-border;
-	}
-
-	.selected {
-		display: inline;
-	}
-
-	.selected-tag {
-		background: $color-tags-selected;
-		border: 1px solid $color-tags-border;
-		border-radius: 2px;
-		box-sizing: border-box;
-		display: inline-block;
-		font-size: inherit;
-		line-height: inherit;
-		margin: 0 6px 6px 0;
-		padding: 6px 8px;
-
-		&::after {
-			color: $color-tags-after;
-			content: "\2715";
-			margin-left: 8px;
-		}
-
-		&:hover,
-		&:focus {
-			border-color: $color-tags-hover-border;
-		}
-	}
-
-	.search {
-		display: inline-block;
-
-		// match tag layout
-		padding: 7px 2px;
-		margin-bottom: 6px;
-
-		// prevent autoresize overflowing the container
-		max-width: 100%;
-	}
-
-	@media screen and (min-width: 30em) {
-		.search {
-			// this will become the offsetParent for suggestions
-			position: relative;
-		}
-	}
-
-	input {
-		// prevent autoresize overflowing the container
-		max-width: 100%;
-
-		// remove styles and layout from this element
-		margin: 0;
-		padding: 0;
-		border: 0;
-		outline: none;
-
-		// match the font styles
-		font-size: inherit;
-		line-height: inherit;
-	}
-
-	::-ms-clear {
-		display: none;
-	}
-
-	.suggestions {
+	.react-tags {
 		background: $color-tags-background;
 		border: 1px solid $color-tags-border;
-		border-radius: 2px;
-		box-shadow: 0 2px 6px $color-tags-shadow;
-		left: 0;
-		position: absolute;
-		top: 100%;
-		width: 100%;
+		border-radius: 1px;
+		color: $color-text;
+		cursor: text;
+		font-size: 1em;
+		line-height: 1.2;
+		padding: 6px 0 0 6px;
+		position: relative;
 
-		ul {
-			list-style: none;
-			margin: 4px -1px;
-			padding: 0;
+		button {
+			color: $color-text;
 		}
 
-		li {
-			float: left;
+		.is-focused {
+			border-color: $color-tags-border;
+		}
+
+		.selected {
+			display: inline;
+		}
+
+		.selected-tag {
+			background: $color-tags-selected;
+			border: 1px solid $color-tags-border;
+			border-radius: 2px;
+			box-sizing: border-box;
+			display: inline-block;
+			font-size: inherit;
+			line-height: inherit;
+			margin: 0 6px 6px 0;
 			padding: 6px 8px;
 
-			mark {
-				background: none;
-				font-weight: 600;
-				text-decoration: underline;
+			&::after {
+				color: $color-tags-after;
+				content: "\2715";
+				margin-left: 8px;
+			}
+
+			&:hover,
+			&:focus {
+				border-color: $color-tags-hover-border;
 			}
 		}
 
-		:hover {
-			background: $color-tags-hover;
-			cursor: pointer;
+		.search {
+			display: inline-block;
+
+			// match tag layout
+			padding: 7px 2px;
+			margin-bottom: 6px;
+
+			// prevent autoresize overflowing the container
+			max-width: 100%;
 		}
 
-		.is-active {
-			background: $color-tags-bg-active;
+		@media screen and (min-width: 30em) {
+			.search {
+				// this will become the offsetParent for suggestions
+				position: relative;
+			}
 		}
 
-		.is-disabled {
-			cursor: auto;
-			opacity: .5;
+		input {
+			// prevent autoresize overflowing the container
+			max-width: 100%;
+
+			// remove styles and layout from this element
+			margin: 0;
+			padding: 0;
+			border: 0;
+			outline: none;
+
+			// match the font styles
+			font-size: inherit;
+			line-height: inherit;
+		}
+
+		::-ms-clear {
+			display: none;
+		}
+
+		.suggestions {
+			background: $color-tags-background;
+			border: 1px solid $color-tags-border;
+			border-radius: 2px;
+			box-shadow: 0 2px 6px $color-tags-shadow;
+			left: 0;
+			position: absolute;
+			top: 100%;
+			width: 100%;
+
+			ul {
+				list-style: none;
+				margin: 4px -1px;
+				padding: 0;
+			}
+
+			li {
+				float: left;
+				padding: 6px 8px;
+
+				mark {
+					background: none;
+					font-weight: 600;
+					text-decoration: underline;
+				}
+			}
+
+			:hover {
+				background: $color-tags-hover;
+				cursor: pointer;
+			}
+
+			.is-active {
+				background: $color-tags-bg-active;
+			}
+
+			.is-disabled {
+				cursor: auto;
+				opacity: .5;
+			}
+		}
+
+		@media screen and (min-width: 30em) {
+			.suggestions {
+				width: 240px;
+			}
 		}
 	}
 
-	@media screen and (min-width: 30em) {
-		.suggestions {
-			width: 240px;
-		}
+	.invalid-feedback {
+		display: block;
+		font-size: .8rem;
 	}
 }

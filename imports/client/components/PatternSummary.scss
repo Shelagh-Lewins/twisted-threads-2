@@ -76,6 +76,7 @@
 		left: 8px;
 		position: absolute;
 		top: 84px;
+		width: 250px;
 		z-index: 2;
 	}
 
@@ -83,11 +84,13 @@
 		background: $color-pattern-summary-tablets-background;
 		border-radius: 4px;
 		color: $color-pattern-summmary-tablets;
-		float: left;
 		font-size: 14px;
 		line-height: 1.2;
 		margin-bottom: 4px;
+		overflow: hidden;
 		padding: 4px;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 
 		.tag {
 			&::after {

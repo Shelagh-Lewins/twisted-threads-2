@@ -2,6 +2,7 @@ import {
 	Patterns,
 	Tags,
 } from '../../imports/modules/collection';
+import { MAX_TAG_LENGTH, MIN_TAG_LENGTH } from '../../imports/modules/parameters';
 
 const migrateTags = () => {
 	console.log('*** starting to migrate tags');
@@ -28,7 +29,19 @@ const migrateTags = () => {
 
 		if (tags) {
 			// ensure lower case and no duplicates
-			const oldTags = new Set(tags.map((tag) => tag.toLowerCase()));
+			const oldTags = new Set(tags.map((tag) => {
+				let processedTag = tag;
+
+				while (processedTag.length < MIN_TAG_LENGTH) {
+					processedTag += '_';
+				}
+
+				if (processedTag.length > MAX_TAG_LENGTH) {
+					processedTag = processedTag.slice(0, MAX_TAG_LENGTH);
+				}
+
+				return processedTag.toLowerCase();
+			}));
 			const newTags = [];
 
 			oldTags.forEach((tag) => {
