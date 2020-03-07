@@ -479,12 +479,15 @@ export const getCanCreatePattern = (state) => {
 	const limits = [];
 	userRoles.forEach((role) => {
 		if (ROLE_LIMITS[role]) {
+			console.log('role', role);
+			console.log('limit for role', ROLE_LIMITS[role].maxPatternsPerUser);
 			limits.push(ROLE_LIMITS[role].maxPatternsPerUser);
 		}
 	});
-
+console.log('limits', limits);
 	const limit = Math.max(...limits); // user can create the largest number of patterns of any role they have
-
+console.log('limit', limit);
+console.log('numberOfPatterns', state.auth.numberOfPatterns);
 	if (state.auth.numberOfPatterns < limit) {
 		return true;
 	}

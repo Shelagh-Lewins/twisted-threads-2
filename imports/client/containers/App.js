@@ -171,11 +171,17 @@ export const withDatabase = withTracker((props) => {
 	if (Meteor.user()) {
 		// change in the database must trigger a change in the numbers in the Redux store
 		// check for change in number of patterns the user has created
-		numberOfPatterns = Patterns.find({ 'createdBy': Meteor.userId() }).count();
+		Meteor.call('pattern.getPatternCount', {
+			'userId': Meteor.userId(),
+		}, (error, result) => {
+			if (error) {
+				console.log('App.js, error calling method pattern.getPatternCount', error);
+			}
 
-		if (numberOfPatterns !== getNumberOfPatterns(state)) {
-			dispatch(setNumberOfPatterns(numberOfPatterns));
-		}
+			if (result !== getNumberOfPatterns(state)) {
+				dispatch(setNumberOfPatterns(result));
+			}
+		});
 
 		// check for change in the number of color books the user has created
 		numberOfColorBooks = ColorBooks.find({ 'createdBy': Meteor.userId() }).count();
