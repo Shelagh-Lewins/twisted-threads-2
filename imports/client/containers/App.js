@@ -96,6 +96,9 @@ const PrintViewContainer = () => (
 	</div>
 );
 
+// !!! When a new route is added, it must be explicitly allowed in the nginx conf file on the server !!!
+// /etc/nginx/sites-enabled/twistedthreads.conf
+// otherwise direct navigation to the route will be blocked
 const DefaultContainer = () => (
 	<div className="app-container">
 		<Navbar	/>
