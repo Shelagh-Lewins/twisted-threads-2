@@ -96,7 +96,7 @@ class Welcome extends Component {
 				<Container>
 					<Row>
 						<Col>
-							<h2>Welcome to Twisted Threads 2</h2>
+							<h2>Welcome to Twisted Threads</h2>
 							{content}
 						</Col>
 					</Row>
