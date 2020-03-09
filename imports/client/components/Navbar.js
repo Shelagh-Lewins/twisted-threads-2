@@ -226,7 +226,7 @@ class Navbar extends Component {
 		return (
 			<nav className="navbar navbar-expand-md navbar-dark">
 				{showUploadPatternForm && this.renderUploadPatternForm()}
-				<Link className="navbar-brand" to="/"><span className="logo" />Twisted Threads</Link>
+				<Link className="navbar-brand" to="/"><span className="logo" style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/logo.png')}` }} />Twisted Threads</Link>
 				<Search
 					dispatch={dispatch}
 					history={history}

@@ -351,9 +351,11 @@ class User extends PureComponent {
 				content = (
 					<>
 						<Container>
-							<h1
-								className={getUserpicStyle(_id)}
-							>
+							<h1>
+								<span
+									className={`${getUserpicStyle(_id)} icon`}
+									style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/user_profile.png')}` }}
+								/>
 								{username}
 							</h1>
 							{this.renderDescription()}

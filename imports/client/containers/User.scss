@@ -13,8 +13,7 @@
 	}
 
 	h1 {
-		&::before {
-			background-image: url("../images/user_profile.png");
+		.icon {
 			background-position: left top;
 			background-repeat: no-repeat;
 			background-size: 32px 32px;
