@@ -219,4 +219,7 @@ Meteor.methods({
 
 		return 'success';
 	},
+	'auth.getClientConnection': function () {
+		return this.connection;
+	},
 });

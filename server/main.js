@@ -4,6 +4,8 @@ import { ROLES } from '../imports/modules/parameters';
 
 import runDataMigration from './migration/runDataMigration';
 
+const moment = require('moment');
+
 Meteor.startup(() => {
 	//TODO run this once live
 	//and then remove it
@@ -94,4 +96,10 @@ Accounts.onCreateUser((options, user) => {
 	Roles.addUsersToRoles(newUser._id, 'registered');
 
 	return newUser;
+});
+
+// log failed login attempts so fail2ban can find them in the Nginx logs
+Accounts.onLoginFailure(() => {
+	const connection = Meteor.call('auth.getClientConnection');
+	console.log(`${moment(new Date()).format('YYYY/MM/DD HH:mm:ss')} [error] 401: Meteor login failure, client: ${connection.clientAddress}, host: "${connection.httpHeaders.host}"`);
 });
