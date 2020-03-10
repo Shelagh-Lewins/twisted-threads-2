@@ -6,6 +6,7 @@ import {
 } from '../../imports/modules/parameters';
 import { Patterns } from '../../imports/modules/collection';
 import {
+	buildServerLogText,
 	checkCanCreateColorBook,
 	checkUserCanAddPatternImage,
 	nonEmptyStringCheck,
@@ -24,6 +25,10 @@ Meteor.methods({
 		}
 
 		updateActionsLog('verificationEmailSent');
+
+		// log send of verification email so fail2ban can find them in the nginx logs
+		const text = buildServerLogText('[action]: Meteor send verification email');
+		console.log(text);
 
 		return Accounts.sendVerificationEmail(userId);
 	},

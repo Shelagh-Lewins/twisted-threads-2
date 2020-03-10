@@ -12,6 +12,8 @@ import {
 	ROLE_LIMITS,
 } from '../../modules/parameters';
 
+const moment = require('moment');
+
 // used to check parameters supplied to methods and publications
 export const nonEmptyStringCheck = Match.Where((x) => {
 	check(x, String);
@@ -265,3 +267,13 @@ export const setupTwillThreading = ({
 
 	return threadingForNewTablets;
 };
+
+// build a string to be written to the Nginx log
+// suitable for parsing by a fail2ban filter
+// may be an error like login failure
+// or an action we need to monitor like registering a new user
+export const buildServerLogText = ((text) => {
+	const connection = Meteor.call('auth.getClientConnection');
+
+	return `${moment(new Date()).format('YYYY/MM/DD HH:mm:ss')} ${text}, client: ${connection.clientAddress}, host: "${connection.httpHeaders.host}"`;
+});

@@ -1,10 +1,9 @@
 import '../imports/server/modules/publications';
 import '../imports/server/modules/slingshot';
 import { ROLES } from '../imports/modules/parameters';
+import { buildServerLogText } from '../imports/server/modules/utils';
 
 import runDataMigration from './migration/runDataMigration';
-
-const moment = require('moment');
 
 Meteor.startup(() => {
 	//TODO run this once live
@@ -95,11 +94,15 @@ Accounts.onCreateUser((options, user) => {
 	// assign the user the default role
 	Roles.addUsersToRoles(newUser._id, 'registered');
 
+	// log new user registrations so fail2ban can find them in the nginx logs
+	const text = buildServerLogText('[action]: Meteor create user');
+	console.log(text);
+
 	return newUser;
 });
 
 // log failed login attempts so fail2ban can find them in the Nginx logs
 Accounts.onLoginFailure(() => {
-	const connection = Meteor.call('auth.getClientConnection');
-	console.log(`${moment(new Date()).format('YYYY/MM/DD HH:mm:ss')} [error] 401: Meteor login failure, client: ${connection.clientAddress}, host: "${connection.httpHeaders.host}"`);
+	const text = buildServerLogText('[error]: Meteor login failure');
+	console.log(text);
 });
