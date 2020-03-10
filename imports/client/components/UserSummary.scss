@@ -38,7 +38,6 @@
 		}
 
 		.icon {
-			background-image: url("../images/user_profile.png");
 			background-position: left top;
 			background-repeat: no-repeat;
 			background-size: 32px 32px;
@@ -80,7 +79,7 @@
 
 		.public-patterns {
 			.icon {
-				background: url("../images/number_of_patterns.png") transparent no-repeat left top;
+				background: transparent no-repeat left top;
 				background-size: 16px 16px;
 			}
 		}

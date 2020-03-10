@@ -82,10 +82,6 @@ $rw-img-path: "~/img";
 		}
 
 		.search-result-pattern {
-			.main-icon {
-				background-image: url("/images/search_pattern.png");
-			}
-
 			.tablets-count,
 			.created-by {
 				color: $color-search-info;
@@ -104,21 +100,15 @@ $rw-img-path: "~/img";
 
 			.tablets-count {
 				.icon {
-					background: url("/images/tablet_count.svg") transparent no-repeat left top;
+					background: transparent no-repeat left top;
 					background-size: 16px 16px;
 				}
 			}
 		}
 
-		.search-result-user {
-			.main-icon {
-				background-image: url("/images/search_user.png");
-			}
-		}
-
 		.created-by {
 			.icon {
-				background: url("/images/created_by.png") transparent no-repeat left top;
+				background: transparent no-repeat left top;
 				background-size: 16px 16px;
 			}
 		}

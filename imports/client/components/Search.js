@@ -180,15 +180,24 @@ class Search extends PureComponent {
 				case 'pattern':
 					element = (
 						<span className="search-result-pattern">
-							<span className="main-icon" />
+							<span
+								className="main-icon"
+								style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/search_pattern.png')}` }}
+							/>
 							<div>
 								<span className="name" title={name}>{name}</span>
 								<span className="tablets-count" title={`${numberOfTablets} tablets`}>
-									<span className="icon" />
+									<span
+										className="icon"
+										style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/tablet_count.svg')}` }}
+									/>
 									{numberOfTablets}
 								</span>
 								<span className="created-by" title={`Created by ${createdBy}`}>
-									<span className="icon" />{username}
+									<span
+										className="icon"
+										style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/created_by.png')}` }}
+									/>{username}
 								</span>
 							</div>
 						</span>
@@ -198,7 +207,10 @@ class Search extends PureComponent {
 				case 'user':
 					element = (
 						<span className="search-result-user">
-							<span className="main-icon" />
+							<span
+								className="main-icon"
+								style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/search_user.png')}` }}
+							/>
 							<div>
 								<span className="name">{name}</span>
 							</div>

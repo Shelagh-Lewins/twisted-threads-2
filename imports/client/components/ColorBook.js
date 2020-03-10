@@ -249,7 +249,7 @@ class ColorBook extends PureComponent {
 
 		const defaultHint = context === 'user'
 			? 'A range of colours that can be used in pattern palettes'
-			: 'To assign a colour to the palette, select the colour';
+			: 'Select a colour box below to assign that colour to the current palette selection';
 
 		const controlElm = isEditingColors
 			? (
@@ -258,7 +258,7 @@ class ColorBook extends PureComponent {
 					<div className="buttons">
 						<Button color="primary" onClick={this.handleClickDone}>Done</Button>
 					</div>
-					<p className="hint">To open the colour picker, select a colour</p>
+					<p className="hint">To open the colour picker, select one of the boxes below</p>
 				</>
 			)
 			: (

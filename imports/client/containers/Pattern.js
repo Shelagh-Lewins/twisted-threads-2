@@ -87,7 +87,7 @@ class Pattern extends PureComponent {
 		const { dispatch } = this.props;
 
 		document.body.classList.add(bodyClass);
-		dispatch(setUpdatePreviewWhileEditing(false));
+		dispatch(setUpdatePreviewWhileEditing(true));
 		dispatch(setIsEditingThreading(false));
 		dispatch(setIsEditingWeaving(false));
 	}

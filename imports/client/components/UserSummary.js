@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import getUserpicStyle from '../modules/getUserpicStyle';
-import { iconColors } from '../../modules/parameters'
+import { iconColors } from '../../modules/parameters';
 import './UserSummary.scss';
 import './Userpic.scss';
 
@@ -26,6 +26,7 @@ function UserSummary(props) {
 					<h3>
 						<span
 							className={`icon ${getUserpicStyle(_id)}`}
+							style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/user_profile.png')}` }}
 						/>
 						{username}
 					</h3>
@@ -35,7 +36,10 @@ function UserSummary(props) {
 							className="public-patterns"
 							title="Number of published patterns"
 						>
-							<span className="icon" />
+							<span
+								className="icon"
+								style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/number_of_patterns.png')}` }}
+							/>
 							{publicPatternsCount}
 						</div>
 						<div
