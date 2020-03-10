@@ -143,7 +143,11 @@ class ColorBook extends PureComponent {
 	}
 
 	handleSubmitEditName({ name }) {
-		const { 'colorBook': { _id }, dispatch } = this.props;
+		const {
+			'colorBook': { _id },
+			dispatch,
+			handleEditColorBook,
+		} = this.props;
 
 		dispatch(editColorBookName({
 			_id,
@@ -153,6 +157,8 @@ class ColorBook extends PureComponent {
 		this.setState({
 			'isEditingName': false,
 		});
+
+		handleEditColorBook(false);
 	}
 
 	acceptColorChange() {
@@ -247,9 +253,13 @@ class ColorBook extends PureComponent {
 			showEditColorPanel,
 		} = this.state;
 
-		const defaultHint = context === 'user'
-			? 'A range of colours that can be used in pattern palettes'
-			: 'Select a colour box below to assign that colour to the current palette selection';
+		let hintText = 'To open the colour picker, select one of the boxes above';
+
+		if (!isEditingColors) {
+			hintText = context === 'user'
+				? 'A range of colours that can be used in pattern palettes'
+				: 'Select a box above to assign that colour to the current palette selection';
+		}
 
 		const controlElm = isEditingColors
 			? (
@@ -258,7 +268,6 @@ class ColorBook extends PureComponent {
 					<div className="buttons">
 						<Button color="primary" onClick={this.handleClickDone}>Done</Button>
 					</div>
-					<p className="hint">To open the colour picker, select one of the boxes below</p>
 				</>
 			)
 			: (
@@ -266,9 +275,8 @@ class ColorBook extends PureComponent {
 					<div className="buttons">
 						<Button color="danger" className="remove" onClick={() => handleClickRemoveColorBook({ _id, name })}>Delete</Button>
 						<Button color="secondary" onClick={this.handleClickEditName}>Edit name</Button>
-						<Button color="secondary" onClick={this.handleClickEditColors}>Edit colours</Button>
+						<Button color="primary" onClick={this.handleClickEditColors}>Set up colours</Button>
 					</div>
-					<p className="hint">{defaultHint}</p>
 				</>
 			);
 
@@ -294,6 +302,7 @@ class ColorBook extends PureComponent {
 				<div className="colors">
 					{!isEditingName && colorBook.colors.map((color, index) => this.renderColor(color, index))}
 				</div>
+				{!isEditingName && <p className="hint">{hintText}</p>}
 				{isEditingName && editNameForm}
 			</div>
 		);

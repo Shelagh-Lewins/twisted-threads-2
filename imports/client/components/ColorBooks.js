@@ -110,7 +110,7 @@ class ColorBooks extends PureComponent {
 
 		return (
 			<div className="select-color-book">
-				Select colour book:&nbsp;
+				Current colour book:&nbsp;
 				<select
 					disabled={isEditingColorBook}
 					key="select-color-book"
