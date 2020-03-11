@@ -54,7 +54,7 @@ class EditableText extends PureComponent {
 
 		return (
 			<div className="controls">
-				{!isEditing && <Button color="secondary" onClick={this.onClickEdit}>{editButtonText || 'Edit'}</Button>}
+				{!isEditing && <Button color="primary" onClick={this.onClickEdit}>{editButtonText || 'Edit'}</Button>}
 			</div>
 		);
 	}
@@ -110,7 +110,6 @@ class EditableText extends PureComponent {
 
 		return (
 			<>
-				{canEdit && this.renderControls()}
 				{type === 'input' ? this.renderInputType() : this.renderTextAreaType() }
 				{isEditing && (
 					<>
@@ -125,7 +124,7 @@ class EditableText extends PureComponent {
 						/>
 						{type === 'textarea' && (
 							<>
-								<span className="hint">You can use <a href="https://github.github.com/gfm/" target="_blank">Markdown</a> to format text. For example:
+								<span className="hint">You can use <a href="https://github.github.com/gfm/" target="_blank" rel="noreferrer noopener">Markdown</a> to format text. For example:
 									<ul>
 										<li>*italic*</li>
 										<li>**bold**</li>
@@ -138,6 +137,7 @@ class EditableText extends PureComponent {
 						)}
 					</>
 				)}
+				{canEdit && this.renderControls()}
 			</>
 		);
 	}

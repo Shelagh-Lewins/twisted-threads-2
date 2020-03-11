@@ -218,6 +218,7 @@ class Pattern extends PureComponent {
 			<>
 				<EditableText
 					canEdit={canEdit}
+					editButtonText="Edit name"
 					fieldName="name"
 					onClickSave={this.onClickEditableTextSave}
 					title="Name"
@@ -652,6 +653,7 @@ class Pattern extends PureComponent {
 						</div>
 						<EditableText
 							canEdit={canEdit}
+							editButtonText="Edit weaving notes"
 							fieldName="weavingNotes"
 							onClickSave={this.onClickEditableTextSave}
 							optional={true}
@@ -672,6 +674,7 @@ class Pattern extends PureComponent {
 						)}
 						<EditableText
 							canEdit={canEdit}
+							editButtonText="Edit threading notes"
 							fieldName="threadingNotes"
 							onClickSave={this.onClickEditableTextSave}
 							optional={true}
@@ -701,6 +704,7 @@ class Pattern extends PureComponent {
 						{canEdit && this.renderTagInput()}
 						<EditableText
 							canEdit={canEdit}
+							editButtonText="Edit description"
 							fieldName="description"
 							onClickSave={this.onClickEditableTextSave}
 							optional={true}

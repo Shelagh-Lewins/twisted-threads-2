@@ -320,6 +320,7 @@ class User extends PureComponent {
 		return (
 			<EditableText
 				canEdit={canEdit}
+				editButtonText="Edit description"
 				fieldName="description"
 				onClickSave={this.onClickEditableTextSave}
 				optional={true}

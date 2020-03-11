@@ -173,7 +173,7 @@ class WeavingDesignIndividual extends PureComponent {
 			<div className="controls">
 				{isEditing
 					? <Button color="primary" onClick={this.toggleEditWeaving}>Done</Button>
-					: <Button color="primary" onClick={this.toggleEditWeaving}>Edit weaving chart</Button>}
+					: <Button color="primary" onClick={this.toggleEditWeaving}>Edit weaving design</Button>}
 			</div>
 		);
 	}
