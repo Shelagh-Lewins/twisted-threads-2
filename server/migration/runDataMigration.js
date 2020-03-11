@@ -65,6 +65,7 @@ const fixRoles = () => {
 		'w43KReXaSzHrtheNZ',
 		'xkqJj2qXrBxEnXyah',
 		'ydgxPdGdrtE2MK2AM',
+		'9wmmhS33b3JDR8Qu7', // neffnan
 	];
 
 	// administrators are identified by _id AND username, to be extra careful
