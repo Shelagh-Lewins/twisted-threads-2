@@ -143,14 +143,16 @@ Meteor.newPatternFromGTT = function newPatternFromGTT({ filename, text }) { // e
 			}
 
 			// description
-			const NotesKeys = Object.keys(Notes);
+			if (Notes) {
+				const NotesKeys = Object.keys(Notes);
 
-			if (NotesKeys.length > 0) {
-				description = '';
+				if (NotesKeys.length > 0) {
+					description = '';
 
-				NotesKeys.forEach((NoteKey) => {
-					description += Notes[NoteKey]._cdata;
-				});
+					NotesKeys.forEach((NoteKey) => {
+						description += Notes[NoteKey]._cdata;
+					});
+				}
 			}
 
 			// build the color palette
