@@ -100,7 +100,7 @@ Meteor.newPatternFromGTT = function newPatternFromGTT({ filename, text }) { // e
 		} = TWData;
 
 		// console.log('Version', Version._text);
-		console.log('Pattern', Pattern);
+		//console.log('Pattern', Pattern);
 
 		if (Source._text !== 'Guntram\'s Tabletweaving Thingy') {
 			isValid = false;
@@ -192,7 +192,7 @@ Meteor.newPatternFromGTT = function newPatternFromGTT({ filename, text }) { // e
 					}
 				}
 			}
-console.log('type', Pattern._attributes.Type);
+//console.log('type', Pattern._attributes.Type);
 			// pattern design
 			switch (Pattern._attributes.Type) {
 				case 'Threaded': // GTT v1.05

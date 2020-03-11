@@ -133,7 +133,9 @@ class User extends PureComponent {
 		}
 
 		if (section && !prevProps.section) {
-			this.scrollPatternsIntoView();
+			setTimeout(() => {
+				this.scrollPatternsIntoView();
+			}, 500);
 		}
 
 		// automatically select a new color book
@@ -416,7 +418,7 @@ class User extends PureComponent {
 							{!showAddPatternForm && (
 								<Row>
 									<Col lg="12">
-										<h2>Patterns</h2>
+										<h2 ref={this.patternsRef}>Patterns</h2>
 									</Col>
 								</Row>
 							)}
@@ -429,9 +431,7 @@ class User extends PureComponent {
 							)}
 						</Container>
 						<Container className="pattern-list-holder">
-							<div ref={this.patternsRef}>
-								{this.renderPatternsList()}
-							</div>
+							{this.renderPatternsList()}
 						</Container>
 					</>
 				);
