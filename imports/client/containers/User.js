@@ -148,7 +148,9 @@ class User extends PureComponent {
 	}
 
 	componentWillUnmount() {
+		const { dispatch } = this.props;
 		document.body.classList.remove(bodyClass);
+		dispatch(setPatternCountUserId(undefined));
 	}
 
 	onChangeColorBookIsPublic = ({ _id, isPublic }) => {
