@@ -273,6 +273,10 @@ export const setupTwillThreading = ({
 // may be an error like login failure
 // or an action we need to monitor like registering a new user
 export const buildServerLogText = ((text) => {
+	if (Meteor.isTest) {
+		return `${moment(new Date()).format('YYYY/MM/DD HH:mm:ss')} ${text}, client: local.testing, host: "local.testing"`;
+	}
+
 	const connection = Meteor.call('auth.getClientConnection');
 
 	return `${moment(new Date()).format('YYYY/MM/DD HH:mm:ss')} ${text}, client: ${connection.clientAddress}, host: "${connection.httpHeaders.host}"`;

@@ -225,6 +225,7 @@ Meteor.methods({
 		return 'success';
 	},
 	'auth.getClientConnection': function () {
+		// used to log client addresses to the Nginx log
 		return this.connection;
 	},
 });
