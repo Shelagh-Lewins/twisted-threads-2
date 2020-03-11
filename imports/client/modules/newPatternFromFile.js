@@ -150,7 +150,12 @@ Meteor.newPatternFromGTT = function newPatternFromGTT({ filename, text }) { // e
 					description = '';
 
 					NotesKeys.forEach((NoteKey) => {
-						description += Notes[NoteKey]._cdata;
+						const line = Notes[NoteKey]._cdata;
+						if (line) {
+							description += ` ${Notes[NoteKey]._cdata}`;
+						} else {
+							description += '\n\n';
+						}
 					});
 				}
 			}
