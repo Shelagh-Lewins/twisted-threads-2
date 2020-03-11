@@ -34,16 +34,24 @@ class InteractiveWeavingChart extends PureComponent {
 			'handleClickRow',
 			'handleClickUp',
 			'handleKeyUp',
+			'scrollRowIntoView',
 		];
 
 		functionsToBind.forEach((functionName) => {
 			this[functionName] = this[functionName].bind(this);
 		});
+
+		this.chartRef = React.createRef();
 	}
 
 	componentDidMount() {
 		document.body.classList.add(bodyClass);
 		document.addEventListener('keyup', this.handleKeyUp);
+
+		// give the chart time to render
+		setTimeout(() => {
+			this.scrollRowIntoView();
+		}, 1000);
 	}
 
 	componentDidUpdate() {
@@ -151,12 +159,28 @@ class InteractiveWeavingChart extends PureComponent {
 		}
 	}
 
+	scrollRowIntoView() {
+		// give the DOM time to render
+		setTimeout(() => {
+			const node = this.chartRef.current.querySelector('li.row.selected');
+
+			node.scrollIntoView({
+				'behavior': 'smooth',
+				'block': 'center',
+				'inline': 'center',
+			});
+		}, 50);
+	}
+
 	handleClickDown() {
+		// note that selectedRow runs from 0 at the top downward
+		// and has to be adjusted to give weaving row running from 1 and the bottom upward
 		const { numberOfRows } = this.props;
 		const { selectedRow } = this.state;
 
 		let newRow = selectedRow + 1;
 		if (newRow >= numberOfRows) {
+			this.scrollRowIntoView();
 			newRow = 0;
 		}
 
@@ -164,11 +188,14 @@ class InteractiveWeavingChart extends PureComponent {
 	}
 
 	handleClickUp() {
+		// note that selectedRow runs from 0 at the top downward
+		// and has to be adjusted to give weaving row running from 1 and the bottom upward
 		const { numberOfRows } = this.props;
 		const { selectedRow } = this.state;
 
 		let newRow = selectedRow - 1;
 		if (newRow < 0) {
+			this.scrollRowIntoView();
 			newRow = numberOfRows - 1;
 		}
 
@@ -208,16 +235,18 @@ class InteractiveWeavingChart extends PureComponent {
 							{links}
 							{/* if navigating from the home page, the pattern summary is in MiniMongo before Tracker sets isLoading to true. This doesn't include the detail fields so we need to prevent errors. */}
 							{pattern.patternDesign && (
-								<WeavingChart
-									dispatch={dispatch}
-									handleClickDown={this.handleClickDown}
-									handleClickRow={this.handleClickRow}
-									handleClickUp={this.handleClickUp}
-									numberOfRows={numberOfRows}
-									numberOfTablets={numberOfTablets}
-									patternType={patternType}
-									selectedRow={selectedRow}
-								/>
+								<div ref={this.chartRef}>
+									<WeavingChart
+										dispatch={dispatch}
+										handleClickDown={this.handleClickDown}
+										handleClickRow={this.handleClickRow}
+										handleClickUp={this.handleClickUp}
+										numberOfRows={numberOfRows}
+										numberOfTablets={numberOfTablets}
+										patternType={patternType}
+										selectedRow={selectedRow}
+									/>
+								</div>
 							)}
 						</>
 					);
