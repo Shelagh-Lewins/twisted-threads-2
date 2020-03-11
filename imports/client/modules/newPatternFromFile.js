@@ -100,7 +100,7 @@ Meteor.newPatternFromGTT = function newPatternFromGTT({ filename, text }) { // e
 		} = TWData;
 
 		// console.log('Version', Version._text);
-		// console.log('Pattern', Pattern);
+		console.log('Pattern', Pattern);
 
 		if (Source._text !== 'Guntram\'s Tabletweaving Thingy') {
 			isValid = false;
@@ -190,7 +190,7 @@ Meteor.newPatternFromGTT = function newPatternFromGTT({ filename, text }) { // e
 					}
 				}
 			}
-
+console.log('type', Pattern._attributes.Type);
 			// pattern design
 			switch (Pattern._attributes.Type) {
 				case 'Threaded': // GTT v1.05
@@ -220,16 +220,47 @@ Meteor.newPatternFromGTT = function newPatternFromGTT({ filename, text }) { // e
 					}
 
 					// packs may be defined but Picks defined by Card turns
-					const usePacks = Pick[0].Actions.Action[0]._attributes.Target === 'Pack'; // eslint-disable-line no-case-declarations
+					// if only one pack is turned in a Pick then it appears as a simple object not an array
+					// e.g Anglo-Saxon
+					// if multiple packs are turned Actions.Action is loaded as an array
+					// The GTT format is consistent but the JSON conversion from XML is not
+					const testPick = Pick[0].Actions.Action; // eslint-disable-line no-case-declarations
+					let usePacks = false; // eslint-disable-line no-case-declarations
+
+					if (testPick[0]) {
+						usePacks = Pick[0].Actions.Action[0]._attributes.Target === 'Pack';
+					} else {
+						usePacks = Pick[0].Actions.Action._attributes.Target === 'Pack';
+					}
 
 					if (usePacks) {
 						// turn the packs
 						for (let i = 0; i < numberOfRows; i += 1) {
 							weavingInstructions[i] = [];
 
+							// idle packs are not mentioned
+							// so set all tablets to idle by default
+							for (let j = 0; j < numberOfTablets; j += 1) {
+								const weavingInstruction = {
+									'direction': 'F',
+									'numberOfTurns': 0,
+								};
+
+								weavingInstructions[i][j] = weavingInstruction;
+							}
+
 							// turn tablets in each pack for this row
-							for (let j = 0; j < Pack.length; j += 1) {
-								const thisPick = Pick[i].Actions.Action[j]._attributes;
+							let actions; // eslint-disable-line no-case-declarations
+
+							// multiple Packs turned in pick so Action is an array
+							if (Pick[i].Actions.Action[0]) {
+								actions = Pick[i].Actions.Action;
+							} else {
+								actions = [Pick[i].Actions.Action];
+							}
+
+							for (let j = 0; j < actions.length; j += 1) {
+								const thisPick = actions[j]._attributes;
 
 								const targetPack = packsObj[thisPick.TargetID]; // array of tablet numbers, starting at 1
 
