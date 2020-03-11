@@ -24,6 +24,12 @@ class MainMenu extends Component {
 			'loginRequired': false,
 		},
 		{
+			'value': 'myProfile',
+			'name': 'My profile',
+			'url': `/user/${Meteor.userId()}`,
+			'loginRequired': true,
+		},
+		{
 			'value': 'recentPatterns',
 			'name': 'Recent patterns',
 			'url': '/recent-patterns',
@@ -38,7 +44,7 @@ class MainMenu extends Component {
 		{
 			'value': 'myPatterns',
 			'name': 'My patterns',
-			'url': `/user/${Meteor.userId()}`,
+			'url': `/user/${Meteor.userId()}/patterns`,
 			'loginRequired': true,
 		},
 		{

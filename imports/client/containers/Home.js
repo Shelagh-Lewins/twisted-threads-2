@@ -134,7 +134,7 @@ class Home extends Component {
 						</Row>
 						<Row>
 							<Col>
-								<p>Join our <a href="https://www.facebook.com/groups/twistedthreadsapp/">Facebook group</a> if you&apos;d like to discuss Twisted Threads with other users, request new features or share feedback with the app developer. For more information, see <Link to="/about">About Twisted Threads</Link>.</p>
+								<p>Join our <a href="https://www.facebook.com/groups/twistedthreadsapp/" target="_blank" rel="noreferrer noopener">Facebook group</a> if you&apos;d like to discuss Twisted Threads with other users, request new features or share feedback with the app developer. For more information, see <Link to="/about">About Twisted Threads</Link>.</p>
 							</Col>
 						</Row>
 						<Row>
@@ -191,7 +191,7 @@ class Home extends Component {
 									patterns={myPatterns}
 									patternPreviews={patternPreviews}
 									tags={tags}
-									url={`/user/${Meteor.userId()}`}
+									url={`/user/${Meteor.userId()}/patterns`}
 									users={users}
 									width={width}
 								/>

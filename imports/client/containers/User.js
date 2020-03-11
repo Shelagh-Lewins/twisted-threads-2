@@ -39,6 +39,7 @@ import {
 } from '../modules/auth';
 
 import Loading from '../components/Loading';
+import MainMenu from '../components/MainMenu';
 import TabletFilterForm from '../forms/TabletFilterForm';
 import PaginatedList from '../components/PaginatedList';
 import PatternList from '../components/PatternList';
@@ -83,14 +84,38 @@ class User extends PureComponent {
 		functionsToBind.forEach((functionName) => {
 			this[functionName] = this[functionName].bind(this);
 		});
+
+		this.patternsRef = React.createRef();
 	}
 
 	componentDidMount() {
+		const { section } = this.props;
 		document.body.classList.add(bodyClass);
+
+		/* const that = this;
+
+		// give the page time to render
+		if (section === 'patterns') {
+			setTimeout(() => {
+				const node = that.patternsRef.current;
+
+				node.scrollIntoView({
+					'behavior': 'smooth',
+					'block': 'start',
+					'inline': 'nearest',
+				});
+			}, 1000);
+		} */
 	}
 
 	componentDidUpdate(prevProps) {
-		const { colorBookAdded, dispatch, user } = this.props;
+		const {
+			colorBookAdded,
+			dispatch,
+			section,
+			user,
+		} = this.props;
+
 		const { gotUser, isLoading } = this.state;
 
 		// wait for user details to load
@@ -100,6 +125,15 @@ class User extends PureComponent {
 			this.setState({
 				'gotUser': true,
 			});
+
+			// give the page time to render
+			setTimeout(() => {
+				this.scrollPatternsIntoView();
+			}, 2000);
+		}
+
+		if (section && !prevProps.section) {
+			this.scrollPatternsIntoView();
 		}
 
 		// automatically select a new color book
@@ -154,6 +188,22 @@ class User extends PureComponent {
 			}
 		}
 	};
+
+	scrollPatternsIntoView() {
+		const { section } = this.props;
+
+		const that = this;
+
+		if (section === 'patterns') {
+			const node = that.patternsRef.current;
+
+			node.scrollIntoView({
+				'behavior': 'smooth',
+				'block': 'start',
+				'inline': 'nearest',
+			});
+		}
+	}
 
 	// show the form to add a new color book
 	handleClickAddColorBookButton() {
@@ -379,7 +429,9 @@ class User extends PureComponent {
 							)}
 						</Container>
 						<Container className="pattern-list-holder">
-							{this.renderPatternsList()}
+							<div ref={this.patternsRef}>
+								{this.renderPatternsList()}
+							</div>
 						</Container>
 					</>
 				);
@@ -393,7 +445,13 @@ class User extends PureComponent {
 				dispatch={dispatch}
 				errors={errors}
 			>
-				{content}
+				<MainMenu />
+				<div
+					className="menu-selected-area"
+					ref={this.containerRef}
+				>
+					{content}
+				</div>
 			</PageWrapper>
 		);
 	}
@@ -415,6 +473,7 @@ User.propTypes = {
 	'patternCount': PropTypes.number.isRequired,
 	'patternPreviews': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'section': PropTypes.string,
 	'tags': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'user': PropTypes.objectOf(PropTypes.any),
 	'canCreateColorBook': PropTypes.bool.isRequired,
@@ -431,7 +490,7 @@ function mapStateToProps(state, ownProps) {
 	}
 
 	return {
-		'_id': ownProps.match.params.id, // read the url parameter to find the id of the pattern
+		'_id': ownProps.match.params.id, // read the url parameter to find the id of the user
 		'colorBookAdded': state.colorBook.colorBookAdded,
 		'canCreateColorBook': getCanCreateColorBook(state),
 		'canCreatePattern': getCanCreatePattern(state),
@@ -443,6 +502,7 @@ function mapStateToProps(state, ownProps) {
 		'isLoading': state.pattern.isLoading,
 		'pageSkip': (currentPageNumber - 1) * ITEMS_PER_PAGE,
 		'patternCount': state.pattern.patternCount,
+		'section': ownProps.match.params.section, // read the url parameter to find whether to scroll to a section
 	};
 }
 

@@ -159,7 +159,7 @@ class Navbar extends Component {
 
 		if (Meteor.user()) {
 			myPatternsLink = (
-				<Link to={`/user/${Meteor.userId()}`} className="nav-link">My patterns</Link>
+				<Link to={`/user/${Meteor.userId()}/patterns`} className="nav-link">My patterns</Link>
 			);
 		}
 

@@ -38,4 +38,16 @@
 	.tablet-filter-form {
 		padding-left: 0;
 	}
+
+	.editable-text {
+		clear: none;
+
+		form {
+			clear: none;
+		}
+
+		.field-value {
+			clear: none;
+		}
+	}
 }

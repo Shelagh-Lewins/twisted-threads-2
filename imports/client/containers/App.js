@@ -120,7 +120,7 @@ const DefaultContainer = () => (
 			<Route exact path="/about" component={About} />
 			<Route exact path="/pattern/:id/:tab(design|info)?" component={Pattern} />
 			<Route exact path="/pattern/:id/weaving" component={InteractiveWeavingChart} />
-			<Route exact path="/user/:id" component={User} />
+			<Route exact path="/user/:id/:section(patterns)?" component={User} />
 		</div>
 	</div>
 );
@@ -152,7 +152,7 @@ export const withDatabase = withTracker((props) => {
 	// check for login, logout, change of email verifiction status. Update record of user in state.auth if there is a change.
 	const MeteorUserId = Meteor.user() ? Meteor.user()._id : undefined; // Meteor.userId() can load before Meteor.user(), causing a double update
 
-	let numberOfPatterns = 0;
+	//let numberOfPatterns = 0;
 	let numberOfColorBooks = 0;
 	let numberOfPatternImages = 0;
 

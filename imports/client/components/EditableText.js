@@ -150,7 +150,6 @@ class EditableText extends PureComponent {
 		return (
 			<div className={`editable-text ${type}`}>
 				{this.renderContent()}
-				<div className="clearing" />
 			</div>
 		);
 	}
