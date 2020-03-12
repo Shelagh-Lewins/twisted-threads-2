@@ -12,6 +12,7 @@ import { FLASH_MESSAGE_TEXTS } from '../../modules/parameters';
 
 import PageWrapper from '../components/PageWrapper';
 import VerifyEmailForm from '../forms/VerifyEmailForm';
+import MainMenu from '../components/MainMenu';
 import {
 	emailNotVerified,
 	getIsAdministrator,
@@ -23,6 +24,8 @@ import {
 	sendVerificationEmail,
 	verificationEmailNotSent,
 } from '../modules/auth';
+
+const bodyClass = 'account';
 
 class Account extends Component {
 	constructor() {
@@ -38,6 +41,14 @@ class Account extends Component {
 		functionsToBind.forEach((functionName) => {
 			this[functionName] = this[functionName].bind(this);
 		});
+	}
+
+	componentDidMount() {
+		document.body.classList.add(bodyClass);
+	}
+
+	componentWillUnmount() {
+		document.body.classList.remove(bodyClass);
 	}
 
 	onLogout(e) {
@@ -178,51 +189,49 @@ class Account extends Component {
 				onClick={onClick}
 				type={type}
 			>
-				<Container>
-					{isAuthenticated && (
-						<>
-							<Row>
-								<Col lg="12">
-									<h1>Account: {username}</h1>
-									<p>Your <Link to={`/user/${Meteor.userId()}`}>profile page</Link> shows all your patterns and colour books.</p>
-									<hr />
-								</Col>
-							</Row>
-							<Row>
-								<Col lg="12">
-									{userEmail && <p>Email address: {userEmail}</p>}
-									{emailStatus}
-									<hr />
-								</Col>
-							</Row>
-							<Row>
-								<Col lg="12">
-									<p><Link to="change-password">Change password</Link></p>
-									<hr />
-								</Col>
-							</Row>
-							<Row>
-								<Col lg="12">
-									<p>
-										<Button
-											type="button"
-											color="danger"
-											onClick={this.onLogout}
-										>
-										Logout
-										</Button>
-									</p>
-								</Col>
-							</Row>
-							<Row>
-								<Col>
-									{administratorControls}
-								</Col>
-							</Row>
-						</>
-					)}
-					{!isAuthenticated && 'Log in to access this page'}
-				</Container>
+				<MainMenu />
+				<div
+					className="menu-selected-area"
+				>
+					<Container>
+						{isAuthenticated && (
+							<>
+								<Row>
+									<Col lg="12">
+										{userEmail && <p>Email address: {userEmail}</p>}
+										{emailStatus}
+										<hr />
+									</Col>
+								</Row>
+								<Row>
+									<Col lg="12">
+										<p><Link to="change-password">Change password</Link></p>
+										<hr />
+									</Col>
+								</Row>
+								<Row>
+									<Col lg="12">
+										<p>
+											<Button
+												type="button"
+												color="danger"
+												onClick={this.onLogout}
+											>
+											Logout
+											</Button>
+										</p>
+									</Col>
+								</Row>
+								<Row>
+									<Col>
+										{administratorControls}
+									</Col>
+								</Row>
+							</>
+						)}
+						{!isAuthenticated && 'Log in to access this page'}
+					</Container>
+				</div>
 			</PageWrapper>
 		);
 	}

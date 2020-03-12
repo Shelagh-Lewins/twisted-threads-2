@@ -30,6 +30,12 @@ class MainMenu extends Component {
 			'loginRequired': true,
 		},
 		{
+			'value': 'myAccount',
+			'name': 'My account',
+			'url': '/account',
+			'loginRequired': true,
+		},
+		{
 			'value': 'recentPatterns',
 			'name': 'Recent patterns',
 			'url': '/recent-patterns',

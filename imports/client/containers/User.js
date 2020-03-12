@@ -89,9 +89,15 @@ class User extends PureComponent {
 	}
 
 	componentDidMount() {
-		const { section } = this.props;
+		const { filterMinTablets, filterMaxTablets } = this.props;
 		document.body.classList.add(bodyClass);
-
+console.log('*** mount filters');
+//if (filterMaxTablets) {
+console.log('filterMaxTablets', filterMaxTablets);
+//}
+//if (filterMinTablets) {
+console.log('filterMinTablets', filterMinTablets);
+//}
 		/* const that = this;
 
 		// give the page time to render
@@ -112,6 +118,8 @@ class User extends PureComponent {
 		const {
 			colorBookAdded,
 			dispatch,
+			filterMinTablets,
+			filterMaxTablets,
 			section,
 			user,
 		} = this.props;
@@ -135,6 +143,22 @@ class User extends PureComponent {
 		if (section && !prevProps.section) {
 			setTimeout(() => {
 				this.scrollPatternsIntoView();
+			}, 500);
+		}
+
+		let filterChange = false;
+
+		if (filterMaxTablets !== prevProps.filterMaxTablets) {
+			filterChange = true;
+		}
+
+		if (filterMinTablets !== prevProps.filterMinTablets) {
+			filterChange = true;
+		}
+
+		if (filterChange) {
+			setTimeout(() => {
+				this.scrollPatternsIntoView({ 'behavior': 'auto' });
 			}, 500);
 		}
 
@@ -193,16 +217,17 @@ class User extends PureComponent {
 		}
 	};
 
-	scrollPatternsIntoView() {
+	scrollPatternsIntoView(options = { 'behavior': 'smooth' }) {
 		const { section } = this.props;
-
+		const { behavior } = options;
+		
 		const that = this;
 
 		if (section === 'patterns') {
 			const node = that.patternsRef.current;
 
 			node.scrollIntoView({
-				'behavior': 'smooth',
+				behavior,
 				'block': 'start',
 				'inline': 'nearest',
 			});
