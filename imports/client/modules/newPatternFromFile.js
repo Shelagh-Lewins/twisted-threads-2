@@ -15,17 +15,18 @@ const convert = require('xml-js');
 // this definition form is required to make it a function that can be called by variable name as a method of the Meteor object
 Meteor.newPatternFromJSON = function newPatternFromJSON({ text }) { // eslint-disable-line no-undef
 	let isValid = false;
-	let patternObj = {};
+	let jsonData;
+	const patternObj = {};
 
 	if (typeof text === 'string' && text !== '') {
 		try {
-			patternObj = JSON.parse(text);
+			jsonData = JSON.parse(text);
 			isValid = true;
 
 			const {
 				source,
 				version,
-			} = patternObj;
+			} = jsonData;
 
 			if (source === 'Twisted Threads' && version === '2.0') {
 				// extract the expected pattern fields from data
@@ -38,12 +39,13 @@ Meteor.newPatternFromJSON = function newPatternFromJSON({ text }) { // eslint-di
 						displayName,
 						required,
 					} = PATTERN_AS_TEXT_FIELDS[i];
-					const fieldValue = patternObj[displayName];
+					const fieldValue = jsonData[displayName];
+					const fieldExists = typeof fieldValue !== 'undefined'; // don't get caught out by falsy 0 values in e.g. weft color
 
-					if (required && !fieldValue) {
+					if (required && !fieldExists) {
 						isValid = false;
 						break;
-					} else if (fieldValue) {
+					} else if (fieldExists) {
 						patternObj[fieldName] = fieldValue;
 					}
 				}
@@ -383,9 +385,10 @@ const newPatternFromFile = ({ filename, text }) => {
 		firstFormat = 'newPatternFromGTT';
 		secondFormat = 'newPatternFromJSON';
 	}
-
+console.log('*** firstFormat', firstFormat);
+console.log('*** secondFormat', secondFormat);
 	({ isValid, patternObj } = Meteor[firstFormat]({ filename, text }));
-
+console.log('isValid after firstFormat', isValid);
 	if (!isValid) {
 		({ isValid, patternObj } = Meteor[secondFormat]({ filename, text }));
 	}
