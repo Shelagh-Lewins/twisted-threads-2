@@ -10,7 +10,8 @@ my_dir=`dirname $0`
 ### Configuration ###
 APP_DIR=/var/www/twistedthreads2
 KEYFILE=
-REMOTE_SCRIPT_PATH=/tmp/deploy-twistedthreads2.sh
+REMOTE_SCRIPT_PATH=/tmp/deploy-twistedthreads.sh
+WORK_SCRIPT_PATH=.deploy/armadillo/work.sh
 
 
 ### Library ###
@@ -37,7 +38,7 @@ else
   run meteor bundle package.tar.gz
 fi
 run scp $KEYARG package.tar.gz $SERVER:$APP_DIR/
-run scp $KEYARG .deploy/work.sh $SERVER:$REMOTE_SCRIPT_PATH
+run scp $KEYARG $WORK_SCRIPT_PATH $SERVER:$REMOTE_SCRIPT_PATH
 echo
 echo "---- Running deployment script on remote server ----"
 run ssh $KEYARG $SERVER bash $REMOTE_SCRIPT_PATH

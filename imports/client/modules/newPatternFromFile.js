@@ -102,7 +102,7 @@ Meteor.newPatternFromGTT = function newPatternFromGTT({ filename, text }) { // e
 		} = TWData;
 
 		// console.log('Version', Version._text);
-		//console.log('Pattern', Pattern);
+		// console.log('Pattern', Pattern);
 
 		if (Source._text !== 'Guntram\'s Tabletweaving Thingy') {
 			isValid = false;
@@ -165,25 +165,34 @@ Meteor.newPatternFromGTT = function newPatternFromGTT({ filename, text }) { // e
 			// build the color palette
 
 			// GTT 1.11 does not include Palette data
-			const GTTPalette = Palette ? Palette.Colour.map((colourDef) => colourDef._text)
-				: [
-					0,
-					128,
-					32768,
-					32896,
-					8388608,
-					8388736,
-					8421376,
-					8421504,
-					12632256,
-					255,
-					65280,
-					65535,
-					16711680,
-					16711935,
-					16776960,
-					16777215,
-				];
+			// 1.12 has Palette - Colour
+			// 1.18 has Palette - Colours - Colour
+			let GTTPalette = [
+				0,
+				128,
+				32768,
+				32896,
+				8388608,
+				8388736,
+				8421376,
+				8421504,
+				12632256,
+				255,
+				65280,
+				65535,
+				16711680,
+				16711935,
+				16776960,
+				16777215,
+			];
+
+			if (Palette) {
+				if (Palette.Colour) {
+					GTTPalette = Palette.Colour.map((colourDef) => colourDef._text);
+				} else if (Palette.Colours) {
+					GTTPalette = Palette.Colours.Colour.map((colourDef) => colourDef._attributes.Colour);
+				}
+			}
 			for (let i = 0; i < DEFAULT_PALETTE.length; i += 1) {
 				palette[i] = convertWindowsColorToHexRGB(GTTPalette[i]);
 			}
@@ -199,7 +208,7 @@ Meteor.newPatternFromGTT = function newPatternFromGTT({ filename, text }) { // e
 					}
 				}
 			}
-//console.log('type', Pattern._attributes.Type);
+
 			// pattern design
 			switch (Pattern._attributes.Type) {
 				case 'Threaded': // GTT v1.05
@@ -284,10 +293,49 @@ Meteor.newPatternFromGTT = function newPatternFromGTT({ filename, text }) { // e
 							}
 						}
 					} else {
+						// track whether each tablet is in its original orientation
+						const orientationChanged = new Array(numberOfTablets);
+						orientationChanged.fill(false);
+
 						for (let i = 0; i < numberOfRows; i += 1) {
 							weavingInstructions[i] = new Array(numberOfTablets);
 
-							for (let j = 0; j < numberOfTablets; j += 1) {
+							// there may be more than one Action per tablet
+							// 'V' means vertical twist, i.e. change tablet orientation
+							// and is combined with a turn, usually forward
+
+							// weaving data for the row
+							const GTTRow = Pick[i].Actions.Action.map((pick) => pick._attributes);
+
+							// check each tablet's current orientation
+							for (let j = 0; j < GTTRow.length; j += 1) {
+								const tabletIndex = parseInt(GTTRow[j].TargetID, 10) - 1;
+
+								if (GTTRow[j].Dir === 'V') {
+									orientationChanged[tabletIndex] = !orientationChanged[tabletIndex];
+								}
+							}
+
+							// process turns
+							for (let j = 0; j < GTTRow.length; j += 1) {
+								const tabletIndex = parseInt(GTTRow[j].TargetID, 10) - 1;
+
+								// the pattern 22CT4-Braided.gtt has only 22 tablets in the threading chart but weaving data for 24. This is a data error.
+								if (tabletIndex < numberOfTablets) {
+									if (['F', 'B'].indexOf(GTTRow[j].Dir) !== -1) {
+										let direction = GTTRow[j].Dir;
+										if (orientationChanged[tabletIndex]) {
+											direction = GTTRow[j].Dir === 'F' ? 'B' : 'F'; // turn is effectively in the other direction
+										}
+										weavingInstructions[i][tabletIndex] = {
+											direction,
+											'numberOfTurns': parseInt(GTTRow[j].Dist, 10),
+										};
+									}
+								}
+							}
+
+							/* for (let j = 0; j < numberOfTablets; j += 1) {
 								// tablets are not necessarily in order
 								// TargetID gives table number
 								const thisPick = Pick[i].Actions.Action[j]._attributes;
@@ -297,7 +345,7 @@ Meteor.newPatternFromGTT = function newPatternFromGTT({ filename, text }) { // e
 									'direction': thisPick.Dir,
 									'numberOfTurns': parseInt(thisPick.Dist, 10),
 								};
-							}
+							} */
 						}
 					}
 
@@ -385,10 +433,9 @@ const newPatternFromFile = ({ filename, text }) => {
 		firstFormat = 'newPatternFromGTT';
 		secondFormat = 'newPatternFromJSON';
 	}
-console.log('*** firstFormat', firstFormat);
-console.log('*** secondFormat', secondFormat);
+
 	({ isValid, patternObj } = Meteor[firstFormat]({ filename, text }));
-console.log('isValid after firstFormat', isValid);
+
 	if (!isValid) {
 		({ isValid, patternObj } = Meteor[secondFormat]({ filename, text }));
 	}
