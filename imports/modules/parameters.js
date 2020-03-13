@@ -132,7 +132,7 @@ export const ALLOWED_PREVIEW_ORIENTATIONS = [
 export const PREVIEW_WIDTH = 270;
 export const PREVIEW_HEIGHT = 112;
 export const PREVIEW_SCALE = 2;
-export const MAX_PICKS_IN_REPEAT = 16;
+export const MAX_PICKS_IN_REPEAT = 24;
 
 export const MAX_RECENTS = 50;
 

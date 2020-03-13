@@ -30,6 +30,9 @@ if [[ -e $APP_DIR/bundle/Passengerfile.json ]]; then
   cp $APP_DIR/bundle/Passengerfile.json $APP_DIR/tmp/bundle/
 fi
 
+# if restart app fails, bundle.old is left behind and causes a new error
+rm -rf $APP_DIR/bundle.old
+
 # Switch directories, restart app
 mv $APP_DIR/bundle $APP_DIR/bundle.old
 mv $APP_DIR/tmp/bundle $APP_DIR/bundle
