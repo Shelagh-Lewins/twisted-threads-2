@@ -60,6 +60,18 @@ class TagInput extends PureComponent {
 		const { tagSuggestions, tags } = this.props;
 		const { isValid } = this.state;
 
+		const tagComponent = ({ tag, onDelete }) => (
+			<div className="selected-tag">{tag.name}
+				<button
+					onClick={onDelete}
+					title="Delete tag"
+					type="button"
+				>
+					x
+				</button>
+			</div>
+		);
+
 		return (
 			<div className="edit-tags">
 				<ReactTags
@@ -81,6 +93,7 @@ class TagInput extends PureComponent {
 					onDelete={this.onDelete}
 					onAddition={this.onAddition}
 					onValidate={this.onValidate}
+					tagComponent={tagComponent}
 				/>
 				{!isValid && <div className="invalid-feedback">{`Tags must be between ${MIN_TAG_LENGTH} and ${MAX_TAG_LENGTH} characters long`}</div>}
 			</div>

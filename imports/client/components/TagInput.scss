@@ -15,7 +15,10 @@
 		position: relative;
 
 		button {
-			color: $color-text;
+			background: transparent;
+			border: 0;
+			color: $color-tags-delete;
+			margin-left: 8px;
 		}
 
 		.is-focused {
@@ -36,12 +39,6 @@
 			line-height: inherit;
 			margin: 0 6px 6px 0;
 			padding: 6px 8px;
-
-			&::after {
-				color: $color-tags-after;
-				content: "\2715";
-				margin-left: 8px;
-			}
 
 			&:hover,
 			&:focus {
