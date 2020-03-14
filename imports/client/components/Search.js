@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import ReactDOM from "react-dom";
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button, Input } from 'reactstrap';
@@ -31,6 +32,7 @@ class Search extends PureComponent {
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
+			'handleClickOutside',
 			'onChangeInput',
 			'onSelect',
 			'toggleOpen',
@@ -39,6 +41,10 @@ class Search extends PureComponent {
 		functionsToBind.forEach((functionName) => {
 			this[functionName] = this[functionName].bind(this);
 		});
+	}
+
+	componentDidMount() {
+		document.addEventListener('mousedown', this.handleClickOutside);
 	}
 
 	componentDidUpdate(prevProps) {
@@ -53,6 +59,10 @@ class Search extends PureComponent {
 			// avoiding 'no results for' showing briefly
 			setTimeout(() => this.toggleOpen(), 100);
 		}
+	}
+
+	componentWillUnmount() {
+		document.removeEventListener('mousedown', this.handleClickOutside);
 	}
 
 	toggleOpen = () => {
@@ -110,6 +120,22 @@ class Search extends PureComponent {
 		history.push(url);
 	};
 
+	handleClickOutside(event) {
+		// only way I could think of to find the list inside the Combobox component
+		const node = ReactDOM.findDOMNode(this); // eslint-disable-line react/no-find-dom-node
+		const listNode = node.querySelector('.rw-list');
+		const toggleNode = node.querySelector('.toggle-results');
+
+		// if the user clicks outside the toggle button
+		// and the results list
+		// close the search results
+		if (listNode
+			&& !toggleNode.contains(event.target)
+			&& !listNode.contains(event.target)) {
+			this.setState({ 'open': false });
+		}
+	}
+
 	// custom input and button prevents the selected item from being written to the input
 	renderSearchInput = () => {
 		const { isSearching } = this.props;
@@ -123,6 +149,7 @@ class Search extends PureComponent {
 					type="text"
 				/>
 				<Button
+					className="toggle-results"
 					onClick={this.toggleOpen}
 					title="toggle results"
 				>
