@@ -13,6 +13,7 @@ import isEmpty from '../modules/isEmpty';
 import formatErrorMessages from '../modules/formatErrorMessages';
 import { clearErrors } from '../modules/errors';
 import FlashMessage from './FlashMessage';
+import ConnectionStatus from './ConnectionStatus';
 
 class PageWrapper extends Component {
 	constructor() {
@@ -72,6 +73,7 @@ class PageWrapper extends Component {
 
 		return (
 			<>
+				<ConnectionStatus />
 				{showFlashMessage && (
 					<Container>
 						<Row>

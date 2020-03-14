@@ -11,3 +11,6 @@ global.allTogetherRowsTimeout = null;
 global.twillStartRowTimeout = null;
 global.editWeavingCellTimeout = null;
 global.tabletFilterTimeout = null;
+
+// connection status
+global.connectionTimeout = null;

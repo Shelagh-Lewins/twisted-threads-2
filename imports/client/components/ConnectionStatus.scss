@@ -1,0 +1,21 @@
+@import "../constants/variables";
+
+.connection-status {
+	background-color: $color-connection-status-bg;
+	color: $color-connection-status-text;
+	height: 0;
+	overflow: hidden;
+	position: relative;
+	top: -16px;
+	transition: height 1s;
+
+	&.visible {
+		height: 3em;
+		transition: height 1s;
+	}
+
+	.text {
+		line-height: 3em;
+		text-align: center;
+	}
+}
