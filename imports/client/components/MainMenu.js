@@ -37,7 +37,7 @@ class MainMenu extends Component {
 		},
 		{
 			'value': 'recentPatterns',
-			'name': 'Recent patterns',
+			'name': 'Recently viewed',
 			'url': '/recent-patterns',
 			'loginRequired': false,
 		},
