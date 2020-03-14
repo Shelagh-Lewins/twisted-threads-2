@@ -50,6 +50,7 @@ class PaginatedList extends PureComponent {
 			<div className="item-list">
 				{pagination}
 				{children}
+				{pagination}
 			</div>
 		);
 	}
