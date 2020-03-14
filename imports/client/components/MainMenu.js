@@ -34,6 +34,7 @@ class MainMenu extends Component {
 			'name': 'My account',
 			'url': '/account',
 			'loginRequired': true,
+			'sectionBreak': true,
 		},
 		{
 			'value': 'recentPatterns',
@@ -58,6 +59,7 @@ class MainMenu extends Component {
 			'name': 'All patterns',
 			'url': '/all-patterns',
 			'loginRequired': false,
+			'sectionBreak': true,
 		},
 		{
 			'value': 'people',
@@ -118,18 +120,34 @@ class MainMenu extends Component {
 			history.push(url);
 		};
 
-		const renderMenuItem = ({ value, name, url }) => (
-			<li
-				className={selectedMainMenuItem === value ? 'selected' : ''}
-				key={value}
-				onClick={() => handleClickMenuItem({ value, url })}
-				onKeyPress={() => handleClickMenuItem({ value, url })}
-				role="menuitem"
-				tabIndex="0"
-			>
-				{name}
-			</li>
-		);
+		const renderMenuItem = ({
+			name,
+			sectionBreak,
+			url,
+			value,
+		}) => {
+			let className = '';
+			if (selectedMainMenuItem === value) {
+				className = 'selected';
+			}
+
+			if (sectionBreak) {
+				className += ' section-break';
+			}
+
+			return (
+				<li
+					className={className}
+					key={value}
+					onClick={() => handleClickMenuItem({ value, url })}
+					onKeyPress={() => handleClickMenuItem({ value, url })}
+					role="menuitem"
+					tabIndex="0"
+				>
+					{name}
+				</li>
+			);
+		};
 
 		const renderMenuItems = () => {
 			const menuItems = [];

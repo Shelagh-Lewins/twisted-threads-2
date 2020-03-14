@@ -41,6 +41,10 @@
 			&.selected {
 				background-color: $color-main-menu-selected-background;
 			}
+
+			&.section-break {
+				border-bottom: 1px solid $color-main-menu-break;
+			}
 		}
 	}
 
