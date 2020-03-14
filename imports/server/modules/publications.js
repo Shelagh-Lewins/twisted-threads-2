@@ -275,9 +275,10 @@ Meteor.publish('newPatterns', function ({
 
 // preview list for new patterns
 // displayed on Home page
+// only public patterns to reduce overlap with Recents
 Meteor.publish('newPatternsPreview', function () {
 	return Patterns.find(
-		getPatternPermissionQuery(),
+		{ 'isPublic': { '$eq': true } },
 		{
 			'fields': patternsFields,
 			'limit': ITEMS_PER_PREVIEW_LIST,

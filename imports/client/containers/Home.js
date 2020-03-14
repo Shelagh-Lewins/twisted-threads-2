@@ -297,10 +297,13 @@ const Tracker = withTracker(({ dispatch }) => {
 
 	Meteor.subscribe('newPatternsPreview', {
 		'onReady': () => {
-			newPatterns = Patterns.find({}, {
-				'limit': ITEMS_PER_PREVIEW_LIST,
-				'sort': { 'createdAt': -1 },
-			}).fetch();
+			newPatterns = Patterns.find(
+				{ 'isPublic': { '$eq': true } },
+				{
+					'limit': ITEMS_PER_PREVIEW_LIST,
+					'sort': { 'createdAt': -1 },
+				},
+			).fetch();
 			secondaryPatternSubscriptions(newPatterns);
 		},
 	});
