@@ -334,18 +334,6 @@ Meteor.newPatternFromGTT = function newPatternFromGTT({ filename, text }) { // e
 									}
 								}
 							}
-
-							/* for (let j = 0; j < numberOfTablets; j += 1) {
-								// tablets are not necessarily in order
-								// TargetID gives table number
-								const thisPick = Pick[i].Actions.Action[j]._attributes;
-								const tabletIndex = parseInt(thisPick.TargetID, 10) - 1;
-
-								weavingInstructions[i][tabletIndex] = {
-									'direction': thisPick.Dir,
-									'numberOfTurns': parseInt(thisPick.Dist, 10),
-								};
-							} */
 						}
 					}
 
