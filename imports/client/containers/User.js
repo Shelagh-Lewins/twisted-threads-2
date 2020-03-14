@@ -89,34 +89,14 @@ class User extends PureComponent {
 	}
 
 	componentDidMount() {
-		const { filterMinTablets, filterMaxTablets } = this.props;
+		// const { filterMinTablets, filterMaxTablets } = this.props;
 		document.body.classList.add(bodyClass);
-console.log('*** mount filters');
-//if (filterMaxTablets) {
-console.log('filterMaxTablets', filterMaxTablets);
-//}
-//if (filterMinTablets) {
-console.log('filterMinTablets', filterMinTablets);
-//}
-		/* const that = this;
-
-		// give the page time to render
-		if (section === 'patterns') {
-			setTimeout(() => {
-				const node = that.patternsRef.current;
-
-				node.scrollIntoView({
-					'behavior': 'smooth',
-					'block': 'start',
-					'inline': 'nearest',
-				});
-			}, 1000);
-		} */
 	}
 
 	componentDidUpdate(prevProps) {
 		const {
 			colorBookAdded,
+			currentPageNumber,
 			dispatch,
 			filterMinTablets,
 			filterMaxTablets,
@@ -140,10 +120,21 @@ console.log('filterMinTablets', filterMinTablets);
 			}, 2000);
 		}
 
-		if (section && !prevProps.section) {
-			setTimeout(() => {
-				this.scrollPatternsIntoView();
-			}, 500);
+		if (section) {
+			if (!prevProps.section) {
+				// navigated from My patterns to My profile
+				setTimeout(() => {
+					this.scrollPatternsIntoView();
+				}, 500);
+			} else if (currentPageNumber !== prevProps.currentPageNumber) {
+				// changed page within My patterns
+				setTimeout(() => {
+					this.scrollPatternsIntoView({ 'behavior': 'auto' });
+				}, 500);
+			}
+			// navigated from My profile to My documents
+		} else if (!section && prevProps.section) {
+			this.scrollTop();
 		}
 
 		let filterChange = false;
@@ -220,7 +211,7 @@ console.log('filterMinTablets', filterMinTablets);
 	scrollPatternsIntoView(options = { 'behavior': 'smooth' }) {
 		const { section } = this.props;
 		const { behavior } = options;
-		
+
 		const that = this;
 
 		if (section === 'patterns') {
@@ -232,6 +223,14 @@ console.log('filterMinTablets', filterMinTablets);
 				'inline': 'nearest',
 			});
 		}
+	}
+
+	scrollTop() { // eslint-disable-line class-methods-use-this
+		window.scroll({
+			'top': 0,
+			'left': 0,
+			'behavior': 'auto',
+		});
 	}
 
 	// show the form to add a new color book

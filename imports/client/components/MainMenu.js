@@ -74,6 +74,20 @@ class MainMenu extends Component {
 	];
 
 	componentDidMount() {
+		this.setMainMenuItem();
+	}
+
+	componentDidUpdate(prevProps) {
+		const {
+			location,
+		} = this.props;
+
+		if (location !== prevProps.location) {
+			this.setMainMenuItem();
+		}
+	}
+
+	setMainMenuItem() {
 		const {
 			dispatch,
 			location,
@@ -95,14 +109,12 @@ class MainMenu extends Component {
 
 	render() {
 		const {
-			dispatch,
 			history,
 			isAuthenticated,
 			selectedMainMenuItem,
 		} = this.props;
 
-		const handleClickMenuItem = ({ value, url }) => {
-			dispatch(setSelectedMainMenuItem(value));
+		const handleClickMenuItem = ({ url }) => {
 			history.push(url);
 		};
 
