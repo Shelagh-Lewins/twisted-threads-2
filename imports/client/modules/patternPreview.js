@@ -19,7 +19,7 @@ export function savePatternPreview({ _id, elm }) { // eslint-disable-line import
 				if (err) throw err;
 				image
 					.scaleToFit(PREVIEW_HEIGHT * PREVIEW_SCALE, PREVIEW_WIDTH * PREVIEW_SCALE) // resize to double the thumbnail size
-					.rotate(90)
+					.rotate(-90) // default preview orientation is right
 					.getBase64(Jimp.AUTO, (err, res) => {
 						Meteor.call('patternPreview.save', { _id, 'uri': res });
 					});
