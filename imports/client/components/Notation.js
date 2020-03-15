@@ -82,10 +82,10 @@ function Notation(props) {
 }
 
 Notation.propTypes = {
-	'_id': PropTypes.string.isRequired,
-	'dispatch': PropTypes.func.isRequired,
+	'_id': PropTypes.string,
+	'dispatch': PropTypes.func,
 	'holeHandedness': PropTypes.string,
-	'patternType': PropTypes.string.isRequired,
+	'patternType': PropTypes.string,
 };
 
 export default Notation;

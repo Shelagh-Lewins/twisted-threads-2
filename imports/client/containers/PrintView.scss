@@ -32,6 +32,11 @@ body {
 		width: 100%;
 	}
 
+	.key-hint {
+		color: $color-hint;
+		text-align: center;
+	}
+
 	.print-hint {
 		display: block;
 		left: 50%;

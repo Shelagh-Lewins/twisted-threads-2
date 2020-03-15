@@ -3,6 +3,7 @@
 import React, { PureComponent } from 'react';
 import { Button } from 'reactstrap';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import PageWrapper from '../components/PageWrapper';
 import {
@@ -40,6 +41,7 @@ class PrintView extends PureComponent {
 		// bind onClick functions to provide context
 		const functionsToBind = [
 			'onClickClose',
+			'handleKeyUp',
 		];
 
 		functionsToBind.forEach((functionName) => {
@@ -49,16 +51,27 @@ class PrintView extends PureComponent {
 
 	componentDidMount() {
 		document.body.classList.add(bodyClass);
+		document.addEventListener('keyup', this.handleKeyUp);
 	}
 
 	componentWillUnmount() {
 		document.body.classList.remove(bodyClass);
+		document.removeEventListener('keyup', this.handleKeyUp);
 	}
 
 	onClickClose() {
 		this.setState({
 			'showPrintHint': false,
 		});
+	}
+
+	handleKeyUp(event) {
+		const { history } = this.props;
+		const { 'pattern': { _id } } = this.context;
+
+		if (event.keyCode === 27) { // Esc key
+			history.push(`/pattern/${_id}`);
+		}
 	}
 
 	render() {
@@ -170,6 +183,7 @@ class PrintView extends PureComponent {
 							<p>Look at the print preview before printing. If you do not see a background colour on any square, your browser is probably not set up to print background colours.</p>
 							<p>If you&apos;re not sure how to change the print settings, try searching the web for instructions, for example &quot;Firefox print background color&quot; or &quot;Chrome print background color&quot;.</p>
 							<p>Important! After printing your pattern, you may want to change the settings back so you won&apos;t waste ink when printing standard web pages.</p>
+							<p className="key-hint">Press Esc to exit print view</p>
 						</div>
 					</div>
 				);
@@ -241,6 +255,7 @@ class PrintView extends PureComponent {
 PrintView.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
+	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'holes': PropTypes.number.isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'numberOfRows': PropTypes.number.isRequired,
@@ -276,4 +291,4 @@ function mapStateToProps(state) {
 	};
 }
 
-export default connect(mapStateToProps)(PrintView);
+export default withRouter(connect(mapStateToProps)(PrintView));

@@ -2,6 +2,7 @@
 
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import PageWrapper from '../components/PageWrapper';
@@ -144,8 +145,15 @@ class InteractiveWeavingChart extends PureComponent {
 	}
 
 	handleKeyUp(event) {
+		const { history } = this.props;
+		const { 'pattern': { _id } } = this.context;
+
 		// use up / down arrow to change weaving row
 		switch (event.keyCode) {
+			case 27:
+				history.push(`/pattern/${_id}`);
+				break;
+
 			case 38: // up arrow
 				this.handleClickUp();
 				break;
@@ -225,7 +233,7 @@ class InteractiveWeavingChart extends PureComponent {
 
 				const links = (
 					<div className="links">
-						<Link className="btn btn-primary" to={`/pattern/${_id}`}>Close interactive weaving chart</Link>
+						<Link className="btn btn-primary" to={`/pattern/${_id}`}>Close interactive weaving chart (Esc)</Link>
 					</div>
 				);
 				if (name && name !== '') {
@@ -272,6 +280,7 @@ InteractiveWeavingChart.contextType = AppContext;
 InteractiveWeavingChart.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
+	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'numberOfRows': PropTypes.number.isRequired,
 	'numberOfTablets': PropTypes.number.isRequired,
@@ -286,4 +295,4 @@ function mapStateToProps(state) {
 	};
 }
 
-export default connect(mapStateToProps)(InteractiveWeavingChart);
+export default withRouter(connect(mapStateToProps)(InteractiveWeavingChart));
