@@ -49,7 +49,6 @@ import AddColorBookForm from '../forms/AddColorBookForm';
 import AddPatternButton from '../components/AddPatternButton';
 import EditableText from '../components/EditableText';
 
-import { ITEMS_PER_PAGE } from '../../modules/parameters';
 import getUserpicStyle from '../modules/getUserpicStyle';
 
 import './User.scss';
@@ -496,6 +495,7 @@ User.propTypes = {
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isAuthenticated': PropTypes.bool.isRequired,
 	'isLoading': PropTypes.bool.isRequired,
+	'itemsPerPage': PropTypes.number.isRequired,
 	'patternCount': PropTypes.number.isRequired,
 	'patternPreviews': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
@@ -506,6 +506,7 @@ User.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
+	const { itemsPerPage } = state.page;
 	// find page number as URL query parameter, if present, in the form '/?page=1'
 	let currentPageNumber = 1;
 	const parsed = queryString.parse(ownProps.location.search);
@@ -526,7 +527,8 @@ function mapStateToProps(state, ownProps) {
 		'filterMinTablets': state.pattern.filterMinTablets,
 		'isAuthenticated': getIsAuthenticated(state),
 		'isLoading': state.pattern.isLoading,
-		'pageSkip': (currentPageNumber - 1) * ITEMS_PER_PAGE,
+		itemsPerPage,
+		'pageSkip': (currentPageNumber - 1) * itemsPerPage,
 		'patternCount': state.pattern.patternCount,
 		'section': ownProps.match.params.section, // read the url parameter to find whether to scroll to a section
 	};
@@ -538,6 +540,7 @@ const Tracker = withTracker((props) => {
 		dispatch,
 		filterMaxTablets,
 		filterMinTablets,
+		itemsPerPage,
 		pageSkip,
 	} = props;
 	const state = store.getState();
@@ -549,13 +552,13 @@ const Tracker = withTracker((props) => {
 
 	const patterns = Patterns.find({ 'createdBy': _id }, {
 		'sort': { 'nameSort': 1 },
-		'limit': ITEMS_PER_PAGE,
+		'limit': itemsPerPage,
 	}).fetch();
 
 	const handle = Meteor.subscribe('userPatterns', {
 		filterMaxTablets,
 		filterMinTablets,
-		'limit': ITEMS_PER_PAGE,
+		'limit': itemsPerPage,
 		'skip': pageSkip,
 		'userId': _id,
 	}, {

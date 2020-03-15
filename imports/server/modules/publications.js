@@ -7,7 +7,7 @@ import {
 	Tags,
 } from '../../modules/collection';
 import {
-	ITEMS_PER_PAGE,
+	// ITEMS_PER_PAGE,
 	ITEMS_PER_PREVIEW_LIST,
 	USER_FIELDS,
 } from '../../modules/parameters';
@@ -120,7 +120,7 @@ Meteor.publish('patterns', function ({
 	filterMaxTablets,
 	filterMinTablets,
 	skip = 0,
-	limit = ITEMS_PER_PAGE,
+	limit,
 }) {
 	// this needs to return the same number of patterns as the getPatternCount method, for pagination
 	check(filterMaxTablets, Match.Maybe(positiveIntegerCheck));
@@ -193,7 +193,7 @@ Meteor.publish('allPatternsPreview', function () {
 
 // ////////////////////////////////
 // My patterns
-Meteor.publish('myPatterns', function ({
+/* Meteor.publish('myPatterns', function ({
 	filterMaxTablets,
 	filterMinTablets,
 	skip = 0,
@@ -223,7 +223,7 @@ Meteor.publish('myPatterns', function ({
 	}
 
 	this.ready();
-});
+}); */
 
 // preview list for my patterns
 // displayed on Home page
@@ -249,7 +249,7 @@ Meteor.publish('newPatterns', function ({
 	filterMaxTablets,
 	filterMinTablets,
 	skip = 0,
-	limit = ITEMS_PER_PAGE,
+	limit,
 }) {
 	// this needs to return the same number of patterns as the getPatternCount method, for pagination
 	check(filterMaxTablets, Match.Maybe(positiveIntegerCheck));
@@ -292,7 +292,7 @@ Meteor.publish('userPatterns', function ({
 	filterMaxTablets,
 	filterMinTablets,
 	skip = 0,
-	limit = ITEMS_PER_PAGE,
+	limit,
 	userId,
 }) {
 	// this needs to return the same number of patterns as the getPatternCount method, for pagination

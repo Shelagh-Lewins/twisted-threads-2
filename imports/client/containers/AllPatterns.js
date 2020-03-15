@@ -21,7 +21,6 @@ import TabletFilterForm from '../forms/TabletFilterForm';
 import PaginatedList from '../components/PaginatedList';
 import PatternList from '../components/PatternList';
 
-import { ITEMS_PER_PAGE } from '../../modules/parameters';
 import secondaryPatternSubscriptions from '../modules/secondaryPatternSubscriptions';
 
 import './Home.scss';
@@ -116,8 +115,11 @@ AllPatterns.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 	// eslint doesn't realise the filters are used in Tracker
+	'filterMaxTablets': PropTypes.number,
+	'filterMinTablets': PropTypes.number,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isLoading': PropTypes.bool.isRequired,
+	'itemsPerPage': PropTypes.number.isRequired,
 	'patternCount': PropTypes.number.isRequired,
 	'patternPreviews': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
@@ -126,6 +128,7 @@ AllPatterns.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
+	const { itemsPerPage } = state.page;
 	// find page number as URL query parameter, if present, in the form '/?page=1'
 	let currentPageNumber = 1;
 	const parsed = queryString.parse(ownProps.location.search);
@@ -141,7 +144,8 @@ function mapStateToProps(state, ownProps) {
 		'filterMaxTablets': state.pattern.filterMaxTablets,
 		'filterMinTablets': state.pattern.filterMinTablets,
 		'isLoading': getIsLoading(state),
-		'pageSkip': (currentPageNumber - 1) * ITEMS_PER_PAGE,
+		itemsPerPage,
+		'pageSkip': (currentPageNumber - 1) * itemsPerPage,
 		'patternCount': state.pattern.patternCount,
 	};
 }
@@ -151,13 +155,14 @@ const Tracker = withTracker((props) => {
 		dispatch,
 		filterMaxTablets,
 		filterMinTablets,
+		itemsPerPage,
 		pageSkip,
 	} = props;
 	const state = store.getState();
 	const isLoading = getIsLoading(state);
 	const patterns = Patterns.find({}, {
 		'sort': { 'nameSort': 1 },
-		'limit': ITEMS_PER_PAGE,
+		'limit': itemsPerPage,
 	}).fetch();
 
 	Meteor.subscribe('tags');
@@ -165,7 +170,7 @@ const Tracker = withTracker((props) => {
 	const handle = Meteor.subscribe('patterns', {
 		filterMaxTablets,
 		filterMinTablets,
-		'limit': ITEMS_PER_PAGE,
+		'limit': itemsPerPage,
 		'skip': pageSkip,
 	}, {
 		'onReady': () => {
@@ -181,8 +186,6 @@ const Tracker = withTracker((props) => {
 	}
 
 	return {
-		'filterMaxTablets': state.pattern.filterMaxTablets,
-		'filterMinTablets': state.pattern.filterMinTablets,
 		patterns,
 		'patternPreviews': PatternPreviews.find().fetch(),
 		'tags': Tags.find().fetch(),

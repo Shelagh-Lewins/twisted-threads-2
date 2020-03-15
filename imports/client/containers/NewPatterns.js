@@ -21,7 +21,6 @@ import TabletFilterForm from '../forms/TabletFilterForm';
 import PaginatedList from '../components/PaginatedList';
 import PatternList from '../components/PatternList';
 
-import { ITEMS_PER_PAGE } from '../../modules/parameters';
 import secondaryPatternSubscriptions from '../modules/secondaryPatternSubscriptions';
 
 import './Home.scss';
@@ -118,6 +117,7 @@ NewPatterns.propTypes = {
 	// eslint doesn't realise the filters are used in Tracker
 	'filterMaxTablets': PropTypes.number,
 	'filterMinTablets': PropTypes.number,
+	'itemsPerPage': PropTypes.number.isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'patternCount': PropTypes.number.isRequired,
@@ -128,6 +128,7 @@ NewPatterns.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
+	const { itemsPerPage } = state.page;
 	// find page number as URL query parameter, if present, in the form '/?page=1'
 	let currentPageNumber = 1;
 	const parsed = queryString.parse(ownProps.location.search);
@@ -143,7 +144,8 @@ function mapStateToProps(state, ownProps) {
 		'filterMaxTablets': state.pattern.filterMaxTablets,
 		'filterMinTablets': state.pattern.filterMinTablets,
 		'isLoading': getIsLoading(state),
-		'pageSkip': (currentPageNumber - 1) * ITEMS_PER_PAGE,
+		itemsPerPage,
+		'pageSkip': (currentPageNumber - 1) * itemsPerPage,
 		'patternCount': state.pattern.patternCount,
 	};
 }
@@ -153,6 +155,7 @@ const Tracker = withTracker((props) => {
 		dispatch,
 		filterMaxTablets,
 		filterMinTablets,
+		itemsPerPage,
 		pageSkip,
 	} = props;
 	const state = store.getState();
@@ -160,7 +163,7 @@ const Tracker = withTracker((props) => {
 
 	const patterns = Patterns.find({}, {
 		'sort': { 'createdAt': -1 },
-		'limit': ITEMS_PER_PAGE,
+		'limit': itemsPerPage,
 	}).fetch();
 
 	Meteor.subscribe('tags');
@@ -168,7 +171,7 @@ const Tracker = withTracker((props) => {
 	const handle = Meteor.subscribe('newPatterns', {
 		filterMaxTablets,
 		filterMinTablets,
-		'limit': ITEMS_PER_PAGE,
+		'limit': itemsPerPage,
 		'skip': pageSkip,
 	}, {
 		'onReady': () => {
@@ -177,7 +180,6 @@ const Tracker = withTracker((props) => {
 	});
 
 	if (isLoading && handle.ready()) {
-		// console.log('1 *** NewPatterns getPatternCount');
 		dispatch(getPatternCount());
 		// the delay allows patterns from the previous page subscription to be cleared out of minimongo
 		// otherwise, when you switch pages, the old patterns show briefly

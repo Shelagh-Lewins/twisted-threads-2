@@ -14,7 +14,7 @@ import {
 	Patterns,
 	PatternPreviews,
 } from '../../imports/modules/collection';
-import { ITEMS_PER_PAGE, ITEMS_PER_PREVIEW_LIST } from '../../imports/modules/parameters';
+import { ALLOWED_ITEMS_PER_PAGE, ITEMS_PER_PREVIEW_LIST } from '../../imports/modules/parameters';
 import {
 	createManyUsers,
 	logOutButLeaveUser,
@@ -119,7 +119,8 @@ if (Meteor.isServer) {
 				const collector = new PublicationCollector();
 
 				const testPromise = new Promise((resolve, reject) => {
-					collector.collect('patterns', {},
+					collector.collect('patterns',
+						{ 'limit': ALLOWED_ITEMS_PER_PAGE[0] },
 						(collections) => {
 							resolve(collections.patterns);
 						});
@@ -142,7 +143,8 @@ if (Meteor.isServer) {
 				const collector = new PublicationCollector();
 
 				const testPromise = new Promise((resolve, reject) => {
-					collector.collect('patterns', {},
+					collector.collect('patterns',
+						{ 'limit': ALLOWED_ITEMS_PER_PAGE[0] },
 						(collections) => {
 							resolve(collections.patterns);
 						});
@@ -156,7 +158,8 @@ if (Meteor.isServer) {
 				const collector = new PublicationCollector({ 'userId': Meteor.user()._id });
 
 				const testPromise = new Promise((resolve, reject) => {
-					collector.collect('patterns', {},
+					collector.collect('patterns',
+						{ 'limit': ALLOWED_ITEMS_PER_PAGE[0] },
 						(collections) => {
 							resolve(collections.patterns);
 						});
@@ -195,7 +198,8 @@ if (Meteor.isServer) {
 				const collector = new PublicationCollector({ 'userId': Meteor.user()._id });
 
 				const testPromise = new Promise((resolve, reject) => {
-					collector.collect('patterns', {},
+					collector.collect('patterns',
+						{ 'limit': ALLOWED_ITEMS_PER_PAGE[0] },
 						(collections) => {
 							resolve(collections.patterns);
 						});
@@ -339,7 +343,7 @@ if (Meteor.isServer) {
 				const collector = new PublicationCollector();
 
 				const testPromise = new Promise((resolve, reject) => {
-					collector.collect('patterns',
+					collector.collect('patternsById',
 						[this.pattern1._id, this.pattern2._id],
 						(collections) => {
 							resolve(collections.patterns);
@@ -491,7 +495,7 @@ if (Meteor.isServer) {
 			});
 		});
 		// /////////////////////////
-		describe('publish myPatterns', () => {
+		/* describe('publish myPatterns', () => {
 			it('should publish nothing if user not logged in', async () => {
 				createManyPatterns();
 
@@ -578,7 +582,7 @@ if (Meteor.isServer) {
 
 				assert.equal(result, undefined); // this.ready() returns undefined
 			});
-		});
+		}); */
 		// /////////////////////////
 		describe('publish myPatternsPreview', () => {
 			it('should publish nothing if user not logged in', async () => {
@@ -664,7 +668,8 @@ if (Meteor.isServer) {
 				const collector = new PublicationCollector();
 
 				const testPromise = new Promise((resolve, reject) => {
-					collector.collect('newPatterns', {},
+					collector.collect('newPatterns',
+						{ 'limit': ALLOWED_ITEMS_PER_PAGE[0] },
 						(collections) => {
 							resolve(collections.patterns);
 						});
@@ -679,7 +684,7 @@ if (Meteor.isServer) {
 						'fields': { 'nameSort': 1, 'createdAt': 1 },
 					},
 				).fetch();
-				const expectedNames = allPatternsObjs.map((pattern) => pattern.nameSort).slice(0, ITEMS_PER_PAGE);
+				const expectedNames = allPatternsObjs.map((pattern) => pattern.nameSort).slice(0, ALLOWED_ITEMS_PER_PAGE[0]);
 
 				const result = await testPromise;
 
@@ -688,7 +693,7 @@ if (Meteor.isServer) {
 					assert.notEqual(expectedNames.indexOf(pattern.nameSort), -1);
 				});
 
-				assert.equal(result.length, ITEMS_PER_PAGE);
+				assert.equal(result.length, ALLOWED_ITEMS_PER_PAGE[0]);
 			});
 			it('should publish public and user\'s own patterns if user is logged in', async () => {
 				const {
@@ -700,7 +705,8 @@ if (Meteor.isServer) {
 				const collector = new PublicationCollector();
 
 				const testPromise = new Promise((resolve, reject) => {
-					collector.collect('newPatterns', {},
+					collector.collect('newPatterns',
+						{ 'limit': ALLOWED_ITEMS_PER_PAGE[0] },
 						(collections) => {
 							resolve(collections.patterns);
 						});
@@ -715,7 +721,7 @@ if (Meteor.isServer) {
 						'fields': { 'nameSort': 1, 'createdAt': 1 },
 					},
 				).fetch();
-				const expectedNames = allPatternsObjs.map((pattern) => pattern.nameSort).slice(0, ITEMS_PER_PAGE);
+				const expectedNames = allPatternsObjs.map((pattern) => pattern.nameSort).slice(0, ALLOWED_ITEMS_PER_PAGE[0]);
 
 				const result = await testPromise;
 
@@ -724,7 +730,7 @@ if (Meteor.isServer) {
 					assert.notEqual(expectedNames.indexOf(pattern.nameSort), -1);
 				});
 
-				assert.equal(result.length, ITEMS_PER_PAGE);
+				assert.equal(result.length, ALLOWED_ITEMS_PER_PAGE[0]);
 			});
 			it('should respect skip', async () => {
 				const {
@@ -736,10 +742,13 @@ if (Meteor.isServer) {
 				const collector = new PublicationCollector();
 
 				const testPromise = new Promise((resolve, reject) => {
-					collector.collect('newPatterns', { 'skip': ITEMS_PER_PAGE },
-						(collections) => {
-							resolve(collections.patterns);
-						});
+					collector.collect('newPatterns', {
+						'limit': ALLOWED_ITEMS_PER_PAGE[0],
+						'skip': ALLOWED_ITEMS_PER_PAGE[0],
+					},
+					(collections) => {
+						resolve(collections.patterns);
+					});
 				});
 
 				const allPatterns = publicMyPatternNames.concat(publicOtherPatternNames).concat(privateMyPatternNames);
@@ -751,7 +760,7 @@ if (Meteor.isServer) {
 						'fields': { 'nameSort': 1, 'createdAt': 1 },
 					},
 				).fetch();
-				const expectedNames = allPatternsObjs.map((pattern) => pattern.nameSort).slice(ITEMS_PER_PAGE, ITEMS_PER_PAGE * 2);
+				const expectedNames = allPatternsObjs.map((pattern) => pattern.nameSort).slice(ALLOWED_ITEMS_PER_PAGE[0], ALLOWED_ITEMS_PER_PAGE[0] * 2);
 
 				const result = await testPromise;
 
@@ -760,7 +769,7 @@ if (Meteor.isServer) {
 					assert.notEqual(expectedNames.indexOf(pattern.nameSort), -1);
 				});
 
-				assert.equal(result.length, ITEMS_PER_PAGE);
+				assert.equal(result.length, ALLOWED_ITEMS_PER_PAGE[0]);
 			});
 			it('should publish only public patterns if a different user is logged in', async () => {
 				const {
@@ -775,7 +784,8 @@ if (Meteor.isServer) {
 				const collector = new PublicationCollector();
 
 				const testPromise = new Promise((resolve, reject) => {
-					collector.collect('newPatterns', {},
+					collector.collect('newPatterns',
+						{ 'limit': ALLOWED_ITEMS_PER_PAGE[0] },
 						(collections) => {
 							resolve(collections.patterns);
 						});
@@ -790,7 +800,7 @@ if (Meteor.isServer) {
 						'fields': { 'nameSort': 1, 'createdAt': 1 },
 					},
 				).fetch();
-				const expectedNames = allPatternsObjs.map((pattern) => pattern.nameSort).slice(0, ITEMS_PER_PAGE);
+				const expectedNames = allPatternsObjs.map((pattern) => pattern.nameSort).slice(0, ALLOWED_ITEMS_PER_PAGE[0]);
 
 				const result = await testPromise;
 
@@ -799,7 +809,7 @@ if (Meteor.isServer) {
 					assert.notEqual(expectedNames.indexOf(pattern.nameSort), -1);
 				});
 
-				assert.equal(result.length, ITEMS_PER_PAGE);
+				assert.equal(result.length, ALLOWED_ITEMS_PER_PAGE[0]);
 			});
 		});
 		// /////////////////////////
@@ -843,10 +853,10 @@ if (Meteor.isServer) {
 
 				assert.equal(result.length, ITEMS_PER_PREVIEW_LIST);
 			});
-			it('should publish public and user\'s own patterns if user is logged in', async () => {
+			it('should publish only public patterns if user is logged in', async () => {
+				// the user's private patterns are not shown to avoid duplication in Recents with the user's new work
 				const {
 					publicMyPatternNames,
-					privateMyPatternNames,
 					publicOtherPatternNames,
 				} = createManyPatterns();
 
@@ -859,7 +869,7 @@ if (Meteor.isServer) {
 						});
 				});
 
-				const allPatterns = publicMyPatternNames.concat(publicOtherPatternNames).concat(privateMyPatternNames);
+				const allPatterns = publicMyPatternNames.concat(publicOtherPatternNames);
 
 				const allPatternsObjs = Patterns.find(
 					{ 'name': { '$in': allPatterns } },
@@ -930,7 +940,11 @@ if (Meteor.isServer) {
 				const collector = new PublicationCollector({ 'userId': Meteor.user()._id });
 
 				const testPromise = new Promise((resolve, reject) => {
-					collector.collect('userPatterns', { 'userId': Meteor.userId() },
+					collector.collect('userPatterns',
+						{
+							'limit': ALLOWED_ITEMS_PER_PAGE[0],
+							'userId': Meteor.userId(),
+						},
 						(collections) => {
 							resolve(collections.patterns);
 						});
@@ -945,7 +959,7 @@ if (Meteor.isServer) {
 					assert.notEqual(expectedNames.indexOf(pattern.nameSort), -1);
 				});
 
-				assert.equal(result.length, ITEMS_PER_PAGE);
+				assert.equal(result.length, ALLOWED_ITEMS_PER_PAGE[0]);
 			});
 			it('should publish only public patterns if the user is not logged in', async () => {
 				const {
@@ -960,7 +974,11 @@ if (Meteor.isServer) {
 				const collector = new PublicationCollector();
 
 				const testPromise = new Promise((resolve, reject) => {
-					collector.collect('userPatterns', { userId },
+					collector.collect('userPatterns',
+						{
+							'limit': ALLOWED_ITEMS_PER_PAGE[0],
+							userId,
+						},
 						(collections) => {
 							resolve(collections.patterns);
 						});
@@ -974,7 +992,7 @@ if (Meteor.isServer) {
 					assert.notEqual(expectedNames.indexOf(pattern.nameSort), -1);
 				});
 
-				assert.equal(result.length, ITEMS_PER_PAGE);
+				assert.equal(result.length, ALLOWED_ITEMS_PER_PAGE[0]);
 			});
 		});
 		// /////////////////////////
