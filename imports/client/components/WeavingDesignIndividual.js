@@ -352,7 +352,6 @@ class WeavingDesignIndividual extends PureComponent {
 					rowIndex={rowIndex}
 					tabletIndex={tabletIndex}
 				/>
-				<hr className="clearing" />
 				<AddRowsForm
 					enableReinitialize={true}
 					handleSubmit={this.handleSubmitAddRows}

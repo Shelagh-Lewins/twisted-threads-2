@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useRef } from 'react';
+import ReactDOM from 'react-dom';
 import { Button } from 'reactstrap';
 import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
@@ -17,6 +18,8 @@ const EditWeavingCellForm = (props) => {
 		handleSubmit,
 		numberOfTurns,
 	} = props;
+
+	let fragmentRef = useRef();
 
 	const validate = (values) => {
 		const errors = {};
@@ -68,8 +71,16 @@ const EditWeavingCellForm = (props) => {
 		});
 	}
 
+	if (canEdit) {
+		const node = fragmentRef.current;
+
+		if (document.activeElement.id !== 'numberOfTurns') {
+			setTimeout(() => { node.focus(); }, 10);
+		}
+	}
+
 	return (
-		<div className="edit-pattern-form">
+		<div className="edit-weaving-cell-form edit-pattern-form">
 			<form onSubmit={formik.handleSubmit}>
 				<div className="form-group">
 					<label htmlFor="numberOfTurns">
@@ -83,6 +94,7 @@ const EditWeavingCellForm = (props) => {
 							max={ALLOWED_NUMBER_OF_TURNS}
 							min="0"
 							name="numberOfTurns"
+							ref={fragmentRef}
 							type="number"
 							onChange={handleChangeNumberOfTurns}
 							onBlur={formik.handleBlur}

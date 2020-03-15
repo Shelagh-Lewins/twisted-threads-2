@@ -1,13 +1,13 @@
 // add rows to an 'individual' type pattern
 
 import React from 'react';
-import { Button, Col, Row } from 'reactstrap';
+import { Button } from 'reactstrap';
 import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
 import {
 	MAX_ROWS,
 } from '../../modules/parameters';
-import './AddPatternForm.scss';
+import './AddRowsForm.scss';
 
 const validate = (values, numberOfRows, patternType) => {
 	const errors = {};
@@ -81,7 +81,7 @@ const AddRowsForm = (props) => {
 	// note firefox doesn't support the 'label' shorthand in option
 	// https://bugzilla.mozilla.org/show_bug.cgi?id=40545#c11
 	return (
-		<div className="edit-pattern-form">
+		<div className="add-rows-form edit-pattern-form">
 			<form onSubmit={formik.handleSubmit}>
 				<div className="form-group">
 					<label htmlFor="insertNRows">
