@@ -37,8 +37,9 @@ if [[ `meteor --version` =~ "Meteor 1.4."* ]] || [[ `meteor --version` =~ "Meteo
 else
   run meteor bundle package.tar.gz
 fi
-run scp $KEYARG package.tar.gz $SERVER:$APP_DIR/
-run scp $KEYARG $WORK_SCRIPT_PATH $SERVER:$REMOTE_SCRIPT_PATH
+# for unknown reasons, on dragon the server script fails to restart Passenger. Performing the following steps manually works.
+# run scp $KEYARG package.tar.gz $SERVER:$APP_DIR/
+# run scp $KEYARG $WORK_SCRIPT_PATH $SERVER:$REMOTE_SCRIPT_PATH
 echo
-echo "---- Running deployment script on remote server ----"
-run ssh $KEYARG $SERVER bash $REMOTE_SCRIPT_PATH
+# echo "---- Running deployment script on remote server ----"
+# run ssh $KEYARG $SERVER bash $REMOTE_SCRIPT_PATH
