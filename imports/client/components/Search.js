@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import ReactDOM from "react-dom";
+import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button, Input } from 'reactstrap';
