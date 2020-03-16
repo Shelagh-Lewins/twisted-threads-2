@@ -1,7 +1,7 @@
 // These parameters are available to client and server
 // allowing for consistent validation
 
-export const ALLOWED_ITEMS_PER_PAGE = [10, 15, 20, 25, 30];
+export const ALLOWED_ITEMS_PER_PAGE = [10, 15, 20, 25, 30, 35, 40];
 export const USER_FIELDS = {
 	'_id': 1,
 	'description': 1,

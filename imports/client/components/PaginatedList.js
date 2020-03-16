@@ -30,6 +30,22 @@ class PaginatedList extends PureComponent {
 		});
 	}
 
+	componentDidUpdate() {
+		const {
+			currentPageNumber,
+			dispatch,
+			history,
+			itemCount,
+			itemsPerPage,
+		} = this.props;
+		const lastPage = Math.round(itemCount / itemsPerPage);
+console.log('last page', lastPage);
+		// make sure the user is on a valid page
+		if (currentPageNumber > lastPage) {
+			dispatch(changePage(lastPage - 1, history));
+		}
+	}
+
 	handleChangeItemPerPage = (event) => {
 		const {
 			dispatch,

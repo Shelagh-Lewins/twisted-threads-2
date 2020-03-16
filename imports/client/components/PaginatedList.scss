@@ -11,4 +11,11 @@
 	.empty {
 		width: 100%;
 	}
+
+	.select-items-per-page {
+		select {
+			display: inline-block;
+			width: auto;
+		}
+	}
 }
