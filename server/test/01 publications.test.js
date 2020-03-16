@@ -229,7 +229,7 @@ if (Meteor.isServer) {
 
 				assert.equal(result.length, 0);
 			});
-			it('should publish public documents if user not logged in', async () => {
+			it('should publish public document if user not logged in', async () => {
 				// make sure publications know there is no user
 				unwrapUser();
 				stubNoUser();
@@ -495,95 +495,6 @@ if (Meteor.isServer) {
 			});
 		});
 		// /////////////////////////
-		/* describe('publish myPatterns', () => {
-			it('should publish nothing if user not logged in', async () => {
-				createManyPatterns();
-
-				// make sure publications know there is no user
-				unwrapUser();
-				stubNoUser();
-
-				const collector = new PublicationCollector();
-
-				const testPromise = new Promise((resolve, reject) => {
-					collector.collect('myPatterns', {},
-						(collections) => {
-							resolve(collections.patterns);
-						});
-				});
-
-				const result = await testPromise;
-
-				assert.equal(result, undefined); // this.ready() returns undefined
-			});
-			it('should publish all the user\'s patterns if the user is logged in', async () => {
-				const {
-					publicMyPatternNames,
-					privateMyPatternNames,
-				} = createManyPatterns();
-
-				const collector = new PublicationCollector({ 'userId': Meteor.user()._id });
-
-				const testPromise = new Promise((resolve, reject) => {
-					collector.collect('myPatterns', { 'limit': 100 },
-						(collections) => {
-							resolve(collections.patterns);
-						});
-				});
-
-				const result = await testPromise;
-
-				assert.equal(result.length, publicMyPatternNames.length + privateMyPatternNames.length);
-			});
-			it('should respect limit if the user is logged in', async () => {
-				const {
-					publicMyPatternNames,
-					privateMyPatternNames,
-				} = createManyPatterns();
-				const limit = 5;
-
-				const collector = new PublicationCollector({ 'userId': Meteor.user()._id });
-
-				const testPromise = new Promise((resolve, reject) => {
-					collector.collect('myPatterns', { 'limit': limit },
-						(collections) => {
-							resolve(collections.patterns);
-						});
-				});
-
-				const expectedNames = (publicMyPatternNames.concat(privateMyPatternNames)).sort().slice(0, limit);
-
-				const result = await testPromise;
-
-				// these should be the first patterns alphabetically
-				result.forEach((pattern) => {
-					assert.notEqual(expectedNames.indexOf(pattern.nameSort), -1);
-				});
-
-				assert.equal(result.length, limit);
-			});
-			it('should publish nothing if a different user is logged in', async () => {
-				createManyPatterns();
-
-				// log in a different user
-				unwrapUser();
-				stubUser();
-
-				const collector = new PublicationCollector();
-
-				const testPromise = new Promise((resolve, reject) => {
-					collector.collect('myPatterns', {},
-						(collections) => {
-							resolve(collections.patterns);
-						});
-				});
-
-				const result = await testPromise;
-
-				assert.equal(result, undefined); // this.ready() returns undefined
-			});
-		}); */
-		// /////////////////////////
 		describe('publish myPatternsPreview', () => {
 			it('should publish nothing if user not logged in', async () => {
 				createManyPatterns();
@@ -609,7 +520,6 @@ if (Meteor.isServer) {
 				const {
 					publicMyPatternNames,
 					privateMyPatternNames,
-
 				} = createManyPatterns();
 
 				const collector = new PublicationCollector({ 'userId': Meteor.user()._id });

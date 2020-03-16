@@ -191,41 +191,7 @@ Meteor.publish('allPatternsPreview', function () {
 	);
 });
 
-// ////////////////////////////////
-// My patterns
-/* Meteor.publish('myPatterns', function ({
-	filterMaxTablets,
-	filterMinTablets,
-	skip = 0,
-	limit = ITEMS_PER_PAGE,
-}) {
-	// this needs to return the same number of patterns as the getPatternCount method, for pagination
-	check(filterMaxTablets, Match.Maybe(positiveIntegerCheck));
-	check(filterMinTablets, Match.Maybe(positiveIntegerCheck));
-	check(limit, positiveIntegerCheck);
-	check(skip, positiveIntegerCheck);
-
-	if (this.userId) {
-		return Patterns.find(
-			{
-				'$and': [
-					getTabletFilter({ filterMaxTablets, filterMinTablets }),
-					{ 'createdBy': this.userId },
-				],
-			},
-			{
-				'fields': patternsFields,
-				'sort': { 'nameSort': 1 },
-				'skip': skip,
-				'limit': limit,
-			},
-		);
-	}
-
-	this.ready();
-}); */
-
-// preview list for my patterns
+// preview list for my patterns (my patterns main page uses userPattern publication
 // displayed on Home page
 Meteor.publish('myPatternsPreview', function () {
 	if (this.userId) {
