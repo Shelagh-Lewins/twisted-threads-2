@@ -110,7 +110,7 @@ export const getPatternCount = () => (dispatch, getState) => {
 		if (error) {
 			return dispatch(logErrors({ 'get pattern count': error.reason }));
 		}
-console.log('*** getPatternCount returned', result);
+//console.log('*** getPatternCount returned', result);
 		dispatch(setPatternCount(result));
 	});
 };
@@ -123,13 +123,13 @@ export function setPatternCountUserId(userId) {
 	};
 }
 
-export const changePage = (newPageNumber, history) => (dispatch) => {
+/* export const changePage = (newPageNumber, history) => (dispatch) => {
 	const url = `?page=${newPageNumber + 1}`;
 
 	history.push(url);
 
 	dispatch(getPatternCount());
-};
+}; */
 
 // waiting for data subscription to be ready
 export function setIsLoading(isLoading) {
@@ -1203,7 +1203,7 @@ export function updateFilterMaxTablets(maxTablets, history) {
 		}
 
 		dispatch(setFilterMaxTablets(value));
-		dispatch(changePage(0, history));
+		//dispatch(changePage(0, history));
 		dispatch(getPatternCount());
 	};
 }
@@ -1227,7 +1227,7 @@ export function updateFilterMinTablets(minTablets, history) {
 		}
 
 		dispatch(setFilterMinTablets(value));
-		dispatch(changePage(0, history));
+		//dispatch(changePage(0, history));
 		dispatch(getPatternCount());
 	};
 }
@@ -1245,7 +1245,7 @@ export function removeTabletFilter() {
 export function updateFilterRemove(history) {
 	return (dispatch) => {
 		dispatch(removeTabletFilter());
-		dispatch(changePage(0, history));
+		//dispatch(changePage(0, history));
 		dispatch(getPatternCount());
 	};
 }
@@ -1253,7 +1253,7 @@ export function updateFilterRemove(history) {
 // ///////////////////////////
 // default state
 const initialPatternState = {
-	'currentPageNumber': 0,
+	//'currentPageNumber': 0,
 	'error': null,
 	'filterMaxTablets': undefined,
 	'filterMinTablets': undefined,

@@ -12,6 +12,7 @@ import {
 	updateFilterMaxTablets,
 	updateFilterMinTablets,
 } from '../modules/pattern';
+import { changePage } from '../modules/page';
 import {
 	MAX_TABLETS,
 } from '../../modules/parameters';
@@ -71,6 +72,7 @@ const TabletFilterForm = (props) => {
 		'onSubmit': (values) => {
 			dispatch(updateFilterMinTablets(values.minTablets, history));
 			dispatch(updateFilterMaxTablets(values.maxTablets, history));
+			dispatch(changePage(0, history));
 		},
 	});
 
@@ -94,6 +96,7 @@ const TabletFilterForm = (props) => {
 		setFieldValue('minTablets', '');
 		setFieldValue('maxTablets', '');
 		dispatch(updateFilterRemove(history));
+		dispatch(changePage(0, history));
 	};
 
 	const handleChangeMaxTablets = (e) => {

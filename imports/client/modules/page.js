@@ -22,6 +22,12 @@ export function setItemsPerPage(value) {
 	};
 }
 
+export const changePage = (newPageNumber, history) => (dispatch) => {
+	const url = `?page=${newPageNumber + 1}`;
+
+	history.push(url);
+};
+
 // ///////////////////////////
 // Provide information to the UI
 export const getSelectedMainMenuItem = (state) => state.page.selectedMainMenuItem;

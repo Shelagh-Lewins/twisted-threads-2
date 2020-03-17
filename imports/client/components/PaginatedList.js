@@ -5,8 +5,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import Pagination from './Pagination';
-import { changePage } from '../modules/pattern';
-import { setItemsPerPage } from '../modules/page';
+import { changePage, setItemsPerPage } from '../modules/page';
 import { ALLOWED_ITEMS_PER_PAGE } from '../../modules/parameters';
 import './PaginatedList.scss';
 
@@ -30,40 +29,56 @@ class PaginatedList extends PureComponent {
 		});
 	}
 
-	componentDidMount() {
+	/* componentDidMount() {
 		const {
 			currentPageNumber,
 		} = this.props;
 
-		console.log('*** mount currentPageNumber', currentPageNumber);
-	}
+		//console.log('*** mount currentPageNumber', currentPageNumber);
+	} */
 
-	componentDidUpdate() {
+	componentDidUpdate(prevProps) {
 		const {
 			currentPageNumber,
 			dispatch,
+			handlePaginationUpdate,
 			history,
 			itemCount,
 			itemsPerPage,
 		} = this.props;
 		const lastPage = Math.ceil(itemCount / itemsPerPage);
-console.log('*** update last page', lastPage);
-console.log('itemCount', itemCount);
-console.log('currentPageNumber', currentPageNumber);
-console.log('itemsPerPage', itemsPerPage);
+		let runCallback = false;
+//console.log('*** update last page', lastPage);
+//console.log('itemCount', itemCount);
+//console.log('currentPageNumber', currentPageNumber);
+//console.log('itemsPerPage', itemsPerPage);
 		// make sure the user is on a valid page
 		if (currentPageNumber === 0) {
 			dispatch(changePage(0, history));
+			//if (typeof handlePaginationUpdate === 'function') {
+				//handlePaginationUpdate();
+			//}
+			runCallback = true;
+		} else if (itemCount > 0 && (currentPageNumber > (lastPage))) {
+			dispatch(changePage(lastPage - 1, history));
+			//if (typeof handlePaginationUpdate === 'function') {
+				//handlePaginationUpdate();
+			//}
+			runCallback = true;
+		} else if (currentPageNumber !== prevProps.currentPageNumber) {
+			//handlePaginationUpdate();
+			runCallback = true;
 		}
 
-		if (itemCount > 0 && (currentPageNumber > (lastPage))) {
-			dispatch(changePage(lastPage - 1, history));
+		if (runCallback && typeof handlePaginationUpdate === 'function') {
+			handlePaginationUpdate();
 		}
 	}
 
 	handleChangeItemPerPage = (event) => {
 		const {
 			dispatch,
+			handlePaginationUpdate,
 		} = this.props;
 
 		dispatch(setItemsPerPage(parseInt(event.target.value, 10)));
@@ -71,15 +86,24 @@ console.log('itemsPerPage', itemsPerPage);
 		this.setState({
 			'itemsPerPage': event.target.value,
 		});
+
+		if (typeof handlePaginationUpdate === 'function') {
+			handlePaginationUpdate();
+		}
 	}
 
 	handlePageClick = (data) => {
 		const {
 			dispatch,
+			handlePaginationUpdate,
 			history,
 		} = this.props;
 
 		dispatch(changePage(data.selected, history));
+
+		if (typeof handlePaginationUpdate === 'function') {
+			handlePaginationUpdate();
+		}
 	}
 
 	render() {
@@ -138,6 +162,7 @@ PaginatedList.propTypes = {
 	]),
 	'currentPageNumber': PropTypes.number,
 	'dispatch': PropTypes.func.isRequired,
+	'handlePaginationUpdate': PropTypes.func,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'itemCount': PropTypes.number.isRequired,
 	'itemsPerPage': PropTypes.number.isRequired,

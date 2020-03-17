@@ -15,6 +15,7 @@ import {
 	getIsLoading,
 	getPatternCount,
 	setIsLoading,
+	setPatternCount,
 	setPatternCountUserId,
 } from '../modules/pattern';
 import {
@@ -73,6 +74,7 @@ class User extends PureComponent {
 		const functionsToBind = [
 			'handleClickAddColorBookButton',
 			'handleClickAddColorBook',
+			'handlePaginationUpdate',
 			'cancelAddColorBook',
 			'handleClickButtonCopy',
 			'handleClickSelectColorBook',
@@ -94,6 +96,7 @@ class User extends PureComponent {
 
 	componentDidUpdate(prevProps) {
 		const {
+			_id,
 			colorBookAdded,
 			currentPageNumber,
 			dispatch,
@@ -119,6 +122,19 @@ class User extends PureComponent {
 			}, 2000);
 		}
 
+		if (gotUser && _id !== prevProps._id) {
+			dispatch(setPatternCountUserId(user._id));
+
+			// give the page time to render
+			setTimeout(() => {
+				this.scrollPatternsIntoView();
+			}, 2000);
+		}
+
+		/* if (currentPageNumber !== prevProps.currentPageNumber) {
+			dispatch(getPatternCount());
+		} */
+
 		if (section) {
 			if (!prevProps.section) {
 				// navigated from My patterns to My profile
@@ -127,9 +143,9 @@ class User extends PureComponent {
 				}, 500);
 			} else if (currentPageNumber !== prevProps.currentPageNumber) {
 				// changed page within My patterns
-				setTimeout(() => {
+				/* setTimeout(() => {
 					this.scrollPatternsIntoView({ 'behavior': 'auto' });
-				}, 500);
+				}, 500); */
 			}
 			// navigated from My profile to My documents
 		} else if (!section && prevProps.section) {
@@ -165,6 +181,7 @@ class User extends PureComponent {
 		const { dispatch } = this.props;
 		document.body.classList.remove(bodyClass);
 		dispatch(setPatternCountUserId(undefined));
+		dispatch(setPatternCount(0));
 	}
 
 	onChangeColorBookIsPublic = ({ _id, isPublic }) => {
@@ -207,6 +224,18 @@ class User extends PureComponent {
 		}
 	};
 
+	handlePaginationUpdate() {
+		const {
+			dispatch,
+		} = this.props;
+
+		setTimeout(() => {
+			this.scrollPatternsIntoView({ 'behavior': 'auto' });
+		}, 500);
+
+		dispatch(getPatternCount());
+	}
+
 	scrollPatternsIntoView(options = { 'behavior': 'smooth' }) {
 		const { section } = this.props;
 		const { behavior } = options;
@@ -216,11 +245,13 @@ class User extends PureComponent {
 		if (section === 'patterns') {
 			const node = that.patternsRef.current;
 
-			node.scrollIntoView({
-				behavior,
-				'block': 'start',
-				'inline': 'nearest',
-			});
+			if (node) {
+				node.scrollIntoView({
+					behavior,
+					'block': 'start',
+					'inline': 'nearest',
+				});
+			}
 		}
 	}
 
@@ -368,6 +399,7 @@ class User extends PureComponent {
 						<PaginatedList
 							currentPageNumber={currentPageNumber}
 							dispatch={dispatch}
+							handlePaginationUpdate={this.handlePaginationUpdate}
 							history={history}
 							itemCount={patternCount}
 						>
@@ -483,6 +515,7 @@ class User extends PureComponent {
 }
 
 User.propTypes = {
+	'_id': PropTypes.string.isRequired,
 	'canCreatePattern': PropTypes.bool.isRequired,
 	'colorBookAdded': PropTypes.string.isRequired,
 	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,

@@ -35,6 +35,7 @@ class NewPatterns extends Component {
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
+			'handlePaginationUpdate',
 		];
 
 		functionsToBind.forEach((functionName) => {
@@ -46,8 +47,27 @@ class NewPatterns extends Component {
 		document.body.classList.add(bodyClass);
 	}
 
+	/* componentDidUpdate(prevProps) {
+		const {
+			currentPageNumber,
+			dispatch,
+		} = this.props;
+
+		if (currentPageNumber !== prevProps.currentPageNumber) {
+			dispatch(getPatternCount());
+		}
+	} */
+
 	componentWillUnmount() {
 		document.body.classList.remove(bodyClass);
+	}
+
+	handlePaginationUpdate() {
+		const {
+			dispatch,
+		} = this.props;
+
+		dispatch(getPatternCount());
 	}
 
 	render() {
@@ -87,6 +107,7 @@ class NewPatterns extends Component {
 							<PaginatedList
 								currentPageNumber={currentPageNumber}
 								dispatch={dispatch}
+								handlePaginationUpdate={this.handlePaginationUpdate}
 								history={history}
 								itemCount={patternCount}
 							>
