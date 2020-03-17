@@ -30,6 +30,14 @@ class PaginatedList extends PureComponent {
 		});
 	}
 
+	componentDidMount() {
+		const {
+			currentPageNumber,
+		} = this.props;
+
+		console.log('*** mount currentPageNumber', currentPageNumber);
+	}
+
 	componentDidUpdate() {
 		const {
 			currentPageNumber,
@@ -38,10 +46,17 @@ class PaginatedList extends PureComponent {
 			itemCount,
 			itemsPerPage,
 		} = this.props;
-		const lastPage = Math.round(itemCount / itemsPerPage);
-console.log('last page', lastPage);
+		const lastPage = Math.ceil(itemCount / itemsPerPage);
+console.log('*** update last page', lastPage);
+console.log('itemCount', itemCount);
+console.log('currentPageNumber', currentPageNumber);
+console.log('itemsPerPage', itemsPerPage);
 		// make sure the user is on a valid page
-		if (currentPageNumber > lastPage) {
+		if (currentPageNumber === 0) {
+			dispatch(changePage(0, history));
+		}
+
+		if (itemCount > 0 && (currentPageNumber > (lastPage))) {
 			dispatch(changePage(lastPage - 1, history));
 		}
 	}

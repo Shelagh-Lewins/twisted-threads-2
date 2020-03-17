@@ -18,7 +18,6 @@ import Loading from '../components/Loading';
 import MainMenu from '../components/MainMenu';
 import PaginatedList from '../components/PaginatedList';
 
-import { ITEMS_PER_PAGE } from '../../modules/parameters';
 import './Home.scss';
 
 const queryString = require('query-string');
@@ -39,27 +38,36 @@ class People extends Component {
 	}
 
 	componentDidMount() {
-		const { dispatch, pageSkip } = this.props;
+		const {
+			dispatch,
+			itemsPerPage,
+			pageSkip,
+		} = this.props;
 
 		document.body.classList.add(bodyClass);
 
 		dispatch(getUserCount());
 		dispatch(getUsersForPage({
 			'skip': pageSkip,
-			'limit': ITEMS_PER_PAGE,
+			'limit': itemsPerPage,
 		}));
 
 		setTimeout(() => dispatch(setIsLoading(false)), 100); // give time for user list to load
 	}
 
 	componentDidUpdate(prevProps) {
-		const { currentPageNumber, dispatch, pageSkip } = this.props;
+		const {
+			currentPageNumber,
+			dispatch,
+			itemsPerPage,
+			pageSkip,
+		} = this.props;
 
 		if (currentPageNumber !== prevProps.currentPageNumber) {
 			dispatch(getUserCount());
 			dispatch(getUsersForPage({
 				'skip': pageSkip,
-				'limit': ITEMS_PER_PAGE,
+				'limit': itemsPerPage,
 			}));
 		}
 	}
@@ -145,18 +153,20 @@ People.propTypes = {
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isLoading': PropTypes.bool.isRequired,
+	'itemsPerPage': PropTypes.number.isRequired,
 	'pageSkip': PropTypes.number.isRequired,
 	'userCount': PropTypes.number.isRequired,
 	'users': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
+	const { itemsPerPage } = state.page;
 	// find page number as URL query parameter, if present, in the form '/?page=1'
 	let currentPageNumber = 1;
 	const parsed = queryString.parse(ownProps.location.search);
 	const page = parseInt(parsed.page, 10);
 
-	if (!Number.isNaN(page)) {
+	if (!Number.isNaN(page) && page > 0) {
 		currentPageNumber = page;
 	}
 
@@ -164,7 +174,8 @@ function mapStateToProps(state, ownProps) {
 		'currentPageNumber': currentPageNumber, // read the url parameter to find the currentPage
 		'errors': state.errors,
 		'isLoading': getIsLoading(state),
-		'pageSkip': (currentPageNumber - 1) * ITEMS_PER_PAGE,
+		itemsPerPage,
+		'pageSkip': (currentPageNumber - 1) * itemsPerPage,
 		'userCount': state.auth.userCount,
 		'users': state.auth.usersForPage,
 	};

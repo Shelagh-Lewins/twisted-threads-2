@@ -110,7 +110,7 @@ export const getPatternCount = () => (dispatch, getState) => {
 		if (error) {
 			return dispatch(logErrors({ 'get pattern count': error.reason }));
 		}
-
+console.log('*** getPatternCount returned', result);
 		dispatch(setPatternCount(result));
 	});
 };

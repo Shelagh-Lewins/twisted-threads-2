@@ -134,7 +134,7 @@ function mapStateToProps(state, ownProps) {
 	const parsed = queryString.parse(ownProps.location.search);
 	const page = parseInt(parsed.page, 10);
 
-	if (!Number.isNaN(page)) {
+	if (!Number.isNaN(page) && page > 0) {
 		currentPageNumber = page;
 	}
 
