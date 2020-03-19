@@ -2,6 +2,7 @@ import React from 'react';
 import { Button } from 'reactstrap';
 import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
+import { COLOR_BOOK_HINT } from '../../modules/parameters';
 import './AddColorBookForm.scss';
 
 const validate = (values) => {
@@ -29,7 +30,8 @@ const AddColorBookForm = (props) => {
 
 	return (
 		<form onSubmit={formik.handleSubmit} className="add-color-book-form">
-			<h2>Create a new color book</h2>
+			<h2>Create a new colour book</h2>
+			<p className="hint">{COLOR_BOOK_HINT}</p>
 			<div className="form-group">
 				<label htmlFor="name">
 					Name

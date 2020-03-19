@@ -3,7 +3,12 @@ import ReactPaginate from 'react-paginate';
 import PropTypes from 'prop-types';
 import './Pagination.scss';
 
-function Pagination({ handlePageClick, initialPage, pageCount }) {
+function Pagination({
+	forcePage, // used if page does not refresh on update and we have more than one instance of pagination
+	handlePageClick,
+	initialPage,
+	pageCount,
+}) {
 	return (
 		<div className="paginate">
 			<ReactPaginate
@@ -12,6 +17,7 @@ function Pagination({ handlePageClick, initialPage, pageCount }) {
 				nextLabel="next"
 				breakLabel="..."
 				breakClassName="break-me"
+				forcePage={forcePage}
 				pageCount={pageCount}
 				marginPagesDisplayed={2}
 				pageRangeDisplayed={5}
@@ -25,6 +31,7 @@ function Pagination({ handlePageClick, initialPage, pageCount }) {
 }
 
 Pagination.propTypes = {
+	'forcePage': PropTypes.number,
 	'handlePageClick': PropTypes.func.isRequired,
 	'pageCount': PropTypes.number.isRequired,
 	'initialPage': PropTypes.number.isRequired,

@@ -18,6 +18,12 @@
 		}
 	}
 
+	.colors {
+		label {
+			line-height: 24px;
+		}
+	}
+
 	.header-buttons {
 		float: right;
 
@@ -38,5 +44,8 @@
 
 	.controls {
 		clear: both;
+		float: left;
+		margin-bottom: 8px;
+		width: 100%;
 	}
 }

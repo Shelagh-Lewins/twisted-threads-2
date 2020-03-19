@@ -47,17 +47,6 @@ class AllPatterns extends Component {
 		document.body.classList.add(bodyClass);
 	}
 
-	/* componentDidUpdate(prevProps) {
-		const {
-			currentPageNumber,
-			dispatch,
-		} = this.props;
-
-		if (currentPageNumber !== prevProps.currentPageNumber) {
-			dispatch(getPatternCount());
-		}
-	} */
-
 	componentWillUnmount() {
 		document.body.classList.remove(bodyClass);
 	}
@@ -160,7 +149,7 @@ function mapStateToProps(state, ownProps) {
 	}
 
 	return {
-		'currentPageNumber': currentPageNumber, // read the url parameter to find the currentPage
+		currentPageNumber, // read the url parameter to find the currentPage
 		'errors': state.errors,
 		'filterMaxTablets': state.pattern.filterMaxTablets,
 		'filterMinTablets': state.pattern.filterMinTablets,

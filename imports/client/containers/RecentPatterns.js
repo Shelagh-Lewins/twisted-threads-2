@@ -19,7 +19,7 @@ import MainMenu from '../components/MainMenu';
 import PaginatedList from '../components/PaginatedList';
 import PatternList from '../components/PatternList';
 
-import { ITEMS_PER_PAGE } from '../../modules/parameters';
+//import { ITEMS_PER_PAGE } from '../../modules/parameters';
 import findRecentPatterns from '../modules/findRecentPatterns';
 
 import './Home.scss';
@@ -129,6 +129,7 @@ RecentPatterns.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
+	const { itemsPerPage } = state.page;
 	// find page number as URL query parameter, if present, in the form '/?page=1'
 	let currentPageNumber = 1;
 	const parsed = queryString.parse(ownProps.location.search);
@@ -142,16 +143,23 @@ function mapStateToProps(state, ownProps) {
 		'currentPageNumber': currentPageNumber, // read the url parameter to find the currentPage
 		'errors': state.errors,
 		'isLoading': getIsLoading(state),
-		'pageSkip': (currentPageNumber - 1) * ITEMS_PER_PAGE,
+		itemsPerPage,
+		'pageSkip': (currentPageNumber - 1) * itemsPerPage,
 	};
 }
 
-const Tracker = withTracker(({ pageSkip, dispatch }) => {
+const Tracker = withTracker((props) => {
+	const {
+		dispatch,
+		itemsPerPage,
+		pageSkip,
+	} = props;
 	const state = store.getState();
 	const isLoading = getIsLoading(state);
 	const { ready, recentPatterns } = findRecentPatterns();
 	const patternCount = recentPatterns.length;
-	const sliceEnd = ITEMS_PER_PAGE + pageSkip;
+	const sliceEnd = itemsPerPage + pageSkip;
+
 	const patterns = recentPatterns.slice(pageSkip, sliceEnd);
 
 	Meteor.subscribe('tags');

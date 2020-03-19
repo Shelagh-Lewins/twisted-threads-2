@@ -133,6 +133,7 @@ class People extends Component {
 							dispatch={dispatch}
 							history={history}
 							itemCount={userCount}
+							useForcePage={true}
 						>
 							{this.renderUsers()}
 						</PaginatedList>

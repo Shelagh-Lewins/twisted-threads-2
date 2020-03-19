@@ -131,21 +131,12 @@ class User extends PureComponent {
 			}, 2000);
 		}
 
-		/* if (currentPageNumber !== prevProps.currentPageNumber) {
-			dispatch(getPatternCount());
-		} */
-
 		if (section) {
 			if (!prevProps.section) {
 				// navigated from My patterns to My profile
 				setTimeout(() => {
 					this.scrollPatternsIntoView();
 				}, 500);
-			} else if (currentPageNumber !== prevProps.currentPageNumber) {
-				// changed page within My patterns
-				/* setTimeout(() => {
-					this.scrollPatternsIntoView({ 'behavior': 'auto' });
-				}, 500); */
 			}
 			// navigated from My profile to My documents
 		} else if (!section && prevProps.section) {
@@ -225,15 +216,15 @@ class User extends PureComponent {
 	};
 
 	handlePaginationUpdate() {
-		const {
+		/* const {
 			dispatch,
-		} = this.props;
+		} = this.props; */
 
 		setTimeout(() => {
 			this.scrollPatternsIntoView({ 'behavior': 'auto' });
 		}, 500);
 
-		dispatch(getPatternCount());
+		// dispatch(getPatternCount());
 	}
 
 	scrollPatternsIntoView(options = { 'behavior': 'smooth' }) {
@@ -554,7 +545,7 @@ function mapStateToProps(state, ownProps) {
 		'colorBookAdded': state.colorBook.colorBookAdded,
 		'canCreateColorBook': getCanCreateColorBook(state),
 		'canCreatePattern': getCanCreatePattern(state),
-		'currentPageNumber': currentPageNumber, // read the url parameter to find the currentPage
+		currentPageNumber, // read the url parameter to find the currentPage
 		'errors': state.errors,
 		'filterMaxTablets': state.pattern.filterMaxTablets,
 		'filterMinTablets': state.pattern.filterMinTablets,

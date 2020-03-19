@@ -253,12 +253,12 @@ class ColorBook extends PureComponent {
 			showEditColorPanel,
 		} = this.state;
 
-		let hintText = 'To open the colour picker, select one of the boxes above';
+		let hintText = 'To open the colour picker, select one of the colour swatches above';
 
 		if (!isEditingColors) {
 			hintText = context === 'user'
-				? 'A range of colours that can be used in pattern palettes'
-				: 'Select a box above to assign that colour to the current palette selection';
+				? 'A set of reusable colour swatches that you can assign to any pattern palette.'
+				: 'Select a colour swatch above to assign that colour to the palette.';
 		}
 
 		const controlElm = isEditingColors

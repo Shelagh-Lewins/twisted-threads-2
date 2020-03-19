@@ -110,7 +110,7 @@ export const getPatternCount = () => (dispatch, getState) => {
 		if (error) {
 			return dispatch(logErrors({ 'get pattern count': error.reason }));
 		}
-//console.log('*** getPatternCount returned', result);
+
 		dispatch(setPatternCount(result));
 	});
 };
@@ -122,14 +122,6 @@ export function setPatternCountUserId(userId) {
 		'payload': userId,
 	};
 }
-
-/* export const changePage = (newPageNumber, history) => (dispatch) => {
-	const url = `?page=${newPageNumber + 1}`;
-
-	history.push(url);
-
-	dispatch(getPatternCount());
-}; */
 
 // waiting for data subscription to be ready
 export function setIsLoading(isLoading) {

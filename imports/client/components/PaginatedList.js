@@ -29,14 +29,6 @@ class PaginatedList extends PureComponent {
 		});
 	}
 
-	/* componentDidMount() {
-		const {
-			currentPageNumber,
-		} = this.props;
-
-		//console.log('*** mount currentPageNumber', currentPageNumber);
-	} */
-
 	componentDidUpdate(prevProps) {
 		const {
 			currentPageNumber,
@@ -48,25 +40,17 @@ class PaginatedList extends PureComponent {
 		} = this.props;
 		const lastPage = Math.ceil(itemCount / itemsPerPage);
 		let runCallback = false;
-//console.log('*** update last page', lastPage);
-//console.log('itemCount', itemCount);
-//console.log('currentPageNumber', currentPageNumber);
-//console.log('itemsPerPage', itemsPerPage);
+
 		// make sure the user is on a valid page
 		if (currentPageNumber === 0) {
 			dispatch(changePage(0, history));
-			//if (typeof handlePaginationUpdate === 'function') {
-				//handlePaginationUpdate();
-			//}
+
 			runCallback = true;
 		} else if (itemCount > 0 && (currentPageNumber > (lastPage))) {
 			dispatch(changePage(lastPage - 1, history));
-			//if (typeof handlePaginationUpdate === 'function') {
-				//handlePaginationUpdate();
-			//}
+
 			runCallback = true;
 		} else if (currentPageNumber !== prevProps.currentPageNumber) {
-			//handlePaginationUpdate();
 			runCallback = true;
 		}
 
@@ -111,6 +95,7 @@ class PaginatedList extends PureComponent {
 			children,
 			currentPageNumber,
 			itemCount,
+			useForcePage,
 		} = this.props;
 		const { itemsPerPage } = this.state;
 
@@ -135,10 +120,15 @@ class PaginatedList extends PureComponent {
 			</div>
 		);
 
+		const initialPage = currentPageNumber - 1;
+
+		// unlike pattern pages, User page does not refresh on pagination
+		// so we must force both pagination instances to show the correct page number
 		const pagination = itemCount > itemsPerPage ? (
 			<Pagination
+				forcePage={useForcePage ? initialPage : undefined}
 				handlePageClick={this.handlePageClick}
-				initialPage={currentPageNumber - 1}
+				initialPage={initialPage}
 				pageCount={Math.ceil(itemCount / itemsPerPage)}
 			/>
 		) : '';
@@ -166,6 +156,7 @@ PaginatedList.propTypes = {
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'itemCount': PropTypes.number.isRequired,
 	'itemsPerPage': PropTypes.number.isRequired,
+	'useForcePage': PropTypes.bool,
 };
 
 function mapStateToProps(state) {

@@ -76,6 +76,7 @@ function ColorBookSummary({
 					context="user"
 					dispatch={dispatch}
 					handleClickRemoveColorBook={handleClickButtonRemove}
+					handleEditColorBook={() => {}}
 					onSelectColor={onSelectColor}
 				/>
 			)}
