@@ -174,6 +174,7 @@ export const withDatabase = withTracker((props) => {
 	if (Meteor.user()) {
 		// change in the database must trigger a change in the numbers in the Redux store
 		// check for change in number of patterns the user has created
+		// used to check whether they can create a new pattern
 		if (Meteor.userId()) {
 			Meteor.call('pattern.getPatternCount', {
 				'userId': Meteor.userId(),

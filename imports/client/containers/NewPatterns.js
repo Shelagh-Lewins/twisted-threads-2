@@ -13,6 +13,7 @@ import {
 	getIsLoading,
 	getPatternCount,
 	setIsLoading,
+	updatePatternCountUserId,
 } from '../modules/pattern';
 import { PatternPreviews, Patterns, Tags } from '../../modules/collection';
 import Loading from '../components/Loading';
@@ -32,6 +33,7 @@ const bodyClass = 'new-patterns';
 class NewPatterns extends Component {
 	constructor(props) {
 		super(props);
+		const { dispatch } = props;
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
@@ -41,22 +43,13 @@ class NewPatterns extends Component {
 		functionsToBind.forEach((functionName) => {
 			this[functionName] = this[functionName].bind(this);
 		});
+
+		dispatch(updatePatternCountUserId());
 	}
 
 	componentDidMount() {
 		document.body.classList.add(bodyClass);
 	}
-
-	/* componentDidUpdate(prevProps) {
-		const {
-			currentPageNumber,
-			dispatch,
-		} = this.props;
-
-		if (currentPageNumber !== prevProps.currentPageNumber) {
-			dispatch(getPatternCount());
-		}
-	} */
 
 	componentWillUnmount() {
 		document.body.classList.remove(bodyClass);
@@ -201,11 +194,7 @@ const Tracker = withTracker((props) => {
 	});
 
 	if (isLoading && handle.ready()) {
-		dispatch(getPatternCount());
-		// the delay allows patterns from the previous page subscription to be cleared out of minimongo
-		// otherwise, when you switch pages, the old patterns show briefly
-		// This seems to be a minimongo issue that old docs are cleared out of the cache after the handle reports ready()
-		setTimeout(() => dispatch(setIsLoading(false)), 50);
+		dispatch(setIsLoading(false));
 	} else if (!isLoading && !handle.ready()) {
 		dispatch(setIsLoading(true));
 	}

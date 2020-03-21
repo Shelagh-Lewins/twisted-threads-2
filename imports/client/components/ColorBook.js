@@ -253,7 +253,7 @@ class ColorBook extends PureComponent {
 			showEditColorPanel,
 		} = this.state;
 
-		let hintText = 'To open the colour picker, select one of the colour swatches above';
+		let hintText = 'To open the colour picker, select one of the swatches above';
 
 		if (!isEditingColors) {
 			hintText = context === 'user'

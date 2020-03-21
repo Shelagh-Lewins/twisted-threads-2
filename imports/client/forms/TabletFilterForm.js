@@ -70,8 +70,8 @@ const TabletFilterForm = (props) => {
 		},
 		validate,
 		'onSubmit': (values) => {
-			dispatch(updateFilterMinTablets(values.minTablets, history));
-			dispatch(updateFilterMaxTablets(values.maxTablets, history));
+			dispatch(updateFilterMinTablets(values.minTablets));
+			dispatch(updateFilterMaxTablets(values.maxTablets));
 			dispatch(changePage(0, history));
 		},
 	});
@@ -95,7 +95,7 @@ const TabletFilterForm = (props) => {
 		// so use empty string for when no value is specified
 		setFieldValue('minTablets', '');
 		setFieldValue('maxTablets', '');
-		dispatch(updateFilterRemove(history));
+		dispatch(updateFilterRemove());
 		dispatch(changePage(0, history));
 	};
 

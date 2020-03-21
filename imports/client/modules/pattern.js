@@ -88,13 +88,23 @@ export const REMOVE_TABLET_FILTER = 'REMOVE_TABLET_FILTER';
 // Actions that change the Store
 
 // used in pagination
+// should the pattern count only include patterns belonging to a particular user?
+// userId is mainly used for filters, so number of patterns can be checked without the component knowing the userId
+export function setPatternCountUserId(userId) {
+	return {
+		'type': SET_PATTERN_COUNT_USERID,
+		'payload': userId,
+	};
+}
+
 export function setPatternCount(patternCount) {
 	return {
-		'type': 'SET_PATTERN_COUNT',
+		'type': SET_PATTERN_COUNT,
 		'payload': patternCount,
 	};
 }
 
+// use this function when the userId hasn't changed, just the number of tablets, e.g. filters
 export const getPatternCount = () => (dispatch, getState) => {
 	const {
 		filterMaxTablets,
@@ -115,13 +125,29 @@ export const getPatternCount = () => (dispatch, getState) => {
 	});
 };
 
-// should the pattern count only include patterns belonging to a particular user?
-export function setPatternCountUserId(userId) {
-	return {
-		'type': SET_PATTERN_COUNT_USERID,
-		'payload': userId,
-	};
-}
+// User.js needs to set pattern count immediately
+export const updatePatternCountUserId = (userId) => (dispatch, getState) => {
+	const {
+		filterMaxTablets,
+		filterMinTablets,
+	} = getState().pattern;
+
+	// better to show no pagination briefly than pagination from previous page
+	dispatch(setPatternCount(0));
+	dispatch(setPatternCountUserId(userId));
+
+	Meteor.call('pattern.getPatternCount', {
+		filterMaxTablets,
+		filterMinTablets,
+		userId,
+	}, (error, result) => {
+		if (error) {
+			return dispatch(logErrors({ 'update pattern count': error.reason }));
+		}
+
+		dispatch(setPatternCount(result));
+	});
+};
 
 // waiting for data subscription to be ready
 export function setIsLoading(isLoading) {
@@ -1183,7 +1209,7 @@ export function setFilterMaxTablets(maxTablets) {
 	};
 }
 
-export function updateFilterMaxTablets(maxTablets, history) {
+export function updateFilterMaxTablets(maxTablets) {
 	return (dispatch, getState) => {
 		const value = parseFloat(maxTablets, 10);
 
@@ -1195,7 +1221,6 @@ export function updateFilterMaxTablets(maxTablets, history) {
 		}
 
 		dispatch(setFilterMaxTablets(value));
-		//dispatch(changePage(0, history));
 		dispatch(getPatternCount());
 	};
 }
@@ -1207,7 +1232,7 @@ export function setFilterMinTablets(minTablets) {
 	};
 }
 
-export function updateFilterMinTablets(minTablets, history) {
+export function updateFilterMinTablets(minTablets) {
 	return (dispatch, getState) => {
 		const value = parseFloat(minTablets, 10);
 
@@ -1219,7 +1244,6 @@ export function updateFilterMinTablets(minTablets, history) {
 		}
 
 		dispatch(setFilterMinTablets(value));
-		//dispatch(changePage(0, history));
 		dispatch(getPatternCount());
 	};
 }
@@ -1234,10 +1258,9 @@ export function removeTabletFilter() {
 	};
 }
 
-export function updateFilterRemove(history) {
+export function updateFilterRemove() {
 	return (dispatch) => {
 		dispatch(removeTabletFilter());
-		//dispatch(changePage(0, history));
 		dispatch(getPatternCount());
 	};
 }
@@ -1245,7 +1268,6 @@ export function updateFilterRemove(history) {
 // ///////////////////////////
 // default state
 const initialPatternState = {
-	//'currentPageNumber': 0,
 	'error': null,
 	'filterMaxTablets': undefined,
 	'filterMinTablets': undefined,

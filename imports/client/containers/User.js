@@ -13,10 +13,8 @@ import PropTypes from 'prop-types';
 import store from '../modules/store';
 import {
 	getIsLoading,
-	getPatternCount,
 	setIsLoading,
-	setPatternCount,
-	setPatternCountUserId,
+	updatePatternCountUserId,
 } from '../modules/pattern';
 import {
 	addColorBook,
@@ -63,6 +61,8 @@ class User extends PureComponent {
 	constructor(props) {
 		super(props);
 
+		const { _id, dispatch } = props;
+
 		this.state = {
 			'gotUser': false,
 			'selectedColorBook': null,
@@ -87,10 +87,12 @@ class User extends PureComponent {
 		});
 
 		this.patternsRef = React.createRef();
+
+
+		dispatch(updatePatternCountUserId(_id));
 	}
 
 	componentDidMount() {
-		// const { filterMinTablets, filterMaxTablets } = this.props;
 		document.body.classList.add(bodyClass);
 	}
 
@@ -98,7 +100,6 @@ class User extends PureComponent {
 		const {
 			_id,
 			colorBookAdded,
-			currentPageNumber,
 			dispatch,
 			filterMinTablets,
 			filterMaxTablets,
@@ -110,8 +111,6 @@ class User extends PureComponent {
 
 		// wait for user details to load
 		if (!gotUser && !isLoading && user) {
-			dispatch(setPatternCountUserId(user._id));
-
 			this.setState({
 				'gotUser': true,
 			});
@@ -123,7 +122,7 @@ class User extends PureComponent {
 		}
 
 		if (gotUser && _id !== prevProps._id) {
-			dispatch(setPatternCountUserId(user._id));
+			dispatch(updatePatternCountUserId(_id));
 
 			// give the page time to render
 			setTimeout(() => {
@@ -171,8 +170,7 @@ class User extends PureComponent {
 	componentWillUnmount() {
 		const { dispatch } = this.props;
 		document.body.classList.remove(bodyClass);
-		dispatch(setPatternCountUserId(undefined));
-		dispatch(setPatternCount(0));
+		dispatch(updatePatternCountUserId());
 	}
 
 	onChangeColorBookIsPublic = ({ _id, isPublic }) => {
@@ -216,15 +214,9 @@ class User extends PureComponent {
 	};
 
 	handlePaginationUpdate() {
-		/* const {
-			dispatch,
-		} = this.props; */
-
 		setTimeout(() => {
 			this.scrollPatternsIntoView({ 'behavior': 'auto' });
 		}, 500);
-
-		// dispatch(getPatternCount());
 	}
 
 	scrollPatternsIntoView(options = { 'behavior': 'smooth' }) {
@@ -594,8 +586,7 @@ const Tracker = withTracker((props) => {
 	});
 
 	if (isLoading && handle.ready()) {
-		dispatch(getPatternCount(_id));
-		setTimeout(() => dispatch(setIsLoading(false)), 50);
+		dispatch(setIsLoading(false));
 	} else if (!isLoading && !handle.ready()) {
 		dispatch(setIsLoading(true));
 	}

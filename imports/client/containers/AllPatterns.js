@@ -13,6 +13,7 @@ import {
 	getIsLoading,
 	getPatternCount,
 	setIsLoading,
+	updatePatternCountUserId,
 } from '../modules/pattern';
 import { PatternPreviews, Patterns, Tags } from '../../modules/collection';
 import Loading from '../components/Loading';
@@ -32,6 +33,7 @@ const bodyClass = 'all-patterns';
 class AllPatterns extends Component {
 	constructor(props) {
 		super(props);
+		const { dispatch } = props;
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
@@ -41,6 +43,8 @@ class AllPatterns extends Component {
 		functionsToBind.forEach((functionName) => {
 			this[functionName] = this[functionName].bind(this);
 		});
+
+		dispatch(updatePatternCountUserId());
 	}
 
 	componentDidMount() {
@@ -189,8 +193,7 @@ const Tracker = withTracker((props) => {
 	});
 
 	if (isLoading && handle.ready()) {
-		dispatch(getPatternCount());
-		setTimeout(() => dispatch(setIsLoading(false)), 50);
+		dispatch(setIsLoading(false));
 	} else if (!isLoading && !handle.ready()) {
 		dispatch(setIsLoading(true));
 	}
