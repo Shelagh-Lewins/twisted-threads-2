@@ -87,7 +87,7 @@ const TabletFilterForm = (props) => {
 
 		global.tabletFilterTimeout = setTimeout(() => {
 			formik.handleSubmit();
-		}, 800);
+		}, 1000);
 	};
 
 	const handleRemoveFilter = () => {
@@ -108,7 +108,7 @@ const TabletFilterForm = (props) => {
 
 		global.tabletFilterTimeout = setTimeout(() => {
 			formik.handleSubmit();
-		}, 800);
+		}, 1000);
 	};
 
 	// note firefox doesn't support the 'label' shorthand in option
