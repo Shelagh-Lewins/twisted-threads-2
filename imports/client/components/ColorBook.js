@@ -106,6 +106,7 @@ class ColorBook extends PureComponent {
 
 		this.setState({
 			'isEditingColors': false,
+			'isEditing': false,
 			'showEditColorPanel': false,
 		});
 
@@ -127,6 +128,16 @@ class ColorBook extends PureComponent {
 
 		this.setState({
 			'isEditingName': true,
+		});
+
+		handleEditColorBook(true);
+	}
+
+	handleClickEdit() {
+		const { handleEditColorBook } = this.props;
+
+		this.setState({
+			'isEditing': true,
 		});
 
 		handleEditColorBook(true);
@@ -276,6 +287,7 @@ class ColorBook extends PureComponent {
 						<Button color="danger" className="remove" onClick={() => handleClickRemoveColorBook({ _id, name })}>Delete</Button>
 						<Button color="secondary" onClick={this.handleClickEditName}>Edit name</Button>
 						<Button color="primary" onClick={this.handleClickEditColors}>Set up colours</Button>
+						<Button color="primary" onClick={this.handleClickEdit}>Edit</Button>
 					</div>
 				</>
 			);

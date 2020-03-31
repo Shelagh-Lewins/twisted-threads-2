@@ -107,7 +107,7 @@ export const BROKEN_TWILL_BACKGROUND = 3;
 // turning sequence for an individual tablet to weave background twill
 export const BROKEN_TWILL_SEQUENCE = ['F', 'F', 'B', 'B'];
 
-export const COLORS_IN_COLOR_BOOK = 24;
+export const COLORS_IN_COLOR_BOOK = 32;
 export const DEFAULT_COLOR_BOOK_COLOR = '#aaa'; // if the default color has no saturation, clicking the vertical color bar in the color picker has no effect, which is confusing.
 export const COLOR_BOOK_HINT = 'Define a set of reusable colour swatches. You can assign any swatch to any pattern palette.';
 export const EMPTY_HOLE_COLOR = '#fff'; // used in weaving chart when multiple turns and an empty hole

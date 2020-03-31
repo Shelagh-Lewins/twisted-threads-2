@@ -147,7 +147,7 @@ class ColorBooks extends PureComponent {
 		const addButton = (
 			<Button
 				className="add"
-				color="secondary"
+				color="primary"
 				disabled={isEditingColorBook}
 				onClick={this.handleClickAddButton}
 				title="Add colour book"
@@ -158,12 +158,11 @@ class ColorBooks extends PureComponent {
 
 		const closeButton = (
 			<Button
-				className="close"
 				color="secondary"
 				onClick={cancelColorChange}
 				title="Close"
 			>
-				X
+				Close
 			</Button>
 		);
 
@@ -190,8 +189,10 @@ class ColorBooks extends PureComponent {
 
 		return (
 			<div className="color-books">
-				{canCreateColorBook && !showAddColorBookForm && addButton}
-				{closeButton}
+				<div className="buttons-books">
+					{canCreateColorBook && !showAddColorBookForm && addButton}
+					{closeButton}
+				</div>
 				{showAddColorBookForm && (
 					<AddColorBookForm
 						handleCancel={this.cancelAddColorBook}

@@ -4,15 +4,17 @@
 	background: $color-palette-background;
 	border: 1px solid $color-panel-border;
 	border-radius: 4px;
-	//float: left;
 	margin-bottom: 8px;
 	max-width: 698px; // align with palette
 	padding: 8px;
 	position: relative;
-	//width: 490px;
 
-	.close {
+	.buttons-books {
 		float: right;
+
+		button {
+			margin-left: 8px;
+		}
 	}
 
 	.select-color-book {
@@ -21,6 +23,5 @@
 		select {
 			margin-top: 8px;
 		}
-		//width: 100%;
 	}
 }
