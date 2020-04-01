@@ -6,7 +6,6 @@
 	border-radius: 4px;
 	padding: 8px;
 	width: 650px;
-	z-index: 2;
 
 	.done {
 		float: right;
@@ -57,5 +56,5 @@
 	position: fixed;
 	top: 100px;
 	transform: translate(-50%, 0);
-	z-index: 3;
+	z-index: 2;
 }
