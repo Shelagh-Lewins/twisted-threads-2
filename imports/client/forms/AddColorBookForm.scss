@@ -1,8 +1,12 @@
 @import "../constants/variables";
 
 .add-color-book-form {
-	clear: both;
+	background: $color-palette-background;
+	border: 1px solid $color-panel-border;
+	border-radius: 4px;
 	overflow: hidden;
+	padding: 8px;
+	width: 650px;
 
 	.controls {
 		float: right;

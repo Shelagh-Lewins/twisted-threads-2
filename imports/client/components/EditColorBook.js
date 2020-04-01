@@ -5,19 +5,17 @@ import { PhotoshopPicker } from 'react-color';
 import PropTypes from 'prop-types';
 import { editColorBookColor, editColorBookName } from '../modules/colorBook';
 import EditableText from './EditableText';
-//import EditColorBookNameForm from '../forms/EditColorBookNameForm';
 
 import './EditColorBook.scss';
 
 class EditColorBook extends PureComponent {
 	constructor(props) {
+		const { 'colorBook': { colors } } = props;
 		super(props);
 
 		this.state = {
-			//'isEditingColors': false,
-			'isEditingName': false,
-			//'newColor': '',
 			'selectedColorIndex': 0,
+			'workingColor': colors[0], // track live selection in color picker
 			'showEditColorPanel': false,
 		};
 
@@ -31,67 +29,28 @@ class EditColorBook extends PureComponent {
 		document.body.appendChild(this.el);
 	}
 
-	componentDidUpdate(prevProps) {
-		const { colorBook } = this.props;
-
-		if (prevProps.colorBook._id !== colorBook._id) {
-			this.setState({
-				//'isEditingColors': false,
-				'isEditingName': false,
-			});
-		}
-	}
-
 	componentWillUnmount() {
 		document.body.removeChild(this.el);
-	}
-
-	handleClickEditName = () => {
-		//const { handleEditColorBook } = this.props;
-
-		this.setState({
-			'isEditingName': true,
-		});
-
-		//handleEditColorBook(true);
-	}
-
-	handleCancelEditName = () => {
-		//const { handleEditColorBook } = this.props;
-
-		this.setState({
-			'isEditingName': false,
-		});
-
-		//handleEditColorBook(false);
 	}
 
 	handleSubmitEditName = ({ fieldValue, fieldName }) => {
 		const {
 			'colorBook': { _id },
 			dispatch,
-			//handleEditColorBook,
 		} = this.props;
 
 		dispatch(editColorBookName({
 			_id,
 			'name': fieldValue,
 		}));
-
-		this.setState({
-			'isEditingName': false,
-		});
-
-		//handleEditColorBook(false);
 	}
 
 	handleClickColor = (index) => {
-		const { colorBook, onSelectColor } = this.props;
+		const { 'colorBook': { colors } } = this.props;
 		const {
 			showEditColorPanel,
 			selectedColorIndex,
 		} = this.state;
-
 
 		if (!showEditColorPanel) {
 			// open edit color panel
@@ -107,16 +66,17 @@ class EditColorBook extends PureComponent {
 
 		this.setState({
 			'selectedColorIndex': index,
+			'workingColor': colors[index],
 		});
 	}
 
 	acceptColorChange = () => {
 		const { 'colorBook': { _id }, dispatch } = this.props;
-		const { newColor, selectedColorIndex } = this.state;
+		const { workingColor, selectedColorIndex } = this.state;
 
 		dispatch(editColorBookColor({
 			_id,
-			'colorHexValue': newColor,
+			'colorHexValue': workingColor,
 			'colorIndex': selectedColorIndex,
 		}));
 
@@ -133,18 +93,18 @@ class EditColorBook extends PureComponent {
 
 	handleColorChange = (colorObject) => {
 		this.setState({
-			'newColor': colorObject.hex,
+			'workingColor': colorObject.hex,
 		});
 	}
 
 	renderEditColorPanel() {
-		const { newColor } = this.state;
+		const { workingColor } = this.state;
 
 		return (
 			ReactDOM.createPortal(
 				<div className="color-picker">
 					<PhotoshopPicker
-						color={newColor}
+						color={workingColor}
 						onChangeComplete={this.handleColorChange}
 						onAccept={this.acceptColorChange}
 						onCancel={this.cancelColorChange}
@@ -217,26 +177,25 @@ class EditColorBook extends PureComponent {
 			</div>
 		);
 
+		const hintText = <p className="hint">To edit a colour, click one of the colour swatches above.</p>;
+
 		return (
 			<div className="edit-color-book">
 				{showEditColorPanel && this.renderEditColorPanel()}
+				<h2 className="panel-name">Edit colour book</h2>
 				{doneButton}
 				{nameElm}
 				{colorsElm}
+				{hintText}
 			</div>
 		);
 	}
 }
 
 EditColorBook.propTypes = {
-	//'canEdit': PropTypes.bool.isRequired,
 	'colorBook': PropTypes.objectOf(PropTypes.any).isRequired,
-	'context': PropTypes.string,
 	'dispatch': PropTypes.func.isRequired,
 	'handleClickDone': PropTypes.func.isRequired,
-	//'handleClickRemoveColorBook': PropTypes.func.isRequired,
-	//'handleEditColorBook': PropTypes.func.isRequired,
-	//'onSelectColor': PropTypes.func,
 };
 
 export default EditColorBook;

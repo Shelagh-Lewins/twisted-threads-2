@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import ReactDOM from 'react-dom';
 import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
-import { editColorBookColor, editColorBookName } from '../modules/colorBook';
+import { setColorBookAdded } from '../modules/colorBook';
 import EditColorBook from './EditColorBook';
 import './ColorBook.scss';
 
@@ -10,8 +10,10 @@ class ColorBook extends PureComponent {
 	constructor(props) {
 		super(props);
 
+		const autoEdit = this.autoEditNewColorBook();
+
 		this.state = {
-			'newColor': '',
+			'isEditing': autoEdit,
 			'selectedColorIndex': 0,
 		};
 
@@ -19,139 +21,67 @@ class ColorBook extends PureComponent {
 		// so it can be positioned within the viewport
 		this.el = document.createElement('div');
 		this.el.className = 'edit-color-book-holder';
+
+		this.autoEditNewColorBook();
 	}
 
 	componentDidMount() {
 		document.body.appendChild(this.el);
 	}
 
+	componentDidUpdate(prevProps) {
+		const autoEdit = this.autoEditNewColorBook();
+		if (autoEdit) {
+			this.setIsEditing(true);
+		}
+	}
+
 	componentWillUnmount() {
 		document.body.removeChild(this.el);
+		this.setIsEditing(false);
+	}
+
+	autoEditNewColorBook = () => {
+		const {
+			colorBookAdded,
+			'colorBook': { _id },
+			dispatch,
+		} = this.props;
+
+		// automatically edit a new color book
+		if (colorBookAdded === _id) {
+			dispatch(setColorBookAdded(''));
+			return true;
+		}
+	}
+
+	setIsEditing = (isEditing) => {
+		const { handleEditColorBook } = this.props;
+		this.setState({
+			'isEditing': isEditing,
+		});
+		handleEditColorBook(isEditing);
 	}
 
 	handleClickDoneEditing = () => {
-		const { handleEditColorBook } = this.props;
-
-		this.setState({
-			'isEditing': false,
-			'showEditColorPanel': false,
-		});
-
-		handleEditColorBook(false);
+		this.setIsEditing(false);
 	}
 
 	handleClickEdit = () => {
-		const { handleEditColorBook } = this.props;
-
-		this.setState({
-			'isEditing': true,
-		});
-
-		handleEditColorBook(true);
+		this.setIsEditing(true);
 	};
 
-	handleClickColor(colorIndex) {
-		const { colorBook, onSelectColor } = this.props;
+	handleClickColor(index) {
 		const {
-			isEditingColors,
-			showEditColorPanel,
-			selectedColorIndex,
-		} = this.state;
-
-		const color = colorBook.colors[colorIndex];
-
-		if (isEditingColors) {
-			if (!showEditColorPanel) {
-				// open edit color panel
-				this.setState({
-					'showEditColorPanel': true,
-				});
-			} else if (colorIndex === selectedColorIndex) {
-				// close edit color panel if you click the same color again, otherwise just switch to the new color
-				this.setState({
-					'showEditColorPanel': false,
-				});
-			}
-		} else {
-			onSelectColor(color);
-		}
-
-		this.selectColor(colorIndex);
-
-		this.setState({
-			'newColor': colorBook.colors[colorIndex],
-		});
-	}
-
-	selectColor(index) {
+			'colorBook': { colors },
+			onSelectColor,
+		} = this.props;
 		this.setState({
 			'selectedColorIndex': index,
 		});
-	}
 
-	handleCancelEditName() {
-		const { handleEditColorBook } = this.props;
-
-		this.setState({
-			'isEditingName': false,
-		});
-
-		handleEditColorBook(false);
-	}
-
-	handleSubmitEditName({ name }) {
-		const {
-			'colorBook': { _id },
-			dispatch,
-			handleEditColorBook,
-		} = this.props;
-
-		dispatch(editColorBookName({
-			_id,
-			name,
-		}));
-
-		this.setState({
-			'isEditingName': false,
-		});
-
-		handleEditColorBook(false);
-	}
-
-	acceptColorChange() {
-		const { 'colorBook': { _id }, dispatch } = this.props;
-		const { newColor, selectedColorIndex } = this.state;
-
-		dispatch(editColorBookColor({
-			_id,
-			'colorHexValue': newColor,
-			'colorIndex': selectedColorIndex,
-		}));
-
-		this.setState({
-			'showEditColorPanel': false,
-		});
-	}
-
-	editColorBookName({ _id, name }) {
-		const { dispatch } = this.props;
-
-		dispatch(editColorBookName({
-			_id,
-			name,
-		}));
-	}
-
-	cancelColorChange() {
-		this.setState({
-			'showEditColorPanel': false,
-		});
-	}
-
-	handleColorChange(colorObject) {
-		this.setState({
-			'newColor': colorObject.hex,
-		});
+		const color = colors[index];
+		onSelectColor(color);
 	}
 
 	renderColor(color, index) {
@@ -163,7 +93,7 @@ class ColorBook extends PureComponent {
 			<label // eslint-disable-line jsx-a11y/label-has-associated-control
 				htmlFor={identifier}
 				key={identifier}
-				title="Thread colour"
+				title={`Thread colour ${color}`}
 			>
 				<span // eslint-disable-line jsx-a11y/control-has-associated-label
 					className={`color ${isEditingColors && (selectedColorIndex === index) ? 'selected' : ''}`}
@@ -201,24 +131,17 @@ class ColorBook extends PureComponent {
 	render() {
 		const {
 			canEdit,
-			colorBook,
-			'colorBook': { _id, name },
+			'colorBook': { _id, colors, name },
 			context,
 			handleClickRemoveColorBook,
 		} = this.props;
 		const {
 			isEditing,
-			isEditingColors,
-			isEditingName,
 		} = this.state;
 
-		let hintText = 'To open the colour picker, select one of the swatches above';
-
-		if (!isEditingColors) {
-			hintText = context === 'user'
-				? 'A set of reusable colour swatches that you can assign to any pattern palette.'
-				: 'Select a colour swatch above to assign that colour to the palette.';
-		}
+		const hintText = context === 'user'
+			? 'A set of reusable colour swatches that you can assign to any pattern palette.'
+			: 'Select a colour swatch above to assign that colour to the working palette.';
 
 		const controlElm = (
 			<div className="buttons">
@@ -227,17 +150,21 @@ class ColorBook extends PureComponent {
 			</div>
 		);
 
+		const colorsElm = (
+			<div className="colors">
+				{colors.map((color, index) => this.renderColor(color, index))}
+			</div>
+		);
+
 		return (
 			<div className="color-book">
-				{canEdit && (
+				{canEdit && !isEditing && (
 					<div className="controls">
 						{controlElm}
 					</div>
 				)}
-				<div className="colors">
-					{colorBook.colors.map((color, index) => this.renderColor(color, index))}
-				</div>
-				{!isEditingName && <p className="hint">{hintText}</p>}
+				{!isEditing && colorsElm}
+				{!isEditing && <p className="hint">{hintText}</p>}
 				{isEditing && this.renderEditColorBookPanel()}
 			</div>
 		);
@@ -247,10 +174,11 @@ class ColorBook extends PureComponent {
 ColorBook.propTypes = {
 	'canEdit': PropTypes.bool.isRequired,
 	'colorBook': PropTypes.objectOf(PropTypes.any).isRequired,
+	'colorBookAdded': PropTypes.string.isRequired,
 	'context': PropTypes.string,
 	'dispatch': PropTypes.func.isRequired,
-	'handleClickRemoveColorBook': PropTypes.func.isRequired,
 	'handleEditColorBook': PropTypes.func.isRequired,
+	'handleClickRemoveColorBook': PropTypes.func.isRequired,
 	'onSelectColor': PropTypes.func,
 };
 

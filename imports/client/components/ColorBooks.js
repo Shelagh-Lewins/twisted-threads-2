@@ -1,9 +1,10 @@
 // view and edit the user's color books
 
 import React, { PureComponent } from 'react';
+import ReactDOM from 'react-dom';
 import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
-import { addColorBook, removeColorBook, setColorBookAdded } from '../modules/colorBook';
+import { addColorBook, removeColorBook } from '../modules/colorBook';
 import AddColorBookForm from '../forms/AddColorBookForm';
 import ColorBook from './ColorBook';
 import './ColorBooks.scss';
@@ -25,41 +26,40 @@ class ColorBooks extends PureComponent {
 			'showAddColorBookForm': false,
 		};
 
-		// bind onClick functions to provide context
-		const functionsToBind = [
-			'cancelAddColorBook',
-			'handleClickAddButton',
-			'handleClickAddColorBook',
-			'handleClickRemoveColorBook',
-			'handleChangeColorBook',
-		];
+		// New color book is rendered to the body element
+		// so it can be positioned within the viewport
+		this.el = document.createElement('div');
+		this.el.className = 'new-color-book-holder';
+	}
 
-		functionsToBind.forEach((functionName) => {
-			this[functionName] = this[functionName].bind(this);
-		});
+	componentDidMount() {
+		document.body.appendChild(this.el);
 	}
 
 	componentDidUpdate(prevProps) {
-		const { colorBookAdded, dispatch } = this.props;
+		const { colorBookAdded } = this.props;
 
 		// automatically select a new color book
 		if (prevProps.colorBookAdded === '' && colorBookAdded !== '') {
 			this.setState({ // eslint-disable-line react/no-did-update-set-state
 				'selectedColorBook': colorBookAdded,
 			});
-			dispatch(setColorBookAdded(''));
 		}
 	}
 
+	componentWillUnmount() {
+		document.body.removeChild(this.el);
+	}
+
 	// show the form to add a new color book
-	handleClickAddButton() {
+	handleClickAddButton = () => {
 		this.setState({
 			'showAddColorBookForm': true,
 		});
 	}
 
 	// actually add a new color book
-	handleClickAddColorBook({ name }) {
+	handleClickAddColorBook = ({ name }) => {
 		const { dispatch } = this.props;
 
 		dispatch(addColorBook(name));
@@ -69,13 +69,13 @@ class ColorBooks extends PureComponent {
 	}
 
 	// hide the add color book form and take no action
-	cancelAddColorBook() {
+	cancelAddColorBook = () => {
 		this.setState({
 			'showAddColorBookForm': false,
 		});
 	}
 
-	handleClickRemoveColorBook({ _id, name }) {
+	handleClickRemoveColorBook = ({ _id, name }) => {
 		const { colorBooks, dispatch } = this.props;
 		const response = confirm(`Do you want to delete the colour book "${name}"?`); // eslint-disable-line no-restricted-globals
 
@@ -98,13 +98,13 @@ class ColorBooks extends PureComponent {
 		}
 	}
 
-	handleChangeColorBook(event) {
+	handleChangeColorBook = (event) => {
 		this.setState({
 			'selectedColorBook': event.target.value,
 		});
 	}
 
-	renderColorBookSelect() {
+	renderColorBookSelect = () => {
 		const { colorBooks, isEditingColorBook } = this.props;
 		const { selectedColorBook } = this.state;
 
@@ -131,11 +131,24 @@ class ColorBooks extends PureComponent {
 		);
 	}
 
+	renderNewColorBookPanel() {
+		return (
+			ReactDOM.createPortal(
+				<AddColorBookForm
+					handleCancel={this.cancelAddColorBook}
+					handleSubmit={this.handleClickAddColorBook}
+				/>,
+				this.el,
+			)
+		);
+	}
+
 	render() {
 		const {
 			canCreateColorBook,
 			canEdit,
 			cancelColorChange,
+			colorBookAdded,
 			colorBooks,
 			dispatch,
 			handleEditColorBook,
@@ -160,27 +173,30 @@ class ColorBooks extends PureComponent {
 			<Button
 				color="secondary"
 				onClick={cancelColorChange}
-				title="Close"
+				title="Done"
 			>
-				Close
+				Done
 			</Button>
 		);
 
 		const colorBook = colorBooks.find((obj) => obj._id === selectedColorBook);
 
-		const colorBookElms = colorBook
+		const colorBookElms = colorBooks.length > 0
 			? (
 				<>
 					{this.renderColorBookSelect()}
-					<ColorBook
-						canEdit={canEdit}
-						colorBook={colorBook}
-						dispatch={dispatch}
-						handleEditColorBook={handleEditColorBook}
-						key="color-book"
-						onSelectColor={onSelectColor}
-						handleClickRemoveColorBook={this.handleClickRemoveColorBook}
-					/>
+					{colorBook && (
+						<ColorBook
+							canEdit={canEdit}
+							colorBook={colorBook}
+							colorBookAdded={colorBookAdded}
+							dispatch={dispatch}
+							handleEditColorBook={handleEditColorBook}
+							key="color-book"
+							onSelectColor={onSelectColor}
+							handleClickRemoveColorBook={this.handleClickRemoveColorBook}
+						/>
+					)}
 				</>
 			)
 			: (
@@ -190,16 +206,11 @@ class ColorBooks extends PureComponent {
 		return (
 			<div className="color-books">
 				<div className="buttons-books">
-					{canCreateColorBook && !showAddColorBookForm && addButton}
+					{canCreateColorBook && addButton}
 					{closeButton}
 				</div>
-				{showAddColorBookForm && (
-					<AddColorBookForm
-						handleCancel={this.cancelAddColorBook}
-						handleSubmit={this.handleClickAddColorBook}
-					/>
-				)}
-				{!showAddColorBookForm && colorBookElms}
+				{showAddColorBookForm && this.renderNewColorBookPanel()}
+				{colorBookElms}
 			</div>
 		);
 	}
@@ -208,8 +219,8 @@ class ColorBooks extends PureComponent {
 ColorBooks.propTypes = {
 	'canCreateColorBook': PropTypes.bool.isRequired,
 	'canEdit': PropTypes.bool.isRequired,
-	'colorBookAdded': PropTypes.string.isRequired,
 	'cancelColorChange': PropTypes.func.isRequired,
+	'colorBookAdded': PropTypes.string.isRequired,
 	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'handleEditColorBook': PropTypes.func.isRequired,

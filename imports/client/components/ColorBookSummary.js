@@ -12,6 +12,7 @@ import './ColorBookSummary.scss';
 
 function ColorBookSummary({
 	colorBook,
+	colorBookAdded,
 	dispatch,
 	handleClickButtonCopy,
 	handleClickButtonSelect,
@@ -73,6 +74,7 @@ function ColorBookSummary({
 				<ColorBook
 					canEdit={canEdit}
 					colorBook={colorBook}
+					colorBookAdded={colorBookAdded}
 					context="user"
 					dispatch={dispatch}
 					handleClickRemoveColorBook={handleClickButtonRemove}
@@ -85,6 +87,7 @@ function ColorBookSummary({
 }
 
 ColorBookSummary.propTypes = {
+	'colorBookAdded': PropTypes.string.isRequired,
 	'colorBook': PropTypes.objectOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'handleClickButtonCopy': PropTypes.func.isRequired,

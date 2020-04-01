@@ -6,9 +6,14 @@
 	border-radius: 4px;
 	padding: 8px;
 	width: 650px;
+	z-index: 2;
 
 	.done {
 		float: right;
+	}
+
+	.panel-name {
+		float: left;
 	}
 
 	.editable-text {
@@ -40,6 +45,10 @@
 		&.selected {
 			outline: 4px solid $color-palette-outline;
 		}
+	}
+
+	he {
+		font-size: 1.2rem;
 	}
 }
 

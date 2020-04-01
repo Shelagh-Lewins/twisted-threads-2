@@ -163,7 +163,7 @@ class User extends PureComponent {
 			this.setState({ // eslint-disable-line react/no-did-update-set-state
 				'selectedColorBook': colorBookAdded,
 			});
-			dispatch(setColorBookAdded(''));
+			//dispatch(setColorBookAdded(''));
 		}
 	}
 
@@ -295,6 +295,7 @@ class User extends PureComponent {
 	renderColorBooks() {
 		const {
 			canCreateColorBook,
+			colorBookAdded,
 			colorBooks,
 			dispatch,
 			isAuthenticated,
@@ -344,6 +345,7 @@ class User extends PureComponent {
 								<ColorBookSummary
 									canCreateColorBook={canCreateColorBook}
 									colorBook={colorBook}
+									colorBookAdded={colorBookAdded}
 									dispatch={dispatch}
 									handleClickButtonCopy={this.handleClickButtonCopy}
 									handleClickButtonRemove={this.handleClickButtonRemoveColorBook}
