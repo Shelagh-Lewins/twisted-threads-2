@@ -1,10 +1,9 @@
 import React, { PureComponent } from 'react';
 import ReactDOM from 'react-dom';
 import { Button } from 'reactstrap';
-import { PhotoshopPicker } from 'react-color';
 import PropTypes from 'prop-types';
 import { editColorBookColor, editColorBookName } from '../modules/colorBook';
-import EditColorBookNameForm from '../forms/EditColorBookNameForm';
+import EditColorBook from './EditColorBook';
 import './ColorBook.scss';
 
 class ColorBook extends PureComponent {
@@ -12,61 +11,44 @@ class ColorBook extends PureComponent {
 		super(props);
 
 		this.state = {
-			'isEditingColors': false,
-			'isEditingName': false,
 			'newColor': '',
 			'selectedColorIndex': 0,
-			'showEditColorPanel': false,
 		};
 
-		// Color picker is rendered to the body element
+		// Edit color book is rendered to the body element
 		// so it can be positioned within the viewport
 		this.el = document.createElement('div');
-		this.el.className = 'edit-color-book-picker-holder';
-
-		// bind onClick functions to provide context
-		const functionsToBind = [
-			'handleClickColor',
-			'handleCancelEditName',
-			'handleClickDone',
-			'handleClickEditColors',
-			'handleClickEditName',
-			'handleSubmitEditName',
-			'handleColorChange',
-			'acceptColorChange',
-			'cancelColorChange',
-			'selectColor',
-		];
-
-		functionsToBind.forEach((functionName) => {
-			this[functionName] = this[functionName].bind(this);
-		});
+		this.el.className = 'edit-color-book-holder';
 	}
 
 	componentDidMount() {
 		document.body.appendChild(this.el);
 	}
 
-	componentDidUpdate(prevProps) {
-		const { colorBook } = this.props;
-
-		if (prevProps.colorBook._id !== colorBook._id) {
-			this.setState({
-				'isEditingColors': false,
-				'isEditingName': false,
-			});
-		}
-	}
-
 	componentWillUnmount() {
 		document.body.removeChild(this.el);
 	}
 
-	selectColor(index) {
+	handleClickDoneEditing = () => {
+		const { handleEditColorBook } = this.props;
+
 		this.setState({
-			'selectedColorIndex': index,
+			'isEditing': false,
+			'showEditColorPanel': false,
 		});
+
+		handleEditColorBook(false);
 	}
+
+	handleClickEdit = () => {
+		const { handleEditColorBook } = this.props;
+
+		this.setState({
+			'isEditing': true,
+		});
+
+		handleEditColorBook(true);
+	};
 
 	handleClickColor(colorIndex) {
 		const { colorBook, onSelectColor } = this.props;
@@ -101,46 +83,10 @@ class ColorBook extends PureComponent {
 		});
 	}
 
-	handleClickDone() {
-		const { handleEditColorBook } = this.props;
-
+	selectColor(index) {
 		this.setState({
-			'isEditingColors': false,
-			'isEditing': false,
-			'showEditColorPanel': false,
+			'selectedColorIndex': index,
 		});
-
-		handleEditColorBook(false);
-	}
-
-	handleClickEditColors() {
-		const { handleEditColorBook } = this.props;
-
-		this.setState({
-			'isEditingColors': true,
-		});
-
-		handleEditColorBook(true);
-	}
-
-	handleClickEditName() {
-		const { handleEditColorBook } = this.props;
-
-		this.setState({
-			'isEditingName': true,
-		});
-
-		handleEditColorBook(true);
-	}
-
-	handleClickEdit() {
-		const { handleEditColorBook } = this.props;
-
-		this.setState({
-			'isEditing': true,
-		});
-
-		handleEditColorBook(true);
 	}
 
 	handleCancelEditName() {
@@ -232,19 +178,21 @@ class ColorBook extends PureComponent {
 		);
 	}
 
-	renderEditColorPanel() {
-		const { newColor } = this.state;
+	renderEditColorBookPanel() {
+		const {
+			colorBook,
+			context,
+			dispatch,
+		} = this.props;
 
 		return (
 			ReactDOM.createPortal(
-				<div className="color-picker">
-					<PhotoshopPicker
-						color={newColor}
-						onChangeComplete={this.handleColorChange}
-						onAccept={this.acceptColorChange}
-						onCancel={this.cancelColorChange}
-					/>
-				</div>,
+				<EditColorBook
+					colorBook={colorBook}
+					context={context}
+					dispatch={dispatch}
+					handleClickDone={this.handleClickDoneEditing}
+				/>,
 				this.el,
 			)
 		);
@@ -259,9 +207,9 @@ class ColorBook extends PureComponent {
 			handleClickRemoveColorBook,
 		} = this.props;
 		const {
+			isEditing,
 			isEditingColors,
 			isEditingName,
-			showEditColorPanel,
 		} = this.state;
 
 		let hintText = 'To open the colour picker, select one of the swatches above';
@@ -272,50 +220,25 @@ class ColorBook extends PureComponent {
 				: 'Select a colour swatch above to assign that colour to the palette.';
 		}
 
-		const controlElm = isEditingColors
-			? (
-				<>
-					<hr />
-					<div className="buttons">
-						<Button color="primary" onClick={this.handleClickDone}>Done</Button>
-					</div>
-				</>
-			)
-			: (
-				<>
-					<div className="buttons">
-						<Button color="danger" className="remove" onClick={() => handleClickRemoveColorBook({ _id, name })}>Delete</Button>
-						<Button color="secondary" onClick={this.handleClickEditName}>Edit name</Button>
-						<Button color="primary" onClick={this.handleClickEditColors}>Set up colours</Button>
-						<Button color="primary" onClick={this.handleClickEdit}>Edit</Button>
-					</div>
-				</>
-			);
-
-		const editNameForm = (
-			<>
-				<hr />
-				<EditColorBookNameForm
-					name={name}
-					handleCancel={this.handleCancelEditName}
-					handleSubmit={this.handleSubmitEditName}
-				/>
-			</>
+		const controlElm = (
+			<div className="buttons">
+				<Button color="danger" className="remove" onClick={() => handleClickRemoveColorBook({ _id, name })}>Delete</Button>
+				<Button color="primary" onClick={this.handleClickEdit}>Edit</Button>
+			</div>
 		);
 
 		return (
 			<div className="color-book">
-				{!isEditingName && showEditColorPanel && this.renderEditColorPanel()}
 				{canEdit && (
 					<div className="controls">
-						{!isEditingName && controlElm}
+						{controlElm}
 					</div>
 				)}
 				<div className="colors">
-					{!isEditingName && colorBook.colors.map((color, index) => this.renderColor(color, index))}
+					{colorBook.colors.map((color, index) => this.renderColor(color, index))}
 				</div>
 				{!isEditingName && <p className="hint">{hintText}</p>}
-				{isEditingName && editNameForm}
+				{isEditing && this.renderEditColorBookPanel()}
 			</div>
 		);
 	}

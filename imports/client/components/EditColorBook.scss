@@ -1,0 +1,52 @@
+@import "../constants/variables";
+
+.edit-color-book {
+	background-color: $color-panel-background;
+	border: 1px solid $color-panel-border;
+	border-radius: 4px;
+	padding: 8px;
+	width: 650px;
+
+	.done {
+		float: right;
+	}
+
+	.editable-text {
+		clear: both !important;
+	}
+
+	.colors {
+		clear: both;
+		display: flex;
+		flex-wrap: wrap;
+		margin-bottom: -8px;
+		margin-right: -8px;
+		width: 646px;
+	}
+
+	.color {
+		border: 1px solid $color-panel-border;
+		display: inline-block;
+		height: 32px;
+		margin-bottom: 8px;
+		margin-right: 8px;
+		width: 32px;
+
+		&:focus {
+			outline: 2px dashed $color-focus;
+			outline-offset: 2px;
+		}
+
+		&.selected {
+			outline: 4px solid $color-palette-outline;
+		}
+	}
+}
+
+.edit-color-book-holder {
+	left: 50%;
+	position: fixed;
+	top: 100px;
+	transform: translate(-50%, 0);
+	z-index: 3;
+}
