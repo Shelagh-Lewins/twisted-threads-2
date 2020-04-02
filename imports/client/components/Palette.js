@@ -334,9 +334,9 @@ class Palette extends PureComponent {
 		} = this.state;
 		let showControls = true;
 
-		if (showColorBooks && editMode === 'colorBooks') { // panel is tidier if user doesn't see color books and controls at once
+		/* if (showColorBooks && editMode === 'colorBooks') { // panel is tidier if user doesn't see color books and controls at once
 			showControls = false;
-		}
+		} */
 
 		const controls = (
 			<div className="controls">
@@ -351,8 +351,8 @@ class Palette extends PureComponent {
 
 		return (
 			<div id={elementId} className={`palette ${isEditing ? 'editing' : ''}`}>
-				{showColorBooks && this.renderEditColorPanel()}
 				{showControls && controls}
+				{showColorBooks && this.renderEditColorPanel()}
 				{!isEditingColorBook && (
 					<div className="swatches">
 						{this.renderEmptyHole()}

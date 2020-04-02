@@ -809,7 +809,7 @@ Pattern.propTypes = {
 	'canPublish': PropTypes.bool.isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
-	'holeHandedness': PropTypes.number.isRequired,
+	'holeHandedness': PropTypes.number,
 	'holes': PropTypes.number.isRequired,
 	'isEditing': PropTypes.bool.isRequired,
 	'isLoading': PropTypes.bool.isRequired,

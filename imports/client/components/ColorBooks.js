@@ -192,14 +192,14 @@ class ColorBooks extends PureComponent {
 						+ New colour book
 					</Button>
 				)}
-				<Button
+				{/* <Button
 					className="done"
 					color="primary"
 					onClick={closeColorBooks}
 					title="Done"
 				>
 					Done
-				</Button>
+				</Button> */}
 			</div>
 		);
 	}

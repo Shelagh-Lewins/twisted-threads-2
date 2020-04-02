@@ -65,6 +65,7 @@ class User extends PureComponent {
 
 		this.state = {
 			'gotUser': false,
+			'isEditingColorBook': false,
 			'selectedColorBook': null,
 			'showAddColorBookForm': false,
 			'showAddPatternForm': false,
@@ -190,6 +191,12 @@ class User extends PureComponent {
 		dispatch(editTextField({ _id, fieldValue, fieldName }));
 	}
 
+	handleEditColorBook = (isEditingColorBook) => {
+		this.setState({
+			isEditingColorBook,
+		});
+	}
+
 	handleClickButtonRemoveColorBook = ({ _id, name }) => {
 		const { dispatch } = this.props;
 
@@ -301,7 +308,11 @@ class User extends PureComponent {
 			isAuthenticated,
 			'user': { _id },
 		} = this.props;
-		const { selectedColorBook, showAddColorBookForm } = this.state;
+		const {
+			isEditingColorBook,
+			selectedColorBook,
+			showAddColorBookForm,
+		} = this.state;
 
 		const canCreate = canCreateColorBook && Meteor.userId() === _id;
 
@@ -350,7 +361,9 @@ class User extends PureComponent {
 									handleClickButtonCopy={this.handleClickButtonCopy}
 									handleClickButtonRemove={this.handleClickButtonRemoveColorBook}
 									handleClickButtonSelect={this.handleClickSelectColorBook}
+									handleEditColorBook={this.handleEditColorBook}
 									isAuthenticated={isAuthenticated}
+									isEditingColorBook={colorBook._id === selectedColorBook}
 									isSelected={colorBook._id === selectedColorBook}
 									key={`color-book-${colorBook._id}`}
 									onChangeIsPublic={this.onChangeColorBookIsPublic}

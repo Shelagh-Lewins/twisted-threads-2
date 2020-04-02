@@ -39,6 +39,16 @@
 		}
 	}
 
+	.selected-buttons {
+		clear: both;
+		float: right;
+		margin: 8px 0;
+
+		button {
+			margin-left: 8px;
+		}
+	}
+
 	.is-public {
 		display: inline-block;
 	}

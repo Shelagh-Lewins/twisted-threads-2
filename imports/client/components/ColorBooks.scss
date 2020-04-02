@@ -4,6 +4,7 @@
 	background: $color-palette-background;
 	border: 1px solid $color-panel-border;
 	border-radius: 4px;
+	clear: both;;
 	margin-bottom: 8px;
 	max-width: 698px; // align with palette
 	padding: 8px;
@@ -21,7 +22,7 @@
 		clear: both;
 
 		select {
-			margin-top: 8px;
+			margin: 8px 0;
 		}
 	}
 }
