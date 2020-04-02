@@ -10,10 +10,9 @@ class ColorBook extends PureComponent {
 	constructor(props) {
 		super(props);
 
-		const autoEdit = this.autoEditNewColorBook();
+		//const autoEdit = this.autoEditNewColorBook();
 
 		this.state = {
-			'isEditing': autoEdit,
 			'selectedColorIndex': 0,
 		};
 
@@ -22,26 +21,26 @@ class ColorBook extends PureComponent {
 		this.el = document.createElement('div');
 		this.el.className = 'edit-color-book-holder';
 
-		this.autoEditNewColorBook();
+		//this.autoEditNewColorBook();
 	}
 
 	componentDidMount() {
 		document.body.appendChild(this.el);
 	}
 
-	componentDidUpdate(prevProps) {
-		const autoEdit = this.autoEditNewColorBook();
-		if (autoEdit) {
-			this.setIsEditing(true);
-		}
-	}
+	//componentDidUpdate(prevProps) {
+		//const autoEdit = this.autoEditNewColorBook();
+		//if (autoEdit) {
+			//this.setIsEditing(true);
+		//}
+	//}
 
 	componentWillUnmount() {
 		document.body.removeChild(this.el);
-		this.setIsEditing(false);
+		//this.setIsEditing(false);
 	}
 
-	autoEditNewColorBook = () => {
+	/* autoEditNewColorBook = () => {
 		const {
 			colorBookAdded,
 			'colorBook': { _id },
@@ -53,9 +52,9 @@ class ColorBook extends PureComponent {
 			dispatch(setColorBookAdded(''));
 			return true;
 		}
-	}
+	} */
 
-	setIsEditing = (isEditing) => {
+	/* setIsEditing = (isEditing) => {
 		const { handleEditColorBook } = this.props;
 		this.setState({
 			'isEditing': isEditing,
@@ -69,7 +68,7 @@ class ColorBook extends PureComponent {
 
 	handleClickEdit = () => {
 		this.setIsEditing(true);
-	};
+	}; */
 
 	handleClickColor(index) {
 		const {
@@ -113,6 +112,7 @@ class ColorBook extends PureComponent {
 			colorBook,
 			context,
 			dispatch,
+			handleEditColorBook,
 		} = this.props;
 
 		return (
@@ -121,7 +121,7 @@ class ColorBook extends PureComponent {
 					colorBook={colorBook}
 					context={context}
 					dispatch={dispatch}
-					handleClickDone={this.handleClickDoneEditing}
+					handleClickDone={() => handleEditColorBook(false)}
 				/>,
 				this.el,
 			)
@@ -130,14 +130,10 @@ class ColorBook extends PureComponent {
 
 	render() {
 		const {
-			canEdit,
-			'colorBook': { _id, colors, name },
+			'colorBook': { colors },
 			context,
-			handleClickRemoveColorBook,
-		} = this.props;
-		const {
 			isEditing,
-		} = this.state;
+		} = this.props;
 
 		const hintText = context === 'user'
 			? 'A set of reusable colour swatches that you can assign to any pattern palette.'
@@ -158,11 +154,6 @@ class ColorBook extends PureComponent {
 
 		return (
 			<div className="color-book">
-				{canEdit && !isEditing && (
-					<div className="controls">
-						{controlElm}
-					</div>
-				)}
 				{!isEditing && colorsElm}
 				{!isEditing && <p className="hint">{hintText}</p>}
 				{isEditing && this.renderEditColorBookPanel()}
@@ -172,13 +163,14 @@ class ColorBook extends PureComponent {
 }
 
 ColorBook.propTypes = {
-	'canEdit': PropTypes.bool.isRequired,
+	//'canEdit': PropTypes.bool.isRequired,
 	'colorBook': PropTypes.objectOf(PropTypes.any).isRequired,
 	'colorBookAdded': PropTypes.string.isRequired,
 	'context': PropTypes.string,
 	'dispatch': PropTypes.func.isRequired,
 	'handleEditColorBook': PropTypes.func.isRequired,
-	'handleClickRemoveColorBook': PropTypes.func.isRequired,
+	'isEditing': PropTypes.bool.isRequired,
+	//'handleClickRemoveColorBook': PropTypes.func.isRequired,
 	'onSelectColor': PropTypes.func,
 };
 
