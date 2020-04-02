@@ -141,7 +141,7 @@ class ColorBook extends PureComponent {
 
 		const hintText = context === 'user'
 			? 'A set of reusable colour swatches that you can assign to any pattern palette.'
-			: 'Select a colour swatch above to assign that colour to the working palette.';
+			: 'Select a colour swatch above to assign that colour to the selected cell in the working palette';
 
 		const controlElm = (
 			<div className="buttons">

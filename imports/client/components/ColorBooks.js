@@ -22,6 +22,7 @@ class ColorBooks extends PureComponent {
 		const selectedColorBook = colorBooks.length > 0 ? colorBooks[0]._id : '';
 
 		this.state = {
+			'isEditing': false, // is editing the current color book
 			'selectedColorBook': selectedColorBook,
 			'showAddColorBookForm': false,
 		};
@@ -147,7 +148,7 @@ class ColorBooks extends PureComponent {
 		const {
 			canCreateColorBook,
 			canEdit,
-			cancelColorChange,
+			closeColorBooks,
 			colorBookAdded,
 			colorBooks,
 			dispatch,
@@ -157,26 +158,44 @@ class ColorBooks extends PureComponent {
 		} = this.props;
 
 		const { selectedColorBook, showAddColorBookForm } = this.state;
-		const addButton = (
-			<Button
-				className="add"
-				color="primary"
-				disabled={isEditingColorBook}
-				onClick={this.handleClickAddButton}
-				title="Add colour book"
-			>
-				+ New colour book
-			</Button>
-		);
-
-		const closeButton = (
-			<Button
-				color="secondary"
-				onClick={cancelColorChange}
-				title="Done"
-			>
-				Done
-			</Button>
+		const colorBookButtons = (
+			<div className="buttons-books">
+				{canCreateColorBook && (
+					<>
+						<Button
+							color="secondary"
+							onClick={this.handleClickEditButton}
+							title="Edit"
+						>
+							Edit
+						</Button>
+						<Button
+							color="danger"
+							onClick={this.handleClickDeleteButton}
+							title="Delete"
+						>
+							Delete
+						</Button>
+						<Button
+							className="add"
+							color="secondary"
+							disabled={isEditingColorBook}
+							onClick={this.handleClickAddButton}
+							title="Add colour book"
+						>
+							+ New colour book
+						</Button>
+					</>
+				)}
+				<Button
+					className="done"
+					color="primary"
+					onClick={closeColorBooks}
+					title="Done"
+				>
+					Done
+				</Button>
+			</div>
 		);
 
 		const colorBook = colorBooks.find((obj) => obj._id === selectedColorBook);
@@ -205,10 +224,7 @@ class ColorBooks extends PureComponent {
 
 		return (
 			<div className="color-books">
-				<div className="buttons-books">
-					{canCreateColorBook && addButton}
-					{closeButton}
-				</div>
+				{colorBookButtons}
 				{showAddColorBookForm && this.renderNewColorBookPanel()}
 				{colorBookElms}
 			</div>
@@ -219,7 +235,7 @@ class ColorBooks extends PureComponent {
 ColorBooks.propTypes = {
 	'canCreateColorBook': PropTypes.bool.isRequired,
 	'canEdit': PropTypes.bool.isRequired,
-	'cancelColorChange': PropTypes.func.isRequired,
+	'closeColorBooks': PropTypes.func.isRequired,
 	'colorBookAdded': PropTypes.string.isRequired,
 	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,

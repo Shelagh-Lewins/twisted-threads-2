@@ -32,7 +32,7 @@ class Palette extends PureComponent {
 			'isEditingColorBook': false,
 			'colorValue': props.palette[props.initialColorIndex],
 			'selectedColorIndex': props.initialColorIndex,
-			'showEditColorPanel': false,
+			'showColorBooks': false,
 		};
 
 		// Color picker is rendered to the body element
@@ -49,7 +49,7 @@ class Palette extends PureComponent {
 			'handleColorChange',
 			'handleEditColorBook',
 			'acceptColorChange',
-			'cancelColorChange',
+			'closeColorBooks',
 			'handleClickEditMode',
 			'handleClickRestoreDefaults',
 			'handleEditColor',
@@ -71,7 +71,7 @@ class Palette extends PureComponent {
 	handleClickDone() {
 		this.setState({
 			'isEditing': false,
-			'showEditColorPanel': false,
+			'showColorBooks': false,
 		});
 	}
 
@@ -91,13 +91,13 @@ class Palette extends PureComponent {
 
 	handleClickColor(colorIndex) {
 		const { palette, selectColor } = this.props;
-		const { isEditing, showEditColorPanel } = this.state;
+		const { isEditing, showColorBooks } = this.state;
 
 		if (isEditing) {
-			if (!showEditColorPanel) {
+			if (!showColorBooks) {
 				// open edit color panel
 				this.setState({
-					'showEditColorPanel': true,
+					'showColorBooks': true,
 				});
 			}
 		}
@@ -122,20 +122,20 @@ class Palette extends PureComponent {
 	}
 
 	handleClickEditMode(event) {
-		const { editMode, showEditColorPanel } = this.state;
+		const { editMode, showColorBooks } = this.state;
 		const newEditMode = event.target.value;
-		let newShowEditColorPanel = showEditColorPanel;
+		let newShowEditColorPanel = showColorBooks;
 
 		// click the current edit mode button; toggle the panel
 		if (newEditMode === editMode) {
-			newShowEditColorPanel = !showEditColorPanel;
-		} else if (!showEditColorPanel) {
+			newShowEditColorPanel = !showColorBooks;
+		} else if (!showColorBooks) {
 			newShowEditColorPanel = true;
 		}
 
 		this.setState({
 			'editMode': newEditMode,
-			'showEditColorPanel': newShowEditColorPanel,
+			'showColorBooks': newShowEditColorPanel,
 		});
 	}
 
@@ -145,13 +145,13 @@ class Palette extends PureComponent {
 		this.handleEditColor(colorValue);
 
 		this.setState({
-			'showEditColorPanel': false,
+			'showColorBooks': false,
 		});
 	}
 
-	cancelColorChange() {
+	closeColorBooks() {
 		this.setState({
-			'showEditColorPanel': false,
+			'showColorBooks': false,
 		});
 	}
 
@@ -252,7 +252,7 @@ class Palette extends PureComponent {
 		);
 	}
 
-	renderEditColorPanel() {
+	renderColorBooks() {
 		const {
 			canCreateColorBook,
 			colorBookAdded,
@@ -273,7 +273,7 @@ class Palette extends PureComponent {
 							color={colorValue}
 							onChangeComplete={this.handleColorChange}
 							onAccept={this.acceptColorChange}
-							onCancel={this.cancelColorChange}
+							onCancel={this.closeColorBooks}
 						/>
 					</div>,
 					this.el,
@@ -290,7 +290,7 @@ class Palette extends PureComponent {
 				handleEditColorBook={this.handleEditColorBook}
 				isEditingColorBook={isEditingColorBook}
 				onSelectColor={this.handleEditColor}
-				cancelColorChange={this.cancelColorChange}
+				closeColorBooks={this.closeColorBooks}
 			/>
 		);
 	}
@@ -342,11 +342,11 @@ class Palette extends PureComponent {
 			editMode,
 			isEditing,
 			isEditingColorBook,
-			showEditColorPanel,
+			showColorBooks,
 		} = this.state;
 		let showControls = true;
 
-		if (showEditColorPanel && editMode === 'colorBooks') { // panel is tidier if user doesn't see color books and controls at once
+		if (showColorBooks && editMode === 'colorBooks') { // panel is tidier if user doesn't see color books and controls at once
 			showControls = false;
 		}
 
@@ -363,7 +363,7 @@ class Palette extends PureComponent {
 
 		return (
 			<div id={elementId} className={`palette ${isEditing ? 'editing' : ''}`}>
-				{showEditColorPanel && this.renderEditColorPanel()}
+				{showColorBooks && this.renderColorBooks()}
 				{showControls && controls}
 				{!isEditingColorBook && (
 					<div className="swatches">

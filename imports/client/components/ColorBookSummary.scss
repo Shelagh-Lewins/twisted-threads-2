@@ -45,8 +45,11 @@
 
 	.controls {
 		clear: both;
-		float: left;
 		margin-bottom: 8px;
-		width: 100%;
+
+		.buttons {
+			float: right;
+			margin-bottom: 8px;
+		}
 	}
 }

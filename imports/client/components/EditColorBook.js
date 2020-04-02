@@ -150,7 +150,7 @@ class EditColorBook extends PureComponent {
 
 		const doneButton = (
 			<Button
-				color="secondary"
+				color="primary"
 				className="done"
 				onClick={handleClickDone}
 				title="Done"
@@ -182,7 +182,6 @@ class EditColorBook extends PureComponent {
 		return (
 			<div className="edit-color-book">
 				{showEditColorPanel && this.renderEditColorPanel()}
-				<h2 className="panel-name">Edit colour book</h2>
 				{doneButton}
 				{nameElm}
 				{colorsElm}

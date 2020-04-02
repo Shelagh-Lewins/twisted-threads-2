@@ -11,10 +11,6 @@
 		float: right;
 	}
 
-	.panel-name {
-		float: left;
-	}
-
 	.editable-text {
 		clear: both !important;
 	}
@@ -45,16 +41,12 @@
 			outline: 4px solid $color-palette-outline;
 		}
 	}
-
-	he {
-		font-size: 1.2rem;
-	}
 }
 
 .edit-color-book-holder {
 	left: 50%;
 	position: fixed;
-	top: 100px;
+	top: 200px;
 	transform: translate(-50%, 0);
 	z-index: 2;
 }
