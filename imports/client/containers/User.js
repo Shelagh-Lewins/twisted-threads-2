@@ -21,7 +21,6 @@ import {
 	copyColorBook,
 	editIsPublic,
 	removeColorBook,
-	setColorBookAdded,
 } from '../modules/colorBook';
 
 import {
@@ -164,7 +163,6 @@ class User extends PureComponent {
 			this.setState({ // eslint-disable-line react/no-did-update-set-state
 				'selectedColorBook': colorBookAdded,
 			});
-			//dispatch(setColorBookAdded(''));
 		}
 	}
 

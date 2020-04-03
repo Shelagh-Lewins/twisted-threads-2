@@ -1,16 +1,12 @@
 import React, { PureComponent } from 'react';
 import ReactDOM from 'react-dom';
-import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
-import { setColorBookAdded } from '../modules/colorBook';
 import EditColorBook from './EditColorBook';
 import './ColorBook.scss';
 
 class ColorBook extends PureComponent {
 	constructor(props) {
 		super(props);
-
-		//const autoEdit = this.autoEditNewColorBook();
 
 		this.state = {
 			'selectedColorIndex': 0,
@@ -20,55 +16,15 @@ class ColorBook extends PureComponent {
 		// so it can be positioned within the viewport
 		this.el = document.createElement('div');
 		this.el.className = 'edit-color-book-holder';
-
-		//this.autoEditNewColorBook();
 	}
 
 	componentDidMount() {
 		document.body.appendChild(this.el);
 	}
 
-	//componentDidUpdate(prevProps) {
-		//const autoEdit = this.autoEditNewColorBook();
-		//if (autoEdit) {
-			//this.setIsEditing(true);
-		//}
-	//}
-
 	componentWillUnmount() {
 		document.body.removeChild(this.el);
-		//this.setIsEditing(false);
 	}
-
-	/* autoEditNewColorBook = () => {
-		const {
-			colorBookAdded,
-			'colorBook': { _id },
-			dispatch,
-		} = this.props;
-
-		// automatically edit a new color book
-		if (colorBookAdded === _id) {
-			dispatch(setColorBookAdded(''));
-			return true;
-		}
-	} */
-
-	/* setIsEditing = (isEditing) => {
-		const { handleEditColorBook } = this.props;
-		this.setState({
-			'isEditing': isEditing,
-		});
-		handleEditColorBook(isEditing);
-	}
-
-	handleClickDoneEditing = () => {
-		this.setIsEditing(false);
-	}
-
-	handleClickEdit = () => {
-		this.setIsEditing(true);
-	}; */
 
 	handleClickColor(index) {
 		const {
@@ -140,13 +96,6 @@ class ColorBook extends PureComponent {
 			? 'A set of reusable colour swatches that you can assign to any pattern palette.'
 			: 'Select a colour swatch above to assign that colour to the selected cell in the working palette below.';
 
-		/* const controlElm = (
-			<div className="buttons">
-				<Button color="danger" className="remove" onClick={() => handleClickRemoveColorBook({ _id, name })}>Delete</Button>
-				<Button color="primary" onClick={this.handleClickEdit}>Edit</Button>
-			</div>
-		); */
-
 		const colorsElm = (
 			<div className="colors">
 				{colors.map((color, index) => this.renderColor(color, index))}
@@ -164,14 +113,11 @@ class ColorBook extends PureComponent {
 }
 
 ColorBook.propTypes = {
-	//'canEdit': PropTypes.bool.isRequired,
 	'colorBook': PropTypes.objectOf(PropTypes.any).isRequired,
-	'colorBookAdded': PropTypes.string.isRequired,
 	'context': PropTypes.string,
 	'dispatch': PropTypes.func.isRequired,
 	'handleEditColorBook': PropTypes.func.isRequired,
 	'isEditing': PropTypes.bool.isRequired,
-	//'handleClickRemoveColorBook': PropTypes.func.isRequired,
 	'onSelectColor': PropTypes.func,
 };
 

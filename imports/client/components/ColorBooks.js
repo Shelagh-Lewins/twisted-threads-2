@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom';
 import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { addColorBook, removeColorBook } from '../modules/colorBook';
+import { getRemoveColorBookMessage } from '../../modules/parameters';
 import AddColorBookForm from '../forms/AddColorBookForm';
 import ColorBook from './ColorBook';
 import './ColorBooks.scss';
@@ -82,7 +83,7 @@ class ColorBooks extends PureComponent {
 		const colorBook = colorBooks.find((book) => book._id === selectedColorBook);
 		const { name } = colorBook;
 
-		const response = confirm(`Do you want to delete the colour book "${name}"?`); // eslint-disable-line no-restricted-globals
+		const response = confirm(getRemoveColorBookMessage(name)); // eslint-disable-line no-restricted-globals
 
 		if (response === true) {
 			// deselect the removed color book
@@ -190,14 +191,6 @@ class ColorBooks extends PureComponent {
 						+ New colour book
 					</Button>
 				)}
-				{/* <Button
-					className="done"
-					color="primary"
-					onClick={closeColorBooks}
-					title="Done"
-				>
-					Done
-				</Button> */}
 			</div>
 		);
 	}

@@ -4,10 +4,11 @@ import {
 	Button,
 } from 'reactstrap';
 import PropTypes from 'prop-types';
+import { getRemoveColorBookMessage,iconColors } from '../../modules/parameters';
+import { addColorBook, removeColorBook } from '../modules/colorBook';
 import IsPublicIndicator from './IsPublicIndicator';
 import ColorBook from './ColorBook';
 
-import { iconColors } from '../../modules/parameters';
 import './ColorBookSummary.scss';
 
 function ColorBookSummary({
@@ -16,7 +17,6 @@ function ColorBookSummary({
 	dispatch,
 	handleClickButtonCopy,
 	handleClickButtonSelect,
-	handleClickButtonRemove,
 	handleEditColorBook,
 	isAuthenticated,
 	isEditingColorBook,
@@ -37,6 +37,11 @@ function ColorBookSummary({
 
 	const handleClickRemoveColorBook = () => {
 		console.log('remove me');
+		const response = confirm(getRemoveColorBookMessage(name)); // eslint-disable-line no-restricted-globals
+
+		if (response === true) {
+			dispatch(removeColorBook(_id));
+		}
 	};
 
 	const canEdit = isAuthenticated && Meteor.userId() === createdBy;
@@ -107,7 +112,6 @@ function ColorBookSummary({
 					colorBookAdded={colorBookAdded}
 					context="user"
 					dispatch={dispatch}
-					handleClickRemoveColorBook={handleClickButtonRemove}
 					handleEditColorBook={handleEditColorBook}
 					isEditing={isEditingColorBook}
 					onSelectColor={onSelectColor}

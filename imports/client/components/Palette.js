@@ -344,27 +344,9 @@ class Palette extends PureComponent {
 	render() {
 		const { elementId } = this.props;
 		const {
-			//editMode,
 			isEditing,
-			//isEditingColorBook,
 			showColorBooks,
 		} = this.state;
-		//let showControls = true;
-
-		/* if (showColorBooks && editMode === 'colorBooks') { // panel is tidier if user doesn't see color books and controls at once
-			showControls = false;
-		} */
-
-		/* const controls = (
-			<div className="controls">
-				{isEditing && this.renderEditOptions()}
-				<div className="toggle">
-					{isEditing
-						? <Button color="primary" onClick={this.handleClickDone}>Done</Button>
-						: <Button color="primary" onClick={this.handleClickEdit}>Edit thread colors</Button>}
-				</div>
-			</div>
-		); */
 
 		return (
 			<div id={elementId} className={`palette ${isEditing ? 'editing' : ''}`}>
