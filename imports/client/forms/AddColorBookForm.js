@@ -2,6 +2,7 @@ import React from 'react';
 import { Button } from 'reactstrap';
 import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
+import { COLORS_IN_COLOR_BOOK, DEFAULT_COLOR_BOOK_COLOR } from '../../modules/parameters';
 import './AddColorBookForm.scss';
 
 const validate = (values) => {
@@ -28,10 +29,36 @@ const AddColorBookForm = (props) => {
 
 	const { handleCancel } = props;
 
+	const renderSwatches = () => {
+		const swatches = [];
+
+		for (let i = 0; i < COLORS_IN_COLOR_BOOK; i += 1) {
+			const identifier = `swatch-${i}`;
+			swatches.push((
+				<label
+					key={identifier}
+				>
+					<input
+						id={identifier}
+						name={identifier}
+						type="text"
+						onChange={formik.handleChange}
+						value={DEFAULT_COLOR_BOOK_COLOR}
+					/>
+				</label>
+			));
+		}
+		return (
+			<div className="form-group">
+				{swatches}
+			</div>
+		);
+	};
+
 	return (
 		<form onSubmit={formik.handleSubmit} className="add-color-book-form">
-			<h2>Create a new colour book</h2>
-			<p className="hint">A colour book is a collection of colour swatches which can be assigned to a pattern&apos;s working palette. You can define the colours in the next step.</p>
+			<h2>New colour book</h2>
+			<p className="hint">Define a set of colour swatches which can be assigned to any pattern&apos;s working palette.</p>
 			<div className="form-group">
 				<label htmlFor="name">
 					Name
@@ -52,6 +79,7 @@ const AddColorBookForm = (props) => {
 					) : null}
 				</label>
 			</div>
+			{renderSwatches()}
 			<div className="controls">
 				<Button type="button" color="secondary" onClick={handleCancel}>Cancel</Button>
 				<Button type="submit" color="primary">Create</Button>

@@ -36,7 +36,6 @@ function ColorBookSummary({
 	};
 
 	const handleClickRemoveColorBook = () => {
-		console.log('remove me');
 		const response = confirm(getRemoveColorBookMessage(name)); // eslint-disable-line no-restricted-globals
 
 		if (response === true) {
