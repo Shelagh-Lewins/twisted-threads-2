@@ -51,10 +51,6 @@ class ColorBooks extends PureComponent {
 		document.body.removeChild(this.el);
 	}
 
-	handleClickDelete = () => {
-
-	}
-
 	// show the form to add a new color book
 	handleClickAdd = () => {
 		this.setState({
@@ -167,6 +163,7 @@ class ColorBooks extends PureComponent {
 					<>
 						<Button
 							color="secondary"
+							disabled={isEditingColorBook}
 							onClick={() => handleEditColorBook(true)}
 							title="Edit"
 						>
@@ -174,6 +171,7 @@ class ColorBooks extends PureComponent {
 						</Button>
 						<Button
 							color="danger"
+							disabled={isEditingColorBook}
 							onClick={this.handleClickRemoveColorBook}
 							title="Delete"
 						>

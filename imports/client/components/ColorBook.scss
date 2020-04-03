@@ -36,10 +36,12 @@
 
 	.color {
 		border: 1px solid $color-panel-border;
+		cursor: pointer;
 		display: inline-block;
 		height: 32px;
 		margin-bottom: 8px;
 		margin-right: 8px;
+		position: relative;
 		width: 32px;
 
 		&:focus {
@@ -49,6 +51,21 @@
 
 		&.selected {
 			outline: 4px solid $color-palette-outline;
+		}
+
+		&.disabled {
+			outline: 0;
+			pointer-events: none;
+
+			&::before {
+				background: $color-color-book-disabled;
+				content: " ";
+				height: 32px;
+				left: 0;
+				position: absolute;
+				top: 0;
+				width: 32px;
+			}
 		}
 	}
 }

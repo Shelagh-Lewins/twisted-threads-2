@@ -191,12 +191,6 @@ class User extends PureComponent {
 		dispatch(editTextField({ _id, fieldValue, fieldName }));
 	}
 
-	handleEditColorBook = (isEditingColorBook) => {
-		this.setState({
-			isEditingColorBook,
-		});
-	}
-
 	handleClickButtonRemoveColorBook = ({ _id, name }) => {
 		const { dispatch } = this.props;
 
@@ -219,6 +213,12 @@ class User extends PureComponent {
 			}
 		}
 	};
+
+	handleEditColorBook = (isEditingColorBook) => {
+		this.setState({
+			isEditingColorBook,
+		});
+	}
 
 	handlePaginationUpdate() {
 		setTimeout(() => {
@@ -363,7 +363,7 @@ class User extends PureComponent {
 									handleClickButtonSelect={this.handleClickSelectColorBook}
 									handleEditColorBook={this.handleEditColorBook}
 									isAuthenticated={isAuthenticated}
-									isEditingColorBook={colorBook._id === selectedColorBook}
+									isEditingColorBook={isEditingColorBook}
 									isSelected={colorBook._id === selectedColorBook}
 									key={`color-book-${colorBook._id}`}
 									onChangeIsPublic={this.onChangeColorBookIsPublic}

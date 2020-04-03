@@ -84,7 +84,8 @@ class ColorBook extends PureComponent {
 	}
 
 	renderColor(color, index) {
-		const { isEditingColors, selectedColorIndex } = this.state;
+		const { isEditing } = this.props;
+		const { selectedColorIndex } = this.state;
 
 		const identifier = `book-color-${index}`;
 
@@ -95,7 +96,7 @@ class ColorBook extends PureComponent {
 				title={`Thread colour ${color}`}
 			>
 				<span // eslint-disable-line jsx-a11y/control-has-associated-label
-					className={`color ${isEditingColors && (selectedColorIndex === index) ? 'selected' : ''}`}
+					className={`color ${isEditing && (selectedColorIndex === index) ? 'selected' : ''} ${isEditing ? 'disabled' : ''}`}
 					key={identifier}
 					onClick={() => this.handleClickColor(index)}
 					onKeyPress={() => this.handleClickColor(index)}
@@ -139,12 +140,12 @@ class ColorBook extends PureComponent {
 			? 'A set of reusable colour swatches that you can assign to any pattern palette.'
 			: 'Select a colour swatch above to assign that colour to the selected cell in the working palette below.';
 
-		const controlElm = (
+		/* const controlElm = (
 			<div className="buttons">
 				<Button color="danger" className="remove" onClick={() => handleClickRemoveColorBook({ _id, name })}>Delete</Button>
 				<Button color="primary" onClick={this.handleClickEdit}>Edit</Button>
 			</div>
-		);
+		); */
 
 		const colorsElm = (
 			<div className="colors">
@@ -154,8 +155,8 @@ class ColorBook extends PureComponent {
 
 		return (
 			<div className="color-book">
-				{!isEditing && colorsElm}
-				{!isEditing && <p className="hint">{hintText}</p>}
+				{colorsElm}
+				{<p className="hint">{hintText}</p>}
 				{isEditing && this.renderEditColorBookPanel()}
 			</div>
 		);

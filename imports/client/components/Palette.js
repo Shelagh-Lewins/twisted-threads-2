@@ -178,7 +178,7 @@ class Palette extends PureComponent {
 	}
 
 	renderEmptyHole = () => {
-		const { isEditing } = this.state;
+		const { isEditing, isEditingColorBook } = this.state;
 		const { selectedColorIndex } = this.state;
 
 		return (
@@ -188,7 +188,7 @@ class Palette extends PureComponent {
 			>
 				Empty hole
 				<span // eslint-disable-line jsx-a11y/control-has-associated-label
-					className={`empty-hole ${selectedColorIndex === -1 ? 'selected' : ''}`}
+					className={`empty-hole ${selectedColorIndex === -1 ? 'selected' : ''} ${isEditingColorBook ? 'disabled' : ''}`}
 					id="empty-hole"
 					name="empty-hole"
 					onClick={() => this.handleClickEmptyHole()}
@@ -206,7 +206,7 @@ class Palette extends PureComponent {
 
 	renderColors = () => {
 		const { palette } = this.props;
-		const { selectedColorIndex } = this.state;
+		const { isEditingColorBook, selectedColorIndex } = this.state;
 
 		return (
 			<div className="color-holder">
@@ -222,7 +222,7 @@ class Palette extends PureComponent {
 						>
 							Thread color
 							<span // eslint-disable-line jsx-a11y/control-has-associated-label
-								className={`color ${selectedColorIndex === colorIndex ? 'selected' : ''}`}
+								className={`color ${selectedColorIndex === colorIndex ? 'selected' : ''} ${isEditingColorBook ? 'disabled' : ''}`}
 								id={identifier}
 								name={identifier}
 
@@ -324,21 +324,12 @@ class Palette extends PureComponent {
 		);
 	}
 
-	render() {
-		const { elementId } = this.props;
+	renderControls() {
 		const {
-			editMode,
 			isEditing,
-			isEditingColorBook,
-			showColorBooks,
 		} = this.state;
-		let showControls = true;
 
-		/* if (showColorBooks && editMode === 'colorBooks') { // panel is tidier if user doesn't see color books and controls at once
-			showControls = false;
-		} */
-
-		const controls = (
+		return (
 			<div className="controls">
 				{isEditing && this.renderEditOptions()}
 				<div className="toggle">
@@ -348,17 +339,41 @@ class Palette extends PureComponent {
 				</div>
 			</div>
 		);
+	}
+
+	render() {
+		const { elementId } = this.props;
+		const {
+			//editMode,
+			isEditing,
+			//isEditingColorBook,
+			showColorBooks,
+		} = this.state;
+		//let showControls = true;
+
+		/* if (showColorBooks && editMode === 'colorBooks') { // panel is tidier if user doesn't see color books and controls at once
+			showControls = false;
+		} */
+
+		/* const controls = (
+			<div className="controls">
+				{isEditing && this.renderEditOptions()}
+				<div className="toggle">
+					{isEditing
+						? <Button color="primary" onClick={this.handleClickDone}>Done</Button>
+						: <Button color="primary" onClick={this.handleClickEdit}>Edit thread colors</Button>}
+				</div>
+			</div>
+		); */
 
 		return (
 			<div id={elementId} className={`palette ${isEditing ? 'editing' : ''}`}>
-				{showControls && controls}
+				{this.renderControls()}
 				{showColorBooks && this.renderEditColorPanel()}
-				{!isEditingColorBook && (
-					<div className="swatches">
-						{this.renderEmptyHole()}
-						{this.renderColors()}
-					</div>
-				)}
+				<div className="swatches">
+					{this.renderEmptyHole()}
+					{this.renderColors()}
+				</div>
 			</div>
 		);
 	}

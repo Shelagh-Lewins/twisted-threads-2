@@ -19,7 +19,23 @@
 		display: inline-block;
 		height: 32px;
 		margin-right: 8px;
+		position: relative;
 		width: 32px;
+
+		&.disabled {
+			outline: 0;
+			pointer-events: none;
+
+			&::before {
+				background: $color-color-book-disabled;
+				content: " ";
+				height: 32px;
+				left: 0;
+				position: absolute;
+				top: 0;
+				width: 32px;
+			}
+		}
 	}
 
 	.color-holder {
@@ -72,6 +88,21 @@
 
 		svg {
 			position: absolute;
+		}
+
+		&.disabled {
+			outline: 0;
+			pointer-events: none;
+
+			&::before {
+				background: $color-color-book-disabled;
+				content: " ";
+				height: 32px;
+				left: 0;
+				position: absolute;
+				top: 0;
+				width: 32px;
+			}
 		}
 	}
 

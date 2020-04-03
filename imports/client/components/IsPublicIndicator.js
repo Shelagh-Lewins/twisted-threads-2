@@ -15,7 +15,12 @@ import './IsPublicIndicator.scss';
 import { iconColors } from '../../modules/parameters';
 
 const IsPublicIndicator = (props) => {
-	const { canPublish, isPublic, targetId } = props;
+	const {
+		canPublish,
+		disabled,
+		isPublic,
+		targetId,
+	} = props;
 	const isPublicData = isPublic ? 'public' : 'private';
 	const iconName = isPublic ? 'lock-open' : 'lock';
 	const tooltip = isPublic ? 'Public: click to make it private' : 'Private: click to make it public';
@@ -33,6 +38,7 @@ const IsPublicIndicator = (props) => {
 	return (
 		<div className="is-public">
 			<Button
+				disabled={disabled}
 				type="button"
 				onClick={onChangeIsPublic}
 				data-targetid={targetId}
@@ -48,6 +54,7 @@ const IsPublicIndicator = (props) => {
 
 IsPublicIndicator.propTypes = {
 	'canPublish': PropTypes.bool.isRequired,
+	'disabled': PropTypes.bool,
 	'isPublic': PropTypes.bool.isRequired,
 	'onChangeIsPublic': PropTypes.func.isRequired,
 	'targetId': PropTypes.string.isRequired,

@@ -19,6 +19,7 @@ function ColorBookSummary({
 	handleClickButtonRemove,
 	handleEditColorBook,
 	isAuthenticated,
+	isEditingColorBook,
 	isSelected,
 	onChangeIsPublic,
 	canCreateColorBook,
@@ -43,6 +44,7 @@ function ColorBookSummary({
 
 	const buttonCopy = (
 		<Button
+			disabled={isEditingColorBook}
 			type="button"
 			onClick={() => handleClickButtonCopy({ _id, name })}
 			title="Copy colour book"
@@ -55,6 +57,7 @@ function ColorBookSummary({
 		<div className="selected-buttons">
 			<Button
 				color="secondary"
+				disabled={isEditingColorBook}
 				onClick={() => handleEditColorBook(true)}
 				title="Edit"
 			>
@@ -62,6 +65,7 @@ function ColorBookSummary({
 			</Button>
 			<Button
 				color="danger"
+				disabled={isEditingColorBook}
 				onClick={handleClickRemoveColorBook}
 				title="Delete"
 			>
@@ -86,6 +90,7 @@ function ColorBookSummary({
 					{canEdit && (
 						<IsPublicIndicator
 							canEdit={canEdit}
+							disabled={isEditingColorBook}
 							isPublic={isPublic}
 							onChangeIsPublic={onChangeIsPublic}
 							targetId={_id}
@@ -103,8 +108,8 @@ function ColorBookSummary({
 					context="user"
 					dispatch={dispatch}
 					handleClickRemoveColorBook={handleClickButtonRemove}
-					handleEditColorBook={() => {}}
-					isEditing={false}
+					handleEditColorBook={handleEditColorBook}
+					isEditing={isEditingColorBook}
 					onSelectColor={onSelectColor}
 				/>
 			)}
@@ -121,6 +126,7 @@ ColorBookSummary.propTypes = {
 	'handleClickButtonSelect': PropTypes.func.isRequired,
 	'handleEditColorBook': PropTypes.func.isRequired,
 	'isAuthenticated': PropTypes.bool.isRequired,
+	'isEditingColorBook': PropTypes.bool.isRequired,
 	'isSelected': PropTypes.bool.isRequired,
 	'onChangeIsPublic': PropTypes.func.isRequired,
 	'canCreateColorBook': PropTypes.bool.isRequired,
