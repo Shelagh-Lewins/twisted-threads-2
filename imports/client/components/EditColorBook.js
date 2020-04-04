@@ -161,6 +161,7 @@ class EditColorBook extends PureComponent {
 
 		const nameElm = (
 			<EditableText
+				autoFocus={true}
 				canEdit={true}
 				editButtonText="Edit name"
 				fieldName="name"
