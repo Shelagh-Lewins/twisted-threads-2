@@ -15,8 +15,8 @@ class EditColorBook extends PureComponent {
 
 		this.state = {
 			'selectedColorIndex': 0,
-			'workingColor': colors[0], // track live selection in color picker
 			'showEditColorPanel': false,
+			'workingColor': colors[0], // track live selection in color picker
 		};
 
 		// Color picker is rendered to the body element

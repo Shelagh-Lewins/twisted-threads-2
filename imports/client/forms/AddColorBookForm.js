@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Button } from 'reactstrap';
+import { PhotoshopPicker } from 'react-color';
 import { Formik } from 'formik';
 import PropTypes from 'prop-types';
 import { COLORS_IN_COLOR_BOOK, DEFAULT_COLOR_BOOK_COLOR } from '../../modules/parameters';
@@ -22,6 +23,7 @@ const validate = (values) => {
 
 const BasicForm = (props) => {
 	const {
+		colors,
 		handleCancel,
 		handleClickColor,
 		higherHandleSubmit,
@@ -31,14 +33,15 @@ const BasicForm = (props) => {
 	const renderSwatches = (handleChange) => {
 		const swatches = [];
 
-		for (let i = 0; i < COLORS_IN_COLOR_BOOK; i += 1) {
+		for (let i = 0; i < colors.length; i += 1) {
 			const identifier = `swatch-${i}`;
-			const color = DEFAULT_COLOR_BOOK_COLOR;
+			const color = colors[i];
 
 			swatches.push((
 				<label
 					className={`color ${(selectedColorIndex === i) ? 'selected' : ''}`}
 					key={identifier}
+					style={{ 'backgroundColor': colors[i] }}
 				>
 					<input
 						id={identifier}
@@ -78,44 +81,43 @@ const BasicForm = (props) => {
 				errors,
 				touched,
 				values,
-			}) => {
-				return (
-					<form onSubmit={handleSubmit} className="add-color-book-form">
-						<h2>New colour book</h2>
-						<p className="hint">Define a set of colour swatches which can be assigned to any pattern&apos;s working palette.</p>
-						<div className="form-group">
-							<label htmlFor="name">
-								Name
-								<input
-									autoFocus="autofocus"
-									className={`form-control ${touched.name && errors.name ? 'is-invalid' : ''
-									}`}
-									placeholder="Name"
-									id="name"
-									name="name"
-									type="text"
-									onChange={handleChange}
-									onBlur={handleBlur}
-									value={values.name}
-								/>
-								{touched.name && errors.name ? (
-									<div className="invalid-feedback invalid">{errors.name}</div>
-								) : null}
-							</label>
-						</div>
-						{renderSwatches(handleChange)}
-						<div className="controls">
-							<Button type="button" color="secondary" onClick={handleCancel}>Cancel</Button>
-							<Button type="submit" color="primary">Create</Button>
-						</div>
-					</form>
-				);
-			}}
+			}) => (
+				<form onSubmit={handleSubmit} className="add-color-book-form">
+					<h2>New colour book</h2>
+					<p className="hint">Define a set of colour swatches which can be assigned to any pattern&apos;s working palette.</p>
+					<div className="form-group">
+						<label htmlFor="name">
+							Name
+							<input
+								autoFocus="autofocus"
+								className={`form-control ${touched.name && errors.name ? 'is-invalid' : ''
+								}`}
+								placeholder="Name"
+								id="name"
+								name="name"
+								type="text"
+								onChange={handleChange}
+								onBlur={handleBlur}
+								value={values.name}
+							/>
+							{touched.name && errors.name ? (
+								<div className="invalid-feedback invalid">{errors.name}</div>
+							) : null}
+						</label>
+					</div>
+					{renderSwatches(handleChange)}
+					<div className="controls">
+						<Button type="button" color="secondary" onClick={handleCancel}>Cancel</Button>
+						<Button type="submit" color="primary">Create</Button>
+					</div>
+				</form>
+			)}
 		</Formik>
 	);
 };
 
 BasicForm.propTypes = {
+	'colors': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'handleCancel': PropTypes.func.isRequired,
 	'handleClickColor': PropTypes.func.isRequired,
 	'higherHandleSubmit': PropTypes.func.isRequired,
@@ -129,30 +131,118 @@ class AddColorBookForm extends Component {
 		super(props);
 
 		this.state = {
+			'colors': new Array(COLORS_IN_COLOR_BOOK).fill(DEFAULT_COLOR_BOOK_COLOR),
 			'selectedColorIndex': 0,
+			'showEditColorPanel': false,
+			'workingColor': DEFAULT_COLOR_BOOK_COLOR, // track live selection in color picker
 		};
+
+		// Color picker is rendered to the body element
+		// so it can be positioned within the viewport
+		this.el = document.createElement('div');
+		this.el.className = 'new-color-book-picker-holder';
 	}
 
-	handleClickColor = (i) => {
+	componentDidMount() {
+		document.body.appendChild(this.el);
+	}
+
+	componentWillUnmount() {
+		document.body.removeChild(this.el);
+	}
+
+	handleClickColor = (index) => {
+		const {
+			colors,
+			showEditColorPanel,
+			selectedColorIndex,
+		} = this.state;
+
+		if (!showEditColorPanel) {
+			// open edit color panel
+			this.setState({
+				'showEditColorPanel': true,
+			});
+		} else if (index === selectedColorIndex) {
+			// close edit color panel if you click the same color again, otherwise just switch to the new color
+			this.setState({
+				'showEditColorPanel': false,
+			});
+		}
+
 		this.setState({
-			'selectedColorIndex': i,
+			'selectedColorIndex': index,
+			'workingColor': colors[index],
 		});
 	};
 
+	acceptColorChange = () => {
+		const {
+			colors,
+			workingColor,
+			selectedColorIndex,
+		} = this.state;
+
+		colors[selectedColorIndex] = workingColor;
+
+		this.setState({
+			colors,
+			'showEditColorPanel': false,
+		});
+	};
+
+	cancelColorChange = () => {
+		this.setState({
+			'showEditColorPanel': false,
+		});
+	}
+
+	handleColorChange = (colorObject) => {
+		this.setState({
+			'workingColor': colorObject.hex,
+		});
+	}
+
+	renderEditColorPanel() {
+		const { workingColor } = this.state;
+
+		return (
+			ReactDOM.createPortal(
+				<div className="color-picker">
+					<PhotoshopPicker
+						color={workingColor}
+						onChangeComplete={this.handleColorChange}
+						onAccept={this.acceptColorChange}
+						onCancel={this.cancelColorChange}
+					/>
+				</div>,
+				this.el,
+			)
+		);
+	}
+
 	render() {
 		const { handleCancel, handleSubmit } = this.props;
-		const { selectedColorIndex } = this.state;
+		const {
+			colors,
+			selectedColorIndex,
+			showEditColorPanel,
+		} = this.state;
 
 		// handleSubmit is a property of Formik
 		// so use a different name for the action function passed in here
 
 		return (
-			<BasicForm
-				handleCancel={handleCancel}
-				handleClickColor={this.handleClickColor}
-				higherHandleSubmit={handleSubmit}
-				selectedColorIndex={selectedColorIndex}
-			/>
+			<>
+				{showEditColorPanel && this.renderEditColorPanel()}
+				<BasicForm
+					colors={colors}
+					handleCancel={handleCancel}
+					handleClickColor={this.handleClickColor}
+					higherHandleSubmit={handleSubmit}
+					selectedColorIndex={selectedColorIndex}
+				/>
+			</>
 		);
 	}
 }

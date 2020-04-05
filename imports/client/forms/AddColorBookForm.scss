@@ -26,4 +26,35 @@
 	.form-control {
 		//display: inline-block;
 	}
+
+	.colors {
+		.color-book {
+			.color {
+				display: block;
+			}
+		}
+
+		input {
+			background-color: transparent;
+			border: 0;
+			color: transparent;
+			float: left;
+			font-size: 0;
+			height: 100%;
+			pointer-events: none;
+			width: 100%;
+
+			&:focus {
+				outline: 2px dotted $color-palette-outline;
+			}
+		}
+	}
+}
+
+.new-color-book-picker-holder {
+	left: 50%;
+	position: fixed;
+	top: 100px;
+	transform: translate(-50%, 0);
+	z-index: 3;
 }
