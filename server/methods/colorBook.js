@@ -82,13 +82,6 @@ Meteor.methods({
 
 		const newColorBookId = Meteor.call('colorBook.add', { colors, name });
 
-		/* ColorBooks.update({ '_id': newColorBookId },
-			{
-				'$set': {
-					'colors': colors,
-				},
-			}); */
-
 		return newColorBookId;
 	},
 	'colorBook.edit': function ({

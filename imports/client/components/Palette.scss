@@ -122,12 +122,14 @@
 			outline: 4px solid $color-palette-outline;
 		}
 	}
-}
 
-.edit-color-holder {
-	left: 50%;
-	position: fixed;
-	top: 100px;
-	transform: translate(-50%, 0);
-	z-index: 2;
+	.color-picker {
+		clear: both;
+		margin: 8px 0;
+
+		.photoshop-picker {
+			border: 1px solid $color-panel-border;
+			box-shadow: none !important;
+		}
+	}
 }

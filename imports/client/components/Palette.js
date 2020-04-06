@@ -31,28 +31,43 @@ class Palette extends PureComponent {
 			'isEditing': false,
 			'isEditingColorBook': false,
 			'colorValue': props.palette[props.initialColorIndex],
+			'pickerReinitialize': false,
 			'selectedColorIndex': props.initialColorIndex,
-			'showColorBooks': false,
 		};
 
-		// Color picker is rendered to the body element
-		// so it can be positioned within the viewport
-		this.el = document.createElement('div');
-		this.el.className = 'edit-color-holder';
+		this.pickerRef = React.createRef();
 	}
 
-	componentDidMount() {
-		document.body.appendChild(this.el);
-	}
+	componentDidUpdate() {
+		const { pickerReinitialize } = this.state;
+		
+		if (this.pickerRef.current) {
+			// customise Photoshop color picker button text
+			// we do not use Cancel
+			// and 'color picker' duplicates the selector text above
+			const children = this.pickerRef.current.querySelectorAll('div');
+			const childArray = Array.from(children);
+			const OKButton = childArray.find((node) => node.innerHTML === 'OK');
+			if (OKButton) {
+				OKButton.innerHTML = 'Select colour';
+			}
+			const CancelButton = childArray.find((node) => node.innerHTML === 'Cancel');
 
-	componentWillUnmount() {
-		document.body.removeChild(this.el);
+			if (CancelButton) {
+				CancelButton.style.visibility = 'hidden';
+			}
+		}
+
+		if (pickerReinitialize) {
+			this.setState({
+				'pickerReinitialize': false,
+			});
+		}
 	}
 
 	handleClickDone = () => {
 		this.setState({
 			'isEditing': false,
-			'showColorBooks': false,
 		});
 	}
 
@@ -72,22 +87,14 @@ class Palette extends PureComponent {
 
 	handleClickColor = (colorIndex) => {
 		const { palette, selectColor } = this.props;
-		const { isEditing, showColorBooks } = this.state;
-
-		if (isEditing) {
-			if (!showColorBooks) {
-				// open edit color panel
-				this.setState({
-					'showColorBooks': true,
-				});
-			}
-		}
+		// const { isEditing } = this.state;
 
 		selectColor(colorIndex);
 
 		this.setState({
 			'colorValue': palette[colorIndex],
 			'selectedColorIndex': colorIndex,
+			'pickerReinitialize': true,
 		});
 	}
 
@@ -103,20 +110,10 @@ class Palette extends PureComponent {
 	}
 
 	handleClickEditMode = (event) => {
-		const { editMode, showColorBooks } = this.state;
 		const newEditMode = event.target.value;
-		let newShowColorBooks = showColorBooks;
-
-		// click the current edit mode button; toggle the panel
-		if (newEditMode === editMode) {
-			newShowColorBooks = !showColorBooks;
-		} else if (!showColorBooks) {
-			newShowColorBooks = true;
-		}
 
 		this.setState({
 			'editMode': newEditMode,
-			'showColorBooks': newShowColorBooks,
 		});
 	}
 
@@ -124,22 +121,6 @@ class Palette extends PureComponent {
 		const { colorValue } = this.state;
 
 		this.handleEditColor(colorValue);
-
-		this.setState({
-			'showColorBooks': false,
-		});
-	}
-
-	cancelColorChange = () => {
-		this.setState({
-			'showColorBooks': false,
-		});
-	}
-
-	closeColorBooks = () => {
-		this.setState({
-			'showColorBooks': false,
-		});
 	}
 
 	handleColorChange = (colorObject) => {
@@ -250,21 +231,22 @@ class Palette extends PureComponent {
 			editMode,
 			colorValue,
 			isEditingColorBook,
+			pickerReinitialize,
 		} = this.state;
 
 		if (editMode === 'colorPicker') {
+			if (pickerReinitialize) {
+				return;
+			}
 			return (
-				ReactDOM.createPortal(
-					<div className="color-picker">
-						<PhotoshopPicker
-							color={colorValue}
-							onChangeComplete={this.handleColorChange}
-							onAccept={this.acceptColorChange}
-							onCancel={this.cancelColorChange}
-						/>
-					</div>,
-					this.el,
-				)
+				<div className="color-picker" ref={this.pickerRef}>
+					<PhotoshopPicker
+						color={colorValue}
+						onChangeComplete={this.handleColorChange}
+						onAccept={this.acceptColorChange}
+						onCancel={this.cancelColorChange}
+					/>
+				</div>
 			);
 		}
 		return (
@@ -345,13 +327,12 @@ class Palette extends PureComponent {
 		const { elementId } = this.props;
 		const {
 			isEditing,
-			showColorBooks,
 		} = this.state;
 
 		return (
 			<div id={elementId} className={`palette ${isEditing ? 'editing' : ''}`}>
 				{this.renderControls()}
-				{showColorBooks && this.renderEditColorPanel()}
+				{isEditing && this.renderEditColorPanel()}
 				<div className="swatches">
 					{this.renderEmptyHole()}
 					{this.renderColors()}

@@ -261,8 +261,7 @@ class User extends PureComponent {
 	// actually add a new color book
 	handleClickAddColorBook({ colors, name }) {
 		const { dispatch } = this.props;
-console.log('Colors', colors);
-console.log('name', name);
+
 		dispatch(addColorBook({ colors, name }));
 		this.setState({
 			'showAddColorBookForm': false,
