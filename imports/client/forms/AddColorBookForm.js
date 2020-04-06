@@ -26,7 +26,7 @@ const BasicForm = (props) => {
 		colors,
 		handleCancel,
 		handleClickColor,
-		higherHandleSubmit,
+		handleAddColorBook,
 		selectedColorIndex,
 	} = props;
 
@@ -68,8 +68,7 @@ const BasicForm = (props) => {
 		<Formik
 			initialValues={{ 'name': '' }}
 			onSubmit={(values) => {
-				console.log('values', values);
-				higherHandleSubmit(values);
+				handleAddColorBook(values);
 			}}
 			validate={validate}
 			validateOnBlur={false}
@@ -120,7 +119,7 @@ BasicForm.propTypes = {
 	'colors': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'handleCancel': PropTypes.func.isRequired,
 	'handleClickColor': PropTypes.func.isRequired,
-	'higherHandleSubmit': PropTypes.func.isRequired,
+	'handleAddColorBook': PropTypes.func.isRequired,
 	'selectedColorIndex': PropTypes.number.isRequired,
 };
 
@@ -203,6 +202,13 @@ class AddColorBookForm extends Component {
 		});
 	}
 
+	handleAddColorBook = ({ name }) => {
+		const { handleSubmit } = this.props;
+		const { colors } = this.state;
+
+		handleSubmit({ colors, name });
+	}
+
 	renderEditColorPanel() {
 		const { workingColor } = this.state;
 
@@ -222,7 +228,7 @@ class AddColorBookForm extends Component {
 	}
 
 	render() {
-		const { handleCancel, handleSubmit } = this.props;
+		const { handleCancel } = this.props;
 		const {
 			colors,
 			selectedColorIndex,
@@ -239,7 +245,7 @@ class AddColorBookForm extends Component {
 					colors={colors}
 					handleCancel={handleCancel}
 					handleClickColor={this.handleClickColor}
-					higherHandleSubmit={handleSubmit}
+					handleAddColorBook={this.handleAddColorBook}
 					selectedColorIndex={selectedColorIndex}
 				/>
 			</>

@@ -60,10 +60,10 @@ class ColorBooks extends PureComponent {
 	}
 
 	// actually add a new color book
-	handleClickAddColorBook = ({ name }) => {
+	handleClickAddColorBook = ({ colors, name }) => {
 		const { dispatch } = this.props;
 
-		dispatch(addColorBook(name));
+		dispatch(addColorBook({ colors, name }));
 		this.setState({
 			'showAddColorBookForm': false,
 		});
@@ -153,7 +153,6 @@ class ColorBooks extends PureComponent {
 		const {
 			canCreateColorBook,
 			canEdit,
-			closeColorBooks,
 			handleEditColorBook,
 			isEditingColorBook,
 		} = this.props;

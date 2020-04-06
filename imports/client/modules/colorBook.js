@@ -24,9 +24,9 @@ export function setColorBookAdded(colorBookId) {
 // ///////////////////////////
 // Action that call Meteor methods; these do not change the Store but are located here in order to keep server interactions away from UI
 
-export const addColorBook = (name) => (dispatch) => {
+export const addColorBook = ({ colors, name }) => (dispatch) => {
 	dispatch(clearErrors());
-	Meteor.call('colorBook.add', name, (error, result) => {
+	Meteor.call('colorBook.add', { colors, name }, (error, result) => {
 		if (error) {
 			return dispatch(logErrors({ 'add-color-book': error.reason }));
 		}

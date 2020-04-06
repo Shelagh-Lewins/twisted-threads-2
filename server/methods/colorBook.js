@@ -5,13 +5,10 @@ import {
 	updatePublicColorBooksCount,
 } from '../../imports/server/modules/utils';
 import { ColorBooks } from '../../imports/modules/collection';
-import {
-	COLORS_IN_COLOR_BOOK,
-	DEFAULT_COLOR_BOOK_COLOR,
-} from '../../imports/modules/parameters';
 
 Meteor.methods({
-	'colorBook.add': function (name) {
+	'colorBook.add': function ({ colors, name }) {
+		check(colors, [String]);
 		check(name, nonEmptyStringCheck);
 
 		const { error, result } = checkCanCreateColorBook();
@@ -19,8 +16,6 @@ Meteor.methods({
 		if (error) {
 			throw error;
 		}
-
-		const colors = new Array(COLORS_IN_COLOR_BOOK).fill(DEFAULT_COLOR_BOOK_COLOR);
 
 		const colorBookId = ColorBooks.insert({
 			name,
@@ -85,14 +80,14 @@ Meteor.methods({
 		let { name } = colorBook;
 		name = `${name} (copy)`;
 
-		const newColorBookId = Meteor.call('colorBook.add', name);
+		const newColorBookId = Meteor.call('colorBook.add', { colors, name });
 
-		ColorBooks.update({ '_id': newColorBookId },
+		/* ColorBooks.update({ '_id': newColorBookId },
 			{
 				'$set': {
 					'colors': colors,
 				},
-			});
+			}); */
 
 		return newColorBookId;
 	},
