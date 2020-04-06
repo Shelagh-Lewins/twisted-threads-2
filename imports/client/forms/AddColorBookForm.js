@@ -83,7 +83,7 @@ const BasicForm = (props) => {
 			}) => (
 				<form onSubmit={handleSubmit} className="add-color-book-form">
 					<h2>New colour book</h2>
-					<p className="hint">Define a set of colour swatches which can be assigned to any pattern&apos;s working palette.</p>
+					<p className="hint">Create set of colour swatches which can be assigned to any pattern&apos;s working palette.</p>
 					<div className="form-group">
 						<label htmlFor="name">
 							Name
@@ -105,6 +105,7 @@ const BasicForm = (props) => {
 						</label>
 					</div>
 					{renderSwatches(handleChange)}
+					<div className="hint">To open the colour picker, click one of the colour swatches above.</div>
 					<div className="controls">
 						<Button type="button" color="secondary" onClick={handleCancel}>Cancel</Button>
 						<Button type="submit" color="primary">Create</Button>
