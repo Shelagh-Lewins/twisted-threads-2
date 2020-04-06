@@ -40,21 +40,30 @@ class Palette extends PureComponent {
 
 	componentDidUpdate() {
 		const { pickerReinitialize } = this.state;
-		
+
 		if (this.pickerRef.current) {
 			// customise Photoshop color picker button text
 			// we do not use Cancel
 			// and 'color picker' duplicates the selector text above
 			const children = this.pickerRef.current.querySelectorAll('div');
 			const childArray = Array.from(children);
-			const OKButton = childArray.find((node) => node.innerHTML === 'OK');
-			if (OKButton) {
-				OKButton.innerHTML = 'Select colour';
-			}
-			const CancelButton = childArray.find((node) => node.innerHTML === 'Cancel');
 
-			if (CancelButton) {
-				CancelButton.style.visibility = 'hidden';
+			// customise button text for static panel
+			const okButton = childArray.find((node) => node.innerHTML === 'OK');
+			if (okButton) {
+				okButton.innerHTML = 'Apply colour';
+			}
+
+			const cancelButton = childArray.find((node) => node.innerHTML === 'Cancel');
+
+			if (cancelButton) {
+				cancelButton.style.visibility = 'hidden';
+			}
+
+			const header = childArray.find((node) => node.innerHTML === 'Color Picker');
+
+			if (header) {
+				header.style.display = 'none';
 			}
 		}
 
