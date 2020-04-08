@@ -303,14 +303,14 @@ class Palette extends PureComponent {
 							</Button>
 						))}
 					</ButtonGroup>
-					<Button
-						className="restore-defaults"
-						color="secondary"
-						onClick={this.handleClickRestoreDefaults}
-					>
-						Restore default colors
-					</Button>
 				</ButtonToolbar>
+				<Button
+					className="restore-defaults"
+					color="secondary"
+					onClick={this.handleClickRestoreDefaults}
+				>
+					Restore default colors
+				</Button>
 			</>
 		);
 	}

@@ -48,7 +48,8 @@
 		width: 100%;
 
 		.restore-defaults {
-			margin-left: 8px;
+			float: left;
+			margin-right: 8px;
 		}
 
 		.toggle {
@@ -58,11 +59,46 @@
 		.btn-toolbar {
 			float: left;
 			margin-right: 8px;
+		}
+
+		.btn-group {
+			float: left;
+			margin-right: 8px;
 
 			button {
+				background: $color-palette-button-group;
+				border-bottom: 0;
+				border-color: $color-palette-button-group-border;
+				border-radius: 4px 4px 0 0;
+				color: $color-text;
+				padding-bottom: 12px;
+
 				&.selected {
 					background: $color-palette-button-selected;
-					border-color: $color-palette-button-selected;
+					border-bottom: 0;
+
+					&::after {
+						background: $color-palette-button-selected;
+						bottom: -1px;
+						content: " ";
+						display: block;
+						height: 1px;
+						left: 0;
+						position: absolute;
+						width: 100%;
+						z-index: 2;
+					}
+				}
+
+				&:focus {
+					box-shadow: none;
+					outline: 1px dotted #007bff;
+					outline-offset: -4px;
+				}
+
+				&:not(:last-child) {
+					border-top-right-radius: 4px;
+					margin-right: 4px;
 				}
 			}
 		}
@@ -110,6 +146,10 @@
 		.empty-hole {
 			background: $color-palette-disabled;
 		}
+
+		.controls {
+			margin-bottom: 0;
+		}
 	}
 
 	span {
@@ -130,7 +170,12 @@
 		.photoshop-picker {
 			background-color: $color-panel-background !important;
 			border: 1px solid $color-panel-border;
+			border-top-left-radius: 0 !important;
 			box-shadow: none !important;
 		}
+	}
+
+	.color-books {
+		border-top-left-radius: 0 !important;
 	}
 }
