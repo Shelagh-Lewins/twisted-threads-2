@@ -17,14 +17,15 @@
 	}
 
 	.form-group {
+		margin-bottom: 8px;
+
 		label {
 			font-size: 1rem;
-			//width: unset;
-		}
-	}
 
-	.form-control {
-		//display: inline-block;
+			&.name {
+				margin-bottom: 0;
+			}
+		}
 	}
 
 	.colors {
@@ -49,12 +50,4 @@
 			}
 		}
 	}
-}
-
-.new-color-book-picker-holder {
-	left: 50%;
-	position: fixed;
-	top: 10px;
-	transform: translate(-50%, 0);
-	z-index: 3;
 }

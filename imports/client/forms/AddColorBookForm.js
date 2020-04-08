@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
 import { Button } from 'reactstrap';
-import { PhotoshopPicker } from 'react-color';
 import { Formik } from 'formik';
 import PropTypes from 'prop-types';
 import { COLORS_IN_COLOR_BOOK, DEFAULT_COLOR_BOOK_COLOR } from '../../modules/parameters';
+import InlineColorPicker from '../components/InlineColorPicker';
 import './AddColorBookForm.scss';
 import '../components/ColorBook.scss';
 
@@ -23,12 +22,30 @@ const validate = (values) => {
 
 const BasicForm = (props) => {
 	const {
+		acceptColorChange,
 		colors,
 		handleCancel,
 		handleClickColor,
+		handleColorChange,
 		handleAddColorBook,
+		pickerReinitialize,
 		selectedColorIndex,
+		colorValue,
 	} = props;
+
+	const renderEditColorPanel = () => {
+		if (pickerReinitialize) {
+			return;
+		}
+
+		return (
+			<InlineColorPicker
+				color={colorValue}
+				onAccept={acceptColorChange}
+				onChangeComplete={handleColorChange}
+			/>
+		);
+	};
 
 	const renderSwatches = (handleChange) => {
 		const swatches = [];
@@ -83,13 +100,13 @@ const BasicForm = (props) => {
 			}) => (
 				<form onSubmit={handleSubmit} className="add-color-book-form">
 					<h2>New colour book</h2>
-					<p className="hint">Create set of colour swatches which can be assigned to any pattern&apos;s working palette.</p>
+					<p className="hint">Create a set of colour swatches which can be assigned to any pattern&apos;s working palette.</p>
 					<div className="form-group">
 						<label htmlFor="name">
 							Name
 							<input
 								autoFocus="autofocus"
-								className={`form-control ${touched.name && errors.name ? 'is-invalid' : ''
+								className={`form-control name ${touched.name && errors.name ? 'is-invalid' : ''
 								}`}
 								placeholder="Name"
 								id="name"
@@ -104,8 +121,8 @@ const BasicForm = (props) => {
 							) : null}
 						</label>
 					</div>
+					{renderEditColorPanel()}
 					{renderSwatches(handleChange)}
-					<div className="hint">To open the colour picker, click one of the colour swatches above.</div>
 					<div className="controls">
 						<Button type="button" color="secondary" onClick={handleCancel}>Cancel</Button>
 						<Button type="submit" color="primary">Create</Button>
@@ -117,11 +134,15 @@ const BasicForm = (props) => {
 };
 
 BasicForm.propTypes = {
+	'acceptColorChange': PropTypes.func.isRequired,
 	'colors': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'handleCancel': PropTypes.func.isRequired,
 	'handleClickColor': PropTypes.func.isRequired,
+	'handleColorChange': PropTypes.func.isRequired,
 	'handleAddColorBook': PropTypes.func.isRequired,
+	'pickerReinitialize': PropTypes.bool.isRequired,
 	'selectedColorIndex': PropTypes.number.isRequired,
+	'colorValue': PropTypes.string.isRequired,
 };
 
 class AddColorBookForm extends Component {
@@ -132,74 +153,51 @@ class AddColorBookForm extends Component {
 
 		this.state = {
 			'colors': new Array(COLORS_IN_COLOR_BOOK).fill(DEFAULT_COLOR_BOOK_COLOR),
+			'pickerReinitialize': false,
 			'selectedColorIndex': 0,
-			'showEditColorPanel': false,
-			'workingColor': DEFAULT_COLOR_BOOK_COLOR, // track live selection in color picker
+			'colorValue': DEFAULT_COLOR_BOOK_COLOR, // track live selection in color picker
 		};
-
-		// Color picker is rendered to the body element
-		// so it can be positioned within the viewport
-		this.el = document.createElement('div');
-		this.el.className = 'new-color-book-picker-holder';
 	}
 
-	componentDidMount() {
-		document.body.appendChild(this.el);
-	}
+	componentDidUpdate() {
+		const { pickerReinitialize } = this.state;
 
-	componentWillUnmount() {
-		document.body.removeChild(this.el);
+		if (pickerReinitialize) {
+			this.setState({
+				'pickerReinitialize': false,
+			});
+		}
 	}
 
 	handleClickColor = (index) => {
 		const {
 			colors,
-			showEditColorPanel,
-			selectedColorIndex,
 		} = this.state;
 
-		if (!showEditColorPanel) {
-			// open edit color panel
-			this.setState({
-				'showEditColorPanel': true,
-			});
-		} else if (index === selectedColorIndex) {
-			// close edit color panel if you click the same color again, otherwise just switch to the new color
-			this.setState({
-				'showEditColorPanel': false,
-			});
-		}
-
 		this.setState({
+			'pickerReinitialize': true, // reset initial color
 			'selectedColorIndex': index,
-			'workingColor': colors[index],
+			'colorValue': colors[index],
 		});
 	};
 
 	acceptColorChange = () => {
 		const {
 			colors,
-			workingColor,
+			colorValue,
 			selectedColorIndex,
 		} = this.state;
 
-		colors[selectedColorIndex] = workingColor;
+		colors[selectedColorIndex] = colorValue;
 
 		this.setState({
 			colors,
-			'showEditColorPanel': false,
 		});
 	};
 
-	cancelColorChange = () => {
-		this.setState({
-			'showEditColorPanel': false,
-		});
-	}
-
 	handleColorChange = (colorObject) => {
 		this.setState({
-			'workingColor': colorObject.hex,
+			'colorValue': colorObject.hex,
 		});
 	}
 
@@ -211,20 +209,21 @@ class AddColorBookForm extends Component {
 	}
 
 	renderEditColorPanel() {
-		const { workingColor } = this.state;
+		const {
+			pickerReinitialize,
+			colorValue,
+		} = this.state;
+
+		if (pickerReinitialize) {
+			return;
+		}
 
 		return (
-			ReactDOM.createPortal(
-				<div className="color-picker">
-					<PhotoshopPicker
-						color={workingColor}
-						onChangeComplete={this.handleColorChange}
-						onAccept={this.acceptColorChange}
-						onCancel={this.cancelColorChange}
-					/>
-				</div>,
-				this.el,
-			)
+			<InlineColorPicker
+				color={colorValue}
+				onAccept={this.acceptColorChange}
+				onChangeComplete={this.handleColorChange}
+			/>
 		);
 	}
 
@@ -232,8 +231,9 @@ class AddColorBookForm extends Component {
 		const { handleCancel } = this.props;
 		const {
 			colors,
+			pickerReinitialize,
 			selectedColorIndex,
-			showEditColorPanel,
+			colorValue,
 		} = this.state;
 
 		// handleSubmit is a property of Formik
@@ -241,13 +241,16 @@ class AddColorBookForm extends Component {
 
 		return (
 			<>
-				{showEditColorPanel && this.renderEditColorPanel()}
 				<BasicForm
+					acceptColorChange={this.acceptColorChange}
 					colors={colors}
 					handleCancel={handleCancel}
 					handleClickColor={this.handleClickColor}
+					handleColorChange={this.handleColorChange}
 					handleAddColorBook={this.handleAddColorBook}
+					pickerReinitialize={pickerReinitialize}
 					selectedColorIndex={selectedColorIndex}
+					colorValue={colorValue}
 				/>
 			</>
 		);

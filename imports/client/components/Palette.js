@@ -1,8 +1,6 @@
 import React, { PureComponent } from 'react';
-import ReactDOM from 'react-dom';
 import { Button, ButtonGroup, ButtonToolbar } from 'reactstrap';
 import { connect } from 'react-redux';
-import { PhotoshopPicker } from 'react-color';
 import PropTypes from 'prop-types';
 import {
 	editPaletteColor,
@@ -14,6 +12,7 @@ import {
 } from '../modules/auth';
 import { SVGPaletteEmpty } from '../modules/svg';
 import { DEFAULT_PALETTE } from '../../modules/parameters';
+import InlineColorPicker from './InlineColorPicker';
 import ColorBooks from './ColorBooks';
 import './Palette.scss';
 
@@ -34,38 +33,10 @@ class Palette extends PureComponent {
 			'pickerReinitialize': false,
 			'selectedColorIndex': props.initialColorIndex,
 		};
-
-		this.pickerRef = React.createRef();
 	}
 
 	componentDidUpdate() {
 		const { pickerReinitialize } = this.state;
-
-		if (this.pickerRef.current) {
-			// customise Photoshop color picker button text
-			// we do not use Cancel
-			// and 'color picker' duplicates the selector text above
-			const children = this.pickerRef.current.querySelectorAll('div');
-			const childArray = Array.from(children);
-
-			// customise button text for static panel
-			const okButton = childArray.find((node) => node.innerHTML === 'OK');
-			if (okButton) {
-				okButton.innerHTML = 'Apply colour';
-			}
-
-			const cancelButton = childArray.find((node) => node.innerHTML === 'Cancel');
-
-			if (cancelButton) {
-				cancelButton.style.visibility = 'hidden';
-			}
-
-			const header = childArray.find((node) => node.innerHTML === 'Color Picker');
-
-			if (header) {
-				header.style.display = 'none';
-			}
-		}
 
 		if (pickerReinitialize) {
 			this.setState({
@@ -96,14 +67,13 @@ class Palette extends PureComponent {
 
 	handleClickColor = (colorIndex) => {
 		const { palette, selectColor } = this.props;
-		// const { isEditing } = this.state;
 
 		selectColor(colorIndex);
 
 		this.setState({
 			'colorValue': palette[colorIndex],
 			'selectedColorIndex': colorIndex,
-			'pickerReinitialize': true,
+			'pickerReinitialize': true, // reset initial color
 		});
 	}
 
@@ -247,15 +217,13 @@ class Palette extends PureComponent {
 			if (pickerReinitialize) {
 				return;
 			}
+
 			return (
-				<div className="color-picker" ref={this.pickerRef}>
-					<PhotoshopPicker
-						color={colorValue}
-						onChangeComplete={this.handleColorChange}
-						onAccept={this.acceptColorChange}
-						onCancel={this.cancelColorChange}
-					/>
-				</div>
+				<InlineColorPicker
+					color={colorValue}
+					onAccept={this.acceptColorChange}
+					onChangeComplete={this.handleColorChange}
+				/>
 			);
 		}
 		return (

@@ -4,8 +4,8 @@ import {
 	Button,
 } from 'reactstrap';
 import PropTypes from 'prop-types';
-import { getRemoveColorBookMessage,iconColors } from '../../modules/parameters';
-import { addColorBook, removeColorBook } from '../modules/colorBook';
+import { getRemoveColorBookMessage, iconColors } from '../../modules/parameters';
+import { removeColorBook } from '../modules/colorBook';
 import IsPublicIndicator from './IsPublicIndicator';
 import ColorBook from './ColorBook';
 
@@ -110,6 +110,7 @@ function ColorBookSummary({
 					colorBook={colorBook}
 					colorBookAdded={colorBookAdded}
 					context="user"
+					disabled={isEditingColorBook}
 					dispatch={dispatch}
 					handleEditColorBook={handleEditColorBook}
 					isEditing={isEditingColorBook}

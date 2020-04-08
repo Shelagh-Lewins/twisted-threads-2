@@ -163,16 +163,8 @@
 		}
 	}
 
-	.color-picker {
-		clear: both;
-		margin: 8px 0;
-
-		.photoshop-picker {
-			background-color: $color-panel-background !important;
-			border: 1px solid $color-panel-border;
-			border-top-left-radius: 0 !important;
-			box-shadow: none !important;
-		}
+	.photoshop-picker {
+		border-top-left-radius: 0 !important;
 	}
 
 	.color-books {

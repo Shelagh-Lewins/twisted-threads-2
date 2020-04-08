@@ -112,13 +112,13 @@ class ColorBooks extends PureComponent {
 
 	renderColorBookSelect = () => {
 		const { colorBooks, isEditingColorBook } = this.props;
-		const { selectedColorBook } = this.state;
+		const { selectedColorBook, showAddColorBookForm } = this.state;
 
 		return (
 			<div className="select-color-book">
 				Current colour book:&nbsp;
 				<select
-					disabled={isEditingColorBook}
+					disabled={isEditingColorBook || showAddColorBookForm}
 					key="select-color-book"
 					onChange={this.handleChangeColorBook}
 					value={selectedColorBook}
@@ -156,6 +156,8 @@ class ColorBooks extends PureComponent {
 			handleEditColorBook,
 			isEditingColorBook,
 		} = this.props;
+		const { showAddColorBookForm } = this.state;
+		const disabled = isEditingColorBook || showAddColorBookForm;
 
 		return (
 			<div className="buttons-books">
@@ -163,7 +165,7 @@ class ColorBooks extends PureComponent {
 					<>
 						<Button
 							color="secondary"
-							disabled={isEditingColorBook}
+							disabled={disabled}
 							onClick={() => handleEditColorBook(true)}
 							title="Edit"
 						>
@@ -171,7 +173,7 @@ class ColorBooks extends PureComponent {
 						</Button>
 						<Button
 							color="danger"
-							disabled={isEditingColorBook}
+							disabled={disabled}
 							onClick={this.handleClickRemoveColorBook}
 							title="Delete"
 						>
@@ -183,7 +185,7 @@ class ColorBooks extends PureComponent {
 					<Button
 						className="add"
 						color="secondary"
-						disabled={isEditingColorBook}
+						disabled={disabled}
 						onClick={this.handleClickAdd}
 						title="Add colour book"
 					>
@@ -204,7 +206,7 @@ class ColorBooks extends PureComponent {
 			isEditingColorBook,
 			onSelectColor,
 		} = this.props;
-		const { selectedColorBook } = this.state;
+		const { selectedColorBook, showAddColorBookForm } = this.state;
 
 		const colorBook = colorBooks.find((obj) => obj._id === selectedColorBook);
 
@@ -215,6 +217,7 @@ class ColorBooks extends PureComponent {
 					{colorBook && (
 						<ColorBook
 							canEdit={canEdit}
+							disabled={isEditingColorBook || showAddColorBookForm}
 							isEditing={isEditingColorBook}
 							colorBook={colorBook}
 							colorBookAdded={colorBookAdded}

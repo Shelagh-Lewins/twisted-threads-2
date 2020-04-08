@@ -40,7 +40,7 @@ class ColorBook extends PureComponent {
 	}
 
 	renderColor(color, index) {
-		const { isEditing } = this.props;
+		const { disabled, isEditing } = this.props;
 		const { selectedColorIndex } = this.state;
 
 		const identifier = `book-color-${index}`;
@@ -52,7 +52,7 @@ class ColorBook extends PureComponent {
 				title={`Thread colour ${color}`}
 			>
 				<span // eslint-disable-line jsx-a11y/control-has-associated-label
-					className={`color ${isEditing && (selectedColorIndex === index) ? 'selected' : ''} ${isEditing ? 'disabled' : ''}`}
+					className={`color ${isEditing && (selectedColorIndex === index) ? 'selected' : ''} ${disabled ? 'disabled' : ''}`}
 					key={identifier}
 					onClick={() => this.handleClickColor(index)}
 					onKeyPress={() => this.handleClickColor(index)}
@@ -115,6 +115,7 @@ class ColorBook extends PureComponent {
 ColorBook.propTypes = {
 	'colorBook': PropTypes.objectOf(PropTypes.any).isRequired,
 	'context': PropTypes.string,
+	'disabled': PropTypes.bool.isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'handleEditColorBook': PropTypes.func.isRequired,
 	'isEditing': PropTypes.bool.isRequired,
