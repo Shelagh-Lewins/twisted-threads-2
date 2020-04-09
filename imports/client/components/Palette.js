@@ -61,7 +61,7 @@ class Palette extends PureComponent {
 		}
 
 		this.setState({
-			'isEditing': true,
+			'isEditing': true,y
 		});
 	}
 
@@ -226,6 +226,7 @@ class Palette extends PureComponent {
 				/>
 			);
 		}
+
 		return (
 			<ColorBooks
 				canCreateColorBook={canCreateColorBook}
