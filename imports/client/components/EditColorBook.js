@@ -147,15 +147,12 @@ class EditColorBook extends PureComponent {
 			</div>
 		);
 
-		const hintText = <p className="hint">To edit a colour, click one of the colour swatches above.</p>;
-
 		return (
 			<div className="edit-color-book">
 				{doneButton}
 				{nameElm}
 				{this.renderEditColorPanel()}
 				{colorsElm}
-				{hintText}
 			</div>
 		);
 	}

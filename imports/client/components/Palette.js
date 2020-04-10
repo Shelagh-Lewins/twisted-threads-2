@@ -111,13 +111,17 @@ class Palette extends PureComponent {
 	handleClickRestoreDefaults = () => {
 		const { _id, dispatch } = this.props;
 
-		DEFAULT_PALETTE.forEach((colorHexValue, index) => {
-			dispatch(editPaletteColor({
-				_id,
-				'colorHexValue': colorHexValue,
-				'colorIndex': index,
-			}));
-		});
+		const response = confirm('Do you want to restore the default colour palette? This will delete your current working palette but will not affect your colour books.'); // eslint-disable-line no-restricted-globals
+
+		if (response === true) {
+			DEFAULT_PALETTE.forEach((colorHexValue, index) => {
+				dispatch(editPaletteColor({
+					_id,
+					'colorHexValue': colorHexValue,
+					'colorIndex': index,
+				}));
+			});
+		}
 	}
 
 	handleEditColorBook = (isEditingColorBook) => {
@@ -247,11 +251,11 @@ class Palette extends PureComponent {
 		const { editMode } = this.state;
 		const options = [
 			{
-				'name': 'Color picker',
+				'name': 'Colour picker',
 				'value': 'colorPicker',
 			},
 			{
-				'name': 'Color books',
+				'name': 'Colour books',
 				'value': 'colorBooks',
 			},
 		];
@@ -278,7 +282,7 @@ class Palette extends PureComponent {
 					color="secondary"
 					onClick={this.handleClickRestoreDefaults}
 				>
-					Restore default colors
+					Restore default colours
 				</Button>
 			</>
 		);
