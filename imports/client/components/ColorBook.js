@@ -74,12 +74,14 @@ class ColorBook extends PureComponent {
 
 		return (
 			ReactDOM.createPortal(
-				<EditColorBook
-					colorBook={colorBook}
-					context={context}
-					dispatch={dispatch}
-					handleClickDone={() => handleEditColorBook(false)}
-				/>,
+				<div className="wrapper">
+					<EditColorBook
+						colorBook={colorBook}
+						context={context}
+						dispatch={dispatch}
+						handleClickDone={() => handleEditColorBook(false)}
+					/>
+				</div>,
 				this.el,
 			)
 		);

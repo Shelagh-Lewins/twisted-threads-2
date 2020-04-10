@@ -140,10 +140,12 @@ class ColorBooks extends PureComponent {
 	renderNewColorBookPanel() {
 		return (
 			ReactDOM.createPortal(
-				<AddColorBookForm
-					handleCancel={this.cancelAddColorBook}
-					handleSubmit={this.handleClickAddColorBook}
-				/>,
+				<div className="wrapper">
+					<AddColorBookForm
+						handleCancel={this.cancelAddColorBook}
+						handleSubmit={this.handleClickAddColorBook}
+					/>
+				</div>,
 				this.el,
 			)
 		);
