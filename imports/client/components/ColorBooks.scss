@@ -27,10 +27,18 @@
 	}
 }
 
-.new-color-book-holder {
+.add-color-book-holder {
 	left: 50%;
 	position: fixed;
 	top: 10px;
 	transform: translate(-50%, 0);
 	z-index: 3;
+
+	.add-color-book-form {
+		max-height: 95vh;
+		overflow-x: hidden;
+		overflow-y: auto;
+		padding-left: 8px;
+		width: 666px;
+	}
 }

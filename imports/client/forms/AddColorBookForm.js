@@ -98,7 +98,7 @@ const BasicForm = (props) => {
 				touched,
 				values,
 			}) => (
-				<form onSubmit={handleSubmit} className="add-color-book-form">
+				<form onSubmit={handleSubmit}>
 					<h2>New colour book</h2>
 					<p className="hint">Create a set of colour swatches which can be assigned to any pattern&apos;s working palette.</p>
 					<div className="form-group">
@@ -240,7 +240,7 @@ class AddColorBookForm extends Component {
 		// so use a different name for the action function passed in here
 
 		return (
-			<>
+			<div className="add-color-book-form">
 				<BasicForm
 					acceptColorChange={this.acceptColorChange}
 					colors={colors}
@@ -252,7 +252,7 @@ class AddColorBookForm extends Component {
 					selectedColorIndex={selectedColorIndex}
 					colorValue={colorValue}
 				/>
-			</>
+			</div>
 		);
 	}
 }

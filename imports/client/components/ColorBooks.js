@@ -30,7 +30,7 @@ class ColorBooks extends PureComponent {
 		// New color book is rendered to the body element
 		// so it can be positioned within the viewport
 		this.el = document.createElement('div');
-		this.el.className = 'new-color-book-holder';
+		this.el.className = 'add-color-book-holder';
 	}
 
 	componentDidMount() {

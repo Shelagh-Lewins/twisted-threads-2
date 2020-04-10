@@ -61,7 +61,7 @@ class Palette extends PureComponent {
 		}
 
 		this.setState({
-			'isEditing': true,y
+			'isEditing': true,
 		});
 	}
 
