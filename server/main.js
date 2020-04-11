@@ -1,12 +1,13 @@
 import '../imports/server/modules/publications';
 import '../imports/server/modules/slingshot';
-import { COLORS_IN_COLOR_BOOK, DEFAULT_COLOR_BOOK_COLOR, ROLES } from '../imports/modules/parameters';
+//import { COLORS_IN_COLOR_BOOK, DEFAULT_COLOR_BOOK_COLOR, ROLES } from '../imports/modules/parameters';
+import { ROLES } from '../imports/modules/parameters';
 import { buildServerLogText } from '../imports/server/modules/utils';
 
-import runDataMigration from './migration/runDataMigration';
+//import runDataMigration from './migration/runDataMigration';
 
 //TODO remove after running this once live
-import {
+/* import {
 	ColorBooks,
 } from '../imports/modules/collection';
 
@@ -32,23 +33,23 @@ const checkColorBooks = () => {
 		count += 1;
 		console.log('number', count);
 	});
-};
+}; */
 
 Meteor.startup(() => {
-	checkColorBooks();
+	//checkColorBooks();
 	//TODO run this once live
 	//and then remove it
 
-	if (process.env.MIGRATIONS === 'migrations') {
-		console.log('main says runDataMigration');
-		runDataMigration(); // disabled while messing about with client
-	} else {
+	//if (process.env.MIGRATIONS === 'migrations') {
+		//console.log('main says runDataMigration');
+		//runDataMigration(); // disabled while messing about with client
+	//} else {
 		// ensure user roles exist
 		// when migrating, this is done after migrating roles and before fixing them
-		ROLES.forEach((role) => {
-			Roles.createRole(role, { 'unlessExists': true });
-		});
-	}
+	ROLES.forEach((role) => {
+		Roles.createRole(role, { 'unlessExists': true });
+	});
+	//}
 
 	Accounts.config({
 		'sendVerificationEmail': true,
