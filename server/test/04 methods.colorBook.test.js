@@ -6,6 +6,9 @@ import { ColorBooks } from '../../imports/modules/collection';
 import '../../imports/server/modules/publications';
 import '../methods/colorBook';
 import { ROLE_LIMITS } from '../../imports/modules/parameters';
+import {
+	defaultColorBookData,
+} from './testData';
 import { stubUser, unwrapUser } from './mockUser';
 
 if (Meteor.isServer) {
@@ -16,7 +19,10 @@ if (Meteor.isServer) {
 		describe('colorBook.add method', () => {
 			it('cannot create color book if not logged in', () => {
 				function expectedError() {
-					Meteor.call('colorBook.add', 'A color book');
+					Meteor.call('colorBook.add', {
+						'colors': defaultColorBookData.colors,
+						'name': defaultColorBookData.name,
+					});
 				}
 				expect(expectedError).to.throw(Meteor.Error(), 'add-color-book-not-logged-in');
 			});
@@ -25,7 +31,10 @@ if (Meteor.isServer) {
 					stubUser();
 					Roles.removeUsersFromRoles(Meteor.userId(), ['registered']);
 
-					Meteor.call('colorBook.add', 'A color book');
+					Meteor.call('colorBook.add', {
+						'colors': defaultColorBookData.colors,
+						'name': defaultColorBookData.name,
+					});
 				}
 
 				expect(expectedError).to.throw(Meteor.Error(), 'add-color-book-not-registered');
@@ -36,13 +45,19 @@ if (Meteor.isServer) {
 
 				const colorBookLimit = ROLE_LIMITS.registered.maxColorBooksPerUser;
 				for (let i = 0; i < colorBookLimit; i += 1) {
-					Meteor.call('colorBook.add', 'A color book');
+					Meteor.call('colorBook.add', {
+						'colors': defaultColorBookData.colors,
+						'name': defaultColorBookData.name,
+					});
 				}
 
 				assert.equal(ColorBooks.find().fetch().length, colorBookLimit);
 
 				function expectedError() {
-					Meteor.call('colorBook.add', 'A color book');
+					Meteor.call('colorBook.add', {
+						'colors': defaultColorBookData.colors,
+						'name': defaultColorBookData.name,
+					});
 				}
 
 				expect(expectedError).to.throw(Meteor.Error(), 'add-color-book-too-many-color-books');
@@ -56,13 +71,19 @@ if (Meteor.isServer) {
 
 				const colorBookLimit = ROLE_LIMITS.verified.maxColorBooksPerUser;
 				for (let i = 0; i < colorBookLimit; i += 1) {
-					Meteor.call('colorBook.add', 'A color book');
+					Meteor.call('colorBook.add', {
+						'colors': defaultColorBookData.colors,
+						'name': defaultColorBookData.name,
+					});
 				}
 
 				assert.equal(ColorBooks.find().fetch().length, colorBookLimit);
 
 				function expectedError() {
-					Meteor.call('colorBook.add', 'A color book');
+					Meteor.call('colorBook.add', {
+						'colors': defaultColorBookData.colors,
+						'name': defaultColorBookData.name,
+					});
 				}
 
 				expect(expectedError).to.throw(Meteor.Error(), 'add-color-book-too-many-color-books');
@@ -76,13 +97,19 @@ if (Meteor.isServer) {
 
 				const colorBookLimit = ROLE_LIMITS.premium.maxColorBooksPerUser;
 				for (let i = 0; i < colorBookLimit; i += 1) {
-					Meteor.call('colorBook.add', 'A color book');
+					Meteor.call('colorBook.add', {
+						'colors': defaultColorBookData.colors,
+						'name': defaultColorBookData.name,
+					});
 				}
 
 				assert.equal(ColorBooks.find().fetch().length, colorBookLimit);
 
 				function expectedError() {
-					Meteor.call('colorBook.add', 'A color book');
+					Meteor.call('colorBook.add', {
+						'colors': defaultColorBookData.colors,
+						'name': defaultColorBookData.name,
+					});
 				}
 
 				expect(expectedError).to.throw(Meteor.Error(), 'add-color-book-too-many-color-books');
