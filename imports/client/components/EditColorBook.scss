@@ -19,9 +19,11 @@
 		clear: both;
 		display: flex;
 		flex-wrap: wrap;
-		margin-bottom: -8px;
-		margin-right: -8px;
 		width: 646px;
+
+		label {
+			margin-bottom: 0;
+		}
 	}
 
 	.color {
