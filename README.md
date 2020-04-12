@@ -1,5 +1,5 @@
 # Twisted Threads 2
-An app for tablet weaving built using Meteor 1.8.1 with React and Redux. It will be the replacement for Twisted Threads.
+An app for tablet weaving built using Meteor 1.8.1 with React and Redux. It is the replacement for Twisted Threads.
 
 This is built on top of the 
 [Meteor/React/Redux/Auth demo app](https://github.com/Shelagh-Lewins/meteor-react-redux-auth).
@@ -20,9 +20,23 @@ meteor
 # Run with environment variables
 To send emails, you'll need to provide a valid MAIL_URL.
 
+To save pattern images, you'll need to provide AWS credentials.
+
 1. Copy and rename the file ```.env.template``` to ```.env```
-2. Enter your mail credentials in ```.env```. NEVER commit ```.env``` to GitHub.
+2. Enter your mail and any other credentials in ```.env```. NEVER commit ```.env``` to GitHub.
 3. Start the app by executing the script ```
 run_meteor.js```
 
 The script will first load the environment variables from .env and then run Meteor. This avoids using settings.json and better simulates a production environment.
+
+# Tests
+Run server-side tests by executing the script ```test_meteor.sh```
+
+# Release notes
+## Release 2.0
+March - April 2020
+This is the initial release of Twisted Threads 2 and includes:
+
+* Data migration from the existing Twisted Threads database
+* Colour Books (major new feature)
+* Improved user interface for designing patterns
