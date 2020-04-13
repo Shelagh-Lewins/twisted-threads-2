@@ -109,7 +109,6 @@ class About extends Component {
 				<MainMenu />
 				<div
 					className="menu-selected-area"
-					ref={this.containerRef}
 				>
 					<Container>
 						<Row>

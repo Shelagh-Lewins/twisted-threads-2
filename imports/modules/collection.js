@@ -5,6 +5,7 @@ import { Index, MongoDBEngine } from 'meteor/easy:search';
 // schemas
 import PatternsSchema from './schemas/patternsSchema';
 import ColorBooksSchema from './schemas/colorBooksSchema';
+import FAQSchema from './schemas/faqSchema';
 import PatternPreviewsSchema from './schemas/patternPreviewsSchema';
 import ActionsLogSchema from './schemas/actionsLogSchema';
 import PatternImagesSchema from './schemas/patternImagesSchema';
@@ -13,6 +14,10 @@ import {
 	getPatternPermissionQuery,
 	getUserPermissionQuery,
 } from './permissionQueries';
+
+// Frequently Asked Questions
+export const FAQ = new Mongo.Collection('faq');
+FAQ.attachSchema(FAQSchema);
 
 // Color books
 export const ColorBooks = new Mongo.Collection('colorBooks');

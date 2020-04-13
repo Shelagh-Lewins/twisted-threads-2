@@ -501,7 +501,6 @@ class User extends PureComponent {
 				<MainMenu />
 				<div
 					className="menu-selected-area"
-					ref={this.containerRef}
 				>
 					{content}
 				</div>
