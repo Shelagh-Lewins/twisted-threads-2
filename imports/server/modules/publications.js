@@ -1,6 +1,7 @@
 import { check } from 'meteor/check';
 import {
 	ColorBooks,
+	FAQ,
 	PatternImages,
 	PatternPreviews,
 	Patterns,
@@ -388,6 +389,9 @@ Meteor.publish('patternImages', function (patternId) {
 
 // all tags are public
 Meteor.publish('tags', () => Tags.find());
+
+// all FAQs are public
+Meteor.publish('faq', () => FAQ.find());
 
 // //////////////////////////
 // Roles

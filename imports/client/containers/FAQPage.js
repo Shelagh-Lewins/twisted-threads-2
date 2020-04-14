@@ -5,13 +5,18 @@ import {
 	Container,
 	Row,
 } from 'reactstrap';
+import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import PageWrapper from '../components/PageWrapper';
+import { FAQ } from '../../modules/collection';
+import Loading from '../components/Loading';
 import MainMenu from '../components/MainMenu';
+
+const ReactMarkdown = require('react-markdown');
 
 const bodyClass = 'faq';
 
-class FAQ extends Component {
+class FAQPage extends Component {
 	componentDidMount() {
 		document.body.classList.add(bodyClass);
 	}
@@ -20,18 +25,29 @@ class FAQ extends Component {
 		document.body.classList.remove(bodyClass);
 	}
 
+	renderFAQs() {
+		const { FAQlist } = this.props;
+
+		return (
+			<div>
+			some stuff
+			</div>
+		);
+	}
+
 	render() {
-		const { dispatch, errors } = this.props;
+		const { errors, isLoading } = this.props;
 
 		return (
 			<PageWrapper
-				dispatch={dispatch}
+				dispatch={() => {}}
 				errors={errors}
 			>
 				<MainMenu />
 				<div
 					className="menu-selected-area"
 				>
+					{isLoading && <Loading />}
 					<Container>
 						<Row>
 							<Col>
@@ -39,19 +55,30 @@ class FAQ extends Component {
 							</Col>
 						</Row>
 					</Container>
+					{!isLoading && this.renderFAQs()}
 				</div>
 			</PageWrapper>
 		);
 	}
 }
 
-FAQ.propTypes = {
-	'dispatch': PropTypes.func.isRequired,
+FAQPage.propTypes = {
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
+	'FAQlist': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'isLoading': PropTypes.bool.isRequired,
 };
 
 const mapStateToProps = (state) => ({
 	'errors': state.errors,
 });
 
-export default connect(mapStateToProps)(FAQ);
+const Tracker = withTracker((props) => {
+	const handle = Meteor.subscribe('faq');
+
+	return {
+		'FAQlist': FAQ.find().fetch(),
+		'isLoading': !handle.ready(),
+	};
+})(FAQPage);
+
+export default connect(mapStateToProps)(Tracker);
