@@ -17,6 +17,14 @@ const ReactMarkdown = require('react-markdown');
 const bodyClass = 'faq';
 
 class FAQPage extends Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			'selectedFAQ': null,
+		};
+	}
+
 	componentDidMount() {
 		document.body.classList.add(bodyClass);
 	}
@@ -27,11 +35,25 @@ class FAQPage extends Component {
 
 	renderFAQs() {
 		const { FAQlist } = this.props;
+		const { selectedFAQ } = this.state;
 
 		return (
-			<div>
-			some stuff
-			</div>
+			<dl className="faq-list">
+				{FAQlist.map((faq) => (
+					<React.Fragment key={faq._id}>
+						<dt
+							selected={faq._id === selectedFAQ ? 'selected' : ''}
+						>
+							{faq.question}
+						</dt>
+						<dd
+							selected={faq._id === selectedFAQ ? 'selected' : ''}
+						>
+							{faq.answer}
+						</dd>
+					</React.Fragment>
+				))}
+			</dl>
 		);
 	}
 
