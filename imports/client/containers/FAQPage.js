@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import {
+	Button,
 	Col,
 	Container,
 	Row,
@@ -11,6 +12,7 @@ import PageWrapper from '../components/PageWrapper';
 import { FAQ } from '../../modules/collection';
 import Loading from '../components/Loading';
 import MainMenu from '../components/MainMenu';
+import './FAQPage.scss';
 
 const ReactMarkdown = require('react-markdown');
 
@@ -33,27 +35,61 @@ class FAQPage extends Component {
 		document.body.classList.remove(bodyClass);
 	}
 
+	handleClick(e, _id) {
+		const { selectedFAQ } = this.state;
+
+		let newSelectedFAQ = null; // close the current FAQ
+
+		if (selectedFAQ !== _id) {
+			newSelectedFAQ = _id;
+		}
+
+		this.setState({
+			'selectedFAQ': newSelectedFAQ,
+		});
+	}
+
 	renderFAQs() {
 		const { FAQlist } = this.props;
 		const { selectedFAQ } = this.state;
 
 		return (
-			<dl className="faq-list">
-				{FAQlist.map((faq) => (
-					<React.Fragment key={faq._id}>
-						<dt
-							selected={faq._id === selectedFAQ ? 'selected' : ''}
-						>
-							{faq.question}
-						</dt>
-						<dd
-							selected={faq._id === selectedFAQ ? 'selected' : ''}
-						>
-							{faq.answer}
-						</dd>
-					</React.Fragment>
-				))}
-			</dl>
+			<Container>
+				<Row>
+					<Col>
+						<dl className="faq-list">
+							{FAQlist.map((faq) => {
+								const { _id, answer, question } = faq;
+								return (
+									<React.Fragment key={faq._id}>
+										<dt
+											selected={_id === selectedFAQ ? 'selected' : ''}
+										>
+											<Button
+												color="link"
+												onClick={(e) => this.handleClick(e, _id)}
+											>
+												{question}
+											</Button>
+										</dt>
+										{selectedFAQ === _id
+										&& (
+											<dd
+												selected={_id === selectedFAQ ? 'selected' : ''}
+											>
+												<ReactMarkdown
+													source={answer}
+													escapeHtml={true}
+												/>
+											</dd>
+										)}
+									</React.Fragment>
+								);
+							})}
+						</dl>
+					</Col>
+				</Row>
+			</Container>
 		);
 	}
 
@@ -98,7 +134,9 @@ const Tracker = withTracker((props) => {
 	const handle = Meteor.subscribe('faq');
 
 	return {
-		'FAQlist': FAQ.find().fetch(),
+		'FAQlist': FAQ.find(
+			{},
+			{ 'sort': { 'question': 1 } }).fetch(),
 		'isLoading': !handle.ready(),
 	};
 })(FAQPage);

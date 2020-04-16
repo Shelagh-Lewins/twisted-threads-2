@@ -1,0 +1,26 @@
+@import "../constants/variables";
+
+.faq-list {
+	.btn-link {
+		color: $color-text;
+		font-weight: bold;
+		text-align: left;
+		text-decoration: none;
+
+		&:active,
+		&:focus,
+		&:hover,
+		&:visited {
+			color: $color-text;
+			text-decoration: none;
+		}
+
+		&:focus {
+			outline: 1px dotted $color-tab-focus;
+		}
+	}
+
+	dd {
+		margin-left: 12px;
+	}
+}
