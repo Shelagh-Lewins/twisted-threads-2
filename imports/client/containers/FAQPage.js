@@ -22,13 +22,26 @@ class FAQPage extends Component {
 	constructor(props) {
 		super(props);
 
+		const {
+			'location': { hash },
+		} = props;
+
 		this.state = {
-			'selectedFAQ': null,
+			'selectedFAQ': hash,
 		};
 	}
 
 	componentDidMount() {
 		document.body.classList.add(bodyClass);
+	}
+
+	componentDidUpdate(prevProps) {
+		const {
+			location,
+		} = this.props;
+
+		console.log('location', location);
+		console.log('hash	', location.hash);
 	}
 
 	componentWillUnmount() {
@@ -67,6 +80,7 @@ class FAQPage extends Component {
 										>
 											<Button
 												color="link"
+												name={_id}
 												onClick={(e) => this.handleClick(e, _id)}
 											>
 												{question}
@@ -124,6 +138,7 @@ FAQPage.propTypes = {
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 	'FAQlist': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'isLoading': PropTypes.bool.isRequired,
+	'location': PropTypes.objectOf(PropTypes.any),
 };
 
 const mapStateToProps = (state) => ({
@@ -136,7 +151,8 @@ const Tracker = withTracker((props) => {
 	return {
 		'FAQlist': FAQ.find(
 			{},
-			{ 'sort': { 'question': 1 } }).fetch(),
+			{ 'sort': { 'question': 1 } },
+		).fetch(),
 		'isLoading': !handle.ready(),
 	};
 })(FAQPage);

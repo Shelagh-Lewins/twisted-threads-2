@@ -167,6 +167,7 @@ class About extends Component {
 								<h2>Credits</h2>
 								<p>My humble thanks  to the generous people who support Twisted Threads through donations.</p>
 								<p>I owe a special debt to Mark Roth, design consultant and software tester throughout the development of Twisted Threads 2.</p>
+								<p>My thanks go also to Nancy A. Neff for all her help with testing and usability improvements.</p>
 								<p className="notice">Twisted Threads may not work correctly in the Safari browser. If you have any problems, please try it in Chrome.</p>
 								<p className="notice">The copyright of any pattern designed using Twisted Threads rests with the designer of the pattern, not with the creator or owner of the software.</p>
 							</Col>
