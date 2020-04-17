@@ -18,13 +18,23 @@ const ReactMarkdown = require('react-markdown');
 
 const bodyClass = 'faq';
 
+// FAQs are created directly in the database using for example Robo 3T
+// they are not created by Meteor
+// so the _id is an object, not a simple string
+const getIdAsString = (ObjectId) => ObjectId._str;
+
 class FAQPage extends Component {
 	constructor(props) {
 		super(props);
 
-		const {
+		let {
 			'location': { hash },
 		} = props;
+
+
+		if (hash.charAt(0) === '#') {
+			hash = hash.substring(1);
+		}
 
 		this.state = {
 			'selectedFAQ': hash,
@@ -35,20 +45,15 @@ class FAQPage extends Component {
 		document.body.classList.add(bodyClass);
 	}
 
-	componentDidUpdate(prevProps) {
-		const {
-			location,
-		} = this.props;
-
-		console.log('location', location);
-		console.log('hash	', location.hash);
-	}
-
 	componentWillUnmount() {
 		document.body.classList.remove(bodyClass);
 	}
 
 	handleClick(e, _id) {
+		const {
+			history,
+			'location': { pathname },
+		} = this.props;
 		const { selectedFAQ } = this.state;
 
 		let newSelectedFAQ = null; // close the current FAQ
@@ -60,6 +65,9 @@ class FAQPage extends Component {
 		this.setState({
 			'selectedFAQ': newSelectedFAQ,
 		});
+
+		const url = `${pathname}${newSelectedFAQ ? `#${newSelectedFAQ}` : ''}`;
+		history.push(url);
 	}
 
 	renderFAQs() {
@@ -73,23 +81,25 @@ class FAQPage extends Component {
 						<dl className="faq-list">
 							{FAQlist.map((faq) => {
 								const { _id, answer, question } = faq;
+								const _idAsString = getIdAsString(_id);
+
 								return (
-									<React.Fragment key={faq._id}>
+									<React.Fragment key={_idAsString}>
 										<dt
-											selected={_id === selectedFAQ ? 'selected' : ''}
+											selected={_idAsString === selectedFAQ ? 'selected' : ''}
 										>
 											<Button
 												color="link"
-												name={_id}
-												onClick={(e) => this.handleClick(e, _id)}
+												name={_idAsString}
+												onClick={(e) => this.handleClick(e, _idAsString)}
 											>
 												{question}
 											</Button>
 										</dt>
-										{selectedFAQ === _id
+										{selectedFAQ === _idAsString
 										&& (
 											<dd
-												selected={_id === selectedFAQ ? 'selected' : ''}
+												selected={_idAsString === selectedFAQ ? 'selected' : ''}
 											>
 												<ReactMarkdown
 													source={answer}
@@ -137,6 +147,7 @@ class FAQPage extends Component {
 FAQPage.propTypes = {
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 	'FAQlist': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'location': PropTypes.objectOf(PropTypes.any),
 };
