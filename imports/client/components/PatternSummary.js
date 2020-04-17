@@ -7,7 +7,7 @@ import { editIsPublic, removePattern } from '../modules/pattern';
 
 import './PatternSummary.scss';
 import IsPublicIndicator from './IsPublicIndicator';
-import AddToSetButton from './AddToSetButton';
+import AddToSet from './AddToSet';
 
 import { iconColors } from '../../modules/parameters';
 
@@ -46,6 +46,7 @@ function PatternSummary(props) {
 	};
 
 	const canEdit = Meteor.userId() === createdBy;
+	const canAddToSet = Meteor.userId();
 
 	// import the preview
 	let previewStyle = {};
@@ -79,9 +80,10 @@ function PatternSummary(props) {
 			<div className="main">
 				<Link to={`/pattern/${_id}`}>
 					<h3>{name}</h3>
-					{canEdit && (
-						<AddToSetButton
+					{canAddToSet && (
+						<AddToSet
 							patternId={_id}
+							patternName={name}
 						/>
 					)}
 					<div className="description">{description}</div>
