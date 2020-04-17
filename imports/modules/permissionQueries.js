@@ -1,4 +1,4 @@
-// gatekeepers for pattern and color book visibility
+// gatekeepers for pattern, color book, set visibility
 
 // logged in user can see their own patterns
 // and any public patterns
@@ -35,6 +35,27 @@ export const getUserPermissionQuery = () => {
 			'$or': [
 				{ 'publicPatternsCount': { '$gt': 0 } },
 				{ 'publicColorBooksCount': { '$gt': 0 } },
+				{ '_id': Meteor.userId() },
+			],
+		};
+	}
+
+	return permissionQuery;
+};
+
+// /////////////////////////
+// sets
+
+// sets can only be returned for the current user
+// or a user with public patterns
+// note a further check is required on individual sets, that they contain public patterns
+export const getSetsForUserPermissionQuery = () => {
+	let permissionQuery = { 'publicPatternsCount': { '$gt': 0 } };
+
+	if (Meteor.userId()) {
+		permissionQuery = {
+			'$or': [
+				{ 'publicPatternsCount': { '$gt': 0 } },
 				{ '_id': Meteor.userId() },
 			],
 		};

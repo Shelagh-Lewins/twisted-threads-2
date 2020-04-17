@@ -5,6 +5,7 @@ import {
 	PatternImages,
 	PatternPreviews,
 	Patterns,
+	Sets,
 	Tags,
 } from '../../modules/collection';
 import {
@@ -19,6 +20,7 @@ import {
 } from './utils';
 import {
 	getPatternPermissionQuery,
+	getSetsForUserPermissionQuery,
 	getUserPermissionQuery,
 } from '../../modules/permissionQueries';
 // arrow functions lose "this" context
@@ -392,6 +394,54 @@ Meteor.publish('tags', () => Tags.find());
 
 // all FAQs are public
 Meteor.publish('faq', () => FAQ.find());
+
+// the user can see their own sets and any sets containing public patterns
+// all visible set belonging to one user
+Meteor.publish('setsForUser', function (userId) {
+	check(userId, nonEmptyStringCheck);
+
+	// if the user has no visible patterns, publish nothing
+	// this should be a quick check based on the public patterns count
+	const user = Meteor.users.findOne(
+		{
+			'$and': [
+				getSetsForUserPermissionQuery(),
+				{ '_id': userId },
+			],
+		},
+	);
+
+	if (!user) {
+		return;
+	}
+
+	const sets = Sets.find({ 'createdBy': userId }).fetch();
+
+	const visibleSetIds = [];
+
+	sets.map((set) => {
+		const patternIds = set.patterns;
+
+		const visiblePatterns = Patterns.find(
+			{
+				'$and': [
+					{ '_id': { '$in': patternIds } },
+					getPatternPermissionQuery(),
+				],
+			},
+		);
+
+		if (visiblePatterns.count() > 0) {
+			visibleSetIds.push(set._id);
+		}
+	});
+
+	return Sets.find({
+		'_id': { '$in': visibleSetIds },
+	});
+});
+
+// an individual set
 
 // //////////////////////////
 // Roles

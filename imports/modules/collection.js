@@ -10,6 +10,7 @@ import PatternPreviewsSchema from './schemas/patternPreviewsSchema';
 import ActionsLogSchema from './schemas/actionsLogSchema';
 import PatternImagesSchema from './schemas/patternImagesSchema';
 import TagsSchema from './schemas/tagsSchema';
+import SetsSchema from './schemas/setsSchema';
 import {
 	getPatternPermissionQuery,
 	getUserPermissionQuery,
@@ -51,6 +52,18 @@ PatternImages.attachSchema(PatternImagesSchema);
 // tags on patterns
 export const Tags = new Mongo.Collection('tags');
 Tags.attachSchema(TagsSchema);
+
+// pattern sets
+export const Sets = new Mongo.Collection('sets');
+Sets.attachSchema(SetsSchema);
+Sets.before.insert((userId, set) => {
+	set.createdAt = new Date();
+});
+
+Sets.before.update((userId, doc, fieldNames, modifier, options) => {
+	modifier.$set = modifier.$set || {};
+	modifier.$set.modifiedAt = new Date();
+});
 
 // Search indexes
 // On Client and Server

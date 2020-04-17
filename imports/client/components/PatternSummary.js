@@ -7,6 +7,7 @@ import { editIsPublic, removePattern } from '../modules/pattern';
 
 import './PatternSummary.scss';
 import IsPublicIndicator from './IsPublicIndicator';
+import AddToSetButton from './AddToSetButton';
 
 import { iconColors } from '../../modules/parameters';
 
@@ -78,6 +79,11 @@ function PatternSummary(props) {
 			<div className="main">
 				<Link to={`/pattern/${_id}`}>
 					<h3>{name}</h3>
+					{canEdit && (
+						<AddToSetButton
+							patternId={_id}
+						/>
+					)}
 					<div className="description">{description}</div>
 					<div className="info">
 						<div className="tags">

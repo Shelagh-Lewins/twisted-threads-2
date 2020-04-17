@@ -5,13 +5,6 @@ import 'bootstrap/dist/css/bootstrap.css';
 import '../imports/modules/collection';
 //
 Meteor.startup(() => {
-	/* Meteor.call('migrations.runMigrations', ((err, res) => {
-		console.log('*** runMigrations', res);
-		if (res) {
-			runDataMigration();
-		}
-	})); */
-
 	ReactDOM.render(
 		<App />,
 		document.getElementById('root'),

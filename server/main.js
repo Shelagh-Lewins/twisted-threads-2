@@ -1,55 +1,13 @@
 import '../imports/server/modules/publications';
 import '../imports/server/modules/slingshot';
-//import { COLORS_IN_COLOR_BOOK, DEFAULT_COLOR_BOOK_COLOR, ROLES } from '../imports/modules/parameters';
 import { ROLES } from '../imports/modules/parameters';
 import { buildServerLogText } from '../imports/server/modules/utils';
 
-//import runDataMigration from './migration/runDataMigration';
-
-//TODO remove after running this once live
-/* import {
-	ColorBooks,
-} from '../imports/modules/collection';
-
-const checkColorBooks = () => {
-	// make sure all color books have the correct number of colors
-	// it changed, the number was increased
-	//TODO run this once live then remove it
-	console.log('number of Color Books', ColorBooks.find().count());
-	let count = 0;
-	ColorBooks.find().fetch().forEach((colorBook) => {
-		console.log('colorBook', colorBook.name);
-		console.log('number of colors', colorBook.colors.length);
-		for (let i = 0; i < colorBook.colors.length; i += 1) {
-			console.log('first i', i);
-			console.log('color', colorBook.colors[i]);
-		}
-
-		for (let i = colorBook.colors.length; i < COLORS_IN_COLOR_BOOK; i += 1) {
-			console.log('second i', i);
-			console.log('color', colorBook.colors[i]);
-			ColorBooks.update({ '_id': colorBook._id }, { '$set': { [`colors.${i}`]: DEFAULT_COLOR_BOOK_COLOR } });
-		}
-		count += 1;
-		console.log('number', count);
-	});
-}; */
-
 Meteor.startup(() => {
-	//checkColorBooks();
-	//TODO run this once live
-	//and then remove it
-
-	//if (process.env.MIGRATIONS === 'migrations') {
-		//console.log('main says runDataMigration');
-		//runDataMigration(); // disabled while messing about with client
-	//} else {
-		// ensure user roles exist
-		// when migrating, this is done after migrating roles and before fixing them
+	// ensure user roles exist
 	ROLES.forEach((role) => {
 		Roles.createRole(role, { 'unlessExists': true });
 	});
-	//}
 
 	Accounts.config({
 		'sendVerificationEmail': true,

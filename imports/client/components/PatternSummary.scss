@@ -44,10 +44,17 @@
 		padding: 8px 8px 2px 8px;
 		text-overflow: ellipsis;
 		white-space: nowrap;
+		width: 238px;
 
 		&:hover {
 			text-decoration: none;
 		}
+	}
+
+	.add-to-set {
+		position: absolute;
+		right: 0;
+		top: 0;
 	}
 
 	.description {
