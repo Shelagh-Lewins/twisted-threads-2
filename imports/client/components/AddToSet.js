@@ -4,12 +4,11 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Button } from 'reactstrap';
-import { withTracker } from 'meteor/react-meteor-data';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { addSet } from '../modules/sets';
-import { Sets } from '../../modules/collection';
+import AppContext from '../modules/appContext';
 import AddToSetForm from '../forms/AddToSetForm';
 
 import './AddToSet.scss';
@@ -17,7 +16,6 @@ import './AddToSet.scss';
 import { iconColors } from '../../modules/parameters';
 
 class AddToSet extends Component {
-// const AddToSetButton = (props) => {
 	constructor(props) {
 		super(props);
 
@@ -29,8 +27,6 @@ class AddToSet extends Component {
 		// so it can be positioned within the viewport
 		this.el = document.createElement('div');
 		this.el.className = 'add-to-set-panel-holder';
-
-		Session.set('updateSetsSubscription', false);
 	}
 
 	componentDidMount() {
@@ -58,27 +54,25 @@ class AddToSet extends Component {
 	handleAddToSet = (values) => {
 		const {
 			dispatch,
-			handle,
 			patternId,
 		} = this.props;
 		const { newset } = values;
-		console.log('submit form', newset);
+		// console.log('submit form', newset);
 		this.setState({
 			'showSetsPanel': false,
 		});
 
-		handle.stop();
-		global.updateSetsSubscription = true;
-		Session.set('updateSetsSubscription', true);
+		global.updateSetsSubscription.set(true);
 
 		dispatch(addSet({ patternId, 'name': newset }));
 	}
 
 	render() {
-		const { patternName, sets } = this.props;
+		const { patternName } = this.props;
 		const { showSetsPanel } = this.state;
+		const { sets } = this.context;
 		const tooltip = 'Add this pattern to a set';
-console.log('*** sets', sets);
+
 		return (
 			<>
 				<div className="add-to-set-button">
@@ -113,33 +107,14 @@ function mapStateToProps(state) {
 	};
 }
 
-const Tracker = withTracker((props) => {
-	let handle = Meteor.subscribe('setsForUser', Meteor.userId());
-console.log('tracker', Session.get('updateSetsSubscription'));
-	if (global.updateSetsSubscription) {
-		console.log('*** resubscribe');
-		global.updateSetsSubscription = false;
-		handle = Meteor.subscribe('setsForUser', Meteor.userId());
-	}
-
-	return {
-		handle,
-		'sets': Sets.find(
-			{},
-			{ 'sort': { 'namesort': 1 } },
-		).fetch(),
-	};
-})(AddToSet);
+// context is used to avoid multiple subscriptions
+// and enable NavBar to know about sets
+AddToSet.contextType = AppContext;
 
 AddToSet.propTypes = {
-	//'canPublish': PropTypes.bool.isRequired,
-	//'disabled': PropTypes.bool,
-	//'isPublic': PropTypes.bool.isRequired,
-	//'onChangeIsPublic': PropTypes.func.isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'patternId': PropTypes.string.isRequired,
 	'patternName': PropTypes.string.isRequired,
-	'sets': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
-export default connect(mapStateToProps)(Tracker);
+export default connect(mapStateToProps)(AddToSet);

@@ -408,8 +408,8 @@ Meteor.publish('setsForUser', function (userId) {
 
 	// those sets which contain patterns the current user can see
 	const visibleSetIds = [];
-console.log('*** publish sets');
-	//This is likely not reactive
+//console.log('*** publish sets');
+	// This is not reactive
 	sets.map((set) => {
 		const patternIds = set.patterns;
 
@@ -421,7 +421,7 @@ console.log('*** publish sets');
 				],
 			},
 		);
-console.log('set', set);
+//console.log('set', set);
 		if (visiblePatterns.count() > 0) {
 			visibleSetIds.push(set._id);
 		}

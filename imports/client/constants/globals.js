@@ -16,4 +16,5 @@ global.tabletFilterTimeout = null;
 global.connectionTimeout = null;
 
 // force resubscription to sets
-global.updateSetsSubscription = false;
+global.updateSetsSubscription = new ReactiveVar(true);
+global.setsSubscriptionHandle = null;

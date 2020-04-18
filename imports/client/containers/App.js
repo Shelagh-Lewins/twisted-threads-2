@@ -29,6 +29,7 @@ import {
 	ColorBooks,
 	PatternImages,
 	Patterns,
+	Sets,
 	Tags,
 } from '../../modules/collection';
 import store from '../modules/store';
@@ -206,10 +207,30 @@ export const withDatabase = withTracker((props) => {
 	if (location) {
 		const { pathname } = location;
 
-		// Navbar always needs to know about user
+		Meteor.subscribe('setsForUser', Meteor.userId());
+
+		// Navbar always needs to know about user and sets
 		const values = {
 			'allTags': [],
+			'sets': [],
 		};
+
+		// force resubscription because setsForUser is not reactive
+		if (global.updateSetsSubscription.get() === true) {
+			global.updateSetsSubscription.set(false);
+
+			if (global.setsSubscriptionHandle) {
+				global.setsSubscriptionHandle.stop();
+			}
+
+			global.setsSubscriptionHandle = Meteor.subscribe('setsForUser', Meteor.userId(), {
+				'onReady': () => {
+					values.sets = Sets.find().fetch();
+				},
+			});
+		}
+
+		values.sets = Sets.find().fetch();
 
 		const matchPattern = matchPath(pathname, {
 			'path': '/pattern/:id',
@@ -307,7 +328,9 @@ function ProviderInner({
 	pattern,
 	patternId,
 	patternImages,
+	sets,
 }) {
+	console.log('*** ProviderInner', sets);
 	return (
 		<AppContext.Provider value={{
 			allTags,
@@ -317,6 +340,7 @@ function ProviderInner({
 			pattern,
 			patternId,
 			patternImages,
+			sets,
 		}}
 		>
 			{children}
@@ -338,6 +362,7 @@ ProviderInner.propTypes = {
 	'pattern': PropTypes.objectOf(PropTypes.any),
 	'patternId': PropTypes.string,
 	'patternImages': PropTypes.arrayOf(PropTypes.any),
+	'sets': PropTypes.arrayOf(PropTypes.any),
 };
 
 // withRouter gives us location
