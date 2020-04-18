@@ -330,7 +330,6 @@ function ProviderInner({
 	patternImages,
 	sets,
 }) {
-	console.log('*** ProviderInner', sets);
 	return (
 		<AppContext.Provider value={{
 			allTags,

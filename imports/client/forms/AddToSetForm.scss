@@ -14,10 +14,33 @@
 		width: auto;
 	}
 
+	.invalid-feedback {
+		font-size: 0.8rem;
+	}
+
 	input {
 		&[type="checkbox"] {
 			margin-right: 8px;
 			width: auto;
+		}
+	}
+
+	.existing-set {
+		clear: both;
+		width: 100%;
+
+		label {
+			font-size: 1rem;
+			width: 100%;
+		}
+
+		input {
+			float: left;
+		}
+
+		.checkbox-name {
+			float: left;
+			line-height: 2.3rem;
 		}
 	}
 }

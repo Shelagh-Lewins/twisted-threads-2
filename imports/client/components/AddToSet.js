@@ -57,18 +57,18 @@ class AddToSet extends Component {
 			patternId,
 		} = this.props;
 		const { newset } = values;
-		// console.log('submit form', newset);
+		console.log('submit form', newset);
 		this.setState({
 			'showSetsPanel': false,
 		});
 
 		global.updateSetsSubscription.set(true);
 
-		dispatch(addSet({ patternId, 'name': newset }));
+		//dispatch(addSet({ patternId, 'name': newset }));
 	}
 
 	render() {
-		const { patternName } = this.props;
+		const { patternId, patternName } = this.props;
 		const { showSetsPanel } = this.state;
 		const { sets } = this.context;
 		const tooltip = 'Add this pattern to a set';
@@ -90,6 +90,7 @@ class AddToSet extends Component {
 						<AddToSetForm
 							handleCancel={this.handleClickCancel}
 							handleSubmit={this.handleAddToSet}
+							patternId={patternId}
 							patternName={patternName}
 							sets={sets}
 						/>,
