@@ -1,1 +1,23 @@
 @import "../constants/variables";
+
+.add-to-set-form {
+	label {
+		font-size: 0;
+	}
+
+	.checkbox-label {
+		float: left;
+		width: 32px;
+	}
+
+	.input-label {
+		width: auto;
+	}
+
+	input {
+		&[type="checkbox"] {
+			margin-right: 8px;
+			width: auto;
+		}
+	}
+}

@@ -24,13 +24,17 @@ const BasicForm = (props) => {
 		handleCancel,
 		handleAddToSet,
 		patternName,
+		sets,
 	} = props;
 
 	return (
 		<Formik
-			initialValues={{ 'newset': '' }}
+			initialValues={{
+				'newset': '',
+				'newsetcheckbox': true,
+			}}
 			onSubmit={(values) => {
-				console.log('** onSubmit');
+				console.log('** onSubmit', values);
 				handleAddToSet(values);
 			}}
 			validate={validate}
@@ -47,7 +51,30 @@ const BasicForm = (props) => {
 				<form onSubmit={handleSubmit}>
 					<h2>{`Add pattern "${patternName}" to set`}</h2>
 					<div className="form-group">
-						<label htmlFor="newset">
+						<label
+							className="checkbox-label"
+							htmlFor="newsetcheckbox"
+						>
+							New set
+							<input
+								autoFocus="autofocus"
+								className={`form-control newsetcheckbox ${touched.newsetcheckbox && errors.newsetcheckbox ? 'is-invalid' : ''
+								}`}
+								id="newsetcheckbox"
+								name="newsetcheckbox"
+								type="checkbox"
+								onChange={handleChange}
+								onBlur={handleBlur}
+								value={values.newsetcheckbox}
+							/>
+							{touched.newsetcheckbox && errors.newsetcheckbox ? (
+								<div className="invalid-feedback invalid">{errors.newsetcheckbox}</div>
+							) : null}
+						</label>
+						<label
+							className="input-label"
+							htmlFor="newset"
+						>
 							New set
 							<input
 								autoFocus="autofocus"
@@ -66,9 +93,21 @@ const BasicForm = (props) => {
 							) : null}
 						</label>
 					</div>
+					{sets.map((set) => {
+						const { _id, name } = set;
+
+						return (
+							<div
+								key={_id}
+								className="set"
+							>
+								{name}
+							</div>
+						);
+					})}
 					<div className="controls">
 						<Button type="button" color="secondary" onClick={handleCancel}>Cancel</Button>
-						<Button type="submit" color="primary">Add</Button>
+						<Button type="submit" color="primary">Save</Button>
 					</div>
 				</form>
 			)}
@@ -80,6 +119,7 @@ BasicForm.propTypes = {
 	'handleCancel': PropTypes.func.isRequired,
 	'handleAddToSet': PropTypes.func.isRequired,
 	'patternName': PropTypes.string.isRequired,
+	'sets': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 class AddToSetForm extends Component {
@@ -121,6 +161,7 @@ class AddToSetForm extends Component {
 		const {
 			handleCancel,
 			patternName,
+			sets,
 		} = this.props;
 		const {
 			selectedSet,
@@ -143,6 +184,7 @@ class AddToSetForm extends Component {
 					handleCancel={handleCancel}
 					handleAddToSet={this.handleAddToSet}
 					patternName={patternName}
+					sets={sets}
 				/>
 			</div>
 		);
@@ -153,7 +195,7 @@ AddToSetForm.propTypes = {
 	'handleCancel': PropTypes.func.isRequired,
 	'handleSubmit': PropTypes.func.isRequired,
 	'patternName': PropTypes.string.isRequired,
-	// sets
+	'sets': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 export default AddToSetForm;

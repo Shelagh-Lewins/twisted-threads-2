@@ -10,7 +10,6 @@ const PatternsSchema = new SimpleSchema({
 		'index': 1,
 		'optional': true, // automatically created by hook but if required here, an error is thrown
 	},
-	// set using collection hooks in collection.js
 	'createdBy': {
 		'type': String,
 		'label': 'Created by',

@@ -252,7 +252,6 @@ class ColorBooks extends PureComponent {
 ColorBooks.propTypes = {
 	'canCreateColorBook': PropTypes.bool.isRequired,
 	'canEdit': PropTypes.bool.isRequired,
-
 	'colorBookAdded': PropTypes.string.isRequired,
 	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,

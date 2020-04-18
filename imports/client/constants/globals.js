@@ -14,3 +14,6 @@ global.tabletFilterTimeout = null;
 
 // connection status
 global.connectionTimeout = null;
+
+// force resubscription to sets
+global.updateSetsSubscription = false;
