@@ -7,38 +7,12 @@ import { Button } from 'reactstrap';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { addSet } from '../modules/sets';
+import AddToSetForm from '../forms/AddToSetForm';
 
 import './AddToSet.scss';
 
 import { iconColors } from '../../modules/parameters';
-
-// the edit panel
-
-const SetsPanel = (props) => {
-	const {
-		handleClickClose,
-		patternName,
-	} = props;
-
-	return (
-		<div className="panel">
-			<h2>{`Add pattern "${patternName}" to set`}</h2>
-			<Button
-				type="button"
-				onClick={handleClickClose}
-				color="default"
-				title="Close"
-			>
-				Close
-			</Button>
-		</div>
-	);
-};
-
-SetsPanel.propTypes = {
-	'handleClickClose': PropTypes.func.isRequired,
-	'patternName': PropTypes.string.isRequired,
-};
 
 class AddToSet extends Component {
 // const AddToSetButton = (props) => {
@@ -66,14 +40,23 @@ class AddToSet extends Component {
 	handleClickAddToSetButton = (e) => {
 		e.preventDefault();
 
+
 		this.setState({
 			'showSetsPanel': true,
 		});
 	}
 
-	handleClickClose = (e) => {
-		e.preventDefault();
+	handleClickCancel = (e) => {
+		//e.preventDefault();
 
+		this.setState({
+			'showSetsPanel': false,
+		});
+	}
+
+	handleAddToSet = (values) => {
+		const { dispatch } = this.props;
+		console.log('submit form', values);
 		this.setState({
 			'showSetsPanel': false,
 		});
@@ -98,8 +81,9 @@ class AddToSet extends Component {
 				</div>
 				{showSetsPanel && (
 					ReactDOM.createPortal(
-						<SetsPanel
-							handleClickClose={this.handleClickClose}
+						<AddToSetForm
+							handleCancel={this.handleClickCancel}
+							handleSubmit={this.handleAddToSet}
 							patternName={patternName}
 							setsPanelElm={this.el}
 						/>,
@@ -122,6 +106,7 @@ AddToSet.propTypes = {
 	//'disabled': PropTypes.bool,
 	//'isPublic': PropTypes.bool.isRequired,
 	//'onChangeIsPublic': PropTypes.func.isRequired,
+	'dispatch': PropTypes.func.isRequired,
 	'patternId': PropTypes.string.isRequired,
 	'patternName': PropTypes.string.isRequired,
 };

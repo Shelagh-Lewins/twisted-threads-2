@@ -8,6 +8,7 @@ import pattern from './pattern';
 import page from './page';
 import patternImages from './patternImages';
 import search from './search';
+import sets from './sets';
 
 // by importing the actual reducer as the default, the state of each is initialised
 
@@ -19,4 +20,5 @@ export default combineReducers({
 	pattern,
 	patternImages,
 	search,
+	sets,
 });

@@ -400,25 +400,16 @@ Meteor.publish('faq', () => FAQ.find());
 Meteor.publish('setsForUser', function (userId) {
 	check(userId, nonEmptyStringCheck);
 
-	// if the user has no visible patterns, publish nothing
-	// this should be a quick check based on the public patterns count
-	const user = Meteor.users.findOne(
-		{
-			'$and': [
-				getSetsForUserPermissionQuery(),
-				{ '_id': userId },
-			],
-		},
-	);
+	// logged in users can see all their own sets
+	// any user can see public sets
 
-	if (!user) {
-		return;
-	}
-
+	// all sets owned by this user
 	const sets = Sets.find({ 'createdBy': userId }).fetch();
 
+	// those sets which contain patterns the current user can see
 	const visibleSetIds = [];
 
+	//This is likely not reactive
 	sets.map((set) => {
 		const patternIds = set.patterns;
 
