@@ -56,14 +56,17 @@ class AddToSet extends Component {
 			dispatch,
 			patternId,
 		} = this.props;
-		const { newset } = values;
-		console.log('submit form', newset);
+		//const { newset } = values;
+		console.log('submit form', values);
 		this.setState({
 			'showSetsPanel': false,
 		});
 
 		global.updateSetsSubscription.set(true);
-
+//TODO add new set if specified
+//Update membership of other sets
+//Remove unused sets
+//if no changes, do nothing
 		//dispatch(addSet({ patternId, 'name': newset }));
 	}
 

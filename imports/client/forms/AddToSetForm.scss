@@ -20,6 +20,7 @@
 
 	input {
 		&[type="checkbox"] {
+			height: 1.5rem;
 			margin-right: 8px;
 			width: auto;
 		}
@@ -36,11 +37,6 @@
 
 		input {
 			float: left;
-		}
-
-		.checkbox-name {
-			float: left;
-			line-height: 2.3rem;
 		}
 	}
 }

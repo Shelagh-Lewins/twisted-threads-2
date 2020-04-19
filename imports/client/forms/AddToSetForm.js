@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Button } from 'reactstrap';
-import { Formik } from 'formik';
+import { Formik, Form, useField } from 'formik';
 import PropTypes from 'prop-types';
 
 import './AddToSetForm.scss';
@@ -11,15 +11,72 @@ import './AddToSetForm.scss';
 
 const validate = (values) => {
 	const errors = {};
-console.log('*** validate', values);
-	if (!values.namenewset) {
+	// console.log('*** validate', values);
+	const { checkboxnewset } = values;
+
+	if (checkboxnewset && !values.namenewset) {
 		errors.namenewset = 'Required';
 	}
-//TODO only required if checked
+
 	return errors;
 };
 
 const getIdentifier = (_id) => `checkbox-${_id}`;
+
+const NewSetCheckbox = ({ label, ...props }) => {
+	const [field, meta, helpers] = useField(props);
+	const { id } = props;
+
+	return (
+		<>
+			<label
+				className="checkbox-label"
+				htmlFor={id}
+			>
+				{label}
+				<input {...field} {...props} />
+			</label>
+			{meta.touched && meta.error ? (
+				<div className="error">{meta.error}</div>
+			) : null}
+		</>
+	);
+};
+
+NewSetCheckbox.propTypes = {
+	'id': PropTypes.string.isRequired,
+	'label': PropTypes.string.isRequired,
+};
+
+// these are taken from the Formik example
+// https://jaredpalmer.com/formik/docs/api/useField
+// which uses prop spreading for field, props
+// useField or Field is required to set and access checkbox 'checked'
+const ExistingSetCheckbox = ({ label, ...props }) => {
+	const [field, meta, helpers] = useField(props);
+	const { id } = props;
+
+	return (
+		<div
+			className="existing-set"
+		>
+			<label
+				className="checkbox-label"
+				htmlFor={id}
+			>
+				<input {...field} {...props} />
+				<div className="checkbox-name">
+					{label}
+				</div>
+			</label>
+		</div>
+	);
+};
+
+ExistingSetCheckbox.propTypes = {
+	'id': PropTypes.string.isRequired,
+	'label': PropTypes.string.isRequired,
+};
 
 const BasicForm = (props) => {
 	const {
@@ -30,15 +87,16 @@ const BasicForm = (props) => {
 		sets,
 	} = props;
 
-	console.log('*** form sets', sets);
+	// console.log('*** form sets', sets);
 
-	const defaultCheckedValues = {
+	const initialValues = {
 		'checkboxnewset': false,
+		'namenewset': '',
 	};
 
 	// if no existing sets, check new set by default
 	if (sets.length === 0) {
-		defaultCheckedValues.newsetcheckbox = true;
+		initialValues.newsetcheckbox = true;
 	}
 
 	sets.map((set) => {
@@ -46,20 +104,14 @@ const BasicForm = (props) => {
 		const identifier = getIdentifier(_id);
 
 		if (patterns.indexOf(patternId) !== -1) {
-			console.log('found', patternId);
-			defaultCheckedValues[identifier] = true;
+			initialValues[identifier] = true;
 		}
 	});
 
-	console.log('initialValues', defaultCheckedValues);
-
 	return (
 		<Formik
-			initialValues={{
-				'namenewset': '',
-			}}
+			initialValues={initialValues}
 			onSubmit={(values) => {
-				console.log('** onSubmit', values);
 				handleAddToSet(values);
 			}}
 			validate={validate}
@@ -72,28 +124,15 @@ const BasicForm = (props) => {
 				errors,
 				touched,
 			}) => (
-				<form onSubmit={handleSubmit}>
+				<Form onSubmit={handleSubmit}>
 					<h2>{`Add pattern "${patternName}" to set`}</h2>
 					<div className="form-group">
-						<label
-							className="checkbox-label"
-							htmlFor="checkboxnewset"
-						>
-							New set
-							<input
-								className={`form-control checkboxnewset ${touched.checkboxnewset && errors.checkboxnewset ? 'is-invalid' : ''
-								}`}
-								id="checkboxnewset"
-								name="checkboxnewset"
-								type="checkbox"
-								onChange={handleChange}
-								onBlur={handleBlur}
-								defaultChecked={defaultCheckedValues.checkboxnewset}
-							/>
-							{touched.checkboxnewset && errors.checkboxnewset ? (
-								<div className="invalid-feedback invalid">{errors.checkboxnewset}</div>
-							) : null}
-						</label>
+						<NewSetCheckbox
+							id="checkboxnewset"
+							name="checkboxnewset"
+							type="checkbox"
+							label="New set"
+						/>
 						<label
 							className="input-label"
 							htmlFor="namenewset"
@@ -120,39 +159,20 @@ const BasicForm = (props) => {
 						const identifier = getIdentifier(_id);
 
 						return (
-							<div
-								key={_id}
-								className="existing-set"
-							>
-								<label
-									className="checkbox-label"
-									htmlFor="identifier"
-								>
-									<input
-										className={`form-control identifier ${touched[identifier] && errors.newsetcheckbox ? 'is-invalid' : ''
-										}`}
-										id={identifier}
-										name={identifier}
-										type="checkbox"
-										onChange={handleChange}
-										onBlur={handleBlur}
-										defaultChecked={defaultCheckedValues[identifier]}
-									/>
-									{touched[identifier] && errors[identifier] ? (
-										<div className="invalid-feedback invalid">{errors[identifier]}</div>
-									) : null}
-									<div className="checkbox-name">
-										{name}
-									</div>
-								</label>
-							</div>
+							<ExistingSetCheckbox
+								key={identifier}
+								id={identifier}
+								name={identifier}
+								type="checkbox"
+								label={name}
+							/>
 						);
 					})}
 					<div className="controls">
 						<Button type="button" color="secondary" onClick={handleCancel}>Cancel</Button>
 						<Button type="submit" color="primary">Save</Button>
 					</div>
-				</form>
+				</Form>
 			)}
 		</Formik>
 	);
@@ -166,49 +186,43 @@ BasicForm.propTypes = {
 	'sets': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
-//TODO can this be a function?
-class AddToSetForm extends Component {
-	// Color picker is rendered to the body element
-	// so it can be positioned within the viewport
-	handleAddToSet = (values) => {
-		console.log('handleAddToSet in form', values);
-		const { handleSubmit } = this.props;
+const AddToSetForm = (props) => {
+	const handleAddToSet = (values) => {
+		const { handleSubmit } = props;
 
 		handleSubmit(values);
-	}
+	};
 
-	render() {
-		const {
-			handleCancel,
-			patternId,
-			patternName,
-			sets,
-		} = this.props;
+	const {
+		handleCancel,
+		patternId,
+		patternName,
+		sets,
+	} = props;
 
-		// handleSubmit is a property of Formik
-		// so use a different name for the action function passed in here
+	// handleSubmit is a property of Formik
+	// so use a different name for the action function passed in here
 
-		// stopPropagation is used because events bubble up through the React component tree not the DOM tree
-		// we don't want to trigger click on pattern summary
-		// https://github.com/facebook/react/issues/11387
-		// known major issue with portals that the React team seems to be ignoring
+	// stopPropagation is used because events bubble up through the React component tree not the DOM tree
+	// we don't want to trigger click on pattern summary
+	// https://github.com/facebook/react/issues/11387
+	// known major issue with portals that the React team seems to be ignoring
 
-		return (
-			<div // eslint-disable-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
-				onClick={(e) => e.stopPropagation()}
-				className="add-to-set-form"
-			>
-				<BasicForm
-					handleCancel={handleCancel}
-					handleAddToSet={this.handleAddToSet}
-					patternId={patternId}
-					patternName={patternName}
-					sets={sets}
-				/>
-			</div>
-		);
-	}
-}
+	return (
+		<div // eslint-disable-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
+			onClick={(e) => e.stopPropagation()}
+			className="add-to-set-form"
+		>
+			<BasicForm
+				handleCancel={handleCancel}
+				handleAddToSet={handleAddToSet}
+				patternId={patternId}
+				patternName={patternName}
+				sets={sets}
+			/>
+		</div>
+	);
+};
 
 AddToSetForm.propTypes = {
 	'handleCancel': PropTypes.func.isRequired,
