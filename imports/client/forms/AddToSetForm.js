@@ -11,7 +11,6 @@ import './AddToSetForm.scss';
 
 const validate = (values) => {
 	const errors = {};
-	// console.log('*** validate', values);
 	const { checkboxnewset } = values;
 
 	if (checkboxnewset && !values.namenewset) {
@@ -23,6 +22,10 @@ const validate = (values) => {
 
 const getIdentifier = (_id) => `checkbox-${_id}`;
 
+// these are taken from the Formik example
+// https://jaredpalmer.com/formik/docs/api/useField
+// which uses prop spreading for field, props
+// useField or Field is required to set and access checkbox 'checked'
 const NewSetCheckbox = ({ label, ...props }) => {
 	const [field, meta, helpers] = useField(props);
 	const { id } = props;
@@ -48,10 +51,6 @@ NewSetCheckbox.propTypes = {
 	'label': PropTypes.string.isRequired,
 };
 
-// these are taken from the Formik example
-// https://jaredpalmer.com/formik/docs/api/useField
-// which uses prop spreading for field, props
-// useField or Field is required to set and access checkbox 'checked'
 const ExistingSetCheckbox = ({ label, ...props }) => {
 	const [field, meta, helpers] = useField(props);
 	const { id } = props;
@@ -126,6 +125,7 @@ const BasicForm = (props) => {
 			}) => (
 				<Form onSubmit={handleSubmit}>
 					<h2>{`Add pattern "${patternName}" to set`}</h2>
+					<div className="hint">Manage which sets this pattern appears in</div>
 					<div className="form-group">
 						<NewSetCheckbox
 							id="checkboxnewset"

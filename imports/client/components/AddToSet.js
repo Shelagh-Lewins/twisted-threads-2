@@ -7,13 +7,19 @@ import { Button } from 'reactstrap';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { addSet } from '../modules/sets';
+import {
+	addPatternToSet,
+	addSet,
+	removePatternFromSet,
+} from '../modules/sets';
 import AppContext from '../modules/appContext';
 import AddToSetForm from '../forms/AddToSetForm';
 
 import './AddToSet.scss';
 
 import { iconColors } from '../../modules/parameters';
+
+/* eslint-disable no-case-declarations */
 
 class AddToSet extends Component {
 	constructor(props) {
@@ -56,18 +62,68 @@ class AddToSet extends Component {
 			dispatch,
 			patternId,
 		} = this.props;
-		//const { newset } = values;
+		const { checkboxnewset, namenewset } = values;
+		const { sets } = this.context;
+		let changes = false;
 		console.log('submit form', values);
+		console.log('sets', sets);
+
+		// analyse changes to set allocation
+		Object.keys(values).map((key) => {
+			const value = values[key];
+
+			switch (key) {
+				// add pattern to a new set
+				case 'checkboxnewset':
+					console.log('checkboxnewset', value);
+					break;
+
+				// name of new set
+				case 'namenewset':
+					console.log('namenewset', value);
+					break;
+
+				// existing sets, this is what we need to analyse
+				// check for changes
+				default:
+					const setId = key.split('-')[1];
+					const set = sets.find((setObj) => setObj._id === setId);
+					const patternIsInSet = set.patterns.indexOf(patternId) !== -1;
+
+					if (!patternIsInSet && value) {
+						// not currently in set: add
+						console.log('add to', set.name);
+						changes = true;
+						dispatch(addPatternToSet({
+							patternId,
+							setId,
+						}));
+					} else if (patternIsInSet && !value) {
+						// currently in set: remove
+						console.log('remove from', set.name);
+						changes = true;
+						dispatch(removePatternFromSet({
+							patternId,
+							setId,
+						}));
+					}
+					break;
+			}
+		});
+
 		this.setState({
 			'showSetsPanel': false,
 		});
 
-		global.updateSetsSubscription.set(true);
-//TODO add new set if specified
-//Update membership of other sets
-//Remove unused sets
-//if no changes, do nothing
-		//dispatch(addSet({ patternId, 'name': newset }));
+		if (checkboxnewset && namenewset !== '') {
+			changes = true;
+			dispatch(addSet({ patternId, 'name': namenewset }));
+		}
+
+		// force resubscription if sets have changed (publication is not reactive)
+		if (changes) {
+			global.updateSetsSubscription.set(true);
+		}
 	}
 
 	render() {

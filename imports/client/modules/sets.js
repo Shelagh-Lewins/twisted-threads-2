@@ -25,21 +25,20 @@ export const addSet = ({ patternId, name }) => (dispatch) => {
 export const addPatternToSet = ({ patternId, setId }) => (dispatch) => {
 	dispatch(clearErrors());
 
-	Meteor.call('sets.add', { patternId, setId }, (error, result) => {
+	Meteor.call('sets.addPattern', { patternId, setId }, (error, result) => {
 		if (error) {
-			return dispatch(logErrors({ 'add-set': error.reason }));
+			return dispatch(logErrors({ 'add-to-set': error.reason }));
 		}
 	});
 };
 
 // remove a pattern from a set
-// TODO delete the set if it has no patterns
 export const removePatternFromSet = ({ patternId, setId }) => (dispatch) => {
 	dispatch(clearErrors());
 
-	Meteor.call('sets.remove', { patternId, setId }, (error, result) => {
+	Meteor.call('sets.removePattern', { patternId, setId }, (error, result) => {
 		if (error) {
-			return dispatch(logErrors({ 'remove-set': error.reason }));
+			return dispatch(logErrors({ 'remove-from-set': error.reason }));
 		}
 	});
 };
