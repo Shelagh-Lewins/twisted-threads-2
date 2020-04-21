@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Button } from 'reactstrap';
 import { Formik, Form, useField } from 'formik';
 import PropTypes from 'prop-types';
@@ -9,48 +9,19 @@ import './AddToSetForm.scss';
 // for accessibility we need to move focus into the floating panel
 /* eslint-disable jsx-a11y/no-autofocus */
 
+// if no new set name is entered, and no changes to the checkboxes for existing sets, then no action will be taken
 const validate = (values) => {
 	const errors = {};
-	const { checkboxnewset } = values;
-
-	if (checkboxnewset && !values.namenewset) {
-		errors.namenewset = 'Required';
-	}
 
 	return errors;
 };
 
 const getIdentifier = (_id) => `checkbox-${_id}`;
 
-// these are taken from the Formik example
+// this is taken from the Formik example
 // https://jaredpalmer.com/formik/docs/api/useField
 // which uses prop spreading for field, props
 // useField or Field is required to set and access checkbox 'checked'
-const NewSetCheckbox = ({ label, ...props }) => {
-	const [field, meta, helpers] = useField(props);
-	const { id } = props;
-
-	return (
-		<>
-			<label
-				className="checkbox-label"
-				htmlFor={id}
-			>
-				{label}
-				<input {...field} {...props} />
-			</label>
-			{meta.touched && meta.error ? (
-				<div className="error">{meta.error}</div>
-			) : null}
-		</>
-	);
-};
-
-NewSetCheckbox.propTypes = {
-	'id': PropTypes.string.isRequired,
-	'label': PropTypes.string.isRequired,
-};
-
 const ExistingSetCheckbox = ({ label, ...props }) => {
 	const [field, meta, helpers] = useField(props);
 	const { id } = props;
@@ -86,17 +57,9 @@ const BasicForm = (props) => {
 		sets,
 	} = props;
 
-	// console.log('*** form sets', sets);
-
 	const initialValues = {
-		'checkboxnewset': false,
 		'namenewset': '',
 	};
-
-	// if no existing sets, check new set by default
-	if (sets.length === 0) {
-		initialValues.newsetcheckbox = true;
-	}
 
 	sets.map((set) => {
 		const { _id, patterns } = set;
@@ -105,6 +68,15 @@ const BasicForm = (props) => {
 		if (patterns.indexOf(patternId) !== -1) {
 			initialValues[identifier] = true;
 		}
+	});
+
+	const setsSorted = sets.sort((a, b) => {
+		if (a.name > b.name) {
+			return 1;
+		} else if (a.name < b.name) {
+			return -1;
+		}
+		return 0;
 	});
 
 	return (
@@ -123,56 +95,52 @@ const BasicForm = (props) => {
 				errors,
 				touched,
 			}) => (
-				<Form onSubmit={handleSubmit}>
-					<h2>{`Add pattern "${patternName}" to set`}</h2>
-					<div className="hint">Manage which sets this pattern appears in</div>
-					<div className="form-group">
-						<NewSetCheckbox
-							id="checkboxnewset"
-							name="checkboxnewset"
-							type="checkbox"
-							label="New set"
-						/>
-						<label
-							className="input-label"
-							htmlFor="namenewset"
-						>
-							New set
-							<input
-								autoFocus="autofocus"
-								className={`form-control namenewset ${touched.namenewset && errors.namenewset ? 'is-invalid' : ''
-								}`}
-								placeholder="Name of set"
-								id="namenewset"
-								name="namenewset"
-								type="text"
-								onChange={handleChange}
-								onBlur={handleBlur}
-							/>
-							{touched.namenewset && errors.namenewset ? (
-								<div className="invalid-feedback invalid">{errors.namenewset}</div>
-							) : null}
-						</label>
-					</div>
-					{sets.map((set) => {
-						const { _id, name } = set;
-						const identifier = getIdentifier(_id);
+				<>
+					<h2>Sets</h2>
+					<div className="hint">{`Choose the sets in which the pattern '${patternName}' will appear.`}</div>
+					<Form onSubmit={handleSubmit}>
+						<div className="form-group">
+							<label
+								className="input-label"
+								htmlFor="namenewset"
+							>
+								Create a new set:
+								<input
+									autoFocus="autofocus"
+									className={`form-control namenewset ${touched.namenewset && errors.namenewset ? 'is-invalid' : ''
+									}`}
+									placeholder="Name of new set"
+									id="namenewset"
+									name="namenewset"
+									type="text"
+									onChange={handleChange}
+									onBlur={handleBlur}
+								/>
+								{touched.namenewset && errors.namenewset ? (
+									<div className="invalid-feedback invalid">{errors.namenewset}</div>
+								) : null}
+							</label>
+						</div>
+						{setsSorted.map((set) => {
+							const { _id, name } = set;
+							const identifier = getIdentifier(_id);
 
-						return (
-							<ExistingSetCheckbox
-								key={identifier}
-								id={identifier}
-								name={identifier}
-								type="checkbox"
-								label={name}
-							/>
-						);
-					})}
-					<div className="controls">
-						<Button type="button" color="secondary" onClick={handleCancel}>Cancel</Button>
-						<Button type="submit" color="primary">Save</Button>
-					</div>
-				</Form>
+							return (
+								<ExistingSetCheckbox
+									key={identifier}
+									id={identifier}
+									name={identifier}
+									type="checkbox"
+									label={name}
+								/>
+							);
+						})}
+						<div className="controls">
+							<Button type="button" color="secondary" onClick={handleCancel}>Cancel</Button>
+							<Button type="submit" color="primary">Save</Button>
+						</div>
+					</Form>
+				</>
 			)}
 		</Formik>
 	);

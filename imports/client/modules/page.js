@@ -5,6 +5,7 @@ const updeep = require('updeep');
 
 export const SET_MAIN_MENU_ITEM = 'SET_MAIN_MENU_ITEM';
 export const SET_ITEMS_PER_PAGE	= 'SET_ITEMS_PER_PAGE';
+export const SET_PATTERN_FOR_SETS_LIST = 'SET_PATTERN_FOR_SETS_LIST';
 
 // ////////////////////////////
 // Actions that change the Store
@@ -28,6 +29,13 @@ export const changePage = (newPageNumber, history) => (dispatch) => {
 	history.push(url);
 };
 
+export function setPatternForSetsList(patternId) {
+	return {
+		'type': SET_PATTERN_FOR_SETS_LIST,
+		'payload': patternId,
+	};
+}
+
 // ///////////////////////////
 // Provide information to the UI
 export const getSelectedMainMenuItem = (state) => state.page.selectedMainMenuItem;
@@ -35,6 +43,7 @@ export const getSelectedMainMenuItem = (state) => state.page.selectedMainMenuIte
 // ///////////////////////////
 // default state
 const initialPageState = {
+	'patternForSetsList': '',
 	'selectedMainMenuItem': '',
 	'itemsPerPage': ALLOWED_ITEMS_PER_PAGE[0],
 };
@@ -48,6 +57,10 @@ export default function page(state = initialPageState, action) {
 
 		case SET_ITEMS_PER_PAGE: {
 			return updeep({ 'itemsPerPage': action.payload }, state);
+		}
+
+		case SET_PATTERN_FOR_SETS_LIST: {
+			return updeep({ 'patternForSetsList': action.payload }, state);
 		}
 
 		default:

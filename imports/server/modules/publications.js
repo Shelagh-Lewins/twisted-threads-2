@@ -398,7 +398,11 @@ Meteor.publish('faq', () => FAQ.find());
 // the user can see their own sets and any sets containing public patterns
 // all visible set belonging to one user
 Meteor.publish('setsForUser', function (userId) {
-	check(userId, nonEmptyStringCheck);
+	check(userId, Match.Maybe(nonEmptyStringCheck));
+
+	if (!userId) {
+		return;
+	}
 
 	// logged in users can see all their own sets
 	// any user can see public sets
@@ -408,7 +412,7 @@ Meteor.publish('setsForUser', function (userId) {
 
 	// those sets which contain patterns the current user can see
 	const visibleSetIds = [];
-//console.log('*** publish sets');
+
 	// This is not reactive
 	sets.map((set) => {
 		const patternIds = set.patterns;
@@ -421,7 +425,7 @@ Meteor.publish('setsForUser', function (userId) {
 				],
 			},
 		);
-//console.log('set', set);
+
 		if (visiblePatterns.count() > 0) {
 			visibleSetIds.push(set._id);
 		}

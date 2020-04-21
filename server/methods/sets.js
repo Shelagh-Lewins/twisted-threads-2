@@ -134,5 +134,4 @@ Meteor.methods({
 			Sets.remove({ '_id': setId });
 		}
 	},
-//TODO remove empty set after delete pattern
 });

@@ -1,8 +1,18 @@
 @import "../constants/variables";
 
 .add-to-set-form {
-	label {
-		font-size: 0;
+	background: $color-panel-background;
+	border: 1px solid $color-panel-border;
+	border-radius: 4px;
+	padding: 8px;
+	width: 400px;
+
+	.hint {
+		color: $color-hint;
+	}
+
+	form {
+		margin-top: 8px;
 	}
 
 	.checkbox-label {
@@ -31,12 +41,19 @@
 		width: 100%;
 
 		label {
-			font-size: 1rem;
 			width: 100%;
 		}
 
 		input {
 			float: left;
+		}
+	}
+
+	.controls {
+		button {
+			&:first-child {
+				margin-right: 8px;
+			}
 		}
 	}
 }

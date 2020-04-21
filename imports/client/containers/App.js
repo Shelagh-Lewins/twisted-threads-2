@@ -209,7 +209,8 @@ export const withDatabase = withTracker((props) => {
 
 		Meteor.subscribe('setsForUser', Meteor.userId());
 
-		// Navbar always needs to know about user and sets
+		// Navbar always needs to know about the user's sets
+		// pattern list pages need to know about tags
 		const values = {
 			'allTags': [],
 			'sets': [],

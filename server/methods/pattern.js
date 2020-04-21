@@ -17,6 +17,7 @@ import {
 	PatternImages,
 	PatternPreviews,
 	Patterns,
+	Sets,
 	Tags,
 } from '../../imports/modules/collection';
 import {
@@ -484,6 +485,29 @@ Meteor.methods({
 				PatternImages.remove({ '_id': patternImage._id }); // remove from local collection
 			});
 		});
+
+		// remove the pattern from any sets that contain it
+		// this could be done in fewer operations but this way we only act on those sets which contain this pattern
+		// so I think the query will be more targeted with less danger of affecting the wrong sets
+
+		// find the sets which contain the pattern
+		const setIds = Sets.find({ 'patterns': _id }).fetch().map((set) => set._id);
+
+		// remove the pattern from those sets
+		Sets.update(
+			{ '_id': { '$in': setIds } },
+			{ '$pull': { 'patterns': _id } },
+		);
+
+		// delete any of those sets which now have no patterns
+		Sets.remove(
+			{
+				'$and': [
+					{ '_id': { '$in': setIds } },
+					{ 'patterns': { '$size': 0 } },
+				],
+			},
+		);
 
 		// remove the pattern itself
 		const removed = Patterns.remove({ _id });

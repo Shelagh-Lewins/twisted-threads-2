@@ -12,6 +12,7 @@ import {
 	addSet,
 	removePatternFromSet,
 } from '../modules/sets';
+import { setPatternForSetsList } from '../modules/page';
 import AppContext from '../modules/appContext';
 import AddToSetForm from '../forms/AddToSetForm';
 
@@ -39,6 +40,18 @@ class AddToSet extends Component {
 		document.body.appendChild(this.el);
 	}
 
+	componentDidUpdate(prevProps) {
+		const { patternForSetsList, patternId } = this.props;
+
+		// don't allow the panel to be open for more than one pattern at a time
+		if (prevProps.patternForSetsList === patternId
+			&& patternForSetsList !== patternId) {
+			this.setState({
+				'showSetsPanel': false,
+			});
+		}
+	}
+
 	componentWillUnmount() {
 		document.body.removeChild(this.el);
 	}
@@ -46,15 +59,28 @@ class AddToSet extends Component {
 	handleClickAddToSetButton = (e) => {
 		e.preventDefault();
 
+		const {
+			dispatch,
+			patternId,
+		} = this.props;
+
 		this.setState({
 			'showSetsPanel': true,
 		});
+
+		dispatch(setPatternForSetsList(patternId));
 	}
 
 	handleClickCancel = () => {
+		const {
+			dispatch,
+		} = this.props;
+
 		this.setState({
 			'showSetsPanel': false,
 		});
+
+		dispatch(setPatternForSetsList(''));
 	}
 
 	handleAddToSet = (values) => {
@@ -62,11 +88,9 @@ class AddToSet extends Component {
 			dispatch,
 			patternId,
 		} = this.props;
-		const { checkboxnewset, namenewset } = values;
+		const { namenewset } = values;
 		const { sets } = this.context;
 		let changes = false;
-		console.log('submit form', values);
-		console.log('sets', sets);
 
 		// analyse changes to set allocation
 		Object.keys(values).map((key) => {
@@ -74,13 +98,7 @@ class AddToSet extends Component {
 
 			switch (key) {
 				// add pattern to a new set
-				case 'checkboxnewset':
-					console.log('checkboxnewset', value);
-					break;
-
-				// name of new set
 				case 'namenewset':
-					console.log('namenewset', value);
 					break;
 
 				// existing sets, this is what we need to analyse
@@ -92,7 +110,6 @@ class AddToSet extends Component {
 
 					if (!patternIsInSet && value) {
 						// not currently in set: add
-						console.log('add to', set.name);
 						changes = true;
 						dispatch(addPatternToSet({
 							patternId,
@@ -100,7 +117,6 @@ class AddToSet extends Component {
 						}));
 					} else if (patternIsInSet && !value) {
 						// currently in set: remove
-						console.log('remove from', set.name);
 						changes = true;
 						dispatch(removePatternFromSet({
 							patternId,
@@ -115,7 +131,7 @@ class AddToSet extends Component {
 			'showSetsPanel': false,
 		});
 
-		if (checkboxnewset && namenewset !== '') {
+		if (namenewset !== '') {
 			changes = true;
 			dispatch(addSet({ patternId, 'name': namenewset }));
 		}
@@ -127,7 +143,10 @@ class AddToSet extends Component {
 	}
 
 	render() {
-		const { patternId, patternName } = this.props;
+		const {
+			patternId,
+			patternName,
+		} = this.props;
 		const { showSetsPanel } = this.state;
 		const { sets } = this.context;
 		const tooltip = 'Add this pattern to a set';
@@ -151,7 +170,7 @@ class AddToSet extends Component {
 							handleSubmit={this.handleAddToSet}
 							patternId={patternId}
 							patternName={patternName}
-							sets={sets}
+							sets={sets.filter((set) => set.createdBy === Meteor.userId())}
 						/>,
 						this.el,
 					)
@@ -161,9 +180,10 @@ class AddToSet extends Component {
 	}
 }
 
+// we use connect to get dispatch but do not actually map any props
 function mapStateToProps(state) {
 	return {
-		//'canPublish': getCanPublish(state),
+		'patternForSetsList': state.page.patternForSetsList,
 	};
 }
 
@@ -173,6 +193,7 @@ AddToSet.contextType = AppContext;
 
 AddToSet.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
+	'patternForSetsList': PropTypes.string.isRequired,
 	'patternId': PropTypes.string.isRequired,
 	'patternName': PropTypes.string.isRequired,
 };
