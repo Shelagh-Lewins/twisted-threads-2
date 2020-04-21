@@ -125,7 +125,7 @@ const DefaultContainer = () => (
 			<Route exact path="/faq" component={FAQPage} />
 			<Route exact path="/pattern/:id/:tab(design|info)?" component={Pattern} />
 			<Route exact path="/pattern/:id/weaving" component={InteractiveWeavingChart} />
-			<Route exact path="/user/:id/:section(patterns)?" component={User} />
+			<Route exact path="/user/:id/:tab(patterns|colorbooks|sets)?" component={User} />
 		</div>
 	</div>
 );

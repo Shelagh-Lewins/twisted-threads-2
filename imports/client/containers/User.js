@@ -56,6 +56,30 @@ const queryString = require('query-string');
 
 const bodyClass = 'user';
 
+const PatternsTab = (props) => {
+	return (
+		<div className="tab-content">
+			Patterns tab
+		</div>
+	);
+};
+
+const ColorBooksTab = (props) => {
+	return (
+		<div className="tab-content">
+			Colour Books tab
+		</div>
+	);
+};
+
+const SetsTab = (props) => {
+	return (
+		<div className="tab-content">
+			Sets tab
+		</div>
+	);
+};
+
 class User extends PureComponent {
 	constructor(props) {
 		super(props);
@@ -436,6 +460,26 @@ class User extends PureComponent {
 		);
 	}
 
+	renderTabContent() {
+		const {
+			tab,
+		} = this.props;
+
+		switch(tab) {
+			case 'patterns':
+				return <PatternsTab />;
+
+			case 'colorbooks':
+				return <ColorBooksTab />;
+
+			case 'sets':
+				return <SetsTab />;
+
+			default:
+				return <PatternsTab />;
+		}
+	}
+
 	render() {
 		const {
 			canCreatePattern,
@@ -528,6 +572,7 @@ User.propTypes = {
 	'patternPreviews': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'section': PropTypes.string,
+	'tab': PropTypes.string.isRequired,
 	'tags': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'user': PropTypes.objectOf(PropTypes.any),
 	'canCreateColorBook': PropTypes.bool.isRequired,
@@ -558,7 +603,8 @@ function mapStateToProps(state, ownProps) {
 		itemsPerPage,
 		'pageSkip': (currentPageNumber - 1) * itemsPerPage,
 		'patternCount': state.pattern.patternCount,
-		'section': ownProps.match.params.section, // read the url parameter to find whether to scroll to a section
+		// 'section': ownProps.match.params.section, // read the url parameter to find whether to scroll to a section
+		'tab': ownProps.match.params.tab || 'patterns', // read the url parameter to choose the tab
 	};
 }
 
