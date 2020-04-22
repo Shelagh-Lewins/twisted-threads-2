@@ -51,6 +51,7 @@ import EditableText from '../components/EditableText';
 import getUserpicStyle from '../modules/getUserpicStyle';
 
 import './User.scss';
+import './MainTabs.scss';
 import '../components/Userpic.scss';
 
 const queryString = require('query-string');
@@ -75,7 +76,7 @@ class User extends PureComponent {
 		const functionsToBind = [
 			'handleClickAddColorBookButton',
 			'handleClickAddColorBook',
-			'handlePaginationUpdate',
+			//'handlePaginationUpdate',
 			'cancelAddColorBook',
 			'handleClickButtonCopy',
 			'handleClickSelectColorBook',
@@ -102,12 +103,11 @@ class User extends PureComponent {
 			_id,
 			colorBookAdded,
 			dispatch,
-			filterMinTablets,
-			filterMaxTablets,
-			section,
+			//filterMinTablets,
+			//filterMaxTablets,
+			//tab,
 			user,
 		} = this.props;
-
 		const { gotUser, isLoading } = this.state;
 
 		// wait for user details to load
@@ -115,35 +115,13 @@ class User extends PureComponent {
 			this.setState({
 				'gotUser': true,
 			});
-
-			// give the page time to render
-			setTimeout(() => {
-				this.scrollPatternsIntoView();
-			}, 2000);
 		}
 
 		if (gotUser && _id !== prevProps._id) {
 			dispatch(updatePatternCountUserId(_id));
-
-			// give the page time to render
-			setTimeout(() => {
-				this.scrollPatternsIntoView();
-			}, 2000);
 		}
 
-		if (section) {
-			if (!prevProps.section) {
-				// navigated from My patterns to My profile
-				setTimeout(() => {
-					this.scrollPatternsIntoView();
-				}, 500);
-			}
-			// navigated from My profile to My documents
-		} else if (!section && prevProps.section) {
-			this.scrollTop();
-		}
-
-		let filterChange = false;
+		/* let filterChange = false;
 
 		if (filterMaxTablets !== prevProps.filterMaxTablets) {
 			filterChange = true;
@@ -157,7 +135,7 @@ class User extends PureComponent {
 			setTimeout(() => {
 				this.scrollPatternsIntoView({ 'behavior': 'auto' });
 			}, 500);
-		}
+		} */
 
 		// automatically select a new color book
 		if (prevProps.colorBookAdded === '' && colorBookAdded !== '') {
@@ -219,13 +197,13 @@ class User extends PureComponent {
 		});
 	}
 
-	handlePaginationUpdate() {
+	/* handlePaginationUpdate() {
 		setTimeout(() => {
 			this.scrollPatternsIntoView({ 'behavior': 'auto' });
 		}, 500);
-	}
+	} */
 
-	scrollPatternsIntoView(options = { 'behavior': 'smooth' }) {
+	/* scrollPatternsIntoView(options = { 'behavior': 'smooth' }) {
 		const { section } = this.props;
 		const { behavior } = options;
 
@@ -250,7 +228,7 @@ class User extends PureComponent {
 			'left': 0,
 			'behavior': 'auto',
 		});
-	}
+	} */
 
 	// show the form to add a new color book
 	handleClickAddColorBookButton() {
@@ -330,7 +308,6 @@ class User extends PureComponent {
 			<>
 				<Row>
 					<Col lg="12">
-						{!showAddColorBookForm && <h2>Colour Books</h2>}
 						{canCreate && (
 							<div className="add-controls">
 								{!showAddColorBookForm && addButton}
@@ -396,7 +373,7 @@ class User extends PureComponent {
 						<PaginatedList
 							currentPageNumber={currentPageNumber}
 							dispatch={dispatch}
-							handlePaginationUpdate={this.handlePaginationUpdate}
+							handlePaginationUpdate={() => {}}
 							history={history}
 							itemCount={patternCount}
 						>
@@ -423,6 +400,12 @@ class User extends PureComponent {
 		} = this.props;
 		const canEdit = _id === Meteor.userId();
 
+		if (_id !== Meteor.userId()) {
+			if (!description) {
+				return <p>This user has not yet created a profile</p>;
+			}
+		}
+
 		return (
 			<EditableText
 				canEdit={canEdit}
@@ -444,8 +427,13 @@ class User extends PureComponent {
 		} = this.props;
 
 		return (
-			<div className="main-tabs">
+			<Container className="main-tabs">
 				<ul>
+					<li className={`profile ${tab === 'profile' ? 'selected' : ''}`}>
+						<Link to={`/user/${_id}/profile`}>
+						Profile
+						</Link>
+					</li>
 					<li className={`patterns ${tab === 'patterns' ? 'selected' : ''}`}>
 						<Link to={`/user/${_id}/patterns`}>
 						Patterns
@@ -462,7 +450,15 @@ class User extends PureComponent {
 						</Link>
 					</li>
 				</ul>
-			</div>
+			</Container>
+		);
+	}
+
+	renderProfileTab() {
+		return (
+			<Container>
+				{this.renderDescription()}
+			</Container>
 		);
 	}
 
@@ -474,21 +470,12 @@ class User extends PureComponent {
 			user,
 		} = this.props;
 
-		const { showAddPatternForm } = this.state;
-
-		const { _id, username } = user;
+		const { _id } = user;
 		const canCreate = canCreatePattern && Meteor.userId() === _id;
 
 		return (
 			<>
 				<Container>
-					{!showAddPatternForm && (
-						<Row>
-							<Col lg="12">
-								<h2 ref={this.patternsRef}>Patterns</h2>
-							</Col>
-						</Row>
-					)}
 					{canCreate && (
 						<AddPatternButton
 							dispatch={dispatch}
@@ -528,6 +515,10 @@ class User extends PureComponent {
 		let tabContent;
 
 		switch (tab) {
+			case 'profile':
+				tabContent = this.renderProfileTab();
+				break;
+
 			case 'patterns':
 				tabContent = this.renderPatternsTab();
 				break;
@@ -554,22 +545,22 @@ class User extends PureComponent {
 
 	render() {
 		const {
-			canCreatePattern,
+			//canCreatePattern,
 			dispatch,
 			errors,
-			history,
+			//history,
 			isLoading,
 			user,
 		} = this.props;
 
-		const { showAddPatternForm } = this.state;
+		//const { showAddPatternForm } = this.state;
 
 		let content = <Loading />;
 
 		if (!isLoading) {
 			if (user) {
 				const { _id, username } = user;
-				const canCreate = canCreatePattern && Meteor.userId() === _id;
+				//const canCreate = canCreatePattern && Meteor.userId() === _id;
 				content = (
 					<>
 						<Container>
@@ -580,11 +571,9 @@ class User extends PureComponent {
 								/>
 								{username}
 							</h1>
-							{this.renderDescription()}
-							<hr />
 						</Container>
-							{this.renderTabs()}
-							{this.renderTabContent()}
+						{this.renderTabs()}
+						{this.renderTabContent()}
 							{/*this.renderColorBooks()*/}
 							{/*<hr />
 							{!showAddPatternForm && (
@@ -679,7 +668,7 @@ function mapStateToProps(state, ownProps) {
 		'pageSkip': (currentPageNumber - 1) * itemsPerPage,
 		'patternCount': state.pattern.patternCount,
 		// 'section': ownProps.match.params.section, // read the url parameter to find whether to scroll to a section
-		'tab': ownProps.match.params.tab || 'patterns', // read the url parameter to choose the tab
+		'tab': ownProps.match.params.tab || 'profile', // read the url parameter to choose the tab
 	};
 }
 

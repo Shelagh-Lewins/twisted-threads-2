@@ -51,6 +51,7 @@ import {
 	iconColors,
 } from '../../modules/parameters';
 import './Pattern.scss';
+import './MainTabs.scss';
 
 const bodyClass = 'pattern';
 
