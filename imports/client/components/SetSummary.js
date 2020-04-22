@@ -3,7 +3,7 @@ import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-//import { editIsPublic, removePattern } from '../modules/pattern';
+import { removeSet } from '../modules/sets';
 
 import './SetSummary.scss';
 
@@ -37,11 +37,10 @@ function SetSummary(props) {
 	}; */
 
 	const handleClickButtonRemove = () => {
-		const response = confirm(`Do you want to delete the pattern "${name}"?`); // eslint-disable-line no-restricted-globals
+		const response = confirm(`Do you want to delete the set "${name}"?`); // eslint-disable-line no-restricted-globals
 
 		if (response === true) {
-			//dispatch(removePattern(_id));
-			//TODO delete set
+			dispatch(removeSet(_id));
 		}
 	};
 

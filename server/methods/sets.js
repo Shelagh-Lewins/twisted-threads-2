@@ -134,4 +134,23 @@ Meteor.methods({
 			Sets.remove({ '_id': setId });
 		}
 	},
+	'sets.remove': function (_id) {
+		check(_id, nonEmptyStringCheck);
+
+		if (!Meteor.userId()) {
+			throw new Meteor.Error('remove-set-not-logged-in', 'Unable to remove set because the user is not logged in');
+		}
+
+		const set = Sets.findOne({ _id });
+
+		if (!set) {
+			throw new Meteor.Error('remove-set-not-found', 'Unable to remove set because the set was not found');
+		}
+
+		if (set.createdBy !== Meteor.userId()) {
+			throw new Meteor.Error('remove-set-not-created-by-user', 'Unable to remove set because it was not created by the current logged in user');
+		}
+
+		return Sets.remove({ _id });
+	},
 });

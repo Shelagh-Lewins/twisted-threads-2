@@ -42,3 +42,16 @@ export const removePatternFromSet = ({ patternId, setId }) => (dispatch) => {
 		}
 	});
 };
+
+// remove a set
+export const removeSet = (_id, history) => (dispatch) => {
+	Meteor.call('sets.remove', _id, (error) => {
+		if (error) {
+			return dispatch(logErrors({ 'remove set': error.reason }));
+		}
+	});
+
+	if (history) { // if deleting from Sets tab of User page, no need to redirect
+		history.push(`/`);
+	}
+};
