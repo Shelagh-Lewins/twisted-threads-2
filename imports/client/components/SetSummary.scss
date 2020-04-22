@@ -1,0 +1,163 @@
+@import "../constants/variables";
+
+.set-summary {
+	background-color: $color-pattern-summary-background;
+	border-radius: 4px;
+	box-shadow: 0 2px 4px 0 $color-pattern-summary-shadow;
+	display: inline;
+	float: left;
+	margin: 0 0 16px 0;
+	padding: 0;
+	position: relative;
+	width: $pattern-summary-preview-width;
+	/* z-index: 10; */
+
+	a {
+		line-height: 2.4;
+	}
+
+	.controls {
+		float: right;
+
+		.is-public {
+			float: left;
+			margin-right: 8px;
+		}
+	}
+
+	.main {
+		a {
+			display: block;
+			overflow: hidden;
+			text-decoration: none;
+		}
+	}
+
+	h3 {
+		color: $color-pattern-summary-name;
+		cursor: pointer;
+		display: block;
+		font-size: 16px !important;
+		font-weight: bold;
+		height: 30px;
+		overflow: hidden;
+		padding: 8px 8px 2px 8px;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		width: 238px;
+
+		&:hover {
+			text-decoration: none;
+		}
+	}
+
+	.add-to-set-button {
+		position: absolute;
+		right: 0;
+		top: 0;
+	}
+
+	.description {
+		color: $color-pattern-summary-description;
+		display: block;
+		font-size: 14px;
+		height: 32px;
+		line-height: 1.2;
+		margin: 0 8px 4px 8px;
+		overflow: hidden;
+		white-space: pre-line;
+	}
+
+	.pattern-preview {
+		background-color: $color-pattern-preview-background;
+		background-position: center center;
+		background-repeat: no-repeat;
+		background-size: contain;
+		height: $pattern-summary-preview-height;
+		overflow: hidden;
+		position: relative;
+		width: $pattern-summary-preview-width;
+	}
+
+	.info {
+		left: 8px;
+		position: absolute;
+		top: 84px;
+		width: 250px;
+		z-index: 2;
+	}
+
+	.tags {
+		background: $color-pattern-summary-tablets-background;
+		border-radius: 4px;
+		color: $color-pattern-summmary-tablets;
+		float: left;
+		font-size: 14px;
+		line-height: 1.2;
+		margin-bottom: 4px;
+		max-width: 250px;
+		overflow: hidden;
+		padding: 4px;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+
+		.tag {
+			&::after {
+				content: ", ";
+			}
+
+			&:last-child {
+				&::after {
+					content: "";
+				}
+			}
+		}
+	}
+
+	.number-of-patterns {
+		background: $color-pattern-summary-tablets-background;
+		border-radius: 4px;
+		clear: both;
+		color: $color-pattern-summmary-tablets;
+		float: left;
+		font-size: 14px;
+		line-height: 1.2;
+		padding: 4px;
+
+		.icon {
+			background: transparent no-repeat right 0 top 0;
+			background-size: 16px 16px;
+			float: left;
+			height: 16px;
+			margin-right: 8px;
+			width: 16px;
+		}
+	}
+
+	.footer {
+		padding: 0 8px 8px 8px;
+
+		button {
+			background-color: transparent;
+			border-color: transparent;
+		}
+	}
+
+	.created-by {
+		color: $color-pattern-summary-created-by;
+		font-weight: bold;
+		overflow: hidden;
+		text-decoration: none;
+		text-overflow: ellipsis;
+		white-space: pre-line;
+
+		.icon {
+			background: transparent no-repeat left top;
+			background-size: 16px 16px;
+			display: inline-block;
+			height: 16px;
+			margin: 0 4px 0 0;
+			width: 16px;
+		}
+	}
+}

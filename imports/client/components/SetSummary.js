@@ -3,27 +3,26 @@ import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { editIsPublic, removePattern } from '../modules/pattern';
+//import { editIsPublic, removePattern } from '../modules/pattern';
 
-import './PatternSummary.scss';
-import IsPublicIndicator from './IsPublicIndicator';
-import AddToSet from './AddToSet';
+import './SetSummary.scss';
 
 import { iconColors } from '../../modules/parameters';
 
-function PatternSummary(props) {
+function SetSummary(props) {
 	const {
 		dispatch,
-		'pattern':
+		'set':
 			{
 				_id,
 				createdBy,
 				description,
 				name,
-				numberOfTablets,
-				isPublic,
+				patterns,
+				//numberOfTablets,
+				//isPublic,
 			},
-		patternPreview,
+		//patternPreview,
 		tagTexts,
 		user,
 	} = props;
@@ -33,27 +32,28 @@ function PatternSummary(props) {
 		username = user.username;
 	}
 
-	const onChangeIsPublic = () => {
+	/* const onChangeIsPublic = () => {
 		dispatch(editIsPublic({ _id, 'isPublic': !isPublic }));
-	};
+	}; */
 
 	const handleClickButtonRemove = () => {
 		const response = confirm(`Do you want to delete the pattern "${name}"?`); // eslint-disable-line no-restricted-globals
 
 		if (response === true) {
-			dispatch(removePattern(_id));
+			//dispatch(removePattern(_id));
+			//TODO delete set
 		}
 	};
 
 	const canEdit = Meteor.userId() === createdBy;
-	const canAddToSet = Meteor.userId();
+	//const canAddToSet = Meteor.userId();
 
 	// import the preview
 	let previewStyle = {};
-
-	if (patternPreview) {
+//TODO pattern previews
+	/*if (patternPreview) {
 		previewStyle = { 'backgroundImage': `url(${patternPreview.uri})` };
-	}
+	} */
 	const patternPreviewHolder = <div style={previewStyle} className="pattern-preview" />;
 
 	const buttonRemove = (
@@ -66,38 +66,29 @@ function PatternSummary(props) {
 		</Button>
 	);
 
-	const tags = tagTexts.map((text, index) => (
+	/* const tags = tagTexts.map((text, index) => (
 		<span
 			className="tag"
 			key={`tag-${index}`} // eslint-disable-line react/no-array-index-key
 		>
 			{text}
 		</span>
-	));
+	)); */
 
 	return (
-		<div className="pattern-summary">
+		<div className="set-summary">
 			<div className="main">
-				<Link to={`/pattern/${_id}`}>
+				<Link to={`/set/${_id}`}>
 					<h3>{name}</h3>
-					{canAddToSet && (
-						<AddToSet
-							patternId={_id}
-							patternName={name}
-						/>
-					)}
 					<div className="description">{description}</div>
 					<div className="info">
-						<div className="tags">
-							{tags}
-						</div>
-						<div className="tablets">
+						<div className="number-of-patterns">
 							<span
 								className="icon"
-								style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/tablet_white.svg')}` }}
-								title="Number of tablets"
+								style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/logo.png')}` }}
+								title="Number of patterns"
 							/>
-							{numberOfTablets}
+							{patterns.length}
 						</div>
 					</div>
 					{patternPreviewHolder}
@@ -114,12 +105,6 @@ function PatternSummary(props) {
 				</Link>
 				{canEdit && (
 					<div className="controls">
-						<IsPublicIndicator
-							canEdit={canEdit}
-							isPublic={isPublic}
-							onChangeIsPublic={onChangeIsPublic}
-							targetId={_id}
-						/>
 						{buttonRemove}
 					</div>
 				)}
@@ -128,12 +113,13 @@ function PatternSummary(props) {
 	);
 }
 
-PatternSummary.propTypes = {
+SetSummary.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
-	'pattern': PropTypes.objectOf(PropTypes.any),
-	'patternPreview': PropTypes.objectOf(PropTypes.any),
-	'tagTexts': PropTypes.arrayOf(PropTypes.any),
+	//'pattern': PropTypes.objectOf(PropTypes.any),
+	//'patternPreview': PropTypes.objectOf(PropTypes.any),
+	'set': PropTypes.objectOf(PropTypes.any),
+	//'tagTexts': PropTypes.arrayOf(PropTypes.any),
 	'user': PropTypes.objectOf(PropTypes.any),
 };
 
-export default PatternSummary;
+export default SetSummary;

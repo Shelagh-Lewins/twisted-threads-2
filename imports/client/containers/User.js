@@ -28,6 +28,7 @@ import {
 	ColorBooks,
 	PatternPreviews,
 	Patterns,
+	Sets,
 	Tags,
 } from '../../modules/collection';
 import {
@@ -47,6 +48,7 @@ import ColorBookSummary from '../components/ColorBookSummary';
 import AddColorBookForm from '../forms/AddColorBookForm';
 import AddPatternButton from '../components/AddPatternButton';
 import EditableText from '../components/EditableText';
+import SetSummary from '../components/SetSummary';
 
 import getUserpicStyle from '../modules/getUserpicStyle';
 
@@ -103,9 +105,6 @@ class User extends PureComponent {
 			_id,
 			colorBookAdded,
 			dispatch,
-			//filterMinTablets,
-			//filterMaxTablets,
-			//tab,
 			user,
 		} = this.props;
 		const { gotUser, isLoading } = this.state;
@@ -120,22 +119,6 @@ class User extends PureComponent {
 		if (gotUser && _id !== prevProps._id) {
 			dispatch(updatePatternCountUserId(_id));
 		}
-
-		/* let filterChange = false;
-
-		if (filterMaxTablets !== prevProps.filterMaxTablets) {
-			filterChange = true;
-		}
-
-		if (filterMinTablets !== prevProps.filterMinTablets) {
-			filterChange = true;
-		}
-
-		if (filterChange) {
-			setTimeout(() => {
-				this.scrollPatternsIntoView({ 'behavior': 'auto' });
-			}, 500);
-		} */
 
 		// automatically select a new color book
 		if (prevProps.colorBookAdded === '' && colorBookAdded !== '') {
@@ -196,39 +179,6 @@ class User extends PureComponent {
 			isEditingColorBook,
 		});
 	}
-
-	/* handlePaginationUpdate() {
-		setTimeout(() => {
-			this.scrollPatternsIntoView({ 'behavior': 'auto' });
-		}, 500);
-	} */
-
-	/* scrollPatternsIntoView(options = { 'behavior': 'smooth' }) {
-		const { section } = this.props;
-		const { behavior } = options;
-
-		const that = this;
-
-		if (section === 'patterns') {
-			const node = that.patternsRef.current;
-
-			if (node) {
-				node.scrollIntoView({
-					behavior,
-					'block': 'start',
-					'inline': 'nearest',
-				});
-			}
-		}
-	}
-
-	scrollTop() { // eslint-disable-line class-methods-use-this
-		window.scroll({
-			'top': 0,
-			'left': 0,
-			'behavior': 'auto',
-		});
-	} */
 
 	// show the form to add a new color book
 	handleClickAddColorBookButton() {
@@ -500,10 +450,24 @@ class User extends PureComponent {
 	}
 
 	renderSetsTab() {
+		const {
+			dispatch,
+			sets,
+			user,
+		} = this.props;
+
 		return (
-			<Container>
-				Sets tab
-			</Container>
+			<div className="sets-list">
+				{sets && sets.map((set) => (
+					<div key={`set-summary-${set._id}`}>
+						<SetSummary
+							dispatch={dispatch}
+							set={set}
+							user={user}
+						/>
+					</div>
+				))}
+			</div>
 		);
 	}
 
@@ -545,22 +509,18 @@ class User extends PureComponent {
 
 	render() {
 		const {
-			//canCreatePattern,
 			dispatch,
 			errors,
-			//history,
 			isLoading,
 			user,
 		} = this.props;
-
-		//const { showAddPatternForm } = this.state;
 
 		let content = <Loading />;
 
 		if (!isLoading) {
 			if (user) {
 				const { _id, username } = user;
-				//const canCreate = canCreatePattern && Meteor.userId() === _id;
+
 				content = (
 					<>
 						<Container>
@@ -574,26 +534,6 @@ class User extends PureComponent {
 						</Container>
 						{this.renderTabs()}
 						{this.renderTabContent()}
-							{/*this.renderColorBooks()*/}
-							{/*<hr />
-							{!showAddPatternForm && (
-								<Row>
-									<Col lg="12">
-										<h2 ref={this.patternsRef}>Patterns</h2>
-									</Col>
-								</Row>
-							)}
-							{canCreate && (
-								<AddPatternButton
-									dispatch={dispatch}
-									history={history}
-									updateShowAddPatternForm={this.updateShowAddPatternForm}
-								/>
-							)}
-						</Container>
-						<Container className="pattern-list-holder">
-							{this.renderPatternsList()}
-						</Container>*/}
 					</>
 				);
 			} else {
@@ -635,7 +575,7 @@ User.propTypes = {
 	'patternCount': PropTypes.number.isRequired,
 	'patternPreviews': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'section': PropTypes.string,
+	'sets': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'tab': PropTypes.string.isRequired,
 	'tags': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'user': PropTypes.objectOf(PropTypes.any),
@@ -686,6 +626,7 @@ const Tracker = withTracker((props) => {
 
 	Meteor.subscribe('users', [_id]);
 	Meteor.subscribe('colorBooks', _id);
+	Meteor.subscribe('setsForUser', _id);
 	Meteor.subscribe('tags');
 
 	const patterns = Patterns.find({ 'createdBy': _id }, {
@@ -720,6 +661,7 @@ const Tracker = withTracker((props) => {
 		}).fetch(),
 		patterns,
 		'patternPreviews': PatternPreviews.find().fetch(),
+		'sets': Sets.find({ 'createdBy': _id }).fetch(),
 		'tags': Tags.find().fetch(),
 		'user': Meteor.users.findOne({ _id }), // note this is undefined when subscription not ready
 	};
