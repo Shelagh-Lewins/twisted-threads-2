@@ -1,6 +1,7 @@
 // detail of a single user
 
 import React, { PureComponent } from 'react';
+import { Link } from 'react-router-dom';
 import {
 	Button,
 	Col,
@@ -55,30 +56,6 @@ import '../components/Userpic.scss';
 const queryString = require('query-string');
 
 const bodyClass = 'user';
-
-const PatternsTab = (props) => {
-	return (
-		<div className="tab-content">
-			Patterns tab
-		</div>
-	);
-};
-
-const ColorBooksTab = (props) => {
-	return (
-		<div className="tab-content">
-			Colour Books tab
-		</div>
-	);
-};
-
-const SetsTab = (props) => {
-	return (
-		<div className="tab-content">
-			Sets tab
-		</div>
-	);
-};
 
 class User extends PureComponent {
 	constructor(props) {
@@ -460,24 +437,119 @@ class User extends PureComponent {
 		);
 	}
 
+	renderTabs() {
+		const {
+			tab,
+			'user': { _id },
+		} = this.props;
+
+		return (
+			<div className="main-tabs">
+				<ul>
+					<li className={`patterns ${tab === 'patterns' ? 'selected' : ''}`}>
+						<Link to={`/user/${_id}/patterns`}>
+						Patterns
+						</Link>
+					</li>
+					<li className={`colorbooks ${tab === 'colorbooks' ? 'selected' : ''}`}>
+						<Link to={`/user/${_id}/colorbooks`}>
+						Colour books
+						</Link>
+					</li>
+					<li className={`sets ${tab === 'sets' ? 'selected' : ''}`}>
+						<Link to={`/user/${_id}/sets`}>
+						Sets
+						</Link>
+					</li>
+				</ul>
+			</div>
+		);
+	}
+
+	renderPatternsTab() {
+		const {
+			canCreatePattern,
+			dispatch,
+			history,
+			user,
+		} = this.props;
+
+		const { showAddPatternForm } = this.state;
+
+		const { _id, username } = user;
+		const canCreate = canCreatePattern && Meteor.userId() === _id;
+
+		return (
+			<>
+				<Container>
+					{!showAddPatternForm && (
+						<Row>
+							<Col lg="12">
+								<h2 ref={this.patternsRef}>Patterns</h2>
+							</Col>
+						</Row>
+					)}
+					{canCreate && (
+						<AddPatternButton
+							dispatch={dispatch}
+							history={history}
+							updateShowAddPatternForm={this.updateShowAddPatternForm}
+						/>
+					)}
+				</Container>
+				<Container className="pattern-list-holder">
+					{this.renderPatternsList()}
+				</Container>
+			</>
+		);
+	}
+
+	renderColorBooksTab() {
+		return (
+			<Container>
+				{this.renderColorBooks()}
+			</Container>
+		);
+	}
+
+	renderSetsTab() {
+		return (
+			<Container>
+				Sets tab
+			</Container>
+		);
+	}
+
 	renderTabContent() {
 		const {
 			tab,
 		} = this.props;
 
-		switch(tab) {
+		let tabContent;
+
+		switch (tab) {
 			case 'patterns':
-				return <PatternsTab />;
+				tabContent = this.renderPatternsTab();
+				break;
 
 			case 'colorbooks':
-				return <ColorBooksTab />;
+				tabContent = this.renderColorBooksTab();
+				break;
 
 			case 'sets':
-				return <SetsTab />;
+				tabContent = this.renderSetsTab();
+				break;
 
 			default:
-				return <PatternsTab />;
+				tabContent = this.renderPatternsTab();
+				break;
 		}
+
+		return (
+			<div className="tab-content">
+				{tabContent}
+			</div>
+		);
 	}
 
 	render() {
@@ -510,8 +582,11 @@ class User extends PureComponent {
 							</h1>
 							{this.renderDescription()}
 							<hr />
-							{this.renderColorBooks()}
-							<hr />
+						</Container>
+							{this.renderTabs()}
+							{this.renderTabContent()}
+							{/*this.renderColorBooks()*/}
+							{/*<hr />
 							{!showAddPatternForm && (
 								<Row>
 									<Col lg="12">
@@ -529,7 +604,7 @@ class User extends PureComponent {
 						</Container>
 						<Container className="pattern-list-holder">
 							{this.renderPatternsList()}
-						</Container>
+						</Container>*/}
 					</>
 				);
 			} else {

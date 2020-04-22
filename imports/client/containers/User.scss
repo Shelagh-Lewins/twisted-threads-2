@@ -50,4 +50,77 @@
 			clear: none;
 		}
 	}
+
+		.main-tabs {
+		clear: both;
+
+		ul {
+			font-size: 0;
+			list-style-type: none;
+			margin: 16px 0 0 0;
+			padding: 0;
+			padding-left: 20px;
+			text-align: left;
+		}
+
+		// keyline
+		&::after {
+			background-color: $color-pattern-page-background;
+			border: 0;
+			border-radius: 0;
+			border-top: 1px solid $color-tab-border;
+			content: " ";
+			display: block;
+			font-size: 0px;
+			margin: -1px 0 8px 0;
+			max-width: 600px;
+			outline: none;
+			padding: 0;
+			position: relative;
+		}
+
+		li {
+			display: inline;
+			margin: 0;
+			margin-right: 2px;
+			padding: 0;
+
+			&.selected {
+				a {
+					background: $color-pattern-page-background;
+					border-color: $color-tab-border;
+					color: $color-text;
+					z-index: 2;
+				}
+			}
+		}
+
+		a {
+			background: $color-tab-inactive-background;
+			border: 1px solid $color-tab-border;
+			border-bottom: 0;
+			border-radius: 5px 5px 0 0;
+			color: $color-tab-inactive-color;
+			cursor: pointer;
+			display: inline-block;
+			font-size: 16px;
+			line-height: 32px;
+			outline: none;
+			padding: 0 10px;
+			position: relative;
+			text-decoration: none;
+
+			&:focus {
+				outline: 1px dotted $color-tab-focus;
+				outline-offset: -4px;
+			}
+		}
+	}
+
+	.tab-content {
+		h2 {
+			font-size: 20px;
+			font-weight: bold;
+		}
+	}
 }
