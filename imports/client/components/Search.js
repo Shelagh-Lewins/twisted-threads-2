@@ -220,7 +220,7 @@ class Search extends PureComponent {
 									/>
 									{numberOfTablets}
 								</span>
-								<span className="created-by" title={`Created by ${createdBy}`}>
+								<span className="created-by" title={`Created by ${username}`}>
 									<span
 										className="icon"
 										style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/created_by.png')}` }}

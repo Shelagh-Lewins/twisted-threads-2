@@ -29,10 +29,6 @@ function SetSummary(props) {
 		username = user.username;
 	}
 
-	/* const onChangeIsPublic = () => {
-		dispatch(editIsPublic({ _id, 'isPublic': !isPublic }));
-	}; */
-
 	const handleClickButtonRemove = () => {
 		const response = confirm(`Do you want to delete the set "${name}"?`); // eslint-disable-line no-restricted-globals
 
@@ -40,32 +36,40 @@ function SetSummary(props) {
 			dispatch(removeSet(_id));
 		}
 	};
-console.log('*** patterns in this set', patterns);
+
 	const canEdit = Meteor.userId() === createdBy;
 
-	// import the preview
-	let previewStyle = {};
-	const coverPatterns = [];
+	// use pattern previews for the first four patterns
+	const patternPreviewElms = [];
 
-	// show previews of the first four patterns in the set
 	for (let i = 0; i < 4; i += 1) {
-		if (patterns[i]) {
-			coverPatterns.push(patterns[i]._id);
+		let previewStyle = {};
+		const pattern = patterns[i];
+
+		if (pattern) {
+			const patternPreview = patternPreviews.find((preview) => pattern._id === preview.patternId);
+
+			if (patternPreview) {
+				previewStyle = { 'backgroundImage': `url(${patternPreview.uri})` };
+			}
 		}
+
+		const elm = (
+			<div
+				key={`pattern-preview-${i}`}
+				style={previewStyle}
+				className="pattern-preview"
+			/>
+		);
+
+		patternPreviewElms.push(elm);
 	}
 
-	const previews = coverPatterns.map((patternId) => {
-		return patternPreviews.find((preview) => {
-			return patternId === preview.patternId;
-		});
-	});
-	console.log('** previews', previews);
-	//TODO pattern previews
-	/*if (patternPreview) {
-		previewStyle = { 'backgroundImage': `url(${patternPreview.uri})` };
-	} */
-
-	const patternPreviewHolder = <div style={previewStyle} className="pattern-preview" />;
+	const patternPreviewElm = (
+		<div className="pattern-previews">
+			{patternPreviewElms}
+		</div>
+	);
 
 	const buttonRemove = (
 		<Button
@@ -93,7 +97,8 @@ console.log('*** patterns in this set', patterns);
 							{patterns.length}
 						</div>
 					</div>
-					{patternPreviewHolder}
+
+					{patternPreviewElm}
 				</Link>
 
 			</div>

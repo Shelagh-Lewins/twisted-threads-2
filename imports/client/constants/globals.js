@@ -15,6 +15,11 @@ global.tabletFilterTimeout = null;
 // connection status
 global.connectionTimeout = null;
 
-// force resubscription to sets
+// force resubscription to sets, for Pattern page and NavBar
 global.updateSetsSubscription = new ReactiveVar(true);
 global.setsSubscriptionHandle = null;
+
+// the user page also needs to resubscribe
+global.updateUserSetsSubscription = new ReactiveVar(true);
+global.userSetsSubscriptionHandle = null;
+global.userPatternsInSets = [];

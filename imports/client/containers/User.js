@@ -79,7 +79,6 @@ class User extends PureComponent {
 		const functionsToBind = [
 			'handleClickAddColorBookButton',
 			'handleClickAddColorBook',
-			//'handlePaginationUpdate',
 			'cancelAddColorBook',
 			'handleClickButtonCopy',
 			'handleClickSelectColorBook',
@@ -458,16 +457,16 @@ class User extends PureComponent {
 			sets,
 			user,
 		} = this.props;
-
+//console.log('*** User render patternsInSets', patternsInSets);
 		return (
 			<div className="sets-list">
 				{sets && sets.map((set) => {
 					// find the patterns in this set
-					console.log('User says set.patterns', set.patterns);
+					//console.log('User says set.patterns', set.patterns);
 					const patternsInThisSet = set.patterns.map((patternId) => {
 						return patternsInSets.find((pattern) => patternId === pattern._id);
 					});
-					console.log('User says patternsInThisSet', patternsInThisSet);
+					///console.log('User says patternsInThisSet', patternsInThisSet);
 					return (
 						<div key={`set-summary-${set._id}`}>
 							<SetSummary
@@ -641,34 +640,41 @@ const Tracker = withTracker((props) => {
 	Meteor.subscribe('users', [_id]);
 	Meteor.subscribe('colorBooks', _id);
 
-	// patterns in this user's sets
-	const sets = Sets.find({ 'createdBy': _id }, {
-		'sort': { 'nameSort': 1 },
-	}).fetch();
+	let sets = [];
 
-	let patternsInSets = [];
+	// force resubscription because setsForUser is not reactive
+	if (global.updateUserSetsSubscription.get() === true) {
+		global.updateUserSetsSubscription.set(false);
 
-	Meteor.subscribe('setsForUser', _id, {
-		'onReady': () => {
-			function combineArrays(patternIdsArray, set) {
-				return patternIdsArray.concat(set.patterns);
-			}
+		if (global.userSetsSubscriptionHandle) {
+			global.userSetsSubscriptionHandle.stop();
+		}
 
-			const patternIds = Array.from(new Set(sets.reduce(combineArrays, [])));
+		global.userSetsSubscriptionHandle = Meteor.subscribe('setsForUser', _id, {
+			'onReady': () => {
+				sets = Sets.find({ 'createdBy': _id }, {
+					'sort': { 'nameSort': 1 },
+				}).fetch();
 
-			Meteor.subscribe('patternsById', patternIds, {
-				'onReady': () => {
-					patternsInSets = Patterns.find(
-						{ '_id': { '$in': patternIds } },
-						{ 'sort': { 'nameSort': 1 } },
-					).fetch();
+				function combineArrays(patternIdsArray, set) {
+					return patternIdsArray.concat(set.patterns);
+				}
 
-					console.log('patternsInSets', patternsInSets);
-					secondaryPatternSubscriptions(patternsInSets);
-				},
-			});
-		},
-	});
+				const patternIds = Array.from(new Set(sets.reduce(combineArrays, [])));
+
+				Meteor.subscribe('patternsById', patternIds, {
+					'onReady': () => {
+						global.userPatternsInSets = Patterns.find(
+							{ '_id': { '$in': patternIds } },
+							{ 'sort': { 'nameSort': 1 } },
+						).fetch();
+
+						secondaryPatternSubscriptions(global.userPatternsInSets);
+					},
+				});
+			},
+		});
+	}
 
 	Meteor.subscribe('tags');
 
@@ -700,14 +706,14 @@ const Tracker = withTracker((props) => {
 	} else if (!isLoading && !handle.ready()) {
 		dispatch(setIsLoading(true));
 	}
-
+//console.log('*** patternsInSets props return', global.userPatternsInSets);
 	// pass database data as props
 	return {
 		'colorBooks': ColorBooks.find({ 'createdBy': _id }, {
 			'sort': { 'nameSort': 1 },
 		}).fetch(),
 		patterns,
-		patternsInSets,
+		'patternsInSets': global.userPatternsInSets,
 		'patternPreviews': PatternPreviews.find().fetch(),
 		'sets': Sets.find({ 'createdBy': _id }).fetch(),
 		'tags': Tags.find().fetch(),
