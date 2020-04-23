@@ -92,6 +92,8 @@ class User extends PureComponent {
 
 		this.patternsRef = React.createRef();
 
+		// make sure to subscribe
+		global.updateTrackerSetsSubscription.set(true);
 
 		dispatch(updatePatternCountUserId(_id));
 	}
@@ -457,16 +459,13 @@ class User extends PureComponent {
 			sets,
 			user,
 		} = this.props;
-//console.log('*** User render patternsInSets', patternsInSets);
+
 		return (
 			<div className="sets-list">
 				{sets && sets.map((set) => {
 					// find the patterns in this set
-					//console.log('User says set.patterns', set.patterns);
-					const patternsInThisSet = set.patterns.map((patternId) => {
-						return patternsInSets.find((pattern) => patternId === pattern._id);
-					});
-					///console.log('User says patternsInThisSet', patternsInThisSet);
+					const patternsInThisSet = set.patterns.map((patternId) => patternsInSets.find((pattern) => patternId === pattern._id));
+
 					return (
 						<div key={`set-summary-${set._id}`}>
 							<SetSummary
@@ -620,7 +619,6 @@ function mapStateToProps(state, ownProps) {
 		itemsPerPage,
 		'pageSkip': (currentPageNumber - 1) * itemsPerPage,
 		'patternCount': state.pattern.patternCount,
-		// 'section': ownProps.match.params.section, // read the url parameter to find whether to scroll to a section
 		'tab': ownProps.match.params.tab || 'profile', // read the url parameter to choose the tab
 	};
 }
@@ -643,8 +641,8 @@ const Tracker = withTracker((props) => {
 	let sets = [];
 
 	// force resubscription because setsForUser is not reactive
-	if (global.updateUserSetsSubscription.get() === true) {
-		global.updateUserSetsSubscription.set(false);
+	if (global.updateTrackerSetsSubscription.get() === true) {
+		global.updateTrackerSetsSubscription.set(false);
 
 		if (global.userSetsSubscriptionHandle) {
 			global.userSetsSubscriptionHandle.stop();
@@ -706,7 +704,7 @@ const Tracker = withTracker((props) => {
 	} else if (!isLoading && !handle.ready()) {
 		dispatch(setIsLoading(true));
 	}
-//console.log('*** patternsInSets props return', global.userPatternsInSets);
+
 	// pass database data as props
 	return {
 		'colorBooks': ColorBooks.find({ 'createdBy': _id }, {

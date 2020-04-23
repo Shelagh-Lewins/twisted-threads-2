@@ -71,6 +71,7 @@ import People from './People';
 import About from './About';
 import FAQPage from './FAQPage';
 import Pattern from './Pattern';
+import Set from './Set';
 import User from './User';
 import InteractiveWeavingChart from './InteractiveWeavingChart';
 import WeavingPrintView from './PrintView';
@@ -125,6 +126,7 @@ const DefaultContainer = () => (
 			<Route exact path="/faq" component={FAQPage} />
 			<Route exact path="/pattern/:id/:tab(design|info)?" component={Pattern} />
 			<Route exact path="/pattern/:id/weaving" component={InteractiveWeavingChart} />
+			<Route exact path="/set/:id" component={Set} />
 			<Route exact path="/user/:id/:tab(profile|patterns|colorbooks|sets)?" component={User} />
 		</div>
 	</div>

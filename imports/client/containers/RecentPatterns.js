@@ -18,8 +18,6 @@ import Loading from '../components/Loading';
 import MainMenu from '../components/MainMenu';
 import PaginatedList from '../components/PaginatedList';
 import PatternList from '../components/PatternList';
-
-//import { ITEMS_PER_PAGE } from '../../modules/parameters';
 import findRecentPatterns from '../modules/findRecentPatterns';
 
 import './Home.scss';

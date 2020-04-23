@@ -6,6 +6,7 @@ import { Patterns, Sets } from '../../imports/modules/collection';
 import {
 	getPatternPermissionQuery,
 } from '../../imports/modules/permissionQueries';
+import { MAX_SETS } from '../../imports/modules/parameters';
 
 Meteor.methods({
 	'sets.add': function ({
@@ -19,6 +20,10 @@ Meteor.methods({
 
 		if (!Meteor.userId()) {
 			throw new Meteor.Error('add-set-not-logged-in', 'Unable to create set because the user is not logged in');
+		}
+
+		if (Sets.find({ 'createdBy': Meteor.userId() }).count() > MAX_SETS) {
+			throw new Meteor.Error('add-set-too-many-sets', `Unable to create set because the user has created the maximum allowed number of sets (${MAX_SETS})`);
 		}
 
 		const pattern = Patterns.findOne({ '_id': patternId });

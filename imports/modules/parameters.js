@@ -188,6 +188,8 @@ export const FLASH_MESSAGE_TEXTS = {
 export const MAX_TAG_LENGTH = 32;
 export const MIN_TAG_LENGTH = 3;
 
+export const MAX_SETS = 100; // limit the number of sets a user can have
+
 // map from pattern data to human readable names
 // for use in patterns downloaded as text
 // and reimporting these
