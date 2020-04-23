@@ -37,6 +37,7 @@ import {
 	getIsAuthenticated,
 	editTextField,
 } from '../modules/auth';
+import secondaryPatternSubscriptions from '../modules/secondaryPatternSubscriptions';
 
 import Loading from '../components/Loading';
 import MainMenu from '../components/MainMenu';
@@ -452,21 +453,33 @@ class User extends PureComponent {
 	renderSetsTab() {
 		const {
 			dispatch,
+			patternsInSets,
+			patternPreviews,
 			sets,
 			user,
 		} = this.props;
 
 		return (
 			<div className="sets-list">
-				{sets && sets.map((set) => (
-					<div key={`set-summary-${set._id}`}>
-						<SetSummary
-							dispatch={dispatch}
-							set={set}
-							user={user}
-						/>
-					</div>
-				))}
+				{sets && sets.map((set) => {
+					// find the patterns in this set
+					console.log('User says set.patterns', set.patterns);
+					const patternsInThisSet = set.patterns.map((patternId) => {
+						return patternsInSets.find((pattern) => patternId === pattern._id);
+					});
+					console.log('User says patternsInThisSet', patternsInThisSet);
+					return (
+						<div key={`set-summary-${set._id}`}>
+							<SetSummary
+								dispatch={dispatch}
+								patternPreviews={patternPreviews}
+								patterns={patternsInThisSet}
+								set={set}
+								user={user}
+							/>
+						</div>
+					);
+				})}
 			</div>
 		);
 	}
@@ -575,6 +588,7 @@ User.propTypes = {
 	'patternCount': PropTypes.number.isRequired,
 	'patternPreviews': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'patternsInSets': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'sets': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'tab': PropTypes.string.isRequired,
 	'tags': PropTypes.arrayOf(PropTypes.any).isRequired,
@@ -626,13 +640,46 @@ const Tracker = withTracker((props) => {
 
 	Meteor.subscribe('users', [_id]);
 	Meteor.subscribe('colorBooks', _id);
-	Meteor.subscribe('setsForUser', _id);
+
+	// patterns in this user's sets
+	const sets = Sets.find({ 'createdBy': _id }, {
+		'sort': { 'nameSort': 1 },
+	}).fetch();
+
+	let patternsInSets = [];
+
+	Meteor.subscribe('setsForUser', _id, {
+		'onReady': () => {
+			function combineArrays(patternIdsArray, set) {
+				return patternIdsArray.concat(set.patterns);
+			}
+
+			const patternIds = Array.from(new Set(sets.reduce(combineArrays, [])));
+
+			Meteor.subscribe('patternsById', patternIds, {
+				'onReady': () => {
+					patternsInSets = Patterns.find(
+						{ '_id': { '$in': patternIds } },
+						{ 'sort': { 'nameSort': 1 } },
+					).fetch();
+
+					console.log('patternsInSets', patternsInSets);
+					secondaryPatternSubscriptions(patternsInSets);
+				},
+			});
+		},
+	});
+
 	Meteor.subscribe('tags');
 
-	const patterns = Patterns.find({ 'createdBy': _id }, {
-		'sort': { 'nameSort': 1 },
-		'limit': itemsPerPage,
-	}).fetch();
+	// patterns created by user
+	const patterns = Patterns.find(
+		{ 'createdBy': _id },
+		{
+			'sort': { 'nameSort': 1 },
+			'limit': itemsPerPage,
+		},
+	).fetch();
 
 	const handle = Meteor.subscribe('userPatterns', {
 		filterMaxTablets,
@@ -660,6 +707,7 @@ const Tracker = withTracker((props) => {
 			'sort': { 'nameSort': 1 },
 		}).fetch(),
 		patterns,
+		patternsInSets,
 		'patternPreviews': PatternPreviews.find().fetch(),
 		'sets': Sets.find({ 'createdBy': _id }).fetch(),
 		'tags': Tags.find().fetch(),

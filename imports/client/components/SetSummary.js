@@ -18,12 +18,9 @@ function SetSummary(props) {
 				createdBy,
 				description,
 				name,
-				patterns,
-				//numberOfTablets,
-				//isPublic,
 			},
-		//patternPreview,
-		tagTexts,
+		patterns,
+		patternPreviews,
 		user,
 	} = props;
 
@@ -43,16 +40,31 @@ function SetSummary(props) {
 			dispatch(removeSet(_id));
 		}
 	};
-
+console.log('*** patterns in this set', patterns);
 	const canEdit = Meteor.userId() === createdBy;
-	//const canAddToSet = Meteor.userId();
 
 	// import the preview
 	let previewStyle = {};
-//TODO pattern previews
+	const coverPatterns = [];
+
+	// show previews of the first four patterns in the set
+	for (let i = 0; i < 4; i += 1) {
+		if (patterns[i]) {
+			coverPatterns.push(patterns[i]._id);
+		}
+	}
+
+	const previews = coverPatterns.map((patternId) => {
+		return patternPreviews.find((preview) => {
+			return patternId === preview.patternId;
+		});
+	});
+	console.log('** previews', previews);
+	//TODO pattern previews
 	/*if (patternPreview) {
 		previewStyle = { 'backgroundImage': `url(${patternPreview.uri})` };
 	} */
+
 	const patternPreviewHolder = <div style={previewStyle} className="pattern-preview" />;
 
 	const buttonRemove = (
@@ -64,15 +76,6 @@ function SetSummary(props) {
 			<FontAwesomeIcon icon={['fas', 'trash']} style={{ 'color': iconColors.default }} size="1x" />
 		</Button>
 	);
-
-	/* const tags = tagTexts.map((text, index) => (
-		<span
-			className="tag"
-			key={`tag-${index}`} // eslint-disable-line react/no-array-index-key
-		>
-			{text}
-		</span>
-	)); */
 
 	return (
 		<div className="set-summary">
@@ -114,10 +117,9 @@ function SetSummary(props) {
 
 SetSummary.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
-	//'pattern': PropTypes.objectOf(PropTypes.any),
-	//'patternPreview': PropTypes.objectOf(PropTypes.any),
+	'patterns': PropTypes.arrayOf(PropTypes.any),
+	'patternPreviews': PropTypes.arrayOf(PropTypes.any),
 	'set': PropTypes.objectOf(PropTypes.any),
-	//'tagTexts': PropTypes.arrayOf(PropTypes.any),
 	'user': PropTypes.objectOf(PropTypes.any),
 };
 
