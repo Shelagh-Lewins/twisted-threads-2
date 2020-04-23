@@ -647,31 +647,33 @@ const Tracker = withTracker((props) => {
 		if (global.userSetsSubscriptionHandle) {
 			global.userSetsSubscriptionHandle.stop();
 		}
+console.log('*** User resubscribe');
+		setTimeout(() => {
+			global.userSetsSubscriptionHandle = Meteor.subscribe('setsForUser', _id, {
+				'onReady': () => {
+					sets = Sets.find({ 'createdBy': _id }, {
+						'sort': { 'nameSort': 1 },
+					}).fetch();
+	console.log('sets', sets);
+					function combineArrays(patternIdsArray, set) {
+						return patternIdsArray.concat(set.patterns);
+					}
 
-		global.userSetsSubscriptionHandle = Meteor.subscribe('setsForUser', _id, {
-			'onReady': () => {
-				sets = Sets.find({ 'createdBy': _id }, {
-					'sort': { 'nameSort': 1 },
-				}).fetch();
+					const patternIds = Array.from(new Set(sets.reduce(combineArrays, [])));
 
-				function combineArrays(patternIdsArray, set) {
-					return patternIdsArray.concat(set.patterns);
-				}
+					Meteor.subscribe('patternsById', patternIds, {
+						'onReady': () => {
+							global.userPatternsInSets = Patterns.find(
+								{ '_id': { '$in': patternIds } },
+								{ 'sort': { 'nameSort': 1 } },
+							).fetch();
 
-				const patternIds = Array.from(new Set(sets.reduce(combineArrays, [])));
-
-				Meteor.subscribe('patternsById', patternIds, {
-					'onReady': () => {
-						global.userPatternsInSets = Patterns.find(
-							{ '_id': { '$in': patternIds } },
-							{ 'sort': { 'nameSort': 1 } },
-						).fetch();
-
-						secondaryPatternSubscriptions(global.userPatternsInSets);
-					},
-				});
-			},
-		});
+							secondaryPatternSubscriptions(global.userPatternsInSets);
+						},
+					});
+				},
+			});
+		}, 500);
 	}
 
 	Meteor.subscribe('tags');

@@ -201,36 +201,30 @@ const Tracker = withTracker((props) => {
 
 			Meteor.subscribe('patternsById', patternIds, {
 				'onReady': () => {
-					global.userPatternsInSets = Patterns.find(
+					global.setPatternsInSet = Patterns.find(
 						{ '_id': { '$in': patternIds } },
 						{ 'sort': { 'nameSort': 1 } },
 					).fetch();
 
-					secondaryPatternSubscriptions(global.userPatternsInSets);
+					secondaryPatternSubscriptions(global.setPatternsInSet);
 				},
 			});
 		},
 	});
 
-		//setTimeout(() => {
-			//console.log('*** timeout');
-			//global.updateTrackerSetsSubscription.set(false);
-		//}, 500);
-	//}
-
 	Meteor.subscribe('tags');
 
-	//if (global.setSetsSubscriptionHandle) {
+	if (global.setSetsSubscriptionHandle) {
 		if (isLoading && global.setSetsSubscriptionHandle.ready()) {
 			dispatch(setIsLoading(false));
 		} else if (!isLoading && !global.setSetsSubscriptionHandle.ready()) {
 			dispatch(setIsLoading(true));
 		}
-	//}
+	}
 
 	// pass database data as props
 	return {
-		'patterns': global.userPatternsInSets,
+		'patterns': global.setPatternsInSet,
 		'patternPreviews': PatternPreviews.find().fetch(),
 		'set': Sets.findOne({ _id }),
 		'tags': Tags.find().fetch(),

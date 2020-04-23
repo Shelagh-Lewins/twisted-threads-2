@@ -29,3 +29,4 @@ global.userPatternsInSets = [];
 // the individual Set page needs to resubscribe to sets
 global.updateTrackerSetsSubscription2 = new ReactiveVar(true);
 global.setSetsSubscriptionHandle = null;
+global.setPatternsInSet = [];

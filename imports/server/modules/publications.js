@@ -20,7 +20,6 @@ import {
 } from './utils';
 import {
 	getPatternPermissionQuery,
-	//getSetsForUserPermissionQuery,
 	getUserPermissionQuery,
 } from '../../modules/permissionQueries';
 // arrow functions lose "this" context
@@ -394,8 +393,6 @@ Meteor.publish('tags', () => Tags.find());
 
 // all FAQs are public
 Meteor.publish('faq', () => FAQ.find());
-
-//Meteor.publish('tester', () => Sets.find());
 
 // the user can see their own sets and any sets containing public patterns
 // all visible set belonging to one user
