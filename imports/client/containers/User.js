@@ -386,6 +386,11 @@ class User extends PureComponent {
 						Profile
 						</Link>
 					</li>
+					<li className={`sets ${tab === 'sets' ? 'selected' : ''}`}>
+						<Link to={`/user/${_id}/sets`}>
+						Sets
+						</Link>
+					</li>
 					<li className={`patterns ${tab === 'patterns' ? 'selected' : ''}`}>
 						<Link to={`/user/${_id}/patterns`}>
 						Patterns
@@ -394,11 +399,6 @@ class User extends PureComponent {
 					<li className={`colorbooks ${tab === 'colorbooks' ? 'selected' : ''}`}>
 						<Link to={`/user/${_id}/colorbooks`}>
 						Colour books
-						</Link>
-					</li>
-					<li className={`sets ${tab === 'sets' ? 'selected' : ''}`}>
-						<Link to={`/user/${_id}/sets`}>
-						Sets
 						</Link>
 					</li>
 				</ul>
@@ -454,6 +454,7 @@ class User extends PureComponent {
 	renderSetsTab() {
 		const {
 			dispatch,
+			isLoading,
 			patternsInSets,
 			patternPreviews,
 			sets,
@@ -461,24 +462,38 @@ class User extends PureComponent {
 		} = this.props;
 
 		return (
-			<div className="sets-list">
-				{sets && sets.map((set) => {
-					// find the patterns in this set
-					const patternsInThisSet = set.patterns.map((patternId) => patternsInSets.find((pattern) => patternId === pattern._id));
+			<>
+				<div className="sets-list">
+					{sets && sets.map((set) => {
+						// find the patterns in this set
+						const patternsInThisSet = set.patterns.map((patternId) => patternsInSets.find((pattern) => patternId === pattern._id));
 
-					return (
-						<div key={`set-summary-${set._id}`}>
-							<SetSummary
-								dispatch={dispatch}
-								patternPreviews={patternPreviews}
-								patterns={patternsInThisSet}
-								set={set}
-								user={user}
-							/>
-						</div>
-					);
-				})}
-			</div>
+						return (
+							<div key={`set-summary-${set._id}`}>
+								<SetSummary
+									dispatch={dispatch}
+									patternPreviews={patternPreviews}
+									patterns={patternsInThisSet}
+									set={set}
+									user={user}
+								/>
+							</div>
+						);
+					})}
+				</div>
+				{!isLoading && (!sets || sets.length === 0) && (
+					<>
+						<Container>
+							<Row>
+								<Col>
+									<div className="empty">There are no sets to display.</div>
+									{user._id === Meteor.userId() && <div className="empty">To create a new set, find a pattern and click the &apos;+&apos; button to open the &apos;Add to set&apos; panel.</div>}
+								</Col>
+							</Row>
+						</Container>
+					</>
+				)}
+			</>
 		);
 	}
 

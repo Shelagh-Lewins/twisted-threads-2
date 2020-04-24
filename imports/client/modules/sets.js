@@ -55,3 +55,25 @@ export const removeSet = (_id, history) => (dispatch) => {
 		history.push(`/`);
 	}
 };
+
+// editable text fields like name, description
+export function editTextField({
+	_id,
+	fieldName,
+	fieldValue,
+}) {
+	return (dispatch) => {
+		Meteor.call('sets.edit', {
+			_id,
+			'data': {
+				fieldName,
+				fieldValue,
+				'type': 'editTextField',
+			},
+		}, (error) => {
+			if (error) {
+				return dispatch(logErrors({ 'edit text field': error.reason }));
+			}
+		});
+	};
+}

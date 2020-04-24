@@ -60,7 +60,7 @@ function PatternSummary(props) {
 		<Button
 			type="button"
 			onClick={() => handleClickButtonRemove({ _id, name })}
-			title="Delete set"
+			title="Delete pattern"
 		>
 			<FontAwesomeIcon icon={['fas', 'trash']} style={{ 'color': iconColors.default }} size="1x" />
 		</Button>

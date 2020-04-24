@@ -13,6 +13,7 @@ import {
 	getIsLoading,
 	setIsLoading,
 } from '../modules/pattern';
+import { editTextField } from '../modules/sets';
 import {
 	PatternPreviews,
 	Patterns,
@@ -22,14 +23,16 @@ import {
 import PageWrapper from '../components/PageWrapper';
 import Loading from '../components/Loading';
 import MainMenu from '../components/MainMenu';
-import PaginatedList from '../components/PaginatedList';
 import PatternList from '../components/PatternList';
+import EditableText from '../components/EditableText';
 import secondaryPatternSubscriptions from '../modules/secondaryPatternSubscriptions';
 import './Set.scss';
 
 const queryString = require('query-string');
 
 const bodyClass = 'set';
+
+// Set is not paginated
 
 class Set extends Component {
 	constructor(props) {
@@ -47,9 +50,15 @@ class Set extends Component {
 		document.body.classList.remove(bodyClass);
 	}
 
+	onClickEditableTextSave = ({ fieldValue, fieldName }) => {
+		const { dispatch } = this.props;
+		const { 'set': { _id } } = this.props;
+
+		dispatch(editTextField({ _id, fieldValue, fieldName }));
+	}
+
 	render() {
 		const {
-			currentPageNumber,
 			dispatch,
 			errors,
 			history,
@@ -65,25 +74,33 @@ class Set extends Component {
 
 		if (!isLoading) {
 			if (set) {
-				const patternCount = set.patterns.length;
+				const {
+					createdBy,
+					name,
+				} = set;
+
+				const canEdit = createdBy === Meteor.userId();
+				const patternCount = patterns.length;
 
 				content = (
 					<>
 						<Container>
 							<Row>
 								<Col lg="12">
-									<h1>{set.name}</h1>
+									<EditableText
+										canEdit={canEdit}
+										editButtonText="Edit name"
+										fieldName="name"
+										onClickSave={this.onClickEditableTextSave}
+										title="Name"
+										type="input"
+										fieldValue={name}
+									/>
 								</Col>
 							</Row>
 						</Container>
 						{!isLoading && patternCount > 0 && (
-							<PaginatedList
-								currentPageNumber={currentPageNumber}
-								dispatch={dispatch}
-								handlePaginationUpdate={this.handlePaginationUpdate}
-								history={history}
-								itemCount={patternCount}
-							>
+							<div className="set-details">
 								<PatternList
 									dispatch={dispatch}
 									patternPreviews={patternPreviews}
@@ -91,7 +108,7 @@ class Set extends Component {
 									tags={tags}
 									users={users}
 								/>
-							</PaginatedList>
+							</div>
 						)}
 						{!isLoading && patternCount === 0 && (
 							<Container>

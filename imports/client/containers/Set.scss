@@ -1,2 +1,10 @@
 @import "../constants/variables";
 
+.set-details {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-evenly;
+	margin-left: 0;
+	margin-right: 0;
+	padding: 8px;
+}

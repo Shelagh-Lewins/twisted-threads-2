@@ -189,6 +189,7 @@ export const MAX_TAG_LENGTH = 32;
 export const MIN_TAG_LENGTH = 3;
 
 export const MAX_SETS = 100; // limit the number of sets a user can have
+export const MAX_PATTERNS_IN_SET = 200; // limit the number of patterns that can be put in a set
 
 // map from pattern data to human readable names
 // for use in patterns downloaded as text

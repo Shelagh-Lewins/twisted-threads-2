@@ -30,6 +30,12 @@ class MainMenu extends Component {
 			'loginRequired': true,
 		},
 		{
+			'value': 'mySets',
+			'name': 'My sets',
+			'url': `/user/${Meteor.userId()}/sets`,
+			'loginRequired': true,
+		},
+		{
 			'value': 'myAccount',
 			'name': 'My account',
 			'url': '/account',
