@@ -13,7 +13,7 @@ import {
 	getIsLoading,
 	setIsLoading,
 } from '../modules/pattern';
-import { editTextField } from '../modules/sets';
+import { editTextField, removeSet } from '../modules/sets';
 import {
 	PatternPreviews,
 	Patterns,
@@ -57,11 +57,24 @@ class Set extends Component {
 		dispatch(editTextField({ _id, fieldValue, fieldName }));
 	}
 
+	handleClickButtonRemove = () => {
+		const {
+			dispatch,
+			history,
+			'set': { _id, name },
+		} = this.props;
+
+		const response = confirm(`Do you want to delete the set "${name}"?`); // eslint-disable-line no-restricted-globals
+
+		if (response === true) {
+			dispatch(removeSet(_id, history));
+		}
+	};
+
 	render() {
 		const {
 			dispatch,
 			errors,
-			history,
 			isLoading,
 			patternPreviews,
 			patterns,
@@ -75,7 +88,9 @@ class Set extends Component {
 		if (!isLoading) {
 			if (set) {
 				const {
+					_id,
 					createdBy,
+					description,
 					name,
 				} = set;
 
@@ -96,6 +111,24 @@ class Set extends Component {
 										type="input"
 										fieldValue={name}
 									/>
+									<EditableText
+										canEdit={canEdit}
+										editButtonText="Edit description"
+										fieldName="description"
+										onClickSave={this.onClickEditableTextSave}
+										optional={true}
+										title="Description"
+										type="textarea"
+										fieldValue={description}
+									/>
+									<Button
+										type="button"
+										color="danger"
+										onClick={() => this.handleClickButtonRemove()}
+										title="Delete set"
+									>
+										Delete set
+									</Button>
 								</Col>
 							</Row>
 						</Container>

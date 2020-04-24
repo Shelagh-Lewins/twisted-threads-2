@@ -74,19 +74,28 @@ function SetSummary(props) {
 	const buttonRemove = (
 		<Button
 			type="button"
-			onClick={() => handleClickButtonRemove({ _id, name })}
+			onClick={() => handleClickButtonRemove()}
 			title="Delete set"
 		>
 			<FontAwesomeIcon icon={['fas', 'trash']} style={{ 'color': iconColors.default }} size="1x" />
 		</Button>
 	);
 
+	// if no description, concatenate pattern names instead
+	let text = description;
+
+	if (!description && patterns) {
+		text = patterns.reduce((workingString, pattern, index) => workingString
+			+ (pattern ? pattern.name : '')
+			+ (index === patterns.length - 1 ? '' : ', '), '');
+	}
+
 	return (
 		<div className="set-summary">
 			<div className="main">
 				<Link to={`/set/${_id}`}>
 					<h3>{name}</h3>
-					<div className="description">{description}</div>
+					<div className="description">{text}</div>
 					<div className="info">
 						<div className="number-of-patterns">
 							<span

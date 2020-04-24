@@ -52,7 +52,7 @@ export const removeSet = (_id, history) => (dispatch) => {
 	});
 
 	if (history) { // if deleting from Sets tab of User page, no need to redirect
-		history.push(`/`);
+		history.push(`/user/${Meteor.userId()}/sets`);
 	}
 };
 
