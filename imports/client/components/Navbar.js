@@ -20,6 +20,7 @@ import {
 import AppContext from '../modules/appContext';
 import Search from './Search';
 import UploadPatternForm from '../forms/UploadPatternForm';
+import AddToSet from './AddToSet';
 import './Navbar.scss';
 import { iconColors } from '../../modules/parameters';
 
@@ -186,6 +187,13 @@ class Navbar extends Component {
 				</Button>
 			);
 
+			const buttonAddToSet = (
+				<AddToSet
+					patternId={patternId}
+					patternName={pattern.name}
+				/>
+			);
+
 			const buttonRemove = (
 				<Button
 					type="button"
@@ -201,6 +209,7 @@ class Navbar extends Component {
 				<ul className="pattern-menu navbar-nav ml-auto">
 					<li className="nav-item">{buttonDownload}</li>
 					{canCreatePattern && <li className="nav-item">{buttonCopy}</li>}
+					{Meteor.userId() && <li className="nav-item">{buttonAddToSet}</li>}
 					{isOwner && <li className="nav-item">{buttonRemove}</li>}
 				</ul>
 			);

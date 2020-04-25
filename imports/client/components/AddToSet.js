@@ -150,7 +150,7 @@ class AddToSet extends Component {
 		} = this.props;
 		const { showSetsPanel } = this.state;
 		const { sets } = this.context;
-		const tooltip = 'Add this pattern to a set';
+		const tooltip = 'Add to set';
 
 		return (
 			<>

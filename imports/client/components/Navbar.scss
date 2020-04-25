@@ -13,6 +13,10 @@
 			&:focus {
 				outline: 1px dotted $color-navbar-focus;
 			}
+
+			svg {
+				color: $color-navbar-color !important;
+			}
 		}
 	}
 
