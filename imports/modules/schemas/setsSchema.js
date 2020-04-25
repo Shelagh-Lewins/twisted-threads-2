@@ -40,6 +40,16 @@ const SetsSchema = new SimpleSchema({
 		'type': String,
 		'label': 'Pattern id',
 	},
+	'tags': {
+		'type': Array,
+		'label': 'Tags',
+		'index': 1,
+	},
+	'tags.$': {
+		'type': String,
+		'label': 'Tag',
+		'max': 100,
+	},
 });
 
 export default SetsSchema;

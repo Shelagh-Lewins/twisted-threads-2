@@ -7,7 +7,9 @@ import { clearErrors, logErrors } from './errors';
 // ///////////////////////////
 // Action that call Meteor methods; these do not change the Store but are located here in order to keep server interactions away from UI
 
-// create a new tag and assign it to the pattern
+// Tags can be assigned to patterns or sets
+
+// create a new tag and assign it to the document
 export const addTag = ({
 	name,
 	targetId,
@@ -26,7 +28,7 @@ export const addTag = ({
 	});
 };
 
-// assign an existing tag to the pattern
+// assign an existing tag to the document
 export const assignTagToDocument = ({
 	name,
 	targetId,

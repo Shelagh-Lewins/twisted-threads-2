@@ -367,7 +367,7 @@ class Pattern extends PureComponent {
 		);
 	}
 
-	renderTagInput() {
+	renderTagInput(canEdit) {
 		const { dispatch } = this.props;
 		const { pattern, allTags } = this.context;
 		const { _id, tags } = pattern;
@@ -392,6 +392,7 @@ class Pattern extends PureComponent {
 
 		return (
 			<TagInput
+				canEdit={canEdit}
 				tagSuggestions={tagSuggestions}
 				dispatch={dispatch}
 				tags={tagObjects}
@@ -703,7 +704,7 @@ class Pattern extends PureComponent {
 						{canEdit && this.renderIsPublic()}
 						<p>Number of holes: {holes}</p>
 						<p>Number of tablets: {numberOfTablets}</p>
-						{canEdit && this.renderTagInput()}
+						{this.renderTagInput(canEdit)}
 						<EditableText
 							canEdit={canEdit}
 							editButtonText="Edit description"

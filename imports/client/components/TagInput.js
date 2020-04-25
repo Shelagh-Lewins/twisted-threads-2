@@ -85,7 +85,23 @@ class TagInput extends PureComponent {
 	}
 
 	render() {
-		const { tagSuggestions, tags } = this.props;
+		const {
+			canEdit,
+			tagSuggestions,
+			tags,
+		} = this.props;
+
+		if (!canEdit) {
+			return (
+				<div className="view-tags">
+					<div className="label">Tags:</div>
+					<ul>
+						{tags.map((tag) => <li key={tag.name}>{tag.name}</li>)}
+					</ul>
+				</div>
+			);
+		}
+
 		const { isValid } = this.state;
 
 		const tagComponent = ({ tag, onDelete }) => (
@@ -130,6 +146,7 @@ class TagInput extends PureComponent {
 }
 
 TagInput.propTypes = {
+	'canEdit': PropTypes.bool.isRequired,
 	'tagSuggestions': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	// 'patternId': PropTypes.string.isRequired,

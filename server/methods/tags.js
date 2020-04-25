@@ -12,6 +12,8 @@ import {
 	MAX_TAG_LENGTH,
 } from '../../imports/modules/parameters';
 
+// Tags can be assigned to patterns or sets
+
 function getTagTargetCollection(targetType) {
 	switch (targetType) {
 		case 'pattern':

@@ -38,6 +38,7 @@ Meteor.methods({
 			name,
 			'nameSort': name.toLowerCase(),
 			'patterns': [patternId],
+			'tags': [],
 		});
 
 		return setId;
