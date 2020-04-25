@@ -2,20 +2,39 @@ import { check } from 'meteor/check';
 import {
 	nonEmptyStringCheck,
 } from '../../imports/server/modules/utils';
-import { Patterns, Tags } from '../../imports/modules/collection';
+import {
+	Patterns,
+	Sets,
+	Tags,
+} from '../../imports/modules/collection';
 import {
 	MIN_TAG_LENGTH,
 	MAX_TAG_LENGTH,
 } from '../../imports/modules/parameters';
 
+function getTagTargetCollection(targetType) {
+	switch (targetType) {
+		case 'pattern':
+			return Patterns;
+
+		case 'set':
+			return Sets;
+
+		default:
+			break;
+	}
+}
+
 Meteor.methods({
 	'tags.add': function ({
-		patternId,
 		name,
+		targetId,
+		targetType,
 	}) {
-		// tags are created when a new text is assigned to a pattern
-		check(patternId, nonEmptyStringCheck);
+		// tags are created when a new text is assigned to a document
 		check(name, nonEmptyStringCheck);
+		check(targetId, nonEmptyStringCheck);
+		check(targetType, nonEmptyStringCheck);
 
 		// ensure all tags are lower case
 		const processedName = name.toLowerCase();
@@ -24,14 +43,15 @@ Meteor.methods({
 			throw new Meteor.Error('add-tag-not-logged-in', 'Unable to create tag because the user is not logged in');
 		}
 
-		const pattern = Patterns.findOne({ '_id': patternId });
+		const collection = getTagTargetCollection(targetType);
+		const document = collection.findOne({ '_id': targetId });
 
-		if (!pattern) {
-			throw new Meteor.Error('add-tag-not-found', 'Unable to add tag because the pattern was not found');
+		if (!document) {
+			throw new Meteor.Error('add-tag-not-found', 'Unable to add tag because the document was not found');
 		}
 
-		if (pattern.createdBy !== Meteor.userId()) {
-			throw new Meteor.Error('add-tag-not-created-by-user', 'Unable to add tag because the pattern was not created by the current logged in user');
+		if (document.createdBy !== Meteor.userId()) {
+			throw new Meteor.Error('add-tag-not-created-by-user', 'Unable to add tag because the document was not created by the current logged in user');
 		}
 
 		// check the name does not already exist
@@ -54,40 +74,43 @@ Meteor.methods({
 			'name': processedName,
 		});
 
-		if (!pattern.tags) {
-			Patterns.update(
-				{ '_id': patternId },
+		if (!document.tags) {
+			collection.update(
+				{ '_id': targetId },
 				{ '$set': { 'tags': [] } },
 			);
 		}
 
-		Patterns.update(
-			{ '_id': patternId },
+		collection.update(
+			{ '_id': targetId },
 			{ '$push': { 'tags': processedName } },
 		);
 
 		return tagId;
 	},
-	'tags.assignToPattern': function ({
-		patternId,
+	'tags.assignToDocument': function ({
 		name,
+		targetId,
+		targetType,
 	}) {
-		// assign an existing tag to a pattern
-		check(patternId, nonEmptyStringCheck);
+		// assign an existing tag to a document
 		check(name, nonEmptyStringCheck);
+		check(targetId, nonEmptyStringCheck);
+		check(targetType, nonEmptyStringCheck);
 
 		if (!Meteor.userId()) {
 			throw new Meteor.Error('assign-tag-not-logged-in', 'Unable to assign tag because the user is not logged in');
 		}
 
-		const pattern = Patterns.findOne({ '_id': patternId });
+		const collection = getTagTargetCollection(targetType);
+		const document = collection.findOne({ '_id': targetId });
 
-		if (!pattern) {
-			throw new Meteor.Error('assign-tag-not-found', 'Unable to assign tag because the pattern was not found');
+		if (!document) {
+			throw new Meteor.Error('assign-tag-not-found', 'Unable to assign tag because the document was not found');
 		}
 
-		if (pattern.createdBy !== Meteor.userId()) {
-			throw new Meteor.Error('assign-tag-not-created-by-user', 'Unable to assign tag because the pattern was not created by the current logged in user');
+		if (document.createdBy !== Meteor.userId()) {
+			throw new Meteor.Error('assign-tag-not-created-by-user', 'Unable to assign tag because the document was not created by the current logged in user');
 		}
 
 		// check the tag exists
@@ -96,73 +119,81 @@ Meteor.methods({
 			throw new Meteor.Error('assign-tag-not-found', 'Unable to assign tag because the tag was not found');
 		}
 
-		// check the tag is not already assigned to the pattern
-		if (pattern.tags.indexOf(name) !== -1) {
-			throw new Meteor.Error('assign-tag-already-assigned', 'Unable to assign tag because the tag is already assigned to the pattern');
+		// check the tag is not already assigned to the document
+		if (document.tags.indexOf(name) !== -1) {
+			throw new Meteor.Error('assign-tag-already-assigned', 'Unable to assign tag because the tag is already assigned to the document');
 		}
 
-		Patterns.update(
-			{ '_id': patternId },
+		collection.update(
+			{ '_id': targetId },
 			{ '$push': { 'tags': name } },
 		);
 	},
-	'tags.ensureExistsAndAssignToPattern': function ({
+	'tags.ensureExistsAndAssignToDocument': function ({
 		name,
-		patternId,
+		targetId,
+		targetType,
 	}) {
-		check(patternId, nonEmptyStringCheck);
 		check(name, nonEmptyStringCheck);
+		check(targetId, nonEmptyStringCheck);
+		check(targetType, nonEmptyStringCheck);
 
 		// create the tag if it does not already exist
 		const existing = Tags.findOne({ name });
 
 		if (!existing) {
 			Meteor.call('tags.add', {
-				patternId,
 				name,
+				targetId,
+				targetType,
 			});
 		} else {
-			// check the tag isn't already assigned to the pattern
-			const pattern = Patterns.findOne({ '_id': patternId });
-			const { tags } = pattern;
+			// check the tag isn't already assigned to the document
+			const collection = getTagTargetCollection(targetType);
+			const document = collection.findOne({ '_id': targetId });
+
+			const { tags } = document;
 			if (tags.indexOf(name) === -1) {
-				Meteor.call('tags.assignToPattern', {
-					patternId,
+				Meteor.call('tags.assignToDocument', {
+					targetId,
 					name,
 				});
 			}
 		}
 	},
-	'tags.removeTagFromPattern': function ({
-		patternId,
+	'tags.removeFromDocument': function ({
 		name,
+		targetId,
+		targetType,
 	}) {
-		// remove an existing tag from a pattern
-		check(patternId, nonEmptyStringCheck);
+		// remove an existing tag from a document
 		check(name, nonEmptyStringCheck);
+		check(targetId, nonEmptyStringCheck);
+		check(targetType, nonEmptyStringCheck);
 
 		if (!Meteor.userId()) {
 			throw new Meteor.Error('remove-tag-not-logged-in', 'Unable to remove tag because the user is not logged in');
 		}
 
-		const pattern = Patterns.findOne({ '_id': patternId });
+		const collection = getTagTargetCollection(targetType);
+		const document = collection.findOne({ '_id': targetId });
 
-		if (!pattern) {
-			throw new Meteor.Error('remove-tag-not-found', 'Unable to remove tag because the pattern was not found');
+		if (!document) {
+			throw new Meteor.Error('remove-tag-not-found', 'Unable to remove tag because the document was not found');
 		}
 
-		if (pattern.createdBy !== Meteor.userId()) {
-			throw new Meteor.Error('remove-tag-not-created-by-user', 'Unable to remove tag because the pattern was not created by the current logged in user');
+		if (document.createdBy !== Meteor.userId()) {
+			throw new Meteor.Error('remove-tag-not-created-by-user', 'Unable to remove tag because the document was not created by the current logged in user');
 		}
 
-		// check the tag is assigned to the pattern
-		if (pattern.tags.indexOf(name) === -1) {
-			throw new Meteor.Error('remove-tag-not-assigned', 'Unable to remove tag because the tag is not assigned to the pattern');
+		// check the tag is assigned to the document
+		if (document.tags.indexOf(name) === -1) {
+			throw new Meteor.Error('remove-tag-not-assigned', 'Unable to remove tag because the tag is not assigned to the document');
 		}
 
-		// Remove the tag from the pattern
-		Patterns.update(
-			{ '_id': patternId },
+		// Remove the tag from the document
+		collection.update(
+			{ '_id': targetId },
 			{ '$pull': { 'tags': name } },
 		);
 
@@ -181,7 +212,7 @@ Meteor.methods({
 		}
 
 		namesArray.forEach((name) => {
-			if (Patterns.find({ 'tags': name }).count() === 0) {
+			if (Patterns.find({ 'tags': name }).count() === 0 && Sets.find({ 'tags': name }).count() === 0) {
 				Tags.remove({ 'name': name });
 			}
 		});

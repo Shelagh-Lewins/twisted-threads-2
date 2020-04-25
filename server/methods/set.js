@@ -9,7 +9,7 @@ import {
 import { MAX_PATTERNS_IN_SET, MAX_SETS } from '../../imports/modules/parameters';
 
 Meteor.methods({
-	'sets.add': function ({
+	'set.add': function ({
 		patternId,
 		name,
 	}) {
@@ -42,7 +42,7 @@ Meteor.methods({
 
 		return setId;
 	},
-	'sets.addPattern': function ({ // add a pattern to an existing set
+	'set.addPattern': function ({ // add a pattern to an existing set
 		patternId,
 		setId,
 	}) {
@@ -92,7 +92,7 @@ Meteor.methods({
 			{ '$push': { 'patterns': patternId } },
 		);
 	},
-	'sets.removePattern': function ({ // remove a pattern from a set
+	'set.removePattern': function ({ // remove a pattern from a set
 		patternId,
 		setId,
 	}) {
@@ -144,7 +144,7 @@ Meteor.methods({
 			Sets.remove({ '_id': setId });
 		}
 	},
-	'sets.remove': function (_id) {
+	'set.remove': function (_id) {
 		check(_id, nonEmptyStringCheck);
 
 		if (!Meteor.userId()) {
@@ -167,7 +167,7 @@ Meteor.methods({
 	// multi-purpose edit pattern method to avoid having to repeat the same permissions checks
 	// at present, this is simpler than pattern.edit because only name and description can be edited
 	// so it's always a text field
-	'sets.edit': function ({
+	'set.edit': function ({
 		_id,
 		data,
 	}) {

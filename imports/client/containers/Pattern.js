@@ -394,8 +394,9 @@ class Pattern extends PureComponent {
 			<TagInput
 				tagSuggestions={tagSuggestions}
 				dispatch={dispatch}
-				patternId={_id}
 				tags={tagObjects}
+				targetId={_id}
+				targetType="pattern"
 			/>
 		);
 	}

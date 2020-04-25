@@ -8,10 +8,18 @@ import { clearErrors, logErrors } from './errors';
 // Action that call Meteor methods; these do not change the Store but are located here in order to keep server interactions away from UI
 
 // create a new tag and assign it to the pattern
-export const addTag = ({ patternId, name }) => (dispatch) => {
+export const addTag = ({
+	name,
+	targetId,
+	targetType,
+}) => (dispatch) => {
 	dispatch(clearErrors());
 
-	Meteor.call('tags.add', { patternId, name }, (error, result) => {
+	Meteor.call('tags.add', {
+		name,
+		targetId,
+		targetType,
+	}, (error, result) => {
 		if (error) {
 			return dispatch(logErrors({ 'add-tag': error.reason }));
 		}
@@ -19,18 +27,34 @@ export const addTag = ({ patternId, name }) => (dispatch) => {
 };
 
 // assign an existing tag to the pattern
-export const assignTagToPattern = ({ patternId, name }) => (dispatch) => {
+export const assignTagToDocument = ({
+	name,
+	targetId,
+	targetType,
+}) => (dispatch) => {
 	dispatch(clearErrors());
 
-	Meteor.call('tags.assignToPattern', { patternId, name }, (error, result) => {
+	Meteor.call('tags.assignToDocument', {
+		name,
+		targetId,
+		targetType,
+	}, (error, result) => {
 		if (error) {
 			return dispatch(logErrors({ 'assign-to-pattern': error.reason }));
 		}
 	});
 };
 
-export function removeTagFromPattern({ patternId, name }) {
+export function removeTagFromDocument({
+	name,
+	targetId,
+	targetType,
+}) {
 	return () => {
-		Meteor.call('tags.removeTagFromPattern', { patternId, name });
+		Meteor.call('tags.removeFromDocument', {
+			name,
+			targetId,
+			targetType,
+		});
 	};
 }

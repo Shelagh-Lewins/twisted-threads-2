@@ -13,7 +13,7 @@ import {
 	getIsLoading,
 	setIsLoading,
 } from '../modules/pattern';
-import { editTextField, removeSet } from '../modules/sets';
+import { editTextField, removeSet } from '../modules/set';
 import {
 	PatternPreviews,
 	Patterns,
@@ -25,6 +25,7 @@ import Loading from '../components/Loading';
 import MainMenu from '../components/MainMenu';
 import PatternList from '../components/PatternList';
 import EditableText from '../components/EditableText';
+import TagInput from '../components/TagInput';
 import secondaryPatternSubscriptions from '../modules/secondaryPatternSubscriptions';
 import './Set.scss';
 

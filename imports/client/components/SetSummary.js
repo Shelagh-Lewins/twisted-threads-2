@@ -3,7 +3,7 @@ import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { removeSet } from '../modules/sets';
+import { removeSet } from '../modules/set';
 
 import './SetSummary.scss';
 

@@ -1,9 +1,15 @@
 import React, { PureComponent } from 'react';
 import ReactTags from 'react-tag-autocomplete';
 import PropTypes from 'prop-types';
-import { assignTagToPattern, addTag, removeTagFromPattern } from '../modules/tags';
+import {
+	assignTagToDocument,
+	addTag,
+	removeTagFromDocument,
+} from '../modules/tags';
 import { MAX_TAG_LENGTH, MIN_TAG_LENGTH } from '../../modules/parameters';
 import './TagInput.scss';
+
+// Tags can be assigned to patterns or sets
 
 class TagInput extends PureComponent {
 	constructor(props) {
@@ -26,23 +32,45 @@ class TagInput extends PureComponent {
 	}
 
 	onDelete(i) {
-		const { dispatch, patternId, tags } = this.props;
+		const {
+			dispatch,
+			tags,
+			targetId,
+			targetType,
+		} = this.props;
 
 		const { name } = tags[i];
 
-		dispatch(removeTagFromPattern({ patternId, name }));
+		dispatch(removeTagFromDocument({
+			name,
+			targetId,
+			targetType,
+		}));
 	}
 
 	onAddition(tag) {
-		const { dispatch, patternId } = this.props;
+		const {
+			dispatch,
+			targetId,
+			targetType,
+		} = this.props;
+
 		const { '_id': tagId, name } = tag;
 
 		if (tagId) {
 			// user selected an existing tag
-			dispatch(assignTagToPattern({ patternId, name }));
+			dispatch(assignTagToDocument({
+				name,
+				targetId,
+				targetType,
+			}));
 		} else {
 			// user has entered a new tag
-			dispatch(addTag({ patternId, name }));
+			dispatch(addTag({
+				name,
+				targetId,
+				targetType,
+			}));
 		}
 	}
 
@@ -104,8 +132,10 @@ class TagInput extends PureComponent {
 TagInput.propTypes = {
 	'tagSuggestions': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,
-	'patternId': PropTypes.string.isRequired,
+	// 'patternId': PropTypes.string.isRequired,
 	'tags': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'targetId': PropTypes.string.isRequired, // id of pattern or set
+	'targetType': PropTypes.string.isRequired, // 'pattern', 'set'
 };
 
 export default TagInput;

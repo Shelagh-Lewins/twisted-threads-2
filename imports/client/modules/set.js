@@ -12,7 +12,7 @@ import { clearErrors, logErrors } from './errors';
 export const addSet = ({ patternId, name }) => (dispatch) => {
 	dispatch(clearErrors());
 
-	Meteor.call('sets.add', { patternId, name }, (error, result) => {
+	Meteor.call('set.add', { patternId, name }, (error, result) => {
 		if (error) {
 			return dispatch(logErrors({ 'add-set': error.reason }));
 		}
@@ -25,7 +25,7 @@ export const addSet = ({ patternId, name }) => (dispatch) => {
 export const addPatternToSet = ({ patternId, setId }) => (dispatch) => {
 	dispatch(clearErrors());
 
-	Meteor.call('sets.addPattern', { patternId, setId }, (error, result) => {
+	Meteor.call('set.addPattern', { patternId, setId }, (error, result) => {
 		if (error) {
 			return dispatch(logErrors({ 'add-to-set': error.reason }));
 		}
@@ -36,7 +36,7 @@ export const addPatternToSet = ({ patternId, setId }) => (dispatch) => {
 export const removePatternFromSet = ({ patternId, setId }) => (dispatch) => {
 	dispatch(clearErrors());
 
-	Meteor.call('sets.removePattern', { patternId, setId }, (error, result) => {
+	Meteor.call('set.removePattern', { patternId, setId }, (error, result) => {
 		if (error) {
 			return dispatch(logErrors({ 'remove-from-set': error.reason }));
 		}
@@ -45,7 +45,7 @@ export const removePatternFromSet = ({ patternId, setId }) => (dispatch) => {
 
 // remove a set
 export const removeSet = (_id, history) => (dispatch) => {
-	Meteor.call('sets.remove', _id, (error) => {
+	Meteor.call('set.remove', _id, (error) => {
 		if (error) {
 			return dispatch(logErrors({ 'remove set': error.reason }));
 		}
@@ -63,7 +63,7 @@ export function editTextField({
 	fieldValue,
 }) {
 	return (dispatch) => {
-		Meteor.call('sets.edit', {
+		Meteor.call('set.edit', {
 			_id,
 			'data': {
 				fieldName,

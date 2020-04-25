@@ -11,7 +11,7 @@ import {
 	addPatternToSet,
 	addSet,
 	removePatternFromSet,
-} from '../modules/sets';
+} from '../modules/set';
 import { setPatternForSetsList } from '../modules/page';
 import AppContext from '../modules/appContext';
 import AddToSetForm from '../forms/AddToSetForm';

@@ -212,7 +212,7 @@ Meteor.methods({
 			const existing = Tags.findOne({ 'name': tag });
 
 			if (existing) {
-				Meteor.call('tags.assignToPattern', {
+				Meteor.call('tags.assignToDocument', {
 					patternId,
 					'name': existing.name,
 				});
@@ -443,7 +443,7 @@ Meteor.methods({
 		if (tags) {
 			// add each tag
 			tags.forEach((tagName) => {
-				Meteor.call('tags.ensureExistsAndAssignToPattern', {
+				Meteor.call('tags.ensureExistsAndAssignToDocument', {
 					patternId,
 					'name': tagName,
 				});
