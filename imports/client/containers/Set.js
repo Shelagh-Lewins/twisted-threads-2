@@ -75,10 +75,10 @@ class Set extends Component {
 
 	renderTagInput(canEdit) {
 		const {
+			allTags,
 			dispatch,
 			'set': { _id, tags },
 		} = this.props;
-		const { allTags } = this.context;
 
 		const tagObjects = [];
 		let tagSuggestions = [];
@@ -88,8 +88,8 @@ class Set extends Component {
 			tagSuggestions = allTags.filter((tag) => tags.indexOf(tag.name) === -1);
 
 			// build the list of tag objects from the array of tag ids
-			tags.forEach((patternTagName) => {
-				const tagObject = allTags.find((allTag) => patternTagName === allTag.name);
+			tags.forEach((thisTagName) => {
+				const tagObject = allTags.find((allTag) => thisTagName === allTag.name);
 				// const tagObject = allTags.find((allTag) => patternTagId === allTag.name);
 
 				if (tagObject) {
@@ -105,20 +105,21 @@ class Set extends Component {
 				dispatch={dispatch}
 				tags={tagObjects}
 				targetId={_id}
-				targetType="pattern"
+				targetType="set"
 			/>
 		);
 	}
 
 	render() {
 		const {
+			allTags,
 			dispatch,
 			errors,
 			isLoading,
 			patternPreviews,
 			patterns,
 			set,
-			tags,
+			//tags,
 			users,
 		} = this.props;
 
@@ -178,7 +179,7 @@ class Set extends Component {
 									dispatch={dispatch}
 									patternPreviews={patternPreviews}
 									patterns={patterns}
-									tags={tags}
+									tags={allTags}
 									users={users}
 								/>
 							</div>
@@ -215,11 +216,12 @@ class Set extends Component {
 	}
 }
 
-Set.contextType = AppContext;
+//Set.contextType = AppContext;
 
 Set.propTypes = {
 	'_id': PropTypes.string.isRequired, // read the url parameter to find the id of the set
 	//'currentPageNumber': PropTypes.number,
+	'allTags': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
@@ -227,7 +229,6 @@ Set.propTypes = {
 	'patternPreviews': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'set': PropTypes.objectOf(PropTypes.any),
-	'tags': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'users': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
@@ -311,10 +312,10 @@ const Tracker = withTracker((props) => {
 
 	// pass database data as props
 	return {
+		'allTags': Tags.find().fetch(),
 		'patterns': global.setPatternsInSet,
 		'patternPreviews': PatternPreviews.find().fetch(),
 		'set': Sets.findOne({ _id }),
-		'tags': Tags.find().fetch(),
 		'users': Meteor.users.find().fetch(),
 	};
 })(Set);
