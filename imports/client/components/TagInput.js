@@ -86,23 +86,42 @@ class TagInput extends PureComponent {
 
 	render() {
 		const {
+			allTags,
 			canEdit,
-			tagSuggestions,
-			tags,
+			tags, // array of tag ids assigned to the document
 		} = this.props;
+
+		const { isValid } = this.state;
+
+		// build the list of suggested tags
+		// only suggest tags that are not already assigned to the document
+		const tagObjects = [];
+		let tagSuggestions = [];
+
+		if (allTags) {
+			tagSuggestions = allTags.filter((tag) => tags.indexOf(tag.name) === -1);
+
+			// build the list of tag objects from the document's array of tag ids
+			// so we can show tag names and access tag itds
+			tags.forEach((tagNameInDocument) => {
+				const thisTagObject = allTags.find((tagObject) => tagNameInDocument === tagObject.name);
+
+				if (thisTagObject) {
+					tagObjects.push(thisTagObject);
+				}
+			});
+		}
 
 		if (!canEdit) {
 			return (
 				<div className="view-tags">
 					<div className="label">Tags:</div>
 					<ul>
-						{tags.map((tag) => <li key={tag.name}>{tag.name}</li>)}
+						{tagObjects.map((tag) => <li key={tag.name}>{tag.name}</li>)}
 					</ul>
 				</div>
 			);
 		}
-
-		const { isValid } = this.state;
 
 		const tagComponent = ({ tag, onDelete }) => (
 			<div className="selected-tag">{tag.name}
@@ -132,7 +151,7 @@ class TagInput extends PureComponent {
 						'suggestionActive': 'is-active',
 						'suggestionDisabled': 'is-disabled',
 					}}
-					tags={tags}
+					tags={tagObjects}
 					suggestions={tagSuggestions}
 					onDelete={this.onDelete}
 					onAddition={this.onAddition}
@@ -146,10 +165,9 @@ class TagInput extends PureComponent {
 }
 
 TagInput.propTypes = {
+	'allTags': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'canEdit': PropTypes.bool.isRequired,
-	'tagSuggestions': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,
-	// 'patternId': PropTypes.string.isRequired,
 	'tags': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'targetId': PropTypes.string.isRequired, // id of pattern or set
 	'targetType': PropTypes.string.isRequired, // 'pattern', 'set'

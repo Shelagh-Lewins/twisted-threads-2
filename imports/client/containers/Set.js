@@ -30,8 +30,6 @@ import TagInput from '../components/TagInput';
 import secondaryPatternSubscriptions from '../modules/secondaryPatternSubscriptions';
 import './Set.scss';
 
-//const queryString = require('query-string');
-
 const bodyClass = 'set';
 
 // Set is not paginated
@@ -80,30 +78,12 @@ class Set extends Component {
 			'set': { _id, tags },
 		} = this.props;
 
-		const tagObjects = [];
-		let tagSuggestions = [];
-
-		if (allTags) {
-			// only suggest tags that have not been selected
-			tagSuggestions = allTags.filter((tag) => tags.indexOf(tag.name) === -1);
-
-			// build the list of tag objects from the array of tag ids
-			tags.forEach((thisTagName) => {
-				const tagObject = allTags.find((allTag) => thisTagName === allTag.name);
-				// const tagObject = allTags.find((allTag) => patternTagId === allTag.name);
-
-				if (tagObject) {
-					tagObjects.push(tagObject);
-				}
-			});
-		}
-
 		return (
 			<TagInput
+				allTags={allTags}
 				canEdit={canEdit}
-				tagSuggestions={tagSuggestions}
 				dispatch={dispatch}
-				tags={tagObjects}
+				tags={tags}
 				targetId={_id}
 				targetType="set"
 			/>
@@ -119,7 +99,6 @@ class Set extends Component {
 			patternPreviews,
 			patterns,
 			set,
-			//tags,
 			users,
 		} = this.props;
 
@@ -128,7 +107,6 @@ class Set extends Component {
 		if (!isLoading) {
 			if (set) {
 				const {
-					_id,
 					createdBy,
 					description,
 					name,
@@ -216,11 +194,8 @@ class Set extends Component {
 	}
 }
 
-//Set.contextType = AppContext;
-
 Set.propTypes = {
 	'_id': PropTypes.string.isRequired, // read the url parameter to find the id of the set
-	//'currentPageNumber': PropTypes.number,
 	'allTags': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
@@ -232,32 +207,15 @@ Set.propTypes = {
 	'users': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
-/* const mapStateToProps = (state, ownProps) => ({
-	'_id': ownProps.match.params.id, // read the url parameter to find the id of the set
-	'errors': state.errors,
-}); */
-
 function mapStateToProps(state, ownProps) {
 	const { itemsPerPage } = state.page;
 	// find page number as URL query parameter, if present, in the form '/?page=1'
-	//let currentPageNumber = 1;
-	//const parsed = queryString.parse(ownProps.location.search);
-	//const page = parseInt(parsed.page, 10);
-
-	//if (!Number.isNaN(page) && page > 0) {
-		//currentPageNumber = page;
-	//}
 
 	return {
 		'_id': ownProps.match.params.id, // read the url parameter to find the id of the set
-		//currentPageNumber, // read the url parameter to find the currentPage
 		'errors': state.errors,
-		//'filterMaxTablets': state.pattern.filterMaxTablets,
-		//'filterMinTablets': state.pattern.filterMinTablets,
 		'isLoading': getIsLoading(state),
 		itemsPerPage,
-		//'pageSkip': (currentPageNumber - 1) * itemsPerPage,
-		//'patternCount': state.pattern.patternCount,
 	};
 }
 

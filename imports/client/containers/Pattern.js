@@ -369,33 +369,17 @@ class Pattern extends PureComponent {
 
 	renderTagInput(canEdit) {
 		const { dispatch } = this.props;
-		const { pattern, allTags } = this.context;
-		const { _id, tags } = pattern;
-
-		const tagObjects = [];
-		let tagSuggestions = [];
-
-		if (allTags) {
-			// only suggest tags that have not been selected
-			tagSuggestions = allTags.filter((tag) => tags.indexOf(tag.name) === -1);
-
-			// build the list of tag objects from the array of tag ids
-			tags.forEach((patternTagName) => {
-				const tagObject = allTags.find((allTag) => patternTagName === allTag.name);
-				// const tagObject = allTags.find((allTag) => patternTagId === allTag.name);
-
-				if (tagObject) {
-					tagObjects.push(tagObject);
-				}
-			});
-		}
+		const {
+			'pattern': { _id, tags },
+			allTags,
+		} = this.context;
 
 		return (
 			<TagInput
+				allTags={allTags}
 				canEdit={canEdit}
-				tagSuggestions={tagSuggestions}
 				dispatch={dispatch}
-				tags={tagObjects}
+				tags={tags}
 				targetId={_id}
 				targetType="pattern"
 			/>
