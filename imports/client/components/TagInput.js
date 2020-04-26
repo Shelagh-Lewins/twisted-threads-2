@@ -39,7 +39,7 @@ class TagInput extends PureComponent {
 			targetType,
 		} = this.props;
 
-		const { name } = tags[i];
+		const name = tags[i];
 
 		dispatch(removeTagFromDocument({
 			name,

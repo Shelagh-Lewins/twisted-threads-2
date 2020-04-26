@@ -42,21 +42,25 @@ export const assignTagToDocument = ({
 		targetType,
 	}, (error, result) => {
 		if (error) {
-			return dispatch(logErrors({ 'assign-to-pattern': error.reason }));
+			return dispatch(logErrors({ 'assign-tag-to-document': error.reason }));
 		}
 	});
 };
 
-export function removeTagFromDocument({
+export const removeTagFromDocument = ({
 	name,
 	targetId,
 	targetType,
-}) {
-	return () => {
-		Meteor.call('tags.removeFromDocument', {
-			name,
-			targetId,
-			targetType,
-		});
-	};
-}
+}) => (dispatch) => {
+	dispatch(clearErrors());
+
+	Meteor.call('tags.removeFromDocument', {
+		name,
+		targetId,
+		targetType,
+	}, (error, result) => {
+		if (error) {
+			return dispatch(logErrors({ 'remove-tag-from-document': error.reason }));
+		}
+	});
+};
