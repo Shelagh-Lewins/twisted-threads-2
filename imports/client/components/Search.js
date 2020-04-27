@@ -22,6 +22,9 @@ import 'react-widgets/dist/css/react-widgets.css';
 import { PatternsIndex, UsersIndex } from '../../modules/collection';
 import { iconColors, SEARCH_MORE } from '../../modules/parameters';
 
+import getUserpicStyle from '../modules/getUserpicStyle';
+import './Userpic.scss';
+
 class Search extends PureComponent {
 	constructor(props) {
 		super(props);
@@ -194,7 +197,8 @@ class Search extends PureComponent {
 
 		const ListItem = ({ item }) => {
 			const {
-				createdBy,
+				//createdBy,
+				_id,
 				name,
 				numberOfTablets,
 				username,
@@ -235,8 +239,8 @@ class Search extends PureComponent {
 					element = (
 						<span className="search-result-user">
 							<span
-								className="main-icon"
-								style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/search_user.png')}` }}
+								className={`${getUserpicStyle(_id)} main-icon icon`}
+								style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/user_profile.png')}` }}
 							/>
 							<div>
 								<span className="name">{name}</span>

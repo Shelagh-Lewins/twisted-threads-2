@@ -463,24 +463,26 @@ class User extends PureComponent {
 
 		return (
 			<>
-				<div className="sets-list">
-					{sets && sets.map((set) => {
-						// find the patterns in this set
-						const patternsInThisSet = set.patterns.map((patternId) => patternsInSets.find((pattern) => patternId === pattern._id));
+				{!isLoading && (!sets || sets.length > 0) && (
+					<div className="sets-list">
+						{sets && sets.map((set) => {
+							// find the patterns in this set
+							const patternsInThisSet = set.patterns.map((patternId) => patternsInSets.find((pattern) => patternId === pattern._id));
 
-						return (
-							<div key={`set-summary-${set._id}`}>
-								<SetSummary
-									dispatch={dispatch}
-									patternPreviews={patternPreviews}
-									patterns={patternsInThisSet}
-									set={set}
-									user={user}
-								/>
-							</div>
-						);
-					})}
-				</div>
+							return (
+								<div key={`set-summary-${set._id}`}>
+									<SetSummary
+										dispatch={dispatch}
+										patternPreviews={patternPreviews}
+										patterns={patternsInThisSet}
+										set={set}
+										user={user}
+									/>
+								</div>
+							);
+						})}
+					</div>
+				)}
 				{!isLoading && (!sets || sets.length === 0) && (
 					<>
 						<Container>

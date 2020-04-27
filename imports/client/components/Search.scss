@@ -74,7 +74,9 @@ $rw-img-path: "~/img";
 		}
 
 		.main-icon {
-			background: no-repeat left top / 40px 40px;
+			background-position: left top;
+			background-repeat: no-repeat;
+			background-size: 40px 40px;
 			float: left;
 			height: 40px;
 			margin: 4px 8px 4px 8px;

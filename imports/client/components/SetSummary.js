@@ -18,6 +18,7 @@ function SetSummary(props) {
 				createdBy,
 				description,
 				name,
+				tags,
 			},
 		patterns,
 		patternPreviews,
@@ -90,6 +91,15 @@ function SetSummary(props) {
 			+ (index === patterns.length - 1 ? '' : ', '), '');
 	}
 
+	const tagElms = tags.map((Tagtext, index) => (
+		<span
+			className="tag"
+			key={`tag-${index}`} // eslint-disable-line react/no-array-index-key
+		>
+			{Tagtext}
+		</span>
+	));
+
 	return (
 		<div className="set-summary">
 			<div className="main">
@@ -97,6 +107,9 @@ function SetSummary(props) {
 					<h3>{name}</h3>
 					<div className="description">{text}</div>
 					<div className="info">
+						<div className="tags">
+							{tagElms}
+						</div>
 						<div className="number-of-patterns">
 							<span
 								className="icon"
