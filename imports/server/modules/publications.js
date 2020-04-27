@@ -443,26 +443,31 @@ Meteor.publish('set', function (_id) {
 
 	// check whether the set contains any patterns the user can see
 	const set = Sets.findOne({ _id });
-	const patternIds = set.patterns;
 
-	// This is not reactive
-	const visiblePatterns = Patterns.find(
-		{
-			'$and': [
-				{ '_id': { '$in': patternIds } },
-				getPatternPermissionQuery(),
-			],
-		},
-	);
+	if (set) {
+		const patternIds = set.patterns;
 
-	if (visiblePatterns.count() > 0) {
-		return Sets.find(
-			{ _id },
+		// This is not reactive
+		const visiblePatterns = Patterns.find(
 			{
-				'limit': 1,
+				'$and': [
+					{ '_id': { '$in': patternIds } },
+					getPatternPermissionQuery(),
+				],
 			},
 		);
+
+		if (visiblePatterns.count() > 0) {
+			return Sets.find(
+				{ _id },
+				{
+					'limit': 1,
+				},
+			);
+		}
 	}
+
+	this.ready();
 });
 
 // //////////////////////////

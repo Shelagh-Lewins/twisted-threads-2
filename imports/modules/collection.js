@@ -152,3 +152,60 @@ export const UsersIndex = new Index({
 	}),
 	'permission': () => true,
 });
+
+export const SetsIndex = new Index({
+	'collection': Sets,
+	'fields': ['nameSort'],
+	'engine': new MongoDBEngine({
+		'selector': function (searchObject, options, aggregation) {
+			const selector = this.defaultConfiguration().selector(searchObject, options, aggregation);
+
+			// find sets by tag also, as per patterns
+			const searchTerm = searchObject.nameSort;
+			const matchingTags = Tags.find({ 'name': { '$regex': searchTerm } }).fetch();
+			const matchingTagNames = matchingTags.map((tag) => tag.name);
+			selector.$or.push({ 'tags': { '$in': matchingTagNames } });
+
+			// should the user be able to see this set?
+			// this is an expensive lookup, especially for sets containing a lot of patterns
+			// it's possible aggregation would be faster, using the Meteor aggregation plugin
+			// the only other option would be to store 'isPublic' as a property of each set and update it every time that a pattern is changed
+			// at present, it seems better to do the work when users actually search
+			const visiblePatternIds = Patterns.find(getPatternPermissionQuery()).map((pattern) => pattern._id);
+
+			const newSelector = {
+				'$and': [
+					{ 'patterns': { '$elemMatch': { '$in': visiblePatternIds } } },
+					{
+						'$or': selector.$or,
+					},
+				],
+			};
+
+			return newSelector;
+		},
+		'fields': (searchObject, options) => ({
+			'_id': 1,
+			'createdBy': 1,
+			'name': 1,
+			'nameSort': 1,
+			'patterns': 1,
+		}),
+		'sort': () => ({ 'nameSort': 1 }),
+		'beforePublish': (action, doc) => { // runs on the server and can therefore access Meteor.users without subscribing
+			// include the owner
+			const user = Meteor.users.findOne({ '_id': doc.createdBy });
+
+			if (user) {
+				doc.username = user.username;
+			}
+
+			return doc;
+		},
+		'transform': (doc) => { // runs on the client
+			doc.type = 'set';
+			return doc;
+		},
+	}),
+	'permission': () => true,
+});

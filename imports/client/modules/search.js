@@ -14,6 +14,7 @@ export const SEARCH_COMPLETE = 'SEARCH_COMPLETE';
 export const CLEAR_SEARCH_RESULTS = 'CLEAR_SEARCH_RESULTS';
 export const SET_PATTERN_SEARCH_LIMIT = 'SET_PATTERN_SEARCH_LIMIT';
 export const SET_USER_SEARCH_LIMIT = 'SET_USER_SEARCH_LIMIT';
+export const SET_SET_SEARCH_LIMIT = 'SET_SET_SEARCH_LIMIT'; // i.e. set the search limit for searching among Sets...
 
 // define action types so they are visible
 // and export them so other reducers can use them
@@ -71,6 +72,19 @@ export const showMoreUsers = () => (dispatch, getState) => {
 	dispatch(setUserSearchLimit(userSearchLimit + SEARCH_MORE));
 };
 
+// set search limit
+export function setSetSearchLimit(setSearchLimit) {
+	return {
+		'type': SET_SET_SEARCH_LIMIT,
+		'payload': setSearchLimit,
+	};
+}
+
+export const showMoreSets = () => (dispatch, getState) => {
+	const { setSearchLimit } = getState().search;
+	dispatch(setSetSearchLimit(setSearchLimit + SEARCH_MORE));
+};
+
 // Start search
 export const searchStart = (searchTerm) => (dispatch) => {
 	dispatch(clearErrors());
@@ -92,6 +106,8 @@ export const getSearchTerm = (state) => state.search.searchTerm;
 export const getPatternSearchLimit = (state) => state.search.patternSearchLimit;
 
 export const getUserSearchLimit = (state) => state.search.userSearchLimit;
+
+export const getSetSearchLimit = (state) => state.search.setSearchLimit;
 
 // ///////////////////////////
 // State
@@ -133,6 +149,10 @@ export default function auth(state = initialSearchState, action) {
 
 		case SET_USER_SEARCH_LIMIT: {
 			return updeep({ 'userSearchLimit': action.payload }, state);
+		}
+
+		case SET_SET_SEARCH_LIMIT: {
+			return updeep({ 'setSearchLimit': action.payload }, state);
 		}
 
 		default:

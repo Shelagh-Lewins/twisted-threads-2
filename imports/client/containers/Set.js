@@ -174,7 +174,7 @@ class Set extends Component {
 					</>
 				);
 			} else {
-				content = <p>Either this set does not exist or you do not have permission to view it</p>;
+				content = <Container><p>Either this set does not exist or you do not have permission to view it</p></Container>;
 			}
 		}
 
@@ -243,18 +243,21 @@ const Tracker = withTracker((props) => {
 		'onReady': () => {
 			console.log('Here!!!');
 			set = Sets.findOne({ _id });
-			const { 'patterns': patternIds } = set;
 
-			Meteor.subscribe('patternsById', patternIds, {
-				'onReady': () => {
-					global.setPatternsInSet = Patterns.find(
-						{ '_id': { '$in': patternIds } },
-						{ 'sort': { 'nameSort': 1 } },
-					).fetch();
+			if (set) {
+				const { 'patterns': patternIds } = set;
 
-					secondaryPatternSubscriptions(global.setPatternsInSet);
-				},
-			});
+				Meteor.subscribe('patternsById', patternIds, {
+					'onReady': () => {
+						global.setPatternsInSet = Patterns.find(
+							{ '_id': { '$in': patternIds } },
+							{ 'sort': { 'nameSort': 1 } },
+						).fetch();
+
+						secondaryPatternSubscriptions(global.setPatternsInSet);
+					},
+				});
+			}
 		},
 	});
 

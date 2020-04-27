@@ -12,14 +12,16 @@ import store from '../modules/store';
 import {
 	getPatternSearchLimit,
 	getSearchTerm,
+	getSetSearchLimit,
 	getUserSearchLimit,
 	searchStart,
 	setIsSearching,
 	showMorePatterns,
 	showMoreUsers,
+	showMoreSets,
 } from '../modules/search';
 import 'react-widgets/dist/css/react-widgets.css';
-import { PatternsIndex, UsersIndex } from '../../modules/collection';
+import { PatternsIndex, SetsIndex, UsersIndex } from '../../modules/collection';
 import { iconColors, SEARCH_MORE } from '../../modules/parameters';
 
 import getUserpicStyle from '../modules/getUserpicStyle';
@@ -107,6 +109,11 @@ class Search extends PureComponent {
 				url = `/user/${_id}`;
 				break;
 
+			case 'set':
+				this.toggleOpen();
+				url = `/set/${_id}`;
+				break;
+
 			case 'showMorePatterns':
 				dispatch(showMorePatterns());
 				Search.updateMe.set(true);
@@ -114,6 +121,11 @@ class Search extends PureComponent {
 
 			case 'showMoreUsers':
 				dispatch(showMoreUsers());
+				Search.updateMe.set(true);
+				break;
+
+			case 'showMoreSets':
+				dispatch(showMoreSets());
 				Search.updateMe.set(true);
 				break;
 
@@ -188,6 +200,10 @@ class Search extends PureComponent {
 					text = 'Users';
 					break;
 
+				case 'set':
+					text = 'Sets';
+					break;
+
 				default:
 					break;
 			}
@@ -201,6 +217,7 @@ class Search extends PureComponent {
 				_id,
 				name,
 				numberOfTablets,
+				patterns,
 				username,
 				type,
 			} = item;
@@ -249,6 +266,33 @@ class Search extends PureComponent {
 					);
 					break;
 
+				case 'set':
+					element = (
+						<span className="search-result-set">
+							<span
+								className="main-icon"
+								style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/search_pattern.png')}` }}
+							/>
+							<div>
+								<span className="name" title={name}>{name}</span>
+								<span className="patterns-count" title={`${patterns.length} tablets`}>
+									<span
+										className="icon"
+										style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/tablet_count.svg')}` }}
+									/>
+									{numberOfTablets}
+								</span>
+								<span className="created-by" title={`Created by ${username}`}>
+									<span
+										className="icon"
+										style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/created_by.png')}` }}
+									/>{username}
+								</span>
+							</div>
+						</span>
+					);
+					break;
+
 				case 'showMorePatterns':
 					element = (
 						<span className="show-more-patterns">
@@ -263,6 +307,15 @@ class Search extends PureComponent {
 						<span className="show-more-users">
 							<FontAwesomeIcon icon={['fas', 'search']} style={{ 'color': iconColors.default }} size="1x" />
 							Show more users...
+						</span>
+					);
+					break;
+
+				case 'showMoreSets':
+					element = (
+						<span className="show-more-sets">
+							<FontAwesomeIcon icon={['fas', 'search']} style={{ 'color': iconColors.default }} size="1x" />
+							Show more sets...
 						</span>
 					);
 					break;
@@ -325,8 +378,10 @@ const Tracker = withTracker(({ dispatch }) => {
 	const searchTerm = getSearchTerm(state);
 	const patternSearchLimit = getPatternSearchLimit(state);
 	const userSearchLimit = getUserSearchLimit(state);
+	const setSearchLimit = getSetSearchLimit(state);
 	let patternsResults = [];
 	let usersResults = [];
+	let setsResults = [];
 
 	if (searchTerm) {
 		// search for patterns
@@ -360,12 +415,27 @@ const Tracker = withTracker(({ dispatch }) => {
 			});
 		}
 
+		// search for sets
+		const setsCursor = SetsIndex.search(searchTerm, { 'limit': userSearchLimit + SEARCH_MORE }); // search is a reactive data source
+		setsResults = setsCursor.fetch();
+		//console.log('setsResults', setsResults);
+
+		// hide the 'more' results'
+		setsResults = setsResults.slice(0, setSearchLimit);
+
+		if (setsResults.length < setsCursor.count()) {
+			usersResults.push({
+				'name': 'Show more sets',
+				'type': 'showMoreSets',
+			});
+		}
+
 		dispatch(setIsSearching(false));
 	}
 	Search.updateMe.set('false');
 
 	return {
-		'searchResults': patternsResults.concat(usersResults),
+		'searchResults': patternsResults.concat(usersResults).concat(setsResults),
 	};
 })(Search);
 
