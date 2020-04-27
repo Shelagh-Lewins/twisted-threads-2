@@ -43,7 +43,8 @@ $rw-img-path: "~/img";
 		}
 
 		.search-result-pattern,
-		.search-result-user {
+		.search-result-user,
+		.search-result-set {
 			color: $color-text;
 			float: left;
 			text-decoration: none;
@@ -83,9 +84,11 @@ $rw-img-path: "~/img";
 			width: 40px;
 		}
 
-		.search-result-pattern {
+		.search-result-pattern,
+		.search-result-set {
 			.tablets-count,
-			.created-by {
+			.created-by,
+			.patterns-count {
 				color: $color-search-info;
 				float: left;
 				font-size: 85%;
@@ -100,7 +103,8 @@ $rw-img-path: "~/img";
 				}
 			}
 
-			.tablets-count {
+			.tablets-count,
+			.patterns-count {
 				.icon {
 					background: transparent no-repeat left top;
 					background-size: 16px 16px;

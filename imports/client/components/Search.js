@@ -271,16 +271,16 @@ class Search extends PureComponent {
 						<span className="search-result-set">
 							<span
 								className="main-icon"
-								style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/search_pattern.png')}` }}
+								style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/search_set.png')}` }}
 							/>
 							<div>
 								<span className="name" title={name}>{name}</span>
-								<span className="patterns-count" title={`${patterns.length} tablets`}>
+								<span className="patterns-count" title={`${patterns.length} patterns`}>
 									<span
 										className="icon"
-										style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/tablet_count.svg')}` }}
+										style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/logo.png')}` }}
 									/>
-									{numberOfTablets}
+									{patterns.length}
 								</span>
 								<span className="created-by" title={`Created by ${username}`}>
 									<span
