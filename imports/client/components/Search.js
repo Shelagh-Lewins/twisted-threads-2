@@ -266,8 +266,9 @@ class Search extends PureComponent {
 					break;
 
 				case 'set':
-					// it would be nice to show the number of patterns in the set
-					// however we would have to subscribe to all patterns in set search results to know which are public
+					// find the number of visible patterns in the set
+					const numberOfPatterns = item.createdBy === Meteor.userId() ? patterns.length : item.publicPatternsCount;
+
 					element = (
 						<span className="search-result-set">
 							<span
@@ -276,6 +277,13 @@ class Search extends PureComponent {
 							/>
 							<div>
 								<span className="name" title={name}>{name}</span>
+								<span className="patterns-count" title={`Patterns in set: ${numberOfPatterns}`}>
+									<span
+										className="icon"
+										style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/logo.png')}` }}
+									/>
+									{numberOfPatterns}
+								</span>
 								<span className="created-by" title={`Created by ${username}`}>
 									<span
 										className="icon"

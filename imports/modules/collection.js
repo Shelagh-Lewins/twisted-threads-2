@@ -184,6 +184,7 @@ export const SetsIndex = new Index({
 			'name': 1,
 			'nameSort': 1,
 			'patterns': 1,
+			'publicPatternsCount': 1,
 		}),
 		'sort': () => ({ 'nameSort': 1 }),
 		'beforePublish': (action, doc) => { // runs on the server and can therefore access Meteor.users without subscribing
