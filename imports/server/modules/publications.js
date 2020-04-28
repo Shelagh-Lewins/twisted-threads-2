@@ -398,7 +398,7 @@ Meteor.publish('faq', () => FAQ.find());
 // the user can see their own sets and any sets containing public patterns
 // all visible set belonging to one user
 Meteor.publish('setsForUser', function (userId) {
-	console.log('*** setsForUser subscribing', userId);
+	//console.log('*** setsForUser subscribing', userId);
 	check(userId, Match.Maybe(nonEmptyStringCheck));
 
 	if (!userId) {
@@ -417,7 +417,7 @@ Meteor.publish('setsForUser', function (userId) {
 
 // an individual set
 Meteor.publish('set', function (_id) {
-	console.log('*** set subscribing', _id);
+	//console.log('*** set subscribing', _id);
 	check(_id, nonEmptyStringCheck);
 
 	return Sets.find(

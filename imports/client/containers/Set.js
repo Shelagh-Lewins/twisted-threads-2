@@ -103,7 +103,7 @@ class Set extends Component {
 					description,
 					name,
 				} = set;
-console.log('*** render has patterns', patterns);
+//console.log('*** render has patterns', patterns);
 				const canEdit = createdBy === Meteor.userId();
 				const patternCount = patterns.length;
 
@@ -213,11 +213,17 @@ function mapStateToProps(state, ownProps) {
 	};
 }
 
+// force withTracker to update when patterns are loaded
+Set.updateMe = new ReactiveVar(false);
+
 const Tracker = withTracker((props) => {
 	const {
 		_id,
 		dispatch,
 	} = props;
+	// force the results list to update when patterns are loaded
+	const trigger = Set.updateMe.get();
+
 	const state = store.getState();
 	const isLoading = getIsLoading(state);
 
@@ -230,21 +236,24 @@ const Tracker = withTracker((props) => {
 
 			if (set) {
 				const { 'patterns': patternIds } = set;
-				console.log('*** Tracker isready has set', set);
+				//console.log('*** Tracker isready has set', set);
 				Meteor.subscribe('patternsById', patternIds, {
 					'onReady': () => {
 						patternsInSet = Patterns.find(
 							{ '_id': { '$in': patternIds } },
 							{ 'sort': { 'nameSort': 1 } },
 						).fetch();
-console.log('*** Tracker isready has patternsInSet', patternsInSet);
+console.log('*** Set. Tracker isready has patternsInSet', patternsInSet);
 						secondaryPatternSubscriptions(patternsInSet);
+						if (!Set.updateMe.get()) {
+							Set.updateMe.set('true');
+						}
 					},
 				});
 			}
 		},
 	});
-console.log('*** Tracker outer has patternsInSet', patternsInSet);
+console.log('*** Set. Tracker outer has patternsInSet', patternsInSet);
 	Meteor.subscribe('tags');
 
 	if (isLoading && handle.ready()) {
@@ -252,6 +261,8 @@ console.log('*** Tracker outer has patternsInSet', patternsInSet);
 	} else if (!isLoading && !handle.ready()) {
 		dispatch(setIsLoading(true));
 	}
+
+	Set.updateMe.set('false');
 
 	// pass database data as props
 	return {

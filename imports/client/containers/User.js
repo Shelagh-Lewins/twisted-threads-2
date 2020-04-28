@@ -669,7 +669,7 @@ const Tracker = withTracker((props) => {
 			sets = Sets.find({ 'createdBy': _id }, {
 				'sort': { 'nameSort': 1 },
 			}).fetch();
-			console.log('*** sets onReady, sets: ', sets);
+//			console.log('*** sets onReady, sets: ', sets);
 
 			// find the ids of all patterns in the user's visible sets
 			function combineArrays(patternIdsArray, set) {
