@@ -4,6 +4,7 @@ import { check } from 'meteor/check';
 import {
 	nonEmptyStringCheck,
 	positiveIntegerCheck,
+	updatePublicSetsCount,
 	updatePublicPatternsCount,
 	validRowsCheck,
 	validPaletteIndexCheck,
@@ -129,6 +130,9 @@ Meteor.methods({
 
 				// update the user's count of public patterns
 				updatePublicPatternsCount(Meteor.userId());
+
+				// update the user's count of public sets
+				updatePublicSetsCount(Meteor.userId());
 
 				return;
 

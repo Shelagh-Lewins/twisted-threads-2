@@ -14,19 +14,3 @@ global.tabletFilterTimeout = null;
 
 // connection status
 global.connectionTimeout = null;
-
-// force resubscription to sets, for Pattern page and NavBar using context
-global.updateSetsSubscription = new ReactiveVar(true);
-global.setsSubscriptionHandle = null;
-
-// force resubscription to sets for components using Tracker
-global.updateTrackerSetsSubscription = new ReactiveVar(true);
-
-// the User page needs to resubscribe to sets
-global.userSetsSubscriptionHandle = null;
-global.userPatternsInSets = [];
-
-// the individual Set page needs to resubscribe to sets
-global.updateTrackerSetsSubscription2 = new ReactiveVar(true);
-global.setSetsSubscriptionHandle = null;
-global.setPatternsInSet = [];

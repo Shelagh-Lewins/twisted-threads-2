@@ -218,20 +218,7 @@ export const withDatabase = withTracker((props) => {
 			'sets': [],
 		};
 
-		// force resubscription because setsForUser is not reactive
-		if (global.updateSetsSubscription.get() === true) {
-			global.updateSetsSubscription.set(false);
-
-			if (global.setsSubscriptionHandle) {
-				global.setsSubscriptionHandle.stop();
-			}
-
-			global.setsSubscriptionHandle = Meteor.subscribe('setsForUser', Meteor.userId(), {
-				'onReady': () => {
-					values.sets = Sets.find().fetch();
-				},
-			});
-		}
+		Meteor.subscribe('setsForUser', Meteor.userId());
 
 		values.sets = Sets.find().fetch();
 

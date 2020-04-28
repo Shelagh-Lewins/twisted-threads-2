@@ -20,6 +20,7 @@ import {
 } from './utils';
 import {
 	getPatternPermissionQuery,
+	getSetPermissionQuery,
 	getUserPermissionQuery,
 } from '../../modules/permissionQueries';
 // arrow functions lose "this" context
@@ -397,77 +398,36 @@ Meteor.publish('faq', () => FAQ.find());
 // the user can see their own sets and any sets containing public patterns
 // all visible set belonging to one user
 Meteor.publish('setsForUser', function (userId) {
+	console.log('*** setsForUser subscribing', userId);
 	check(userId, Match.Maybe(nonEmptyStringCheck));
 
 	if (!userId) {
 		return;
 	}
 
-	// logged in users can see all their own sets
-	// any user can see public sets
-
-	// all sets owned by this user
-	const sets = Sets.find({ 'createdBy': userId }).fetch();
-
-	// those sets which contain patterns the current user can see
-	const visibleSetIds = [];
-
-	// This is not reactive
-	sets.map((set) => {
-		const patternIds = set.patterns;
-
-		const visiblePatterns = Patterns.find(
-			{
-				'$and': [
-					{ '_id': { '$in': patternIds } },
-					getPatternPermissionQuery(),
-				],
-			},
-		);
-
-		if (visiblePatterns.count() > 0) {
-			visibleSetIds.push(set._id);
-		}
-	});
-
-	return Sets.find({
-		'_id': { '$in': visibleSetIds },
-	});
+	return Sets.find(
+		{
+			'$and': [
+				{ 'createdBy': userId },
+				getSetPermissionQuery(),
+			],
+		},
+	);
 });
 
 // an individual set
-
 Meteor.publish('set', function (_id) {
-	console.log('*** subscribing');
+	console.log('*** set subscribing', _id);
 	check(_id, nonEmptyStringCheck);
 
-	// check whether the set contains any patterns the user can see
-	const set = Sets.findOne({ _id });
-
-	if (set) {
-		const patternIds = set.patterns;
-
-		// This is not reactive
-		const visiblePatterns = Patterns.find(
-			{
-				'$and': [
-					{ '_id': { '$in': patternIds } },
-					getPatternPermissionQuery(),
-				],
-			},
-		);
-
-		if (visiblePatterns.count() > 0) {
-			return Sets.find(
+	return Sets.find(
+		{
+			'$and': [
 				{ _id },
-				{
-					'limit': 1,
-				},
-			);
-		}
-	}
-
-	this.ready();
+				getSetPermissionQuery(),
+			],
+		},
+	);
 });
 
 // //////////////////////////

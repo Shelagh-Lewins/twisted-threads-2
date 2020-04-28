@@ -135,12 +135,6 @@ class AddToSet extends Component {
 			changes = true;
 			dispatch(addSet({ patternId, 'name': namenewset }));
 		}
-
-		// force resubscription if sets have changed (publication is not reactive)
-		if (changes) {
-			global.updateSetsSubscription.set(true);
-			global.updateTrackerSetsSubscription.set(true);
-		}
 	}
 
 	render() {

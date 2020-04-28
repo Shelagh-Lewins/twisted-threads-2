@@ -92,9 +92,6 @@ class User extends PureComponent {
 
 		this.patternsRef = React.createRef();
 
-		// make sure to subscribe
-		global.updateTrackerSetsSubscription.set(true);
-
 		dispatch(updatePatternCountUserId(_id));
 	}
 
@@ -467,7 +464,16 @@ class User extends PureComponent {
 					<div className="sets-list">
 						{sets && sets.map((set) => {
 							// find the patterns in this set
-							const patternsInThisSet = set.patterns.map((patternId) => patternsInSets.find((pattern) => patternId === pattern._id));
+							// note that patternsInSets only includes patterns the user can see
+							// any private patterns they did not create, are excluded
+							const patternsInThisSet = [];
+
+							set.patterns.forEach((patternId) => {
+								const visiblePattern = patternsInSets.find((pattern) => patternId === pattern._id);
+								if (visiblePattern) {
+									patternsInThisSet.push(visiblePattern);
+								}
+							});
 
 							return (
 								<div key={`set-summary-${set._id}`}>
@@ -656,42 +662,34 @@ const Tracker = withTracker((props) => {
 	Meteor.subscribe('colorBooks', _id);
 
 	let sets = [];
+	let patternsInSets = [];
 
-	// force resubscription because setsForUser is not reactive
-	if (global.updateTrackerSetsSubscription.get() === true) {
-		global.updateTrackerSetsSubscription.set(false);
+	Meteor.subscribe('setsForUser', _id, {
+		'onReady': () => {
+			sets = Sets.find({ 'createdBy': _id }, {
+				'sort': { 'nameSort': 1 },
+			}).fetch();
+			console.log('*** sets onReady, sets: ', sets);
 
-		if (global.userSetsSubscriptionHandle) {
-			global.userSetsSubscriptionHandle.stop();
-		}
-console.log('*** User resubscribe');
-		setTimeout(() => {
-			global.userSetsSubscriptionHandle = Meteor.subscribe('setsForUser', _id, {
+			// find the ids of all patterns in the user's visible sets
+			function combineArrays(patternIdsArray, set) {
+				return patternIdsArray.concat(set.patterns);
+			}
+
+			const patternIds = Array.from(new Set(sets.reduce(combineArrays, [])));
+
+			Meteor.subscribe('patternsById', patternIds, {
 				'onReady': () => {
-					sets = Sets.find({ 'createdBy': _id }, {
-						'sort': { 'nameSort': 1 },
-					}).fetch();
-	console.log('sets', sets);
-					function combineArrays(patternIdsArray, set) {
-						return patternIdsArray.concat(set.patterns);
-					}
+					patternsInSets = Patterns.find(
+						{ '_id': { '$in': patternIds } },
+						{ 'sort': { 'nameSort': 1 } },
+					).fetch();
 
-					const patternIds = Array.from(new Set(sets.reduce(combineArrays, [])));
-
-					Meteor.subscribe('patternsById', patternIds, {
-						'onReady': () => {
-							global.userPatternsInSets = Patterns.find(
-								{ '_id': { '$in': patternIds } },
-								{ 'sort': { 'nameSort': 1 } },
-							).fetch();
-
-							secondaryPatternSubscriptions(global.userPatternsInSets);
-						},
-					});
+					secondaryPatternSubscriptions(patternsInSets);
 				},
 			});
-		}, 500);
-	}
+		},
+	});
 
 	Meteor.subscribe('tags');
 
@@ -730,9 +728,9 @@ console.log('*** User resubscribe');
 			'sort': { 'nameSort': 1 },
 		}).fetch(),
 		patterns,
-		'patternsInSets': global.userPatternsInSets,
+		patternsInSets,
 		'patternPreviews': PatternPreviews.find().fetch(),
-		'sets': Sets.find({ 'createdBy': _id }).fetch(),
+		sets,
 		'tags': Tags.find().fetch(),
 		'user': Meteor.users.findOne({ _id }), // note this is undefined when subscription not ready
 	};

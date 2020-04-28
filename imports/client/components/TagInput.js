@@ -112,6 +112,10 @@ class TagInput extends PureComponent {
 			});
 		}
 
+		if (!canEdit && tags.length === 0) {
+			return null;
+		}
+
 		if (!canEdit) {
 			return (
 				<div className="view-tags">

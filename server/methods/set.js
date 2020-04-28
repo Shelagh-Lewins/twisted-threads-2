@@ -1,6 +1,7 @@
 import { check } from 'meteor/check';
 import {
 	nonEmptyStringCheck,
+	updatePublicSetsCount,
 } from '../../imports/server/modules/utils';
 import { Patterns, Sets } from '../../imports/modules/collection';
 import {
@@ -50,6 +51,9 @@ Meteor.methods({
 			{ '_id': patternId },
 			{ '$addToSet': { 'sets': setId } },
 		);
+
+		// update the user's count of public sets
+		updatePublicSetsCount(Meteor.userId());
 
 		return setId;
 	},
@@ -113,6 +117,9 @@ Meteor.methods({
 			{ '_id': patternId },
 			{ '$addToSet': { 'sets': setId } },
 		);
+
+		// update the user's count of public sets
+		updatePublicSetsCount(Meteor.userId());
 	},
 	'set.removePattern': function ({ // remove a pattern from a set
 		patternId,
@@ -177,6 +184,9 @@ Meteor.methods({
 		if (setUpdated.patterns.length === 0) {
 			Sets.remove({ '_id': setId });
 		}
+
+		// update the user's count of public sets
+		updatePublicSetsCount(Meteor.userId());
 	},
 	'set.remove': function (_id) {
 		check(_id, nonEmptyStringCheck);
@@ -201,7 +211,10 @@ Meteor.methods({
 			{ '$pull': { 'sets': _id } },
 		);
 
-		return Sets.remove({ _id });
+		Sets.remove({ _id });
+
+		// update the user's count of public sets
+		updatePublicSetsCount(Meteor.userId());
 	},
 	// /////////////////////
 	// multi-purpose edit pattern method to avoid having to repeat the same permissions checks

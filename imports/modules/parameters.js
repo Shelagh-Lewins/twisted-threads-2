@@ -8,6 +8,7 @@ export const USER_FIELDS = {
 	'nameSort': 1,
 	'publicColorBooksCount': 1,
 	'publicPatternsCount': 1,
+	'publicSetsCount': 1,
 	'username': 1,
 };
 

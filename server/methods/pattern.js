@@ -6,6 +6,7 @@ import {
 	positiveIntegerCheck,
 	setupTwillThreading,
 	updatePublicPatternsCount,
+	updatePublicSetsCount,
 	validDirectionCheck,
 	validHolesCheck,
 	validRowsCheck,
@@ -517,6 +518,9 @@ Meteor.methods({
 				],
 			},
 		);
+
+		// update the user's count of public sets
+		updatePublicSetsCount(Meteor.userId());
 
 		// remove the pattern itself
 		const removed = Patterns.remove({ _id });

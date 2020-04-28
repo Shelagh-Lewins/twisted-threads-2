@@ -20,21 +20,23 @@ export const getPatternPermissionQuery = () => {
 	return permissionQuery;
 };
 
-// select users that have public color books or public patterns
+// select users that have public patterns, sets or color books
 // or are the logged in user
 export const getUserPermissionQuery = () => {
 	let permissionQuery = {
 		'$or': [
-			{ 'publicPatternsCount': { '$gt': 0 } },
 			{ 'publicColorBooksCount': { '$gt': 0 } },
+			{ 'publicSetsCount': { '$gt': 0 } },
+			{ 'publicPatternsCount': { '$gt': 0 } },
 		],
 	};
 
 	if (Meteor.userId()) {
 		permissionQuery = {
 			'$or': [
-				{ 'publicPatternsCount': { '$gt': 0 } },
 				{ 'publicColorBooksCount': { '$gt': 0 } },
+				{ 'publicSetsCount': { '$gt': 0 } },
+				{ 'publicPatternsCount': { '$gt': 0 } },
 				{ '_id': Meteor.userId() },
 			],
 		};
@@ -46,23 +48,21 @@ export const getUserPermissionQuery = () => {
 // /////////////////////////
 // sets
 
-// THIS IS WRONG - sets are returned for a specified user
-// sets can only be returned for the current user
-// or a user with public patterns
-// note a further check is required on individual sets, that 
-// they contain public patterns
-/* export const getSetsForUserPermissionQuery = () => {
-	let permissionQuery = { 'publicPatternsCount': { '$gt': 0 } };
+// select sets that contain public patterns
+// or were created by the logged in user
+export const getSetPermissionQuery = () => {
+	let permissionQuery = {
+		'publicPatternsCount': { '$gt': 0 },
+	};
 
 	if (Meteor.userId()) {
 		permissionQuery = {
 			'$or': [
 				{ 'publicPatternsCount': { '$gt': 0 } },
-				{ '_id': Meteor.userId() },
+				{ 'createdBy': Meteor.userId() },
 			],
 		};
 	}
 
 	return permissionQuery;
 };
- */

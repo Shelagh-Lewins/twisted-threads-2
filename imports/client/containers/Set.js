@@ -20,7 +20,6 @@ import {
 	Sets,
 	Tags,
 } from '../../modules/collection';
-import AppContext from '../modules/appContext';
 import PageWrapper from '../components/PageWrapper';
 import Loading from '../components/Loading';
 import MainMenu from '../components/MainMenu';
@@ -35,13 +34,6 @@ const bodyClass = 'set';
 // Set is not paginated
 
 class Set extends Component {
-	constructor(props) {
-		super(props);
-
-		// make sure to subscribe
-		global.updateTrackerSetsSubscription.set(true);
-	}
-
 	componentDidMount() {
 		document.body.classList.add(bodyClass);
 	}
@@ -111,7 +103,7 @@ class Set extends Component {
 					description,
 					name,
 				} = set;
-
+console.log('*** render has patterns', patterns);
 				const canEdit = createdBy === Meteor.userId();
 				const patternCount = patterns.length;
 
@@ -140,14 +132,16 @@ class Set extends Component {
 										type="textarea"
 										fieldValue={description}
 									/>
-									<Button
-										type="button"
-										color="danger"
-										onClick={() => this.handleClickButtonRemove()}
-										title="Delete set"
-									>
-										Delete set
-									</Button>
+									{canEdit && (
+										<Button
+											type="button"
+											color="danger"
+											onClick={() => this.handleClickButtonRemove()}
+											title="Delete set"
+										>
+											Delete set
+										</Button>
+									)}
 								</Col>
 							</Row>
 						</Container>
@@ -226,57 +220,45 @@ const Tracker = withTracker((props) => {
 	} = props;
 	const state = store.getState();
 	const isLoading = getIsLoading(state);
-//console.log('*** Tracker, id', _id);
-	let set = {};
-//console.log('global.updateTrackerSetsSubscription.get()', global.updateTrackerSetsSubscription.get());
-	// force resubscription because setsForUser is not reactive
 
-	//if (global.updateTrackerSetsSubscription.get() === true) {
-		//console.log('start!!!');
-		//global.updateTrackerSetsSubscription2.set(true);
-		//if (global.setSetsSubscriptionHandle) {
-			//console.log('*** handle exists');
-			//global.setSetsSubscriptionHandle.stop();
-		//}
+	let set;
+	let patternsInSet = [];
 
-	global.setSetsSubscriptionHandle = Meteor.subscribe('set', _id, {
+	const handle = Meteor.subscribe('set', _id, {
 		'onReady': () => {
-			console.log('Here!!!');
 			set = Sets.findOne({ _id });
 
 			if (set) {
 				const { 'patterns': patternIds } = set;
-
+				console.log('*** Tracker isready has set', set);
 				Meteor.subscribe('patternsById', patternIds, {
 					'onReady': () => {
-						global.setPatternsInSet = Patterns.find(
+						patternsInSet = Patterns.find(
 							{ '_id': { '$in': patternIds } },
 							{ 'sort': { 'nameSort': 1 } },
 						).fetch();
-
-						secondaryPatternSubscriptions(global.setPatternsInSet);
+console.log('*** Tracker isready has patternsInSet', patternsInSet);
+						secondaryPatternSubscriptions(patternsInSet);
 					},
 				});
 			}
 		},
 	});
-
+console.log('*** Tracker outer has patternsInSet', patternsInSet);
 	Meteor.subscribe('tags');
 
-	if (global.setSetsSubscriptionHandle) {
-		if (isLoading && global.setSetsSubscriptionHandle.ready()) {
-			dispatch(setIsLoading(false));
-		} else if (!isLoading && !global.setSetsSubscriptionHandle.ready()) {
-			dispatch(setIsLoading(true));
-		}
+	if (isLoading && handle.ready()) {
+		dispatch(setIsLoading(false));
+	} else if (!isLoading && !handle.ready()) {
+		dispatch(setIsLoading(true));
 	}
 
 	// pass database data as props
 	return {
 		'allTags': Tags.find().fetch(),
-		'patterns': global.setPatternsInSet,
+		'patterns': patternsInSet,
 		'patternPreviews': PatternPreviews.find().fetch(),
-		'set': Sets.findOne({ _id }),
+		'set': set,
 		'users': Meteor.users.find().fetch(),
 	};
 })(Set);

@@ -1,4 +1,9 @@
-import { ColorBooks, PatternImages, Patterns } from '../../modules/collection';
+import {
+	ColorBooks,
+	Sets,
+	PatternImages,
+	Patterns,
+} from '../../modules/collection';
 import {
 	ALLOWED_DIRECTIONS,
 	ALLOWED_HOLES,
@@ -212,6 +217,24 @@ export const updatePublicColorBooksCount = (_id) => {
 		{ _id },
 		{
 			'$set': { 'publicColorBooksCount': publicColorBooksCount },
+		},
+	);
+};
+
+export const updatePublicSetsCount = (_id) => {
+	const publicSetsCount = Sets.find(
+		{
+			'$and': [
+				{ 'publicPatternsCount': { '$gt': 0 } },
+				{ 'createdBy': _id },
+			],
+		},
+	).count();
+
+	Meteor.users.update(
+		{ _id },
+		{
+			'$set': { 'publicSetsCount': publicSetsCount },
 		},
 	);
 };

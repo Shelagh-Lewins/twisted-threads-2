@@ -213,7 +213,6 @@ class Search extends PureComponent {
 
 		const ListItem = ({ item }) => {
 			const {
-				//createdBy,
 				_id,
 				name,
 				numberOfTablets,
@@ -267,6 +266,8 @@ class Search extends PureComponent {
 					break;
 
 				case 'set':
+					// it would be nice to show the number of patterns in the set
+					// however we would have to subscribe to all patterns in set search results to know which are public
 					element = (
 						<span className="search-result-set">
 							<span
@@ -275,13 +276,6 @@ class Search extends PureComponent {
 							/>
 							<div>
 								<span className="name" title={name}>{name}</span>
-								<span className="patterns-count" title={`${patterns.length} patterns`}>
-									<span
-										className="icon"
-										style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/logo.png')}` }}
-									/>
-									{patterns.length}
-								</span>
 								<span className="created-by" title={`Created by ${username}`}>
 									<span
 										className="icon"
