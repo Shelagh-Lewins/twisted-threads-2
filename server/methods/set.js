@@ -32,14 +32,24 @@ Meteor.methods({
 			throw new Meteor.Error('add-set-not-found', 'Unable to add tag because the pattern was not found');
 		}
 
+		// if this is a public pattern, count it
+		const publicPatternsCount = pattern.isPublic ? 1 : 0;
+
 		const setId = Sets.insert({
 			'createdBy': Meteor.userId(),
 			'description': '',
 			name,
 			'nameSort': name.toLowerCase(),
 			'patterns': [patternId],
+			publicPatternsCount,
 			'tags': [],
 		});
+
+		// add this set to the pattern's list of sets to which it belongs
+		Patterns.update(
+			{ '_id': patternId },
+			{ '$addToSet': { 'sets': setId } },
+		);
 
 		return setId;
 	},
@@ -88,9 +98,20 @@ Meteor.methods({
 			throw new Meteor.Error('add-set-too-many-patterns', `Unable to add pattern to set because the set contains the maximum allowed number of patterns (${MAX_PATTERNS_IN_SET})`);
 		}
 
+		const update = { '$push': { 'patterns': patternId } };
+		if (pattern.isPublic) {
+			update.$inc = { 'publicPatternsCount': 1 };
+		}
+
 		Sets.update(
 			{ '_id': setId },
-			{ '$push': { 'patterns': patternId } },
+			update,
+		);
+
+		// add this set to the pattern's list of sets to which it belongs
+		Patterns.update(
+			{ '_id': patternId },
+			{ '$addToSet': { 'sets': setId } },
 		);
 	},
 	'set.removePattern': function ({ // remove a pattern from a set
@@ -133,9 +154,21 @@ Meteor.methods({
 			throw new Meteor.Error('remove-from-set-already-in-set', 'Unable to remove pattern from set because the pattern is not in the set');
 		}
 
+		const update = { '$pull': { 'patterns': patternId } };
+
+		if (pattern.isPublic) {
+			update.$inc = { 'publicPatternsCount': -1 };
+		}
+
 		Sets.update(
 			{ '_id': setId },
-			{ '$pull': { 'patterns': patternId } },
+			update,
+		);
+
+		// remove this set from the pattern's list of sets to which it belongs
+		Patterns.update(
+			{ '_id': patternId },
+			{ '$pull': { 'sets': setId } },
 		);
 
 		// delete set if now empty
@@ -162,6 +195,12 @@ Meteor.methods({
 			throw new Meteor.Error('remove-set-not-created-by-user', 'Unable to remove set because it was not created by the current logged in user');
 		}
 
+		// remove this set from the set list for each pattern in the set
+		Patterns.update(
+			{ '_id': { '$in': set.patterns } },
+			{ '$pull': { 'sets': _id } },
+		);
+
 		return Sets.remove({ _id });
 	},
 	// /////////////////////
@@ -174,9 +213,6 @@ Meteor.methods({
 	}) {
 		check(_id, nonEmptyStringCheck);
 		check(data, Match.ObjectIncluding({ 'type': String }));
-		// type specifies the update operation
-		// e.g. orientation, weftColor
-		const { type } = data;
 
 		if (!Meteor.userId()) {
 			throw new Meteor.Error('edit-set-not-logged-in', 'Unable to edit set because the user is not logged in');

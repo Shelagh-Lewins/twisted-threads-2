@@ -32,6 +32,7 @@ const SetsSchema = new SimpleSchema({
 		'max': MAX_TEXT_INPUT_LENGTH,
 		'index': 1,
 	},
+	// patterns that belong to this set
 	'patterns': {
 		'type': Array,
 		'label': 'Patterns',
@@ -39,6 +40,13 @@ const SetsSchema = new SimpleSchema({
 	'patterns.$': {
 		'type': String,
 		'label': 'Pattern id',
+	},
+	// number of public patterns in the set
+	'publicPatternsCount': {
+		'type': SimpleSchema.Integer,
+		'label': 'Pattern id',
+		'min': 0,
+		'index': 1,
 	},
 	'tags': {
 		'type': Array,

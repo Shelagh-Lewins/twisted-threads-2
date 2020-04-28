@@ -12,6 +12,7 @@ import {
 } from '../../imports/server/modules/utils';
 import {
 	Patterns,
+	Sets,
 } from '../../imports/modules/collection';
 import {
 	ALLOWED_PREVIEW_ORIENTATIONS,
@@ -105,6 +106,22 @@ Meteor.methods({
 				// only verified users can publish patterns
 				if (!Roles.userIsInRole(Meteor.userId(), 'verified')) {
 					throw new Meteor.Error('edit-pattern-not-verified', 'Unable to make the pattern public or private because the user\'s email address is not verified');
+				}
+
+				// update the public pattern count of any set which contains this pattern
+				let countChange = 0;
+
+				if (pattern.isPublic && !isPublic) {
+					countChange = -1;
+				} else if (!pattern.isPublic && isPublic) {
+					countChange = 1;
+				}
+
+				if (countChange !== 0) {
+					Sets.update(
+						{ '_id': { '$in': pattern.sets } },
+						{ '$inc': { 'publicPatternsCount': countChange } },
+					);
 				}
 
 				// update the pattern

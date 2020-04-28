@@ -213,7 +213,8 @@ Meteor.methods({
 
 			if (existing) {
 				Meteor.call('tags.assignToDocument', {
-					patternId,
+					'targetId': patternId,
+					'targetType': 'pattern',
 					'name': existing.name,
 				});
 			} else {
@@ -444,7 +445,8 @@ Meteor.methods({
 			// add each tag
 			tags.forEach((tagName) => {
 				Meteor.call('tags.ensureExistsAndAssignToDocument', {
-					patternId,
+					'targetId': patternId,
+					'targetType': 'pattern',
 					'name': tagName,
 				});
 			});
@@ -491,19 +493,26 @@ Meteor.methods({
 		// so I think the query will be more targeted with less danger of affecting the wrong sets
 
 		// find the sets which contain the pattern
-		const setIds = Sets.find({ 'patterns': _id }).fetch().map((set) => set._id);
+		// const setIds = Sets.find({ 'patterns': _id }).fetch().map((set) => set._id);
 
-		// remove the pattern from those sets
+		// remove the pattern from the sets that contain it
+		// and update the sets' count of public patterns
+		const update = { '$pull': { 'patterns': _id } };
+
+		if (pattern.isPublic) {
+			update.$inc = { 'publicPatternsCount': -1 };
+		}
+
 		Sets.update(
-			{ '_id': { '$in': setIds } },
-			{ '$pull': { 'patterns': _id } },
+			{ '_id': { '$in': pattern.sets } },
+			update,
 		);
 
 		// delete any of those sets which now have no patterns
 		Sets.remove(
 			{
 				'$and': [
-					{ '_id': { '$in': setIds } },
+					{ '_id': { '$in': pattern.sets } },
 					{ 'patterns': { '$size': 0 } },
 				],
 			},

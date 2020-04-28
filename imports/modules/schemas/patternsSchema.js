@@ -1,6 +1,10 @@
 import SimpleSchema from 'simpl-schema';
 
-import { MAX_TEXT_INPUT_LENGTH, MAX_TEXT_AREA_LENGTH } from '../parameters';
+import {
+	MAX_PATTERNS_IN_SET,
+	MAX_TEXT_INPUT_LENGTH,
+	MAX_TEXT_AREA_LENGTH,
+} from '../parameters';
 
 const PatternsSchema = new SimpleSchema({
 	// set using collection hooks in collection.js
@@ -98,6 +102,18 @@ const PatternsSchema = new SimpleSchema({
 		'type': String,
 		'label': 'Preview orientation',
 		'max': 100,
+	},
+	// sets to which this pattern belongs
+	// maintained to allow a reverse lookup
+	'sets': {
+		'type': Array,
+		'label': 'Sets',
+		'index': 1,
+		'optional': true,
+	},
+	'sets.$': {
+		'type': String,
+		'label': 'Set',
 	},
 	'tags': {
 		'type': Array,

@@ -168,8 +168,8 @@ export const SetsIndex = new Index({
 
 			// should the user be able to see this set?
 			// this is an expensive lookup, especially for sets containing a lot of patterns
-			// it's possible aggregation would be faster, using the Meteor aggregation plugin
-			// the only other option would be to store 'isPublic' as a property of each set and update it every time that a pattern is changed
+			// the only other option I can think of is to store 'isPublic' as a property of each set and update it every time that a pattern is changed
+			// this would involve modifying every set that references that pattern
 			// at present, it seems better to do the work when users actually search
 			const visiblePatternIds = Patterns.find(getPatternPermissionQuery()).map((pattern) => pattern._id);
 
