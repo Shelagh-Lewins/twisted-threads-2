@@ -76,7 +76,10 @@ function PatternSummary(props) {
 	));
 
 	return (
-		<div className="pattern-summary">
+		<div
+			className="pattern-summary"
+			title={`Pattern: ${name}`}
+		>
 			<div className="main">
 				<Link to={`/pattern/${_id}`}>
 					<h3>{name}</h3>
@@ -91,11 +94,13 @@ function PatternSummary(props) {
 						<div className="tags">
 							{tags}
 						</div>
-						<div className="tablets">
+						<div
+							className="tablets"
+							title={`Number of tablets: ${numberOfTablets}`}
+						>
 							<span
 								className="icon"
 								style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/tablet_white.svg')}` }}
-								title="Number of tablets"
 							/>
 							{numberOfTablets}
 						</div>
@@ -105,7 +110,11 @@ function PatternSummary(props) {
 
 			</div>
 			<div className="footer">
-				<Link to={`/user/${createdBy}`} className="created-by">
+				<Link
+					to={`/user/${createdBy}`}
+					className="created-by"
+					title={`Created by: ${username}`}
+				>
 					<span
 						className="icon"
 						style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/created_by.png')}` }}

@@ -661,30 +661,29 @@ const Tracker = withTracker((props) => {
 	Meteor.subscribe('users', [_id]);
 	Meteor.subscribe('colorBooks', _id);
 
-	let sets = [];
-	let patternsInSets = [];
+	// patterns contained in this user's visible sets
+	const sets = Sets.find(
+		{ 'createdBy': _id },
+		{
+			'sort': { 'nameSort': 1 },
+		},
+	).fetch();
+
+	function combineArrays(patternIdsArray, set) {
+		return patternIdsArray.concat(set.patterns);
+	}
+
+	const patternsInSetsIds = Array.from(new Set(sets.reduce(combineArrays, [])));
+
+	const patternsInSets = Patterns.find(
+		{ '_id': { '$in': patternsInSetsIds } },
+		{ 'sort': { 'nameSort': 1 } },
+	).fetch();
 
 	Meteor.subscribe('setsForUser', _id, {
 		'onReady': () => {
-			sets = Sets.find({ 'createdBy': _id }, {
-				'sort': { 'nameSort': 1 },
-			}).fetch();
-//			console.log('*** sets onReady, sets: ', sets);
-
-			// find the ids of all patterns in the user's visible sets
-			function combineArrays(patternIdsArray, set) {
-				return patternIdsArray.concat(set.patterns);
-			}
-
-			const patternIds = Array.from(new Set(sets.reduce(combineArrays, [])));
-
-			Meteor.subscribe('patternsById', patternIds, {
+			Meteor.subscribe('patternsById', patternsInSetsIds, {
 				'onReady': () => {
-					patternsInSets = Patterns.find(
-						{ '_id': { '$in': patternIds } },
-						{ 'sort': { 'nameSort': 1 } },
-					).fetch();
-
 					secondaryPatternSubscriptions(patternsInSets);
 				},
 			});

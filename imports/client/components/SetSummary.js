@@ -101,7 +101,10 @@ function SetSummary(props) {
 	));
 
 	return (
-		<div className="set-summary">
+		<div
+			className="set-summary"
+			title={`Set: ${name}`}
+		>
 			<div className="main">
 				<Link to={`/set/${_id}`}>
 					<h3>{name}</h3>
@@ -110,11 +113,13 @@ function SetSummary(props) {
 						<div className="tags">
 							{tagElms}
 						</div>
-						<div className="number-of-patterns">
+						<div
+							className="number-of-patterns"
+							title={`Number of patterns in set: ${patterns.length}`}
+						>
 							<span
 								className="icon"
 								style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/logo.png')}` }}
-								title="Number of patterns"
 							/>
 							{patterns.length}
 						</div>
@@ -125,7 +130,11 @@ function SetSummary(props) {
 
 			</div>
 			<div className="footer">
-				<Link to={`/user/${createdBy}`} className="created-by">
+				<Link
+					to={`/user/${createdBy}`}
+					className="created-by"
+					title={`Created by: ${username}`}
+				>
 					<span
 						className="icon"
 						style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/created_by.png')}` }}

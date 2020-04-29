@@ -420,7 +420,6 @@ const Tracker = withTracker(({ dispatch }) => {
 		// search for sets
 		const setsCursor = SetsIndex.search(searchTerm, { 'limit': userSearchLimit + SEARCH_MORE }); // search is a reactive data source
 		setsResults = setsCursor.fetch();
-		//console.log('setsResults', setsResults);
 
 		// hide the 'more' results'
 		setsResults = setsResults.slice(0, setSearchLimit);
