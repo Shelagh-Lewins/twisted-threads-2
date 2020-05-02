@@ -244,7 +244,8 @@ class Search extends PureComponent {
 									<span
 										className="icon"
 										style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/created_by.png')}` }}
-									/>{username}
+									/>
+									<span className="text">{username}</span>
 								</span>
 							</div>
 						</span>

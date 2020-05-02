@@ -44,6 +44,16 @@
 	}
 }
 
+.nav-item {
+	button {
+		width: auto;
+
+		.icon {
+			margin-right: 0;
+		}
+	}
+}
+
 .navbar-brand {
 	font-size: .8rem;
 	font-weight: bold;

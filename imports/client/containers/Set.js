@@ -103,7 +103,7 @@ class Set extends Component {
 					description,
 					name,
 				} = set;
-//console.log('*** render has patterns', patterns);
+
 				const canEdit = createdBy === Meteor.userId();
 				const patternCount = patterns.length;
 

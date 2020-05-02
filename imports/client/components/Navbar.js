@@ -188,10 +188,14 @@ class Navbar extends Component {
 			);
 
 			const buttonAddToSet = (
-				<AddToSet
-					patternId={patternId}
-					patternName={pattern.name}
-				/>
+				<>
+					<AddToSet
+						iconStyle="white"
+						patternId={patternId}
+						patternName={pattern.name}
+					/>
+
+				</>
 			);
 
 			const buttonRemove = (

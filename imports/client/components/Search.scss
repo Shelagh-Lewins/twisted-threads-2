@@ -113,9 +113,17 @@ $rw-img-path: "~/img";
 		}
 
 		.created-by {
+			margin-right: 0 !important;
+
 			.icon {
 				background: transparent no-repeat left top;
 				background-size: 16px 16px;
+			}
+
+			.text {
+				float: left;
+				overflow: hidden;
+				width: 80px;
 			}
 		}
 

@@ -90,7 +90,7 @@ class AddToSet extends Component {
 		} = this.props;
 		const { namenewset } = values;
 		const { sets } = this.context;
-		let changes = false;
+		//let changes = false;
 
 		// analyse changes to set allocation
 		Object.keys(values).map((key) => {
@@ -110,14 +110,14 @@ class AddToSet extends Component {
 
 					if (!patternIsInSet && value) {
 						// not currently in set: add
-						changes = true;
+						//changes = true;
 						dispatch(addPatternToSet({
 							patternId,
 							setId,
 						}));
 					} else if (patternIsInSet && !value) {
 						// currently in set: remove
-						changes = true;
+						//changes = true;
 						dispatch(removePatternFromSet({
 							patternId,
 							setId,
@@ -132,19 +132,26 @@ class AddToSet extends Component {
 		});
 
 		if (namenewset !== '') {
-			changes = true;
+			//changes = true;
 			dispatch(addSet({ patternId, 'name': namenewset }));
 		}
 	}
 
 	render() {
 		const {
+			iconStyle,
 			patternId,
 			patternName,
 		} = this.props;
 		const { showSetsPanel } = this.state;
 		const { sets } = this.context;
-		const tooltip = 'Add to set';
+		const tooltip = 'Include pattern in sets';
+
+		let style = { 'backgroundImage': `url(${Meteor.absoluteUrl('/images/set_blue_64.png')}` };
+
+		if (iconStyle === 'white') {
+			style = { 'backgroundImage': `url(${Meteor.absoluteUrl('/images/set_white_64.png')}` };
+		}
 
 		return (
 			<>
@@ -155,7 +162,11 @@ class AddToSet extends Component {
 						color="default"
 						title={tooltip}
 					>
-						<FontAwesomeIcon icon={['fas', 'plus']} style={{ 'color': iconColors.default }} size="1x" />
+						<span
+							className="icon"
+							style={style}
+						/>
+						<span className="d-inline d-md-none button-text nav-link">Include pattern in sets</span>
 					</Button>
 				</div>
 				{showSetsPanel && (

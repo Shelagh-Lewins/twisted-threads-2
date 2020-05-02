@@ -6,6 +6,15 @@
 		border-color: transparent;
 		height: 40px;
 		width: 40px;
+
+		.icon {
+			background: transparent no-repeat right 0 top 0;
+			background-size: 16px 16px;
+			float: left;
+			height: 16px;
+			margin-right: 8px;
+			width: 16px;
+		}
 	}
 
 	svg {
