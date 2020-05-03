@@ -82,3 +82,14 @@ export const defaultPatternImageData = {
 	'url': 'abc',
 	'width': 340,
 };
+
+export const defaultSetData = {
+	'createdAt': new Date('Tue, 03 Mar 2020 17:58:05 GMT'),
+	'createdBy': 'abc',
+	'description': 'Description of a set',
+	'name': 'Set 1',
+	'nameSort': 'set 1',
+	'patterns': [],
+	'publicPatternsCount': 0,
+	'tags': [],
+};

@@ -122,6 +122,7 @@ Meteor.methods({
 					Sets.update(
 						{ '_id': { '$in': pattern.sets } },
 						{ '$inc': { 'publicPatternsCount': countChange } },
+						{ 'multi': true },
 					);
 				}
 

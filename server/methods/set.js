@@ -209,6 +209,7 @@ Meteor.methods({
 		Patterns.update(
 			{ '_id': { '$in': set.patterns } },
 			{ '$pull': { 'sets': _id } },
+			{ 'multi': true },
 		);
 
 		Sets.remove({ _id });

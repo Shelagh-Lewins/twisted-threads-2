@@ -508,6 +508,7 @@ Meteor.methods({
 		Sets.update(
 			{ '_id': { '$in': pattern.sets } },
 			update,
+			{ 'multi': true },
 		);
 
 		// delete any of those sets which now have no patterns

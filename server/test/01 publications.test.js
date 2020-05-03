@@ -13,6 +13,7 @@ import {
 	PatternImages,
 	Patterns,
 	PatternPreviews,
+	Sets,
 } from '../../imports/modules/collection';
 import { ALLOWED_ITEMS_PER_PAGE, ITEMS_PER_PREVIEW_LIST } from '../../imports/modules/parameters';
 import {
@@ -28,6 +29,7 @@ import {
 	defaultPatternData,
 	defaultPatternImageData,
 	defaultPatternPreviewData,
+	defaultSetData,
 } from './testData';
 import createManyPatterns from './createManyPatterns';
 
@@ -87,6 +89,8 @@ Factory.define('patternPreview', PatternPreviews, defaultPatternPreviewData);
 
 Factory.define('patternImage', PatternImages, defaultPatternImageData);
 
+Factory.define('set', Sets, defaultSetData);
+
 if (Meteor.isServer) {
 	describe('test publications', function () { // eslint-disable-line func-names
 		this.timeout(15000);
@@ -106,6 +110,19 @@ if (Meteor.isServer) {
 			// pattern images
 			Factory.create('patternImage', { 'patternId': this.pattern1._id });
 			Factory.create('patternImage', { 'patternId': this.pattern2._id });
+
+			// put two patterns in a set
+			this.set1 = Factory.create('set', {
+				'createdBy': currentUser._id,
+				'patterns': [this.pattern1._id, this.pattern2._id],
+			});
+
+			// this would be done automatically if we used the method
+			Patterns.update(
+				{ '_id': { '$in': [this.pattern1._id, this.pattern2._id] } },
+				{ '$set': { 'sets': [this.set1._id] } },
+				{ 'multi': true },
+			);
 		});
 		afterEach(() => {
 			unwrapUser();
@@ -1247,5 +1264,154 @@ if (Meteor.isServer) {
 				assert.equal(result.length, 1);
 			});
 		});
+		// /////////////////////////
+		describe('publish setsForUser', () => {
+			it('should publish 0 sets if user not logged in and no public sets exist', async () => {
+				// make sure publications know there is no user
+				const userId = Meteor.userId();
+
+				unwrapUser();
+				stubNoUser();
+
+				// if no public patterns in set, publish nothing
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('setsForUser', userId,
+						(collections) => {
+							resolve(collections.sets);
+						});
+				});
+
+				const result = await testPromise;
+
+				assert.equal(result.length, 0);
+			});
+			it('should publish 1 set if user not logged in and there is 1 public set', async () => {
+				// make sure publications know there is no user
+				const userId = Meteor.userId();
+
+				Roles.createRole('verified', { 'unlessExists': true });
+				Roles.addUsersToRoles(userId, ['verified']);
+
+				// set 1 pattern in set to public
+				Meteor.call('pattern.edit', {
+					'_id': this.pattern1._id,
+					'data': {
+						'type': 'editIsPublic',
+						'isPublic': true,
+					},
+				});
+
+				unwrapUser();
+				stubNoUser();
+
+				// if 1 public pattern in set, publish 1 set
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('setsForUser', userId,
+						(collections) => {
+							resolve(collections.sets);
+						});
+				});
+
+				const result = await testPromise;
+
+				assert.equal(result.length, 1); // 1 set published
+
+				// two patterns are listed as belonging to the set
+				const patternsInSet = result[0].patterns;
+				assert.equal(patternsInSet.length, 2);
+
+				// only the public pattern is published to the logged out user
+				const collector2 = new PublicationCollector();
+
+				const testPromise2 = new Promise((resolve, reject) => {
+					collector2.collect('patterns', { 'skip': 0, 'limit': 10 },
+						(collections) => {
+							resolve(collections.patterns);
+						});
+				});
+
+				const result2 = await testPromise2;
+
+				assert.equal(result2.length, 1); // 1 pattern is published
+				assert.equal(result2[0]._id, this.pattern1._id, 1); // it is the public pattern
+			});
+			it('should publish 1 set if another user is logged in and there is 1 public set', async () => {
+				// make sure publications know there is no user
+				const userId = Meteor.userId();
+
+				Roles.createRole('verified', { 'unlessExists': true });
+				Roles.addUsersToRoles(userId, ['verified']);
+
+				// set 1 pattern in set to public
+				Meteor.call('pattern.edit', {
+					'_id': this.pattern1._id,
+					'data': {
+						'type': 'editIsPublic',
+						'isPublic': true,
+					},
+				});
+
+				// log in other user
+				stubOtherUser();
+
+				// if 1 public pattern in set, publish 1 set
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('setsForUser', userId,
+						(collections) => {
+							resolve(collections.sets);
+						});
+				});
+
+
+				const result = await testPromise;
+
+				assert.equal(result.length, 1); // 1 set published
+
+				// two patterns are listed as belonging to the set
+				const patternsInSet = result[0].patterns;
+				assert.equal(patternsInSet.length, 2);
+
+				// only the public pattern is published to the logged out user
+				const collector2 = new PublicationCollector();
+
+				const testPromise2 = new Promise((resolve, reject) => {
+					collector2.collect('patterns', { 'skip': 0, 'limit': 10 },
+						(collections) => {
+							resolve(collections.patterns);
+						});
+				});
+
+				const result2 = await testPromise2;
+
+				assert.equal(result2.length, 1); // 1 pattern is published
+				assert.equal(result2[0]._id, this.pattern1._id, 1); // it is the public pattern
+			});
+			it('should publish 1 set if user logged in and their set is private', async () => {
+				const userId = Meteor.userId();
+
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('setsForUser', userId,
+						(collections) => {
+							resolve(collections.sets);
+						});
+				});
+
+				const result = await testPromise;
+
+				assert.equal(result.length, 1);
+			});
+		});
 	});
 }
+
+// Set tests notes
+// should tag publish be tested? All tags are public.
+// check operations work with multiple sets, e.g. delete a pattern that is in 2 sets
