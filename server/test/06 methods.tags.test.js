@@ -39,7 +39,8 @@ if (Meteor.isServer) {
 
 				function expectedError() {
 					Meteor.call('tags.add', {
-						patternId,
+						'targetId': patternId,
+						'targetType': 'pattern',
 						'name': 'easy',
 					});
 				}
@@ -48,7 +49,8 @@ if (Meteor.isServer) {
 			it('cannot add tag to pattern if pattern not found', () => {
 				function expectedError() {
 					Meteor.call('tags.add', {
-						'patternId': 'abc',
+						'targetId': 'abc',
+						'targetType': 'pattern',
 						'name': 'easy',
 					});
 				}
@@ -60,7 +62,8 @@ if (Meteor.isServer) {
 
 				function expectedError() {
 					Meteor.call('tags.add', {
-						patternId,
+						'targetId': patternId,
+						'targetType': 'pattern',
 						'name': 'easy',
 					});
 				}
@@ -72,7 +75,8 @@ if (Meteor.isServer) {
 
 				function expectedError() {
 					Meteor.call('tags.add', {
-						patternId,
+						'targetId': patternId,
+						'targetType': 'pattern',
 						'name': 'easy',
 					});
 				}
@@ -89,7 +93,8 @@ if (Meteor.isServer) {
 
 				function expectedError() {
 					Meteor.call('tags.add', {
-						patternId,
+						'targetId': patternId,
+						'targetType': 'pattern',
 						'name': tagText,
 					});
 				}
@@ -106,7 +111,8 @@ if (Meteor.isServer) {
 
 				function expectedError() {
 					Meteor.call('tags.add', {
-						patternId,
+						'targetId': patternId,
+						'targetType': 'pattern',
 						'name': tagText,
 					});
 				}
@@ -118,7 +124,8 @@ if (Meteor.isServer) {
 				const tagText = 'easy';
 
 				Meteor.call('tags.add', {
-					patternId,
+					'targetId': patternId,
+					'targetType': 'pattern',
 					'name': tagText,
 				});
 
@@ -138,7 +145,8 @@ if (Meteor.isServer) {
 				const processedTagText = tagText.toLowerCase();
 
 				Meteor.call('tags.add', {
-					patternId,
+					'targetId': patternId,
+					'targetType': 'pattern',
 					'name': tagText,
 				});
 
@@ -153,7 +161,7 @@ if (Meteor.isServer) {
 				assert.notEqual(updatedPattern.tags.indexOf(processedTagText), -1);
 			});
 		});
-		describe('tags.assignToPattern method', () => {
+		describe('tags.assignToDocument method', () => {
 			// assign an existing tag to a pattern
 			it('cannot assign tag to pattern if not logged in', () => {
 				// make sure publications know there is no user
@@ -165,8 +173,9 @@ if (Meteor.isServer) {
 				Tags.insert({ 'name': tagText	});
 
 				function expectedError() {
-					Meteor.call('tags.assignToPattern', {
-						patternId,
+					Meteor.call('tags.assignToDocument', {
+						'targetId': patternId,
+						'targetType': 'pattern',
 						'name': tagText,
 					});
 				}
@@ -177,8 +186,9 @@ if (Meteor.isServer) {
 				Tags.insert({ 'name': tagText	});
 
 				function expectedError() {
-					Meteor.call('tags.assignToPattern', {
-						'patternId': 'abc',
+					Meteor.call('tags.assignToDocument', {
+						'targetId': 'abc',
+						'targetType': 'pattern',
 						'name': tagText,
 					});
 				}
@@ -193,8 +203,9 @@ if (Meteor.isServer) {
 				const { patternId } = this; // seems to be a scoping issue otherwise
 
 				function expectedError() {
-					Meteor.call('tags.assignToPattern', {
-						patternId,
+					Meteor.call('tags.assignToDocument', {
+						'targetId': patternId,
+						'targetType': 'pattern',
 						'name': tagText,
 					});
 				}
@@ -205,8 +216,9 @@ if (Meteor.isServer) {
 				const tagText = 'easy';
 
 				function expectedError() {
-					Meteor.call('tags.assignToPattern', {
-						patternId,
+					Meteor.call('tags.assignToDocument', {
+						'targetId': patternId,
+						'targetType': 'pattern',
 						'name': tagText,
 					});
 				}
@@ -223,8 +235,9 @@ if (Meteor.isServer) {
 				);
 
 				function expectedError() {
-					Meteor.call('tags.assignToPattern', {
-						patternId,
+					Meteor.call('tags.assignToDocument', {
+						'targetId': patternId,
+						'targetType': 'pattern',
 						'name': tagText,
 					});
 				}
@@ -236,8 +249,9 @@ if (Meteor.isServer) {
 				const tagText = 'easy';
 				Tags.insert({ 'name': tagText	});
 
-				Meteor.call('tags.assignToPattern', {
-					patternId,
+				Meteor.call('tags.assignToDocument', {
+					'targetId': patternId,
+					'targetType': 'pattern',
 					'name': tagText,
 				});
 
@@ -251,17 +265,18 @@ if (Meteor.isServer) {
 				assert.notEqual(updatedPattern.tags.indexOf(tagText), -1);
 			});
 		});
-		describe('tags.ensureExistsAndAssignToPattern method', () => {
+		describe('tags.ensureExistsAndAssignToDocument method', () => {
 			// create a tag if it doesn't exist and assign it to a pattern
-			// this calls tags.assignToPattern so we don't need to recheck permissions
-			it('can ensureExistsAndAssignToPattern with existing tag', () => {
+			// this calls tags.assignToDocument so we don't need to recheck permissions
+			it('can ensureExistsAndAssignToDocument with existing tag', () => {
 				const { patternId } = this; // seems to be a scoping issue otherwise
 
 				const tagText = 'easy';
 				Tags.insert({ 'name': tagText	});
 
-				Meteor.call('tags.ensureExistsAndAssignToPattern', {
-					patternId,
+				Meteor.call('tags.ensureExistsAndAssignToDocument', {
+					'targetId': patternId,
+					'targetType': 'pattern',
 					'name': tagText,
 				});
 
@@ -273,13 +288,14 @@ if (Meteor.isServer) {
 				const updatedPattern = Patterns.findOne({ '_id': patternId });
 				assert.notEqual(updatedPattern.tags.indexOf(tagText), -1);
 			});
-			it('can ensureExistsAndAssignToPattern with new tag', () => {
+			it('can ensureExistsAndAssignToDocument with new tag', () => {
 				const { patternId } = this; // seems to be a scoping issue otherwise
 
 				const tagText = 'easy';
 
-				Meteor.call('tags.ensureExistsAndAssignToPattern', {
-					patternId,
+				Meteor.call('tags.ensureExistsAndAssignToDocument', {
+					'targetId': patternId,
+					'targetType': 'pattern',
 					'name': tagText,
 				});
 
@@ -292,14 +308,15 @@ if (Meteor.isServer) {
 				assert.notEqual(updatedPattern.tags.indexOf(tagText), -1);
 			});
 		});
-		describe('tags.removeTagFromPattern method', () => {
+		describe('tags.removeFromDocument method', () => {
 			it('cannot remove tag if not logged in', () => {
 				const { patternId } = this; // seems to be a scoping issue otherwise
 
 				const tagText = 'easy';
 
-				Meteor.call('tags.ensureExistsAndAssignToPattern', {
-					patternId,
+				Meteor.call('tags.ensureExistsAndAssignToDocument', {
+					'targetId': patternId,
+					'targetType': 'pattern',
 					'name': tagText,
 				});
 
@@ -307,8 +324,9 @@ if (Meteor.isServer) {
 				stubNoUser();
 
 				function expectedError() {
-					Meteor.call('tags.removeTagFromPattern', {
-						patternId,
+					Meteor.call('tags.removeFromDocument', {
+						'targetId': patternId,
+						'targetType': 'pattern',
 						'name': tagText,
 					});
 				}
@@ -320,8 +338,9 @@ if (Meteor.isServer) {
 				const tagText = 'easy';
 
 				function expectedError() {
-					Meteor.call('tags.removeTagFromPattern', {
-						patternId,
+					Meteor.call('tags.removeFromDocument', {
+						'targetId': patternId,
+						'targetType': 'pattern',
 						'name': tagText,
 					});
 				}
@@ -332,16 +351,18 @@ if (Meteor.isServer) {
 
 				const tagText = 'easy';
 
-				Meteor.call('tags.ensureExistsAndAssignToPattern', {
-					patternId,
+				Meteor.call('tags.ensureExistsAndAssignToDocument', {
+					'targetId': patternId,
+					'targetType': 'pattern',
 					'name': tagText,
 				});
 
 				stubOtherUser();
 
 				function expectedError() {
-					Meteor.call('tags.removeTagFromPattern', {
-						patternId,
+					Meteor.call('tags.removeFromDocument', {
+						'targetId': patternId,
+						'targetType': 'pattern',
 						'name': tagText,
 					});
 				}
@@ -354,8 +375,9 @@ if (Meteor.isServer) {
 				const tagText = 'easy';
 
 				function expectedError() {
-					Meteor.call('tags.removeTagFromPattern', {
-						patternId,
+					Meteor.call('tags.removeFromDocument', {
+						'targetId': patternId,
+						'targetType': 'pattern',
 						'name': tagText,
 					});
 				}
@@ -366,13 +388,15 @@ if (Meteor.isServer) {
 
 				const tagText = 'easy';
 
-				Meteor.call('tags.ensureExistsAndAssignToPattern', {
-					patternId,
+				Meteor.call('tags.ensureExistsAndAssignToDocument', {
+					'targetId': patternId,
+					'targetType': 'pattern',
 					'name': tagText,
 				});
 
-				Meteor.call('tags.removeTagFromPattern', {
-					patternId,
+				Meteor.call('tags.removeFromDocument', {
+					'targetId': patternId,
+					'targetType': 'pattern',
 					'name': tagText,
 				});
 

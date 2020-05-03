@@ -158,6 +158,7 @@ Meteor.methods({
 			if (tags.indexOf(name) === -1) {
 				Meteor.call('tags.assignToDocument', {
 					targetId,
+					targetType,
 					name,
 				});
 			}

@@ -220,7 +220,8 @@ Meteor.methods({
 				});
 			} else {
 				Meteor.call('tags.add', {
-					patternId,
+					'targetId': patternId,
+					'targetType': 'pattern',
 					'name': tag,
 				});
 			}

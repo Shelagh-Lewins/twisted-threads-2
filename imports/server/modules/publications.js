@@ -101,6 +101,8 @@ const patternsFields = {
 	'tags': 1,
 };
 
+// the field 'sets' is not published because it is only used on the server. If there is ever a feature added to show the sets to which a pattern belongs, then it could be published.
+
 // additional fields for individual pattern
 const patternFields = {
 	...patternsFields,
@@ -397,8 +399,8 @@ Meteor.publish('faq', () => FAQ.find());
 
 // the user can see their own sets and any sets containing public patterns
 // all visible set belonging to one user
+// sets don't have a lot of fields or data, and none of it is sensitive, so publish all fields.
 Meteor.publish('setsForUser', function (userId) {
-	//console.log('*** setsForUser subscribing', userId);
 	check(userId, Match.Maybe(nonEmptyStringCheck));
 
 	if (!userId) {
@@ -417,7 +419,6 @@ Meteor.publish('setsForUser', function (userId) {
 
 // an individual set
 Meteor.publish('set', function (_id) {
-	//console.log('*** set subscribing', _id);
 	check(_id, nonEmptyStringCheck);
 
 	return Sets.find(
