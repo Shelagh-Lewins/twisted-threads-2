@@ -4,7 +4,7 @@ import { check } from 'meteor/check';
 import {
 	nonEmptyStringCheck,
 	positiveIntegerCheck,
-	updatePublicSetsCount,
+	updateMultiplePublicSetsCount,
 	updatePublicPatternsCount,
 	validRowsCheck,
 	validPaletteIndexCheck,
@@ -132,8 +132,8 @@ Meteor.methods({
 				// update the user's count of public patterns
 				updatePublicPatternsCount(Meteor.userId());
 
-				// update the user's count of public sets
-				updatePublicSetsCount(Meteor.userId());
+				// for each set to which the pattern belongs, update the owner's count of public sets
+				updateMultiplePublicSetsCount(pattern.sets);
 
 				return;
 

@@ -221,22 +221,35 @@ export const updatePublicColorBooksCount = (_id) => {
 	);
 };
 
-export const updatePublicSetsCount = (_id) => {
+// update the public sets count of a ser
+export const updatePublicSetsCount = (userId) => {
 	const publicSetsCount = Sets.find(
 		{
 			'$and': [
 				{ 'publicPatternsCount': { '$gt': 0 } },
-				{ 'createdBy': _id },
+				{ 'createdBy': userId },
 			],
 		},
 	).count();
 
 	Meteor.users.update(
-		{ _id },
+		{ '_id': userId },
 		{
 			'$set': { 'publicSetsCount': publicSetsCount },
 		},
 	);
+};
+
+// for an array of set ids, update the public set count of each owner
+export const updateMultiplePublicSetsCount = (setIds) => {
+	if (setIds) {
+		setIds.forEach((setId) => {
+			const set = Sets.findOne({ '_id': setId });
+			if (set) {
+				updatePublicSetsCount(set.createdBy);
+			}
+		});
+	}
 };
 
 export const getTabletFilter = ({ filterMaxTablets, filterMinTablets }) => {

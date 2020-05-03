@@ -117,10 +117,15 @@ if (Meteor.isServer) {
 				'patterns': [this.pattern1._id, this.pattern2._id],
 			});
 
+			this.set2 = Factory.create('set', {
+				'createdBy': currentUser._id,
+				'patterns': [this.pattern1._id, this.pattern2._id],
+			});
+
 			// this would be done automatically if we used the method
 			Patterns.update(
 				{ '_id': { '$in': [this.pattern1._id, this.pattern2._id] } },
-				{ '$set': { 'sets': [this.set1._id] } },
+				{ '$set': { 'sets': [this.set1._id, this.set2._id] } },
 				{ 'multi': true },
 			);
 		});
@@ -1287,14 +1292,14 @@ if (Meteor.isServer) {
 
 				assert.equal(result.length, 0);
 			});
-			it('should publish 1 set if user not logged in and there is 1 public set', async () => {
+			it('should publish 2 sets if user not logged in and there are 2 public sets', async () => {
 				// make sure publications know there is no user
 				const userId = Meteor.userId();
 
+				// set 1 pattern in set to public
 				Roles.createRole('verified', { 'unlessExists': true });
 				Roles.addUsersToRoles(userId, ['verified']);
 
-				// set 1 pattern in set to public
 				Meteor.call('pattern.edit', {
 					'_id': this.pattern1._id,
 					'data': {
@@ -1306,7 +1311,6 @@ if (Meteor.isServer) {
 				unwrapUser();
 				stubNoUser();
 
-				// if 1 public pattern in set, publish 1 set
 				const collector = new PublicationCollector();
 
 				const testPromise = new Promise((resolve, reject) => {
@@ -1318,9 +1322,9 @@ if (Meteor.isServer) {
 
 				const result = await testPromise;
 
-				assert.equal(result.length, 1); // 1 set published
+				assert.equal(result.length, 2); // 2 sets published
 
-				// two patterns are listed as belonging to the set
+				// two patterns are listed as belonging to the first set
 				const patternsInSet = result[0].patterns;
 				assert.equal(patternsInSet.length, 2);
 
@@ -1339,7 +1343,7 @@ if (Meteor.isServer) {
 				assert.equal(result2.length, 1); // 1 pattern is published
 				assert.equal(result2[0]._id, this.pattern1._id, 1); // it is the public pattern
 			});
-			it('should publish 1 set if another user is logged in and there is 1 public set', async () => {
+			it('should publish 2 sets if another user is logged in and there are 2 public sets', async () => {
 				// make sure publications know there is no user
 				const userId = Meteor.userId();
 
@@ -1358,7 +1362,6 @@ if (Meteor.isServer) {
 				// log in other user
 				stubOtherUser();
 
-				// if 1 public pattern in set, publish 1 set
 				const collector = new PublicationCollector();
 
 				const testPromise = new Promise((resolve, reject) => {
@@ -1368,12 +1371,11 @@ if (Meteor.isServer) {
 						});
 				});
 
-
 				const result = await testPromise;
 
-				assert.equal(result.length, 1); // 1 set published
+				assert.equal(result.length, 2); // 2 sets published
 
-				// two patterns are listed as belonging to the set
+				// two patterns are listed as belonging to the first set
 				const patternsInSet = result[0].patterns;
 				assert.equal(patternsInSet.length, 2);
 
@@ -1392,7 +1394,7 @@ if (Meteor.isServer) {
 				assert.equal(result2.length, 1); // 1 pattern is published
 				assert.equal(result2[0]._id, this.pattern1._id, 1); // it is the public pattern
 			});
-			it('should publish 1 set if user logged in and their set is private', async () => {
+			it('should publish 2 sets if user logged in and their sets are private', async () => {
 				const userId = Meteor.userId();
 
 				const collector = new PublicationCollector();
@@ -1406,12 +1408,8 @@ if (Meteor.isServer) {
 
 				const result = await testPromise;
 
-				assert.equal(result.length, 1);
+				assert.equal(result.length, 2);
 			});
 		});
 	});
 }
-
-// Set tests notes
-// should tag publish be tested? All tags are public.
-// check operations work with multiple sets, e.g. delete a pattern that is in 2 sets
