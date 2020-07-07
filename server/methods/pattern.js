@@ -5,7 +5,8 @@ import {
 	nonEmptyStringCheck,
 	positiveIntegerCheck,
 	setupTwillThreading,
-	updatePublicPatternsCount,
+	updatePublicPatternsCountForSet,
+	updatePublicPatternsCountForUser,
 	updateMultiplePublicSetsCount,
 	validDirectionCheck,
 	validHolesCheck,
@@ -206,7 +207,7 @@ Meteor.methods({
 		});
 
 		// update the user's count of public patterns
-		updatePublicPatternsCount(Meteor.userId());
+		updatePublicPatternsCountForUser(Meteor.userId());
 
 		// add the tags
 		tags.forEach((tag) => {
@@ -490,26 +491,21 @@ Meteor.methods({
 			});
 		});
 
-		// remove the pattern from any sets that contain it
-		// this could be done in fewer operations but this way we only act on those sets which contain this pattern
-		// so I think the query will be more targeted with less danger of affecting the wrong sets
-
-		// find the sets which contain the pattern
-		// const setIds = Sets.find({ 'patterns': _id }).fetch().map((set) => set._id);
-
-		// remove the pattern from the sets that contain it
-		// and update the sets' count of public patterns
-		const update = { '$pull': { 'patterns': _id } };
+		// find all sets that contain this pattern
+		const sets = Sets.find({ '_id': { '$in': pattern.sets } }).fetch();
 
 		if (pattern.isPublic) {
-			update.$inc = { 'publicPatternsCount': -1 };
-		}
+			sets.forEach((set) => {
+				// remove the pattern from the set's patterns array
+				Sets.update(
+					{ '_id': set._id },
+					{ '$pull': { 'patterns': _id } },
+				);
 
-		Sets.update(
-			{ '_id': { '$in': pattern.sets } },
-			update,
-			{ 'multi': true },
-		);
+				// update the set's count of public pattern
+				updatePublicPatternsCountForSet(set._id);
+			});
+		}
 
 		// delete any of those sets which now have no patterns
 		Sets.remove(
@@ -530,7 +526,7 @@ Meteor.methods({
 		Meteor.call('tags.removeUnused', pattern.tags);
 
 		// update the user's count of public patterns
-		updatePublicPatternsCount(Meteor.userId());
+		updatePublicPatternsCountForUser(Meteor.userId());
 
 		return removed;
 	},

@@ -5,7 +5,8 @@ import {
 	nonEmptyStringCheck,
 	positiveIntegerCheck,
 	updateMultiplePublicSetsCount,
-	updatePublicPatternsCount,
+	updatePublicPatternsCountForSet,
+	updatePublicPatternsCountForUser,
 	validRowsCheck,
 	validPaletteIndexCheck,
 	validTabletsCheck,
@@ -109,28 +110,18 @@ Meteor.methods({
 					throw new Meteor.Error('edit-pattern-not-verified', 'Unable to make the pattern public or private because the user\'s email address is not verified');
 				}
 
-				// update the public pattern count of any set which contains this pattern
-				let countChange = 0;
-
-				if (pattern.isPublic && !isPublic) {
-					countChange = -1;
-				} else if (!pattern.isPublic && isPublic) {
-					countChange = 1;
-				}
-
-				if (countChange !== 0) {
-					Sets.update(
-						{ '_id': { '$in': pattern.sets } },
-						{ '$inc': { 'publicPatternsCount': countChange } },
-						{ 'multi': true },
-					);
-				}
-
 				// update the pattern
 				Patterns.update({ _id }, { '$set': { 'isPublic': isPublic } });
 
+				// find all sets that contain this pattern
+				const sets = Sets.find({ '_id': { '$in': pattern.sets } }).fetch();
+				sets.forEach((set) => {
+					// update the set's count of public pattern
+					updatePublicPatternsCountForSet(set._id);
+				});
+
 				// update the user's count of public patterns
-				updatePublicPatternsCount(Meteor.userId());
+				updatePublicPatternsCountForUser(Meteor.userId());
 
 				// for each set to which the pattern belongs, update the owner's count of public sets
 				updateMultiplePublicSetsCount(pattern.sets);

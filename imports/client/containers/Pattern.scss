@@ -13,6 +13,29 @@
 		clear: both;
 	}
 
+	.pattern-page-name {
+		position: relative;
+
+		.icon {
+			background-size: 40px 40px;
+			height: 40px;
+			left: 0;
+			position: absolute;
+			top: 0;
+			width: 40px;
+		}
+
+		h2 {
+			margin-left: 40px;
+			padding-left: 4px;
+			padding-top: 4px;
+		}
+
+		input {
+			margin-left: 46px;
+		}
+	}
+
 	// vertical preview is by the side of the weaving chart
 	.orientation-change-container {
 		clear: both;

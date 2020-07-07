@@ -2,6 +2,7 @@ import { check } from 'meteor/check';
 import {
 	nonEmptyStringCheck,
 	updateMultiplePublicSetsCount,
+	updatePublicPatternsCountForSet,
 	updatePublicSetsCount,
 } from '../../imports/server/modules/utils';
 import { Patterns, Sets } from '../../imports/modules/collection';
@@ -62,7 +63,6 @@ Meteor.methods({
 
 		// update the user's count of public sets
 		updatePublicSetsCount(Meteor.userId());
-		//updatePublicSetsCount([setId]);
 
 		return setId;
 	},
@@ -111,14 +111,9 @@ Meteor.methods({
 			throw new Meteor.Error('add-set-too-many-patterns', `Unable to add pattern to set because the set contains the maximum allowed number of patterns (${MAX_PATTERNS_IN_SET})`);
 		}
 
-		const update = { '$push': { 'patterns': patternId } };
-		if (pattern.isPublic) {
-			update.$inc = { 'publicPatternsCount': 1 };
-		}
-
 		Sets.update(
 			{ '_id': setId },
-			update,
+			{ '$push': { 'patterns': patternId } },
 		);
 
 		// add this set to the pattern's list of sets to which it belongs
@@ -127,9 +122,12 @@ Meteor.methods({
 			{ '$addToSet': { 'sets': setId } },
 		);
 
+		if (pattern.isPublic) {
+			updatePublicPatternsCountForSet(setId);
+		}
+
 		// update the user's count of public sets
 		updatePublicSetsCount(Meteor.userId());
-		//updatePublicSetsCount([setId]);
 	},
 	'set.removePattern': function ({ // remove a pattern from a set
 		patternId,
@@ -171,16 +169,14 @@ Meteor.methods({
 			throw new Meteor.Error('remove-from-set-already-in-set', 'Unable to remove pattern from set because the pattern is not in the set');
 		}
 
-		const update = { '$pull': { 'patterns': patternId } };
-
-		if (pattern.isPublic) {
-			update.$inc = { 'publicPatternsCount': -1 };
-		}
-
 		Sets.update(
 			{ '_id': setId },
-			update,
+			{ '$pull': { 'patterns': patternId } },
 		);
+
+		if (pattern.isPublic) {
+			updatePublicPatternsCountForSet(setId);
+		}
 
 		// remove this set from the pattern's list of sets to which it belongs
 		Patterns.update(
@@ -195,13 +191,7 @@ Meteor.methods({
 			Sets.remove({ '_id': setId });
 		}
 
-		//update the user's count of public sets
-		//updatePublicSetsCount(Meteor.userId());
-		// for each set, update the owner's count of public sets
-		/* pattern.sets.forEach((_id) => {
-			const { createdBy } = Sets.findOne({ '_id': _id });
-			updatePublicSetsCount(createdBy);
-		}); */
+		// update the user's count of public sets
 		updateMultiplePublicSetsCount([setId]);
 	},
 	'set.remove': function (_id) {

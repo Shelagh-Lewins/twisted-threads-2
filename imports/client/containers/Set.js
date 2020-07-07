@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { withTracker } from 'meteor/react-meteor-data';
 import {
 	Button,
@@ -85,6 +86,7 @@ class Set extends Component {
 	render() {
 		const {
 			allTags,
+			createdByUsername,
 			dispatch,
 			errors,
 			isLoading,
@@ -112,15 +114,25 @@ class Set extends Component {
 						<Container>
 							<Row>
 								<Col lg="12">
-									<EditableText
-										canEdit={canEdit}
-										editButtonText="Edit name"
-										fieldName="name"
-										onClickSave={this.onClickEditableTextSave}
-										title="Name"
-										type="input"
-										fieldValue={name}
-									/>
+									<div className="set-page-name">
+										<span
+											className="icon"
+											style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/search_set.png')}` }}
+											title={`Set: ${name}`}
+										/>
+										<EditableText
+											canEdit={canEdit}
+											editButtonText="Edit name"
+											fieldName="name"
+											onClickSave={this.onClickEditableTextSave}
+											title="Name"
+											type="input"
+											fieldValue={name}
+										/>
+									</div>
+									<p>Created by: <Link to={`/user/${createdBy}`} className="created-by">
+										{createdByUsername}</Link>
+									</p>
 									{this.renderTagInput(canEdit)}
 									<EditableText
 										canEdit={canEdit}
@@ -191,6 +203,7 @@ class Set extends Component {
 Set.propTypes = {
 	'_id': PropTypes.string.isRequired, // read the url parameter to find the id of the set
 	'allTags': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'createdByUsername': PropTypes.string.isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
@@ -223,11 +236,19 @@ const Tracker = withTracker((props) => {
 
 	const set = Sets.findOne({ _id });
 	let patternsInSet = [];
+	let createdByUsername = '';
+
 	if (set) {
 		patternsInSet = Patterns.find(
 			{ '_id': { '$in': set.patterns } },
 			{ 'sort': { 'nameSort': 1 } },
 		).fetch();
+
+		const createdByUser = Meteor.users.findOne({ '_id': set.createdBy });
+
+		if (createdByUser) {
+			createdByUsername = createdByUser.username;
+		}
 	}
 
 	const handle = Meteor.subscribe('set', _id, {
@@ -253,9 +274,10 @@ const Tracker = withTracker((props) => {
 	// pass database data as props
 	return {
 		'allTags': Tags.find().fetch(),
+		createdByUsername,
 		'patterns': patternsInSet,
 		'patternPreviews': PatternPreviews.find().fetch(),
-		'set': set,
+		set,
 		'users': Meteor.users.find().fetch(),
 	};
 })(Set);

@@ -217,15 +217,22 @@ class Pattern extends PureComponent {
 
 		return (
 			<>
-				<EditableText
-					canEdit={canEdit}
-					editButtonText="Edit name"
-					fieldName="name"
-					onClickSave={this.onClickEditableTextSave}
-					title="Name"
-					type="input"
-					fieldValue={name}
-				/>
+				<div className="pattern-page-name">
+					<span
+						className="icon"
+						style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/search_pattern.png')}` }}
+						title={`Pattern: ${name}`}
+					/>
+					<EditableText
+						canEdit={canEdit}
+						editButtonText="Edit name"
+						fieldName="name"
+						onClickSave={this.onClickEditableTextSave}
+						title="Name"
+						type="input"
+						fieldValue={name}
+					/>
+				</div>
 				<p>Pattern type: {findPatternTypeDisplayName(patternType)}</p>
 				{twillDirectionIndicator}
 			</>
