@@ -81,7 +81,7 @@ Meteor.methods({
 		const set = Sets.findOne({ '_id': setId });
 
 		if (!set) {
-			throw new Meteor.Error('add-to-set-not-found', 'Unable to add pattern to set because the set was not found');
+			throw new Meteor.Error('add-to-set-set-not-found', 'Unable to add pattern to set because the set was not found');
 		}
 
 		// check user owns set
@@ -98,7 +98,7 @@ Meteor.methods({
 		});
 
 		if (!pattern) {
-			throw new Meteor.Error('add-to-set-not-found', 'Unable to add pattern to set because the pattern was not found');
+			throw new Meteor.Error('add-to-set-pattern-not-found', 'Unable to add pattern to set because the pattern was not found');
 		}
 
 		// check pattern is not already in set
@@ -144,7 +144,7 @@ Meteor.methods({
 		const set = Sets.findOne({ '_id': setId });
 
 		if (!set) {
-			throw new Meteor.Error('remove-from-set-not-found', 'Unable to remove pattern from set because the set was not found');
+			throw new Meteor.Error('remove-from-set-set-not-found', 'Unable to remove pattern from set because the set was not found');
 		}
 
 		// check user owns set
@@ -161,12 +161,12 @@ Meteor.methods({
 		});
 
 		if (!pattern) {
-			throw new Meteor.Error('remove-from-set-not-found', 'Unable to remove pattern from set because the pattern was not found');
+			throw new Meteor.Error('remove-from-set-pattern-not-found', 'Unable to remove pattern from set because the pattern was not found');
 		}
 
 		// check pattern is in set
 		if (set.patterns.indexOf(patternId) === -1) {
-			throw new Meteor.Error('remove-from-set-already-in-set', 'Unable to remove pattern from set because the pattern is not in the set');
+			throw new Meteor.Error('remove-from-set-not-in-set', 'Unable to remove pattern from set because the pattern is not in the set');
 		}
 
 		Sets.update(

@@ -17,7 +17,7 @@ import createManyPatterns from './createManyPatterns';
 
 if (Meteor.isServer) {
 	describe('test general methods for patterns', function () { // eslint-disable-line func-names
-		this.timeout(15000);
+		this.timeout(30000);
 		beforeEach(() => {
 			resetDatabase();
 		});
