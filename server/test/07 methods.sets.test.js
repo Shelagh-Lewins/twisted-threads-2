@@ -241,7 +241,6 @@ if (Meteor.isServer) {
 			});
 		});
 		describe('set.removePattern method', () => {
-			// create a set and assign a pattern to it
 			it('cannot remove pattern from set if not logged in', () => {
 				// create a set by adding a pattern
 				const { patternId } = this; // seems to be a scoping issue otherwise
@@ -384,15 +383,174 @@ if (Meteor.isServer) {
 				assert.equal(Sets.find({}).fetch().length, 0);
 			});
 		});
+		describe('set.remove method', () => {
+			it('cannot remove a set if not logged in', () => {
+				// create a set by adding a pattern
+				const { patternId } = this; // seems to be a scoping issue otherwise
+
+				const setId = Meteor.call('set.add', {
+					patternId,
+					'name': 'Favourites',
+				});
+
+				// make sure publications know there is no user
+				unwrapUser();
+				stubNoUser();
+
+				function expectedError() {
+					Meteor.call('set.remove', setId);
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'remove-set-not-logged-in');
+			});
+			it('cannot remove a set if set not found', () => {
+				function expectedError() {
+					Meteor.call('set.remove', 'abc');
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'remove-set-not-found');
+			});
+			it('cannot remove a set if set not created by the user', () => {
+				// create a set by adding a pattern
+				const { patternId } = this; // seems to be a scoping issue otherwise
+
+				const setId = Meteor.call('set.add', {
+					patternId,
+					'name': 'Favourites',
+				});
+
+				stubOtherUser();
+
+				function expectedError() {
+					Meteor.call('set.remove', setId);
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'remove-set-not-created-by-user');
+			});
+			it('can remove a set', () => {
+				// create a set by adding a pattern
+				const { patternId } = this; // seems to be a scoping issue otherwise
+
+				const setId = Meteor.call('set.add', {
+					patternId,
+					'name': 'Favourites',
+				});
+
+				assert.equal(Sets.find({}).fetch().length, 1);
+
+				Meteor.call('set.remove', setId);
+
+				assert.equal(Sets.find({}).fetch().length, 0);
+			});
+		});
+		describe('set.edit method', () => {
+			it('cannot edit a set if not logged in', () => {
+				// create a set by adding a pattern
+				const { patternId } = this; // seems to be a scoping issue otherwise
+
+				const setId = Meteor.call('set.add', {
+					patternId,
+					'name': 'Favourites',
+				});
+
+				// make sure publications know there is no user
+				unwrapUser();
+				stubNoUser();
+
+				const fieldName = 'name';
+				const fieldValue = 'My favourites';
+
+				function expectedError() {
+					Meteor.call('set.edit', {
+						'_id': setId,
+						'data': {
+							fieldName,
+							fieldValue,
+							'type': 'editTextField',
+						},
+					});
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'edit-set-not-logged-in');
+			});
+			it('cannot edit a set if the set was not found', () => {
+				const fieldName = 'name';
+				const fieldValue = 'My favourites';
+
+				function expectedError() {
+					Meteor.call('set.edit', {
+						'_id': 'abc',
+						'data': {
+							fieldName,
+							fieldValue,
+							'type': 'editTextField',
+						},
+					});
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'edit-set-not-found');
+			});
+			it('cannot edit a set if the set was not created by the current user', () => {
+				// create a set by adding a pattern
+				const { patternId } = this; // seems to be a scoping issue otherwise
+
+				const setId = Meteor.call('set.add', {
+					patternId,
+					'name': 'Favourites',
+				});
+
+				stubOtherUser();
+
+				const fieldName = 'name';
+				const fieldValue = 'My favourites';
+
+				function expectedError() {
+					Meteor.call('set.edit', {
+						'_id': setId,
+						'data': {
+							fieldName,
+							fieldValue,
+							'type': 'editTextField',
+						},
+					});
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'edit-set-not-created-by-user');
+			});
+			it('can edit a set', () => {
+				// create a set by adding a pattern
+				const { patternId } = this; // seems to be a scoping issue otherwise
+
+				const setId = Meteor.call('set.add', {
+					patternId,
+					'name': 'Favourites',
+				});
+
+				assert.equal(Sets.findOne({}).name, 'Favourites');
+				assert.equal(Sets.findOne({}).description, undefined);
+
+				let fieldName = 'name';
+				let fieldValue = 'My favourites';
+
+				Meteor.call('set.edit', {
+					'_id': setId,
+					'data': {
+						fieldName,
+						fieldValue,
+						'type': 'editTextField',
+					},
+				});
+
+				assert.equal(Sets.findOne({})[fieldName], fieldValue);
+
+				fieldName = 'description';
+				fieldValue = 'This set contains patterns';
+
+				Meteor.call('set.edit', {
+					'_id': setId,
+					'data': {
+						fieldName,
+						fieldValue,
+						'type': 'editTextField',
+					},
+				});
+
+				assert.equal(Sets.findOne({})[fieldName], fieldValue);
+			});
+		});
 	});
 }
-
-// /////////////
-/*
-
-set.remove
-set.edit
-
-- permissions
-- functionality?
-*/
