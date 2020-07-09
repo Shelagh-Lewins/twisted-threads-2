@@ -302,7 +302,7 @@ class WeavingDesignIndividual extends PureComponent {
 		return (
 			<>
 				<ButtonToolbar>
-					<ButtonGroup className="edit-mode">
+					<ButtonGroup className="edit-mode segmented">
 						{options.map((option) => (
 							<Button
 								className={editMode === option.value ? 'selected' : ''}

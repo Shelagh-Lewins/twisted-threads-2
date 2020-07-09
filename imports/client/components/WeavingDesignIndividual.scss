@@ -128,13 +128,20 @@
 		}
 
 		.btn-toolbar {
-			float: left;
-			margin: 0 8px 8px 0;
+			.segmented {
+				float: left;
+				margin: 0 8px 8px 0;
 
-			button {
-				&.selected {
-					background: $color-palette-button-selected;
-					border-color: $color-palette-button-selected;
+				button {
+					background: $color-weaving-toolbar-btn-background;
+					border-color: $color-weaving-toolbar-btn-color;
+					color: $color-weaving-toolbar-btn-color;
+
+					&.selected {
+						background: $color-weaving-toolbar-btn-selected-background;
+						border-color: $color-weaving-toolbar-btn-selected-background;
+						color: $color-weaving-toolbar-btn-selected-color;
+					}
 				}
 			}
 		}
