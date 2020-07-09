@@ -654,71 +654,89 @@ const Tracker = withTracker((props) => {
 		filterMinTablets,
 		itemsPerPage,
 		pageSkip,
+		tab,
 	} = props;
 	const state = store.getState();
 	const isLoading = getIsLoading(state);
 
 	Meteor.subscribe('users', [_id]);
 	Meteor.subscribe('colorBooks', _id);
-
-	// patterns contained in this user's visible sets
-	const sets = Sets.find(
-		{ 'createdBy': _id },
-		{
-			'sort': { 'nameSort': 1 },
-		},
-	).fetch();
-
-	function combineArrays(patternIdsArray, set) {
-		return patternIdsArray.concat(set.patterns);
-	}
-
-	const patternsInSetsIds = Array.from(new Set(sets.reduce(combineArrays, [])));
-
-	const patternsInSets = Patterns.find(
-		{ '_id': { '$in': patternsInSetsIds } },
-		{ 'sort': { 'nameSort': 1 } },
-	).fetch();
-
-	Meteor.subscribe('setsForUser', _id, {
-		'onReady': () => {
-			Meteor.subscribe('patternsById', patternsInSetsIds, {
-				'onReady': () => {
-					secondaryPatternSubscriptions(patternsInSets);
-				},
-			});
-		},
-	});
-
 	Meteor.subscribe('tags');
 
-	// patterns created by user
-	const patterns = Patterns.find(
-		{ 'createdBy': _id },
-		{
-			'sort': { 'nameSort': 1 },
-			'limit': itemsPerPage,
-		},
-	).fetch();
+	let handle;
+	let patterns = [];
+	let sets = [];
+	let patternsInSetsIds = [];
+	let patternsInSets = [];
 
-	const handle = Meteor.subscribe('userPatterns', {
-		filterMaxTablets,
-		filterMinTablets,
-		'limit': itemsPerPage,
-		'skip': pageSkip,
-		'userId': _id,
-	}, {
-		'onReady': () => {
-			const patternIds = patterns.map((pattern) => pattern._id);
+	switch (tab) {
+		case 'sets':
+			// patterns contained in this user's visible sets
+			sets = Sets.find(
+				{ 'createdBy': _id },
+				{
+					'sort': { 'nameSort': 1 },
+				},
+			).fetch();
 
-			Meteor.subscribe('patternPreviews', { patternIds }, _id);
-		},
-	});
+			patternsInSetsIds = Array.from(new Set(sets.reduce((patternIdsArray, set) => patternIdsArray.concat(set.patterns), [])));
 
-	if (isLoading && handle.ready()) {
+			patternsInSets = Patterns.find(
+				{ '_id': { '$in': patternsInSetsIds } },
+				{ 'sort': { 'nameSort': 1 } },
+			).fetch();
+
+			handle = Meteor.subscribe('setsForUser', _id, {
+				'onReady': () => {
+
+					Meteor.subscribe('patternsById', patternsInSetsIds, {
+						'onReady': () => {
+							secondaryPatternSubscriptions(patternsInSets);
+						},
+					});
+				},
+			});
+			break;
+
+		case 'patterns':
+			// stopping the 'sets' pattern subscription does not remove those patterns from minimongo - I can't work out why not; the pattern previews are removed, but not the patterns. So pagesData is a hack to differentiate the 'Patterns' tab paginated data from the 'Sets' tab pattern names and preview.
+
+			// patterns created by user
+			patterns = Patterns.find(
+				{ 'createdBy': _id, 'pagesData': true },
+				{
+					'sort': { 'nameSort': 1 },
+					'limit': itemsPerPage,
+				},
+			).fetch();
+
+			handle = Meteor.subscribe('userPatterns', {
+				filterMaxTablets,
+				filterMinTablets,
+				'limit': itemsPerPage,
+				'skip': pageSkip,
+				'userId': _id,
+			}, {
+				'onReady': () => {
+					const patternIds = patterns.map((pattern) => pattern._id);
+
+					Meteor.subscribe('patternPreviews', { patternIds }, _id);
+				},
+			});
+			break;
+
+		default:
+			break;
+	}
+
+	if (handle) {
+		if (isLoading && handle.ready()) {
+			dispatch(setIsLoading(false));
+		} else if (!isLoading && !handle.ready()) {
+			dispatch(setIsLoading(true));
+		}
+	} else if (isLoading) {
 		dispatch(setIsLoading(false));
-	} else if (!isLoading && !handle.ready()) {
-		dispatch(setIsLoading(true));
 	}
 
 	// pass database data as props

@@ -273,7 +273,9 @@ Meteor.publish('userPatterns', function ({
 	check(skip, positiveIntegerCheck);
 	check(userId, nonEmptyStringCheck);
 
-	return Patterns.find(
+	const self = this;
+
+	const myCursor = Patterns.find(
 		{
 			'$and': [
 				getTabletFilter({ filterMaxTablets, filterMinTablets }),
@@ -288,6 +290,14 @@ Meteor.publish('userPatterns', function ({
 			'limit': limit,
 		},
 	);
+
+	// this is a hack to differentiate paginated list data from (for example) patterns loaded as part of Set data. Stopping the patternsById subscription does not remove the patterns from Minimongo and I can't work out why, so the client needs a way to filter data for pages.
+	myCursor.forEach((pattern) => {
+		pattern.pagesData = true;
+		self.added('patterns', pattern._id, pattern);
+	});
+
+	self.ready();
 });
 
 // //////////////////////////
