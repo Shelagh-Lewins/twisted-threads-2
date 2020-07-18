@@ -33,6 +33,11 @@
 
 	.field-value {
 		clear: both;
+		margin-bottom: 8px;
+		max-height: 500px;
+		overflow-wrap: break-word;
+		overflow-x: auto;
+		overflow-y: auto;
 	}
 
 	.hint {

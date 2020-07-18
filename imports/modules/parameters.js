@@ -171,7 +171,7 @@ export const ROLE_LIMITS = {
 	},
 };
 
-export const MAX_TEXT_AREA_LENGTH = 5000; // max length of a user-editable text area field such as user description
+export const MAX_TEXT_AREA_LENGTH = 10000; // max length of a user-editable text area field such as user description
 export const MAX_TEXT_INPUT_LENGTH = 256; // max length of a user-editable text input field such as pattern name
 
 export const NUMBER_OF_ACTIONS_LOGGED = 20;
