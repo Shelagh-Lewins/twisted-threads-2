@@ -134,7 +134,7 @@ class Navbar extends Component {
 			isOwner = pattern.createdBy === Meteor.user()._id;
 		}
 
-		const showPatternMenu = !isLoading && patternId && (canCreatePattern || isOwner);
+		const showPatternMenu = !isLoading && patternId && pattern && (canCreatePattern || isOwner);
 
 		let uploadMenu;
 		let patternMenu;

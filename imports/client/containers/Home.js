@@ -24,6 +24,7 @@ import Loading from '../components/Loading';
 import MainMenu from '../components/MainMenu';
 import PatternListPreview from '../components/PatternListPreview';
 import UserListPreview from '../components/UserListPreview';
+import CreatorMessage from '../components/CreatorMessage';
 import DonatePayPal from '../components/DonatePayPal';
 import DonateKoFi from '../components/DonateKoFi';
 import DonatePatreon from '../components/DonatePatreon';
@@ -139,7 +140,7 @@ class Home extends Component {
 						</Row>
 						<Row>
 							<Col>
-								<p>Twisted Threads is free to use, but creating and maintaining it is a lot of work, and the server costs money. If you&apos;d like to support this site, any donations will be very gratefully received!</p>
+								<CreatorMessage />
 								<div className="donations">
 									<DonatePatreon />
 									<DonateKoFi />

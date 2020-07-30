@@ -10,6 +10,7 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import PageWrapper from '../components/PageWrapper';
 import MainMenu from '../components/MainMenu';
+import CreatorMessage from '../components/CreatorMessage';
 import DonatePayPal from '../components/DonatePayPal';
 import DonateKoFi from '../components/DonateKoFi';
 import DonatePatreon from '../components/DonatePatreon';
@@ -122,7 +123,7 @@ class About extends Component {
 						<Row>
 							<Col>
 								<h2>Support Twisted Threads</h2>
-								<p>I want to keep Twisted Threads free to use, but creating and maintaining it is a lot of work, and the server costs money. If you&apos;d like to support this site, any donations will be very gratefully received! You can use Patreon, Ko-fi or PayPal.</p>
+								<CreatorMessage />
 							</Col>
 						</Row>
 						<Row>
