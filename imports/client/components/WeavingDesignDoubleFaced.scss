@@ -1,0 +1,262 @@
+@import "../constants/variables";
+
+.weaving-design-double-faced {
+	clear: both;
+	float: left;
+	margin-bottom: 8px;
+	padding-right: 8px;
+
+	:focus {
+		outline: 1px dashed $color-focus;
+	}
+
+	&.editing {
+		.content {
+			background: $color-chart-editing-background;
+			border: 1px solid $color-focus;
+		}
+
+		.controls {
+			margin-bottom: 8px;
+		}
+	}
+
+	.content {
+		border: 1px solid transparent;
+		border-radius: 4px;
+		margin: 0;
+		padding: 8px;
+	}
+
+	.weaving-design-row {
+		.foreground {
+			span {
+				background-color: $color-twill-design-foreground;
+			}
+		}
+
+		ul {
+			overflow-x: visible;
+			pointer-events: none; /* allow clicks to reach offset cells from other rows */
+			position: relative;
+			white-space: nowrap;
+		}
+
+		.last-row {
+			.cell {
+				&.value {
+					border-top: 1px solid $color-twill-design-cell-border;
+				}
+			}
+		}
+
+		/* .last-row {
+			height: 0;
+
+			.row-label {
+				visibility: hidden;
+			}
+
+			.cell {
+				&.value {
+					border-top: 1px solid $color-twill-design-cell-border;
+				}
+
+				&:nth-child(even) {
+					height: 32px;
+					top: 0;
+					z-index: 20;
+				}
+			}
+		} */
+
+		/* .first-row {
+			.cell {
+				&:nth-child(even) {
+					height: 32px;
+
+					span {
+						pointer-events: none;
+					}
+				}
+			}
+		} */
+
+		/* &:nth-child(2) {
+			.value {
+				&:nth-child(odd) { */
+					/* border-top: 1px solid $color-twill-design-cell-border; */
+				/* }
+			}
+		} */
+
+		.cell {
+			-webkit-print-color-adjust: exact;
+			background-color: $color-twill-design-cell-background;
+			border-bottom: 1px solid $color-twill-design-cell-border;
+			border-right: 1px solid $color-twill-design-cell-border;
+			display: inline-block;
+			font-size: 16px;
+			height: 64px;
+			line-height: 32px;
+			margin: 0;
+			padding: 0;
+			position: relative;
+			text-align: center;
+			vertical-align: top;
+			width: 32px;
+
+			/* &:nth-child(even) {
+				top: 32px;
+			} */
+
+			&.first-tablet {
+				border-left: 1px solid $color-twill-design-cell-border;
+			}
+
+			&.value {
+				span {
+					-moz-appearance: none; /* Mozilla */
+					-webkit-appearance: none; /* WebKit */
+					appearance: none; /* CSS3 */
+					display: inline-block;
+					height: 100%;
+					pointer-events: auto;
+					width: 100%;
+
+					&:focus {
+						outline: 2px dashed $color-focus;
+						outline-offset: -2px;
+					}
+				}
+			}
+		}
+
+		.delete {
+			background-color: $color-twill-design-cell-background;
+			border-bottom: 1px solid $color-twill-design-cell-border;
+			border-right: 1px solid $color-twill-design-cell-border;
+			border-top: 1px solid $color-twill-design-cell-border;
+			color: $color-twill-design-cell-color;
+			pointer-events: auto;
+			display: inline-block;
+			font-size: 16px;
+			height: 33px;
+			line-height: 32px;
+			margin: 0;
+			padding: 0;
+			position: relative;
+			text-align: center;
+			top: 31px;
+			vertical-align: top;
+			width: 32px;
+
+			span{
+				-moz-appearance: none; /* Mozilla */
+				-webkit-appearance: none; /* WebKit */
+				appearance: none; /* CSS3 */
+				display: inline-block;
+				height: 100%;
+				width: 100%;
+
+				&:focus {
+					outline: 2px dashed $color-focus;
+					outline-offset: -2px;
+				}
+			}
+		}
+	}
+
+	ul {
+		font-size: 0;
+		list-style-type: none;
+		margin: 0;
+		padding: 0;
+
+		li {
+			margin: 0;
+			padding: 0;
+		}
+
+		.cell,
+		.row-label {
+			display: inline-block;
+			font-size: 1rem;
+			height: 32px;
+			line-height: 32px;
+			overflow: hidden;
+			text-align: center;
+			vertical-align: top;
+			width: 32px;
+
+			&.odd {
+				left: 0;
+				position: absolute;
+				top: 32px;
+			}
+		}
+	}
+
+	.tablet-labels {
+		margin-left: 32px;
+		overflow-x: auto;
+		white-space: nowrap;
+
+		span {
+			display: inline-block;
+			height: 32px;
+			width: 32px;
+		}
+	}
+
+	.inactive {
+		&::before {
+			background: $color-twill-inactive;
+			content: "";
+			display: block;
+			height: 100%;
+			left: 0;
+			pointer-events: none;
+			position: absolute;
+			width: 100%;
+			z-index: 10;
+		}
+	}
+
+	.weaving-toolbar {
+		background-color: $color-chart-editing-background;
+		border: 1px solid transparent;
+		border-radius: 4px;
+		clear: both;
+		float: left;
+		padding: 8px;
+		z-index: 30;
+
+		&.scrolling {
+			border-color: $color-chart-border;
+		}
+
+		.form-group {
+			clear: both;
+			float: left;
+			margin-bottom: 0;
+		}
+
+		.btn-toolbar {
+			float: left;
+			margin: 0 8px 8px 0;
+
+			button {
+				background: $color-weaving-toolbar-btn-background;
+				border-color: $color-weaving-toolbar-btn-color;
+				color: $color-weaving-toolbar-btn-color;
+
+				&.selected {
+					background: $color-weaving-toolbar-btn-selected-background;
+					border-color: $color-weaving-toolbar-btn-selected-background;
+					color: $color-weaving-toolbar-btn-selected-color;
+				}
+			}
+		}
+	}
+}

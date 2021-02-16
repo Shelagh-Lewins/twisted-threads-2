@@ -1,18 +1,16 @@
 import React, { PureComponent } from 'react';
-import { Button, ButtonGroup, ButtonToolbar } from 'reactstrap';
+import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import {
 	addWeavingRows,
 	editTwillChart,
-	editTwillWeavingStartRow,
 	removeWeavingRows,
 	setIsEditingWeaving,
 } from '../modules/pattern';
 import calculateScrolling from '../modules/calculateScrolling';
 import AddRowsForm from '../forms/AddRowsForm';
-import TwillWeavingStartRowForm from '../forms/TwillWeavingStartRowForm';
-import './WeavingDesignBrokenTwill.scss';
+import './WeavingDesignDoubleFaced.scss';
 
 // row and tablet have nothing to identify them except index
 // note row here indicates hole of the tablet
@@ -24,7 +22,7 @@ import './WeavingDesignBrokenTwill.scss';
 /* eslint-disable jsx-a11y/no-noninteractive-tabindex */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
-class WeavingDesignBrokenTwill extends PureComponent {
+class WeavingDesignDoubleFaced extends PureComponent {
 	constructor(props) {
 		super(props);
 
@@ -36,7 +34,6 @@ class WeavingDesignBrokenTwill extends PureComponent {
 		// bind onClick functions to provide context
 		const functionsToBind = [
 			'handleSubmitAddRows',
-			'handleSubmitWeavingStartRow',
 			'toggleEditWeaving',
 			'handleClickEditMode',
 			'handleClickRemoveRow',
@@ -99,15 +96,6 @@ class WeavingDesignBrokenTwill extends PureComponent {
 		}));
 
 		setTimeout(() => this.trackScrolling(), 100); // give the new rows time to render
-	}
-
-	handleSubmitWeavingStartRow(value) {
-		const { dispatch, 'pattern': { _id } } = this.props;
-
-		dispatch(editTwillWeavingStartRow({
-			_id,
-			'weavingStartRow': parseInt(value, 10),
-		}));
 	}
 
 	handleClickRemoveRow(rowIndex) {
@@ -179,11 +167,10 @@ class WeavingDesignBrokenTwill extends PureComponent {
 	renderCell(rowIndex, tabletIndex) {
 		const {
 			'patternDesign': {
-				twillDirectionChangeChart,
-				twillPatternChart,
+				doubleFacedPatternChart,
 			},
 		} = this.props;
-		const numberOfChartRows = twillPatternChart.length;
+		const numberOfChartRows = doubleFacedPatternChart.length;
 
 		const {
 			isEditing,
@@ -198,13 +185,12 @@ class WeavingDesignBrokenTwill extends PureComponent {
 			}
 		}
 
-		const isForeground = twillPatternChart[rowIndex][tabletIndex] === 'X';
-		const isDirectionChange = twillDirectionChangeChart[rowIndex][tabletIndex] === 'X';
+		const isForeground = doubleFacedPatternChart[rowIndex][tabletIndex] === 'X';
 
 		return (
 			<li
-				className={`cell value ${tabletIndex === 0 ? 'first-tablet' : ''} ${isForeground ? 'foreground' : ''} ${isDirectionChange ? 'direction-change' : ''}`}
-				key={`twill-design-cell-${rowIndex}-${tabletIndex}`}
+				className={`cell value ${tabletIndex === 0 ? 'first-tablet' : ''} ${isForeground ? 'foreground' : ''}`}
+				key={`double-faced-design-cell-${rowIndex}-${tabletIndex}`}
 			>
 				<span
 					type={isEditing ? 'button' : undefined}
@@ -221,11 +207,11 @@ class WeavingDesignBrokenTwill extends PureComponent {
 		const {
 			numberOfTablets,
 			'patternDesign': {
-				twillPatternChart,
+				doubleFacedPatternChart,
 				weavingStartRow,
 			},
 		} = this.props;
-		const numberOfChartRows = twillPatternChart.length;
+		const numberOfChartRows = doubleFacedPatternChart.length;
 		const { isEditing } = this.state;
 		const rowLabel = numberOfChartRows - rowIndex;
 
@@ -282,11 +268,11 @@ class WeavingDesignBrokenTwill extends PureComponent {
 	renderChart() {
 		const {
 			'patternDesign': {
-				twillPatternChart,
+				doubleFacedPatternChart,
 			},
 		} = this.props;
-		const numberOfChartRows = twillPatternChart.length;
-		const { isEditing } = this.state;
+		const numberOfChartRows = doubleFacedPatternChart.length;
+		//const { isEditing } = this.state;
 
 		const rows = [];
 		for (let i = 0; i < numberOfChartRows; i += 1) {
@@ -302,11 +288,6 @@ class WeavingDesignBrokenTwill extends PureComponent {
 
 		return (
 			<>
-				{isEditing && (
-					<>
-						<p>Change the twill direction to create smooth diagonal lines.</p>
-					</>
-				)}
 				{this.renderTabletLabels()}
 				<ul className="weaving-chart">
 					{rows}
@@ -315,46 +296,11 @@ class WeavingDesignBrokenTwill extends PureComponent {
 		);
 	}
 
-	renderEditOptions() {
-		const { editMode } = this.state;
-		const options = [
-			{
-				'name': 'Edit colour',
-				'value': 'color',
-			},
-			{
-				'name': 'Edit twill direction',
-				'value': 'twillDirection',
-			},
-		];
-
-		return (
-			<>
-				<ButtonToolbar>
-					<ButtonGroup className="edit-mode">
-						{options.map((option) => (
-							<Button
-								className={editMode === option.value ? 'selected' : ''}
-								color="secondary"
-								key={option.value}
-								onClick={this.handleClickEditMode}
-								value={option.value}
-							>
-								{option.name}
-							</Button>
-						))}
-					</ButtonGroup>
-				</ButtonToolbar>
-			</>
-		);
-	}
-
 	renderToolbar() {
 		const {
 			numberOfRows,
-			'pattern': { patternDesign },
 		} = this.props;
-		const { weavingStartRow } = patternDesign;
+		// const { twillPatternChart, weavingStartRow } = patternDesign;
 		const {
 			controlsOffsetX,
 			controlsOffsetY,
@@ -375,12 +321,7 @@ class WeavingDesignBrokenTwill extends PureComponent {
 					enableReinitialize={true}
 					handleSubmit={this.handleSubmitAddRows}
 					numberOfRows={numberOfRows}
-					patternType="brokenTwill"
-				/>
-				<TwillWeavingStartRowForm
-					numberOfRows={numberOfRows}
-					handleSubmit={this.handleSubmitWeavingStartRow}
-					weavingStartRow={weavingStartRow}
+					patternType="doubleFaced"
 				/>
 			</div>
 		);
@@ -392,7 +333,7 @@ class WeavingDesignBrokenTwill extends PureComponent {
 		const canEdit = createdBy === Meteor.userId();
 
 		return (
-			<div className={`weaving-design-twill ${isEditing ? 'editing' : ''}`}>
+			<div className={`weaving-design-double-faced ${isEditing ? 'editing' : ''}`}>
 				{canEdit && this.renderControls()}
 				<div
 					className="content"
@@ -407,7 +348,7 @@ class WeavingDesignBrokenTwill extends PureComponent {
 	}
 }
 
-WeavingDesignBrokenTwill.propTypes = {
+WeavingDesignDoubleFaced.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'numberOfRows': PropTypes.number.isRequired,
 	'numberOfTablets': PropTypes.number.isRequired,
@@ -421,4 +362,4 @@ function mapStateToProps(state) {
 	};
 }
 
-export default connect(mapStateToProps)(WeavingDesignBrokenTwill);
+export default connect(mapStateToProps)(WeavingDesignDoubleFaced);

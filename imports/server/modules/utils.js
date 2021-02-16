@@ -309,7 +309,7 @@ export const setupOrientations = ({
 	const orientations = new Array(tablets).fill(DEFAULT_ORIENTATION);
 
 	// double faced patterns have alternating orientation
-	if (patternType === 'doubleFace') {
+	if (patternType === 'doubleFaced') {
 		for (let i = 0; i < tablets; i += 1) {
 			if (i % 2 === 1) {
 				orientations[i] = orientations[i] === 'S' ? 'Z' : 'S';

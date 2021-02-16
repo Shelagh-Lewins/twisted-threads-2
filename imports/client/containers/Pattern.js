@@ -37,6 +37,7 @@ import Loading from '../components/Loading';
 import WeavingDesignIndividual from '../components/WeavingDesignIndividual';
 import WeavingDesignAllTogether from '../components/WeavingDesignAllTogether';
 import WeavingDesignBrokenTwill from '../components/WeavingDesignBrokenTwill';
+import WeavingDesignDoubleFaced from '../components/WeavingDesignDoubleFaced';
 import WeavingDesignFreehand from '../components/WeavingDesignFreehand';
 import Weft from '../components/Weft';
 import PatternPreview from '../components/PatternPreview';
@@ -443,6 +444,20 @@ class Pattern extends PureComponent {
 					<>
 						<h2>Weaving design</h2>
 						<WeavingDesignBrokenTwill
+							dispatch={dispatch}
+							numberOfRows={numberOfRows}
+							numberOfTablets={numberOfTablets}
+							pattern={pattern}
+						/>
+					</>
+				);
+				break;
+
+			case 'doubleFaced':
+				weavingInstructions = (
+					<>
+						<h2>Weaving design</h2>
+						<WeavingDesignDoubleFaced
 							dispatch={dispatch}
 							numberOfRows={numberOfRows}
 							numberOfTablets={numberOfTablets}

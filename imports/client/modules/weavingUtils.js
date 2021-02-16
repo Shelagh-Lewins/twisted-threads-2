@@ -2,6 +2,7 @@
 // import { createSelector } from 'reselect';
 import {
 	BROKEN_TWILL_SEQUENCE,
+	DOUBLE_FACED_SEQUENCE,
 	EMPTY_HOLE_COLOR,
 	MAX_PICKS_IN_REPEAT,
 } from '../../modules/parameters';
@@ -165,7 +166,7 @@ export const getTotalTurnsForTablet = ({
 	picksForTablet,
 }) => {
 	let startTurns = 0;
-
+//console.log('*** getTotalTurnsForTablet');
 	if (patternType === 'brokenTwill') {
 		const { weavingStartRow } = patternDesign;
 
@@ -282,6 +283,40 @@ export const getThread = ({
 // each row of raw pattern design charts corresponds to two picks, offset alternately
 // so build expanded charts that correspond to single picks
 // and recast by tablet
+export const buildDoubleFacedDoubledChartsForTablet = ({
+	tabletIndex,
+	doubleFacedPatternChart,
+}) => {
+	const doubledPatternChart = [];
+	const designChartRows = doubleFacedPatternChart.length;
+
+	for (let i = 0; i < designChartRows; i += 1) {
+		// pattern chart
+		// even row (note chart starts with 0, even)
+		doubledPatternChart.push(doubleFacedPatternChart[i][tabletIndex]);
+
+		// odd row
+		doubledPatternChart.push(doubleFacedPatternChart[i][tabletIndex]);
+		//const rowIndex = 2 * i; // row index in doubled chart
+
+		// odd row
+		/* if (i === (designChartRows - 1)) { // last row of Data
+			doubledPatternChart.push(doubledPatternChart[i][tabletIndex]);
+		} else if (tabletIndex % 2 === 0) {
+			doubledPatternChart.push(doubledPatternChart[i][tabletIndex]);
+		} else {
+			doubledPatternChart.push(doubledPatternChart[i + 1][tabletIndex]);
+		} */
+	}
+
+	return {
+		doubledPatternChart,
+	};
+};
+
+// each row of raw pattern design charts corresponds to two picks, offset alternately
+// so build expanded charts that correspond to single picks
+// and recast by tablet
 export const buildTwillDoubledChartsForTablet = ({
 	tabletIndex,
 	twillPatternChart,
@@ -388,6 +423,104 @@ export const buildAllTogetherWeavingInstructionsByTablet = ({
 	return weavingInstructionsByTablet;
 };
 
+// This is the magic function that defines double faced weaving
+// double faced patterns are defined by one chart
+// build the weaving instructions for a tablet
+// from the specified row
+export const buildDoubleFacedWeavingInstructionsForTablet = ({
+	numberOfRows,
+	patternDesign,
+	tabletIndex,
+	weavingInstructionsForTablet,
+}) => {
+	const {
+		doubleFacedPatternChart,
+	} = patternDesign;
+
+	const weavingInstructions = weavingInstructionsForTablet || [];
+	let position = -1;
+
+	const {
+		//doubledChangeChart,
+		doubledPatternChart,
+	} = buildDoubleFacedDoubledChartsForTablet({
+		tabletIndex,
+		doubleFacedPatternChart,
+	});
+
+	/* if (startRow === 0) {
+	// set the tablet's start position
+		switch (twillDirection) {
+			case 'S':
+				position = (tabletIndex + 3) % 4;
+				break;
+
+			case 'Z':
+				position = 3 - ((tabletIndex + 0) % 4);
+				break;
+
+			default:
+				console.log(`Error: unknown twill direction: ${twillDirection}`);
+				break;
+		}
+	} else {
+		position = (weavingInstructions[startRow - 1].position) % 4;
+	} */
+
+	for (let i = 0; i < numberOfRows; i += 1) {
+		// read the pattern chart for colour change
+		// '.' is background colour
+		// 'X' is foreground colour
+
+		const currentColor = doubledPatternChart[i];
+		let nextColor = currentColor;
+		let prevColor = '.';
+		let colorChange = false;
+
+		if (i < (numberOfRows - 1)) { // last row has no next row
+			nextColor = doubledPatternChart[i + 1];
+		}
+
+		if (i > 0) {
+			prevColor = doubledPatternChart[i - 1];
+		}
+
+		// color change if either previous or next color is different
+		if (nextColor !== currentColor) {
+			colorChange = true;
+		}
+
+		if (prevColor !== currentColor) {
+			colorChange = true;
+			if (i === 0) { // tablet starts with foreground color
+				position = (position + 3) % 4; // go back an extra turn
+			}
+		}
+
+		//const twillChange = doubledChangeChart[i];// read the change chart for twill direction change
+		// '.' is no change
+		// 'X' is first pick of change, 'Y' is second pick of change
+
+		if ((!colorChange)) { // if there is a color change, just keep turning the same way, otherwise advance in twill sequence
+			position = (position + 1) % 4;
+		}
+
+		/* if ((twillChange === 'Y')) { // second pick of twill direction change
+			position = (position + 2) % 4;
+		} */
+
+		const direction = DOUBLE_FACED_SEQUENCE[position];
+
+		weavingInstructions[i] = {
+			direction,
+			position,
+			'numberOfTurns': 1,
+		};
+	}
+
+	return weavingInstructions;
+};
+
 // This is the magic function that defines 3/1 broken twill weaving
 // 3/1 broken twill patterns are defined by two charts
 // note that twill direction change is the TWT name for GTT's long floats
@@ -491,6 +624,28 @@ export const buildTwillWeavingInstructionsForTablet = ({
 	return weavingInstructions;
 };
 
+export const buildDoubleFacedWeavingInstructionsByTablet = ({
+	numberOfRows,
+	numberOfTablets,
+	patternDesign,
+}) => {
+	// build the weaving instructions
+	const weavingInstructionsByTablet = [];
+
+	for (let i = 0; i < numberOfTablets; i += 1) {
+		const weavingInstructionsForTablet = buildDoubleFacedWeavingInstructionsForTablet({
+			numberOfRows,
+			patternDesign,
+			'startRow': 0,
+			'tabletIndex': i,
+		});
+
+		weavingInstructionsByTablet.push(weavingInstructionsForTablet);
+	}
+
+	return weavingInstructionsByTablet;
+};
+
 export const buildTwillWeavingInstructionsByTablet = ({
 	numberOfRows,
 	numberOfTablets,
@@ -537,6 +692,14 @@ export const buiildWeavingInstructionsByTablet = ({
 
 		case 'allTogether':
 			weavingInstructionsByTablet = buildAllTogetherWeavingInstructionsByTablet({
+				numberOfRows,
+				numberOfTablets,
+				patternDesign,
+			});
+			break;
+
+		case 'doubleFaced':
+			weavingInstructionsByTablet = buildDoubleFacedWeavingInstructionsByTablet({
 				numberOfRows,
 				numberOfTablets,
 				patternDesign,

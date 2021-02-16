@@ -245,6 +245,7 @@ export const savePatternData = (patternObj) => (dispatch) => {
 		// all simulation patterns
 		case 'individual':
 		case 'allTogether':
+		case 'doubleFaced':
 		case 'brokenTwill': {
 			picks = calculateAllPicks({
 				numberOfRows,
@@ -1345,6 +1346,11 @@ export default function pattern(state = initialPatternState, action) {
 
 				case 'allTogether':
 					update.picks = picks;
+					break;
+
+				case 'doubleFaced':
+					console.log('*** picks', picks);
+
 					break;
 
 				case 'brokenTwill':
