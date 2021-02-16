@@ -4,6 +4,8 @@ import {
 	getTabletFilter,
 	nonEmptyStringCheck,
 	positiveIntegerCheck,
+	setupDoubleFacedThreading,
+	setupOrientations,
 	setupTwillThreading,
 	updatePublicPatternsCountForSet,
 	updatePublicPatternsCountForUser,
@@ -29,7 +31,6 @@ import {
 	DEFAULT_FREEHAND_CELL,
 	DEFAULT_HOLE_HANDEDNESS,
 	DEFAULT_NUMBER_OF_TURNS,
-	DEFAULT_ORIENTATION,
 	DEFAULT_PALETTE,
 	DEFAULT_WEFT_COLOR,
 } from '../../imports/modules/parameters';
@@ -110,6 +111,36 @@ Meteor.methods({
 				patternDesign = { weavingInstructions };
 				break;
 
+			case 'doubleFaced':
+				// double faced pattern
+				// designed on graph paper and converted to weaving chart
+				// 4 hole tablets only
+				if (holes !== 4) {
+					throw new Meteor.Error('add-pattern-invalid-holes', 'Unable to add pattern because the number of holes must be 4 for double faced');
+				}
+
+				// even number of rows
+				if (rows % 2 !== 0) {
+					throw new Meteor.Error('add-pattern-invalid-rows', 'Unable to add pattern because the number of rows must be even for double faced');
+				}
+
+				// set up the pattern chart
+				// this corresponds to Data in GTT pattern. This is the chart showing the two-colour design.
+				const doubleFacedChartRow = new Array(tablets).fill('.');
+				const doubleFacedPatternChart = new Array(rows / 2).fill(doubleFacedChartRow);
+
+				patternDesign = {
+					doubleFacedPatternChart,
+				};
+
+				threading = setupDoubleFacedThreading({
+					holes,
+					'numberOfTablets': tablets,
+				});
+
+				// alternating S & Z?
+				break;
+
 			case 'brokenTwill':
 				// double faced pattern with diagonal structure
 				// designed on graph paper and converted to weaving chart
@@ -130,21 +161,12 @@ Meteor.methods({
 
 				// set up the pattern chart
 				// this corresponds to Data in GTT pattern. This is the chart showing the two-colour design.
-				const twillPatternChart = [];
-				const twillDirectionChangeChart = [];
-
 				// set up a plain chart for each, this will give just background twill
 				// charts have an extra row at the end
 				// this extra row is not shown in preview or weaving chart but is used to determine the last even row
-				for (let i = 0; i < (rows / 2) + 1; i += 1) {
-					twillPatternChart[i] = [];
-					twillDirectionChangeChart[i] = [];
-
-					for (let j = 0; j < tablets; j += 1) {
-						twillPatternChart[i][j] = '.';
-						twillDirectionChangeChart[i][j] = '.';
-					}
-				}
+				const twillChartRow = new Array(tablets).fill('.');
+				const twillPatternChart = new Array((rows / 2) + 1).fill(twillChartRow);
+				const twillDirectionChangeChart = new Array((rows / 2) + 1).fill(twillChartRow);
 
 				patternDesign = {
 					twillDirection,
@@ -196,7 +218,11 @@ Meteor.methods({
 			'isPublic': false,
 			'palette': DEFAULT_PALETTE,
 			'previewOrientation': previewOrientation,
-			'orientations': new Array(tablets).fill(DEFAULT_ORIENTATION),
+			//'orientations': new Array(tablets).fill(DEFAULT_ORIENTATION),
+			'orientations': setupOrientations({
+				patternType,
+				tablets,
+			}),
 			patternDesign,
 			patternType,
 			threading,

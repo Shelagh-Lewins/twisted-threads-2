@@ -49,6 +49,13 @@ export const ALLOWED_PATTERN_TYPES = [
 		'previewOrientation': 'right',
 		'tag': 'all together',
 	},
+	{ // double faced, designed on special graph paper
+		'name': 'doubleFaced',
+		'displayName': 'Double faced',
+		'previewOrientation': 'up',
+		'tag': 'double faced',
+
+	},
 	{ // 3 / 1 broken twill, designed on special graph paper
 		'name': 'brokenTwill',
 		'displayName': '3/1 broken twill',
@@ -94,6 +101,13 @@ export const DEFAULT_FREEHAND_CELL = {
 };
 
 export const DEFAULT_HOLE_HANDEDNESS = 'clockwise';
+
+// defaults for double faced
+export const DOUBLE_FACED_THREADING = ['F', 'F', 'B', 'B'];
+export const DOUBLE_FACED_FOREGROUND = 1;
+export const DOUBLE_FACED_BACKGROUND = 3;
+// turning sequence for an individual tablet to weave background double faced
+export const DOUBLE_FACED_SEQUENCE = ['F', 'F', 'B', 'B'];
 
 // defaults for 3/1 broken twill
 export const DEFAULT_TWILL_DIRECTION = 'S';

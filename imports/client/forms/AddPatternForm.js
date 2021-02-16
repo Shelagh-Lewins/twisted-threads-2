@@ -37,7 +37,8 @@ const validate = (values) => {
 	}
 
 	const isBrokenTwill = patternType === 'brokenTwill';
-	const minRows = isBrokenTwill ? 2 : 1;
+	const isDoubleFaced = patternType === 'doubleFaced';
+	const minRows = (isDoubleFaced || isBrokenTwill) ? 2 : 1;
 
 	if (!values.rows) {
 		errors.rows = 'Required';
@@ -47,7 +48,7 @@ const validate = (values) => {
 		errors.rows = `Must not be greater than ${MAX_ROWS}`;
 	} else if (!Number.isInteger(rows)) {
 		errors.rows = 'Must be a whole number';
-	} else if (isBrokenTwill && rows % 2 !== 0) {
+	} else if ((isDoubleFaced || isBrokenTwill) && rows % 2 !== 0) {
 		errors.rows = 'Must be an even number';
 	}
 
@@ -137,6 +138,10 @@ const AddPatternForm = (props) => {
 			typeHint = 'Turn all tablets together each pick, either forwards or backwards.';
 			break;
 
+		case 'doubleFaced':
+			typeHint = 'Weave a double-faced band in two colours.';
+			break;
+
 		case 'brokenTwill':
 			typeHint = 'Weave a double-faced band in two colours, using offset floats to create a diagonal texture.';
 			break;
@@ -150,11 +155,13 @@ const AddPatternForm = (props) => {
 	}
 
 	const isBrokenTwill = formik.values.patternType === 'brokenTwill';
+	const isDoubleFaced = formik.values.patternType === 'doubleFaced';
 
 	const handleChangePatternType = (e) => {
 		formik.handleChange(e);
+		const { value } = e.target;
 
-		if (e.target.value === 'brokenTwill') {
+		if (value === 'brokenTwill' || value === 'doubleFaced') {
 			setFieldValue('holes', 4);
 		}
 	};
@@ -205,7 +212,7 @@ const AddPatternForm = (props) => {
 								Number of holes in each tablet
 								<select
 									className="form-control"
-									disabled={isBrokenTwill}
+									disabled={isBrokenTwill || isDoubleFaced}
 									id="holes"
 									name="holes"
 									onChange={formik.handleChange}
@@ -249,9 +256,9 @@ const AddPatternForm = (props) => {
 								placeholder="Number of rows"
 								id="rows"
 								max={MAX_ROWS}
-								min={isBrokenTwill ? '2' : '1'}
+								min={(isBrokenTwill || isDoubleFaced) ? '2' : '1'}
 								name="rows"
-								step={isBrokenTwill ? '2' : '1'}
+								step={(isBrokenTwill || isDoubleFaced) ? '2' : '1'}
 								type="number"
 								onChange={formik.handleChange}
 								onBlur={formik.handleBlur}
@@ -263,7 +270,7 @@ const AddPatternForm = (props) => {
 						</label>
 					</Col>
 				</Row>
-				{formik.values.patternType === 'brokenTwill' && twillDirectionControls}
+				{isBrokenTwill && twillDirectionControls}
 				<div className="controls">
 					<Button type="button" color="secondary" onClick={handleCancel}>Cancel</Button>
 					<Button type="submit" color="primary">Create a new pattern</Button>

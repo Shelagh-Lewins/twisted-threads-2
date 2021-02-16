@@ -11,7 +11,11 @@ import {
 	BROKEN_TWILL_FOREGROUND,
 	BROKEN_TWILL_BACKGROUND,
 	BROKEN_TWILL_THREADING,
+	DEFAULT_ORIENTATION,
 	DEFAULT_PALETTE,
+	DOUBLE_FACED_THREADING,
+	DOUBLE_FACED_BACKGROUND,
+	DOUBLE_FACED_FOREGROUND,
 	MAX_ROWS,
 	MAX_TABLETS,
 	ROLE_LIMITS,
@@ -294,6 +298,50 @@ export const getTabletFilter = ({ filterMaxTablets, filterMinTablets }) => {
 			{ 'numberOfTablets': { '$lte': max } },
 		],
 	};
+};
+
+export const setupOrientations = ({
+	patternType,
+	tablets,
+}) => {
+	// most patterns have tablets all oriented the same
+	// default orientation
+	const orientations = new Array(tablets).fill(DEFAULT_ORIENTATION);
+
+	// double faced patterns have alternating orientation
+	if (patternType === 'doubleFace') {
+		for (let i = 0; i < tablets; i += 1) {
+			if (i % 2 === 1) {
+				orientations[i] = orientations[i] === 'S' ? 'Z' : 'S';
+			}
+		}
+	}
+
+	return orientations;
+};
+
+export const setupDoubleFacedThreading = ({
+	holes,
+	numberOfTablets,
+}) => {
+	// double faced threading is set up with two colours in a repeating pattern
+	// all tablets are the same
+
+	const threadingForNewTablets = [];
+
+	for (let i = 0; i < holes; i += 1) {
+		const threadingForHole = [];
+
+		for (let j = 0; j < numberOfTablets; j += 1) {
+			const colorRole = DOUBLE_FACED_THREADING[i];
+
+			threadingForHole.push(colorRole === 'F' ? DOUBLE_FACED_FOREGROUND : DOUBLE_FACED_BACKGROUND);
+		}
+
+		threadingForNewTablets.push(threadingForHole);
+	}
+
+	return threadingForNewTablets;
 };
 
 export const setupTwillThreading = ({
