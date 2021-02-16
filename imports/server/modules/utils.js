@@ -312,7 +312,7 @@ export const setupOrientations = ({
 	if (patternType === 'doubleFaced') {
 		for (let i = 0; i < tablets; i += 1) {
 			if (i % 2 === 1) {
-				orientations[i] = orientations[i] === 'S' ? 'Z' : 'S';
+				orientations[i] = orientations[i] === '/' ? '\\' : '/';
 			}
 		}
 	}
