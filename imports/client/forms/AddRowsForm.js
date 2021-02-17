@@ -9,6 +9,8 @@ import {
 } from '../../modules/parameters';
 import './AddRowsForm.scss';
 
+const rowsInPairs = (patternType) => patternType === 'brokenTwill' || patternType === 'doubleFaced';
+
 const validate = (values, numberOfRows, patternType) => {
 	const errors = {};
 	const { insertNRows, insertRowsAt } = values;
@@ -21,8 +23,7 @@ const validate = (values, numberOfRows, patternType) => {
 		errors.insertNRows = 'Must be a whole number';
 	} else if (insertNRows > MAX_ROWS) {
 		errors.insertNRows = `Number of rows in pattern cannot be greater than ${MAX_ROWS - numberOfRows}`;
-	} else if (patternType === 'brokenTwill') {
-		// broken twill has special requirements
+	} else if (rowsInPairs(patternType)) {
 		if (insertNRows % 2 !== 0) {
 			errors.insertNRows = 'Must be an even number';
 		} else if (insertNRows < 2) {
@@ -38,8 +39,7 @@ const validate = (values, numberOfRows, patternType) => {
 		errors.insertRowsAt = `Must not be greater than ${MAX_ROWS}`;
 	} else if (!Number.isInteger(insertRowsAt)) {
 		errors.insertRowsAt = 'Must be a whole number';
-	} else if (patternType === 'brokenTwill') {
-		// broken twill has special requirements
+	} else if (rowsInPairs(patternType)) {
 		if (insertRowsAt % 2 !== 1) {
 			errors.insertNRows = 'Must be an odd number';
 		}
@@ -50,10 +50,10 @@ const validate = (values, numberOfRows, patternType) => {
 
 const AddRowsForm = (props) => {
 	const { numberOfRows, patternType } = props;
-	const initialNRows = patternType === 'brokenTwill' ? 2 : 1;
-	const stepNRows = patternType === 'brokenTwill' ? 2 : 1;
-	const stepInsertAt = patternType === 'brokenTwill' ? 2 : 1;
-	const minNRows = patternType === 'brokenTwill' ? 2 : 1;
+	const initialNRows = rowsInPairs(patternType) ? 2 : 1;
+	const stepNRows = rowsInPairs(patternType) ? 2 : 1;
+	const stepInsertAt = rowsInPairs(patternType) ? 2 : 1;
+	const minNRows = rowsInPairs(patternType) ? 2 : 1;
 
 	const formik = useFormik({
 		'initialValues': {

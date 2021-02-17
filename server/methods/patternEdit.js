@@ -25,6 +25,9 @@ import {
 	DEFAULT_FREEHAND_CELL,
 	DEFAULT_NUMBER_OF_TURNS,
 	DEFAULT_ORIENTATION,
+	DOUBLE_FACED_FOREGROUND,
+	DOUBLE_FACED_BACKGROUND,
+	DOUBLE_FACED_THREADING,
 	MAX_ROWS,
 	MAX_TABLETS,
 } from '../../imports/modules/parameters';
@@ -93,6 +96,7 @@ Meteor.methods({
 		let tablet;
 		let tabletIndex;
 		let tabletOrientation;
+		let threading;
 		let threadColor;
 		let threadShape;
 		let twillChart;
@@ -176,6 +180,28 @@ Meteor.methods({
 
 					default:
 						throw new Meteor.Error('edit-weaving-row-direction-unknown-pattern-type', `Unable to edit weaving is not allTogether`);
+				}
+
+			case 'editDoubleFacedChart':
+				({ rowIndex, tabletIndex } = data);
+				check(rowIndex, Match.Integer);
+				check(tabletIndex, validTabletsCheck);
+
+				switch (patternType) {
+					case 'doubleFaced':
+						const chartToEdit = patternDesign.doubleFacedPatternChart;
+						const chartLength = chartToEdit.length;
+						if (rowIndex > chartLength - 1) {
+							throw new Meteor.Error('edit-double-faced-pattern-chart-invalid-rowIndex', `Unable to edit double faced pattern chart because the rowIndex was greater than the number of chart rows`);
+						}
+
+						const currentValue = chartToEdit[rowIndex][tabletIndex];
+						const newValue = currentValue === '.' ? 'X' : '.';
+
+						return Patterns.update({ _id }, { '$set': { [`patternDesign.doubleFacedPatternChart.${rowIndex}.${tabletIndex}`]: newValue } });
+
+					default:
+						throw new Meteor.Error('edit-double-faced-chart-unknown-pattern-type', `Unable to edit double faced pattern chart because the pattern type ${patternType} is not doubleFaced`);
 				}
 
 			case 'editTwillChart':
@@ -332,6 +358,33 @@ Meteor.methods({
 						};
 						break;
 
+					case 'doubleFaced':
+						if (insertNRows % 2 !== 0) {
+							throw new Meteor.Error('add-rows-invalid-number', 'Unable to add rows because the number of rows must be even for double faced');
+						}
+
+						if (insertRowsAt % 2 !== 0) {
+							throw new Meteor.Error('add-rows-invalid-number', 'Unable to add rows because the new rows must be inserted at an odd row for double faced');
+						}
+						const newDoubleFacedRow = new Array(numberOfTablets);
+						newDoubleFacedRow.fill('.');
+						const newDoubleFacedRows = [];
+
+						for (let i = 0; i < insertNRows / 2; i += 1) {
+							newDoubleFacedRows.push(newDoubleFacedRow);
+						}
+
+						const doubleFacedChartPosition = ((insertRowsAt) / 2);
+
+						update.$push = {
+							'patternDesign.doubleFacedPatternChart': {
+								'$each': newDoubleFacedRows,
+								'$position': doubleFacedChartPosition,
+							},
+						};
+
+						break;
+
 					case 'brokenTwill':
 						if (insertNRows % 2 !== 0) {
 							throw new Meteor.Error('add-rows-invalid-number', 'Unable to add rows because the number of rows must be even for broken twill');
@@ -451,6 +504,31 @@ Meteor.methods({
 
 						break;
 
+					case 'doubleFaced':
+						if (removeNRows % 2 !== 0) {
+							throw new Meteor.Error('remove-rows-invalid-number', 'Unable to remove rows because the number of rows must be even for double faced');
+						}
+
+						if (removeRowsAt % 2 !== 0) {
+							throw new Meteor.Error('add-rows-invalid-number', 'Unable to remove rows because the rows must be removed at an even row for double faced');
+						}
+
+						for (let i = 0; i < removeNRows / 2; i += 1) {
+							rowIndex = i + (removeRowsAt / 2);
+
+							Patterns.update({ _id }, {
+								'$set': {
+									[`patternDesign.doubleFacedPatternChart.${rowIndex}`]: 'toBeRemoved',
+								},
+							});
+						}
+
+						update.$pull = {
+							'patternDesign.doubleFacedPatternChart': 'toBeRemoved',
+						};
+
+						break;
+
 					case 'brokenTwill':
 						if (removeNRows % 2 !== 0) {
 							throw new Meteor.Error('remove-rows-invalid-number', 'Unable to remove rows because the number of rows must be even for broken twill');
@@ -553,7 +631,7 @@ Meteor.methods({
 				}
 
 				// all pattern types have the new number of tablets
-				const newNumberOfTablets = pattern.numberOfTablets + insertNTablets;
+				const newNumberOfTablets = numberOfTablets + insertNTablets;
 
 				update.$set = {
 					'numberOfTablets': newNumberOfTablets,
@@ -562,16 +640,20 @@ Meteor.methods({
 				// all pattern types have the new orientations
 				const newOrientations = [];
 
-				for (let j = 0; j < insertNTablets; j += 1) {
-					newOrientations.push(DEFAULT_ORIENTATION);
-				}
+				if (patternType !== 'doubleFaced') {
+					for (let j = 0; j < insertNTablets; j += 1) {
+						newOrientations.push(DEFAULT_ORIENTATION);
+					}
 
-				update.$push = {
-					'orientations': {
-						'$each': newOrientations,
-						'$position': insertTabletsAt,
-					},
-				};
+					update.$push = {
+						'orientations': {
+							'$each': newOrientations,
+							'$position': insertTabletsAt,
+						},
+					};
+				} else {
+					update.$push = {}; // just make sure it's there for later
+				}
 
 				switch (patternType) {
 					// all these pattern types use the same threading chart
@@ -616,11 +698,52 @@ Meteor.methods({
 						};
 						break;
 
+					case 'doubleFaced':
+						// orientations
+						for (let i = 0; i < newNumberOfTablets; i += 1) {
+							// set orientation of all tablets so they are alternating
+							const doubleFacedOrientation = i % 2 === 0 ? '\\' : '/';
+							newOrientations[i] = doubleFacedOrientation;
+						}
+
+						update.$set.orientations = newOrientations;
+						// extend the threading chart
+						({ threading } = pattern);
+
+						const newDoubleFacedThreading = [...threading];
+
+						// insert the new tablets
+						for (let i = 0; i < holes; i += 1) {
+							newDoubleFacedThreading[i] = [...newDoubleFacedThreading[i]];
+
+							for (let j = insertTabletsAt; j < insertTabletsAt + insertNTablets; j += 1) {
+								const colorRole = DOUBLE_FACED_THREADING[i];
+
+								newDoubleFacedThreading[i].splice(j, 0, colorRole === 'F' ? DOUBLE_FACED_FOREGROUND : DOUBLE_FACED_BACKGROUND);
+							}
+						}
+
+						update.$set.threading = newDoubleFacedThreading;
+
+						// insert new tablets into pattern design charts
+						const newDoubleFacedChartCells = [];
+
+						for (let j = 0; j < insertNTablets; j += 1) {
+							newDoubleFacedChartCells.push('.');
+						}
+
+						update.$push['patternDesign.doubleFacedPatternChart.$[]'] = {
+							'$each': newDoubleFacedChartCells,
+							'$position': insertTabletsAt,
+						};
+
+						break;
+
 					case 'brokenTwill':
 						// extend the threading chart
 						// it is probably as quick, and certainly easier, to calculate an entirely new threading chart and set it as one operation
 						// because subsequent tablets are affected
-						const { threading } = pattern;
+						({ threading } = pattern);
 
 						// find the foreground / background colour for each tablet from the change onwards
 						const colorsForRolesByTablet = getColorsForRolesByTablet({
@@ -870,6 +993,10 @@ Meteor.methods({
 			case 'orientation':
 				({ tablet, tabletOrientation } = data);
 				check(tablet, validTabletsCheck);
+
+				if (patternType === 'doubleFaced') {
+					throw new Meteor.Error('edit-orientation-broken-twill', 'Unable to edit orientation because the pattern type is double faced');
+				}
 
 				if (patternType === 'brokenTwill') {
 					throw new Meteor.Error('edit-orientation-broken-twill', 'Unable to edit orientation because the pattern type is broken twill');

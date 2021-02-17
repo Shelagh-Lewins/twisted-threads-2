@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import {
 	addWeavingRows,
-	editTwillChart,
+	editDoubleFacedChart,
 	removeWeavingRows,
 	setIsEditingWeaving,
 } from '../modules/pattern';
@@ -28,14 +28,12 @@ class WeavingDesignDoubleFaced extends PureComponent {
 
 		this.state = {
 			'isEditing': false,
-			'editMode': 'color',
 		};
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
 			'handleSubmitAddRows',
 			'toggleEditWeaving',
-			'handleClickEditMode',
 			'handleClickRemoveRow',
 			'handleClickWeavingCell',
 		];
@@ -72,17 +70,16 @@ class WeavingDesignDoubleFaced extends PureComponent {
 			dispatch,
 			'pattern': { _id },
 		} = this.props;
-		const { editMode, isEditing } = this.state;
+		const { isEditing } = this.state;
 
 		if (!isEditing) {
 			return;
 		}
 
-		dispatch(editTwillChart({
+		dispatch(editDoubleFacedChart({
 			_id,
 			rowIndex,
 			tabletIndex,
-			'twillChart': editMode === 'color' ? 'twillPatternChart' : 'twillDirectionChangeChart',
 		}));
 	}
 
@@ -142,14 +139,6 @@ class WeavingDesignDoubleFaced extends PureComponent {
 		});
 
 		dispatch(setIsEditingWeaving(!isEditing));
-	}
-
-	handleClickEditMode(event) {
-		const newEditMode = event.target.value;
-
-		this.setState({
-			'editMode': newEditMode,
-		});
 	}
 
 	renderControls() {
@@ -226,7 +215,7 @@ class WeavingDesignDoubleFaced extends PureComponent {
 					<li className="row-label even"><span>{rowLabel * 2}</span></li>
 					<li className="row-label odd"><span>{(rowLabel * 2) - 1}</span></li>
 					{cells}
-					{isEditing && numberOfChartRows > 2 && rowIndex !== 0 && (
+					{isEditing && numberOfChartRows > 2 && (
 						<li className="delete">
 							<span
 								title={`delete rows ${rowLabel * 2 - 1} and ${rowLabel * 2}`}
@@ -272,7 +261,6 @@ class WeavingDesignDoubleFaced extends PureComponent {
 			},
 		} = this.props;
 		const numberOfChartRows = doubleFacedPatternChart.length;
-		//const { isEditing } = this.state;
 
 		const rows = [];
 		for (let i = 0; i < numberOfChartRows; i += 1) {
@@ -300,7 +288,7 @@ class WeavingDesignDoubleFaced extends PureComponent {
 		const {
 			numberOfRows,
 		} = this.props;
-		// const { twillPatternChart, weavingStartRow } = patternDesign;
+
 		const {
 			controlsOffsetX,
 			controlsOffsetY,
@@ -316,7 +304,6 @@ class WeavingDesignDoubleFaced extends PureComponent {
 					'position': 'relative',
 				}}
 			>
-				{this.renderEditOptions()}
 				<AddRowsForm
 					enableReinitialize={true}
 					handleSubmit={this.handleSubmitAddRows}

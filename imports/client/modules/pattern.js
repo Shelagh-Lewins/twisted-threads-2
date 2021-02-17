@@ -6,6 +6,7 @@ import { createSelector } from 'reselect';
 // import createCachedSelector from 're-reselect';
 import { logErrors, clearErrors } from './errors';
 import {
+	buildDoubleFacedWeavingInstructionsForTablet,
 	buildTwillOffsetThreadingForTablet,
 	buildTwillOffsetThreading,
 	buildTwillWeavingInstructionsForTablet,
@@ -25,6 +26,9 @@ import {
 	DEFAULT_DIRECTION,
 	DEFAULT_NUMBER_OF_TURNS,
 	DEFAULT_ORIENTATION,
+	DOUBLE_FACED_FOREGROUND,
+	DOUBLE_FACED_BACKGROUND,
+	DOUBLE_FACED_THREADING,
 	MAX_TABLETS,
 } from '../../modules/parameters';
 import getColorsForRolesByTablet from '../../modules/getColorsForRolesByTablet';
@@ -59,6 +63,9 @@ export const UPDATE_WEAVING_CELL_TURNS = 'UPDATE_WEAVING_CELL_TURNS';
 
 // 'allTogether' patternType
 export const UPDATE_WEAVING_ROW_DIRECTION = 'UPDATE_WEAVING_ROW_DIRECTION';
+
+// 'doubleFaced' patternType
+export const UPDATE_DOUBLE_FACED_CHART = 'UPDATE_DOUBLE_FACED_CHART';
 
 // 'brokenTwill' patternType
 export const UPDATE_TWILL_CHART = 'UPDATE_TWILL_CHART';
@@ -638,6 +645,43 @@ export function editWeavingRowDirection({
 
 		dispatch(updateWeavingRowDirection({
 			row,
+		}));
+	};
+}
+
+// ///////////////////////////////
+// doubleFaced
+export function updateDoubleFacedChart(data) {
+	return {
+		'type': UPDATE_DOUBLE_FACED_CHART,
+		'payload': data,
+	};
+}
+
+export function editDoubleFacedChart({
+	_id,
+	rowIndex,
+	tabletIndex,
+}) {
+	return (dispatch) => {
+		Meteor.call('pattern.edit', {
+			_id,
+			'data': {
+				'type': 'editDoubleFacedChart',
+				_id,
+				rowIndex,
+				tabletIndex,
+			},
+		}, (error) => {
+			if (error) {
+				return dispatch(logErrors({ 'edit double faced pattern chart': error.reason }));
+			}
+		});
+
+		dispatch(updateDoubleFacedChart({
+			_id,
+			rowIndex,
+			tabletIndex,
 		}));
 	};
 }
@@ -1349,8 +1393,7 @@ export default function pattern(state = initialPatternState, action) {
 					break;
 
 				case 'doubleFaced':
-					console.log('*** picks', picks);
-
+					update.picks = picks;
 					break;
 
 				case 'brokenTwill':
@@ -1479,6 +1522,56 @@ export default function pattern(state = initialPatternState, action) {
 				'patternDesign': { 'weavingInstructions': newWeavingInstructions },
 				'picks': newPicks,
 				'weavingInstructionsByTablet': newWeavingInstructionsByTablet,
+			}, state);
+		}
+
+		case UPDATE_DOUBLE_FACED_CHART: {
+			const { rowIndex, tabletIndex } = action.payload;
+
+			// first row of an even tablet cannot be edited
+			/* if (tabletIndex % 2 === 1 && rowIndex === 0) {
+				return state;
+			} */
+
+			const {
+				numberOfRows,
+				patternDesign,
+				weavingInstructionsByTablet,
+			} = state;
+
+			const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tabletIndex]];
+
+			// toggle '.' or 'X' in the chart
+			// original arrays are immutable
+			const newChart = [...patternDesign.doubleFacedPatternChart];
+			const newRow = [...newChart[rowIndex]];
+			const currentValue = newChart[rowIndex][tabletIndex];
+			const newValue = currentValue === '.' ? 'X' : '.';
+			newRow[tabletIndex] = newValue;
+			newChart[rowIndex] = newRow;
+
+			// find the new weavingInstructions for the changed tablet
+			const newPatternDesign = { ...patternDesign };
+			newPatternDesign.doubleFacedPatternChart = newChart;
+
+			const newWeavingInstructions = buildDoubleFacedWeavingInstructionsForTablet({
+				numberOfRows,
+				'patternDesign': newPatternDesign,
+				'startRow': Math.max(rowIndex * 2 - 2, 0), // reweave from previous block to catch color change
+				tabletIndex,
+				weavingInstructionsForTablet,
+			});
+
+			const picksForTablet = calculatePicksForTablet({
+				'currentPicks': state.picks[tabletIndex],
+				'weavingInstructionsForTablet': newWeavingInstructions,
+				'row': Math.max((rowIndex * 2) - 1, 0),
+			});
+
+			return updeep({
+				'patternDesign': { 'doubleFacedPatternChart': newChart },
+				'weavingInstructionsByTablet': { [tabletIndex]: newWeavingInstructions },
+				'picks': { [tabletIndex]: picksForTablet },
 			}, state);
 		}
 
@@ -1729,6 +1822,53 @@ export default function pattern(state = initialPatternState, action) {
 
 					break;
 
+				case 'doubleFaced':
+					const {
+						doubleFacedPatternChart,
+					} = patternDesign;
+
+					const newDoubleFacedPatternChart = [...doubleFacedPatternChart];
+
+					for (let i = 0; i < insertNRows / 2; i += 1) {
+						const chartPosition = ((insertRowsAt) / 2);
+
+						const newRow1 = new Array(numberOfTablets);
+						newRow1.fill('.');
+						newDoubleFacedPatternChart.splice(chartPosition, 0, newRow1);
+					}
+
+					// calculate weaving from new row onwards
+					for (let i = 0; i < numberOfTablets; i += 1) {
+						const weavingInstructionsForTablet = [...weavingInstructionsByTablet[i]];
+
+						const newWeavingInstructionsForTablet = buildDoubleFacedWeavingInstructionsForTablet({
+							'numberOfRows': newNumberOfRows,
+							'patternDesign': {
+								'doubleFacedPatternChart': newDoubleFacedPatternChart,
+							},
+							'startRow': insertRowsAt,
+							'tabletIndex': i,
+							weavingInstructionsForTablet,
+						});
+
+						const picksForTablet = calculatePicksForTablet({
+							'weavingInstructionsForTablet': newWeavingInstructionsForTablet,
+							'row': 0,
+						});
+
+						newWeavingInstructionsByTablet.push(newWeavingInstructionsForTablet);
+						newPicks.push(picksForTablet);
+					}
+
+					update.patternDesign = {
+						'doubleFacedPatternChart': newDoubleFacedPatternChart,
+					};
+
+					update.weavingInstructionsByTablet = newWeavingInstructionsByTablet;
+					update.picks = newPicks;
+
+					break;
+
 				case 'brokenTwill':
 					const {
 						twillDirection,
@@ -1860,6 +2000,43 @@ export default function pattern(state = initialPatternState, action) {
 						newWeavingInstructions.splice(removeRowsAt - removeNRows + 1, removeNRows);
 						update.patternDesign = { 'weavingInstructions': newWeavingInstructions };
 					}
+
+					break;
+
+				case 'doubleFaced':
+					const {
+						doubleFacedPatternChart,
+					} = patternDesign;
+
+					const newDoubleFacedPatternChart = [...doubleFacedPatternChart];
+
+					newDoubleFacedPatternChart.splice(removeRowsAt / 2, removeNRows / 2);
+
+					// calculate weaving from removed row onwards
+					for (let i = 0; i < numberOfTablets; i += 1) {
+						const weavingInstructionsForTablet = [...weavingInstructionsByTablet[i]];
+
+						const newWeavingInstructionsForTablet = buildDoubleFacedWeavingInstructionsForTablet({
+							'numberOfRows': newNumberOfRows,
+							'patternDesign': {
+								'doubleFacedPatternChart': newDoubleFacedPatternChart,
+							},
+							'tabletIndex': i,
+							weavingInstructionsForTablet,
+						});
+
+						const picksForTablet = calculatePicksForTablet({
+							'weavingInstructionsForTablet': newWeavingInstructionsForTablet,
+							'row': 0,
+						});
+
+						newWeavingInstructionsByTablet.push(newWeavingInstructionsForTablet);
+						newPicks.push(picksForTablet);
+					}
+
+					update.patternDesign = {
+						'doubleFacedPatternChart': newDoubleFacedPatternChart,
+					};
 
 					break;
 
@@ -2034,6 +2211,97 @@ export default function pattern(state = initialPatternState, action) {
 
 						newPicks.splice(insertTabletsAt, 0, picksForTablet);
 					}
+					break;
+
+				case 'doubleFaced':
+					const {
+						doubleFacedPatternChart,
+					} = patternDesign;
+					const doubleFacedChartLength = doubleFacedPatternChart.length;
+					const newDoubleFacedPatternChart = [...doubleFacedPatternChart];
+
+					// orientations
+					for (let i = insertTabletsAt; i < newNumberOfTablets; i += 1) {
+						// set orientation of all subsequent tablets so they are alternating
+						const orientation = i % 2 === 0 ? '\\' : '/';
+						newOrientations[i] = orientation;
+					}
+
+					// double faced design chart
+					for (let i = 0; i < insertNTablets; i += 1) {
+						// insert new tablet to double faced design chart
+						// these are by row, tablet
+						for (let j = 0; j < doubleFacedChartLength; j += 1) {
+							newDoubleFacedPatternChart[j] = [...newDoubleFacedPatternChart[j]];
+							newDoubleFacedPatternChart[j].splice(insertTabletsAt, 0, '.');
+						}
+					}
+
+					// add the new tablets to threading.
+					// find the foreground / background colour for each tablet from the change onwards
+					/* const colorsForRolesByTablet = getColorsForRolesByTablet({
+						holes,
+						numberOfTablets,
+						'startAt': insertTabletsAt,
+						'threading': threadingByTablet,
+						'threadingStructure': 'byTablet',
+					}); */
+
+					// insert the new tablets into the threading chart
+					for (let i = insertTabletsAt; i < insertTabletsAt + insertNTablets; i += 1) {
+						const newThreadingForTablet = [];
+
+						for (let j = 0; j < holes; j += 1) {
+							const colorRole = DOUBLE_FACED_THREADING[j];
+							newThreadingForTablet.push(colorRole === 'F' ? DOUBLE_FACED_FOREGROUND : DOUBLE_FACED_BACKGROUND);
+						}
+
+						newThreadingByTablet.splice(i, 0, newThreadingForTablet);
+					}
+
+					// reset the threading of the subsequence tablets
+					/* for (let i = 0; i < colorsForRolesByTablet.length; i += 1) {
+						const { B, F } = colorsForRolesByTablet[i];
+
+						const tabletIndex = i + insertTabletsAt + insertNTablets;
+
+						newThreadingByTablet[tabletIndex] = [];
+
+						for (let j = 0; j < holes; j += 1) {
+							const colorRole = BROKEN_TWILL_THREADING[j][tabletIndex % holes];
+
+							newThreadingByTablet[tabletIndex].push(colorRole === 'F' ? F : B);
+						}
+					} */
+
+					// calculate weaving for new and subsequent tablets
+					for (let i = insertTabletsAt; i < newNumberOfTablets; i += 1) {
+						const newWeavingInstructions = buildDoubleFacedWeavingInstructionsForTablet({
+							numberOfRows,
+							'patternDesign': {
+								'doubleFacedPatternChart': newDoubleFacedPatternChart,
+							},
+							//'startRow': 0, // reweave entire tablet
+							'tabletIndex': i,
+						});
+
+						newPicks[i] = calculatePicksForTablet({
+							'weavingInstructionsForTablet': newWeavingInstructions,
+							'row': 0,
+						});
+
+						// add the new tablets to offset threading - this depends on picks
+						/* newOffsetThreading[i] = buildTwillOffsetThreadingForTablet({
+							holes,
+							'pick': newPicks[i],
+							'threadingForTablet': newThreadingByTablet[i],
+							weavingStartRow,
+						}); */
+					}
+
+					update.patternDesign = {
+						'doubleFacedPatternChart': newDoubleFacedPatternChart,
+					};
 					break;
 
 				case 'brokenTwill':

@@ -327,10 +327,11 @@ class Threading extends PureComponent {
 	renderOrientation(tabletIndex) {
 		const { 'pattern': { patternType } } = this.props;
 		const { isEditing } = this.state;
+		const canChange = patternType !== 'brokenTwill' && patternType !== 'doubleFaced';
 
 		return (
 			<OrientationCell
-				handleClickOrientation={patternType === 'brokenTwill' ? undefined : this.handleClickOrientation}
+				handleClickOrientation={canChange ? this.handleClickOrientation : undefined}
 				isEditing={isEditing}
 				tabletIndex={tabletIndex}
 			/>

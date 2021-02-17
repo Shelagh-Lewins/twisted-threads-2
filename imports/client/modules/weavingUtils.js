@@ -166,7 +166,7 @@ export const getTotalTurnsForTablet = ({
 	picksForTablet,
 }) => {
 	let startTurns = 0;
-//console.log('*** getTotalTurnsForTablet');
+
 	if (patternType === 'brokenTwill') {
 		const { weavingStartRow } = patternDesign;
 
@@ -297,16 +297,6 @@ export const buildDoubleFacedDoubledChartsForTablet = ({
 
 		// odd row
 		doubledPatternChart.push(doubleFacedPatternChart[i][tabletIndex]);
-		//const rowIndex = 2 * i; // row index in doubled chart
-
-		// odd row
-		/* if (i === (designChartRows - 1)) { // last row of Data
-			doubledPatternChart.push(doubledPatternChart[i][tabletIndex]);
-		} else if (tabletIndex % 2 === 0) {
-			doubledPatternChart.push(doubledPatternChart[i][tabletIndex]);
-		} else {
-			doubledPatternChart.push(doubledPatternChart[i + 1][tabletIndex]);
-		} */
 	}
 
 	return {
@@ -441,31 +431,11 @@ export const buildDoubleFacedWeavingInstructionsForTablet = ({
 	let position = -1;
 
 	const {
-		//doubledChangeChart,
 		doubledPatternChart,
 	} = buildDoubleFacedDoubledChartsForTablet({
 		tabletIndex,
 		doubleFacedPatternChart,
 	});
-
-	/* if (startRow === 0) {
-	// set the tablet's start position
-		switch (twillDirection) {
-			case 'S':
-				position = (tabletIndex + 3) % 4;
-				break;
-
-			case 'Z':
-				position = 3 - ((tabletIndex + 0) % 4);
-				break;
-
-			default:
-				console.log(`Error: unknown twill direction: ${twillDirection}`);
-				break;
-		}
-	} else {
-		position = (weavingInstructions[startRow - 1].position) % 4;
-	} */
 
 	for (let i = 0; i < numberOfRows; i += 1) {
 		// read the pattern chart for colour change
@@ -497,17 +467,9 @@ export const buildDoubleFacedWeavingInstructionsForTablet = ({
 			}
 		}
 
-		//const twillChange = doubledChangeChart[i];// read the change chart for twill direction change
-		// '.' is no change
-		// 'X' is first pick of change, 'Y' is second pick of change
-
 		if ((!colorChange)) { // if there is a color change, just keep turning the same way, otherwise advance in twill sequence
 			position = (position + 1) % 4;
 		}
-
-		/* if ((twillChange === 'Y')) { // second pick of twill direction change
-			position = (position + 2) % 4;
-		} */
 
 		const direction = DOUBLE_FACED_SEQUENCE[position];
 

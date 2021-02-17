@@ -309,9 +309,10 @@ export const setupOrientations = ({
 	const orientations = new Array(tablets).fill(DEFAULT_ORIENTATION);
 
 	// double faced patterns have alternating orientation
+	// set this so the point of a diamond can be woven in the middle
 	if (patternType === 'doubleFaced') {
 		for (let i = 0; i < tablets; i += 1) {
-			if (i % 2 === 1) {
+			if (i % 2 === 0) {
 				orientations[i] = orientations[i] === '/' ? '\\' : '/';
 			}
 		}

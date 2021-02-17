@@ -125,7 +125,7 @@ Meteor.methods({
 				}
 
 				// set up the pattern chart
-				// this corresponds to Data in GTT pattern. This is the chart showing the two-colour design.
+				// this corresponds to Data in GTT patterns. This is the chart showing the two-colour design.
 				const doubleFacedChartRow = new Array(tablets).fill('.');
 				const doubleFacedPatternChart = new Array(rows / 2).fill(doubleFacedChartRow);
 
@@ -138,7 +138,6 @@ Meteor.methods({
 					'numberOfTablets': tablets,
 				});
 
-				// alternating S & Z?
 				break;
 
 			case 'brokenTwill':
@@ -160,7 +159,7 @@ Meteor.methods({
 				}
 
 				// set up the pattern chart
-				// this corresponds to Data in GTT pattern. This is the chart showing the two-colour design.
+				// this corresponds to Data in GTT patterns. This is the chart showing the two-colour design and another chart showing reversals of the twill direction.
 				// set up a plain chart for each, this will give just background twill
 				// charts have an extra row at the end
 				// this extra row is not shown in preview or weaving chart but is used to determine the last even row
@@ -218,7 +217,6 @@ Meteor.methods({
 			'isPublic': false,
 			'palette': DEFAULT_PALETTE,
 			'previewOrientation': previewOrientation,
-			//'orientations': new Array(tablets).fill(DEFAULT_ORIENTATION),
 			'orientations': setupOrientations({
 				patternType,
 				tablets,
