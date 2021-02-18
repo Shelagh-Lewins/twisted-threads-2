@@ -956,41 +956,61 @@ export function editThreadingCell({
 			threadingByTablet,
 		} = getState().pattern;
 		let newOffsetThreadingForTablet; // only used for broken twill
+		let newThreadingForTablet;
+		let colorRole;
 
 		const holesToSet = [];
-		if (patternType === 'brokenTwill') {
-			// set both holes with the role the user clicked
-			// offset threading is displayed
-			// find the threading cell clicked
-			const newThreadingForTablet = [...threadingByTablet[tablet]];
-			let tabletOffset = 0;
+		switch (patternType) {
+			case 'doubleFaced':
+				// set both holes with the role the user clicked
+				// find the role of the clicked cell F / B
+				colorRole = DOUBLE_FACED_THREADING[hole];
 
-			if (weavingStartRow > 1) {
-				tabletOffset = picks[tablet][weavingStartRow - 2].totalTurns;
-			}
-
-			const originalHole = modulus(hole - tabletOffset, holes);
-
-			// find the role of the clicked cell F / B
-			const colorRole = BROKEN_TWILL_THREADING[originalHole][tablet % holes];
-			// set the new colour for both affected cells in that tablet
-
-			for (let i = 0; i < holes; i += 1) {
-				if (BROKEN_TWILL_THREADING[i][tablet % holes] === colorRole) {
-					holesToSet.push(i);
-					newThreadingForTablet[i] = colorIndex;
+				// set the new colour for both affected cells in that tablet
+				for (let i = 0; i < holes; i += 1) {
+					if (DOUBLE_FACED_THREADING[i] === colorRole) {
+						holesToSet.push(i);
+					}
 				}
-			}
 
-			// rebuild offset threading for that tablet
-			newOffsetThreadingForTablet = buildTwillOffsetThreadingForTablet({
-				holes,
-				'pick': picks[tablet],
-				'threadingForTablet': newThreadingForTablet,
-				weavingStartRow,
-			});
-		} else {
-			holesToSet.push(hole); // other pattern types just set the hole the user clicked
+				break;
+
+			case 'brokenTwill':
+				// set both holes with the role the user clicked
+				// offset threading is displayed
+				// find the threading cell clicked
+				newThreadingForTablet = [...threadingByTablet[tablet]];
+				let tabletOffset = 0;
+
+				if (weavingStartRow > 1) {
+					tabletOffset = picks[tablet][weavingStartRow - 2].totalTurns;
+				}
+
+				const originalHole = modulus(hole - tabletOffset, holes);
+
+				// find the role of the clicked cell F / B
+				colorRole = BROKEN_TWILL_THREADING[originalHole][tablet % holes];
+				// set the new colour for both affected cells in that tablet
+
+				for (let i = 0; i < holes; i += 1) {
+					if (BROKEN_TWILL_THREADING[i][tablet % holes] === colorRole) {
+						holesToSet.push(i);
+						newThreadingForTablet[i] = colorIndex;
+					}
+				}
+
+				// rebuild offset threading for that tablet
+				newOffsetThreadingForTablet = buildTwillOffsetThreadingForTablet({
+					holes,
+					'pick': picks[tablet],
+					'threadingForTablet': newThreadingForTablet,
+					weavingStartRow,
+				});
+				break;
+
+			default:
+				holesToSet.push(hole); // other pattern types just set the hole the user clicked
+				break;
 		}
 
 		Meteor.call('pattern.edit', {
