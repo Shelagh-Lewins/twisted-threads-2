@@ -637,23 +637,29 @@ Meteor.methods({
 					'numberOfTablets': newNumberOfTablets,
 				};
 
-				// all pattern types have the new orientations
+				// inesrt new tablet orientations
 				const newOrientations = [];
+				let orientationPosition = insertTabletsAt;
 
-				if (patternType !== 'doubleFaced') {
-					for (let j = 0; j < insertNTablets; j += 1) {
+				for (let j = 0; j < insertNTablets; j += 1) {
+					if (patternType === 'doubleFaced') {
+						// double faced tablets alternate
+						// so put them at the end
+						const newOrientation = (numberOfTablets + j) % 2 === 0 ? '\\' : '/';
+						newOrientations.push(newOrientation);
+						orientationPosition = numberOfTablets;
+					} else {
+						// all other patterns use default orientation
 						newOrientations.push(DEFAULT_ORIENTATION);
 					}
-
-					update.$push = {
-						'orientations': {
-							'$each': newOrientations,
-							'$position': insertTabletsAt,
-						},
-					};
-				} else {
-					update.$push = {}; // just make sure it's there for later
 				}
+
+				update.$push = {
+					'orientations': {
+						'$each': newOrientations,
+						'$position': orientationPosition,
+					},
+				};
 
 				switch (patternType) {
 					// all these pattern types use the same threading chart
@@ -699,14 +705,6 @@ Meteor.methods({
 						break;
 
 					case 'doubleFaced':
-						// orientations
-						for (let i = 0; i < newNumberOfTablets; i += 1) {
-							// set orientation of all tablets so they are alternating
-							const doubleFacedOrientation = i % 2 === 0 ? '\\' : '/';
-							newOrientations[i] = doubleFacedOrientation;
-						}
-
-						update.$set.orientations = newOrientations;
 						// extend the threading chart
 						({ threading } = pattern);
 
@@ -838,9 +836,11 @@ Meteor.methods({
 				// so first we mark the element to remove
 				// then use 'pull'
 
-				// updates for orientation are the same for all pattern types
+				// double faced tablets alternate
+				// otherwise just remove the indicated tablet
+				const orientationToRemove = patternType === 'doubleFaced' ? (numberOfTablets - 1) : tablet;
 				update.$set = {
-					[`orientations.${tablet}`]: 'toBeRemoved',
+					[`orientations.${orientationToRemove}`]: 'toBeRemoved',
 				};
 				// !warning! don't overwrite the update object
 
@@ -859,6 +859,14 @@ Meteor.methods({
 						if (patternType === 'freehand') {
 							update.$set[`patternDesign.freehandChart.$[].${tablet}`] = 'toBeRemoved';
 						}
+						break;
+
+					case 'doubleFaced':
+						// remove the last tablet
+						update.$set[`threading.$[].${tablet}`] = 'toBeRemoved';
+
+						// remove the specified tablet
+						update.$set[`patternDesign.doubleFacedPatternChart.$[].${tablet}`] = 'toBeRemoved';
 						break;
 
 					case 'brokenTwill':
@@ -891,6 +899,7 @@ Meteor.methods({
 					case 'individual':
 					case 'allTogether':
 					case 'freehand':
+					case 'doubleFaced':
 						update2.$pull['threading.$[]'] = 'toBeRemoved';
 						break;
 
@@ -904,11 +913,16 @@ Meteor.methods({
 						update2.$pull['patternDesign.weavingInstructions.$[]'] = { 'toBeRemoved': true };
 						break;
 
+					case 'doubleFaced':
+					// remove tablets from each chart row
+						update2.$pull['patternDesign.doubleFacedPatternChart.$[]'] = 'toBeRemoved';
+						break;
+
 					case 'brokenTwill':
 						// shorten and recalculate the threading chart
 						// it is probably as quick, and certainly easier, to calculate an entirely new threading chart and set it as one operation
 						// because subsequent tablets are affected
-						const { threading } = pattern;
+						({ threading } = pattern);
 
 						// find the foreground / background colour for each tablet from the change onwards
 						const colorsForRolesByTablet = getColorsForRolesByTablet({

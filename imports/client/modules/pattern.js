@@ -2221,10 +2221,10 @@ export default function pattern(state = initialPatternState, action) {
 					const newDoubleFacedPatternChart = [...doubleFacedPatternChart];
 
 					// orientations
-					for (let i = insertTabletsAt; i < newNumberOfTablets; i += 1) {
-						// set orientation of all subsequent tablets so they are alternating
-						const orientation = i % 2 === 0 ? '\\' : '/';
-						newOrientations[i] = orientation;
+					for (let i = 0; i < insertNTablets; i += 1) {
+						// tablets alternate, so the new ones can be simply added at the end
+						const orientation = (numberOfTablets + i) % 2 === 0 ? '\\' : '/';
+						newOrientations.push(orientation);
 					}
 
 					// double faced design chart
@@ -2236,16 +2236,6 @@ export default function pattern(state = initialPatternState, action) {
 							newDoubleFacedPatternChart[j].splice(insertTabletsAt, 0, '.');
 						}
 					}
-
-					// add the new tablets to threading.
-					// find the foreground / background colour for each tablet from the change onwards
-					/* const colorsForRolesByTablet = getColorsForRolesByTablet({
-						holes,
-						numberOfTablets,
-						'startAt': insertTabletsAt,
-						'threading': threadingByTablet,
-						'threadingStructure': 'byTablet',
-					}); */
 
 					// insert the new tablets into the threading chart
 					for (let i = insertTabletsAt; i < insertTabletsAt + insertNTablets; i += 1) {
@@ -2259,21 +2249,6 @@ export default function pattern(state = initialPatternState, action) {
 						newThreadingByTablet.splice(i, 0, newThreadingForTablet);
 					}
 
-					// reset the threading of the subsequence tablets
-					/* for (let i = 0; i < colorsForRolesByTablet.length; i += 1) {
-						const { B, F } = colorsForRolesByTablet[i];
-
-						const tabletIndex = i + insertTabletsAt + insertNTablets;
-
-						newThreadingByTablet[tabletIndex] = [];
-
-						for (let j = 0; j < holes; j += 1) {
-							const colorRole = BROKEN_TWILL_THREADING[j][tabletIndex % holes];
-
-							newThreadingByTablet[tabletIndex].push(colorRole === 'F' ? F : B);
-						}
-					} */
-
 					// calculate weaving for new and subsequent tablets
 					for (let i = insertTabletsAt; i < newNumberOfTablets; i += 1) {
 						const newWeavingInstructions = buildDoubleFacedWeavingInstructionsForTablet({
@@ -2281,7 +2256,7 @@ export default function pattern(state = initialPatternState, action) {
 							'patternDesign': {
 								'doubleFacedPatternChart': newDoubleFacedPatternChart,
 							},
-							//'startRow': 0, // reweave entire tablet
+
 							'tabletIndex': i,
 						});
 
@@ -2289,14 +2264,6 @@ export default function pattern(state = initialPatternState, action) {
 							'weavingInstructionsForTablet': newWeavingInstructions,
 							'row': 0,
 						});
-
-						// add the new tablets to offset threading - this depends on picks
-						/* newOffsetThreading[i] = buildTwillOffsetThreadingForTablet({
-							holes,
-							'pick': newPicks[i],
-							'threadingForTablet': newThreadingByTablet[i],
-							weavingStartRow,
-						}); */
 					}
 
 					update.patternDesign = {
@@ -2475,6 +2442,29 @@ export default function pattern(state = initialPatternState, action) {
 					newPicks.splice(tablet, 1);
 					newWeavingInstructionsByTablet.splice(tablet, 1);
 					newThreadingByTablet.splice(tablet, 1);
+					break;
+
+				case 'doubleFaced':
+					const {
+						doubleFacedPatternChart,
+					} = patternDesign;
+					const doubleFacedChartLength = doubleFacedPatternChart.length;
+					const newDoubleFacedPatternChart = [...doubleFacedPatternChart];
+
+					newOrientations.pop(); // tablets alternate so simply remove the end one
+					newPicks.splice(tablet, 1);
+					newWeavingInstructionsByTablet.splice(tablet, 1);
+					newThreadingByTablet.splice(tablet, 1);
+
+					for (let i = 0; i < doubleFacedChartLength; i += 1) {
+						newDoubleFacedPatternChart[i] = [...newDoubleFacedPatternChart[i]];
+						newDoubleFacedPatternChart[i].splice(tablet, 1);
+					}
+
+					update.patternDesign = {
+						'doubleFacedPatternChart': newDoubleFacedPatternChart,
+					};
+
 					break;
 
 				case 'brokenTwill':
