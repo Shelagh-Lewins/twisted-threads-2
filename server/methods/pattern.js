@@ -332,6 +332,7 @@ Meteor.methods({
 		// weft colour
 		check(weftColor, validPaletteIndexCheck);
 		const {
+			doubleFacedPatternChart, // double faced
 			freehandChart, // freehand
 			twillDirection, // broken twill
 			twillPatternChart, // broken twill
@@ -370,6 +371,27 @@ Meteor.methods({
 				}
 
 				weavingInstructions.forEach((value) => check(value, validDirectionCheck));
+				break;
+
+			case 'doubleFaced':
+				// double faced chart should have one row per two weaving rows
+				if (numberOfRows !== doubleFacedPatternChart.length * 2) {
+					throw new Meteor.Error('new-pattern-from-data-invalid-data', 'Unable to create new pattern from data because the number of rows is invalid');
+				}
+
+				if (doubleFacedPatternChart[0].length !== numberOfTablets) {
+					throw new Meteor.Error('new-pattern-from-data-invalid-data', 'Unable to create new pattern from data because the double faced pattern chart does not have the correct number of tablets');
+				}
+
+				// double faced pattern chart entries should be . or X
+				for (let i = 0; i < doubleFacedPatternChart.length; i += 1) {
+					for (let j = 0; j < numberOfTablets; j += 1) {
+						if (['.', 'X'].indexOf(doubleFacedPatternChart[i][j]) === -1) {
+							throw new Meteor.Error('new-pattern-from-data-invalid-data', 'Unable to create new pattern from data because the pattern chart contains an invalid value');
+						}
+					}
+				}
+
 				break;
 
 			case 'brokenTwill':
