@@ -501,8 +501,8 @@ export const importPatternFromText = ({ filename, text, history }) => (dispatch)
 
 	const { isValid, patternObj } = newPatternFromFile({ filename, text });
 
-	console.log('isValid', isValid);
-	console.log('patternObj', patternObj);
+	// console.log('isValid', isValid);
+	// console.log('patternObj', patternObj);
 
 	// send to server
 	if (isValid) {

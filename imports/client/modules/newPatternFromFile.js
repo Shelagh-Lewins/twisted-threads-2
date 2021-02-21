@@ -109,7 +109,7 @@ Meteor.newPatternFromGTT = function newPatternFromGTT({ filename, text }) { // e
 		} else {
 			const {
 				Cards,
-				Data, // broken twill only
+				Data, // broken twill and double faced
 				Name,
 				Notes,
 				Packs,
@@ -136,6 +136,7 @@ Meteor.newPatternFromGTT = function newPatternFromGTT({ filename, text }) { // e
 			let patternType;
 			const threading = [];
 			const weavingInstructions = []; // for individual patterns
+			const doubleFacedPatternChart = []; // for double faced
 			const twillPatternChart = []; // for broken twill
 			const twillDirectionChangeChart = []; // for broken twill
 
@@ -338,6 +339,23 @@ Meteor.newPatternFromGTT = function newPatternFromGTT({ filename, text }) { // e
 					}
 
 					patternDesign.weavingInstructions = weavingInstructions;
+					break;
+
+				case 'DoubleFace': // version 1.06
+				case 'Doubleface': // version 1.17
+					patternType = 'doubleFaced';
+					const doubleFacedChartLength = Object.keys(Data).length; // eslint-disable-line no-case-declarations
+					numberOfRows = doubleFacedChartLength * 2;
+
+					// copy the chart data
+					for (let i = 0; i < doubleFacedChartLength; i += 1) {
+						doubleFacedPatternChart[i] = [];
+
+						const identifier = `P${i + 1}`;
+						doubleFacedPatternChart[i] = Array.from(Data[identifier]._text);
+					}
+
+					patternDesign.doubleFacedPatternChart = doubleFacedPatternChart;
 					break;
 
 				case 'BrokenTwill':
