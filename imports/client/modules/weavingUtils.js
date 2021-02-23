@@ -179,6 +179,7 @@ export const getTotalTurnsForTablet = ({
 
 export const findPatternTwist = ({
 	holes,
+	includeInTwist,
 	numberOfRows,
 	numberOfTablets,
 	patternDesign,
@@ -203,7 +204,9 @@ export const findPatternTwist = ({
 
 				const startPosition = modulus(totalTurns, holes) === 0; // tablet is back at start position
 
-				if (totalTurns !== 0) {
+				// border tablets will typically be excluded from twist calculations
+				// and reversed at intervals to cancel twist
+				if (totalTurns !== 0 && includeInTwist[j]) {
 					patternIsTwistNeutral = false;
 				}
 

@@ -13,6 +13,8 @@ import {
 } from '../modules/auth';
 import {
 	editIsPublic,
+	editPatternIsTwistNeutral,
+	editPatternWillRepeat,
 	editTextField,
 	getHoleHandedness,
 	getHoles,
@@ -95,7 +97,12 @@ class Pattern extends PureComponent {
 	}
 
 	componentDidUpdate(prevProps) {
-		const { dispatch, isEditing } = this.props;
+		const {
+			dispatch,
+			isEditing,
+			patternIsTwistNeutral,
+			patternWillRepeat,
+		} = this.props;
 		const { gotUser, recentPatternId } = this.state;
 		const { isLoadingUser, pattern, patternId } = this.context;
 
@@ -135,6 +142,22 @@ class Pattern extends PureComponent {
 		// in case they have made changes to the pattern in another window or on another machine
 		if (!prevProps.isEditing && isEditing) {
 			dispatch(savePatternData(pattern));
+		}
+
+		// record whether pattern is twist neutral
+		if (patternIsTwistNeutral !== prevProps.patternIsTwistNeutral) {
+			dispatch(editPatternIsTwistNeutral({
+				'_id': patternId,
+				patternIsTwistNeutral,
+			}));
+		}
+
+		// record whether pattern will repeat
+		if (patternWillRepeat !== prevProps.patternWillRepeat) {
+			dispatch(editPatternWillRepeat({
+				'_id': patternId,
+				patternWillRepeat,
+			}));
 		}
 	}
 

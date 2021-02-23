@@ -156,8 +156,8 @@
 		margin-left: 5px;
 
 		span {
-			background: $color-preview-tablet;
-			color: $color-preview-tablet-color;
+			background: $color-preview-not-in-twist;
+			color: $color-preview-not-in-twist-color;
 			float: left;
 			height: 19px;
 			line-height: 19px;
@@ -166,12 +166,17 @@
 			text-align: center;
 			width: 19px;
 
-			&.start-position {
-				background: $color-preview-start-position;
-			}
+			&:not(.not-in-twist) {
+				background: $color-preview-tablet;
+				color: $color-preview-tablet-color;
 
-			&.twist-neutral {
-				background: $color-preview-twist-neutral;
+				&.start-position {
+					background: $color-preview-start-position;
+				}
+
+				&.twist-neutral {
+					background: $color-preview-twist-neutral;
+				}
 			}
 		}
 	}

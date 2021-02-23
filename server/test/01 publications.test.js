@@ -59,6 +59,7 @@ const excludedPatternFields = [
 // fields that should be published for individual pattern
 const patternFields = patternsFields.concat([
 	'holeHandedness',
+	'includeInTwist',
 	'orientations',
 	'palette',
 	'patternDesign',

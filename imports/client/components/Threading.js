@@ -3,12 +3,14 @@ import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import {
 	addTablets,
+	editIncludeInTwist,
 	editOrientation,
 	editThreadingCell,
 	removeTablet,
 	setIsEditingThreading,
 } from '../modules/pattern';
 import ThreadingChartCell from './ThreadingChartCell';
+import IncludeInTwistCell from './IncludeInTwistCell';
 import OrientationCell from './OrientationCell';
 import AddTabletsForm from '../forms/AddTabletsForm';
 import './Threading.scss';
@@ -37,6 +39,7 @@ class Threading extends PureComponent {
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
+			'handleChangeIncludInTwistCheckbox',
 			'handleClickOrientation',
 			'handleClickRemoveTablet',
 			'handleSubmitAddTablets',
@@ -152,6 +155,23 @@ class Threading extends PureComponent {
 		}));
 	}
 
+	handleChangeIncludInTwistCheckbox(event, tabletIndex) {
+		const { dispatch, 'pattern': { _id } } = this.props;
+		const { isEditing } = this.state;
+
+		if (!isEditing) {
+			return;
+		}
+
+		console.log('event ', event.target);
+		console.log('tabletIndex ', tabletIndex);
+
+		dispatch(editIncludeInTwist({
+			_id,
+			'tablet': tabletIndex,
+		}));
+	}
+
 	handleClickOrientation(tabletIndex) {
 		const { dispatch, 'pattern': { _id } } = this.props;
 		const { isEditing } = this.state;
@@ -243,6 +263,41 @@ class Threading extends PureComponent {
 		);
 	}
 
+	renderIncludeInTwistCalculationsButton(tabletIndex) {
+		const { isEditing } = this.state;
+
+		return (
+			<IncludeInTwistCell
+				handleChangeIncludInTwistCheckbox={this.handleChangeIncludInTwistCheckbox}
+				isEditing={isEditing}
+				tabletIndex={tabletIndex}
+			/>
+		);
+	}
+
+	renderIncludeInTwistCalculationsButtons() {
+		const { numberOfTablets } = this.props;
+		const buttons = [];
+		for (let i = 0; i < numberOfTablets; i += 1) {
+			buttons.push(
+				<li
+					className="cell label"
+					key={`include-in-twist-${i}`}
+				>
+					{this.renderIncludeInTwistCalculationsButton(i)}
+				</li>,
+			);
+		}
+
+		return (
+			<div className="include-in-twist-buttons">
+				<ul>
+					{buttons}
+				</ul>
+			</div>
+		);
+	}
+
 	renderTabletLabels() {
 		const { numberOfTablets } = this.props;
 
@@ -278,6 +333,7 @@ class Threading extends PureComponent {
 		return (
 			<>
 				{this.renderTabletLabels()}
+				{this.renderIncludeInTwistCalculationsButtons()}
 				<ul className="threading-chart">
 					{rows}
 				</ul>

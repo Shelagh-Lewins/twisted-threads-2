@@ -91,6 +91,18 @@
 		white-space: nowrap;
 	}
 
+	.include-in-twist-buttons {
+		margin-left: 32px;
+		
+		ul {
+			font-size: 1rem;
+		}
+
+		label {
+			font-size: 0;
+		}
+	}
+
 	.threading-chart {
 		clear: both;
 	}

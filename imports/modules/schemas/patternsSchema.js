@@ -36,6 +36,15 @@ const PatternsSchema = new SimpleSchema({
 		'label': 'Number of holes',
 		'min': 1,
 	},
+	'includeInTwist': {
+		'type': Array,
+		'label': 'Include tablets in twist calculations',
+		'optional': true, // not present in freehand patterns
+	},
+	'includeInTwist.$': {
+		'type': Boolean,
+		'label': 'Include tablet in twist calculations',
+	},
 	'isPublic': {
 		'type': Boolean,
 		'label': 'Is public',
@@ -143,6 +152,11 @@ const PatternsSchema = new SimpleSchema({
 		'max': MAX_TEXT_AREA_LENGTH,
 		'optional': true,
 	},
+	'isTwistNeutral': {
+		'type': Boolean,
+		'label': 'Pattern is twist neutral',
+		'optional': true,
+	},
 	'weavingNotes': {
 		'type': String,
 		'label': 'Weaving notes',
@@ -153,6 +167,11 @@ const PatternsSchema = new SimpleSchema({
 		'type': SimpleSchema.Integer,
 		'label': 'Weft colour',
 		'min': 0,
+	},
+	'willRepeat': {
+		'type': Boolean,
+		'label': 'Pattern will repeat',
+		'optional': true,
 	},
 });
 

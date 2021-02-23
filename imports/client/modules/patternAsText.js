@@ -14,7 +14,7 @@ const patternAsText = (_id, patternObj) => {
 	const {
 		description,
 		holes,
-		name,
+		includeInTwist,
 		numberOfRows,
 		numberOfTablets,
 		orientations,
@@ -35,6 +35,10 @@ const patternAsText = (_id, patternObj) => {
 		[getDisplayName('name')]: name,
 		[getDisplayName('description')]: description,
 	};
+
+	if (includeInTwist) {
+		patternData[getDisplayName('includeInTwist')] = includeInTwist;
+	}
 
 	if (tags) {
 		patternData[getDisplayName('tags')] = tags;

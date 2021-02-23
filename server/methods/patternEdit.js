@@ -89,11 +89,13 @@ Meteor.methods({
 		let insertTabletsAt;
 		let numberOfTurns;
 		let orientation;
+		let isTwistNeutral;
 		let removeNRows;
 		let removeRowsAt;
 		let row;
 		let rowIndex;
 		let tablet;
+		let tabletIncludeInTwist;
 		let tabletIndex;
 		let tabletOrientation;
 		let threading;
@@ -101,6 +103,7 @@ Meteor.methods({
 		let threadShape;
 		let twillChart;
 		let weavingStartRow;
+		let willRepeat;
 
 		const update = {}; // builds the Mongo update
 
@@ -129,6 +132,24 @@ Meteor.methods({
 
 				// for each set to which the pattern belongs, update the owner's count of public sets
 				updateMultiplePublicSetsCount(pattern.sets);
+
+				return;
+
+			case 'editIsTwistNeutral':
+				({ isTwistNeutral } = data);
+				check(isTwistNeutral, Boolean);
+
+				// update the pattern
+				Patterns.update({ _id }, { '$set': { isTwistNeutral } });
+
+				return;
+
+			case 'editWillRepeat':
+				({ willRepeat } = data);
+				check(willRepeat, Boolean);
+
+				// update the pattern
+				Patterns.update({ _id }, { '$set': { willRepeat } });
 
 				return;
 
@@ -1003,6 +1024,17 @@ Meteor.methods({
 				}
 
 				return Patterns.update({ _id }, { '$set': { 'weftColor': colorIndex } });
+
+			case 'includeInTwist':
+				({ tablet, tabletIncludeInTwist } = data);
+				check(tablet, validTabletsCheck);
+
+				if (tablet >= numberOfTablets) {
+					throw new Meteor.Error('edit-include-in-twist-invalid-tablet', 'Unable to edit orientation because an invalid tablet number was specified');
+				}
+
+				// update the value in the nested arrays
+				return Patterns.update({ _id }, { '$set': { [`includeInTwist.${tablet}`]: tabletIncludeInTwist } });
 
 			case 'orientation':
 				({ tablet, tabletOrientation } = data);

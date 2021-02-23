@@ -221,6 +221,10 @@ export const PATTERN_AS_TEXT_FIELDS = [
 		'required': true,
 	},
 	{
+		'fieldName': 'includeInTwist',
+		'displayName': 'Include in twist calculations',
+	},
+	{
 		'fieldName': 'name',
 		'displayName': 'Name',
 		'required': true,

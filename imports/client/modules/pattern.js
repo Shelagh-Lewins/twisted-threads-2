@@ -78,6 +78,7 @@ export const UPDATE_FREEHAND_CELL_DIRECTION = 'UPDATE_FREEHAND_CELL_DIRECTION';
 // more than one patternType
 export const SET_UPDATE_PREVIEW_WHILE_EDITING = 'SET_UPDATE_PREVIEW_WHILE_EDITING';
 export const UPDATE_THREADING_CELL = 'UPDATE_THREADING_CELL';
+export const UPDATE_INCLUDE_IN_TWIST = 'UPDATE_INCLUDE_IN_TWIST';
 export const UPDATE_ORIENTATION = 'UPDATE_ORIENTATION';
 export const UPDATE_PALETTE_COLOR = 'UPDATE_PALETTE_COLOR';
 export const UPDATE_HOLE_HANDEDNESS = 'UPDATE_HOLE_HANDEDNESS';
@@ -209,6 +210,7 @@ export function setPatternData({
 }) {
 	const {
 		holes,
+		includeInTwist,
 		numberOfRows,
 		numberOfTablets,
 		orientations,
@@ -220,6 +222,7 @@ export function setPatternData({
 		'type': SET_PATTERN_DATA,
 		'payload': {
 			holes,
+			includeInTwist,
 			numberOfRows,
 			numberOfTablets,
 			orientations,
@@ -384,6 +387,10 @@ export const getThreadingForHole = (state, tabletIndex, holeIndex) => {
 
 export const getTotalTurnsByTablet = (state) => state.pattern.picks.map((picksForTablet) => picksForTablet[state.pattern.numberOfRows - 1].totalTurns);
 
+export const getIncludeInTwist = (state) => state.pattern.includeInTwist;
+
+export const getIncludeInTwistForTablet = (state, tabletIndex) => state.pattern.includeInTwist[tabletIndex];
+
 export const getOrientationForTablet = (state, tabletIndex) => state.pattern.orientations[tabletIndex];
 
 export const getIsEditing = (state) => state.pattern.isEditingWeaving || state.pattern.isEditingThreading;
@@ -394,6 +401,7 @@ export const getPreviewShouldUpdate = (state) => (!state.pattern.isEditingWeavin
 // cached selectors to provide props without triggering re-render
 export const getPatternTwistSelector = createSelector(
 	getHoles,
+	getIncludeInTwist,
 	getNumberOfRows,
 	getNumberOfTablets,
 	getPatternDesign,
@@ -401,6 +409,7 @@ export const getPatternTwistSelector = createSelector(
 	getPicks,
 	(
 		holes,
+		includeInTwist,
 		numberOfRows,
 		numberOfTablets,
 		patternDesign,
@@ -408,6 +417,7 @@ export const getPatternTwistSelector = createSelector(
 		picks,
 	) => findPatternTwist({
 		holes,
+		includeInTwist,
 		numberOfRows,
 		numberOfTablets,
 		patternDesign,
@@ -536,6 +546,46 @@ export function editIsPublic({
 		}, (error) => {
 			if (error) {
 				return dispatch(logErrors({ 'edit is public': error.reason }));
+			}
+		});
+	};
+}
+
+// is pattern twist neutral?
+export function editPatternIsTwistNeutral({
+	_id,
+	patternIsTwistNeutral,
+}) {
+	return (dispatch) => {
+		Meteor.call('pattern.edit', {
+			_id,
+			'data': {
+				'type': 'editIsTwistNeutral',
+				'isTwistNeutral': patternIsTwistNeutral,
+			},
+		}, (error) => {
+			if (error) {
+				return dispatch(logErrors({ 'edit is twist neutral': error.reason }));
+			}
+		});
+	};
+}
+
+// will pattern repeat?
+export function editPatternWillRepeat({
+	_id,
+	patternWillRepeat,
+}) {
+	return (dispatch) => {
+		Meteor.call('pattern.edit', {
+			_id,
+			'data': {
+				'type': 'editWillRepeat',
+				'willRepeat': patternWillRepeat,
+			},
+		}, (error) => {
+			if (error) {
+				return dispatch(logErrors({ 'edit will repeat': error.reason }));
 			}
 		});
 	};
@@ -1105,6 +1155,43 @@ export function removeTablet({
 	};
 }
 
+// Include tablet in twist calculations
+export function updateIncludeInTwist(data) {
+	return {
+		'type': UPDATE_INCLUDE_IN_TWIST,
+		'payload': data,
+	};
+}
+
+export function editIncludeInTwist({
+	_id,
+	tablet,
+}) {
+	return (dispatch, getState) => {
+		const currentIncludeInTwist = getState().pattern.includeInTwist[tablet];
+
+		const tabletIncludeInTwist = !currentIncludeInTwist;
+
+		Meteor.call('pattern.edit', {
+			_id,
+			'data': {
+				'type': 'includeInTwist',
+				tablet,
+				tabletIncludeInTwist,
+			},
+		}, (error) => {
+			if (error) {
+				return dispatch(logErrors({ 'update include tablet in twist caluclations': error.reason }));
+			}
+		});
+
+		dispatch(updateIncludeInTwist({
+			tablet,
+			tabletIncludeInTwist,
+		}));
+	};
+}
+
 // Tablet orientation
 export function updateOrientation(data) {
 	return {
@@ -1380,6 +1467,7 @@ export default function pattern(state = initialPatternState, action) {
 		case SET_PATTERN_DATA: {
 			const {
 				holes,
+				includeInTwist,
 				numberOfRows,
 				numberOfTablets,
 				orientations,
@@ -1392,6 +1480,7 @@ export default function pattern(state = initialPatternState, action) {
 
 			const update = {
 				holes,
+				includeInTwist,
 				numberOfRows,
 				numberOfTablets,
 				orientations,
@@ -1731,6 +1820,30 @@ export default function pattern(state = initialPatternState, action) {
 			holesToSet.forEach((holeIndex) => {
 				update.threadingByTablet[tablet][holeIndex] = colorIndex;
 			});
+
+			return updeep(update, state);
+		}
+
+		case UPDATE_INCLUDE_IN_TWIST: {
+			const { tablet, tabletIncludeInTwist } = action.payload;
+			//const { patternType, weavingInstructionsByTablet } = state;
+
+			const update = {
+				'includeInTwist': { [tablet]: tabletIncludeInTwist },
+			};
+
+			/* if (patternType !== 'freehand') { // freehand doesn't calculate picks
+				// to calculate new picks for this tablet
+				const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tablet]];
+
+				const picksForTablet = calculatePicksForTablet({
+					'currentPicks': state.picks[tablet],
+					weavingInstructionsForTablet,
+					'row': 0,
+				});
+
+				update.picks = { [tablet]: picksForTablet };
+			} */
 
 			return updeep(update, state);
 		}

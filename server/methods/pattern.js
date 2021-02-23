@@ -230,6 +230,12 @@ Meteor.methods({
 			'weftColor': DEFAULT_WEFT_COLOR,
 		});
 
+		// set includeInTwist
+		if (patternType !== 'freehand') {
+			const includeInTwist = new Array(tablets).fill(true);
+			Patterns.update({ patternId }, { '$set': { includeInTwist } });
+		}
+
 		// update the user's count of public patterns
 		updatePublicPatternsCountForUser(Meteor.userId());
 
@@ -259,6 +265,7 @@ Meteor.methods({
 		check(patternObj, Match.ObjectIncluding({
 			'description': Match.Maybe(String),
 			'holes': positiveIntegerCheck,
+			'includeInTwist': Match.Maybe([String]),
 			'name': String,
 			'numberOfRows': positiveIntegerCheck,
 			'numberOfTablets': positiveIntegerCheck,
@@ -276,6 +283,7 @@ Meteor.methods({
 		const {
 			description,
 			holes,
+			includeInTwist,
 			name,
 			numberOfRows,
 			numberOfTablets,
@@ -488,6 +496,10 @@ Meteor.methods({
 			update.$set.weavingNotes = weavingNotes;
 		}
 
+		if (includeInTwist) {
+			update.$set.includeInTwist = includeInTwist;
+		}
+
 		Patterns.update({ '_id': patternId }, update);
 
 		if (tags) {
@@ -627,6 +639,7 @@ Meteor.methods({
 			{
 				'$set': {
 					'description': pattern.description,
+					'includeInTwist': pattern.includeInTwist,
 					'isPublic': false,
 					'threading': pattern.threading,
 					'orientations': pattern.orientations,

@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 import PreviewCell from './PreviewCell';
 import FreehandPreviewCell from './FreehandPreviewCell';
 import {
+	getIncludeInTwist,
 	getPalette,
 	getPreviewShouldUpdate,
 } from '../modules/pattern';
@@ -32,6 +33,7 @@ class PatternPreview extends Component {
 		const {
 			dispatch,
 			holes,
+			includeInTwist,
 			numberOfRows,
 			numberOfTablets,
 			patternWillRepeat,
@@ -327,7 +329,7 @@ class PatternPreview extends Component {
 
 			totalTurnCells.push(
 				<span
-					className={`${totalTurns === 0 ? 'twist-neutral' : ''} ${startPosition ? 'start-position' : ''}`}
+					className={`${totalTurns === 0 ? 'twist-neutral' : ''} ${startPosition ? 'start-position' : ''} ${includeInTwist[j] ? '' : 'not-in-twist'}`}
 					key={`preview-total-turns-${j}`}
 					title={title}
 				>
@@ -388,6 +390,7 @@ PatternPreview.propTypes = {
 	'componentShouldUpdate': PropTypes.bool.isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'holes': PropTypes.number.isRequired,
+	'includeInTwist': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'numberOfRows': PropTypes.number.isRequired,
 	'numberOfTablets': PropTypes.number.isRequired,
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
@@ -399,6 +402,7 @@ PatternPreview.propTypes = {
 function mapStateToProps(state) {
 	return {
 		'componentShouldUpdate': getPreviewShouldUpdate(state),
+		'includeInTwist': getIncludeInTwist(state),
 		'palette': getPalette(state),
 	};
 }
