@@ -21,11 +21,18 @@ const patternIds = [];
 patterns.forEach(pattern => {
 	const {
 		_id,
+		isTwistNeutral,
 		patternType,
+		willRepeat,
 	} = pattern;
 
-	if (patternType !== 'freehand') {
+	// pick up any patterns that are missing isTwistNeutral or willRepeat
+	// several runs are likely to be required because of timeout issues with Puppeteer
+	if (patternType !== 'freehand' && (typeof isTwistNeutral === 'undefined' || typeof willRepeat === 'undefined')) {
 		db.patterns.update( { _id }, { '$set': { createdBy } });
-		print(_id);
+		patternIds.push(_id);
+		//print(_id);
 	}
 });
+
+print(patternIds);

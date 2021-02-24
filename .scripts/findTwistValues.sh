@@ -1,5 +1,10 @@
 #!/bin/bash
 
+### Find the patterns which need to have isTwistNeutral and willRepeat set
+### View them with Google Puppeteer to set the values
+### WARNING!!! This will set createdBy to the user provided in the command line
+### NEVER run this script on live data
+
 # find where the script is running from
 # required for cron jobs and mongo js
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
@@ -42,26 +47,31 @@ export PASSWORD
 LOGDIR=~/logs
 LOGFILE=$LOGDIR/findTwistValues.log
 
-
-
-## run script to own all patterns
+## find the patterns that need to be viewed and make sure they are owned by the user
 # pass in environment variables
 MONGO_ADDRESS="${MONGO_HOST}"':'"${MONGO_PORT}"
 
 ENVVARS='var mongoAddress='\'"${MONGO_ADDRESS}"\''; var databaseName='\'"${DATABASE_NAME}"\''; var username='\'"${TWT_USERNAME}"\'';'
 
-# provide the pattern ids to javascript inside Puppeteer, which is all client side
-# https://stackoverflow.com/questions/2559076/how-do-i-redirect-output-to-a-variable-in-shell/15170225
-PATTERN_IDS=$(mongo --port $MONGO_PORT --quiet --eval "${ENVVARS}" $SCRIPTPATH/ownAllPatterns.js)
+# run script to find the pattern ids to fix
+PATTERN_IDS=$(mongo --port $MONGO_PORT --quiet --eval "${ENVVARS}" $SCRIPTPATH/getPatternsToFix.js)
 
-export PATTERN_IDS
+IFS=',' read -ra IDS_ARRAY <<< "$PATTERN_IDS"
+#echo IDS_ARRAY $IDS_ARRAY
 
-# put all pattern ids in a file
-#mongo --port $MONGO_PORT --quiet --eval 'DBQuery.shellBatchSize = 10000; conn = new Mongo(); db = conn.getDB("meteor"); db.patterns.find({}).toArray()' > patterns.json
+LENGTH=${#IDS_ARRAY[@]}
+echo "number of patterns" $LENGTH
 
 ## run script to visit each pattern
 echo `date` >> $LOGFILE
 echo Running bash script findTwistValues.sh >> $LOGFILE
 
-node $SCRIPTPATH/findTwistValues.js >> $LOGFILE 2>&1
+for i in "${!IDS_ARRAY[@]}"
+do
+   echo processing pattern number "$i" / $LENGTH
+   echo "${IDS_ARRAY[$i]}"
+   PATTERN_ID=${IDS_ARRAY[$i]}
+   export PATTERN_ID
+   node $SCRIPTPATH/findTwistValues.js >> $LOGFILE 2>&1
+done
 

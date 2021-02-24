@@ -10,7 +10,7 @@ const middleware = [thunk];
 
 // redux-logger to record all Redux actions
 if (process.env.NODE_ENV === 'development') {
-	middleware.push(logger);
+	middleware.push(logger); // enable this
 }
 
 const enhancers = [

@@ -144,20 +144,25 @@ class Pattern extends PureComponent {
 			dispatch(savePatternData(pattern));
 		}
 
-		// record whether pattern is twist neutral
-		if (patternIsTwistNeutral !== prevProps.patternIsTwistNeutral) {
-			dispatch(editPatternIsTwistNeutral({
-				'_id': patternId,
-				patternIsTwistNeutral,
-			}));
-		}
+		if (pattern) {
+			const { isTwistNeutral, willRepeat } = pattern;
+			// record whether pattern is twist neutral
+			if ((typeof isTwistNeutral === 'undefined') // needs to be initialised
+				|| (patternIsTwistNeutral !== prevProps.patternIsTwistNeutral)) {
+				dispatch(editPatternIsTwistNeutral({
+					'_id': patternId,
+					patternIsTwistNeutral,
+				}));
+			}
 
-		// record whether pattern will repeat
-		if (patternWillRepeat !== prevProps.patternWillRepeat) {
-			dispatch(editPatternWillRepeat({
-				'_id': patternId,
-				patternWillRepeat,
-			}));
+			// record whether pattern will repeat
+			if ((typeof willRepeat === 'undefined') // needs to be initialised
+				|| (patternWillRepeat !== prevProps.patternWillRepeat)) {
+				dispatch(editPatternWillRepeat({
+					'_id': patternId,
+					patternWillRepeat,
+				}));
+			}
 		}
 	}
 
