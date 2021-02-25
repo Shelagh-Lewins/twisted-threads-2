@@ -210,7 +210,8 @@ export const findPatternTwist = ({
 					patternIsTwistNeutral = false;
 				}
 
-				if (!startPosition) {
+				// similarly exclude tablets from "willRepeat"
+				if (!startPosition && includeInTwist[j]) {
 					patternWillRepeat = false;
 				}
 
