@@ -144,7 +144,13 @@ class Pattern extends PureComponent {
 			dispatch(savePatternData(pattern));
 		}
 
-		if (pattern) {
+		// update twist calculations
+		// only attempt these updates if all data have been loaded
+		// and the user owns the pattern
+		if (pattern
+			&& gotUser
+			&& Meteor.user()._id === pattern.createdBy
+			&& pattern.patternType !== 'freehand') {
 			const { isTwistNeutral, willRepeat } = pattern;
 			// record whether pattern is twist neutral
 			if ((typeof isTwistNeutral === 'undefined') // needs to be initialised
@@ -846,7 +852,7 @@ Pattern.propTypes = {
 	'canPublish': PropTypes.bool.isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
-	'holeHandedness': PropTypes.number,
+	'holeHandedness': PropTypes.string,
 	'holes': PropTypes.number.isRequired,
 	'isEditing': PropTypes.bool.isRequired,
 	'isLoading': PropTypes.bool.isRequired,

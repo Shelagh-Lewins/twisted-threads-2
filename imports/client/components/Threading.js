@@ -163,9 +163,6 @@ class Threading extends PureComponent {
 			return;
 		}
 
-		console.log('event ', event.target);
-		console.log('tabletIndex ', tabletIndex);
-
 		dispatch(editIncludeInTwist({
 			_id,
 			'tablet': tabletIndex,
@@ -276,7 +273,17 @@ class Threading extends PureComponent {
 	}
 
 	renderIncludeInTwistCalculationsButtons() {
-		const { numberOfTablets } = this.props;
+		const {
+			'pattern': { includeInTwist, patternType },
+			numberOfTablets,
+		} = this.props;
+
+		// twist must be calculated
+		// and there is no value in excluding border tablets for 'all together' patterns
+		if (!includeInTwist || patternType === 'allTogether') {
+			return;
+		}
+
 		const buttons = [];
 		for (let i = 0; i < numberOfTablets; i += 1) {
 			buttons.push(

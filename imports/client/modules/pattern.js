@@ -389,7 +389,7 @@ export const getTotalTurnsByTablet = (state) => state.pattern.picks.map((picksFo
 
 export const getIncludeInTwist = (state) => state.pattern.includeInTwist;
 
-export const getIncludeInTwistForTablet = (state, tabletIndex) => state.pattern.includeInTwist[tabletIndex];
+export const getIncludeInTwistForTablet = (state, tabletIndex) => state.pattern.includeInTwist && state.pattern.includeInTwist[tabletIndex]; // freehand patterns do not have includeInTwist; avoid error.
 
 export const getOrientationForTablet = (state, tabletIndex) => state.pattern.orientations[tabletIndex];
 
@@ -2255,6 +2255,7 @@ export default function pattern(state = initialPatternState, action) {
 			const { colorIndex, insertNTablets, insertTabletsAt } = action.payload;
 			const {
 				holes,
+				includeInTwist,
 				numberOfRows,
 				numberOfTablets,
 				orientations,
@@ -2279,12 +2280,19 @@ export default function pattern(state = initialPatternState, action) {
 			let newWeavingInstructionsByTablet;
 			let newPicks;
 
+			// all simulation patterns
 			if (patternType !== 'freehand') {
 				newWeavingInstructionsByTablet = [...weavingInstructionsByTablet];
 				newPicks = [...picks];
 
 				update.weavingInstructionsByTablet = newWeavingInstructionsByTablet;
 				update.picks = newPicks;
+
+				const newIncludeInTwist = [...includeInTwist];
+				for (let i = 0; i < insertNTablets; i += 1) {
+					newIncludeInTwist.splice(insertTabletsAt, 0, true);
+				}
+				update.includeInTwist = newIncludeInTwist;
 			}
 
 			// threading chart is the same for all these patterns
@@ -2535,6 +2543,7 @@ export default function pattern(state = initialPatternState, action) {
 			const { tablet } = action.payload;
 			const {
 				holes,
+				includeInTwist,
 				numberOfRows,
 				numberOfTablets,
 				orientations,
@@ -2565,6 +2574,10 @@ export default function pattern(state = initialPatternState, action) {
 
 				update.weavingInstructionsByTablet = newWeavingInstructionsByTablet;
 				update.picks = newPicks;
+
+				const newIncludeInTwist = [...includeInTwist];
+				newIncludeInTwist.splice(tablet, 1);
+				update.includeInTwist = newIncludeInTwist;
 			}
 
 			switch (patternType) {

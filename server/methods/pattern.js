@@ -233,7 +233,7 @@ Meteor.methods({
 		// set includeInTwist
 		if (patternType !== 'freehand') {
 			const includeInTwist = new Array(tablets).fill(true);
-			Patterns.update({ patternId }, { '$set': { includeInTwist } });
+			Patterns.update({ '_id': patternId }, { '$set': { includeInTwist } });
 		}
 
 		// update the user's count of public patterns

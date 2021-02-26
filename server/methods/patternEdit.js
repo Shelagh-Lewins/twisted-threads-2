@@ -82,6 +82,7 @@ Meteor.methods({
 		let fieldName;
 		let fieldValue;
 		let holesToSet;
+		let includeInTwist;
 		let isPublic;
 		let insertNRows;
 		let insertRowsAt;
@@ -145,6 +146,7 @@ Meteor.methods({
 				return;
 
 			case 'editWillRepeat':
+			console.log('edit will repeat');
 				({ willRepeat } = data);
 				check(willRepeat, Boolean);
 
@@ -643,6 +645,8 @@ Meteor.methods({
 				check(insertTabletsAt, Match.Integer);
 				check(colorIndex, validPaletteIndexCheck);
 
+				update.$push = {};
+
 				if (insertNTablets + numberOfTablets > MAX_TABLETS) {
 					throw new Meteor.Error('add-tablets-too-many-rows', 'Unable to add tablets because the pattern will have too many tablets');
 				}
@@ -658,7 +662,7 @@ Meteor.methods({
 					'numberOfTablets': newNumberOfTablets,
 				};
 
-				// inesrt new tablet orientations
+				// insert new tablet orientations
 				const newOrientations = [];
 				let orientationPosition = insertTabletsAt;
 
@@ -675,12 +679,23 @@ Meteor.methods({
 					}
 				}
 
-				update.$push = {
-					'orientations': {
-						'$each': newOrientations,
-						'$position': orientationPosition,
-					},
+				update.$push.orientations = {
+					'$each': newOrientations,
+					'$position': orientationPosition,
 				};
+
+				// insert new includeInTwist for simulation patterns
+				if (patternType !== 'freehand') {
+					const newIncludeInTwist = [];
+					for (let j = 0; j < insertNTablets; j += 1) {
+						newIncludeInTwist.push(true);
+					}
+
+					update.$push.includeInTwist = {
+						'$each': newIncludeInTwist,
+						'$position': insertTabletsAt,
+					};
+				}
 
 				switch (patternType) {
 					// all these pattern types use the same threading chart
@@ -865,6 +880,11 @@ Meteor.methods({
 				};
 				// !warning! don't overwrite the update object
 
+				// each tablet's includeInTwist is independend
+				if (patternType !== 'freehand') {
+					update.$set[`includeInTwist.${tablet}`] = 'toBeRemoved';
+				}
+
 				// updates for weaving depend on pattern type
 				switch (patternType) {
 					case 'individual':
@@ -911,6 +931,10 @@ Meteor.methods({
 				update2.$pull = {
 					'orientations': 'toBeRemoved',
 				};
+
+				if (patternType !== 'freehand') {
+					update2.$pull.includeInTwist = 'toBeRemoved';
+				}
 
 				update2.$set = {
 					'numberOfTablets': pattern.numberOfTablets - 1,

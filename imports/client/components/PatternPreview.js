@@ -329,7 +329,7 @@ class PatternPreview extends Component {
 
 			totalTurnCells.push(
 				<span
-					className={`${totalTurns === 0 ? 'twist-neutral' : ''} ${startPosition ? 'start-position' : ''} ${includeInTwist[j] ? '' : 'not-in-twist'}`}
+					className={`${totalTurns === 0 ? 'twist-neutral' : ''} ${startPosition ? 'start-position' : ''} ${includeInTwist && includeInTwist[j] ? '' : 'not-in-twist'}`}
 					key={`preview-total-turns-${j}`}
 					title={title}
 				>
@@ -390,7 +390,7 @@ PatternPreview.propTypes = {
 	'componentShouldUpdate': PropTypes.bool.isRequired,
 	'dispatch': PropTypes.func.isRequired,
 	'holes': PropTypes.number.isRequired,
-	'includeInTwist': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'includeInTwist': PropTypes.arrayOf(PropTypes.any),
 	'numberOfRows': PropTypes.number.isRequired,
 	'numberOfTablets': PropTypes.number.isRequired,
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,

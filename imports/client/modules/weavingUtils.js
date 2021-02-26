@@ -189,7 +189,7 @@ export const findPatternTwist = ({
 	let patternWillRepeat = false;
 	let patternIsTwistNeutral = false;
 
-	if (patternType !== 'freehand') {
+	if (includeInTwist) { // all patterns that calculate twist should have includeInTwist. At present this is everything except 'freehand'.
 		if (picks[0]) {
 			patternWillRepeat = true;
 			patternIsTwistNeutral = true;
