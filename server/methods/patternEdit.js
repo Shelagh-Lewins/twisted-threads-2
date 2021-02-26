@@ -146,7 +146,6 @@ Meteor.methods({
 				return;
 
 			case 'editWillRepeat':
-			console.log('edit will repeat');
 				({ willRepeat } = data);
 				check(willRepeat, Boolean);
 
