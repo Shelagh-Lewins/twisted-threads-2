@@ -2520,6 +2520,9 @@ export default function pattern(state = initialPatternState, action) {
 						for (let j = 0; j < numberOfRows; j += 1) {
 							const newChartCell = { ...DEFAULT_FREEHAND_CELL };
 							newChartCell.threadColor = colorIndex;
+							if (colorIndex === -1) {
+								newChartCell.threadShape = 'forwardEmpty';
+							}
 
 							newFreehandChart[j] = [...newFreehandChart[j]];
 							newFreehandChart[j].splice(insertTabletsAt, 0, newChartCell);

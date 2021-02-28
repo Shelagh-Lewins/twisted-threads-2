@@ -86,6 +86,11 @@ class Palette extends PureComponent {
 		}
 
 		selectColor(-1);
+
+		this.setState({
+			'selectedColorIndex': -1,
+			'pickerReinitialize': true, // reset initial color
+		});
 	}
 
 	handleClickEditMode = (event) => {

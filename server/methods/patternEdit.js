@@ -837,6 +837,9 @@ Meteor.methods({
 						const newFreehandChartCells = [];
 						const newChartCell = DEFAULT_FREEHAND_CELL;
 						newChartCell.threadColor = colorIndex;
+						if (colorIndex === -1) {
+							newChartCell.threadShape = 'forwardEmpty';
+						}
 
 						for (let j = 0; j < insertNTablets; j += 1) {
 							newFreehandChartCells.push(newChartCell);
