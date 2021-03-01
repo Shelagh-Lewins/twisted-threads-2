@@ -149,6 +149,7 @@ class Pattern extends PureComponent {
 		// and the user owns the pattern
 		if (pattern
 			&& gotUser
+			&& Meteor.user()
 			&& Meteor.user()._id === pattern.createdBy
 			&& pattern.patternType !== 'freehand') {
 			const { isTwistNeutral, willRepeat } = pattern;
