@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
 	getCanCreatePattern,
 	getIsAuthenticated,
+	getMaintenanceMode,
 	getUsername,
 } from '../modules/auth';
 import {
@@ -117,9 +118,23 @@ class Navbar extends Component {
 			isAuthenticated,
 			isLoading,
 			isSearching,
+			maintenanceMode,
 			searchTerm,
 			username,
 		} = this.props;
+
+		if (maintenanceMode) {
+			return (
+				<nav className="navbar navbar-expand-md navbar-dark">
+					<Link className="navbar-brand" to="/">
+						<span
+							className="logo"
+							style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/logo.png')}` }}
+						/>Twisted Threads
+					</Link>
+				</nav>
+			);
+		}
 
 		const { showDropdown, showUploadPatternForm } = this.state;
 
@@ -273,6 +288,7 @@ Navbar.propTypes = {
 	'isAuthenticated': PropTypes.bool.isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'isSearching': PropTypes.bool.isRequired,
+	'maintenanceMode': PropTypes.bool,
 	'searchTerm': PropTypes.string.isRequired,
 	'username': PropTypes.string,
 };
@@ -282,6 +298,7 @@ const mapStateToProps = (state, ownProps) => ({
 	'isAuthenticated': getIsAuthenticated(state),
 	'isLoading': state.pattern.isLoading,
 	'isSearching': state.search.isSearching,
+	'maintenanceMode': getMaintenanceMode(state),
 	'searchTerm': state.search.searchTerm,
 	'username': getUsername(state),
 });
