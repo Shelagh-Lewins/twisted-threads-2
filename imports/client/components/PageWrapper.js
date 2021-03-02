@@ -7,7 +7,6 @@
 
 import React, { Component } from 'react';
 import { Container, Row, Col } from 'reactstrap';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import isEmpty from '../modules/isEmpty';
@@ -15,11 +14,6 @@ import formatErrorMessages from '../modules/formatErrorMessages';
 import { clearErrors } from '../modules/errors';
 import FlashMessage from './FlashMessage';
 import ConnectionStatus from './ConnectionStatus';
-import MaintenanceMode from './MaintenanceMode';
-
-import {
-	getMaintenanceMode,
-} from '../modules/auth';
 
 class PageWrapper extends Component {
 	constructor() {
@@ -53,7 +47,6 @@ class PageWrapper extends Component {
 		const {
 			children,
 			errors,
-			maintenanceMode,
 			message,
 			type,
 			onClick,
@@ -78,27 +71,6 @@ class PageWrapper extends Component {
 			messageOnClick = onClick;
 		}
 
-		if (maintenanceMode) {
-			return (
-				<>
-					<ConnectionStatus />
-					{showFlashMessage && (
-						<Container>
-							<Row>
-								<Col lg="12">
-									<FlashMessage
-										message={messageText}
-										type={messageType}
-										onClick={messageOnClick}
-									/>
-								</Col>
-							</Row>
-						</Container>
-					)}
-					<MaintenanceMode />
-				</>
-			);
-		}
 		return (
 			<>
 				<ConnectionStatus />
@@ -133,11 +105,6 @@ PageWrapper.propTypes = {
 	'message': PropTypes.string,
 	'onClick': PropTypes.func,
 	'type': PropTypes.string,
-	'maintenanceMode': PropTypes.bool,
 };
 
-const mapStateToProps = (state) => ({
-	'maintenanceMode': getMaintenanceMode(state),
-});
-
-export default connect(mapStateToProps)(PageWrapper);
+export default PageWrapper;

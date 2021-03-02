@@ -62,7 +62,7 @@ class Home extends Component {
 
 	componentDidMount() {
 		document.body.classList.add(bodyClass);
-
+		window.addEventListener('resize', this.trackWindowSize);
 		this.trackWindowSize();
 	}
 
@@ -75,20 +75,16 @@ class Home extends Component {
 		// find width of div into which lists must fit
 		const containerElm = this.containerRef.current;
 
-		if (containerElm) { // avoid error in maintenance mode
-			window.addEventListener('resize', containerElm);
+		// find the containing element's applied styles
+		const compStyles = window.getComputedStyle(containerElm);
 
-			// find the containing element's applied styles
-			const compStyles = window.getComputedStyle(containerElm);
+		const width = parseFloat(containerElm.clientWidth)
+		- parseFloat(compStyles.getPropertyValue('padding-left'))
+		- parseFloat(compStyles.getPropertyValue('padding-right'));
 
-			const width = parseFloat(containerElm.clientWidth)
-			- parseFloat(compStyles.getPropertyValue('padding-left'))
-			- parseFloat(compStyles.getPropertyValue('padding-right'));
-
-			this.setState({
-				width,
-			});
-		}
+		this.setState({
+			width,
+		});
 	}
 
 	updateShowAddPatternForm(showForm) {

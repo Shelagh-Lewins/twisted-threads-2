@@ -38,7 +38,6 @@ import {
 	getNumberOfPatternImages,
 	getNumberOfPatterns,
 	getUserRoles,
-	setMaintenanceMode,
 	setNumberOfColorBooks,
 	setNumberOfPatternImages,
 	setNumberOfPatterns,
@@ -153,12 +152,6 @@ export const withDatabase = withTracker((props) => {
 	let pattern;
 	let patternIdParam;
 
-	Meteor.call('auth.getMaintenanceMode', (err, response) => {
-		if (response) {
-			dispatch(setMaintenanceMode(true));
-		}
-	});
-
 	// provide information about the user
 	const state = store.getState();
 	const isLoading = getIsLoading(state);
@@ -166,6 +159,7 @@ export const withDatabase = withTracker((props) => {
 	// check for login, logout, change of email verifiction status. Update record of user in state.auth if there is a change.
 	const MeteorUserId = Meteor.user() ? Meteor.user()._id : undefined; // Meteor.userId() can load before Meteor.user(), causing a double update
 
+	//let numberOfPatterns = 0;
 	let numberOfColorBooks = 0;
 	let numberOfPatternImages = 0;
 

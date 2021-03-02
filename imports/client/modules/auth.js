@@ -18,7 +18,6 @@ const updeep = require('updeep');
 
 // define action types so they are visible
 // and export them so other reducers can use them
-export const SET_MAINTENANCE_MODE = 'SET_MAINTENANCE_MODE';
 export const SET_USER_COUNT = 'SET_USER_COUNT';
 export const SET_USERS_FOR_PAGE = 'SET_USERS_FOR_PAGE';
 export const SET_ISLOADING = 'SET_ISLOADING';
@@ -52,16 +51,6 @@ export const SET_NUMBER_OF_PATTERN_IMAGES = 'SET_NUMBER_OF_PATTERN_IMAGES';
 
 // ////////////////////////////////
 // Provide information to the UI
-export function setMaintenanceMode(result) {
-	return {
-		'type': SET_MAINTENANCE_MODE,
-		'payload': result,
-	};
-}
-
-export const getMaintenanceMode = (state) => state.auth.maintenanceMode;
-
-
 // used in pagination
 // find total number of users
 export function setUserCount(userCount) {
@@ -574,7 +563,6 @@ const initialAuthState = {
 	'error': null,
 	'forgotPasswordEmailSent': false,
 	'isLoading': true,
-	'maintenanceMode': false,
 	'numberOfColorBooks': 0,
 	'numberOfPatternImages': 0,
 	'numberOfPatterns': 0,
@@ -592,10 +580,6 @@ const initialAuthState = {
 // state updates
 export default function auth(state = initialAuthState, action) {
 	switch (action.type) {
-		case SET_MAINTENANCE_MODE: {
-			return updeep({ 'maintenanceMode': action.payload }, state);
-		}
-
 		case SET_USER_COUNT: {
 			return updeep({ 'userCount': action.payload }, state);
 		}

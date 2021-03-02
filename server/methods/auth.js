@@ -228,13 +228,4 @@ Meteor.methods({
 		// used to log client addresses to the Nginx log
 		return this.connection;
 	},
-	'auth.getMaintenanceMode': function () {
-		// pass up the environment variable that puts the UI into maintenance mode
-		// converting it from string to boolean
-		if (process.env.MAINTENANCE_MODE === 'true') {
-			return true;
-		}
-
-		return false;
-	},
 });
