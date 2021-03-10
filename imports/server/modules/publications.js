@@ -87,11 +87,13 @@ Meteor.publish('colorBooks', function (userId) {
 // Patterns
 
 // limited fields for all patterns
+// must include anything that can be searched
 const patternsFields = {
 	'createdAt': 1,
 	'createdBy': 1,
 	'description': 1,
 	'holes': 1,
+	'isTwistNeutral': 1,
 	'isPublic': 1,
 	'name': 1,
 	'nameSort': 1,
@@ -99,6 +101,7 @@ const patternsFields = {
 	'numberOfTablets': 1,
 	'patternType': 1,
 	'tags': 1,
+	'willRepeat': 1,
 };
 
 // the field 'sets' is not published because it is only used on the server. If there is ever a feature added to show the sets to which a pattern belongs, then it could be published.

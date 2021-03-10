@@ -6,7 +6,7 @@ function MaintenanceMode() {
 		<div className="maintenance-mode">
 			<Container>
 				<h2>Maintenance Mode</h2>
-				<p>We&apos;re doing some work on Twisted Threads. Please come back in a little while.</p>
+				<p>We&apos;re currently doing some work on Twisted Threads. Please come back in a little while.</p>
 			</Container>
 		</div>
 	);

@@ -40,6 +40,7 @@ const patternsFields = [
 	'createdBy',
 	'description',
 	'holes',
+	'isTwistNeutral',
 	'isPublic',
 	'name',
 	'nameSort',
@@ -47,6 +48,7 @@ const patternsFields = [
 	'numberOfTablets',
 	'patternType',
 	'tags',
+	'willRepeat',
 ];
 
 // pattern fields that are generated programmatically so cannot be checked from default pattern data

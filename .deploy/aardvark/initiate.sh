@@ -30,7 +30,7 @@ else
 fi
 
 run meteor build --server-only ../output
-  mv ../output/*.tar.gz ./package.tar.gz
+mv ../output/*.tar.gz ./package.tar.gz
 
 run scp $KEYARG package.tar.gz $SERVER:$APP_DIR/
 run scp $KEYARG $WORK_SCRIPT_PATH $SERVER:$REMOTE_SCRIPT_PATH

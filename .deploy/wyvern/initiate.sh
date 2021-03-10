@@ -8,11 +8,10 @@ my_dir=`dirname $0`
 . $my_dir/.env
 
 ### Configuration ###
-APP_DIR=/var/www/twistedthreads2
+APP_DIR=/var/www/twistedthreads
 KEYFILE=
 REMOTE_SCRIPT_PATH=/tmp/deploy-twistedthreads.sh
-WORK_SCRIPT_PATH=.deploy/armadillo/work.sh
-
+WORK_SCRIPT_PATH=.deploy/wyvern/work.sh
 
 ### Library ###
 
@@ -22,7 +21,6 @@ function run()
   "$@"
 }
 
-
 ### Automation steps ###
 
 if [[ "$KEYFILE" != "" ]]; then
@@ -31,12 +29,9 @@ else
   KEYARG=
 fi
 
-if [[ `meteor --version` =~ "Meteor 1.4."* ]] || [[ `meteor --version` =~ "Meteor 1.5."* ]] || [[ `meteor --version` =~ "Meteor 1.6."* ]]; then
-  run meteor build --server-only ../output
-  mv ../output/*.tar.gz ./package.tar.gz
-else
-  run meteor bundle package.tar.gz
-fi
+run meteor build --server-only ../output
+mv ../output/*.tar.gz ./package.tar.gz
+
 run scp $KEYARG package.tar.gz $SERVER:$APP_DIR/
 run scp $KEYARG $WORK_SCRIPT_PATH $SERVER:$REMOTE_SCRIPT_PATH
 echo

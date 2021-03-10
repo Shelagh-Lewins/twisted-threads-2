@@ -7,7 +7,9 @@ export const defaultPatternData = {
 	'description': 'Description of a pattern',
 	'holeHandedness': 'clockwise',
 	'holes': 4,
+	'includeInTwist': [true, true, true, true, true, true, true, true],
 	'isPublic': false,
+	'isTwistNeutral': false,
 	'name': 'Pattern 1',
 	'nameSort': 'pattern 1',
 	'numberOfRows': 6,
@@ -22,6 +24,7 @@ export const defaultPatternData = {
 	'threading': [[1]],
 	'weavingNotes': 'Some weaving notes',
 	'weftColor': 2,
+	'willRepeat': false,
 };
 
 export const addPatternDataIndividual = {

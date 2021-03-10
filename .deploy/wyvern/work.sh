@@ -3,12 +3,8 @@ set -e
 
 ### Configuration ###
 
-APP_DIR=/var/www/twistedthreads2
+APP_DIR=/var/www/twistedthreads
 RESTART_ARGS=
-
-# Uncomment and modify the following if you installed Passenger from tarball
-#export PATH=/path-to-passenger/bin:$PATH
-
 
 ### Automation steps ###
 
