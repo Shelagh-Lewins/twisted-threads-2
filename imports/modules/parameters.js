@@ -102,7 +102,26 @@ export const DEFAULT_FREEHAND_CELL = {
 
 export const DEFAULT_HOLE_HANDEDNESS = 'clockwise';
 
-// defaults for double faced
+// defaults for double faced patterns
+// tablets are oriented as repeating pairs
+export const DOUBLE_FACED_ORIENTATIONS = [
+	{
+		'name': '/\\',
+		'displayName': 'Alternating / \\',
+	},
+	{
+		'name': '\\/',
+		'displayName': 'Alternating \\ /',
+	},
+	{
+		'name': '//',
+		'displayName': 'All /',
+	},
+	{
+		'name': '\\\\',
+		'displayName': 'All \\',
+	},
+];
 export const DOUBLE_FACED_THREADING = ['F', 'F', 'B', 'B'];
 export const DOUBLE_FACED_FOREGROUND = 1;
 export const DOUBLE_FACED_BACKGROUND = 3;

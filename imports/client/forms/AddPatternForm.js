@@ -8,6 +8,7 @@ import {
 	DEFAULT_ROWS,
 	DEFAULT_TABLETS,
 	DEFAULT_TWILL_DIRECTION,
+	DOUBLE_FACED_ORIENTATIONS,
 	MAX_ROWS,
 	MAX_TABLETS,
 } from '../../modules/parameters';
@@ -58,6 +59,7 @@ const validate = (values) => {
 const AddPatternForm = (props) => {
 	const formik = useFormik({
 		'initialValues': {
+			'doubleFacedOrientations': DOUBLE_FACED_ORIENTATIONS[0].name,
 			'holes': ALLOWED_HOLES[1],
 			'name': '',
 			'patternType': 'individual',
@@ -94,6 +96,36 @@ const AddPatternForm = (props) => {
 			{value}
 		</option>
 	));
+
+	const doubleFacedOrientationsOptions = DOUBLE_FACED_ORIENTATIONS.map((type) => (
+		<option
+			key={`type-option-${type.name}`}
+			label={type.displayName}
+			value={type.name}
+		>
+			{type.displayName}
+		</option>
+	));
+
+	const doubleFacedOrientationControls = (
+		<Row className="form-group double-faced-orientation">
+			<Col md="6">
+				<label htmlFor="doubleFacedOrientations">
+					Tablet orientations
+					<select
+						className="form-control"
+						id="doubleFacedOrientations"
+						name="doubleFacedOrientations"
+						onChange={formik.handleChange}
+						onBlur={formik.handleBlur}
+						value={formik.values.doubleFacedOrientations}
+					>
+						{doubleFacedOrientationsOptions}
+					</select>
+				</label>
+			</Col>
+		</Row>
+	);
 
 	const twillDirectionControls = (
 		<Row className="form-group twill-direction">
@@ -270,6 +302,7 @@ const AddPatternForm = (props) => {
 						</label>
 					</Col>
 				</Row>
+				{isDoubleFaced && doubleFacedOrientationControls}
 				{isBrokenTwill && twillDirectionControls}
 				<div className="controls">
 					<Button type="button" color="secondary" onClick={handleCancel}>Cancel</Button>

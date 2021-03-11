@@ -44,6 +44,7 @@ import {
 Meteor.methods({
 	// overall pattern
 	'pattern.add': function ({
+		doubleFacedOrientations,
 		holes,
 		name,
 		rows,
@@ -51,12 +52,17 @@ Meteor.methods({
 		patternType,
 		twillDirection,
 	}) {
-		check(name, String);
+		check(doubleFacedOrientations, Match.Maybe(String));
 		check(holes, validHolesCheck);
+		check(name, String);
 		check(rows, validRowsCheck);
 		check(tablets, validTabletsCheck);
 		check(patternType, validPatternTypeCheck);
 		check(twillDirection, Match.Maybe(String));
+
+		if (patternType === 'doubleFaced') {
+			check(doubleFacedOrientations, String);
+		}
 
 		const { error, result } = checkUserCanCreatePattern();
 
@@ -130,6 +136,7 @@ Meteor.methods({
 				const doubleFacedPatternChart = new Array(rows / 2).fill(doubleFacedChartRow);
 
 				patternDesign = {
+					doubleFacedOrientations,
 					doubleFacedPatternChart,
 				};
 
@@ -218,6 +225,7 @@ Meteor.methods({
 			'palette': DEFAULT_PALETTE,
 			'previewOrientation': previewOrientation,
 			'orientations': setupOrientations({
+				doubleFacedOrientations,
 				patternType,
 				tablets,
 			}),

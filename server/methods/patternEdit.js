@@ -33,6 +33,7 @@ import {
 } from '../../imports/modules/parameters';
 
 import getColorsForRolesByTablet from '../../imports/modules/getColorsForRolesByTablet';
+import getDoubleFacedOrientation from '../../imports/modules/getDoubleFacedOrientation';
 
 const tinycolor = require('tinycolor2');
 
@@ -79,10 +80,11 @@ Meteor.methods({
 		let chartCell;
 		let colorHexValue;
 		let colorIndex;
+		let doubleFacedOrientations;
 		let fieldName;
 		let fieldValue;
 		let holesToSet;
-		let includeInTwist;
+		//let includeInTwist;
 		let isPublic;
 		let insertNRows;
 		let insertRowsAt;
@@ -96,7 +98,6 @@ Meteor.methods({
 		let row;
 		let rowIndex;
 		let tablet;
-		let tabletIncludeInTwist;
 		let tabletIndex;
 		let tabletOrientation;
 		let threading;
@@ -667,9 +668,11 @@ Meteor.methods({
 
 				for (let j = 0; j < insertNTablets; j += 1) {
 					if (patternType === 'doubleFaced') {
-						// double faced tablets alternate
-						// so put them at the end
-						const newOrientation = (numberOfTablets + j) % 2 === 0 ? '\\' : '/';
+						// tablet orientations repeat, so the new ones can be added at the end
+						const newOrientation = getDoubleFacedOrientation({
+							'doubleFacedOrientations': patternDesign.doubleFacedOrientations,
+							'tablet': j + numberOfTablets,
+						});
 						newOrientations.push(newOrientation);
 						orientationPosition = numberOfTablets;
 					} else {

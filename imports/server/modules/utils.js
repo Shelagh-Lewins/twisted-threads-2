@@ -20,6 +20,7 @@ import {
 	MAX_TABLETS,
 	ROLE_LIMITS,
 } from '../../modules/parameters';
+import getDoubleFacedOrientation from '../../modules/getDoubleFacedOrientation';
 
 const moment = require('moment');
 
@@ -301,6 +302,7 @@ export const getTabletFilter = ({ filterMaxTablets, filterMinTablets }) => {
 };
 
 export const setupOrientations = ({
+	doubleFacedOrientations,
 	patternType,
 	tablets,
 }) => {
@@ -308,13 +310,13 @@ export const setupOrientations = ({
 	// default orientation
 	const orientations = new Array(tablets).fill(DEFAULT_ORIENTATION);
 
-	// double faced patterns have alternating orientation
-	// set this so the point of a diamond can be woven in the middle
+	// double faced pattern orientation is a repeating sequence
 	if (patternType === 'doubleFaced') {
 		for (let i = 0; i < tablets; i += 1) {
-			if (i % 2 === 0) {
-				orientations[i] = orientations[i] === '/' ? '\\' : '/';
-			}
+			orientations[i] = getDoubleFacedOrientation({
+				'tablet': i,
+				doubleFacedOrientations,
+			});
 		}
 	}
 

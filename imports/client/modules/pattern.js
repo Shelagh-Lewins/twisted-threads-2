@@ -34,6 +34,7 @@ import {
 import getColorsForRolesByTablet from '../../modules/getColorsForRolesByTablet';
 import patternAsText from './patternAsText';
 import newPatternFromFile from './newPatternFromFile';
+import getDoubleFacedOrientation from '../../modules/getDoubleFacedOrientation';
 
 const updeep = require('updeep');
 const filenamify = require('filenamify');
@@ -2356,6 +2357,7 @@ export default function pattern(state = initialPatternState, action) {
 
 				case 'doubleFaced':
 					const {
+						doubleFacedOrientations,
 						doubleFacedPatternChart,
 					} = patternDesign;
 					const doubleFacedChartLength = doubleFacedPatternChart.length;
@@ -2363,8 +2365,11 @@ export default function pattern(state = initialPatternState, action) {
 
 					// orientations
 					for (let i = 0; i < insertNTablets; i += 1) {
-						// tablets alternate, so the new ones can be simply added at the end
-						const orientation = (numberOfTablets + i) % 2 === 0 ? '\\' : '/';
+						// tablet orientations repeat, so the new ones can be added at the end
+						const orientation = getDoubleFacedOrientation({
+							doubleFacedOrientations,
+							'tablet': i + numberOfTablets,
+						});
 						newOrientations.push(orientation);
 					}
 
