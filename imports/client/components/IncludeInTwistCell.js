@@ -15,7 +15,9 @@ function IncludeInTwistCell(props) {
 	} = props;
 
 	const identifier = `include-in-twist-${tabletIndex + 1}`;
-	const tooltip = `Include tablet ${tabletIndex + 1} in twist calculations`;
+	const tooltip = includeInTwistForTablet
+		? `Tablet ${tabletIndex + 1}: included in twist calculations`
+		: `Tablet ${tabletIndex + 1}: excluded from twist calculations`;
 
 	return (
 		<span>

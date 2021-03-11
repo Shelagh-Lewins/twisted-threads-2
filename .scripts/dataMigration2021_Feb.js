@@ -22,6 +22,7 @@ patterns.forEach(pattern => {
 	} = pattern;
 	print(_id);
 
+	// all simulation patterns calculate twist
 	if (patternType !== 'freehand') {
 		const includeInTwist = new Array(numberOfTablets).fill(true);
 

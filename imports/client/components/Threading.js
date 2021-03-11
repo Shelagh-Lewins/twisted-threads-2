@@ -278,9 +278,8 @@ class Threading extends PureComponent {
 			numberOfTablets,
 		} = this.props;
 
-		// twist must be calculated
-		// and there is no value in excluding border tablets for 'all together' patterns
-		if (!includeInTwist || patternType === 'allTogether') {
+		// 'individual' patterns are the only type where there is benefit in excluding border tablets
+		if (!includeInTwist || patternType !== 'individual') {
 			return;
 		}
 
