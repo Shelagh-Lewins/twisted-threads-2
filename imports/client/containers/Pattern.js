@@ -626,7 +626,7 @@ class Pattern extends PureComponent {
 					<span className="hint">{patternIsTwistNeutral ? 'The pattern is twist neutral.' : 'The pattern is not twist neutral.'}</span>
 				);
 
-				const excluded = includeInTwist.indexOf(false) !== -1;
+				const excluded = includeInTwist && includeInTwist.indexOf(false) !== -1;
 
 				let repeatHint = 'The pattern will not repeat.';
 

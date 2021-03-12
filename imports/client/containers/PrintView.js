@@ -21,7 +21,8 @@ import Loading from '../components/Loading';
 import PatternPreview from '../components/PatternPreview';
 import WeavingChartPrint from '../components/WeavingChartPrint';
 import WeavingInstructionsAllTogetherPrint from '../components/WeavingInstructionsAllTogetherPrint';
-import ThreadingPrint from '../components/ThreadingPrint';
+//import ThreadingPrint from '../components/ThreadingPrint';
+import Threading from '../components/Threading';
 import Notation from '../components/Notation';
 import {
 	findPatternTypeDisplayName,
@@ -219,11 +220,11 @@ class PrintView extends PureComponent {
 									</>
 								)}
 								<h2>Threading chart</h2>
-								<ThreadingPrint
+								<Threading
+									canEdit={false}
 									holes={holes}
-									numberOfRows={numberOfRows}
 									numberOfTablets={numberOfTablets}
-									patternId={pattern._id}
+									pattern={pattern}
 								/>
 								{threadingNotes && threadingNotes !== '' && (
 									<>

@@ -278,8 +278,8 @@ class Threading extends PureComponent {
 			numberOfTablets,
 		} = this.props;
 
-		// 'freehand' patterns do not calculate twist
-		if (!includeInTwist || patternType === 'freehand') {
+		// only 'individual' patterns can have borders that turn differently to the main pattern
+		if (!includeInTwist || patternType !== 'individual') {
 			return;
 		}
 
@@ -489,8 +489,8 @@ class Threading extends PureComponent {
 
 Threading.propTypes = {
 	'canEdit': PropTypes.bool.isRequired,
-	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'dispatch': PropTypes.func.isRequired,
+	'colorBooks': PropTypes.arrayOf(PropTypes.any),
+	'dispatch': PropTypes.func,
 	'holes': PropTypes.number.isRequired,
 	'numberOfTablets': PropTypes.number.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
