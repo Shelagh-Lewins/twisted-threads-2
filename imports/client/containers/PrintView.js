@@ -140,6 +140,7 @@ class PrintView extends PureComponent {
 				switch (patternType) {
 					case 'individual':
 					case 'brokenTwill':
+					case 'doubleFaced':
 					case 'freehand':
 						weavingInstructions = (
 							<>
