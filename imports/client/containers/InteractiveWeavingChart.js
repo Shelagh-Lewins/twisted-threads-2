@@ -2,8 +2,7 @@
 
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import PageWrapper from '../components/PageWrapper';
 import {
@@ -252,6 +251,7 @@ class InteractiveWeavingChart extends PureComponent {
 										numberOfRows={numberOfRows}
 										numberOfTablets={numberOfTablets}
 										patternType={patternType}
+										printView={false}
 										selectedRow={selectedRow}
 									/>
 								</div>

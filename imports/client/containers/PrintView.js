@@ -19,9 +19,8 @@ import AppContext from '../modules/appContext';
 import { getNumberOfRepeats } from '../modules/weavingUtils';
 import Loading from '../components/Loading';
 import PatternPreview from '../components/PatternPreview';
-import WeavingChartPrint from '../components/WeavingChartPrint';
+import WeavingChart from '../components/WeavingChart';
 import WeavingInstructionsAllTogetherPrint from '../components/WeavingInstructionsAllTogetherPrint';
-//import ThreadingPrint from '../components/ThreadingPrint';
 import Threading from '../components/Threading';
 import Notation from '../components/Notation';
 import {
@@ -146,10 +145,11 @@ class PrintView extends PureComponent {
 						weavingInstructions = (
 							<>
 								<h2>Weaving chart</h2>
-								<WeavingChartPrint
+								<WeavingChart
 									numberOfRows={numberOfRows}
 									numberOfTablets={numberOfTablets}
 									patternType={patternType}
+									printView={true}
 								/>
 							</>
 						);

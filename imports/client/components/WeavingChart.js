@@ -55,6 +55,7 @@ function WeavingChart(props) {
 			handleClickUp,
 			numberOfRows,
 			numberOfTablets,
+			printView,
 		} = props;
 		const rowLabel = numberOfRows - rowIndex;
 
@@ -76,27 +77,29 @@ function WeavingChart(props) {
 					<li className="cell label"><span>{rowLabel}</span></li>
 					{cells}
 				</ul>
-				<div className="highlight">
-					<div className="innertube" />
-					<div className="buttons">
-						<button
-							type="button"
-							className="button-up"
-							onClick={handleClickUp}
-							style={{ 'backgroundImage': `url('${upUrl}')` }}
-						>
-							Up
-						</button>
-						<button
-							type="button"
-							className="button-down"
-							onClick={handleClickDown}
-							style={{ 'backgroundImage': `url('${downUrl}')` }}
-						>
-							Down
-						</button>
+				{!printView && (
+					<div className="highlight">
+						<div className="innertube" />
+						<div className="buttons">
+							<button
+								type="button"
+								className="button-up"
+								onClick={handleClickUp}
+								style={{ 'backgroundImage': `url('${upUrl}')` }}
+							>
+								Up
+							</button>
+							<button
+								type="button"
+								className="button-down"
+								onClick={handleClickDown}
+								style={{ 'backgroundImage': `url('${downUrl}')` }}
+							>
+								Down
+							</button>
+						</div>
 					</div>
-				</div>
+				)}
 			</>
 		);
 	};
@@ -104,9 +107,14 @@ function WeavingChart(props) {
 	const renderTabletLabels = () => {
 		const {
 			numberOfTablets,
+			printView,
 			selectedRow,
 		} = props;
-		const offset = 33 * selectedRow;
+		let offset = 0;
+
+		if (!printView) {
+			offset = 33 * selectedRow;
+		}
 
 		const labels = [];
 		for (let i = 0; i < numberOfTablets; i += 1) {
@@ -134,24 +142,36 @@ function WeavingChart(props) {
 		const {
 			handleClickRow,
 			numberOfRows,
+			printView,
 			selectedRow,
 		} = props;
 
 		const rows = [];
 		for (let i = 0; i < numberOfRows; i += 1) {
-			rows.push(
-				<li
-					className={`row ${i === selectedRow ? 'selected' : ''}`}
-					key={`weaving-row-${i}`}
-					onClick={i === selectedRow ? undefined : () => handleClickRow(i)}
-					onKeyPress={i === selectedRow ? undefined : () => handleClickRow(i)}
-					role="button" // eslint-disable-line 
-					tabIndex="0"
-					type="button"
-				>
-					{renderRow(i)}
-				</li>,
-			);
+			if (printView) {
+				rows.push(
+					<li
+						className="row"
+						key={`weaving-row-${i}`}
+					>
+						{renderRow(i)}
+					</li>,
+				);
+			} else {
+				rows.push(
+					<li
+						className={`row ${i === selectedRow ? 'selected' : ''}`}
+						key={`weaving-row-${i}`}
+						onClick={i === selectedRow ? undefined : () => handleClickRow(i)}
+						onKeyPress={i === selectedRow ? undefined : () => handleClickRow(i)}
+						role="button" // eslint-disable-line 
+						tabIndex="0"
+						type="button"
+					>
+						{renderRow(i)}
+					</li>,
+				);
+			}
 		}
 
 		return (
@@ -164,8 +184,10 @@ function WeavingChart(props) {
 		);
 	};
 
+	const { printView } = props;
+
 	return (
-		<div className="weaving">
+		<div className={`weaving ${printView && 'weaving-chart-print'}`}>
 			<div className="content">
 				{renderChart()}
 			</div>
@@ -173,13 +195,16 @@ function WeavingChart(props) {
 	);
 }
 
+// known bug that eslint does not reliably detect props inside functions in a functional component
+// https://github.com/yannickcr/eslint-plugin-react/issues/885
 WeavingChart.propTypes = {
-	'handleClickUp': PropTypes.func.isRequired,
-	'handleClickRow': PropTypes.func.isRequired,
-	'handleClickDown': PropTypes.func.isRequired,
+	'handleClickUp': PropTypes.func,
+	'handleClickRow': PropTypes.func,
+	'handleClickDown': PropTypes.func,
 	'numberOfRows': PropTypes.number.isRequired,
 	'numberOfTablets': PropTypes.number.isRequired,
 	'patternType': PropTypes.string.isRequired,
+	'printView': PropTypes.bool.isRequired,
 	'selectedRow': PropTypes.number,
 };
 
