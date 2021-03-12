@@ -609,6 +609,7 @@ class Pattern extends PureComponent {
 			_id,
 			createdBy,
 			description,
+			includeInTwist,
 			patternType,
 			previewOrientation,
 			threadingNotes,
@@ -625,6 +626,8 @@ class Pattern extends PureComponent {
 					<span className="hint">{patternIsTwistNeutral ? 'The pattern is twist neutral.' : 'The pattern is not twist neutral.'}</span>
 				);
 
+				const excluded = includeInTwist.indexOf(false) !== -1;
+
 				let repeatHint = 'The pattern will not repeat.';
 
 				if (patternWillRepeat) {
@@ -638,6 +641,10 @@ class Pattern extends PureComponent {
 				const repeatText = (
 					<span className="hint">{repeatHint}</span>
 				);
+
+				const excludedTabletsText = excluded
+					? <span className="hint">Some tablets have been excluded from twist calculations - check the threading chart.</span>
+					: undefined;
 
 				let previewClassName = '';
 
@@ -672,6 +679,7 @@ class Pattern extends PureComponent {
 					<div className={`tab-content ${(isEditing && !updatePreviewWhileEditing) ? 'is-editing' : ''} ${previewClassName}`}>
 						{patternType !== 'freehand' && repeatText}
 						{patternType !== 'freehand' && twistNeutralText}
+						{patternType !== 'freehand' && excludedTabletsText}
 						<Weft
 							colorBooks={colorBooks}
 							dispatch={dispatch}
