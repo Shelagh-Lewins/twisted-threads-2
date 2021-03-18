@@ -23,6 +23,7 @@ import WeavingChart from '../components/WeavingChart';
 import WeavingInstructionsAllTogetherPrint from '../components/WeavingInstructionsAllTogetherPrint';
 import Threading from '../components/Threading';
 import Notation from '../components/Notation';
+import TwistCalculationHints from '../components/TwistCalculationHints';
 import {
 	findPatternTypeDisplayName,
 } from '../../modules/parameters';
@@ -101,8 +102,10 @@ class PrintView extends PureComponent {
 				const {
 					_id,
 					description,
+					includeInTwist,
 					name,
 					patternType,
+					previewOrientation,
 					threadingNotes,
 					weavingNotes,
 				} = pattern;
@@ -119,20 +122,6 @@ class PrintView extends PureComponent {
 							</>
 						)}
 					</div>
-				);
-
-				const twistNeutralText = (
-					<span className="hint">{patternIsTwistNeutral ? 'The pattern is twist neutral.' : 'The pattern is not twist neutral.'}</span>
-				);
-
-				let repeatHint = 'The pattern will not repeat.';
-
-				if (patternWillRepeat) {
-					repeatHint = `The pattern will repeat (${getNumberOfRepeats(numberOfRows)} repeats shown).`;
-				}
-
-				const repeatText = (
-					<span className="hint">{repeatHint}</span>
 				);
 
 				let weavingInstructions;
@@ -199,8 +188,15 @@ class PrintView extends PureComponent {
 						{pattern.patternDesign && (
 							<>
 								<h2>Woven band</h2>
-								{patternType !== 'freehand' && repeatText}
-								{patternType !== 'freehand' && twistNeutralText}
+								<TwistCalculationHints
+									includeInTwist={includeInTwist}
+									patternIsTwistNeutral={patternIsTwistNeutral}
+									patternType={patternType}
+									patternWillRepeat={patternWillRepeat}
+									previewOrientation={previewOrientation}
+									printView={true}
+									repeats={getNumberOfRepeats(numberOfRows)}
+								/>
 								<PatternPreview
 									dispatch={dispatch}
 									holes={holes}
@@ -209,6 +205,7 @@ class PrintView extends PureComponent {
 									palette={palette}
 									pattern={pattern}
 									patternWillRepeat={patternWillRepeat}
+									printView={true}
 									totalTurnsByTablet={totalTurnsByTablet}
 								/>
 								{weavingInstructions}

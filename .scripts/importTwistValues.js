@@ -18,19 +18,23 @@ db = conn.getDB(databaseName);
 patterns.forEach(patternData => {
 	const { _id, isTwistNeutral, willRepeat } = patternData;
 	const originalPattern = db.patterns.findOne({ _id });
-	print('*** processing pattern with _id', _id);
-	// update values if not already set
-	// and there is a new value
-	if (typeof isTwistNeutral !== 'undefined'
-		&& typeof originalPattern.isTwistNeutral === 'undefined') {
-		print('set isTwistNeutral:', isTwistNeutral);
-		db.patterns.update( { _id }, { '$set': { isTwistNeutral } });
-	}
+	if (originalPattern) {
+		print('*** processing pattern with _id', _id);
+		// update values if not already set
+		// and there is a new value
+		if (typeof isTwistNeutral !== 'undefined'
+			&& typeof originalPattern.isTwistNeutral === 'undefined') {
+			print('set isTwistNeutral:', isTwistNeutral);
+			db.patterns.update( { _id }, { '$set': { isTwistNeutral } });
+		}
 
-	if (typeof willRepeat !== 'undefined'
-		&& typeof originalPattern.willRepeat === 'undefined') {
-		print('set willRepeat:', willRepeat);
-		db.patterns.update( { _id }, { '$set': { willRepeat } });
+		if (typeof willRepeat !== 'undefined'
+			&& typeof originalPattern.willRepeat === 'undefined') {
+			print('set willRepeat:', willRepeat);
+			db.patterns.update( { _id }, { '$set': { willRepeat } });
+		}
+	} else {
+		print('*** pattern not found with _id', _id);
 	}
 });
 

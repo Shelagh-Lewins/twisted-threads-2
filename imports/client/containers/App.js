@@ -292,10 +292,10 @@ export const withDatabase = withTracker((props) => {
 							dispatch(savePatternData(pattern));
 							dispatch(setIsEditingWeaving(false));
 							dispatch(setIsEditingThreading(false));
-						} else {
-							// everything is ready to render
-							dispatch(setIsLoading(false));
 						}
+
+						// everything is ready to render
+						dispatch(setIsLoading(false));
 					} else if (!isLoading && !handle.ready()) {
 						dispatch(setIsLoading(true));
 					}

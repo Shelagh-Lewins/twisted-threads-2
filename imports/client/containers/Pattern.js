@@ -49,6 +49,7 @@ import PreviewOrientation from '../components/PreviewOrientation';
 import EditableText from '../components/EditableText';
 import ImageUploader from '../components/ImageUploader';
 import TagInput from '../components/TagInput';
+import TwistCalculationHints from '../components/TwistCalculationHints';
 import {
 	findPatternTypeDisplayName,
 	iconColors,
@@ -622,30 +623,6 @@ class Pattern extends PureComponent {
 
 		switch (tab) {
 			case 'design':
-				const twistNeutralText = (
-					<span className="hint">{patternIsTwistNeutral ? 'The pattern is twist neutral.' : 'The pattern is not twist neutral.'}</span>
-				);
-
-				const excluded = includeInTwist && includeInTwist.indexOf(false) !== -1;
-
-				let repeatHint = 'The pattern will not repeat.';
-
-				if (patternWillRepeat) {
-					if (previewOrientation === 'up') {
-						repeatHint = 'The pattern will repeat. To see repeats, set the woven band orientation to left or right.';
-					} else {
-						repeatHint = `The pattern will repeat (${getNumberOfRepeats(numberOfRows)} repeats shown).`;
-					}
-				}
-
-				const repeatText = (
-					<span className="hint">{repeatHint}</span>
-				);
-
-				const excludedTabletsText = excluded
-					? <span className="hint">Some tablets have been excluded from twist calculations - check the threading chart.</span>
-					: undefined;
-
 				let previewClassName = '';
 
 				switch (previewOrientation) {
@@ -677,9 +654,14 @@ class Pattern extends PureComponent {
 
 				tabContent = (
 					<div className={`tab-content ${(isEditing && !updatePreviewWhileEditing) ? 'is-editing' : ''} ${previewClassName}`}>
-						{patternType !== 'freehand' && repeatText}
-						{patternType !== 'freehand' && twistNeutralText}
-						{patternType !== 'freehand' && excludedTabletsText}
+						<TwistCalculationHints
+							includeInTwist={includeInTwist}
+							patternIsTwistNeutral={patternIsTwistNeutral}
+							patternType={patternType}
+							patternWillRepeat={patternWillRepeat}
+							previewOrientation={previewOrientation}
+							repeats={getNumberOfRepeats(numberOfRows)}
+						/>
 						<Weft
 							colorBooks={colorBooks}
 							dispatch={dispatch}

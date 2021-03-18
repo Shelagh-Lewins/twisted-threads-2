@@ -42,12 +42,16 @@ class PatternPreview extends Component {
 				_id,
 				createdBy,
 				patternType,
-				previewOrientation,
+				'previewOrientation': patternPreviewOrientation,
 				weftColor,
 			},
+			printView,
 			totalTurnsByTablet,
 		} = this.props;
 		const canEdit = createdBy === Meteor.userId();
+
+		// in print view, always show preview 'up' to ensure it does not scroll
+		const previewOrientation = printView ? 'up' : patternPreviewOrientation;
 
 		// Update the saved preview image on load and change. Wait until the user pauses before saving the preview
 		// this also gives the preview time to render
@@ -396,6 +400,7 @@ PatternPreview.propTypes = {
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 	'patternWillRepeat': PropTypes.bool.isRequired,
+	'printView': PropTypes.bool,
 	'totalTurnsByTablet': PropTypes.arrayOf(PropTypes.any),
 };
 
