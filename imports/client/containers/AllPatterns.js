@@ -18,7 +18,7 @@ import {
 import { PatternPreviews, Patterns, Tags } from '../../modules/collection';
 import Loading from '../components/Loading';
 import MainMenu from '../components/MainMenu';
-import TabletFilterForm from '../forms/TabletFilterForm';
+import PatternFilterForm from '../forms/PatternFilterForm';
 import PaginatedList from '../components/PaginatedList';
 import PatternList from '../components/PatternList';
 
@@ -96,7 +96,7 @@ class AllPatterns extends Component {
 					</Container>
 					{!isLoading && (
 						<>
-							<TabletFilterForm />
+							<PatternFilterForm />
 							<PaginatedList
 								currentPageNumber={currentPageNumber}
 								dispatch={dispatch}

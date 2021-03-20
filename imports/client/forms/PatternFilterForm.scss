@@ -1,19 +1,33 @@
 @import "../constants/variables";
 
-.tablet-filter-form {
+.pattern-filter-form {
 	padding: 8px 15px 0 15px;
 
 	.form-group {
+		margin-bottom: 8px;
+
 		input {
 			display: inline-block;
-			margin: 0 8px;
-			width: 80px;
+
+			&[type="checkbox"] {
+				margin-right: 8px;
+			}
+
+			&[type="number"] {
+				margin: 0 8px;
+				width: 80px;
+			}
 		}
 
 		label {
 			font-size: 0;
 			width: auto;
 		}
+	}
+
+	.checkbox-name {
+		display: inline-block;;
+		font-size: 1rem;
 	}
 
 	.controls {

@@ -16,12 +16,12 @@ import { changePage } from '../modules/page';
 import {
 	MAX_TABLETS,
 } from '../../modules/parameters';
-import './TabletFilterForm.scss';
+import './PatternFilterForm.scss';
 
 // timeouts enable a form that updates immediately on change, with no submit button, but validates before submitting
 // setFieldValue is async: also we want to wait for the user to stop typing
 
-const TabletFilterForm = (props) => {
+const PatternFilterForm = (props) => {
 	const {
 		dispatch,
 		maxTablets,
@@ -111,10 +111,16 @@ const TabletFilterForm = (props) => {
 		}, 1000);
 	};
 
+	const handleChangeWillRepeat = (e) => {
+		const { value } = e.target;
+
+		console.log('value', value);
+	};
+
 	// note firefox doesn't support the 'label' shorthand in option
 	// https://bugzilla.mozilla.org/show_bug.cgi?id=40545#c11
 	return (
-		<div className="tablet-filter-form">
+		<div className="pattern-filter-form">
 			<form onSubmit={formik.handleSubmit}>
 				<Row className="form-group">
 					<Col lg="12">
@@ -172,6 +178,41 @@ const TabletFilterForm = (props) => {
 						</div>
 					</Col>
 				</Row>
+				<Row className="form-group">
+					<Col lg="12">
+						<label
+							className="checkbox-label"
+							htmlFor="will-repeat"
+						>
+							<input
+								id="will-repeat"
+								name="will-repeat"
+								onChange={handleChangeWillRepeat}
+								type="checkbox"
+							/>
+							<div className="checkbox-name">
+								Only show patterns that will repeat
+							</div>
+						</label>
+					</Col>
+				</Row>
+				<Row className="form-group">
+					<Col lg="12">
+						<label
+							className="checkbox-label"
+							htmlFor="is-twist-neutral"
+						>
+							<input
+								id="is-twist-neutral"
+								name="is-twist-neutral"
+								type="checkbox"
+							/>
+							<div className="checkbox-name">
+								Only show patterns that are twist neutral
+							</div>
+						</label>
+					</Col>
+				</Row>
 			</form>
 		</div>
 	);
@@ -179,7 +220,7 @@ const TabletFilterForm = (props) => {
 
 // It seems that the submit button must exist, or validation doesn't happen. As we want filters to update immediately, the buttons is hidden in css.
 
-TabletFilterForm.propTypes = {
+PatternFilterForm.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'maxTablets': PropTypes.number,
 	'minTablets': PropTypes.number,
@@ -192,4 +233,4 @@ function mapStateToProps(state) {
 	};
 }
 
-export default connect(mapStateToProps)(TabletFilterForm);
+export default connect(mapStateToProps)(PatternFilterForm);

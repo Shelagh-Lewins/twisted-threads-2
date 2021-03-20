@@ -41,7 +41,7 @@ import secondaryPatternSubscriptions from '../modules/secondaryPatternSubscripti
 
 import Loading from '../components/Loading';
 import MainMenu from '../components/MainMenu';
-import TabletFilterForm from '../forms/TabletFilterForm';
+import PatternFilterForm from '../forms/PatternFilterForm';
 import PaginatedList from '../components/PaginatedList';
 import PatternList from '../components/PatternList';
 import PageWrapper from '../components/PageWrapper';
@@ -318,7 +318,7 @@ class User extends PureComponent {
 			<>
 				{!showAddPatternForm && (
 					<>
-						<TabletFilterForm />
+						<PatternFilterForm />
 						<PaginatedList
 							currentPageNumber={currentPageNumber}
 							dispatch={dispatch}
