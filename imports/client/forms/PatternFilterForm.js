@@ -67,9 +67,12 @@ const PatternFilterForm = (props) => {
 		'initialValues': {
 			'minTablets': minTablets || '',
 			'maxTablets': maxTablets || '',
+			'willRepeat': false,
+			'isTwistNeutral': false,
 		},
 		validate,
 		'onSubmit': (values) => {
+			console.log('*** submit, values', values);
 			dispatch(updateFilterMinTablets(values.minTablets));
 			dispatch(updateFilterMaxTablets(values.maxTablets));
 			dispatch(changePage(0, history));
@@ -112,9 +115,27 @@ const PatternFilterForm = (props) => {
 	};
 
 	const handleChangeWillRepeat = (e) => {
-		const { value } = e.target;
+		const { checked } = e.target;
 
-		console.log('value', value);
+		setFieldValue('willRepeat', checked);
+
+		clearTimeout(global.tabletFilterTimeout);
+
+		global.tabletFilterTimeout = setTimeout(() => {
+			formik.handleSubmit();
+		}, 1000);
+	};
+
+	const handleChangeIsTwistNeutral = (e) => {
+		const { checked } = e.target;
+
+		setFieldValue('isTwistNeutral', checked);
+
+		clearTimeout(global.tabletFilterTimeout);
+
+		global.tabletFilterTimeout = setTimeout(() => {
+			formik.handleSubmit();
+		}, 1000);
 	};
 
 	// note firefox doesn't support the 'label' shorthand in option
@@ -185,8 +206,10 @@ const PatternFilterForm = (props) => {
 							htmlFor="will-repeat"
 						>
 							<input
-								id="will-repeat"
-								name="will-repeat"
+								checked={formik.values.willRepeat}
+								id="willRepeat"
+								name="willRepeat"
+								onBlur={formik.handleBlur}
 								onChange={handleChangeWillRepeat}
 								type="checkbox"
 							/>
@@ -203,8 +226,11 @@ const PatternFilterForm = (props) => {
 							htmlFor="is-twist-neutral"
 						>
 							<input
-								id="is-twist-neutral"
-								name="is-twist-neutral"
+								checked={formik.values.isTwistNeutral}
+								id="isTwistNeutral"
+								name="isTwistNeutral"
+								onBlur={formik.handleBlur}
+								onChange={handleChangeIsTwistNeutral}
 								type="checkbox"
 							/>
 							<div className="checkbox-name">
