@@ -89,8 +89,10 @@ export const UPDATE_REMOVE_WEAVING_ROWS = 'UPDATE_REMOVE_WEAVING_ROWS';
 export const UPDATE_ADD_TABLETS = 'UPDATE_ADD_TABLETS';
 export const UPDATE_REMOVE_TABLET = 'UPDATE_REMOVE_TABLET';
 
+export const SET_FILTER_IS_TWIST_NEUTRAL = 'SET_FILTER_IS_TWIST_NEUTRAL';
 export const SET_FILTER_MAX_TABLETS = 'SET_FILTER_MAX_TABLETS';
 export const SET_FILTER_MIN_TABLETS = 'SET_FILTER_MIN_TABLETS';
+export const SET_FILTER_WILL_REPEAT = 'SET_FILTER_WILL_REPEAT';
 export const REMOVE_TABLET_FILTER = 'REMOVE_TABLET_FILTER';
 
 // ////////////////////////////
@@ -116,14 +118,18 @@ export function setPatternCount(patternCount) {
 // use this function when the userId hasn't changed, just the number of tablets, e.g. filters
 export const getPatternCount = () => (dispatch, getState) => {
 	const {
+		filterIsTwistNeutral,
 		filterMaxTablets,
 		filterMinTablets,
+		filterWillRepeat,
 		patternCountUserId,
 	} = getState().pattern;
 
 	Meteor.call('pattern.getPatternCount', {
+		filterIsTwistNeutral,
 		filterMaxTablets,
 		filterMinTablets,
+		filterWillRepeat,
 		'userId': patternCountUserId,
 	}, (error, result) => {
 		if (error) {
@@ -137,8 +143,10 @@ export const getPatternCount = () => (dispatch, getState) => {
 // User.js needs to set pattern count immediately
 export const updatePatternCountUserId = (userId) => (dispatch, getState) => {
 	const {
+		filterIsTwistNeutral,
 		filterMaxTablets,
 		filterMinTablets,
+		filterWillRepeat,
 	} = getState().pattern;
 
 	// better to show no pagination briefly than pagination from previous page
@@ -146,8 +154,10 @@ export const updatePatternCountUserId = (userId) => (dispatch, getState) => {
 	dispatch(setPatternCountUserId(userId));
 
 	Meteor.call('pattern.getPatternCount', {
+		filterIsTwistNeutral,
 		filterMaxTablets,
 		filterMinTablets,
+		filterWillRepeat,
 		userId,
 	}, (error, result) => {
 		if (error) {
@@ -1354,6 +1364,36 @@ export function editTextField({
 }
 
 // ///////////////////////////
+// filter pattern list on twist values
+export function setFilterIsTwistNeutral(isTwistNeutral) {
+	return {
+		'type': SET_FILTER_IS_TWIST_NEUTRAL,
+		'payload': isTwistNeutral,
+	};
+}
+
+export function updateFilterIsTwistNeutral(isTwistNeutral) {
+	return (dispatch) => {
+		dispatch(setFilterIsTwistNeutral(isTwistNeutral));
+		dispatch(getPatternCount());
+	};
+}
+
+export function setFilterWillRepeat(willRepeat) {
+	return {
+		'type': SET_FILTER_WILL_REPEAT,
+		'payload': willRepeat,
+	};
+}
+
+export function updateFilterWillRepeat(willRepeat) {
+	return (dispatch) => {
+		dispatch(setFilterWillRepeat(willRepeat));
+		dispatch(getPatternCount());
+	};
+}
+
+// ///////////////////////////
 // filter pattern list on number of tablets
 export function setFilterMaxTablets(maxTablets) {
 	return {
@@ -1422,8 +1462,10 @@ export function updateFilterRemove() {
 // default state
 const initialPatternState = {
 	'error': null,
+	'filterIsTwistNeutral': false,
 	'filterMaxTablets': undefined,
 	'filterMinTablets': undefined,
+	'filterWillRepeat': false,
 	'holes': 0,
 	'isEditingThreading': false,
 	'isEditingWeaving': false,
@@ -2738,12 +2780,20 @@ export default function pattern(state = initialPatternState, action) {
 			return updeep(update, state);
 		}
 
+		case SET_FILTER_IS_TWIST_NEUTRAL: {
+			return updeep({ 'filterIsTwistNeutral': action.payload }, state);
+		}
+
 		case SET_FILTER_MAX_TABLETS: {
 			return updeep({ 'filterMaxTablets': action.payload }, state);
 		}
 
 		case SET_FILTER_MIN_TABLETS: {
 			return updeep({ 'filterMinTablets': action.payload }, state);
+		}
+
+		case SET_FILTER_WILL_REPEAT: {
+			return updeep({ 'filterWillRepeat': action.payload }, state);
 		}
 
 		case REMOVE_TABLET_FILTER: {

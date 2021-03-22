@@ -276,9 +276,16 @@ export const updateMultiplePublicSetsCount = (setIds) => {
 	}
 };
 
-export const getTabletFilter = ({ filterMaxTablets, filterMinTablets }) => {
+export const getPatternFilter = ({
+	filterIsTwistNeutral,
+	filterMaxTablets,
+	filterMinTablets,
+	filterWillRepeat,
+}) => {
+	check(filterIsTwistNeutral, Match.Maybe(Boolean));
 	check(filterMaxTablets, Match.Maybe(positiveIntegerCheck));
 	check(filterMinTablets, Match.Maybe(positiveIntegerCheck));
+	check(filterWillRepeat, Match.Maybe(Boolean));
 
 	// max and min must be integers between 1 and MAX_TABLETS
 	let min = 1;
@@ -293,11 +300,21 @@ export const getTabletFilter = ({ filterMaxTablets, filterMinTablets }) => {
 	}
 	max = Math.max(max, 1);
 
+	const selector = [
+		{ 'numberOfTablets': { '$gte': min } },
+		{ 'numberOfTablets': { '$lte': max } },
+	];
+
+	if (filterIsTwistNeutral) {
+		selector.push({ 'isTwistNeutral': true });
+	}
+
+	if (filterWillRepeat) {
+		selector.push({ 'willRepeat': true });
+	}
+
 	return {
-		'$and': [
-			{ 'numberOfTablets': { '$gte': min } },
-			{ 'numberOfTablets': { '$lte': max } },
-		],
+		'$and': selector,
 	};
 };
 

@@ -189,6 +189,7 @@ export const withDatabase = withTracker((props) => {
 		// check for change in number of patterns the user has created
 		// used to check whether they can create a new pattern
 		if (Meteor.userId()) {
+
 			Meteor.call('pattern.getPatternCount', {
 				'userId': Meteor.userId(),
 			}, (error, result) => {

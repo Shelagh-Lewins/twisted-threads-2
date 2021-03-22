@@ -600,8 +600,10 @@ User.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 	// eslint doesn't realise the filters are used in Tracker
+	'filterIsTwistNeutral': PropTypes.bool,
 	'filterMaxTablets': PropTypes.number,
 	'filterMinTablets': PropTypes.number,
+	'filterWillRepeat': PropTypes.bool,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isAuthenticated': PropTypes.bool.isRequired,
 	'isLoading': PropTypes.bool.isRequired,
@@ -628,6 +630,13 @@ function mapStateToProps(state, ownProps) {
 		currentPageNumber = page;
 	}
 
+	const {
+		filterIsTwistNeutral,
+		filterMaxTablets,
+		filterMinTablets,
+		filterWillRepeat,
+	} = state.pattern;
+
 	return {
 		'_id': ownProps.match.params.id, // read the url parameter to find the id of the user
 		'colorBookAdded': state.colorBook.colorBookAdded,
@@ -635,8 +644,10 @@ function mapStateToProps(state, ownProps) {
 		'canCreatePattern': getCanCreatePattern(state),
 		currentPageNumber, // read the url parameter to find the currentPage
 		'errors': state.errors,
-		'filterMaxTablets': state.pattern.filterMaxTablets,
-		'filterMinTablets': state.pattern.filterMinTablets,
+		filterIsTwistNeutral,
+		filterMaxTablets,
+		filterMinTablets,
+		filterWillRepeat,
 		'isAuthenticated': getIsAuthenticated(state),
 		'isLoading': state.pattern.isLoading,
 		itemsPerPage,
@@ -650,8 +661,10 @@ const Tracker = withTracker((props) => {
 	const {
 		_id,
 		dispatch,
+		filterIsTwistNeutral,
 		filterMaxTablets,
 		filterMinTablets,
+		filterWillRepeat,
 		itemsPerPage,
 		pageSkip,
 		tab,
@@ -711,8 +724,10 @@ const Tracker = withTracker((props) => {
 			).fetch();
 
 			handle = Meteor.subscribe('userPatterns', {
+				filterIsTwistNeutral,
 				filterMaxTablets,
 				filterMinTablets,
+				filterWillRepeat,
 				'limit': itemsPerPage,
 				'skip': pageSkip,
 				'userId': _id,

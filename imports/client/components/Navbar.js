@@ -206,6 +206,7 @@ class Navbar extends Component {
 				<>
 					<AddToSet
 						iconStyle="white"
+						navBar={true}
 						patternId={patternId}
 						patternName={pattern.name}
 					/>

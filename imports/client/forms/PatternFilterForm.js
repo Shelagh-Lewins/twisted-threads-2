@@ -8,9 +8,11 @@ import { connect } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import validateInteger from '../modules/validateInteger';
 import {
-	updateFilterRemove,
+	updateFilterIsTwistNeutral,
 	updateFilterMaxTablets,
 	updateFilterMinTablets,
+	updateFilterWillRepeat,
+	updateFilterRemove,
 } from '../modules/pattern';
 import { changePage } from '../modules/page';
 import {
@@ -24,8 +26,10 @@ import './PatternFilterForm.scss';
 const PatternFilterForm = (props) => {
 	const {
 		dispatch,
+		isTwistNeutral,
 		maxTablets,
 		minTablets,
+		willRepeat,
 	} = props;
 	const history = useHistory();
 
@@ -67,30 +71,34 @@ const PatternFilterForm = (props) => {
 		'initialValues': {
 			'minTablets': minTablets || '',
 			'maxTablets': maxTablets || '',
-			'willRepeat': false,
-			'isTwistNeutral': false,
+			willRepeat,
+			isTwistNeutral,
 		},
 		validate,
 		'onSubmit': (values) => {
-			console.log('*** submit, values', values);
+			dispatch(updateFilterIsTwistNeutral(values.isTwistNeutral));
 			dispatch(updateFilterMinTablets(values.minTablets));
 			dispatch(updateFilterMaxTablets(values.maxTablets));
+			dispatch(updateFilterWillRepeat(values.willRepeat));
 			dispatch(changePage(0, history));
 		},
 	});
 
 	const { setFieldValue } = formik;
 
-	const handleChangeMinTablets = (e) => {
-		const { value } = e.target;
-
-		setFieldValue('minTablets', value);
-
+	const setFilterTimeout = () => {
 		clearTimeout(global.tabletFilterTimeout);
 
 		global.tabletFilterTimeout = setTimeout(() => {
 			formik.handleSubmit();
-		}, 1000);
+		}, 500);
+	};
+
+	const handleChangeMinTablets = (e) => {
+		const { value } = e.target;
+
+		setFieldValue('minTablets', value);
+		setFilterTimeout();
 	};
 
 	const handleRemoveFilter = () => {
@@ -106,36 +114,21 @@ const PatternFilterForm = (props) => {
 		const { value } = e.target;
 
 		setFieldValue('maxTablets', value);
-
-		clearTimeout(global.tabletFilterTimeout);
-
-		global.tabletFilterTimeout = setTimeout(() => {
-			formik.handleSubmit();
-		}, 1000);
+		setFilterTimeout();
 	};
 
 	const handleChangeWillRepeat = (e) => {
 		const { checked } = e.target;
 
 		setFieldValue('willRepeat', checked);
-
-		clearTimeout(global.tabletFilterTimeout);
-
-		global.tabletFilterTimeout = setTimeout(() => {
-			formik.handleSubmit();
-		}, 1000);
+		setFilterTimeout();
 	};
 
 	const handleChangeIsTwistNeutral = (e) => {
 		const { checked } = e.target;
 
 		setFieldValue('isTwistNeutral', checked);
-
-		clearTimeout(global.tabletFilterTimeout);
-
-		global.tabletFilterTimeout = setTimeout(() => {
-			formik.handleSubmit();
-		}, 1000);
+		setFilterTimeout();
 	};
 
 	// note firefox doesn't support the 'label' shorthand in option
@@ -199,44 +192,53 @@ const PatternFilterForm = (props) => {
 						</div>
 					</Col>
 				</Row>
-				<Row className="form-group">
+				<Row>
 					<Col lg="12">
-						<label
-							className="checkbox-label"
-							htmlFor="will-repeat"
+						<div
+							className="filter-checkbox"
 						>
-							<input
-								checked={formik.values.willRepeat}
-								id="willRepeat"
-								name="willRepeat"
-								onBlur={formik.handleBlur}
-								onChange={handleChangeWillRepeat}
-								type="checkbox"
-							/>
-							<div className="checkbox-name">
-								Only show patterns that will repeat
-							</div>
-						</label>
+							<label
+								className="checkbox-label"
+								htmlFor="isTwistNeutral"
+							>
+								<input
+									checked={formik.values.isTwistNeutral}
+									id="isTwistNeutral"
+									name="isTwistNeutral"
+									onBlur={formik.handleBlur}
+									onChange={handleChangeIsTwistNeutral}
+									type="checkbox"
+								/>
+								<div className="checkbox-name">
+									Only show patterns that are twist neutral
+								</div>
+							</label>
+						</div>
 					</Col>
 				</Row>
-				<Row className="form-group">
+				<Row>
 					<Col lg="12">
-						<label
-							className="checkbox-label"
-							htmlFor="is-twist-neutral"
+						<div
+							className="filter-checkbox"
 						>
-							<input
-								checked={formik.values.isTwistNeutral}
-								id="isTwistNeutral"
-								name="isTwistNeutral"
-								onBlur={formik.handleBlur}
-								onChange={handleChangeIsTwistNeutral}
-								type="checkbox"
-							/>
-							<div className="checkbox-name">
-								Only show patterns that are twist neutral
-							</div>
-						</label>
+							<label
+								className="checkbox-label"
+								htmlFor="willRepeat"
+							>
+								<input
+									checked={formik.values.isTwistNeutral || formik.values.willRepeat}
+									disabled={formik.values.isTwistNeutral && 'disabled'}
+									id="willRepeat"
+									name="willRepeat"
+									onBlur={formik.handleBlur}
+									onChange={handleChangeWillRepeat}
+									type="checkbox"
+								/>
+								<div className="checkbox-name">
+									Only show patterns that will repeat
+								</div>
+							</label>
+						</div>
 					</Col>
 				</Row>
 			</form>
@@ -248,14 +250,25 @@ const PatternFilterForm = (props) => {
 
 PatternFilterForm.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
+	'isTwistNeutral': PropTypes.bool,
 	'maxTablets': PropTypes.number,
 	'minTablets': PropTypes.number,
+	'willRepeat': PropTypes.bool,
 };
 
 function mapStateToProps(state) {
+	const {
+		filterIsTwistNeutral,
+		filterMaxTablets,
+		filterMinTablets,
+		filterWillRepeat,
+	} = state.pattern;
+
 	return {
-		'maxTablets': state.pattern.filterMaxTablets,
-		'minTablets': state.pattern.filterMinTablets,
+		'isTwistNeutral': filterIsTwistNeutral,
+		'maxTablets': filterMaxTablets,
+		'minTablets': filterMinTablets,
+		'willRepeat': filterWillRepeat,
 	};
 }
 

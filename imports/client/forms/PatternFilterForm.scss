@@ -8,15 +8,8 @@
 
 		input {
 			display: inline-block;
-
-			&[type="checkbox"] {
-				margin-right: 8px;
-			}
-
-			&[type="number"] {
-				margin: 0 8px;
-				width: 80px;
-			}
+			margin: 0 8px;
+			width: 80px;
 		}
 
 		label {
@@ -25,9 +18,20 @@
 		}
 	}
 
-	.checkbox-name {
-		display: inline-block;;
-		font-size: 1rem;
+	.filter-checkbox {
+		clear: both;
+		width: 100%;
+
+		label {
+			width: 100%;
+		}
+
+		input {
+			float: left;
+			height: 1.5rem;
+			margin-right: 8px;
+			width: auto;
+		}
 	}
 
 	.controls {

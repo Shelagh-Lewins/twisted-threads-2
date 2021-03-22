@@ -22,6 +22,8 @@ function PatternSummary(props) {
 				name,
 				numberOfTablets,
 				isPublic,
+				isTwistNeutral,
+				willRepeat,
 			},
 		patternPreview,
 		tagTexts,
@@ -75,6 +77,14 @@ function PatternSummary(props) {
 		</span>
 	));
 
+	let twistInfo;
+
+	if (isTwistNeutral) {
+		twistInfo = <div className="twist-info item">twist neutral</div>;
+	} else if (willRepeat) {
+		twistInfo = <div className="twist-info item">will repeat</div>;
+	}
+
 	return (
 		<div
 			className="pattern-summary"
@@ -91,11 +101,8 @@ function PatternSummary(props) {
 					)}
 					<div className="description">{description}</div>
 					<div className="info">
-						<div className="tags">
-							{tags}
-						</div>
 						<div
-							className="tablets"
+							className="tablets item"
 							title={`Number of tablets: ${numberOfTablets}`}
 						>
 							<span
@@ -104,6 +111,12 @@ function PatternSummary(props) {
 							/>
 							{numberOfTablets}
 						</div>
+						{tags.length > 0 && (
+							<div className="tags item">
+								{tags}
+							</div>
+						)}
+						{twistInfo}
 					</div>
 					{patternPreviewHolder}
 				</Link>

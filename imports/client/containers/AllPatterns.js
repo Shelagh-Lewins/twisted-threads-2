@@ -129,8 +129,10 @@ AllPatterns.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
 	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
 	// eslint doesn't realise the filters are used in Tracker
+	'filterIsTwistNeutral': PropTypes.bool,
 	'filterMaxTablets': PropTypes.number,
 	'filterMinTablets': PropTypes.number,
+	'filterWillRepeat': PropTypes.bool,
 	'history': PropTypes.objectOf(PropTypes.any).isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'itemsPerPage': PropTypes.number.isRequired,
@@ -152,11 +154,20 @@ function mapStateToProps(state, ownProps) {
 		currentPageNumber = page;
 	}
 
+	const {
+		filterIsTwistNeutral,
+		filterMaxTablets,
+		filterMinTablets,
+		filterWillRepeat,
+	} = state.pattern;
+
 	return {
 		currentPageNumber, // read the url parameter to find the currentPage
 		'errors': state.errors,
-		'filterMaxTablets': state.pattern.filterMaxTablets,
-		'filterMinTablets': state.pattern.filterMinTablets,
+		filterIsTwistNeutral,
+		filterMaxTablets,
+		filterMinTablets,
+		filterWillRepeat,
 		'isLoading': getIsLoading(state),
 		itemsPerPage,
 		'pageSkip': (currentPageNumber - 1) * itemsPerPage,
@@ -167,8 +178,10 @@ function mapStateToProps(state, ownProps) {
 const Tracker = withTracker((props) => {
 	const {
 		dispatch,
+		filterIsTwistNeutral,
 		filterMaxTablets,
 		filterMinTablets,
+		filterWillRepeat,
 		itemsPerPage,
 		pageSkip,
 	} = props;
@@ -182,8 +195,10 @@ const Tracker = withTracker((props) => {
 	Meteor.subscribe('tags');
 
 	const handle = Meteor.subscribe('patterns', {
+		filterIsTwistNeutral,
 		filterMaxTablets,
 		filterMinTablets,
+		filterWillRepeat,
 		'limit': itemsPerPage,
 		'skip': pageSkip,
 	}, {

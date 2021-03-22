@@ -51,6 +51,11 @@ const PatternsSchema = new SimpleSchema({
 		'min': 1,
 		'index': 1,
 	},
+	'isTwistNeutral': {
+		'type': Boolean,
+		'label': 'Pattern is twist neutral',
+		'optional': true,
+	},
 	'modifiedAt': {
 		'type': Date,
 		'label': 'Modified at date',
@@ -150,11 +155,6 @@ const PatternsSchema = new SimpleSchema({
 		'type': String,
 		'label': 'Threading notes',
 		'max': MAX_TEXT_AREA_LENGTH,
-		'optional': true,
-	},
-	'isTwistNeutral': {
-		'type': Boolean,
-		'label': 'Pattern is twist neutral',
 		'optional': true,
 	},
 	'weavingNotes': {

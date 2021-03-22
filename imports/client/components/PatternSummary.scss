@@ -85,19 +85,23 @@
 		top: 84px;
 		width: 250px;
 		z-index: 2;
+
+		.item {
+			background: $color-pattern-summary-tablets-background;
+			border-radius: 4px;
+			clear: both;
+			color: $color-pattern-summmary-tablets;
+			float: left;
+			font-size: 14px;
+			line-height: 1.2;
+			margin-bottom: 4px;
+			padding: 4px;
+		}
 	}
 
 	.tags {
-		background: $color-pattern-summary-tablets-background;
-		border-radius: 4px;
-		color: $color-pattern-summmary-tablets;
-		float: left;
-		font-size: 14px;
-		line-height: 1.2;
-		margin-bottom: 4px;
 		max-width: 250px;
 		overflow: hidden;
-		padding: 4px;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 
@@ -115,15 +119,6 @@
 	}
 
 	.tablets {
-		background: $color-pattern-summary-tablets-background;
-		border-radius: 4px;
-		clear: both;
-		color: $color-pattern-summmary-tablets;
-		float: left;
-		font-size: 14px;
-		line-height: 1.2;
-		padding: 4px;
-
 		.icon {
 			background: transparent no-repeat right 0 top 0;
 			background-size: 16px 16px;

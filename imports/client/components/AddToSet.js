@@ -6,7 +6,6 @@ import ReactDOM from 'react-dom';
 import { Button } from 'reactstrap';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
 	addPatternToSet,
 	addSet,
@@ -17,8 +16,6 @@ import AppContext from '../modules/appContext';
 import AddToSetForm from '../forms/AddToSetForm';
 
 import './AddToSet.scss';
-
-import { iconColors } from '../../modules/parameters';
 
 /* eslint-disable no-case-declarations */
 
@@ -90,7 +87,6 @@ class AddToSet extends Component {
 		} = this.props;
 		const { namenewset } = values;
 		const { sets } = this.context;
-		//let changes = false;
 
 		// analyse changes to set allocation
 		Object.keys(values).map((key) => {
@@ -110,14 +106,12 @@ class AddToSet extends Component {
 
 					if (!patternIsInSet && value) {
 						// not currently in set: add
-						//changes = true;
 						dispatch(addPatternToSet({
 							patternId,
 							setId,
 						}));
 					} else if (patternIsInSet && !value) {
 						// currently in set: remove
-						//changes = true;
 						dispatch(removePatternFromSet({
 							patternId,
 							setId,
@@ -132,14 +126,13 @@ class AddToSet extends Component {
 		});
 
 		if (namenewset !== '') {
-			//changes = true;
 			dispatch(addSet({ patternId, 'name': namenewset }));
 		}
 	}
 
 	render() {
 		const {
-			iconStyle,
+			navBar,
 			patternId,
 			patternName,
 		} = this.props;
@@ -149,7 +142,7 @@ class AddToSet extends Component {
 
 		let style = { 'backgroundImage': `url(${Meteor.absoluteUrl('/images/set_blue_64.png')}` };
 
-		if (iconStyle === 'white') {
+		if (navBar) {
 			style = { 'backgroundImage': `url(${Meteor.absoluteUrl('/images/set_white_64.png')}` };
 		}
 
@@ -166,7 +159,7 @@ class AddToSet extends Component {
 							className="icon"
 							style={style}
 						/>
-						<span className="d-inline d-md-none button-text nav-link">Include pattern in sets</span>
+						{navBar && <span className="d-inline d-md-none button-text nav-link">Include pattern in sets</span>}
 					</Button>
 				</div>
 				{showSetsPanel && (
@@ -199,6 +192,7 @@ AddToSet.contextType = AppContext;
 
 AddToSet.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
+	'navBar': PropTypes.bool,
 	'patternForSetsList': PropTypes.string.isRequired,
 	'patternId': PropTypes.string.isRequired,
 	'patternName': PropTypes.string.isRequired,

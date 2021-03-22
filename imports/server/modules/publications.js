@@ -14,7 +14,7 @@ import {
 	USER_FIELDS,
 } from '../../modules/parameters';
 import {
-	getTabletFilter,
+	getPatternFilter,
 	nonEmptyStringCheck,
 	positiveIntegerCheck,
 } from './utils';
@@ -126,21 +126,30 @@ const patternFields = {
 // ////////////////////////////////
 // All patterns
 Meteor.publish('patterns', function ({
+	filterIsTwistNeutral,
 	filterMaxTablets,
 	filterMinTablets,
+	filterWillRepeat,
 	skip = 0,
 	limit,
 }) {
 	// this needs to return the same number of patterns as the getPatternCount method, for pagination
+	check(filterIsTwistNeutral, Match.Maybe(Boolean));
 	check(filterMaxTablets, Match.Maybe(positiveIntegerCheck));
 	check(filterMinTablets, Match.Maybe(positiveIntegerCheck));
+	check(filterWillRepeat, Match.Maybe(Boolean));
 	check(limit, positiveIntegerCheck);
 	check(skip, positiveIntegerCheck);
 
 	return Patterns.find(
 		{
 			'$and': [
-				getTabletFilter({ filterMaxTablets, filterMinTablets }),
+				getPatternFilter({
+					filterIsTwistNeutral,
+					filterMaxTablets,
+					filterMinTablets,
+					filterWillRepeat,
+				}),
 				getPatternPermissionQuery(),
 			],
 		},
@@ -221,21 +230,30 @@ Meteor.publish('myPatternsPreview', function () {
 // New patterns
 // returns all patterns, but sorted by creation date
 Meteor.publish('newPatterns', function ({
+	filterIsTwistNeutral,
 	filterMaxTablets,
 	filterMinTablets,
+	filterWillRepeat,
 	skip = 0,
 	limit,
 }) {
 	// this needs to return the same number of patterns as the getPatternCount method, for pagination
+	check(filterIsTwistNeutral, Match.Maybe(Boolean));
 	check(filterMaxTablets, Match.Maybe(positiveIntegerCheck));
 	check(filterMinTablets, Match.Maybe(positiveIntegerCheck));
+	check(filterWillRepeat, Match.Maybe(Boolean));
 	check(limit, positiveIntegerCheck);
 	check(skip, positiveIntegerCheck);
 
 	return Patterns.find(
 		{
 			'$and': [
-				getTabletFilter({ filterMaxTablets, filterMinTablets }),
+				getPatternFilter({
+					filterIsTwistNeutral,
+					filterMaxTablets,
+					filterMinTablets,
+					filterWillRepeat,
+				}),
 				getPatternPermissionQuery(),
 			],
 		},
@@ -264,15 +282,19 @@ Meteor.publish('newPatternsPreview', function () {
 
 // patterns cretaed by a user
 Meteor.publish('userPatterns', function ({
+	filterIsTwistNeutral,
 	filterMaxTablets,
 	filterMinTablets,
+	filterWillRepeat,
 	skip = 0,
 	limit,
 	userId,
 }) {
 	// this needs to return the same number of patterns as the getPatternCount method, for pagination
+	check(filterIsTwistNeutral, Match.Maybe(Boolean));
 	check(filterMaxTablets, Match.Maybe(positiveIntegerCheck));
 	check(filterMinTablets, Match.Maybe(positiveIntegerCheck));
+	check(filterWillRepeat, Match.Maybe(Boolean));
 	check(limit, positiveIntegerCheck);
 	check(skip, positiveIntegerCheck);
 	check(userId, nonEmptyStringCheck);
@@ -282,7 +304,12 @@ Meteor.publish('userPatterns', function ({
 	const myCursor = Patterns.find(
 		{
 			'$and': [
-				getTabletFilter({ filterMaxTablets, filterMinTablets }),
+				getPatternFilter({
+					filterIsTwistNeutral,
+					filterMaxTablets,
+					filterMinTablets,
+					filterWillRepeat,
+				}),
 				{ 'createdBy': userId },
 				getPatternPermissionQuery(),
 			],

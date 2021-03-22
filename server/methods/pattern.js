@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import {
 	checkUserCanCreatePattern,
-	getTabletFilter,
+	getPatternFilter,
 	nonEmptyStringCheck,
 	positiveIntegerCheck,
 	setupDoubleFacedThreading,
@@ -664,8 +664,10 @@ Meteor.methods({
 		return newPatternId;
 	},
 	'pattern.getPatternCount': function ({
+		filterIsTwistNeutral,
 		filterMaxTablets,
 		filterMinTablets,
+		filterWillRepeat,
 		userId,
 	}) {
 		// required for pagination
@@ -674,11 +676,18 @@ Meteor.methods({
 		// by default, will count all patterns the user can see i.e. their own and all public patterns
 
 		// if userId is specified, will count all patterns owned by that user which this user can see
+		check(filterIsTwistNeutral, Match.Maybe(Boolean));
 		check(filterMaxTablets, Match.Maybe(positiveIntegerCheck));
 		check(filterMinTablets, Match.Maybe(positiveIntegerCheck));
+		check(filterWillRepeat, Match.Maybe(Boolean));
 		check(userId, Match.Maybe(String));
 
-		const tabletFilter = getTabletFilter({ filterMaxTablets, filterMinTablets });
+		const tabletFilter = getPatternFilter({
+			filterIsTwistNeutral,
+			filterMaxTablets,
+			filterMinTablets,
+			filterWillRepeat,
+		});
 
 		// if a user is specified, make sure they exist
 		if (userId) {
