@@ -91,7 +91,7 @@ const PatternFilterForm = (props) => {
 
 		global.tabletFilterTimeout = setTimeout(() => {
 			formik.handleSubmit();
-		}, 500);
+		}, 1000);
 	};
 
 	const handleChangeMinTablets = (e) => {
@@ -121,14 +121,16 @@ const PatternFilterForm = (props) => {
 		const { checked } = e.target;
 
 		setFieldValue('willRepeat', checked);
-		setFilterTimeout();
+		formik.handleSubmit();
+		//setFilterTimeout();
 	};
 
 	const handleChangeIsTwistNeutral = (e) => {
 		const { checked } = e.target;
 
 		setFieldValue('isTwistNeutral', checked);
-		setFilterTimeout();
+		formik.handleSubmit();
+		//setFilterTimeout();
 	};
 
 	// note firefox doesn't support the 'label' shorthand in option
