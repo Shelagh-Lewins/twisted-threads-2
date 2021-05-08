@@ -174,6 +174,7 @@ export const getTotalTurnsForTablet = ({
 			startTurns = picksForTablet[weavingStartRow - 2].totalTurns;
 		}
 	}
+
 	return picksForTablet[numberOfRows - 1].totalTurns - startTurns;
 };
 
@@ -186,15 +187,17 @@ export const findPatternTwist = ({
 	patternType,
 	picks,
 }) => {
+	const rowsAtStartPosition = []; // rows where the tablets have returned to the start position
 	let patternWillRepeat = false;
 	let patternIsTwistNeutral = false;
 
 	if (includeInTwist) { // all patterns that calculate twist should have includeInTwist. At present this is everything except 'freehand'.
 		if (picks[0]) {
+			// check the final row for twist neutral and will repeat
 			patternWillRepeat = true;
 			patternIsTwistNeutral = true;
 
-			for (let j = 0; j < numberOfTablets; j += 1) {
+			/* for (let j = 0; j < numberOfTablets; j += 1) {
 				const totalTurns = getTotalTurnsForTablet({
 					numberOfRows,
 					patternDesign,
@@ -218,11 +221,49 @@ export const findPatternTwist = ({
 				if (!patternIsTwistNeutral && !patternWillRepeat) {
 					break;
 				}
+			} */
+
+			// check all rows to see if start position
+			for (let i = 0; i < numberOfRows; i += 1) {
+				let rowAtStartPosition = true;
+
+				for (let j = 0; j < numberOfTablets; j += 1) {
+					const totalTurns = getTotalTurnsForTablet({
+						'numberOfRows': i + 1,
+						patternDesign,
+						patternType,
+						'picksForTablet': picks[j],
+					});
+
+					const startPosition = modulus(totalTurns, holes) === 0; // tablet is back at start position
+
+					if (!startPosition && includeInTwist[j]) {
+						rowAtStartPosition = false;
+
+						// check final row for pattern overall
+						if (i === numberOfRows - 1) {
+							patternWillRepeat = false;
+
+							if (totalTurns !== 0 && includeInTwist[j]) {
+								patternIsTwistNeutral = false;
+							}
+						}
+
+						break;
+					}
+				}
+				if (rowAtStartPosition) {
+					rowsAtStartPosition.push(i);
+				}
 			}
 		}
 	}
-
-	return { patternWillRepeat, patternIsTwistNeutral };
+console.log('rowsAtStartPosition', rowsAtStartPosition);
+	return {
+		patternWillRepeat,
+		patternIsTwistNeutral,
+		rowsAtStartPosition,
+	};
 };
 
 export const getNumberOfRepeats = (numberOfRows) => {

@@ -1869,24 +1869,10 @@ export default function pattern(state = initialPatternState, action) {
 
 		case UPDATE_INCLUDE_IN_TWIST: {
 			const { tablet, tabletIncludeInTwist } = action.payload;
-			//const { patternType, weavingInstructionsByTablet } = state;
 
 			const update = {
 				'includeInTwist': { [tablet]: tabletIncludeInTwist },
 			};
-
-			/* if (patternType !== 'freehand') { // freehand doesn't calculate picks
-				// to calculate new picks for this tablet
-				const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tablet]];
-
-				const picksForTablet = calculatePicksForTablet({
-					'currentPicks': state.picks[tablet],
-					weavingInstructionsForTablet,
-					'row': 0,
-				});
-
-				update.picks = { [tablet]: picksForTablet };
-			} */
 
 			return updeep(update, state);
 		}
