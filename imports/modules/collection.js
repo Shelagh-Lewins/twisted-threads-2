@@ -70,7 +70,7 @@ Sets.before.update((userId, doc, fieldNames, modifier, options) => {
 // On Client and Server
 export const PatternsIndex = new Index({
 	'collection': Patterns,
-	'fields': ['nameSort'],
+	'fields': ['_id', 'nameSort'],
 	'engine': new MongoDBEngine({
 		'selector': function (searchObject, options, aggregation) {
 			const selector = this.defaultConfiguration().selector(searchObject, options, aggregation);

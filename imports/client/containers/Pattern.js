@@ -11,6 +11,7 @@ import {
 	getCanAddPatternImage,
 	getCanPublish,
 } from '../modules/auth';
+import { logErrors } from '../modules/errors';
 import {
 	editIsPublic,
 	editPatternIsTwistNeutral,
@@ -68,16 +69,22 @@ class Pattern extends PureComponent {
 		this.state = {
 			'gotUser': false, // add to recents after user has loaded
 			'recentPatternId': null, // id that has been added to recent patterns list. This lets us check for navigation to a new pattern, e.g. because of copy
+			'showCopyIDSuccess': false,
 			'selectedPatternImage': null,
 			'showImageUploader': false,
 		};
 
+		this.idRef = React.createRef();
+
 		// bind onClick functions to provide context
 		const functionsToBind = [
+			'copyPatternId',
+			'copyPatternUrl',
 			'onChangeIsPublic',
 			'onClickEditableTextSave',
 			'onClickEditCaptionSave',
 			'onClickPatternImageThumbnail',
+			'onCloseFlashMessage',
 			'onRemovePatternImage',
 			'onToggleImageUploader',
 			'handleChangeUpdatePreviewWhileEditing',
@@ -178,6 +185,23 @@ class Pattern extends PureComponent {
 		document.body.classList.remove(bodyClass);
 	}
 
+	handleChangeUpdatePreviewWhileEditing(event) {
+		const { dispatch } = this.props;
+
+		dispatch(setUpdatePreviewWhileEditing(event.target.checked));
+	}
+
+	onChangeIsPublic = () => {
+		const { canPublish, dispatch } = this.props;
+		const { 'pattern': { _id, isPublic } } = this.context;
+
+		if (!canPublish) {
+			alert('To change the privacy of patterns or colour books, please verify your email address');
+		} else {
+			dispatch(editIsPublic({ _id, 'isPublic': !isPublic }));
+		}
+	};
+
 	onClickEditCaptionSave({ fieldValue }) {
 		const { dispatch } = this.props;
 		const { selectedPatternImage } = this.state;
@@ -192,20 +216,16 @@ class Pattern extends PureComponent {
 		dispatch(editTextField({ _id, fieldValue, fieldName }));
 	}
 
-	onChangeIsPublic = () => {
-		const { canPublish, dispatch } = this.props;
-		const { 'pattern': { _id, isPublic } } = this.context;
-
-		if (!canPublish) {
-			alert('To change the privacy of patterns or colour books, please verify your email address');
-		} else {
-			dispatch(editIsPublic({ _id, 'isPublic': !isPublic }));
-		}
-	};
-
 	onClickPatternImageThumbnail(_id) {
 		this.setState({
 			'selectedPatternImage': _id,
+		});
+	}
+
+	onCloseFlashMessage() {
+		this.setState({
+			'showCopyIDSuccess': false,
+			'showCopyUrlSuccess': false,
 		});
 	}
 
@@ -230,15 +250,65 @@ class Pattern extends PureComponent {
 		});
 	}
 
-	handleChangeUpdatePreviewWhileEditing(event) {
+	async copyPatternId() {
 		const { dispatch } = this.props;
 
-		dispatch(setUpdatePreviewWhileEditing(event.target.checked));
+		try {
+			await navigator.clipboard.writeText(this.idRef.current.textContent);
+
+			this.onCloseFlashMessage();
+
+			this.setState({
+				'showCopyIDSuccess': true,
+			});
+		} catch (error) {
+			dispatch(logErrors({ 'copy-to-clipboard': `Error copying text to clipboard: ${error}` }));
+		}
+	}
+
+	async copyPatternUrl() {
+		const { dispatch } = this.props;
+		const { patternId } = this.context;
+		const URL = `${window.location.protocol}//${window.location.host}/pattern/${patternId}`;
+
+		try {
+			await navigator.clipboard.writeText(URL);
+
+			this.onCloseFlashMessage();
+
+			this.setState({
+				'showCopyUrlSuccess': true,
+			});
+		} catch (error) {
+			dispatch(logErrors({ 'copy-to-clipboard': `Error copying text to clipboard: ${error}` }));
+		}
+	}
+
+	renderCopyButtons() {
+		return (
+			<span className="copy-buttons">
+				<Button
+					type="button"
+					onClick={this.copyPatternId}
+					className="btn btn-default"
+				>
+					Copy pattern ID
+				</Button>
+				<Button
+					type="button"
+					onClick={this.copyPatternUrl}
+					className="btn btn-default"
+				>
+					Copy pattern URL
+				</Button>
+			</span>
+		);
 	}
 
 	// title and any other elements above tabs
 	renderHeader({ pattern }) {
 		const {
+			_id,
 			createdBy,
 			name,
 			patternDesign,
@@ -271,6 +341,7 @@ class Pattern extends PureComponent {
 					/>
 				</div>
 				<p>Pattern type: {findPatternTypeDisplayName(patternType)}</p>
+				<p>Pattern ID: <span ref={this.idRef}>{_id}</span>{this.renderCopyButtons()}</p>
 				{twillDirectionIndicator}
 			</>
 		);
@@ -730,7 +801,7 @@ class Pattern extends PureComponent {
 				tabContent = (
 					<div className="tab-content">
 						<p>Created by: <Link to={`/user/${createdBy}`} className="created-by">
-							{createdByUser.username}</Link>
+							{createdByUser && createdByUser.username}</Link>
 						</p>
 						{canEdit && this.renderIsPublic()}
 						<p>Number of holes: {holes}</p>
@@ -767,6 +838,11 @@ class Pattern extends PureComponent {
 			isLoading,
 			tab,
 		} = this.props;
+
+		const {
+			showCopyIDSuccess,
+			showCopyUrlSuccess,
+		} = this.state;
 
 		const {
 			colorBooks,
@@ -825,10 +901,27 @@ class Pattern extends PureComponent {
 			}
 		}
 
+		let message = null;
+		const onClick = this.onCloseFlashMessage;
+		let type = null;
+
+		if (showCopyIDSuccess) {
+			message = 'Pattern ID copied to clipboard';
+			type = 'success';
+		}
+
+		if (showCopyUrlSuccess) {
+			message = 'Pattern URL copied to clipboard';
+			type = 'success';
+		}
+
 		return (
 			<PageWrapper
 				dispatch={dispatch}
 				errors={errors}
+				message={message}
+				onClick={onClick}
+				type={type}
 			>
 				{content}
 			</PageWrapper>
