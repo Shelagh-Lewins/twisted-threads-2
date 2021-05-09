@@ -187,6 +187,7 @@ export const findPatternTwist = ({
 	patternType,
 	picks,
 }) => {
+	const { weavingStartRow } = patternDesign; // broken twill may have offset weaving start row
 	const rowsAtStartPosition = []; // rows where the tablets have returned to the start position
 	let patternWillRepeat = false;
 	let patternIsTwistNeutral = false;
@@ -197,33 +198,7 @@ export const findPatternTwist = ({
 			patternWillRepeat = true;
 			patternIsTwistNeutral = true;
 
-			/* for (let j = 0; j < numberOfTablets; j += 1) {
-				const totalTurns = getTotalTurnsForTablet({
-					numberOfRows,
-					patternDesign,
-					patternType,
-					'picksForTablet': picks[j],
-				});
-
-				const startPosition = modulus(totalTurns, holes) === 0; // tablet is back at start position
-
-				// border tablets will typically be excluded from twist calculations
-				// and reversed at intervals to cancel twist
-				if (totalTurns !== 0 && includeInTwist[j]) {
-					patternIsTwistNeutral = false;
-				}
-
-				// similarly exclude tablets from "willRepeat"
-				if (!startPosition && includeInTwist[j]) {
-					patternWillRepeat = false;
-				}
-
-				if (!patternIsTwistNeutral && !patternWillRepeat) {
-					break;
-				}
-			} */
-
-			// check all rows to see if start position
+			// check all rows to see if row is at start position
 			for (let i = 0; i < numberOfRows; i += 1) {
 				let rowAtStartPosition = true;
 
@@ -240,25 +215,34 @@ export const findPatternTwist = ({
 					if (!startPosition && includeInTwist[j]) {
 						rowAtStartPosition = false;
 
-						// check final row for pattern overall
+						// check final row for start position of overall pattern
 						if (i === numberOfRows - 1) {
 							patternWillRepeat = false;
-
-							if (totalTurns !== 0 && includeInTwist[j]) {
-								patternIsTwistNeutral = false;
-							}
+							patternIsTwistNeutral = false;
 						}
 
 						break;
 					}
+
+					// check final row for twist neutral of overall pattern
+					if (i === numberOfRows - 1) {
+						if (totalTurns !== 0 && includeInTwist[j]) {
+							patternIsTwistNeutral = false;
+						}
+					}
 				}
+
 				if (rowAtStartPosition) {
-					rowsAtStartPosition.push(i);
+					if (weavingStartRow) {
+						rowsAtStartPosition.push(i - weavingStartRow + 1);
+					} else {
+						rowsAtStartPosition.push(i);
+					}
 				}
 			}
 		}
 	}
-console.log('rowsAtStartPosition', rowsAtStartPosition);
+
 	return {
 		patternWillRepeat,
 		patternIsTwistNeutral,
@@ -675,7 +659,7 @@ export const buildTwillWeavingInstructionsByTablet = ({
 	return weavingInstructionsByTablet;
 };
 
-export const buiildWeavingInstructionsByTablet = ({
+export const buildWeavingInstructionsByTablet = ({
 	numberOfRows,
 	numberOfTablets,
 	patternDesign,

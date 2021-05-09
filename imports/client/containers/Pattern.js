@@ -72,6 +72,7 @@ class Pattern extends PureComponent {
 			'showCopyIDSuccess': false,
 			'selectedPatternImage': null,
 			'showImageUploader': false,
+			'showStartPosition': true,
 		};
 
 		this.idRef = React.createRef();
@@ -88,6 +89,7 @@ class Pattern extends PureComponent {
 			'onRemovePatternImage',
 			'onToggleImageUploader',
 			'handleChangeUpdatePreviewWhileEditing',
+			'handleChangeShowStartPosition',
 		];
 
 		functionsToBind.forEach((functionName) => {
@@ -189,6 +191,12 @@ class Pattern extends PureComponent {
 		const { dispatch } = this.props;
 
 		dispatch(setUpdatePreviewWhileEditing(event.target.checked));
+	}
+
+	handleChangeShowStartPosition(event) {
+		this.setState({
+			'showStartPosition': event.target.checked,
+		});
 	}
 
 	onChangeIsPublic = () => {
@@ -616,6 +624,25 @@ class Pattern extends PureComponent {
 		);
 	}
 
+	renderShowStartPositionControl() {
+		const { showStartPosition } = this.state;
+
+		return (
+			<div className="show-start-position-control custom-checkbox custom-control">
+				<input
+					checked={showStartPosition}
+					type="checkbox"
+					id="updateShowStartPositionControl"
+					className="custom-control-input"
+					name="updateShowStartPositionControl"
+					onChange={this.handleChangeShowStartPosition}
+					onBlur={this.handleChangeShowStartPosition}
+				/>
+				<label className="custom-control-label" htmlFor="updateShowStartPositionControl">Highlight rows where all tablets are at their start position</label>
+			</div>
+		);
+	}
+
 	renderPreview({
 		_id,
 		canEdit,
@@ -629,9 +656,11 @@ class Pattern extends PureComponent {
 			numberOfRowsForChart,
 			numberOfTablets,
 			patternWillRepeat,
+			rowsAtStartPosition,
 			totalTurnsByTablet,
 			updatePreviewWhileEditing,
 		} = this.props;
+		const { showStartPosition } = this.state;
 
 		return (
 			<div className="preview-outer">
@@ -651,6 +680,8 @@ class Pattern extends PureComponent {
 					numberOfTablets={numberOfTablets}
 					pattern={pattern}
 					patternWillRepeat={patternWillRepeat}
+					rowsAtStartPosition={rowsAtStartPosition}
+					showStartPosition={showStartPosition}
 					totalTurnsByTablet={totalTurnsByTablet}
 				/>
 			</div>
@@ -739,6 +770,7 @@ class Pattern extends PureComponent {
 							pattern={pattern}
 						/>
 						{this.renderUpdatePreviewControl()}
+						{includeInTwist && this.renderShowStartPositionControl()}
 						{!previewAtSide && this.renderPreview({
 							_id,
 							canEdit,
@@ -946,6 +978,7 @@ Pattern.propTypes = {
 	'patternDesign': PropTypes.objectOf(PropTypes.any).isRequired,
 	'patternIsTwistNeutral': PropTypes.bool,
 	'patternWillRepeat': PropTypes.bool,
+	'rowsAtStartPosition': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'tab': PropTypes.string.isRequired,
 	'totalTurnsByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'updatePreviewWhileEditing': PropTypes.bool.isRequired,
@@ -955,7 +988,11 @@ function mapStateToProps(state, ownProps) {
 	const { patternType } = state.pattern;
 
 	// defaults for freehand pattern
-	const { patternIsTwistNeutral, patternWillRepeat } = getPatternTwistSelector(state);
+	const {
+		patternIsTwistNeutral,
+		patternWillRepeat,
+		rowsAtStartPosition,
+	} = getPatternTwistSelector(state);
 	let totalTurnsByTablet = [];
 
 	if (patternType !== 'freehand') { // all simulation patterns
@@ -975,8 +1012,9 @@ function mapStateToProps(state, ownProps) {
 		'numberOfRowsForChart': getNumberOfRowsForChart(state),
 		'numberOfTablets': getNumberOfTablets(state),
 		'patternDesign': getPatternDesign(state),
-		'patternIsTwistNeutral': patternIsTwistNeutral,
-		'patternWillRepeat': patternWillRepeat,
+		patternIsTwistNeutral,
+		patternWillRepeat,
+		rowsAtStartPosition,
 		'tab': ownProps.match.params.tab || 'design',
 		totalTurnsByTablet,
 		'updatePreviewWhileEditing': state.pattern.updatePreviewWhileEditing,

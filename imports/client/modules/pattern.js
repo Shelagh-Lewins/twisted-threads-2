@@ -10,7 +10,7 @@ import {
 	buildTwillOffsetThreadingForTablet,
 	buildTwillOffsetThreading,
 	buildTwillWeavingInstructionsForTablet,
-	buiildWeavingInstructionsByTablet,
+	buildWeavingInstructionsByTablet,
 	calculateAllPicks,
 	calculatePicksForTablet,
 	findPatternTwist,
@@ -254,7 +254,7 @@ export const savePatternData = (patternObj) => (dispatch) => {
 		patternDesign,
 		patternType,
 	} = patternObj;
-	const weavingInstructionsByTablet = buiildWeavingInstructionsByTablet(patternObj);
+	const weavingInstructionsByTablet = buildWeavingInstructionsByTablet(patternObj);
 
 	dispatch(setWeavingInstructions(weavingInstructionsByTablet));
 
@@ -1529,7 +1529,6 @@ export default function pattern(state = initialPatternState, action) {
 				orientations,
 				palette,
 				'patternDataReady': true,
-				patternDesign,
 				patternType,
 				picks,
 				threadingByTablet,
@@ -1581,6 +1580,7 @@ export default function pattern(state = initialPatternState, action) {
 				patternDesign.offsetThreadingByTablets = offsetThreadingByTablets;
 			}
 
+			update.patternDesign = updeep.constant(patternDesign); // completely replace patternDesign from any previous pattern
 			return updeep(update, state);
 		}
 
@@ -2434,6 +2434,8 @@ export default function pattern(state = initialPatternState, action) {
 							'tabletIndex': i,
 						});
 
+						newWeavingInstructionsByTablet.splice(insertTabletsAt, 0, newWeavingInstructions);
+
 						newPicks[i] = calculatePicksForTablet({
 							'weavingInstructionsForTablet': newWeavingInstructions,
 							'row': 0,
@@ -2523,6 +2525,8 @@ export default function pattern(state = initialPatternState, action) {
 							'startRow': 0, // reweave entire tablet
 							'tabletIndex': i,
 						});
+
+						newWeavingInstructionsByTablet.splice(insertTabletsAt, 0, newWeavingInstructions);
 
 						newPicks[i] = calculatePicksForTablet({
 							'weavingInstructionsForTablet': newWeavingInstructions,

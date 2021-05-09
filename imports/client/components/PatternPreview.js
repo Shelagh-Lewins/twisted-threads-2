@@ -46,6 +46,8 @@ class PatternPreview extends Component {
 				weftColor,
 			},
 			printView,
+			rowsAtStartPosition,
+			showStartPosition,
 			totalTurnsByTablet,
 		} = this.props;
 		const canEdit = createdBy === Meteor.userId();
@@ -132,6 +134,7 @@ class PatternPreview extends Component {
 		let tabletLabelsStyle = {};
 		let totalTurnsDisplayStyle = {};
 		let rowNumbersStyle = {};
+		let rowAtStartPositionStyle = {};
 		const tabletLabelsAllowance = 60; // allow for labels which aren't part of the svg
 		const rowLabelsAllowance = 60;
 		const tabletLabelsOffset = 15; // push the labels to the side
@@ -197,6 +200,9 @@ class PatternPreview extends Component {
 					'transform': `translate(0, -${tabletLabelsOffset}px)`,
 				};
 				rowNumbersStyle = {
+					'transform': `translate(0, -${tabletLabelsOffset}px)`,
+				};
+				rowAtStartPositionStyle = {
 					'transform': `translate(0, -${tabletLabelsOffset}px)`,
 				};
 				break;
@@ -267,6 +273,29 @@ class PatternPreview extends Component {
 			</div>
 		);
 
+		// indicate rows that are at start position
+		const renderRowAtStartPositionElm = function (currentRepeat, repeatOffset, rowIndex) {
+			const xOffset = 0;
+			const yOffset = (numberOfRows - rowIndex + 0.75) * (cellHeight / 2) + repeatOffset;
+			// const yOffset = (numberOfRows - rowIndex + 0.5) * (cellHeight / 2) + repeatOffset;
+
+			return (
+				<span
+					key={`row-at-start-position-${rowIndex + currentRepeat * numberOfRows}`}
+					style={{ 'left': xOffset, 'top': yOffset }}
+				>
+					<span><span>{`${rowIndex + 1} start position`}</span></span>
+				</span>
+			);
+		};
+
+		const rowAtStartPositionElms = [];
+		const rowAtStartPositionParent = (
+			<div className="row-at-start-position" style={rowAtStartPositionStyle}>
+				{rowAtStartPositionElms}
+			</div>
+		);
+
 		// for each pattern repeat
 		for (let currentRepeat = 1; currentRepeat <= numberOfRepeats; currentRepeat += 1) {
 			// offset pattern repeats by half the pick height per row
@@ -311,6 +340,13 @@ class PatternPreview extends Component {
 				if (modulus(i + 1, holes) === 0 || i === numberOfRows - 1 || i + 1 === 1) {
 					if (!hideRepeats || currentRepeat === 1) {
 						rowNumberElms.push(renderRowNumber(currentRepeat, elmRepeatOffset, i));
+					}
+				}
+
+				// if the row is at the start position, add an indicator
+				if (showStartPosition && rowsAtStartPosition.indexOf(i) !== -1) {
+					if (!hideRepeats || currentRepeat === 1) {
+						rowAtStartPositionElms.push(renderRowAtStartPositionElm(currentRepeat, elmRepeatOffset, i));
 					}
 				}
 			}
@@ -376,6 +412,7 @@ class PatternPreview extends Component {
 			<div className={`pattern-preview ${previewOrientation}`} style={previewStyle}>
 				<div className="preview-wrapper" style={wrapperStyle}>
 					{totalTurnsDisplay}
+					{rowAtStartPositionParent}
 					{rowNumbers}
 					<div id="preview-holder" className="preview-holder" style={holderStyle}>
 						<svg viewBox={viewBox} shapeRendering="geometricPrecision" width={imageWidth}>
@@ -401,6 +438,8 @@ PatternPreview.propTypes = {
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 	'patternWillRepeat': PropTypes.bool.isRequired,
 	'printView': PropTypes.bool,
+	'rowsAtStartPosition': PropTypes.arrayOf(PropTypes.any).isRequired,
+	'showStartPosition': PropTypes.bool.isRequired,
 	'totalTurnsByTablet': PropTypes.arrayOf(PropTypes.any),
 };
 
