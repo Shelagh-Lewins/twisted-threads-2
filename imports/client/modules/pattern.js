@@ -367,7 +367,8 @@ export const getPicksForTabletForChart = (state, tabletIndex) => {
 			picksForTablet.splice(0, patternDesign.weavingStartRow - 1);
 		}
 	}
-
+//console.log('tablet index', tabletIndex);
+//console.log('picksForTablet', picksForTablet);
 	return picksForTablet;
 };
 
@@ -1742,7 +1743,10 @@ export default function pattern(state = initialPatternState, action) {
 			} = state;
 
 			const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tabletIndex]];
+if (tabletIndex === 1) {
+console.log('weavingInstructionsByTablet', weavingInstructionsByTablet[tabletIndex]);
 
+}
 			// toggle '.' or 'X' in the chart
 			// original arrays are immutable
 			const newTwillChart = [...patternDesign[twillChart]];
@@ -1769,7 +1773,10 @@ export default function pattern(state = initialPatternState, action) {
 				'weavingInstructionsForTablet': newWeavingInstructions,
 				'row': Math.max((rowIndex * 2) - 1, 0),
 			});
-
+			if (tabletIndex === 1) {
+console.log('currentPicks', picksForTablet);
+console.log('newWeavingInstructions', newWeavingInstructions);
+}
 			return updeep({
 				'patternDesign': { [twillChart]: newTwillChart },
 				'weavingInstructionsByTablet': { [tabletIndex]: newWeavingInstructions },
@@ -2434,7 +2441,7 @@ export default function pattern(state = initialPatternState, action) {
 							'tabletIndex': i,
 						});
 
-						newWeavingInstructionsByTablet.splice(insertTabletsAt, 0, newWeavingInstructions);
+						newWeavingInstructionsByTablet[i] = newWeavingInstructions;
 
 						newPicks[i] = calculatePicksForTablet({
 							'weavingInstructionsForTablet': newWeavingInstructions,
@@ -2526,7 +2533,7 @@ export default function pattern(state = initialPatternState, action) {
 							'tabletIndex': i,
 						});
 
-						newWeavingInstructionsByTablet.splice(insertTabletsAt, 0, newWeavingInstructions);
+						newWeavingInstructionsByTablet[i] = newWeavingInstructions;
 
 						newPicks[i] = calculatePicksForTablet({
 							'weavingInstructionsForTablet': newWeavingInstructions,
