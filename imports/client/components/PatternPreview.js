@@ -438,8 +438,8 @@ PatternPreview.propTypes = {
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
 	'patternWillRepeat': PropTypes.bool.isRequired,
 	'printView': PropTypes.bool,
-	'rowsAtStartPosition': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'showStartPosition': PropTypes.bool.isRequired,
+	'rowsAtStartPosition': PropTypes.arrayOf(PropTypes.any),
+	'showStartPosition': PropTypes.bool,
 	'totalTurnsByTablet': PropTypes.arrayOf(PropTypes.any),
 };
 
