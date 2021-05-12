@@ -49,6 +49,7 @@ Meteor.methods({
 		name,
 		rows,
 		tablets,
+		templateType,
 		patternType,
 		twillDirection,
 	}) {
@@ -58,8 +59,20 @@ Meteor.methods({
 		check(rows, validRowsCheck);
 		check(tablets, validTabletsCheck);
 		check(patternType, validPatternTypeCheck);
+		check(templateType, Match.Maybe(String));
 		check(twillDirection, Match.Maybe(String));
 
+		const patternTypeDef = ALLOWED_PATTERN_TYPES.find((type) => type.name === patternType);
+		const {
+			previewOrientation,
+			tag,
+			templates,
+		} = patternTypeDef;
+//const { previewOrientation } = ALLOWED_PATTERN_TYPES.find((type) => type.name === patternType);
+console.log('templateType', templateType);
+console.log('templates', templates);
+//TODO check holes is actually valid for this template?
+return;
 		if (patternType === 'doubleFaced') {
 			check(doubleFacedOrientations, String);
 		}
@@ -84,7 +97,7 @@ Meteor.methods({
 		// and will be used to calculated picks, from which the weaving chart and preview will be drawn
 		// 'for individual' pattern, patternDesign is simply picks
 		let patternDesign = {};
-		const tags = [ALLOWED_PATTERN_TYPES.find((patternTypeDef) => patternTypeDef.name === patternType).tag];
+		const tags = [tag];
 
 		const weavingInstructions = new Array(rows); // construct an empty array to hold the picks
 		for (let i = 0; i < rows; i += 1) {
@@ -210,8 +223,6 @@ Meteor.methods({
 			default:
 				break;
 		}
-
-		const { previewOrientation } = ALLOWED_PATTERN_TYPES.find((type) => type.name === patternType);
 
 		const patternId = Patterns.insert({
 			'description': '',

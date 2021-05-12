@@ -462,6 +462,7 @@ export const getTotalTurnsByTabletSelector = createSelector(
 
 export const addPattern = (data, history) => (dispatch) => {
 	dispatch(clearErrors());
+	console.log('add pattern data', data);
 	Meteor.call('pattern.add', data, (error, result) => {
 		if (error) {
 			return dispatch(logErrors({ 'add-pattern': error.reason }));

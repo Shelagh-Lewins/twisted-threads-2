@@ -34,6 +34,7 @@ export const DEFAULT_PALETTE = [
 export const MAX_ROWS = 200;
 export const MAX_TABLETS = 100;
 export const HOLE_LABELS = ['A', 'B', 'C', 'D', 'E', 'F'];
+export const ALLOWED_HOLES = [2, 4, 6];
 export const DEFAULT_HOLES = 4;
 export const ALLOWED_PATTERN_TYPES = [
 	{ // simulation pattern, woven by turning each tablet individually
