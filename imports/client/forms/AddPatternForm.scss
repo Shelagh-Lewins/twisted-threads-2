@@ -1,6 +1,7 @@
 @import '../constants/variables';
 
 .add-pattern-form {
+	margin-bottom: 16px;
 	overflow: hidden;
 
 	.controls {
@@ -13,6 +14,10 @@
 
 	.hint {
 		color: $color-hint;
+
+		.icon {
+			margin-right: 8px;
+		}
 	}
 
 	.twill-direction {

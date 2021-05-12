@@ -36,8 +36,6 @@ export const MAX_TABLETS = 100;
 export const HOLE_LABELS = ['A', 'B', 'C', 'D', 'E', 'F'];
 export const DEFAULT_HOLES = 4;
 export const ALLOWED_PATTERN_TYPES = [
-//TODO template hint?
-//TODO fix up hole options for different pattern types
 	{ // simulation pattern, woven by turning each tablet individually
 		'allowedHoles': [2, 4, 6], // although the select returns string, these must be number for server side validation
 		'displayName': 'Individual',
@@ -49,7 +47,7 @@ export const ALLOWED_PATTERN_TYPES = [
 				'displayName': 'Basic',
 				'name': 'all-/-forward',
 				'orientations': ['/'],
-				'templateHint': 'Simple setup that can be easily used to create most types of pattern',
+				'templateHint': 'Basic template: a simple setup that can be easily used to create most types of pattern.',
 				'weavingChart': [
 					{
 						'direction': 'F',
@@ -62,7 +60,7 @@ export const ALLOWED_PATTERN_TYPES = [
 				'name': 'idle-packs',
 				'allowedHoles': [4], // only 4-hole tablets
 				'orientations': ['/', '\\'],
-				'templateHint': 'Setup for "Cambridge diamonds" with alternating tablets turned only every other pick',
+				'templateHint': 'Idle packs template: setup for "Cambridge diamonds" with alternating tablets turned every other pick.',
 				'weavingChart': [
 					[
 						{

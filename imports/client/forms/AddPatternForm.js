@@ -1,4 +1,5 @@
-import React, {useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button, Col, Row } from 'reactstrap';
 import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
@@ -101,15 +102,16 @@ const AddPatternForm = (props) => {
 	const template = templates && templates.find((type) => type.name === templateType);
 	const templateHint = template && template.templateHint;
 
-	const setDefaultTemplate = () => {
+	// memoised callback to allow setDefaultTemplate to be specified as a dependency without recreating it on every render
+	const setDefaultTemplate = useCallback(() => {
 		if (templates) {
 			setFieldValue('templateType', templates[0].name);
 		}
-	};
+	}, [setFieldValue, templates]);
 
 	useEffect(() => {
 		setDefaultTemplate();
-	}, []);
+	}, [setDefaultTemplate]);
 
 	// note firefox doesn't support the 'label' shorthand in option
 	// https://bugzilla.mozilla.org/show_bug.cgi?id=40545#c11
@@ -140,11 +142,6 @@ const AddPatternForm = (props) => {
 	};
 
 	const holeOptions = () => {
-		/* const {
-			allowedHoles,
-			template,
-		} = ALLOWED_PATTERN_TYPES.find((type) => type.name === patternType); */
-
 		const holeValues = (template && template.allowedHoles) ? template.allowedHoles : allowedHoles;
 
 		return holeValues.map((value) => (
@@ -225,7 +222,6 @@ const AddPatternForm = (props) => {
 	const handleChangePatternType = (e) => {
 		formik.handleChange(e);
 
-		setDefaultTemplate();
 		setFieldValue('holes', DEFAULT_HOLES);
 	};
 
@@ -288,8 +284,16 @@ const AddPatternForm = (props) => {
 						</Col>
 					)}
 					<Col md="12">
-						<p className="hint type-hint">{typeHint}</p>
-						{templateHint && <p className="hint type-hint">{templateHint}</p>}
+						<p className="hint type-hint">
+							<span className="icon"><FontAwesomeIcon icon={['fas', 'info-circle']} size="1x" /></span>
+							{typeHint}
+						</p>
+						{templateHint && (
+							<p className="hint type-hint">
+								<span className="icon"><FontAwesomeIcon icon={['fas', 'info-circle']} size="1x" /></span>
+								{templateHint}
+							</p>
+						)}
 					</Col>
 				</Row>
 				<Row className="form-group">
