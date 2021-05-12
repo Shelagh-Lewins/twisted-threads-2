@@ -1,10 +1,10 @@
-import React from 'react';
+import React, {useEffect } from 'react';
 import { Button, Col, Row } from 'reactstrap';
 import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
 import {
-	ALLOWED_HOLES,
 	ALLOWED_PATTERN_TYPES,
+	DEFAULT_HOLES,
 	DEFAULT_ROWS,
 	DEFAULT_TABLETS,
 	DEFAULT_TWILL_DIRECTION,
@@ -60,11 +60,12 @@ const AddPatternForm = (props) => {
 	const formik = useFormik({
 		'initialValues': {
 			'doubleFacedOrientations': DOUBLE_FACED_ORIENTATIONS[0].name,
-			'holes': ALLOWED_HOLES[1],
+			'holes': DEFAULT_HOLES,
 			'name': '',
 			'patternType': 'individual',
 			'rows': DEFAULT_ROWS,
 			'tablets': DEFAULT_TABLETS,
+			'templateType': '',
 			'twillDirection': DEFAULT_TWILL_DIRECTION,
 		},
 		validate,
@@ -73,8 +74,42 @@ const AddPatternForm = (props) => {
 		},
 	});
 
-	const { handleCancel } = props;
-	const { setFieldValue } = formik;
+	const {
+		handleCancel,
+	} = props;
+	const {
+		handleBlur,
+		handleChange,
+		setFieldValue,
+		values,
+	} = formik;
+	const {
+		doubleFacedOrientations,
+		holes,
+		name,
+		patternType,
+		rows,
+		tablets,
+		templateType,
+		twillDirection,
+	} = values;
+	const {
+		allowedHoles,
+		templates,
+		typeHint,
+	} = ALLOWED_PATTERN_TYPES.find((type) => type.name === patternType);
+	const template = templates && templates.find((type) => type.name === templateType);
+	const templateHint = template && template.templateHint;
+
+	const setDefaultTemplate = () => {
+		if (templates) {
+			setFieldValue('templateType', templates[0].name);
+		}
+	};
+
+	useEffect(() => {
+		setDefaultTemplate();
+	}, []);
 
 	// note firefox doesn't support the 'label' shorthand in option
 	// https://bugzilla.mozilla.org/show_bug.cgi?id=40545#c11
@@ -88,14 +123,39 @@ const AddPatternForm = (props) => {
 		</option>
 	));
 
-	const holeOptions = ALLOWED_HOLES.map((value) => (
-		<option
-			key={`hole-option-${value}`}
-			value={value}
-		>
-			{value}
-		</option>
-	));
+	const templateOptions = () => {
+		if (templates) {
+			return templates.map((templateDef) => (
+				<option
+					key={`template-option-${templateDef.name}`}
+					label={templateDef.displayName}
+					value={templateDef.name}
+				>
+					{templateDef.displayName}
+				</option>
+			));
+		}
+
+		return [];
+	};
+
+	const holeOptions = () => {
+		/* const {
+			allowedHoles,
+			template,
+		} = ALLOWED_PATTERN_TYPES.find((type) => type.name === patternType); */
+
+		const holeValues = (template && template.allowedHoles) ? template.allowedHoles : allowedHoles;
+
+		return holeValues.map((value) => (
+			<option
+				key={`hole-option-${value}`}
+				value={value}
+			>
+				{value}
+			</option>
+		));
+	};
 
 	const doubleFacedOrientationsOptions = DOUBLE_FACED_ORIENTATIONS.map((type) => (
 		<option
@@ -116,9 +176,9 @@ const AddPatternForm = (props) => {
 						className="form-control"
 						id="doubleFacedOrientations"
 						name="doubleFacedOrientations"
-						onChange={formik.handleChange}
-						onBlur={formik.handleBlur}
-						value={formik.values.doubleFacedOrientations}
+						onChange={handleChange}
+						onBlur={handleBlur}
+						value={doubleFacedOrientations}
 					>
 						{doubleFacedOrientationsOptions}
 					</select>
@@ -133,24 +193,24 @@ const AddPatternForm = (props) => {
 				Background twill direction:
 				<label htmlFor="twillDirectionS" className="radio-inline control-label">
 					<input
-						checked={formik.values.twillDirection === 'S'}
+						checked={twillDirection === 'S'}
 						id="twillDirectionS"
 						name="twillDirection"
 						type="radio"
-						onChange={formik.handleChange}
-						onBlur={formik.handleBlur}
+						onChange={handleChange}
+						onBlur={handleBlur}
 						value="S"
 					/>
 					S-twill
 				</label>
 				<label htmlFor="twillDirectionZ" className="radio-inline control-label">
 					<input
-						checked={formik.values.twillDirection === 'Z'}
+						checked={twillDirection === 'Z'}
 						id="twillDirectionZ"
 						name="twillDirection"
 						type="radio"
-						onChange={formik.handleChange}
-						onBlur={formik.handleBlur}
+						onChange={handleChange}
+						onBlur={handleBlur}
 						value="Z"
 					/>
 					Z-twill
@@ -159,68 +219,41 @@ const AddPatternForm = (props) => {
 		</Row>
 	);
 
-	let typeHint;
-
-	switch (formik.values.patternType) {
-		case 'individual':
-			typeHint = 'Set the turning direction and number of turns for each tablet individually.';
-			break;
-
-		case 'allTogether':
-			typeHint = 'Turn all tablets together each pick, either forwards or backwards.';
-			break;
-
-		case 'doubleFaced':
-			typeHint = 'Weave a double-faced band in two colours.';
-			break;
-
-		case 'brokenTwill':
-			typeHint = 'Weave a double-faced band in two colours, using offset floats to create a diagonal texture.';
-			break;
-
-		case 'freehand':
-			typeHint = 'Draw the weaving chart freehand; errors will not be corrected. Ideal for brocade and warp pickup patterns.';
-			break;
-
-		default:
-			break;
-	}
-
-	const isBrokenTwill = formik.values.patternType === 'brokenTwill';
-	const isDoubleFaced = formik.values.patternType === 'doubleFaced';
+	const isBrokenTwill = patternType === 'brokenTwill';
+	const isDoubleFaced = patternType === 'doubleFaced';
 
 	const handleChangePatternType = (e) => {
 		formik.handleChange(e);
-		const { value } = e.target;
 
-		if (value === 'brokenTwill' || value === 'doubleFaced') {
-			setFieldValue('holes', 4);
-		}
+		setDefaultTemplate();
+		setFieldValue('holes', DEFAULT_HOLES);
 	};
 
 	return (
 		<div className="add-pattern-form">
 			<h2>Create a new pattern</h2>
 			<form onSubmit={formik.handleSubmit}>
-				<div className="form-group">
-					<label htmlFor="name">
-						Name
-						<input
-							className={`form-control ${formik.touched.name && formik.errors.name ? 'is-invalid' : ''
-							}`}
-							placeholder="Pattern name"
-							id="name"
-							name="name"
-							type="text"
-							onChange={formik.handleChange}
-							onBlur={formik.handleBlur}
-							value={formik.values.name}
-						/>
-						{formik.touched.name && formik.errors.name ? (
-							<div className="invalid-feedback invalid">{formik.errors.name}</div>
-						) : null}
-					</label>
-				</div>
+				<Row className="form-group">
+					<Col sm="12">
+						<label htmlFor="name">
+							Name
+							<input
+								className={`form-control ${formik.touched.name && formik.errors.name ? 'is-invalid' : ''
+								}`}
+								placeholder="Pattern name"
+								id="name"
+								name="name"
+								type="text"
+								onChange={handleChange}
+								onBlur={handleBlur}
+								value={name}
+							/>
+							{formik.touched.name && formik.errors.name ? (
+								<div className="invalid-feedback invalid">{formik.errors.name}</div>
+							) : null}
+						</label>
+					</Col>
+				</Row>
 				<Row className="form-group">
 					<Col md="6">
 						<label htmlFor="patternType">
@@ -230,31 +263,33 @@ const AddPatternForm = (props) => {
 								id="patternType"
 								name="patternType"
 								onChange={handleChangePatternType}
-								onBlur={formik.handleBlur}
-								value={formik.values.patternType}
+								onBlur={handleBlur}
+								value={patternType}
 							>
 								{patternTypeOptions}
 							</select>
 						</label>
-						<p className="hint type-hint">{typeHint}</p>
 					</Col>
-					<Col md="6">
-						<div className="form-group">
-							<label htmlFor="holes">
-								Number of holes in each tablet
+					{templates && (
+						<Col md="6">
+							<label htmlFor="templateType">
+								Template
 								<select
 									className="form-control"
-									disabled={isBrokenTwill || isDoubleFaced}
-									id="holes"
-									name="holes"
-									onChange={formik.handleChange}
-									onBlur={formik.handleBlur}
-									value={formik.values.holes}
+									id="templateType"
+									name="templateType"
+									onChange={handleChange}
+									onBlur={handleBlur}
+									value={templateType}
 								>
-									{holeOptions}
+									{templateOptions()}
 								</select>
 							</label>
-						</div>
+						</Col>
+					)}
+					<Col md="12">
+						<p className="hint type-hint">{typeHint}</p>
+						{templateHint && <p className="hint type-hint">{templateHint}</p>}
 					</Col>
 				</Row>
 				<Row className="form-group">
@@ -270,15 +305,34 @@ const AddPatternForm = (props) => {
 								min="1"
 								name="tablets"
 								type="number"
-								onChange={formik.handleChange}
-								onBlur={formik.handleBlur}
-								value={formik.values.tablets}
+								onChange={handleChange}
+								onBlur={handleBlur}
+								value={tablets}
 							/>
 							{formik.touched.tablets && formik.errors.tablets ? (
 								<div className="invalid-feedback invalid">{formik.errors.tablets}</div>
 							) : null}
 						</label>
 					</Col>
+					<Col md="6">
+						<div className="form-group">
+							<label htmlFor="holes">
+								Number of holes in each tablet
+								<select
+									className="form-control"
+									id="holes"
+									name="holes"
+									onChange={handleChange}
+									onBlur={handleBlur}
+									value={holes}
+								>
+									{holeOptions()}
+								</select>
+							</label>
+						</div>
+					</Col>
+				</Row>
+				<Row className="form-group">
 					<Col md="6">
 						<label htmlFor="rows">
 							Number of rows
@@ -292,9 +346,9 @@ const AddPatternForm = (props) => {
 								name="rows"
 								step={(isBrokenTwill || isDoubleFaced) ? '2' : '1'}
 								type="number"
-								onChange={formik.handleChange}
-								onBlur={formik.handleBlur}
-								value={formik.values.rows}
+								onChange={handleChange}
+								onBlur={handleBlur}
+								value={rows}
 							/>
 							{formik.touched.rows && formik.errors.rows ? (
 								<div className="invalid-feedback invalid">{formik.errors.rows}</div>

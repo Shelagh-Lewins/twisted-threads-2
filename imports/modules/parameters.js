@@ -33,43 +33,95 @@ export const DEFAULT_PALETTE = [
 
 export const MAX_ROWS = 200;
 export const MAX_TABLETS = 100;
-export const ALLOWED_HOLES = [2, 4, 6]; // permittied number of holes per tablet
-// although the select returns string, these must be number for server side validation
 export const HOLE_LABELS = ['A', 'B', 'C', 'D', 'E', 'F'];
+export const DEFAULT_HOLES = 4;
 export const ALLOWED_PATTERN_TYPES = [
+//TODO template hint?
+//TODO fix up hole options for different pattern types
 	{ // simulation pattern, woven by turning each tablet individually
-		'name': 'individual',
+		'allowedHoles': [2, 4, 6], // although the select returns string, these must be number for server side validation
 		'displayName': 'Individual',
+		'name': 'individual',
 		'previewOrientation': 'right',
 		'tag': 'individual',
+		'templates': [
+			{
+				'displayName': 'Basic',
+				'name': 'all-/-forward',
+				'orientations': ['/'],
+				'templateHint': 'Simple setup that can be easily used to create most types of pattern',
+				'weavingChart': [
+					{
+						'direction': 'F',
+						'numberOfTurns': 1,
+					},
+				],
+			},
+			{
+				'displayName': 'Idle packs',
+				'name': 'idle-packs',
+				'allowedHoles': [4], // only 4-hole tablets
+				'orientations': ['/', '\\'],
+				'templateHint': 'Setup for "Cambridge diamonds" with alternating tablets turned only every other pick',
+				'weavingChart': [
+					[
+						{
+							'direction': 'F',
+							'numberOfTurns': 1,
+						},
+						{
+							'direction': 'F',
+							'numberOfTurns': 0,
+						},
+					],
+					[
+						{
+							'direction': 'F',
+							'numberOfTurns': 0,
+						},
+						{
+							'direction': 'F',
+							'numberOfTurns': 1,
+						},
+					],
+				],
+			},
+		],
+		'typeHint': 'Set the turning direction and number of turns for each tablet individually.',
 	},
 	{ // simulation pattern, woven by turning all tablets together
-		'name': 'allTogether',
+		'allowedHoles': [2, 4, 6],
 		'displayName': 'All together',
+		'name': 'allTogether',
 		'previewOrientation': 'right',
 		'tag': 'all together',
+		'typeHint': 'Turn all tablets together each pick, either forwards or backwards.',
 	},
 	{ // double faced, designed on special graph paper
-		'name': 'doubleFaced',
+		'allowedHoles': [4],
 		'displayName': 'Double faced',
+		'name': 'doubleFaced',
 		'previewOrientation': 'up',
 		'tag': 'double faced',
-
+		'typeHint': 'Weave a double-faced band in two colours.',
 	},
 	{ // 3 / 1 broken twill, designed on special graph paper
-		'name': 'brokenTwill',
+		'allowedHoles': [4],
 		'displayName': '3/1 broken twill',
+		'name': 'brokenTwill',
 		'previewOrientation': 'up',
 		'tag': '3/1 broken twill',
-
+		'typeHint': 'Weave a double-faced band in two colours, using offset floats to create a diagonal texture.',
 	},
 	{ // threading is standard, but the weaving chart is hand drawn
 		// and can have errors
 		// best for warp pickup patterns and brocade
-		'name': 'freehand',
+		'allowedHoles': [2, 4, 6],
 		'displayName': 'Freehand',
+		'name': 'freehand',
 		'previewOrientation': 'right',
 		'tag': 'freehand',
+		'typeHint': 'Draw the weaving chart freehand; errors will not be corrected. Ideal for brocade and warp pickup patterns.',
 	},
 ];
 export const findPatternTypeDisplayName = (patternType) => ALLOWED_PATTERN_TYPES.find((type) => type.name === patternType).displayName;

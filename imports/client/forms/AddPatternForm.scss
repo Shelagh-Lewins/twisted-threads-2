@@ -1,12 +1,4 @@
-@import "../constants/variables";
-
-@media (min-width: 768px) {
-	.add-pattern-form {
-		.type-hint {
-			width: 400px;
-		}
-	}
-}
+@import '../constants/variables';
 
 .add-pattern-form {
 	overflow: hidden;
