@@ -124,20 +124,22 @@ const BasicForm = (props) => {
 								) : null}
 							</label>
 						</div>
-						{setsSorted.map((set) => {
-							const { _id, name } = set;
-							const identifier = getIdentifier(_id);
+						<div className="wrapper">
+							{setsSorted.map((set) => {
+								const { _id, name } = set;
+								const identifier = getIdentifier(_id);
 
-							return (
-								<ExistingSetCheckbox
-									key={identifier}
-									id={identifier}
-									name={identifier}
-									type="checkbox"
-									label={name}
-								/>
-							);
-						})}
+								return (
+									<ExistingSetCheckbox
+										key={identifier}
+										id={identifier}
+										name={identifier}
+										type="checkbox"
+										label={name}
+									/>
+								);
+							})}
+						</div>
 						<div className="controls">
 							<Button type="button" color="secondary" onClick={handleCancel}>Cancel</Button>
 							<Button type="submit" color="primary">Save</Button>

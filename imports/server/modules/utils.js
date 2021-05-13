@@ -322,22 +322,28 @@ export const setupOrientations = ({
 	doubleFacedOrientations,
 	patternType,
 	tablets,
+	templateTypeDef,
 }) => {
 	// most patterns have tablets all oriented the same
-	// default orientation
-	const orientations = new Array(tablets).fill(DEFAULT_ORIENTATION);
+	const orientationsForPattern = new Array(tablets).fill(DEFAULT_ORIENTATION);
 
-	// double faced pattern orientation is a repeating sequence
-	if (patternType === 'doubleFaced') {
+	if (templateTypeDef) {
+		const { orientations } = templateTypeDef;
+		const templateChartTablets = orientations.length;
+
 		for (let i = 0; i < tablets; i += 1) {
-			orientations[i] = getDoubleFacedOrientation({
+			orientationsForPattern[i] = orientations[i % templateChartTablets];
+		}
+	} else if (patternType === 'doubleFaced') {
+		for (let i = 0; i < tablets; i += 1) {
+			orientationsForPattern[i] = getDoubleFacedOrientation({
 				'tablet': i,
 				doubleFacedOrientations,
 			});
 		}
 	}
 
-	return orientations;
+	return orientationsForPattern;
 };
 
 export const setupDoubleFacedThreading = ({

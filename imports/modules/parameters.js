@@ -50,10 +50,12 @@ export const ALLOWED_PATTERN_TYPES = [
 				'orientations': ['/'],
 				'templateHint': 'Basic template: a simple setup that can be easily used to create most types of pattern.',
 				'weavingChart': [
-					{
-						'direction': 'F',
-						'numberOfTurns': 1,
-					},
+					[
+						{
+							'direction': 'F',
+							'numberOfTurns': 1,
+						},
+					],
 				],
 			},
 			{

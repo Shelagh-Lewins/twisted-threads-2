@@ -106,6 +106,8 @@ const AddPatternForm = (props) => {
 	const setDefaultTemplate = useCallback(() => {
 		if (templates) {
 			setFieldValue('templateType', templates[0].name);
+		} else {
+			setFieldValue('templateType', undefined);
 		}
 	}, [setFieldValue, templates]);
 

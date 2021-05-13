@@ -68,11 +68,26 @@ Meteor.methods({
 			tag,
 			templates,
 		} = patternTypeDef;
-//const { previewOrientation } = ALLOWED_PATTERN_TYPES.find((type) => type.name === patternType);
-console.log('templateType', templateType);
-console.log('templates', templates);
-//TODO check holes is actually valid for this template?
-return;
+
+		let templateTypeDef;
+
+		if (templates) {
+			templateTypeDef = templates.find((type) => type.name === templateType);
+		}
+
+		// check the number of holes is valid for the pattern type / template
+		if (patternTypeDef.allowedHoles) {
+			if (patternTypeDef.allowedHoles.indexOf(holes) === -1) {
+				throw new Meteor.Error('add-pattern-invalid-holes', `Unable to add pattern because the number of holes ${holes} is invalid for pattern type ${patternType}.`);
+			}
+		}
+
+		if (templateType && templateTypeDef.allowedHoles) {
+			if (templateTypeDef.allowedHoles.indexOf(holes) === -1) {
+				throw new Meteor.Error('add-pattern-invalid-holes', `Unable to add pattern because the number of holes ${holes} is invalid for template type ${templateType}.`);
+			}
+		}
+
 		if (patternType === 'doubleFaced') {
 			check(doubleFacedOrientations, String);
 		}
@@ -106,14 +121,31 @@ return;
 
 		switch (patternType) {
 			case 'individual':
-				// specify tablet turning individually for every row and tablet
-				// fill in the weaving instructions as all Forward 1 turn
-				for (let i = 0; i < tablets; i += 1) {
-					for (let j = 0; j < rows; j += 1) {
-						weavingInstructions[j][i] = {
-							'direction': DEFAULT_DIRECTION,
-							'numberOfTurns': DEFAULT_NUMBER_OF_TURNS,
-						};
+				if (templateTypeDef) {
+					const { weavingChart } = templateTypeDef;
+
+					const templateChartRows = weavingChart.length;
+					const templateChartTablets = weavingChart[0].length;
+
+					for (let i = 0; i < rows; i += 1) {
+						for (let j = 0; j < tablets; j += 1) {
+							const chartCell = weavingChart[i % templateChartRows][j % templateChartTablets];
+							weavingInstructions[i][j] = {
+								'direction': chartCell.direction,
+								'numberOfTurns': chartCell.numberOfTurns,
+							};
+						}
+					}
+				} else {
+					// specify tablet turning individually for every row and tablet
+					// fill in the weaving instructions as all Forward 1 turn
+					for (let i = 0; i < rows; i += 1) {
+						for (let j = 0; j < tablets; j += 1) {
+							weavingInstructions[i][j] = {
+								'direction': DEFAULT_DIRECTION,
+								'numberOfTurns': DEFAULT_NUMBER_OF_TURNS,
+							};
+						}
 					}
 				}
 
@@ -239,6 +271,7 @@ return;
 				doubleFacedOrientations,
 				patternType,
 				tablets,
+				templateTypeDef,
 			}),
 			patternDesign,
 			patternType,
