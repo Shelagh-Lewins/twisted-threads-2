@@ -530,7 +530,12 @@ export const buildTwillWeavingInstructionsForTablet = ({
 		twillDirectionChangeChart,
 	} = patternDesign;
 
-	const weavingInstructions = weavingInstructionsForTablet || [];
+	let weavingInstructions = [];
+
+	if (weavingInstructionsForTablet) {
+		weavingInstructions = weavingInstructionsForTablet.slice(0, numberOfRows);
+	} // if rows are removed, instructions will become shorter
+
 	let position;
 
 	const {
@@ -542,7 +547,10 @@ export const buildTwillWeavingInstructionsForTablet = ({
 		twillPatternChart,
 	});
 
-	if (startRow === 0) {
+	// look back two rows further to make sure of correct position
+	const safeStartRow = startRow > 1 ? startRow - 2 : startRow;
+
+	if (safeStartRow === 0) {
 	// set the tablet's start position
 		switch (twillDirection) {
 			case 'S':
@@ -558,10 +566,10 @@ export const buildTwillWeavingInstructionsForTablet = ({
 				break;
 		}
 	} else {
-		position = (weavingInstructions[startRow - 1].position) % 4;
+		position = (weavingInstructions[safeStartRow - 1].position) % 4;
 	}
 
-	for (let i = startRow; i < numberOfRows; i += 1) {
+	for (let i = safeStartRow; i < numberOfRows; i += 1) {
 		// read the pattern chart for colour change
 		// '.' is background colour
 		// 'X' is foreground colour

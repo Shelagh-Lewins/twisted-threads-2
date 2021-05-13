@@ -1744,10 +1744,7 @@ export default function pattern(state = initialPatternState, action) {
 			} = state;
 
 			const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tabletIndex]];
-if (tabletIndex === 1) {
-console.log('weavingInstructionsByTablet', weavingInstructionsByTablet[tabletIndex]);
 
-}
 			// toggle '.' or 'X' in the chart
 			// original arrays are immutable
 			const newTwillChart = [...patternDesign[twillChart]];
@@ -1774,10 +1771,7 @@ console.log('weavingInstructionsByTablet', weavingInstructionsByTablet[tabletInd
 				'weavingInstructionsForTablet': newWeavingInstructions,
 				'row': Math.max((rowIndex * 2) - 1, 0),
 			});
-			if (tabletIndex === 1) {
-console.log('currentPicks', picksForTablet);
-console.log('newWeavingInstructions', newWeavingInstructions);
-}
+
 			return updeep({
 				'patternDesign': { [twillChart]: newTwillChart },
 				'weavingInstructionsByTablet': { [tabletIndex]: newWeavingInstructions },
