@@ -206,7 +206,7 @@ Meteor.methods({
 				}
 
 				// must have twill direction S or Z
-				if (twillDirection !== 'S' && twillDirection !== 'Z') {
+				if (['S', 'Z'].indexOf(twillDirection) === -1) {
 					throw new Meteor.Error('add-pattern-twill-direction', 'Unable to add pattern because the twill direction is invalid');
 				}
 
@@ -313,12 +313,11 @@ Meteor.methods({
 		return patternId;
 	},
 	'pattern.newPatternFromData': function ({ patternObj }) {
-		// console.log('new from patternObj data', patternObj);
 		check(patternObj, Match.ObjectIncluding({
 			'description': Match.Maybe(String),
 			'holes': positiveIntegerCheck,
-			'includeInTwist': Match.Maybe([String]),
-			'name': String,
+			'includeInTwist': Match.Maybe([Boolean]),
+			'name': nonEmptyStringCheck,
 			'numberOfRows': positiveIntegerCheck,
 			'numberOfTablets': positiveIntegerCheck,
 			'orientations': [String],
@@ -392,6 +391,7 @@ Meteor.methods({
 		// weft colour
 		check(weftColor, validPaletteIndexCheck);
 		const {
+			doubleFacedOrientations, // double faced
 			doubleFacedPatternChart, // double faced
 			freehandChart, // freehand
 			twillDirection, // broken twill
@@ -482,7 +482,7 @@ Meteor.methods({
 					}
 				}
 
-				if (['S', 'Z'].indexOf(twillDirection)) {
+				if (['S', 'Z'].indexOf(twillDirection) === -1) {
 					throw new Meteor.Error('new-pattern-from-data-invalid-data', 'Unable to create new pattern from data because the twill direction is invalid');
 				}
 
@@ -520,6 +520,7 @@ Meteor.methods({
 
 		// create a new blank pattern
 		const patternId = Meteor.call('pattern.add', {
+			doubleFacedOrientations,
 			holes,
 			name,
 			'rows': numberOfRows,

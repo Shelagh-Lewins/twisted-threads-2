@@ -6,15 +6,14 @@ import {
 
 const beautify = require('js-beautify').js;
 
-const getDisplayName = (fieldName) => {
-	return PATTERN_AS_TEXT_FIELDS.find((field) => fieldName === field.fieldName).displayName;
-};
+const getDisplayName = (fieldName) => PATTERN_AS_TEXT_FIELDS.find((field) => fieldName === field.fieldName).displayName;
 
 const patternAsText = (_id, patternObj) => {
 	const {
 		description,
 		holes,
 		includeInTwist,
+		name,
 		numberOfRows,
 		numberOfTablets,
 		orientations,
@@ -31,7 +30,7 @@ const patternAsText = (_id, patternObj) => {
 	// source is just info to indicate where the file was generated
 	const patternData = {
 		'source': 'Twisted Threads',
-		'version': '2.0',
+		'version': '2.1', // 2.1 introduced includeInTwist
 		[getDisplayName('name')]: name,
 		[getDisplayName('description')]: description,
 	};

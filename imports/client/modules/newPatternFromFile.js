@@ -10,7 +10,6 @@ import {
 
 const convert = require('xml-js');
 
-
 // Try analysing as a TWT pattern
 // this definition form is required to make it a function that can be called by variable name as a method of the Meteor object
 Meteor.newPatternFromJSON = function newPatternFromJSON({ text }) { // eslint-disable-line no-undef
@@ -28,7 +27,7 @@ Meteor.newPatternFromJSON = function newPatternFromJSON({ text }) { // eslint-di
 				version,
 			} = jsonData;
 
-			if (source === 'Twisted Threads' && version === '2.0') {
+			if (source === 'Twisted Threads' && version.startsWith('2.')) {
 				// extract the expected pattern fields from data
 				// text file uses displayName
 				// pattern data needs fieldName
