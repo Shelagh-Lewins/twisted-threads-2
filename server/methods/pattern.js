@@ -682,6 +682,10 @@ Meteor.methods({
 
 		data.name += ' (copy)';
 
+		if (patternType === 'doubleFaced') {
+			data.doubleFacedOrientations = pattern.patternDesign.doubleFacedOrientations;
+		}
+
 		if (patternType === 'brokenTwill') {
 			data.twillDirection = pattern.patternDesign.twillDirection;
 		}
