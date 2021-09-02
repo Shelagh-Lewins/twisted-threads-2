@@ -210,7 +210,12 @@ class InteractiveWeavingChart extends PureComponent {
 	}
 
 	handleClickRow(selectedRow) {
-		this.setSelectedRow(selectedRow);
+		const { numberOfRows } = this.props;
+		const response = confirm(`Are you sure you want to jump to row ${numberOfRows - selectedRow}?`); // eslint-disable-line no-restricted-globals
+
+		if (response === true) {
+			this.setSelectedRow(selectedRow);
+		}
 	}
 
 	render() {
