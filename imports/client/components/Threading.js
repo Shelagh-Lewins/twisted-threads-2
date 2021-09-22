@@ -215,7 +215,7 @@ class Threading extends PureComponent {
 		);
 	}
 
-	renderCell(rowIndex, tabletIndex) {
+	renderCell(rowIndex, selectedRow, tabletIndex) {
 		const { isEditing } = this.state;
 
 		return (
@@ -228,6 +228,7 @@ class Threading extends PureComponent {
 			>
 				<ThreadingChartCell
 					rowIndex={rowIndex}
+					selectedRow={selectedRow}
 					tabletIndex={tabletIndex}
 				/>
 			</span>
@@ -235,7 +236,7 @@ class Threading extends PureComponent {
 	}
 
 	renderRow(rowIndex) {
-		const { holes, numberOfTablets } = this.props;
+		const { holes, numberOfTablets, selectedRow } = this.props;
 		const labelIndex = holes - rowIndex - 1;
 
 		const cells = [];
@@ -245,7 +246,7 @@ class Threading extends PureComponent {
 					className="cell value"
 					key={`threading-cell-${rowIndex}-${i}`}
 				>
-					{this.renderCell(rowIndex, i)}
+					{this.renderCell(rowIndex, selectedRow, i)}
 				</li>,
 			);
 		}
@@ -494,6 +495,7 @@ Threading.propTypes = {
 	'holes': PropTypes.number.isRequired,
 	'numberOfTablets': PropTypes.number.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
+	'selectedRow': PropTypes.number,
 };
 
 export default Threading;

@@ -381,7 +381,12 @@ export const getPickForChart = (state, tabletIndex, rowIndex) => {
 export const getThreadingForTablet = (state, tabletIndex) => state.pattern.threadingByTablet[tabletIndex];
 
 // used for the threading chart
-export const getThreadingForHole = (state, tabletIndex, holeIndex) => {
+export const getThreadingForHole = ({
+	holeIndex,
+	selectedRow,
+	state,
+	tabletIndex,
+}) => {
 	// broken twill displays an offset threading diagram
 	// based on the weaving start row
 	if (state.pattern.patternType === 'brokenTwill') {
@@ -394,6 +399,17 @@ export const getThreadingForHole = (state, tabletIndex, holeIndex) => {
 
 		return undefined;
 	}
+
+	if (selectedRow) {
+		return buildTwillOffsetThreading({
+			holes,
+			numberOfTablets,
+			picks,
+			threadingByTablet,
+			'weavingStartRow': selectedRow,
+		});
+	}
+
 	return state.pattern.threadingByTablet[tabletIndex][holeIndex];
 };
 
@@ -1568,7 +1584,8 @@ export default function pattern(state = initialPatternState, action) {
 					break;
 			}
 
-			if (patternType === 'brokenTwill') {
+			// I can't see why this was in twice; I assume the code was moved but accidentally left in place?
+			/* if (patternType === 'brokenTwill') {
 				// offset threading chart
 				const { weavingStartRow } = patternDesign;
 				const offsetThreadingByTablets = buildTwillOffsetThreading({
@@ -1580,7 +1597,7 @@ export default function pattern(state = initialPatternState, action) {
 				});
 
 				patternDesign.offsetThreadingByTablets = offsetThreadingByTablets;
-			}
+			} */
 
 			update.patternDesign = updeep.constant(patternDesign); // completely replace patternDesign from any previous pattern
 			return updeep(update, state);

@@ -15,6 +15,7 @@ import AppContext from '../modules/appContext';
 import { getLocalStorageItem } from '../modules/localStorage';
 import Loading from '../components/Loading';
 import WeavingChart from '../components/WeavingChart';
+import Threading from '../components/Threading';
 import './InteractiveWeavingChart.scss';
 
 const bodyClass = 'interactive-weaving-chart';
@@ -233,7 +234,12 @@ class InteractiveWeavingChart extends PureComponent {
 
 		if (!isLoading) {
 			if (pattern) {
-				const { _id, name, patternType } = pattern;
+				const {
+					_id,
+					holes,
+					name,
+					patternType,
+				} = pattern;
 
 				const links = (
 					<div className="links">
@@ -247,19 +253,34 @@ class InteractiveWeavingChart extends PureComponent {
 							{links}
 							{/* if navigating from the home page, the pattern summary is in MiniMongo before Tracker sets isLoading to true. This doesn't include the detail fields so we need to prevent errors. */}
 							{pattern.patternDesign && (
-								<div ref={this.chartRef}>
-									<WeavingChart
-										dispatch={dispatch}
-										handleClickDown={this.handleClickDown}
-										handleClickRow={this.handleClickRow}
-										handleClickUp={this.handleClickUp}
-										numberOfRows={numberOfRows}
-										numberOfTablets={numberOfTablets}
-										patternType={patternType}
-										printView={false}
-										selectedRow={selectedRow}
-									/>
-								</div>
+								<>
+									<h2>Weaving chart</h2>
+									<div ref={this.chartRef}>
+										<WeavingChart
+											dispatch={dispatch}
+											handleClickDown={this.handleClickDown}
+											handleClickRow={this.handleClickRow}
+											handleClickUp={this.handleClickUp}
+											numberOfRows={numberOfRows}
+											numberOfTablets={numberOfTablets}
+											patternType={patternType}
+											printView={false}
+											selectedRow={selectedRow}
+										/>
+									</div>
+
+									<h2>Threading chart</h2>
+									{pattern.threading && (
+										<Threading
+											canEdit={false}
+											dispatch={dispatch}
+											holes={holes}
+											numberOfTablets={numberOfTablets}
+											pattern={pattern}
+											selectedRow={selectedRow}
+										/>
+									)}
+								</>
 							)}
 						</>
 					);

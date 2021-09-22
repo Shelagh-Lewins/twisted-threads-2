@@ -53,19 +53,25 @@ ThreadingChartCell.propTypes = {
 	'holes': PropTypes.number.isRequired,
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'rowIndex': PropTypes.number.isRequired, // eslint-disable-line react/no-unused-prop-types
+	'selectedRow': PropTypes.number, // eslint-disable-line react/no-unused-prop-types
 	'tabletIndex': PropTypes.number.isRequired,
 	'threadingForHole': PropTypes.number.isRequired,
 	// 'threadingForTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
-	const { rowIndex, tabletIndex } = ownProps;
+	const { rowIndex, selectedRow, tabletIndex } = ownProps;
 
 	return {
 		'holes': getHoles(state),
 		'orientation': getOrientationForTablet(state, tabletIndex),
 		'palette': getPalette(state),
-		'threadingForHole': getThreadingForHole(state, tabletIndex, rowIndex),
+		'threadingForHole': getThreadingForHole({
+			'holeIndex': rowIndex,
+			selectedRow,
+			state,
+			tabletIndex,
+		}),
 	};
 }
 
