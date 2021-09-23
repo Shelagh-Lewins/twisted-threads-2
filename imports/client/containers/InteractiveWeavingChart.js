@@ -128,22 +128,6 @@ class InteractiveWeavingChart extends PureComponent {
 		return numberOfRows - selectedRow;
 	}
 
-	setSelectedRow(selectedRow) {
-		const {
-			dispatch,
-		} = this.props;
-		const { 'pattern': { _id } } = this.context;
-
-		this.setState({
-			'selectedRow': selectedRow,
-		});
-
-		dispatch(addRecentPattern({
-			'currentWeavingRow': this.getCurrentWeavingRow(selectedRow),
-			'patternId': _id,
-		}));
-	}
-
 	handleKeyUp(event) {
 		const { history } = this.props;
 		const { 'pattern': { _id } } = this.context;
@@ -165,6 +149,22 @@ class InteractiveWeavingChart extends PureComponent {
 			default:
 				break;
 		}
+	}
+
+	setSelectedRow(selectedRow) {
+		const {
+			dispatch,
+		} = this.props;
+		const { 'pattern': { _id } } = this.context;
+
+		this.setState({
+			'selectedRow': selectedRow,
+		});
+
+		dispatch(addRecentPattern({
+			'currentWeavingRow': this.getCurrentWeavingRow(selectedRow),
+			'patternId': _id,
+		}));
 	}
 
 	scrollRowIntoView() {
@@ -269,16 +269,20 @@ class InteractiveWeavingChart extends PureComponent {
 										/>
 									</div>
 
-									<h2>Threading chart</h2>
-									{pattern.threading && (
-										<Threading
-											canEdit={false}
-											dispatch={dispatch}
-											holes={holes}
-											numberOfTablets={numberOfTablets}
-											pattern={pattern}
-											selectedRow={selectedRow}
-										/>
+									{pattern.threading && patternType !== 'freehand' && (
+										<>
+											<h2 className="clearing">Current position of threads</h2>
+											<p className="hint">The chart below shows how the threads should be arranged before weaving the current row</p>
+											<Threading
+												canEdit={false}
+												dispatch={dispatch}
+												holes={holes}
+												numberOfRows={numberOfRows}
+												numberOfTablets={numberOfTablets}
+												pattern={pattern}
+												selectedRow={selectedRow}
+											/>
+										</>
 									)}
 								</>
 							)}

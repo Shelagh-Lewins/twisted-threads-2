@@ -41,6 +41,10 @@ function Notation(props) {
 
 	return (
 		<div className="notation">
+			<h2>Tablet labels</h2>
+			<img src={tabletLabelsImage} alt="Tablet labels" title="Labels and turning direction" width="237" height="148" />
+			<p className="hint">The diagram above shows how to label the holes; the tablets face LEFT as you look from the woven band. The arrows show turning the tablet forwards.</p>
+			{handednessButton}
 			<div className="weaving-chart-key">
 				<h2>Weaving chart key</h2>
 				<span className="item">
@@ -73,10 +77,6 @@ function Notation(props) {
 				</span>
 				<p>A circle means don&apos;t turn the tablet this pick.</p>
 			</div>
-			<h2>Tablet labels</h2>
-			<img src={tabletLabelsImage} alt="Tablet labels" title="Labels and turning direction" width="237" height="148" />
-			<p className="hint">The arrows show turning the tablet forwards.</p>
-			{handednessButton}
 		</div>
 	);
 }

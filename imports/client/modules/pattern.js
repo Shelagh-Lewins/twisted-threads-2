@@ -387,30 +387,59 @@ export const getThreadingForHole = ({
 	state,
 	tabletIndex,
 }) => {
+	let threadingByTablet;
+//console.log('*** get threadinig for hole');
 	// broken twill displays an offset threading diagram
 	// based on the weaving start row
-	if (state.pattern.patternType === 'brokenTwill') {
-		// after a tablet is added there may be a delay before the new tablet is ready
-		const threadingForTablet = state.pattern.patternDesign.offsetThreadingByTablets[tabletIndex];
+	const {
+		patternType,
+	} = state.pattern;
 
-		if (threadingForTablet) {
+	if (patternType === 'brokenTwill') {
+		// after a tablet is added there may be a delay before the new tablet is ready
+		// threadingForTablet = state.pattern.patternDesign.offsetThreadingByTablets[tabletIndex];
+		threadingByTablet = state.pattern.patternDesign.offsetThreadingByTablets;
+
+		/* if (threadingForTablet) {
 			return threadingForTablet[holeIndex];
 		}
 
-		return undefined;
+		return undefined; */
+	} else {
+		// threadingForTablet = state.pattern.threadingByTablet[tabletIndex];
+		threadingByTablet = state.pattern.threadingByTablet;
 	}
 
-	if (selectedRow) {
-		return buildTwillOffsetThreading({
+	// update the threading chart for simulation patterns to show the current position of the tablets
+	if (selectedRow && patternType !== 'freehand') {
+		//console.log('*** selectedRow', selectedRow);
+
+		const {
+			holes,
+			// numberOfRows,
+			numberOfTablets,
+			picks,
+			// threadingByTablet,
+		} = state.pattern;
+
+		const currentRow = getNumberOfRowsForChart(state) - selectedRow;
+		console.log('currentRow', currentRow);
+		threadingByTablet = buildTwillOffsetThreading({
 			holes,
 			numberOfTablets,
 			picks,
 			threadingByTablet,
-			'weavingStartRow': selectedRow,
+			'weavingStartRow': currentRow,
 		});
 	}
 
-	return state.pattern.threadingByTablet[tabletIndex][holeIndex];
+	if (threadingByTablet) {
+		return threadingByTablet[tabletIndex][holeIndex];
+	}
+
+	return undefined;
+
+	// return state.pattern.threadingByTablet[tabletIndex][holeIndex];
 };
 
 export const getTotalTurnsByTablet = (state) => state.pattern.picks.map((picksForTablet) => picksForTablet[state.pattern.numberOfRows - 1].totalTurns);
@@ -1567,7 +1596,9 @@ export default function pattern(state = initialPatternState, action) {
 
 				case 'brokenTwill':
 					// offset threading chart
+
 					const { weavingStartRow } = patternDesign;
+					console.log('*** weaving start row', weavingStartRow);
 					const offsetThreadingByTablets = buildTwillOffsetThreading({
 						holes,
 						numberOfTablets,

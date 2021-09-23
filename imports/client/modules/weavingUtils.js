@@ -748,7 +748,7 @@ export const buildTwillOffsetThreading = ({
 	weavingStartRow,
 }) => {
 	const offsetThreadingByTablets = [];
-
+console.log('weavingStartRow', weavingStartRow);
 	for (let i = 0; i < numberOfTablets; i += 1) {
 		offsetThreadingByTablets.push(buildTwillOffsetThreadingForTablet({
 			holes,

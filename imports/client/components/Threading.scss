@@ -1,5 +1,16 @@
 @import "../constants/variables";
 
+.interactive-weaving-chart {
+	.threading {
+		.orientations {
+			.s,
+			.z {
+				background-color: $color-interactive-weaving-chart-color !important;
+			}
+		}
+	}
+}
+
 .threading {
 	clear: both;
 	float: left;

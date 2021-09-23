@@ -420,7 +420,7 @@ class Threading extends PureComponent {
 				<ul className="orientations">
 					{orientations}
 				</ul>
-				<p className="hint">Slope of line = angle of tablet viewed from above</p>
+				<p className="hint">The / or \ line beneath each tablet on the Threading chart shows you how to orient that tablet. The slope of the tablet when viewed from above should match the slope of the line.</p>
 			</div>
 		);
 	}
