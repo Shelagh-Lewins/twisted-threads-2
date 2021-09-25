@@ -7,8 +7,8 @@ import { createSelector } from 'reselect';
 import { logErrors, clearErrors } from './errors';
 import {
 	buildDoubleFacedWeavingInstructionsForTablet,
-	buildTwillOffsetThreadingForTablet,
-	buildTwillOffsetThreading,
+	buildOffsetThreadingForTablet,
+	buildOffsetThreading,
 	buildTwillWeavingInstructionsForTablet,
 	buildWeavingInstructionsByTablet,
 	calculateAllPicks,
@@ -388,7 +388,7 @@ export const getThreadingForHole = ({
 	tabletIndex,
 }) => {
 	let threadingByTablet;
-//console.log('*** get threadinig for hole');
+
 	// broken twill displays an offset threading diagram
 	// based on the weaving start row
 	const {
@@ -397,23 +397,13 @@ export const getThreadingForHole = ({
 
 	if (patternType === 'brokenTwill') {
 		// after a tablet is added there may be a delay before the new tablet is ready
-		// threadingForTablet = state.pattern.patternDesign.offsetThreadingByTablets[tabletIndex];
 		threadingByTablet = state.pattern.patternDesign.offsetThreadingByTablets;
-
-		/* if (threadingForTablet) {
-			return threadingForTablet[holeIndex];
-		}
-
-		return undefined; */
 	} else {
-		// threadingForTablet = state.pattern.threadingByTablet[tabletIndex];
 		threadingByTablet = state.pattern.threadingByTablet;
 	}
 
 	// update the threading chart for simulation patterns to show the current position of the tablets
 	if (selectedRow && patternType !== 'freehand') {
-		//console.log('*** selectedRow', selectedRow);
-
 		const {
 			holes,
 			// numberOfRows,
@@ -423,8 +413,8 @@ export const getThreadingForHole = ({
 		} = state.pattern;
 
 		const currentRow = getNumberOfRowsForChart(state) - selectedRow;
-		console.log('currentRow', currentRow);
-		threadingByTablet = buildTwillOffsetThreading({
+
+		threadingByTablet = buildOffsetThreading({
 			holes,
 			numberOfTablets,
 			picks,
@@ -438,8 +428,6 @@ export const getThreadingForHole = ({
 	}
 
 	return undefined;
-
-	// return state.pattern.threadingByTablet[tabletIndex][holeIndex];
 };
 
 export const getTotalTurnsByTablet = (state) => state.pattern.picks.map((picksForTablet) => picksForTablet[state.pattern.numberOfRows - 1].totalTurns);
@@ -1108,7 +1096,7 @@ export function editThreadingCell({
 				}
 
 				// rebuild offset threading for that tablet
-				newOffsetThreadingForTablet = buildTwillOffsetThreadingForTablet({
+				newOffsetThreadingForTablet = buildOffsetThreadingForTablet({
 					holes,
 					'pick': picks[tablet],
 					'threadingForTablet': newThreadingForTablet,
@@ -1599,7 +1587,7 @@ export default function pattern(state = initialPatternState, action) {
 
 					const { weavingStartRow } = patternDesign;
 					console.log('*** weaving start row', weavingStartRow);
-					const offsetThreadingByTablets = buildTwillOffsetThreading({
+					const offsetThreadingByTablets = buildOffsetThreading({
 						holes,
 						numberOfTablets,
 						picks,
@@ -1619,7 +1607,7 @@ export default function pattern(state = initialPatternState, action) {
 			/* if (patternType === 'brokenTwill') {
 				// offset threading chart
 				const { weavingStartRow } = patternDesign;
-				const offsetThreadingByTablets = buildTwillOffsetThreading({
+				const offsetThreadingByTablets = buildOffsetThreading({
 					holes,
 					numberOfTablets,
 					picks,
@@ -1836,7 +1824,7 @@ export default function pattern(state = initialPatternState, action) {
 			} = state;
 			const newWeavingStartRow = action.payload;
 
-			const offsetThreadingByTablets = buildTwillOffsetThreading({
+			const offsetThreadingByTablets = buildOffsetThreading({
 				holes,
 				numberOfTablets,
 				picks,
@@ -2584,7 +2572,7 @@ export default function pattern(state = initialPatternState, action) {
 						});
 
 						// add the new tablets to offset threading - this depends on picks
-						newOffsetThreading[i] = buildTwillOffsetThreadingForTablet({
+						newOffsetThreading[i] = buildOffsetThreadingForTablet({
 							holes,
 							'pick': newPicks[i],
 							'threadingForTablet': newThreadingByTablet[i],
@@ -2777,7 +2765,7 @@ export default function pattern(state = initialPatternState, action) {
 						});
 
 						// calculate offset threading from removed tablet onwards
-						newOffsetThreading[i] = buildTwillOffsetThreadingForTablet({
+						newOffsetThreading[i] = buildOffsetThreadingForTablet({
 							holes,
 							'pick': newPicks[i],
 							'threadingForTablet': newThreadingByTablet[i],

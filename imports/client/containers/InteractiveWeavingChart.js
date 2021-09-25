@@ -272,7 +272,7 @@ class InteractiveWeavingChart extends PureComponent {
 									{pattern.threading && patternType !== 'freehand' && (
 										<>
 											<h2 className="clearing">Current position of threads</h2>
-											<p className="hint">The chart below shows how the threads should be arranged before weaving the current row</p>
+											<p className="hint">The chart below shows how the threads should be arranged before weaving the current row. Note that ABCD on the chart refers to the position of the thread, not the label on the tablet.</p>
 											<Threading
 												canEdit={false}
 												dispatch={dispatch}

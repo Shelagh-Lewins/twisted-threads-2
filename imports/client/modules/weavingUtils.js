@@ -720,7 +720,7 @@ export const buildWeavingInstructionsByTablet = ({
 	return weavingInstructionsByTablet;
 };
 
-export const buildTwillOffsetThreadingForTablet = ({
+export const buildOffsetThreadingForTablet = ({
 	holes,
 	pick,
 	threadingForTablet,
@@ -728,19 +728,22 @@ export const buildTwillOffsetThreadingForTablet = ({
 }) => {
 	const offsetThreadingForTablet = [];
 	let tabletOffset = 0;
+	const currentRow = weavingStartRow - 1; // humans start counting at pick 1 but the array starts at pick 0
 
-	if (weavingStartRow > 1) {
-		tabletOffset = pick[weavingStartRow - 2].totalTurns;
+	if (currentRow > 0) {
+		tabletOffset = pick[currentRow - 1].totalTurns;
+		// pick 0 gives totalTurns after that pick
+		// previous pick shows threading before this pick is woven
 	}
 
 	for (let j = 0; j < holes; j += 1) {
-		offsetThreadingForTablet.push(threadingForTablet[modulus(j + tabletOffset, holes)]);
+		offsetThreadingForTablet.push(threadingForTablet[modulus(j - tabletOffset, holes)]); // threading runs D -> A because web pages are drawn from the top downwards, so offset goes the other way from what you might expect
 	}
 
 	return offsetThreadingForTablet;
 };
 
-export const buildTwillOffsetThreading = ({
+export const buildOffsetThreading = ({
 	holes,
 	numberOfTablets,
 	picks,
@@ -748,9 +751,9 @@ export const buildTwillOffsetThreading = ({
 	weavingStartRow,
 }) => {
 	const offsetThreadingByTablets = [];
-console.log('weavingStartRow', weavingStartRow);
+
 	for (let i = 0; i < numberOfTablets; i += 1) {
-		offsetThreadingByTablets.push(buildTwillOffsetThreadingForTablet({
+		offsetThreadingByTablets.push(buildOffsetThreadingForTablet({
 			holes,
 			'pick': picks[i],
 			'threadingForTablet': threadingByTablet[i],
