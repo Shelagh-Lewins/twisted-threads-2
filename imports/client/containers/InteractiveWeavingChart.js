@@ -16,6 +16,7 @@ import { getLocalStorageItem } from '../modules/localStorage';
 import Loading from '../components/Loading';
 import WeavingChart from '../components/WeavingChart';
 import Threading from '../components/Threading';
+import Notation from '../components/Notation';
 import './InteractiveWeavingChart.scss';
 
 const bodyClass = 'interactive-weaving-chart';
@@ -282,6 +283,7 @@ class InteractiveWeavingChart extends PureComponent {
 												pattern={pattern}
 												selectedRow={selectedRow}
 											/>
+											<Notation />
 										</>
 									)}
 								</>

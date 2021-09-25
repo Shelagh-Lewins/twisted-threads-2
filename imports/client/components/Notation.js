@@ -41,12 +41,14 @@ function Notation(props) {
 
 	return (
 		<div className="notation">
-			<h2>Tablet labels</h2>
+			<h2>Notation</h2>
+			<h3>Tablet labels</h3>
 			<img src={tabletLabelsImage} alt="Tablet labels" title="Labels and turning direction" width="237" height="148" />
-			<p className="hint">The diagram above shows how to label the holes; the tablets face LEFT as you look from the woven band. The arrows show turning the tablet forwards.</p>
+			<p className="hint">The diagram above shows how to label the tablets, which face LEFT as you look from the woven band.</p>
+			<p className="hint">The arrows show the forward turning direction.</p>
 			{handednessButton}
 			<div className="weaving-chart-key">
-				<h2>Weaving chart key</h2>
+				<h3>Weaving chart key</h3>
 				<span className="item">
 					<span className="cell forward">
 						<SVGForwardWarp

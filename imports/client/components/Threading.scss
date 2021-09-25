@@ -1,4 +1,4 @@
-@import "../constants/variables";
+@import '../constants/variables';
 
 .interactive-weaving-chart {
 	.threading {
@@ -7,6 +7,10 @@
 			.z {
 				background-color: $color-interactive-weaving-chart-color !important;
 			}
+		}
+
+		.include-in-twist-buttons {
+			display: none;
 		}
 	}
 }
