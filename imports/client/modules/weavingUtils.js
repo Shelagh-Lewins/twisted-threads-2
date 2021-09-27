@@ -728,9 +728,9 @@ export const buildOffsetThreadingForTablet = ({
 }) => {
 	const offsetThreadingForTablet = [];
 	let tabletOffset = 0;
-	const chartRow = currentRow - 1;
+	const chartRow = currentRow - 1; // humans count from row 1 but picks array starts with row 0
 
-	if (chartRow > 0) {
+	if (chartRow > 0) { // offset if not on first row
 		tabletOffset = picksForTablet[chartRow - 1].totalTurns;
 		// pick 0 gives totalTurns after that pick
 		// previous pick shows threading before this pick is woven
@@ -750,7 +750,7 @@ export const buildOffsetThreading = ({
 	picks,
 	threadingByTablet,
 }) => {
-	// no recalculation required
+	// no offset, so no recalculation required
 	if (currentRow === 1) {
 		return threadingByTablet;
 	}

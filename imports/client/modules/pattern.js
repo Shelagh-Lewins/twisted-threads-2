@@ -1571,40 +1571,6 @@ export default function pattern(state = initialPatternState, action) {
 				threadingByTablet,
 			};
 
-			switch (patternType) {
-				case 'individual':
-					update.picks = picks;
-					break;
-
-				case 'allTogether':
-					update.picks = picks;
-					break;
-
-				case 'doubleFaced':
-					update.picks = picks;
-					break;
-
-				case 'brokenTwill':
-					// offset threading chart
-
-					const { weavingStartRow } = patternDesign;
-					console.log('*** weaving start row', weavingStartRow);
-					const offsetThreadingByTablets = buildOffsetThreading({
-						holes,
-						numberOfTablets,
-						picks,
-						threadingByTablet,
-						weavingStartRow,
-					});
-
-					patternDesign.offsetThreadingByTablets = offsetThreadingByTablets;
-
-					break;
-
-				default:
-					break;
-			}
-
 			update.patternDesign = updeep.constant(patternDesign); // completely replace patternDesign from any previous pattern
 			return updeep(update, state);
 		}
@@ -1803,25 +1769,10 @@ export default function pattern(state = initialPatternState, action) {
 		}
 
 		case UPDATE_TWILL_WEAVING_START_ROW: {
-			const {
-				holes,
-				numberOfTablets,
-				picks,
-				threadingByTablet,
-			} = state;
 			const newWeavingStartRow = action.payload;
-
-			const offsetThreadingByTablets = buildOffsetThreading({
-				holes,
-				numberOfTablets,
-				picks,
-				threadingByTablet,
-				'weavingStartRow': newWeavingStartRow,
-			});
 
 			return updeep({
 				'patternDesign': {
-					offsetThreadingByTablets,
 					'weavingStartRow': newWeavingStartRow,
 				},
 			}, state);
@@ -1844,7 +1795,7 @@ export default function pattern(state = initialPatternState, action) {
 				tablet,
 			} = action.payload;
 
-			// toggle cel direction
+			// toggle cell direction
 			const cell = state.patternDesign.freehandChart[row][tablet];
 			const direction = cell.direction === 'F' ? 'B' : 'F';
 
@@ -1867,23 +1818,14 @@ export default function pattern(state = initialPatternState, action) {
 			const {
 				colorIndex,
 				holesToSet,
-				newOffsetThreadingForTablet,
 				tablet,
 			} = action.payload;
-
-			const {
-				patternType,
-			} = state;
 
 			const update = {
 				'threadingByTablet': {
 					[tablet]: {},
 				},
 			};
-
-			if (patternType === 'brokenTwill') {
-				update.patternDesign = { 'offsetThreadingByTablets': { [tablet]: newOffsetThreadingForTablet } };
-			}
 
 			holesToSet.forEach((holeIndex) => {
 				update.threadingByTablet[tablet][holeIndex] = colorIndex;
@@ -2474,16 +2416,13 @@ export default function pattern(state = initialPatternState, action) {
 
 				case 'brokenTwill':
 					const {
-						offsetThreadingByTablets,
 						twillDirection,
 						twillPatternChart,
 						twillDirectionChangeChart,
-						weavingStartRow,
 					} = patternDesign;
 					const chartLength = twillPatternChart.length;
 					const newTwillPatternChart = [...twillPatternChart];
 					const newTwillDirectionChangeChart = [...twillDirectionChangeChart];
-					const newOffsetThreading = [...offsetThreadingByTablets];
 
 					// orientations
 					for (let i = 0; i < insertNTablets; i += 1) {
@@ -2557,18 +2496,9 @@ export default function pattern(state = initialPatternState, action) {
 							'weavingInstructionsForTablet': newWeavingInstructions,
 							'row': 0,
 						});
-
-						// add the new tablets to offset threading - this depends on picks
-						newOffsetThreading[i] = buildOffsetThreadingForTablet({
-							holes,
-							'pick': newPicks[i],
-							'threadingForTablet': newThreadingByTablet[i],
-							weavingStartRow,
-						});
 					}
 
 					update.patternDesign = {
-						'offsetThreadingByTablets': newOffsetThreading,
 						'twillPatternChart': newTwillPatternChart,
 						'twillDirectionChangeChart': newTwillDirectionChangeChart,
 					};
@@ -2680,21 +2610,17 @@ export default function pattern(state = initialPatternState, action) {
 
 				case 'brokenTwill':
 					const {
-						offsetThreadingByTablets,
 						twillDirection,
 						twillPatternChart,
 						twillDirectionChangeChart,
-						weavingStartRow,
 					} = patternDesign;
 					const chartLength = twillPatternChart.length;
 					const newTwillPatternChart = [...twillPatternChart];
 					const newTwillDirectionChangeChart = [...twillDirectionChangeChart];
-					const newOffsetThreading = [...offsetThreadingByTablets];
 
 					newOrientations.pop(); // all tablets have the same orientation
 					newWeavingInstructionsByTablet.pop(); // this will be rewoven
 					newPicks.pop(); // this will be rewoven
-					newOffsetThreading.pop(); // this will be recalculated
 
 					// remove the tablet from threading
 					// find the foreground / background colour for each tablet from the change onwards
@@ -2750,18 +2676,9 @@ export default function pattern(state = initialPatternState, action) {
 							'weavingInstructionsForTablet': newWeavingInstructionsByTablet,
 							'row': 0,
 						});
-
-						// calculate offset threading from removed tablet onwards
-						newOffsetThreading[i] = buildOffsetThreadingForTablet({
-							holes,
-							'pick': newPicks[i],
-							'threadingForTablet': newThreadingByTablet[i],
-							weavingStartRow,
-						});
 					}
 
 					update.patternDesign = {
-						'offsetThreadingByTablets': newOffsetThreading,
 						'twillPatternChart': newTwillPatternChart,
 						'twillDirectionChangeChart': newTwillDirectionChangeChart,
 					};
