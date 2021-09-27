@@ -67,7 +67,7 @@ function Notation(props) {
 					</span>
 					<span className="text">Turn tablet backward</span>
 				</span>
-				<p>Grey background in the table cell means turn the tablet backwards: the shape shows the visible thread colour and angle.</p>
+				<p>Shaded background means turn the tablet backwards. The coloured shape shows the visible thread colour and angle.</p>
 				<span className="item">
 					<span className="cell idle">
 						<SVGIdle

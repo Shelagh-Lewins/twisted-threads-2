@@ -721,17 +721,17 @@ export const buildWeavingInstructionsByTablet = ({
 };
 
 export const buildOffsetThreadingForTablet = ({
+	currentRow,
 	holes,
-	pick,
+	picksForTablet,
 	threadingForTablet,
-	weavingStartRow,
 }) => {
 	const offsetThreadingForTablet = [];
 	let tabletOffset = 0;
-	const currentRow = weavingStartRow - 1; // humans start counting at pick 1 but the array starts at pick 0
+	const chartRow = currentRow - 1;
 
-	if (currentRow > 0) {
-		tabletOffset = pick[currentRow - 1].totalTurns;
+	if (chartRow > 0) {
+		tabletOffset = picksForTablet[chartRow - 1].totalTurns;
 		// pick 0 gives totalTurns after that pick
 		// previous pick shows threading before this pick is woven
 	}
@@ -744,22 +744,27 @@ export const buildOffsetThreadingForTablet = ({
 };
 
 export const buildOffsetThreading = ({
+	currentRow,
 	holes,
 	numberOfTablets,
 	picks,
 	threadingByTablet,
-	weavingStartRow,
 }) => {
-	const offsetThreadingByTablets = [];
+	// no recalculation required
+	if (currentRow === 1) {
+		return threadingByTablet;
+	}
+
+	const offsetThreadingByTablet = [];
 
 	for (let i = 0; i < numberOfTablets; i += 1) {
-		offsetThreadingByTablets.push(buildOffsetThreadingForTablet({
+		offsetThreadingByTablet.push(buildOffsetThreadingForTablet({
 			holes,
-			'pick': picks[i],
+			'picksForTablet': picks[i],
 			'threadingForTablet': threadingByTablet[i],
-			weavingStartRow,
+			currentRow,
 		}));
 	}
 
-	return offsetThreadingByTablets;
+	return offsetThreadingByTablet;
 };

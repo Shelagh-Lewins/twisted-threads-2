@@ -367,8 +367,7 @@ export const getPicksForTabletForChart = (state, tabletIndex) => {
 			picksForTablet.splice(0, patternDesign.weavingStartRow - 1);
 		}
 	}
-//console.log('tablet index', tabletIndex);
-//console.log('picksForTablet', picksForTablet);
+
 	return picksForTablet;
 };
 
@@ -387,44 +386,47 @@ export const getThreadingForHole = ({
 	state,
 	tabletIndex,
 }) => {
-	let threadingByTablet;
-
-	// broken twill displays an offset threading diagram
-	// based on the weaving start row
-	const {
-		patternType,
-	} = state.pattern;
-
-	if (patternType === 'brokenTwill') {
-		// after a tablet is added there may be a delay before the new tablet is ready
-		threadingByTablet = state.pattern.patternDesign.offsetThreadingByTablets;
-	} else {
-		threadingByTablet = state.pattern.threadingByTablet;
-	}
-
-	// update the threading chart for simulation patterns to show the current position of the tablets
-	if (selectedRow && patternType !== 'freehand') {
-		const {
-			holes,
-			// numberOfRows,
-			numberOfTablets,
-			picks,
-			// threadingByTablet,
-		} = state.pattern;
-
-		const currentRow = getNumberOfRowsForChart(state) - selectedRow;
-
-		threadingByTablet = buildOffsetThreading({
-			holes,
-			numberOfTablets,
-			picks,
-			threadingByTablet,
-			'weavingStartRow': currentRow,
-		});
-	}
+	const { threadingByTablet } = state.pattern;
+	const { weavingStartRow } = state.pattern.patternDesign;
 
 	if (threadingByTablet) {
-		return threadingByTablet[tabletIndex][holeIndex];
+		// broken twill displays an offset threading diagram
+		// based on the weaving start row
+		const {
+			patternType,
+		} = state.pattern;
+
+		let offsetThreadingByTablet = threadingByTablet;
+		let currentRow = 1;
+
+		// in the interactive weaving chart
+		// update the threading chart for simulation patterns to show the current position of the tablets
+		// top row of weaving chart is row 0 so don't use falsy as a test
+		if (typeof selectedRow !== 'undefined' && patternType !== 'freehand') {
+			currentRow = getNumberOfRowsForChart(state) - selectedRow;
+		}
+
+		if (typeof weavingStartRow !== 'undefined') {
+			currentRow += (weavingStartRow - 1); // if starting on row 3, this is offset 2 from row 1
+		}
+
+		if (currentRow) {
+			const {
+				holes,
+				numberOfTablets,
+				picks,
+			} = state.pattern;
+
+			offsetThreadingByTablet = buildOffsetThreading({
+				holes,
+				numberOfTablets,
+				picks,
+				threadingByTablet,
+				currentRow,
+			});
+		}
+
+		return offsetThreadingByTablet[tabletIndex][holeIndex];
 	}
 
 	return undefined;
@@ -1602,21 +1604,6 @@ export default function pattern(state = initialPatternState, action) {
 				default:
 					break;
 			}
-
-			// I can't see why this was in twice; I assume the code was moved but accidentally left in place?
-			/* if (patternType === 'brokenTwill') {
-				// offset threading chart
-				const { weavingStartRow } = patternDesign;
-				const offsetThreadingByTablets = buildOffsetThreading({
-					holes,
-					numberOfTablets,
-					picks,
-					threadingByTablet,
-					weavingStartRow,
-				});
-
-				patternDesign.offsetThreadingByTablets = offsetThreadingByTablets;
-			} */
 
 			update.patternDesign = updeep.constant(patternDesign); // completely replace patternDesign from any previous pattern
 			return updeep(update, state);
