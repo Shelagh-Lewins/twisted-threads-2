@@ -1,10 +1,14 @@
 import { check } from 'meteor/check';
 import { PatternPreviews, Patterns } from '../../imports/modules/collection';
-import { PREVIEW_HEIGHT, PREVIEW_SCALE, PREVIEW_WIDTH } from '../../imports/modules/parameters';
+import { getPatternPreviewImagePath } from '../../imports/modules/getPatternPreviewPaths';
+import {
+	PREVIEW_HEIGHT,
+	PREVIEW_SCALE,
+	PREVIEW_WIDTH,
+} from '../../imports/modules/parameters';
 
 const Jimp = require('jimp');
 const Fs = require('fs');
-const Os = require('os');
 
 const Future = Npm.require('fibers/future');
 
@@ -60,12 +64,14 @@ Meteor.methods({
 		try {
 			future1.wait();
 			const patternPreview = PatternPreviews.findOne({ 'patternId': _id });
-			const homeDir = Os.homedir(); // save preview files under the current user
-			Fs.writeFile(`${homeDir}/test.png`, base64Image, 'base64', (err, data) => {
+			const imagePath = getPatternPreviewImagePath(_id);
+console.log('about to save', imagePath);
+			Fs.writeFile(imagePath, base64Image, 'base64', (err) => {
 				if (err) {
-					throw new Meteor.Error('save-preview-error', err);
+					console.log('got error', err);
+					//throw new Meteor.Error('save-preview-error', 'Unable to save preview due to error');
 				} else {
-					console.log('success');
+					console.log('save-preview-success');
 				}
 			});
 

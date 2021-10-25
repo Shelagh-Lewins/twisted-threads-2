@@ -1,7 +1,12 @@
 import '../imports/server/modules/publications';
 import '../imports/server/modules/slingshot';
-import { ROLES } from '../imports/modules/parameters';
+import {
+	ROLES,
+} from '../imports/modules/parameters';
 import { buildServerLogText } from '../imports/server/modules/utils';
+import { getPatternPreviewFolderPath } from '../imports/modules/getPatternPreviewPaths';
+
+const Fs = require('fs');
 
 Meteor.startup(() => {
 	// ensure user roles exist
@@ -70,6 +75,25 @@ Meteor.startup(() => {
 			}
 		},
 	});
+
+	// make sure the folder for the pattern previews exists
+	// this is blocking (sync) but as it is startup, I think it's better to make sure the operation is complete before any attempt is made to write to the folder
+	const previewPath = getPatternPreviewFolderPath();
+
+	try {
+		Fs.statSync(previewPath);
+		console.log('preview directory exists');
+	} catch (err) {
+		if (err.code === 'ENOENT') {
+			console.log('preview directory does not exist, so create it,', previewPath);
+
+			try {
+				Fs.mkdirSync(previewPath);
+			} catch (err1) {
+				console.log('error creating preview directory,', previewPath);
+			}
+		}
+	}
 });
 
 Accounts.onCreateUser((options, user) => {
