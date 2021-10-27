@@ -355,5 +355,3 @@ export const PATTERN_AS_TEXT_FIELDS = [
 
 	},
 ];
-
-export const PREVIEW_PATH = 'patternPreviews';
