@@ -10,8 +10,6 @@ const validate = (values) => {
 		errors.oldPassword = 'Required';
 	} else if (/\s/.test(values.oldPassword)) {
 		errors.oldPassword = 'Must not contain spaces';
-	} else if (values.oldPassword.length < 8) {
-		errors.oldPassword = 'Must be at least 8 characters';
 	}
 
 	if (!values.newPassword) {
