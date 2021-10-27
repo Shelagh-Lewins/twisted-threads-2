@@ -25,7 +25,7 @@ Meteor.startup(() => {
 
 		text += `\n\n${urlWithoutHash}`;
 
-		text += '\n\nAlternatively, you can enter the verification code below on your Account page in Twisted Threads:';
+		text += '\n\nAlternatively, you can copy the verification code below and enter it on your Account page in Twisted Threads:';
 
 		let code = urlWithoutHash.split('/');
 
