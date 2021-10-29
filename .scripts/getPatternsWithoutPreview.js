@@ -34,4 +34,4 @@ patterns.forEach(pattern => {
 	}
 });
 
-print(patternIds);
+print(patternIds); // this is effectively the return value

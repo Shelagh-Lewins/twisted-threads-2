@@ -51,7 +51,8 @@ const puppeteer = require('puppeteer');
 		await browser.close()
 	}
 
-	await page.waitForSelector(".preview-outer h2");
+	await page.waitForSelector(".preview-holder svg");
+	await page.waitForTimeout(3500); // wait for the preview to be rendered and saved
 
 	console.log('end of pattern', patternId);
 
