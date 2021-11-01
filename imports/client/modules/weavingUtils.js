@@ -265,6 +265,7 @@ export const getThread = ({
 	netTurns,
 	orientation,
 	palette,
+	showBackOfBand,
 	threadingForTablet,
 }) => {
 	let holeToShow;
@@ -280,6 +281,23 @@ export const getThread = ({
 		holeToShow = modulus(holes - netTurns - 1, holes);
 	}
 
+	let threadAngle = '/'; // which way does the thread twist?
+
+	if (direction === 'F') {
+		if (orientation === '\\') {
+			threadAngle = '\\';
+		}
+	} else if (orientation === '/') {
+		threadAngle = '\\';
+	}
+
+	if (showBackOfBand && holes % 2 === 0) { // number of holes must be even to show the back of the band
+		// when viewing the back of the band, the thread direction is reversed
+		threadAngle = threadAngle === '\\' ? '/' : '\\';
+
+		holeToShow = modulus(holeToShow + (holes / 2), holes); // the hole showing is the diagonally opposite hole
+	}
+
 	const colorIndex = threadingForTablet[holeToShow];
 
 	if (!isValidColorIndex(colorIndex)) {
@@ -289,16 +307,6 @@ export const getThread = ({
 	let threadColor = emptyHoleColor;
 	if (colorIndex !== -1) { // not empty, there is a thread
 		threadColor = palette[colorIndex];
-	}
-
-	let threadAngle = '/'; // which way does the thread twist?
-
-	if (direction === 'F') {
-		if (orientation === '\\') {
-			threadAngle = '\\';
-		}
-	} else if (orientation === '/') {
-		threadAngle = '\\';
 	}
 
 	return {

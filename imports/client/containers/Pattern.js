@@ -71,6 +71,7 @@ class Pattern extends PureComponent {
 			'recentPatternId': null, // id that has been added to recent patterns list. This lets us check for navigation to a new pattern, e.g. because of copy
 			'showCopyIDSuccess': false,
 			'selectedPatternImage': null,
+			'showBackOfBand': false,
 			'showImageUploader': false,
 			'showStartPosition': true,
 		};
@@ -87,6 +88,7 @@ class Pattern extends PureComponent {
 			'onClickPatternImageThumbnail',
 			'onCloseFlashMessage',
 			'onRemovePatternImage',
+			'handleChangeShowBackOfBand',
 			'onToggleImageUploader',
 			'handleChangeUpdatePreviewWhileEditing',
 			'handleChangeShowStartPosition',
@@ -151,6 +153,10 @@ class Pattern extends PureComponent {
 		// resync with database when user starts editing
 		// in case they have made changes to the pattern in another window or on another machine
 		if (!prevProps.isEditing && isEditing) {
+			this.setState({
+				'showBackOfBand': false,
+			});
+
 			dispatch(savePatternData(pattern));
 		}
 
@@ -187,6 +193,17 @@ class Pattern extends PureComponent {
 		document.body.classList.remove(bodyClass);
 	}
 
+	onChangeIsPublic = () => {
+		const { canPublish, dispatch } = this.props;
+		const { 'pattern': { _id, isPublic } } = this.context;
+
+		if (!canPublish) {
+			alert('To change the privacy of patterns or colour books, please verify your email address');
+		} else {
+			dispatch(editIsPublic({ _id, 'isPublic': !isPublic }));
+		}
+	};
+
 	handleChangeUpdatePreviewWhileEditing(event) {
 		const { dispatch } = this.props;
 
@@ -199,16 +216,18 @@ class Pattern extends PureComponent {
 		});
 	}
 
-	onChangeIsPublic = () => {
-		const { canPublish, dispatch } = this.props;
-		const { 'pattern': { _id, isPublic } } = this.context;
+	handleChangeShowBackOfBand(event) {
+		const { dispatch } = this.props;
 
-		if (!canPublish) {
-			alert('To change the privacy of patterns or colour books, please verify your email address');
-		} else {
-			dispatch(editIsPublic({ _id, 'isPublic': !isPublic }));
+		this.setState({
+			'showBackOfBand': event.target.checked,
+		});
+
+		if (event.target.checked) {
+			dispatch(setIsEditingThreading(false));
+			dispatch(setIsEditingWeaving(false));
 		}
-	};
+	}
 
 	onClickEditCaptionSave({ fieldValue }) {
 		const { dispatch } = this.props;
@@ -643,11 +662,31 @@ class Pattern extends PureComponent {
 		);
 	}
 
+	renderShowBackOfBandControl() {
+		const { showBackOfBand } = this.state;
+
+		return (
+			<div className="show-back-of-band-control custom-checkbox custom-control">
+				<input
+					checked={showBackOfBand}
+					type="checkbox"
+					id="updateShowBackOfBandControl"
+					className="custom-control-input"
+					name="updateShowBackOfBandControl"
+					onChange={this.handleChangeShowBackOfBand}
+					onBlur={this.handleChangeShowBackOfBand}
+				/>
+				<label className="custom-control-label" htmlFor="updateShowBackOfBandControl">Show the back of the band</label>
+			</div>
+		);
+	}
+
 	renderPreview({
 		_id,
 		canEdit,
 		pattern,
 		previewOrientation,
+		showBackOfBand,
 	}) {
 		const {
 			dispatch,
@@ -681,6 +720,7 @@ class Pattern extends PureComponent {
 					pattern={pattern}
 					patternWillRepeat={patternWillRepeat}
 					rowsAtStartPosition={rowsAtStartPosition}
+					showBackOfBand={showBackOfBand}
 					showStartPosition={showStartPosition}
 					totalTurnsByTablet={totalTurnsByTablet}
 				/>
@@ -694,6 +734,8 @@ class Pattern extends PureComponent {
 		patternImages,
 		pattern,
 	}) {
+		const { showBackOfBand } = this.state;
+
 		const {
 			canAddPatternImage,
 			dispatch,
@@ -771,11 +813,13 @@ class Pattern extends PureComponent {
 						/>
 						{this.renderUpdatePreviewControl()}
 						{includeInTwist && this.renderShowStartPositionControl()}
+						{includeInTwist && holes % 2 === 0 && this.renderShowBackOfBandControl()}
 						{!previewAtSide && this.renderPreview({
 							_id,
 							canEdit,
 							pattern,
 							previewOrientation,
+							showBackOfBand,
 						})}
 						<div className="orientation-change-container">
 							<div className="weaving-outer">
@@ -786,6 +830,7 @@ class Pattern extends PureComponent {
 								canEdit,
 								pattern,
 								previewOrientation,
+								showBackOfBand,
 							})}
 						</div>
 						<EditableText

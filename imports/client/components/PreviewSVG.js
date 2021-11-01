@@ -30,6 +30,7 @@ export default function PreviewSVG({
 	patternWillRepeat,
 	picksForTablet,
 	rowIndex,
+	showBackOfBand,
 	tabletIndex,
 	threadingForTablet,
 }) {
@@ -71,6 +72,7 @@ export default function PreviewSVG({
 		netTurns,
 		orientation,
 		palette,
+		showBackOfBand,
 		threadingForTablet,
 	});
 
@@ -147,5 +149,6 @@ PreviewSVG.propTypes = {
 	'patternWillRepeat': PropTypes.bool.isRequired,
 	'picksForTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'rowIndex': PropTypes.number.isRequired,
+	'showBackOfBand': PropTypes.bool,
 	'tabletIndex': PropTypes.number.isRequired,
 };

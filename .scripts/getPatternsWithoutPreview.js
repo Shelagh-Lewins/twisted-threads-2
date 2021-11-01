@@ -1,8 +1,9 @@
-//print('running getPatternsWithoutPreview.js');
+// a 'print' statement is effectively the return value, so only put in extraneous prints for debugging. They will mess up execution.
+// print('running getPatternsWithoutPreview.js');
 // finds patterns without a patternPreview
 // makes them owned by the user who ran the script
 // and return pattern _id's as an array
-// !!NEVER run on live data!!!
+// !!! NEVER run on live data !!!
 
 if (mongoAddress) {
 	conn = new Mongo(mongoAddress);

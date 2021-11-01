@@ -47,6 +47,7 @@ class PatternPreview extends Component {
 			},
 			printView,
 			rowsAtStartPosition,
+			showBackOfBand,
 			showStartPosition,
 			totalTurnsByTablet,
 		} = this.props;
@@ -239,6 +240,7 @@ class PatternPreview extends Component {
 						patternWillRepeat={patternWillRepeat}
 						patternType={patternType}
 						rowIndex={rowIndex}
+						showBackOfBand={showBackOfBand}
 						tabletIndex={tabletIndex}
 					/>
 				);
@@ -439,6 +441,7 @@ PatternPreview.propTypes = {
 	'patternWillRepeat': PropTypes.bool.isRequired,
 	'printView': PropTypes.bool,
 	'rowsAtStartPosition': PropTypes.arrayOf(PropTypes.any),
+	'showBackOfBand': PropTypes.bool,
 	'showStartPosition': PropTypes.bool,
 	'totalTurnsByTablet': PropTypes.arrayOf(PropTypes.any),
 };

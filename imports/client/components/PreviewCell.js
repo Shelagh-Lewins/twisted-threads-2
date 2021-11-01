@@ -30,6 +30,7 @@ class PreviewCell extends Component {
 			patternWillRepeat,
 			picksForTablet,
 			rowIndex,
+			showBackOfBand,
 			tabletIndex,
 			threadingForTablet,
 		} = this.props;
@@ -45,6 +46,7 @@ class PreviewCell extends Component {
 				patternWillRepeat={patternWillRepeat}
 				picksForTablet={picksForTablet}
 				rowIndex={rowIndex}
+				showBackOfBand={showBackOfBand}
 				tabletIndex={tabletIndex}
 				threadingForTablet={threadingForTablet}
 			/>
@@ -64,6 +66,7 @@ PreviewCell.propTypes = {
 	'patternWillRepeat': PropTypes.bool.isRequired,
 	'picksForTablet': PropTypes.arrayOf(PropTypes.any),
 	'rowIndex': PropTypes.number.isRequired, // eslint-disable-line react/no-unused-prop-types
+	'showBackOfBand': PropTypes.bool,
 	'tabletIndex': PropTypes.number.isRequired,
 	'threadingForTablet': PropTypes.arrayOf(PropTypes.any),
 };

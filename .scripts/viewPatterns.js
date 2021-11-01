@@ -1,4 +1,4 @@
-// use Puppeteer to log in and visit each pattern by _id
+// use Puppeteer to log in and visit a pattern by _id, for long enough to generate and save the pattern preview
 // _id is loaded from environment variable
 // run this file from a bash file e.g. generatePatternPreviews.sh which first saves the pattern _id and makes the user own the pattern so it can be viewed
 const puppeteer = require('puppeteer');
