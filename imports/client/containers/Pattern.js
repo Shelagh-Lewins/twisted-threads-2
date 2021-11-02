@@ -65,6 +65,8 @@ const bodyClass = 'pattern';
 class Pattern extends PureComponent {
 	constructor(props) {
 		super(props);
+		this.childThreading = React.createRef();
+		this.childWeaving = React.createRef();
 
 		this.state = {
 			'gotUser': false, // add to recents after user has loaded
@@ -109,6 +111,8 @@ class Pattern extends PureComponent {
 	}
 
 	componentDidUpdate(prevProps) {
+		// it is not good practice to use this.setState inside componentDidUpdate
+		// so be very careful to ensure that setState can only run once!
 		const {
 			dispatch,
 			isEditing,
@@ -204,31 +208,6 @@ class Pattern extends PureComponent {
 		}
 	};
 
-	handleChangeUpdatePreviewWhileEditing(event) {
-		const { dispatch } = this.props;
-
-		dispatch(setUpdatePreviewWhileEditing(event.target.checked));
-	}
-
-	handleChangeShowStartPosition(event) {
-		this.setState({
-			'showStartPosition': event.target.checked,
-		});
-	}
-
-	handleChangeShowBackOfBand(event) {
-		const { dispatch } = this.props;
-
-		this.setState({
-			'showBackOfBand': event.target.checked,
-		});
-
-		if (event.target.checked) {
-			dispatch(setIsEditingThreading(false));
-			dispatch(setIsEditingWeaving(false));
-		}
-	}
-
 	onClickEditCaptionSave({ fieldValue }) {
 		const { dispatch } = this.props;
 		const { selectedPatternImage } = this.state;
@@ -275,6 +254,41 @@ class Pattern extends PureComponent {
 		this.setState({
 			'showImageUploader': !showImageUploader,
 		});
+	}
+
+	handleChangeUpdatePreviewWhileEditing(event) {
+		const { dispatch } = this.props;
+
+		dispatch(setUpdatePreviewWhileEditing(event.target.checked));
+	}
+
+	handleChangeShowStartPosition(event) {
+		this.setState({
+			'showStartPosition': event.target.checked,
+		});
+	}
+
+	handleChangeShowBackOfBand(event) {
+		const {
+			isEditingThreading,
+			isEditingWeaving,
+		} = this.props;
+
+		this.setState({
+			'showBackOfBand': event.target.checked,
+		});
+
+		if (event.target.checked) {
+			if (isEditingThreading) {
+				console.log('childThreading', this.childThreading);
+				this.childThreading.current.toggleEditThreading();
+			}
+
+			if (isEditingWeaving) {
+				console.log('childWeaving', this.childWeaving);
+				this.childWeaving.current.toggleEditWeaving();
+			}
+		}
 	}
 
 	async copyPatternId() {
@@ -555,6 +569,7 @@ class Pattern extends PureComponent {
 							numberOfRows={numberOfRows}
 							numberOfTablets={numberOfTablets}
 							pattern={pattern}
+							ref={this.childWeaving}
 						/>
 					</>
 				);
@@ -568,6 +583,7 @@ class Pattern extends PureComponent {
 							dispatch={dispatch}
 							numberOfRows={numberOfRows}
 							pattern={pattern}
+							ref={this.childWeaving}
 						/>
 					</>
 				);
@@ -582,6 +598,7 @@ class Pattern extends PureComponent {
 							numberOfRows={numberOfRows}
 							numberOfTablets={numberOfTablets}
 							pattern={pattern}
+							ref={this.childWeaving}
 						/>
 					</>
 				);
@@ -596,6 +613,7 @@ class Pattern extends PureComponent {
 							numberOfRows={numberOfRows}
 							numberOfTablets={numberOfTablets}
 							pattern={pattern}
+							ref={this.childWeaving}
 						/>
 					</>
 				);
@@ -703,7 +721,7 @@ class Pattern extends PureComponent {
 
 		return (
 			<div className="preview-outer">
-				<h2>Woven band</h2>
+				<h2>{showBackOfBand ? 'Back of woven band' : 'Woven band'}</h2>
 				{canEdit && (
 					<PreviewOrientation
 						_id={_id}
@@ -852,6 +870,7 @@ class Pattern extends PureComponent {
 								holes={holes}
 								numberOfTablets={numberOfTablets}
 								pattern={pattern}
+								ref={this.childThreading}
 							/>
 						)}
 						<EditableText
@@ -1016,6 +1035,8 @@ Pattern.propTypes = {
 	'holeHandedness': PropTypes.string,
 	'holes': PropTypes.number.isRequired,
 	'isEditing': PropTypes.bool.isRequired,
+	'isEditingThreading': PropTypes.bool.isRequired,
+	'isEditingWeaving': PropTypes.bool.isRequired,
 	'isLoading': PropTypes.bool.isRequired,
 	'numberOfRows': PropTypes.number.isRequired,
 	'numberOfRowsForChart': PropTypes.number.isRequired,
@@ -1030,7 +1051,11 @@ Pattern.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
-	const { patternType } = state.pattern;
+	const {
+		isEditingThreading,
+		isEditingWeaving,
+		patternType,
+	} = state.pattern;
 
 	// defaults for freehand pattern
 	const {
@@ -1053,6 +1078,8 @@ function mapStateToProps(state, ownProps) {
 		'holes': getHoles(state),
 		'isEditing': getIsEditing(state),
 		'isLoading': getIsLoading(state),
+		isEditingThreading,
+		isEditingWeaving,
 		'numberOfRows': getNumberOfRows(state),
 		'numberOfRowsForChart': getNumberOfRowsForChart(state),
 		'numberOfTablets': getNumberOfTablets(state),

@@ -172,4 +172,5 @@ function mapStateToProps(state) {
 	};
 }
 
-export default connect(mapStateToProps)(WeavingDesignAllTogether);
+// we need forwardRef to allow the wrapped component to be referenced from the Pattern.js component
+export default connect(mapStateToProps, null, null, { 'forwardRef': true })(WeavingDesignAllTogether);

@@ -58,14 +58,14 @@ class PatternPreview extends Component {
 
 		// Update the saved preview image on load and change. Wait until the user pauses before saving the preview
 		// this also gives the preview time to render
-		if (canEdit) {
+		if (canEdit) { // do not save the back of the band view
 			const savePreviewPattern = function () {
 				const holder = document.getElementById('preview-holder');
 
 				if (holder) { // wait for render
 					const elm = document.getElementById('preview-holder').getElementsByTagName('svg')[0];
 
-					if (elm) {
+					if (elm && !showBackOfBand) {
 						dispatch(savePatternPreview({ _id, elm }));
 					}
 				}
