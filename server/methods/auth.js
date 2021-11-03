@@ -239,7 +239,6 @@ Meteor.methods({
 		return false;
 	},
 	'auth.setWeavingBackwardsBackgroundColor': function (colorValue) {
-		console.log('colorValue', colorValue);
 		check(colorValue, validHexColorCheck);
 
 		if (!Meteor.userId()) {

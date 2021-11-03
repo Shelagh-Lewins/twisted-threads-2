@@ -630,10 +630,47 @@ if (Meteor.isServer) {
 				unwrapUser();
 			});
 		});
+		describe('setWeavingBackwardsBackgroundColor method', () => {
+			it('throws an error if the user is not logged in', () => {
+				function expectedError() {
+					Meteor.call('auth.setWeavingBackwardsBackgroundColor', '#ff00ff');
+				}
+
+				expect(expectedError).to.throw(Meteor.Error(), 'set-weaving-backwards-background-color-not-logged-in');
+			});
+			it('throws an error if the colour value is not specified', () => {
+				stubUser();
+
+				function expectedError() {
+					Meteor.call('auth.setWeavingBackwardsBackgroundColor', undefined);
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'Match error');
+
+				unwrapUser();
+			});
+			it('throws an error if the colour value is empty string', () => {
+				stubUser();
+
+				function expectedError() {
+					Meteor.call('auth.setWeavingBackwardsBackgroundColor', '');
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'Match error');
+
+				unwrapUser();
+			});
+			it('throws an error if the colour value is too long', () => {
+				stubUser();
+
+				function expectedError() {
+					Meteor.call('auth.setWeavingBackwardsBackgroundColor', '#ff00ffg');
+				}
+				expect(expectedError).to.throw(Meteor.Error(), 'Match error');
+
+				unwrapUser();
+			});
+		});
 	});
 }
 
 // check can add pattern image
 // No! It would affect AWS live storage
-
-// tags

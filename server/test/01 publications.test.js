@@ -82,6 +82,7 @@ Factory.define('user', Meteor.users, {
 	}],
 	'publicPatternsCount': 0,
 	'publicColorBooksCount': 0,
+	'weavingBackwardsBackgroundColor': '#aabbcc',
 });
 
 Factory.define('colorBook', ColorBooks, defaultColorBookData);
@@ -1414,5 +1415,27 @@ if (Meteor.isServer) {
 				assert.equal(result.length, 2);
 			});
 		});
+		// /////////////////////////
+		describe('publish weavingBackwardsBackgroundColor for user', () => {
+			it('should publish a value if the user is logged in', async () => {
+				// make sure publications know there is no user
+				const userId = Meteor.userId();
+
+				// if no public patterns in set, publish nothing
+				const collector = new PublicationCollector();
+
+				const testPromise = new Promise((resolve, reject) => {
+					collector.collect('users', [userId],
+						(collections) => {
+							resolve(collections.users);
+						});
+				});
+
+				const result = await testPromise;
+
+				assert.equal(result[0].weavingBackwardsBackgroundColor, '#aabbcc');
+			});
+		});
+		// this is not secure information and will be visible to anybody
 	});
 }
