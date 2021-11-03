@@ -214,11 +214,14 @@ class PatternPreview extends Component {
 
 		// /////////////
 		// render the preview
+		// reverse order of tablets if showing back of band
+		const findTabletIndex = (index) => (showBackOfBand ? numberOfTablets - index - 1 : index);
+
 		const yOffsetForRow = (rowIndex, repeatOffset) => ((numberOfRows - rowIndex - 1) * (unitHeight / 2)) + repeatOffset;
 
 		const renderCell = function (currentRepeat, repeatOffset, rowIndex, tabletIndex) {
 			// position the cell's svg path
-			const xOffset = (tabletIndex + weftOverlap) * unitWidth;
+			const xOffset = (findTabletIndex(tabletIndex) + weftOverlap) * unitWidth; // take account of whether we are viewing the front or the back of the band
 			const yOffset = yOffsetForRow(rowIndex, repeatOffset);
 			const transform = `translate(${xOffset} ${yOffset})`;
 
@@ -330,6 +333,8 @@ class PatternPreview extends Component {
 				const cells = [];
 
 				for (let j = 0; j < numberOfTablets; j += 1) {
+					// we do not need to change the order of the tablets depending on whether front or back of band is showing
+					// the xOffset will take care of this
 					cells.push(renderCell(currentRepeat, svgRepeatOffset, numberOfRows - i - 1, j));
 				}
 
@@ -358,21 +363,23 @@ class PatternPreview extends Component {
 		const totalTurnCells = [];
 
 		for (let j = 0; j < numberOfTablets; j += 1) {
-			const totalTurns = totalTurnsByTablet[j];
+			const tabletIndex = findTabletIndex(j);
+
+			const totalTurns = totalTurnsByTablet[tabletIndex];
 			const startPosition = modulus(totalTurns, holes) === 0; // tablet is back at start position
-			let title = `Tablet number ${j + 1}. Total turns: ${totalTurns}`;
+			let title = `Tablet number ${tabletIndex + 1}. Total turns: ${totalTurns}`;
 			if (startPosition) {
-				title = `Tablet number ${j + 1} is at start position. Total turns: ${totalTurns}.`;
+				title = `Tablet number ${tabletIndex + 1} is at start position. Total turns: ${totalTurns}.`;
 			}
 
 			if (totalTurns === 0) {
-				title = `Tablet number ${j + 1} is twist neutral. Total turns: ${totalTurns}.`;
+				title = `Tablet number ${tabletIndex + 1} is twist neutral. Total turns: ${totalTurns}.`;
 			}
 
 			totalTurnCells.push(
 				<span
-					className={`${totalTurns === 0 ? 'twist-neutral' : ''} ${startPosition ? 'start-position' : ''} ${includeInTwist && includeInTwist[j] ? '' : 'not-in-twist'}`}
-					key={`preview-total-turns-${j}`}
+					className={`${totalTurns === 0 ? 'twist-neutral' : ''} ${startPosition ? 'start-position' : ''} ${includeInTwist && includeInTwist[tabletIndex] ? '' : 'not-in-twist'}`}
+					key={`preview-total-turns-${tabletIndex}`}
 					title={title}
 				>
 					{totalTurns}
@@ -394,12 +401,14 @@ class PatternPreview extends Component {
 		const tabletLabelCells = [];
 
 		for (let j = 0; j < numberOfTablets; j += 1) {
+			const tabletIndex = findTabletIndex(j);
+
 			tabletLabelCells.push(
 				<span
-					key={`preview-tablet-${j}`}
-					title={`tablet ${j + 1}`}
+					key={`preview-tablet-${tabletIndex}`}
+					title={`tablet ${tabletIndex + 1}`}
 				>
-					{j + 1}
+					{tabletIndex + 1}
 				</span>,
 			);
 		}
