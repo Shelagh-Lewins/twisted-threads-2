@@ -63,4 +63,10 @@ body {
 			float: right;
 		}
 	}
+
+	span {
+		&.backward {
+			background: $color-weaving-backwards-bg-print !important;
+		}
+	}
 }

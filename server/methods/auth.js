@@ -10,6 +10,7 @@ import {
 	checkCanCreateColorBook,
 	checkUserCanAddPatternImage,
 	nonEmptyStringCheck,
+	validHexColorCheck,
 } from '../../imports/server/modules/utils';
 import updateActionsLog from '../../imports/server/modules/actionsLog';
 import {
@@ -236,5 +237,18 @@ Meteor.methods({
 		}
 
 		return false;
+	},
+	'auth.setWeavingBackwardsBackgroundColor': function (colorValue) {
+		console.log('colorValue', colorValue);
+		check(colorValue, validHexColorCheck);
+
+		if (!Meteor.userId()) {
+			throw new Meteor.Error('set-weaving-backwards-background-color-not-logged-in', 'Unable to set the background colour of backwards weaving cells because the current user is not logged in');
+		}
+
+		Meteor.users.update(
+			{ '_id': Meteor.userId() },
+			{ '$set': { 'weavingBackwardsBackgroundColor': colorValue } },
+		);
 	},
 });

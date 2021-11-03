@@ -3,6 +3,7 @@
 // import { createSelector } from 'reselect';
 import { logErrors, clearErrors } from './errors';
 import {
+	DEFAULT_WEAVING_BACKWARDS_BACKGROUND_COLOR,
 	MAX_RECENTS,
 	ROLE_LIMITS,
 } from '../../modules/parameters';
@@ -49,6 +50,7 @@ export const SET_NUMBER_OF_PATTERNS = 'SET_NUMBER_OF_PATTERNS';
 export const SET_NUMBER_OF_COLOR_BOOKS = 'SET_NUMBER_OF_COLOR_BOOKS';
 export const SET_USER_ROLES = 'SET_USER_ROLES';
 export const SET_NUMBER_OF_PATTERN_IMAGES = 'SET_NUMBER_OF_PATTERN_IMAGES';
+export const SET_WEAVING_BACKWARDS_BACKGROUND_COLOR = 'SET_WEAVING_BACKWARDS_BACKGROUND_COLOR';
 
 // ////////////////////////////////
 // Provide information to the UI
@@ -104,6 +106,17 @@ export function setIsLoading(isLoading) {
 	return {
 		'type': SET_ISLOADING,
 		'payload': isLoading,
+	};
+}
+
+// set the background colour for backwards turning weaving cells, in the store
+// and also update the css variable
+export function setWeavingBackwardsBackgroundColor(colorValue) {
+	document.documentElement.style.setProperty('--color-weaving-backwards-bg', colorValue);
+
+	return {
+		'type': SET_WEAVING_BACKWARDS_BACKGROUND_COLOR,
+		'payload': colorValue,
 	};
 }
 
@@ -167,6 +180,19 @@ export function editTextField({
 			if (error) {
 				return dispatch(logErrors({ 'edit text field': error.reason }));
 			}
+		});
+	};
+}
+
+// background colour of backwards turning cells in weaving chart
+export function editWeavingBackwardsBackgroundColor(colorValue) {
+	return (dispatch) => {
+		Meteor.call('auth.setWeavingBackwardsBackgroundColor', colorValue, (error) => {
+			if (error) {
+				return dispatch(logErrors({ 'edit weaving backwards background color': error.reason }));
+			}
+
+			dispatch(setWeavingBackwardsBackgroundColor(colorValue));
 		});
 	};
 }
@@ -346,6 +372,7 @@ export function setNumberOfPatternImages(result) {
 		'payload': result,
 	};
 }
+
 
 export function setUserRoles(result) {
 	return {
@@ -587,6 +614,7 @@ const initialAuthState = {
 	'userCount': 0,
 	'userRoles': [],
 	'usersForPage': [],
+	'weavingBackwardsBackgroundColor': DEFAULT_WEAVING_BACKWARDS_BACKGROUND_COLOR,
 };
 
 // state updates
@@ -663,6 +691,11 @@ export default function auth(state = initialAuthState, action) {
 		case SET_NUMBER_OF_PATTERN_IMAGES: {
 			return updeep({ 'numberOfPatternImages': action.payload }, state);
 		}
+
+		case SET_WEAVING_BACKWARDS_BACKGROUND_COLOR: {
+			return updeep({ 'weavingBackwardsBackgroundColor': action.payload }, state);
+		}
+
 
 		case SET_NUMBER_OF_COLOR_BOOKS: {
 			return updeep({ 'numberOfColorBooks': action.payload }, state);

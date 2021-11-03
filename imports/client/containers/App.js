@@ -44,6 +44,7 @@ import {
 	setNumberOfPatternImages,
 	setNumberOfPatterns,
 	setUserRoles,
+	setWeavingBackwardsBackgroundColor,
 } from '../modules/auth';
 import {
 	clearPatternData,
@@ -78,6 +79,7 @@ import User from './User';
 import InteractiveWeavingChart from './InteractiveWeavingChart';
 import WeavingPrintView from './PrintView';
 import DevTools from '../components/DevTools';
+import { DEFAULT_WEAVING_BACKWARDS_BACKGROUND_COLOR } from '../../modules/parameters';
 import './App.scss';
 
 // for optional url parameter with specified options, use regex: https://stackoverflow.com/questions/47369023/react-router-v4-allow-only-certain-parameters-in-url
@@ -191,7 +193,6 @@ export const withDatabase = withTracker((props) => {
 		// check for change in number of patterns the user has created
 		// used to check whether they can create a new pattern
 		if (Meteor.userId()) {
-
 			Meteor.call('pattern.getPatternCount', {
 				'userId': Meteor.userId(),
 			}, (error, result) => {
@@ -211,6 +212,13 @@ export const withDatabase = withTracker((props) => {
 		if (numberOfColorBooks !== getNumberOfColorBooks(state)) {
 			dispatch(setNumberOfColorBooks(numberOfColorBooks));
 		}
+	}
+
+	// set background colour for backwards turning on weaving chart
+	if (Meteor.user() && Meteor.user().weavingBackwardsBackgroundColor) {
+		dispatch(setWeavingBackwardsBackgroundColor(Meteor.user().weavingBackwardsBackgroundColor));
+	} else {
+		dispatch(setWeavingBackwardsBackgroundColor(DEFAULT_WEAVING_BACKWARDS_BACKGROUND_COLOR));
 	}
 
 	// provide information for any pattern page

@@ -10,6 +10,7 @@ export const USER_FIELDS = {
 	'publicPatternsCount': 1,
 	'publicSetsCount': 1,
 	'username': 1,
+	'weavingBackwardsBackgroundColor': 1,
 };
 
 export const DEFAULT_PALETTE = [
@@ -30,6 +31,8 @@ export const DEFAULT_PALETTE = [
 	'#523f12',
 	'#aa8e4b',
 ];
+
+export const DEFAULT_WEAVING_BACKWARDS_BACKGROUND_COLOR = '#aaa';
 
 export const MAX_ROWS = 200;
 export const MAX_TABLETS = 100;

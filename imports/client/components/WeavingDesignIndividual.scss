@@ -49,7 +49,7 @@
 				}
 
 				&.backward {
-					background: $color-weaving-backwards-bg;
+					background: var(--color-weaving-backwards-bg);
 				}
 			}
 		}

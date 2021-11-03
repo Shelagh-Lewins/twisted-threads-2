@@ -17,6 +17,7 @@ import Loading from '../components/Loading';
 import WeavingChart from '../components/WeavingChart';
 import Threading from '../components/Threading';
 import Notation from '../components/Notation';
+import EditBackwardsBackgroundColor from '../components/EditBackwardsBackgroundColor';
 import './InteractiveWeavingChart.scss';
 
 const bodyClass = 'interactive-weaving-chart';
@@ -269,6 +270,8 @@ class InteractiveWeavingChart extends PureComponent {
 											selectedRow={selectedRow}
 										/>
 									</div>
+
+									{Meteor.user() && <EditBackwardsBackgroundColor dispatch={dispatch} />}
 
 									{pattern.threading && patternType !== 'freehand' && (
 										<>

@@ -75,7 +75,7 @@
 			}
 
 			&.backward {
-				background: $color-weaving-backwards-bg;
+				background: var(--color-weaving-backwards-bg);
 			}
 		}
 	}
@@ -109,7 +109,7 @@
 		}
 
 		&.direction-B {
-			background: $color-weaving-backwards-bg;
+			background: var(--color-weaving-backwards-bg);
 		}
 	}
 }

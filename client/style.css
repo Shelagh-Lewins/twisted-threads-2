@@ -24,3 +24,7 @@ body {
 ::before {
 	box-sizing: border-box;
 }
+
+:root {
+  --color-weaving-backwards-bg: #aaa; /* this is a placeholder value. The default is DEFAULT_WEAVING_BACKWARDS_BG in parameters.js */
+}

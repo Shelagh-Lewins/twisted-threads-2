@@ -78,6 +78,11 @@ export const validTwillChartCheck = Match.Where((x) => {
 	return twillCharts.indexOf(x) !== -1;
 });
 
+export const validHexColorCheck = Match.Where((colorValue) => {
+	check(colorValue, String);
+	return colorValue !== '' && colorValue.length <= 7; // accept #aaa, #aa00aa
+});
+
 // check whether the current logged in user can create a pattern
 // this may be a new pattern, or a copy
 export const checkUserCanCreatePattern = () => {
