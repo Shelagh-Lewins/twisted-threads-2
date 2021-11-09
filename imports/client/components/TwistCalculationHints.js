@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 // onClick should dismiss the condition that caused the FlashMessage to be displayed
 // it is the responsibility of the component that triggers the FlashMessage, to also provide the way to dismiss it
 export default function TwistCalculationHints({
+	canEdit,
 	includeInTwist,
 	patternIsTwistNeutral,
 	patternType,
@@ -35,8 +36,12 @@ export default function TwistCalculationHints({
 					repeatHint = 'The pattern will repeat.';
 				} else {
 					repeatHint = previewOrientation === 'up'
-						? 'The pattern will repeat. To see repeats, set the woven band orientation to left or right.'
+						? 'The pattern will repeat.'
 						: `The pattern will repeat (${repeats} repeats shown).`;
+
+					if (previewOrientation === 'up' && canEdit) {
+						repeatHint += ' To see repeats, set the woven band orientation to left or right.';
+					}
 				}
 			}
 
@@ -58,6 +63,7 @@ export default function TwistCalculationHints({
 }
 
 TwistCalculationHints.propTypes = {
+	'canEdit': PropTypes.bool.isRequired,
 	'includeInTwist': PropTypes.arrayOf(PropTypes.any),
 	'patternIsTwistNeutral': PropTypes.bool.isRequired,
 	'patternType': PropTypes.string.isRequired,

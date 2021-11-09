@@ -817,6 +817,7 @@ class Pattern extends PureComponent {
 				tabContent = (
 					<div className={`tab-content ${(isEditing && !updatePreviewWhileEditing) ? 'is-editing' : ''} ${previewClassName}`}>
 						<TwistCalculationHints
+							canEdit={canEdit}
 							includeInTwist={includeInTwist}
 							patternIsTwistNeutral={patternIsTwistNeutral}
 							patternType={patternType}

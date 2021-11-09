@@ -292,9 +292,6 @@ export const getThread = ({
 	}
 
 	if (showBackOfBand && holes % 2 === 0) { // number of holes must be even to show the back of the band
-		// when viewing the back of the band, the thread direction is reversed
-		threadAngle = threadAngle === '\\' ? '/' : '\\';
-
 		holeToShow = modulus(holeToShow + (holes / 2), holes); // the hole showing is the diagonally opposite hole
 	}
 
