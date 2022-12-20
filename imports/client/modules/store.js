@@ -1,27 +1,21 @@
-import { applyMiddleware, createStore, compose } from 'redux';
-import thunk from 'redux-thunk';
-import { createLogger } from 'redux-logger';
-import rootReducer from './rootReducer';
-import DevTools from '../components/DevTools';
+import { applyMiddleware, createStore, compose } from "redux";
+import thunk from "redux-thunk";
+import { createLogger } from "redux-logger";
+import rootReducer from "./rootReducer";
+import { composeWithDevTools } from "redux-devtools-extension";
 
 const logger = createLogger();
-
 const middleware = [thunk];
 
-// redux-logger to record all Redux actions
-if (process.env.NODE_ENV === 'development') {
-	middleware.push(logger); // enable this
-}
+// compose with Redux Devtools extension in development only
+const composeEnhancers =
+	(process.env.NODE_ENV === "development" &&
+		typeof window !== "undefined" &&
+		window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) ||
+	compose;
 
-const enhancers = [
-	applyMiddleware(...middleware),
-];
+const enhancer = composeEnhancers(applyMiddleware(...middleware));
 
-// in development only, add DevTools as React components
-if (process.env.NODE_ENV === 'development') {
-	enhancers.push(DevTools.instrument());
-}
-
-const store = createStore(rootReducer, {}, compose(...enhancers));
+const store = createStore(rootReducer, enhancer);
 
 export default store;

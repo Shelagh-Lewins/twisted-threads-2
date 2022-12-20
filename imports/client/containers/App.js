@@ -1,16 +1,16 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 import {
 	matchPath,
 	BrowserRouter as Router,
 	Route,
 	Switch,
 	withRouter,
-} from 'react-router-dom';
-import { connect, Provider } from 'react-redux';
+} from "react-router-dom";
+import { connect, Provider } from "react-redux";
 
 // fontawesome
-import { library } from '@fortawesome/fontawesome-svg-core';
+import { library } from "@fortawesome/fontawesome-svg-core";
 import {
 	faBookOpen,
 	faClone,
@@ -24,16 +24,16 @@ import {
 	faSearch,
 	faSpinner,
 	faTrash,
-} from '@fortawesome/free-solid-svg-icons'; // import the icons you want
-import { withTracker } from 'meteor/react-meteor-data';
+} from "@fortawesome/free-solid-svg-icons"; // import the icons you want
+import { withTracker } from "meteor/react-meteor-data";
 import {
 	ColorBooks,
 	PatternImages,
 	Patterns,
 	Sets,
 	Tags,
-} from '../../modules/collection';
-import store from '../modules/store';
+} from "../../modules/collection";
+import store from "../modules/store";
 import {
 	getNumberOfColorBooks,
 	getNumberOfPatternImages,
@@ -45,7 +45,7 @@ import {
 	setNumberOfPatterns,
 	setUserRoles,
 	setWeavingBackwardsBackgroundColor,
-} from '../modules/auth';
+} from "../modules/auth";
 import {
 	clearPatternData,
 	getIsLoading,
@@ -55,32 +55,31 @@ import {
 	setIsLoading,
 	savePatternData,
 	setPatternId,
-} from '../modules/pattern';
-import AppContext from '../modules/appContext';
-import Navbar from '../components/Navbar';
-import Login from './Login';
-import Register from './Register';
-import Welcome from './Welcome';
-import Account from './Account';
-import ChangePassword from './ChangePassword';
-import VerifyEmail from './VerifyEmail';
-import ForgotPassword from './ForgotPassword';
-import ResetPassword from './ResetPassword';
-import Home from './Home';
-import RecentPatterns from './RecentPatterns';
-import AllPatterns from './AllPatterns';
-import NewPatterns from './NewPatterns';
-import People from './People';
-import About from './About';
-import FAQPage from './FAQPage';
-import Pattern from './Pattern';
-import Set from './Set';
-import User from './User';
-import InteractiveWeavingChart from './InteractiveWeavingChart';
-import WeavingPrintView from './PrintView';
-import DevTools from '../components/DevTools';
-import { DEFAULT_WEAVING_BACKWARDS_BACKGROUND_COLOR } from '../../modules/parameters';
-import './App.scss';
+} from "../modules/pattern";
+import AppContext from "../modules/appContext";
+import Navbar from "../components/Navbar";
+import Login from "./Login";
+import Register from "./Register";
+import Welcome from "./Welcome";
+import Account from "./Account";
+import ChangePassword from "./ChangePassword";
+import VerifyEmail from "./VerifyEmail";
+import ForgotPassword from "./ForgotPassword";
+import ResetPassword from "./ResetPassword";
+import Home from "./Home";
+import RecentPatterns from "./RecentPatterns";
+import AllPatterns from "./AllPatterns";
+import NewPatterns from "./NewPatterns";
+import People from "./People";
+import About from "./About";
+import FAQPage from "./FAQPage";
+import Pattern from "./Pattern";
+import Set from "./Set";
+import User from "./User";
+import InteractiveWeavingChart from "./InteractiveWeavingChart";
+import WeavingPrintView from "./PrintView";
+import { DEFAULT_WEAVING_BACKWARDS_BACKGROUND_COLOR } from "../../modules/parameters";
+import "./App.scss";
 
 // for optional url parameter with specified options, use regex: https://stackoverflow.com/questions/47369023/react-router-v4-allow-only-certain-parameters-in-url
 // this allows pattern/id/tabname and pattern/id/weaving with different components
@@ -97,7 +96,7 @@ library.add(
 	faPlus,
 	faSearch,
 	faSpinner,
-	faTrash,
+	faTrash
 ); // and add them to your library
 
 const PrintViewContainer = () => (
@@ -111,9 +110,8 @@ const PrintViewContainer = () => (
 // otherwise direct navigation to the route will be blocked
 const DefaultContainer = () => (
 	<div className="app-container">
-		<Navbar	/>
+		<Navbar />
 		<div className="main-container">
-			{process.env.NODE_ENV === 'development' && <DevTools />}
 			<Route exact path="/login" component={Login} />
 			<Route exact path="/register" component={Register} />
 			<Route exact path="/welcome" component={Welcome} />
@@ -130,9 +128,17 @@ const DefaultContainer = () => (
 			<Route exact path="/about" component={About} />
 			<Route exact path="/faq" component={FAQPage} />
 			<Route exact path="/pattern/:id/:tab(design|info)?" component={Pattern} />
-			<Route exact path="/pattern/:id/weaving" component={InteractiveWeavingChart} />
+			<Route
+				exact
+				path="/pattern/:id/weaving"
+				component={InteractiveWeavingChart}
+			/>
 			<Route exact path="/set/:id" component={Set} />
-			<Route exact path="/user/:id/:tab(profile|patterns|colorbooks|sets)?" component={User} />
+			<Route
+				exact
+				path="/user/:id/:tab(profile|patterns|colorbooks|sets)?"
+				component={User}
+			/>
 		</div>
 	</div>
 );
@@ -143,7 +149,11 @@ function App() {
 			<Router>
 				<DatabaseProvider>
 					<Switch>
-						<Route exact path="/pattern/:id/print-view" component={PrintViewContainer} />
+						<Route
+							exact
+							path="/pattern/:id/print-view"
+							component={PrintViewContainer}
+						/>
 						<Route component={DefaultContainer} />
 					</Switch>
 				</DatabaseProvider>
@@ -157,7 +167,7 @@ export const withDatabase = withTracker((props) => {
 	let pattern;
 	let patternIdParam;
 
-	Meteor.call('auth.getMaintenanceMode', (err, response) => {
+	Meteor.call("auth.getMaintenanceMode", (err, response) => {
 		if (response) {
 			dispatch(setMaintenanceMode(true));
 		}
@@ -184,7 +194,7 @@ export const withDatabase = withTracker((props) => {
 			dispatch(setUserRoles(userRoles));
 		}
 	} catch (err) {
-		console.log('*** err in App.js, Roles.getRolesForUser', err);
+		console.log("*** err in App.js, Roles.getRolesForUser", err);
 	}
 
 	// update user information that would not otherwise be reactive
@@ -193,21 +203,30 @@ export const withDatabase = withTracker((props) => {
 		// check for change in number of patterns the user has created
 		// used to check whether they can create a new pattern
 		if (Meteor.userId()) {
-			Meteor.call('pattern.getPatternCount', {
-				'userId': Meteor.userId(),
-			}, (error, result) => {
-				if (error) {
-					console.log('App.js, error calling method pattern.getPatternCount', error);
-				}
+			Meteor.call(
+				"pattern.getPatternCount",
+				{
+					userId: Meteor.userId(),
+				},
+				(error, result) => {
+					if (error) {
+						console.log(
+							"App.js, error calling method pattern.getPatternCount",
+							error
+						);
+					}
 
-				if (result !== getNumberOfPatterns(state)) {
-					dispatch(setNumberOfPatterns(result));
+					if (result !== getNumberOfPatterns(state)) {
+						dispatch(setNumberOfPatterns(result));
+					}
 				}
-			});
+			);
 		}
 
 		// check for change in the number of color books the user has created
-		numberOfColorBooks = ColorBooks.find({ 'createdBy': Meteor.userId() }).count();
+		numberOfColorBooks = ColorBooks.find({
+			createdBy: Meteor.userId(),
+		}).count();
 
 		if (numberOfColorBooks !== getNumberOfColorBooks(state)) {
 			dispatch(setNumberOfColorBooks(numberOfColorBooks));
@@ -216,9 +235,17 @@ export const withDatabase = withTracker((props) => {
 
 	// set background colour for backwards turning on weaving chart
 	if (Meteor.user() && Meteor.user().weavingBackwardsBackgroundColor) {
-		dispatch(setWeavingBackwardsBackgroundColor(Meteor.user().weavingBackwardsBackgroundColor));
+		dispatch(
+			setWeavingBackwardsBackgroundColor(
+				Meteor.user().weavingBackwardsBackgroundColor
+			)
+		);
 	} else {
-		dispatch(setWeavingBackwardsBackgroundColor(DEFAULT_WEAVING_BACKWARDS_BACKGROUND_COLOR));
+		dispatch(
+			setWeavingBackwardsBackgroundColor(
+				DEFAULT_WEAVING_BACKWARDS_BACKGROUND_COLOR
+			)
+		);
 	}
 
 	// provide information for any pattern page
@@ -226,23 +253,23 @@ export const withDatabase = withTracker((props) => {
 	if (location) {
 		const { pathname } = location;
 
-		Meteor.subscribe('setsForUser', Meteor.userId());
+		Meteor.subscribe("setsForUser", Meteor.userId());
 
 		// Navbar always needs to know about the user's sets
 		// pattern list pages need to know about tags
 		const values = {
-			'allTags': [],
-			'sets': [],
+			allTags: [],
+			sets: [],
 		};
 
-		Meteor.subscribe('setsForUser', Meteor.userId());
+		Meteor.subscribe("setsForUser", Meteor.userId());
 
 		values.sets = Sets.find().fetch();
 
 		const matchPattern = matchPath(pathname, {
-			'path': '/pattern/:id',
-			'exact': false,
-			'strict': false,
+			path: "/pattern/:id",
+			exact: false,
+			strict: false,
 		});
 
 		if (matchPattern) {
@@ -258,38 +285,47 @@ export const withDatabase = withTracker((props) => {
 					dispatch(clearPatternData()); // force chart data to be rebuilt
 				}
 
-				const handle = Meteor.subscribe('pattern', patternIdParam, {
-					'onReady': () => {
-						pattern = Patterns.findOne({ '_id': patternIdParam });
+				const handle = Meteor.subscribe("pattern", patternIdParam, {
+					onReady: () => {
+						pattern = Patterns.findOne({ _id: patternIdParam });
 
 						// check pattern is found
 						if (pattern) {
 							const { createdBy } = pattern;
 
-							Meteor.subscribe('users', [createdBy]);
-							Meteor.subscribe('colorBooks', createdBy);
-							Meteor.subscribe('patternImages', pattern._id);
-							Meteor.subscribe('tags');
+							Meteor.subscribe("users", [createdBy]);
+							Meteor.subscribe("colorBooks", createdBy);
+							Meteor.subscribe("patternImages", pattern._id);
+							Meteor.subscribe("tags");
 						}
 					},
 				});
 
-				numberOfPatternImages = PatternImages.find({ 'patternId': patternIdParam }).count();
+				numberOfPatternImages = PatternImages.find({
+					patternId: patternIdParam,
+				}).count();
 
 				if (numberOfPatternImages !== getNumberOfPatternImages(state)) {
 					dispatch(setNumberOfPatternImages(numberOfPatternImages));
 				}
 
 				// we must find pattern here or the tracker doesn't update when the subscription is loaded
-				pattern = Patterns.findOne({ '_id': patternIdParam });
+				pattern = Patterns.findOne({ _id: patternIdParam });
 
 				if (pattern) {
-					values.colorBooks = ColorBooks.find({ 'createdBy': pattern.createdBy }, {
-						'sort': { 'nameSort': 1 },
-					}).fetch();
-					values.createdByUser = Meteor.users.findOne({ '_id': pattern.createdBy });
+					values.colorBooks = ColorBooks.find(
+						{ createdBy: pattern.createdBy },
+						{
+							sort: { nameSort: 1 },
+						}
+					).fetch();
+					values.createdByUser = Meteor.users.findOne({
+						_id: pattern.createdBy,
+					});
 					values.pattern = pattern;
-					values.patternImages = PatternImages.find({ 'patternId': pattern._id }).fetch();
+					values.patternImages = PatternImages.find({
+						patternId: pattern._id,
+					}).fetch();
 					values.allTags = Tags.find().fetch();
 
 					// make sure full individual pattern data are loaded and the user who owns it
@@ -338,16 +374,17 @@ function ProviderInner({
 	sets,
 }) {
 	return (
-		<AppContext.Provider value={{
-			allTags,
-			colorBooks,
-			createdByUser,
-			isLoadingUser,
-			pattern,
-			patternId,
-			patternImages,
-			sets,
-		}}
+		<AppContext.Provider
+			value={{
+				allTags,
+				colorBooks,
+				createdByUser,
+				isLoadingUser,
+				pattern,
+				patternId,
+				patternImages,
+				sets,
+			}}
 		>
 			{children}
 		</AppContext.Provider>
@@ -356,24 +393,26 @@ function ProviderInner({
 
 // all props are optional because they vary with route
 ProviderInner.propTypes = {
-	'allTags': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'children': PropTypes.oneOfType([
+	allTags: PropTypes.arrayOf(PropTypes.any).isRequired,
+	children: PropTypes.oneOfType([
 		PropTypes.element,
 		PropTypes.arrayOf(PropTypes.element),
 		PropTypes.node,
 	]).isRequired,
-	'colorBooks': PropTypes.arrayOf(PropTypes.any),
-	'createdByUser': PropTypes.objectOf(PropTypes.any),
-	'isLoadingUser': PropTypes.bool,
-	'pattern': PropTypes.objectOf(PropTypes.any),
-	'patternId': PropTypes.string,
-	'patternImages': PropTypes.arrayOf(PropTypes.any),
-	'sets': PropTypes.arrayOf(PropTypes.any),
+	colorBooks: PropTypes.arrayOf(PropTypes.any),
+	createdByUser: PropTypes.objectOf(PropTypes.any),
+	isLoadingUser: PropTypes.bool,
+	pattern: PropTypes.objectOf(PropTypes.any),
+	patternId: PropTypes.string,
+	patternImages: PropTypes.arrayOf(PropTypes.any),
+	sets: PropTypes.arrayOf(PropTypes.any),
 };
 
 // withRouter gives us location
 // connect gives us dispatch
-export const DatabaseProvider = withRouter(connect()(withDatabase(ProviderInner)));
+export const DatabaseProvider = withRouter(
+	connect()(withDatabase(ProviderInner))
+);
 export const DatabaseConsumer = AppContext.Consumer;
 
 export default App;

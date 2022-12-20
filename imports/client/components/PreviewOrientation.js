@@ -27,7 +27,7 @@ export default function PreviewOrientation(props) {
 	));
 
 	return (
-		<div className="preview-orientation">
+	  <div className="preview-orientation">
 			<label htmlFor="previewOrientation">
 				<span className="text">Orientation of woven band:</span>
 				<select
