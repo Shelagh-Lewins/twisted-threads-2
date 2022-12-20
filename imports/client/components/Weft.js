@@ -1,29 +1,24 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent } from "react";
 
-import { Button } from 'reactstrap';
-import PropTypes from 'prop-types';
+import { Button } from "reactstrap";
+import PropTypes from "prop-types";
 
-import {
-	editWeftColor,
-} from '../modules/pattern';
+import { editWeftColor } from "../modules/pattern";
 
-import './Threading.scss';
-import Palette from './Palette';
-import './Weft.scss';
+import "./Threading.scss";
+import Palette from "./Palette";
+import "./Weft.scss";
 
 class Weft extends PureComponent {
 	constructor(props) {
 		super(props);
 
 		this.state = {
-			'isEditing': false,
+			isEditing: false,
 		};
 
 		// bind onClick functions to provide context
-		const functionsToBind = [
-			'selectColor',
-			'toggleEditWeft',
-		];
+		const functionsToBind = ["selectColor", "toggleEditWeft"];
 
 		functionsToBind.forEach((functionName) => {
 			this[functionName] = this[functionName].bind(this);
@@ -31,19 +26,24 @@ class Weft extends PureComponent {
 	}
 
 	selectColor(index) {
-		const { dispatch, 'pattern': { _id } } = this.props;
+		const {
+			dispatch,
+			pattern: { _id },
+		} = this.props;
 
-		dispatch(editWeftColor({
-			_id,
-			'colorIndex': index,
-		}));
+		dispatch(
+			editWeftColor({
+				_id,
+				colorIndex: index,
+			})
+		);
 	}
 
 	toggleEditWeft() {
 		const { isEditing } = this.state;
 
 		this.setState({
-			'isEditing': !isEditing,
+			isEditing: !isEditing,
 		});
 	}
 
@@ -52,9 +52,15 @@ class Weft extends PureComponent {
 
 		return (
 			<div className="controls">
-				{isEditing
-					? <Button color="primary" onClick={this.toggleEditWeft}>Done</Button>
-					: <Button color="primary" onClick={this.toggleEditWeft}>Edit weft color</Button>}
+				{isEditing ? (
+					<Button color="primary" onClick={this.toggleEditWeft}>
+						Done
+					</Button>
+				) : (
+					<Button color="primary" onClick={this.toggleEditWeft}>
+						Edit weft color
+					</Button>
+				)}
 			</div>
 		);
 	}
@@ -62,7 +68,7 @@ class Weft extends PureComponent {
 	renderPalette() {
 		const {
 			colorBooks,
-			'pattern': { _id, weftColor },
+			pattern: { _id, weftColor },
 		} = this.props;
 
 		return (
@@ -78,8 +84,12 @@ class Weft extends PureComponent {
 
 	renderWeft() {
 		const {
-			'pattern': { palette, weftColor },
+			pattern: { palette, weftColor },
 		} = this.props;
+
+		if (!weftColor) {
+			return null;
+		}
 
 		return (
 			<>
@@ -87,19 +97,21 @@ class Weft extends PureComponent {
 				<span
 					className="weft-color"
 					id="weft-color"
-					style={{ 'background': palette[weftColor] }}
+					style={{ background: palette[weftColor] }}
 				/>
 			</>
 		);
 	}
 
 	render() {
-		const { 'pattern': { createdBy } } = this.props;
+		const {
+			pattern: { createdBy },
+		} = this.props;
 		const { isEditing } = this.state;
 		const canEdit = createdBy === Meteor.userId();
 
 		return (
-			<div className={`weft ${isEditing ? 'editing' : ''}`}>
+			<div className={`weft ${isEditing ? "editing" : ""}`}>
 				{canEdit && this.renderControls()}
 				<div className="content">
 					{this.renderWeft()}
@@ -112,9 +124,9 @@ class Weft extends PureComponent {
 }
 
 Weft.propTypes = {
-	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'dispatch': PropTypes.func.isRequired,
-	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
+	colorBooks: PropTypes.arrayOf(PropTypes.any).isRequired,
+	dispatch: PropTypes.func.isRequired,
+	pattern: PropTypes.objectOf(PropTypes.any).isRequired,
 };
 
 export default Weft;

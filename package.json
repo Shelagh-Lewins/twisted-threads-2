@@ -43,7 +43,7 @@
     "react-redux": "^7.1.1",
     "react-router-dom": "^5.1.2",
     "react-tag-autocomplete": "^6.0.0-beta.3",
-    "react-widgets": "^4.4.11",
+    "react-widgets": "^4.6.1",
     "reactstrap": "^8.1.1",
     "redux": "^4.0.4",
     "redux-logger": "^3.0.6",
