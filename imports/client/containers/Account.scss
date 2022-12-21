@@ -1,0 +1,12 @@
+@import '../constants/variables';
+
+.administrator-controls {
+	label {
+		display: inline-block;
+		width: 5em;
+	}
+
+	input {
+		margin-bottom: 8px !important;
+	}
+}

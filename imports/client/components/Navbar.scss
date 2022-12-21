@@ -1,8 +1,9 @@
-@import "../constants/variables";
+@import '../constants/variables';
 
 .navbar {
 	background: $color-navbar-background;
 	color: $color-navbar-color;
+	padding: 0.5rem 1rem !important;
 
 	.pattern-menu,
 	.upload-menu {
@@ -44,6 +45,21 @@
 	}
 }
 
+@media (min-width: 768px) {
+	.nav-link {
+		padding: 0.5rem 1rem !important;
+	}
+}
+
+.nav-link {
+	padding-left: 0;
+	padding-right: 0;
+}
+
+.navbar-collapse {
+	justify-content: space-between;
+}
+
 .nav-item {
 	button {
 		width: auto;
@@ -55,6 +71,6 @@
 }
 
 .navbar-brand {
-	font-size: .8rem;
+	font-size: 0.8rem;
 	font-weight: bold;
 }

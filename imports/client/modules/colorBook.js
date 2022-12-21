@@ -16,77 +16,92 @@ export const SET_COLORBOOK_ADDED = 'SET_COLORBOOK_ADDED';
 
 export function setColorBookAdded(colorBookId) {
 	return {
-		'type': SET_COLORBOOK_ADDED,
-		'payload': colorBookId,
+		type: SET_COLORBOOK_ADDED,
+		payload: colorBookId,
 	};
 }
 
 // ///////////////////////////
 // Action that call Meteor methods; these do not change the Store but are located here in order to keep server interactions away from UI
 
-export const addColorBook = ({ colors, name }) => (dispatch) => {
-	dispatch(clearErrors());
-	Meteor.call('colorBook.add', { colors, name }, (error, result) => {
-		if (error) {
-			return dispatch(logErrors({ 'add-color-book': error.reason }));
-		}
+export const addColorBook =
+	({ colors, name }) =>
+	(dispatch) => {
+		dispatch(clearErrors());
+		Meteor.call('colorBook.add', { colors, name }, (error, result) => {
+			if (error) {
+				return dispatch(logErrors({ 'add-color-book': error.reason }));
+			}
 
-		dispatch(setColorBookAdded(result));
-	});
-};
+			dispatch(setColorBookAdded(result));
+		});
+	};
 
-export const editIsPublic = ({
-	_id,
-	isPublic,
-}) => (dispatch) => {
-	dispatch(clearErrors());
-	Meteor.call('colorBook.edit', {
-		_id,
-		'data': {
-			'type': 'isPublic',
-			isPublic,
-		},
-	}, (error, result) => {
-		if (error) {
-			return dispatch(logErrors({ 'edit-color-book-is-public': error.reason }));
-		}
-	});
-};
+export const editIsPublic =
+	({ _id, isPublic }) =>
+	(dispatch) => {
+		dispatch(clearErrors());
+		Meteor.call(
+			'colorBook.edit',
+			{
+				_id,
+				data: {
+					type: 'isPublic',
+					isPublic,
+				},
+			},
+			(error, result) => {
+				if (error) {
+					return dispatch(
+						logErrors({ 'edit-color-book-is-public': error.reason })
+					);
+				}
+			}
+		);
+	};
 
-export const editColorBookColor = ({
-	_id,
-	colorHexValue,
-	colorIndex,
-}) => (dispatch) => {
-	dispatch(clearErrors());
-	Meteor.call('colorBook.edit', {
-		_id,
-		'data': {
-			'type': 'color',
-			colorHexValue,
-			colorIndex,
-		},
-	}, (error, result) => {
-		if (error) {
-			return dispatch(logErrors({ 'edit-color-book-color': error.reason }));
-		}
-	});
-};
+export const editColorBookColor =
+	({ _id, colorHexValue, colorIndex }) =>
+	(dispatch) => {
+		dispatch(clearErrors());
+		Meteor.call(
+			'colorBook.edit',
+			{
+				_id,
+				data: {
+					type: 'color',
+					colorHexValue,
+					colorIndex,
+				},
+			},
+			(error, result) => {
+				if (error) {
+					return dispatch(logErrors({ 'edit-color-book-color': error.reason }));
+				}
+			}
+		);
+	};
 
-export const editColorBookName = ({ _id, name }) => (dispatch) => {
-	dispatch(clearErrors());
-	Meteor.call('colorBook.edit', {
-		_id,
-		'data': {
-			'type': 'name',
-			name,
-		},
-	}, (error, result) => {
-		if (error) {
-			return dispatch(logErrors({ 'edit-color-book-name': error.reason }));
-		}
-	});
-};
+export const editColorBookName =
+	({ _id, name }) =>
+	(dispatch) => {
+		dispatch(clearErrors());
+		Meteor.call(
+			'colorBook.edit',
+			{
+				_id,
+				data: {
+					type: 'name',
+					name,
+				},
+			},
+			(error, result) => {
+				if (error) {
+					return dispatch(logErrors({ 'edit-color-book-name': error.reason }));
+				}
+			}
+		);
+	};
 
 export const removeColorBook = (_id) => (dispatch) => {
 	dispatch(clearErrors());
@@ -105,28 +120,26 @@ export const copyColorBook = (_id, history) => (dispatch) => {
 		}
 
 		const currentPath = history.location.pathname;
-		const userPage = `/user/${Meteor.userId()}`;
+		const colorbooksPage = `/user/${Meteor.userId()}/colorbooks`;
 
-		if (currentPath !== userPage) {
-			history.push(userPage);
+		if (currentPath !== colorbooksPage) {
+			history.push(colorbooksPage);
 		}
-		// history.push(url);
-		// so they will see the new color book
 	});
 };
 
 // ///////////////////////////
 // default state
 const initialColorBookState = {
-	'colorBookAdded': '',
-	'error': null,
+	colorBookAdded: '',
+	error: null,
 };
 
 // state updates
 export default function pattern(state = initialColorBookState, action) {
 	switch (action.type) {
 		case SET_COLORBOOK_ADDED: {
-			return updeep({ 'colorBookAdded': action.payload }, state);
+			return updeep({ colorBookAdded: action.payload }, state);
 		}
 
 		default:

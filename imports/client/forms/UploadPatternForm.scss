@@ -1,4 +1,4 @@
-@import "../constants/variables";
+@import '../constants/variables';
 
 .upload-pattern-form {
 	color: $color-text;
@@ -16,11 +16,6 @@
 		padding: 8px;
 	}
 
-	input {
-		border: 0;
-		width: auto;
-	}
-
 	label {
 		font-size: 0;
 
@@ -33,7 +28,7 @@
 		float: right;
 	}
 
-	[type="submit"] {
+	[type='submit'] {
 		display: none;
 	}
 }

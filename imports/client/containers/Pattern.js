@@ -675,7 +675,7 @@ class Pattern extends PureComponent {
 		const { updatePreviewWhileEditing } = this.props;
 
 		return (
-			<div className='update-preview-control custom-checkbox custom-control'>
+			<div className='display-option-control custom-checkbox custom-control'>
 				<input
 					checked={updatePreviewWhileEditing}
 					type='checkbox'
@@ -699,7 +699,7 @@ class Pattern extends PureComponent {
 		const { showStartPosition } = this.state;
 
 		return (
-			<div className='show-start-position-control custom-checkbox custom-control'>
+			<div className='display-option-control custom-checkbox custom-control'>
 				<input
 					checked={showStartPosition}
 					type='checkbox'
@@ -723,7 +723,7 @@ class Pattern extends PureComponent {
 		const { showBackOfBand } = this.state;
 
 		return (
-			<div className='show-back-of-band-control custom-checkbox custom-control'>
+			<div className='display-option-control custom-checkbox custom-control'>
 				<input
 					checked={showBackOfBand}
 					type='checkbox'
