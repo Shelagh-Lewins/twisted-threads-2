@@ -1,21 +1,21 @@
 // pattern preview as displayed in pattern detail page
 // with labels and can be rotated
 
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
-import PreviewCell from './PreviewCell';
-import FreehandPreviewCell from './FreehandPreviewCell';
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import PropTypes from "prop-types";
+import PreviewCell from "./PreviewCell";
+import FreehandPreviewCell from "./FreehandPreviewCell";
 import {
 	getIncludeInTwist,
 	getPalette,
 	getPreviewShouldUpdate,
-} from '../modules/pattern';
-import { getNumberOfRepeats, modulus } from '../modules/weavingUtils';
-import { PathWeft } from '../modules/previewPaths';
-import { savePatternPreview } from '../modules/patternPreview';
-import '../constants/globals';
-import './PatternPreview.scss';
+} from "../modules/pattern";
+import { getNumberOfRepeats, modulus } from "../modules/weavingUtils";
+import { PathWeft } from "../modules/previewPaths";
+import { savePatternPreview } from "../modules/patternPreview";
+import "../constants/globals";
+import "./PatternPreview.scss";
 
 // row and tablet have nothing to identify them except index
 // note row here indicates hole of the tablet
@@ -38,11 +38,11 @@ class PatternPreview extends Component {
 			numberOfTablets,
 			patternWillRepeat,
 			palette,
-			'pattern': {
+			pattern: {
 				_id,
 				createdBy,
 				patternType,
-				'previewOrientation': patternPreviewOrientation,
+				previewOrientation: patternPreviewOrientation,
 				weftColor,
 			},
 			printView,
@@ -53,17 +53,26 @@ class PatternPreview extends Component {
 		} = this.props;
 		const canEdit = createdBy === Meteor.userId();
 
+		// wait until the pattern details have loaded
+		if (!weftColor) {
+			return null;
+		}
+
 		// in print view, always show preview 'up' to ensure it does not scroll
-		const previewOrientation = printView ? 'up' : patternPreviewOrientation;
+		const previewOrientation = printView ? "up" : patternPreviewOrientation;
 
 		// Update the saved preview image on load and change. Wait until the user pauses before saving the preview
 		// this also gives the preview time to render
-		if (canEdit) { // do not save the back of the band view
+		if (canEdit) {
+			// do not save the back of the band view
 			const savePreviewPattern = function () {
-				const holder = document.getElementById('preview-holder');
+				const holder = document.getElementById("preview-holder");
 
-				if (holder) { // wait for render
-					const elm = document.getElementById('preview-holder').getElementsByTagName('svg')[0];
+				if (holder) {
+					// wait for render
+					const elm = document
+						.getElementById("preview-holder")
+						.getElementsByTagName("svg")[0];
 
 					if (elm && !showBackOfBand) {
 						dispatch(savePatternPreview({ _id, elm }));
@@ -97,7 +106,7 @@ class PatternPreview extends Component {
 		const weftOverlap = 0.2; // how much the weft sticks out each side
 
 		// size of svg viewbox and parent element
-		const widthInUnits = numberOfTablets + (weftOverlap * 2);
+		const widthInUnits = numberOfTablets + weftOverlap * 2;
 		const heightInUnits = numberOfRows / 2;
 
 		// elements overlap by half their height
@@ -106,28 +115,36 @@ class PatternPreview extends Component {
 
 		// to avoid the page jumping while the user is editing weaving, repeats are only shown if the preview is horizontal
 
-		const hideRepeats = previewOrientation === 'up';
+		const hideRepeats = previewOrientation === "up";
 
 		const getBoundingBox = (pickHeight, pickWidth, hideRepeatsLocal) => {
-			let height = pickHeight * heightInUnits * numberOfRepeats + (pickHeight / 2);
+			let height =
+				pickHeight * heightInUnits * numberOfRepeats + pickHeight / 2;
 
 			if (hideRepeatsLocal) {
-				height = pickHeight * heightInUnits + (pickHeight / 2);
+				height = pickHeight * heightInUnits + pickHeight / 2;
 			}
 
 			return {
-				'height': height,
-				'width': pickWidth * widthInUnits,
+				height: height,
+				width: pickWidth * widthInUnits,
 			};
 		};
 
 		// size the svg viewbox
-		const { 'height': viewboxHeight, 'width': viewboxWidth } = getBoundingBox(unitHeight, unitWidth);
+		const { height: viewboxHeight, width: viewboxWidth } = getBoundingBox(
+			unitHeight,
+			unitWidth
+		);
 
 		const viewBox = `0 0 ${viewboxWidth} ${viewboxHeight}`;
 
 		// size the container element
-		const { 'height': imageHeight, 'width': imageWidth } = getBoundingBox(cellHeight, cellWidth, hideRepeats);
+		const { height: imageHeight, width: imageWidth } = getBoundingBox(
+			cellHeight,
+			cellWidth,
+			hideRepeats
+		);
 
 		let previewStyle = {};
 		let holderStyle = {};
@@ -146,65 +163,77 @@ class PatternPreview extends Component {
 
 		// corrections for rotation
 		switch (previewOrientation) {
-			case 'up':
+			case "up":
 				holderStyle = {
-					'height': `${imageHeight}px`,
-					'width': `${imageWidth}px`,
+					height: `${imageHeight}px`,
+					width: `${imageWidth}px`,
 				};
 				wrapperStyle = {
-					'width': `${imageWidth}px`,
+					width: `${imageWidth}px`,
 				};
 				break;
 
-			case 'left':
+			case "left":
 				previewStyle = {
-					'height': `${adjustedWidth * horizontalScale}px`,
-					'width': `${adjustedHeight}px`,
+					height: `${adjustedWidth * horizontalScale}px`,
+					width: `${adjustedHeight}px`,
 				};
 				holderStyle = {
-					'height': `${imageWidth}px`,
-					'width': `${imageHeight}px`,
+					height: `${imageWidth}px`,
+					width: `${imageHeight}px`,
 				};
 				wrapperStyle = {
-					'msTransform': `scale(${horizontalScale}) translate(0, ${imageWidth + rowNumbersAllowance}px) rotate(-90deg)`,
-					'WebkitTransform': `scale(${horizontalScale}) translate(0, ${imageWidth + rowNumbersAllowance}px)rotate(-90deg)`,
-					'transform': `scale(${horizontalScale}) translate(0, ${imageWidth + rowNumbersAllowance}px)rotate(-90deg)`,
-					'transformOrigin': 'top left',
-					'width': `${imageWidth}px`,
+					msTransform: `scale(${horizontalScale}) translate(0, ${
+						imageWidth + rowNumbersAllowance
+					}px) rotate(-90deg)`,
+					WebkitTransform: `scale(${horizontalScale}) translate(0, ${
+						imageWidth + rowNumbersAllowance
+					}px)rotate(-90deg)`,
+					transform: `scale(${horizontalScale}) translate(0, ${
+						imageWidth + rowNumbersAllowance
+					}px)rotate(-90deg)`,
+					transformOrigin: "top left",
+					width: `${imageWidth}px`,
 				};
 				tabletLabelsStyle = {
-					'top': `${imageHeight - imageWidth + tabletLabelsOffset}px`,
+					top: `${imageHeight - imageWidth + tabletLabelsOffset}px`,
 				};
 				break;
 
-			case 'right':
+			case "right":
 				previewStyle = {
-					'height': `${adjustedWidth * horizontalScale}px`, // scale parent when preview scaled
-					'width': `${adjustedHeight}px`,
+					height: `${adjustedWidth * horizontalScale}px`, // scale parent when preview scaled
+					width: `${adjustedHeight}px`,
 				};
 				holderStyle = {
-					'height': `${imageWidth}px`,
-					'width': `${imageHeight}px`,
-					'transform': `translate(0, -${tabletLabelsOffset}px)`,
+					height: `${imageWidth}px`,
+					width: `${imageHeight}px`,
+					transform: `translate(0, -${tabletLabelsOffset}px)`,
 				};
 				wrapperStyle = {
-					'msTransform': `scale(${horizontalScale}) translate(${imageHeight + rowNumbersAllowance}px, 0) rotate(90deg)`,
-					'WebkitTransform': `scale(${horizontalScale}) translate(${imageHeight + rowNumbersAllowance}px, 0) rotate(90deg)`,
-					'transform': `scale(${horizontalScale}) translate(${imageHeight + rowNumbersAllowance}px, 0) rotate(90deg)`,
-					'transformOrigin': 'top left',
-					'width': `${imageWidth}px`,
+					msTransform: `scale(${horizontalScale}) translate(${
+						imageHeight + rowNumbersAllowance
+					}px, 0) rotate(90deg)`,
+					WebkitTransform: `scale(${horizontalScale}) translate(${
+						imageHeight + rowNumbersAllowance
+					}px, 0) rotate(90deg)`,
+					transform: `scale(${horizontalScale}) translate(${
+						imageHeight + rowNumbersAllowance
+					}px, 0) rotate(90deg)`,
+					transformOrigin: "top left",
+					width: `${imageWidth}px`,
 				};
 				tabletLabelsStyle = {
-					'top': `${imageHeight - imageWidth - tabletLabelsOffset}px`,
+					top: `${imageHeight - imageWidth - tabletLabelsOffset}px`,
 				};
 				totalTurnsDisplayStyle = {
-					'transform': `translate(0, -${tabletLabelsOffset}px)`,
+					transform: `translate(0, -${tabletLabelsOffset}px)`,
 				};
 				rowNumbersStyle = {
-					'transform': `translate(0, -${tabletLabelsOffset}px)`,
+					transform: `translate(0, -${tabletLabelsOffset}px)`,
 				};
 				rowAtStartPositionStyle = {
-					'transform': `translate(0, -${tabletLabelsOffset}px)`,
+					transform: `translate(0, -${tabletLabelsOffset}px)`,
 				};
 				break;
 
@@ -215,11 +244,18 @@ class PatternPreview extends Component {
 		// /////////////
 		// render the preview
 		// reverse order of tablets if showing back of band
-		const findTabletIndex = (index) => (showBackOfBand ? numberOfTablets - index - 1 : index);
+		const findTabletIndex = (index) =>
+			showBackOfBand ? numberOfTablets - index - 1 : index;
 
-		const yOffsetForRow = (rowIndex, repeatOffset) => ((numberOfRows - rowIndex - 1) * (unitHeight / 2)) + repeatOffset;
+		const yOffsetForRow = (rowIndex, repeatOffset) =>
+			(numberOfRows - rowIndex - 1) * (unitHeight / 2) + repeatOffset;
 
-		const renderCell = function (currentRepeat, repeatOffset, rowIndex, tabletIndex) {
+		const renderCell = function (
+			currentRepeat,
+			repeatOffset,
+			rowIndex,
+			tabletIndex
+		) {
 			// position the cell's svg path
 			const xOffset = (findTabletIndex(tabletIndex) + weftOverlap) * unitWidth; // take account of whether we are viewing the front or the back of the band
 			const yOffset = yOffsetForRow(rowIndex, repeatOffset);
@@ -227,12 +263,9 @@ class PatternPreview extends Component {
 
 			let cell;
 
-			if (patternType === 'freehand') {
+			if (patternType === "freehand") {
 				cell = (
-					<FreehandPreviewCell
-						rowIndex={rowIndex}
-						tabletIndex={tabletIndex}
-					/>
+					<FreehandPreviewCell rowIndex={rowIndex} tabletIndex={tabletIndex} />
 				);
 			} else {
 				cell = (
@@ -253,7 +286,7 @@ class PatternPreview extends Component {
 				<g
 					key={`prevew-cell-${rowIndex}-${tabletIndex}`}
 					transform={transform}
-					className={currentRepeat !== 1 ? 'repeat' : ''}
+					className={currentRepeat !== 1 ? "repeat" : ""}
 				>
 					{cell}
 				</g>
@@ -262,10 +295,16 @@ class PatternPreview extends Component {
 
 		const renderRowNumber = function (currentRepeat, repeatOffset, rowIndex) {
 			const xOffset = (numberOfTablets + weftOverlap) * cellWidth;
-			const yOffset = (numberOfRows - rowIndex + 0.5) * (cellHeight / 2) + repeatOffset;
+			const yOffset =
+				(numberOfRows - rowIndex + 0.5) * (cellHeight / 2) + repeatOffset;
 
 			return (
-				<span key={`row-number-${rowIndex + currentRepeat * numberOfRows}`} style={{ 'left': xOffset, 'top': yOffset }}>{rowIndex + 1}</span>
+				<span
+					key={`row-number-${rowIndex + currentRepeat * numberOfRows}`}
+					style={{ left: xOffset, top: yOffset }}
+				>
+					{rowIndex + 1}
+				</span>
 			);
 		};
 
@@ -279,17 +318,26 @@ class PatternPreview extends Component {
 		);
 
 		// indicate rows that are at start position
-		const renderRowAtStartPositionElm = function (currentRepeat, repeatOffset, rowIndex) {
+		const renderRowAtStartPositionElm = function (
+			currentRepeat,
+			repeatOffset,
+			rowIndex
+		) {
 			const xOffset = 0;
-			const yOffset = (numberOfRows - rowIndex + 0.75) * (cellHeight / 2) + repeatOffset;
+			const yOffset =
+				(numberOfRows - rowIndex + 0.75) * (cellHeight / 2) + repeatOffset;
 			// const yOffset = (numberOfRows - rowIndex + 0.5) * (cellHeight / 2) + repeatOffset;
 
 			return (
 				<span
-					key={`row-at-start-position-${rowIndex + currentRepeat * numberOfRows}`}
-					style={{ 'left': xOffset, 'top': yOffset }}
+					key={`row-at-start-position-${
+						rowIndex + currentRepeat * numberOfRows
+					}`}
+					style={{ left: xOffset, top: yOffset }}
 				>
-					<span><span>{`${rowIndex + 1} start position`}</span></span>
+					<span>
+						<span>{`${rowIndex + 1} start position`}</span>
+					</span>
 				</span>
 			);
 		};
@@ -302,9 +350,14 @@ class PatternPreview extends Component {
 		);
 
 		// for each pattern repeat
-		for (let currentRepeat = 1; currentRepeat <= numberOfRepeats; currentRepeat += 1) {
+		for (
+			let currentRepeat = 1;
+			currentRepeat <= numberOfRepeats;
+			currentRepeat += 1
+		) {
 			// offset pattern repeats by half the pick height per row
-			const getOffset = (pickHeight) => (currentRepeat - 1) * pickHeight * (numberOfRows / 2);
+			const getOffset = (pickHeight) =>
+				(currentRepeat - 1) * pickHeight * (numberOfRows / 2);
 
 			const svgRepeatOffset = getOffset(unitHeight);
 			const elmRepeatOffset = getOffset(cellHeight);
@@ -320,13 +373,13 @@ class PatternPreview extends Component {
 					<g
 						key={`preview-weft-${i + currentRepeat * numberOfRows}`}
 						transform={transform}
-						className={currentRepeat !== 1 ? 'repeat' : ''}
+						className={currentRepeat !== 1 ? "repeat" : ""}
 					>
 						<PathWeft
 							fill={palette[weftColor]}
 							scale={numberOfTablets + 2 * weftOverlap}
 						/>
-					</g>,
+					</g>
 				);
 
 				// draw the weaving cells
@@ -335,7 +388,9 @@ class PatternPreview extends Component {
 				for (let j = 0; j < numberOfTablets; j += 1) {
 					// we do not need to change the order of the tablets depending on whether front or back of band is showing
 					// the xOffset will take care of this
-					cells.push(renderCell(currentRepeat, svgRepeatOffset, numberOfRows - i - 1, j));
+					cells.push(
+						renderCell(currentRepeat, svgRepeatOffset, numberOfRows - i - 1, j)
+					);
 				}
 
 				rows.push(cells);
@@ -344,16 +399,24 @@ class PatternPreview extends Component {
 				// also first and last row for clarity
 				// row numbers are not part of svg
 				// row numbers are the same on each repeat, to make it clear that the pattern IS repeating
-				if (modulus(i + 1, holes) === 0 || i === numberOfRows - 1 || i + 1 === 1) {
+				if (
+					modulus(i + 1, holes) === 0 ||
+					i === numberOfRows - 1 ||
+					i + 1 === 1
+				) {
 					if (!hideRepeats || currentRepeat === 1) {
-						rowNumberElms.push(renderRowNumber(currentRepeat, elmRepeatOffset, i));
+						rowNumberElms.push(
+							renderRowNumber(currentRepeat, elmRepeatOffset, i)
+						);
 					}
 				}
 
 				// if the row is at the start position, add an indicator
 				if (showStartPosition && rowsAtStartPosition.indexOf(i) !== -1) {
 					if (!hideRepeats || currentRepeat === 1) {
-						rowAtStartPositionElms.push(renderRowAtStartPositionElm(currentRepeat, elmRepeatOffset, i));
+						rowAtStartPositionElms.push(
+							renderRowAtStartPositionElm(currentRepeat, elmRepeatOffset, i)
+						);
 					}
 				}
 			}
@@ -367,29 +430,39 @@ class PatternPreview extends Component {
 
 			const totalTurns = totalTurnsByTablet[tabletIndex];
 			const startPosition = modulus(totalTurns, holes) === 0; // tablet is back at start position
-			let title = `Tablet number ${tabletIndex + 1}. Total turns: ${totalTurns}`;
+			let title = `Tablet number ${
+				tabletIndex + 1
+			}. Total turns: ${totalTurns}`;
 			if (startPosition) {
-				title = `Tablet number ${tabletIndex + 1} is at start position. Total turns: ${totalTurns}.`;
+				title = `Tablet number ${
+					tabletIndex + 1
+				} is at start position. Total turns: ${totalTurns}.`;
 			}
 
 			if (totalTurns === 0) {
-				title = `Tablet number ${tabletIndex + 1} is twist neutral. Total turns: ${totalTurns}.`;
+				title = `Tablet number ${
+					tabletIndex + 1
+				} is twist neutral. Total turns: ${totalTurns}.`;
 			}
 
 			totalTurnCells.push(
 				<span
-					className={`${totalTurns === 0 ? 'twist-neutral' : ''} ${startPosition ? 'start-position' : ''} ${includeInTwist && includeInTwist[tabletIndex] ? '' : 'not-in-twist'}`}
+					className={`${totalTurns === 0 ? "twist-neutral" : ""} ${
+						startPosition ? "start-position" : ""
+					} ${
+						includeInTwist && includeInTwist[tabletIndex] ? "" : "not-in-twist"
+					}`}
 					key={`preview-total-turns-${tabletIndex}`}
 					title={title}
 				>
 					{totalTurns}
-				</span>,
+				</span>
 			);
 		}
 
 		let totalTurnsDisplay;
 
-		if (patternType !== 'freehand') {
+		if (patternType !== "freehand") {
 			totalTurnsDisplay = (
 				<span className="total-turns" style={totalTurnsDisplayStyle}>
 					{totalTurnCells}
@@ -409,7 +482,7 @@ class PatternPreview extends Component {
 					title={`tablet ${tabletIndex + 1}`}
 				>
 					{tabletIndex + 1}
-				</span>,
+				</span>
 			);
 		}
 
@@ -420,13 +493,24 @@ class PatternPreview extends Component {
 		);
 
 		return (
-			<div className={`pattern-preview ${previewOrientation}`} style={previewStyle}>
+			<div
+				className={`pattern-preview ${previewOrientation}`}
+				style={previewStyle}
+			>
 				<div className="preview-wrapper" style={wrapperStyle}>
 					{totalTurnsDisplay}
 					{rowAtStartPositionParent}
 					{rowNumbers}
-					<div id="preview-holder" className="preview-holder" style={holderStyle}>
-						<svg viewBox={viewBox} shapeRendering="geometricPrecision" width={imageWidth}>
+					<div
+						id="preview-holder"
+						className="preview-holder"
+						style={holderStyle}
+					>
+						<svg
+							viewBox={viewBox}
+							shapeRendering="geometricPrecision"
+							width={imageWidth}
+						>
 							{wefts}
 							{rows}
 						</svg>
@@ -439,27 +523,27 @@ class PatternPreview extends Component {
 }
 
 PatternPreview.propTypes = {
-	'componentShouldUpdate': PropTypes.bool.isRequired,
-	'dispatch': PropTypes.func.isRequired,
-	'holes': PropTypes.number.isRequired,
-	'includeInTwist': PropTypes.arrayOf(PropTypes.any),
-	'numberOfRows': PropTypes.number.isRequired,
-	'numberOfTablets': PropTypes.number.isRequired,
-	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
-	'patternWillRepeat': PropTypes.bool.isRequired,
-	'printView': PropTypes.bool,
-	'rowsAtStartPosition': PropTypes.arrayOf(PropTypes.any),
-	'showBackOfBand': PropTypes.bool,
-	'showStartPosition': PropTypes.bool,
-	'totalTurnsByTablet': PropTypes.arrayOf(PropTypes.any),
+	componentShouldUpdate: PropTypes.bool.isRequired,
+	dispatch: PropTypes.func.isRequired,
+	holes: PropTypes.number.isRequired,
+	includeInTwist: PropTypes.arrayOf(PropTypes.any),
+	numberOfRows: PropTypes.number.isRequired,
+	numberOfTablets: PropTypes.number.isRequired,
+	palette: PropTypes.arrayOf(PropTypes.any).isRequired,
+	pattern: PropTypes.objectOf(PropTypes.any).isRequired,
+	patternWillRepeat: PropTypes.bool.isRequired,
+	printView: PropTypes.bool,
+	rowsAtStartPosition: PropTypes.arrayOf(PropTypes.any),
+	showBackOfBand: PropTypes.bool,
+	showStartPosition: PropTypes.bool,
+	totalTurnsByTablet: PropTypes.arrayOf(PropTypes.any),
 };
 
 function mapStateToProps(state) {
 	return {
-		'componentShouldUpdate': getPreviewShouldUpdate(state),
-		'includeInTwist': getIncludeInTwist(state),
-		'palette': getPalette(state),
+		componentShouldUpdate: getPreviewShouldUpdate(state),
+		includeInTwist: getIncludeInTwist(state),
+		palette: getPalette(state),
 	};
 }
 
