@@ -1,21 +1,21 @@
 // pattern preview as displayed in pattern detail page
 // with labels and can be rotated
 
-import React, { Component } from "react";
-import { connect } from "react-redux";
-import PropTypes from "prop-types";
-import PreviewCell from "./PreviewCell";
-import FreehandPreviewCell from "./FreehandPreviewCell";
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+import PreviewCell from './PreviewCell';
+import FreehandPreviewCell from './FreehandPreviewCell';
 import {
 	getIncludeInTwist,
 	getPalette,
 	getPreviewShouldUpdate,
-} from "../modules/pattern";
-import { getNumberOfRepeats, modulus } from "../modules/weavingUtils";
-import { PathWeft } from "../modules/previewPaths";
-import { savePatternPreview } from "../modules/patternPreview";
-import "../constants/globals";
-import "./PatternPreview.scss";
+} from '../modules/pattern';
+import { getNumberOfRepeats, modulus } from '../modules/weavingUtils';
+import { PathWeft } from '../modules/previewPaths';
+import { savePatternPreview } from '../modules/patternPreview';
+import '../constants/globals';
+import './PatternPreview.scss';
 
 // row and tablet have nothing to identify them except index
 // note row here indicates hole of the tablet
@@ -59,20 +59,20 @@ class PatternPreview extends Component {
 		}
 
 		// in print view, always show preview 'up' to ensure it does not scroll
-		const previewOrientation = printView ? "up" : patternPreviewOrientation;
+		const previewOrientation = printView ? 'up' : patternPreviewOrientation;
 
 		// Update the saved preview image on load and change. Wait until the user pauses before saving the preview
 		// this also gives the preview time to render
 		if (canEdit) {
 			// do not save the back of the band view
 			const savePreviewPattern = function () {
-				const holder = document.getElementById("preview-holder");
+				const holder = document.getElementById('preview-holder');
 
 				if (holder) {
 					// wait for render
 					const elm = document
-						.getElementById("preview-holder")
-						.getElementsByTagName("svg")[0];
+						.getElementById('preview-holder')
+						.getElementsByTagName('svg')[0];
 
 					if (elm && !showBackOfBand) {
 						dispatch(savePatternPreview({ _id, elm }));
@@ -115,7 +115,7 @@ class PatternPreview extends Component {
 
 		// to avoid the page jumping while the user is editing weaving, repeats are only shown if the preview is horizontal
 
-		const hideRepeats = previewOrientation === "up";
+		const hideRepeats = previewOrientation === 'up';
 
 		const getBoundingBox = (pickHeight, pickWidth, hideRepeatsLocal) => {
 			let height =
@@ -163,7 +163,7 @@ class PatternPreview extends Component {
 
 		// corrections for rotation
 		switch (previewOrientation) {
-			case "up":
+			case 'up':
 				holderStyle = {
 					height: `${imageHeight}px`,
 					width: `${imageWidth}px`,
@@ -173,7 +173,7 @@ class PatternPreview extends Component {
 				};
 				break;
 
-			case "left":
+			case 'left':
 				previewStyle = {
 					height: `${adjustedWidth * horizontalScale}px`,
 					width: `${adjustedHeight}px`,
@@ -192,7 +192,7 @@ class PatternPreview extends Component {
 					transform: `scale(${horizontalScale}) translate(0, ${
 						imageWidth + rowNumbersAllowance
 					}px)rotate(-90deg)`,
-					transformOrigin: "top left",
+					transformOrigin: 'top left',
 					width: `${imageWidth}px`,
 				};
 				tabletLabelsStyle = {
@@ -200,7 +200,7 @@ class PatternPreview extends Component {
 				};
 				break;
 
-			case "right":
+			case 'right':
 				previewStyle = {
 					height: `${adjustedWidth * horizontalScale}px`, // scale parent when preview scaled
 					width: `${adjustedHeight}px`,
@@ -220,7 +220,7 @@ class PatternPreview extends Component {
 					transform: `scale(${horizontalScale}) translate(${
 						imageHeight + rowNumbersAllowance
 					}px, 0) rotate(90deg)`,
-					transformOrigin: "top left",
+					transformOrigin: 'top left',
 					width: `${imageWidth}px`,
 				};
 				tabletLabelsStyle = {
@@ -263,9 +263,12 @@ class PatternPreview extends Component {
 
 			let cell;
 
-			if (patternType === "freehand") {
+			if (patternType === 'freehand') {
 				cell = (
-					<FreehandPreviewCell rowIndex={rowIndex} tabletIndex={tabletIndex} />
+					<FreehandPreviewCell
+						rowIndex={rowIndex}
+						tabletIndex={tabletIndex}
+					/>
 				);
 			} else {
 				cell = (
@@ -286,7 +289,7 @@ class PatternPreview extends Component {
 				<g
 					key={`prevew-cell-${rowIndex}-${tabletIndex}`}
 					transform={transform}
-					className={currentRepeat !== 1 ? "repeat" : ""}
+					className={currentRepeat !== 1 ? 'repeat' : ''}
 				>
 					{cell}
 				</g>
@@ -312,7 +315,10 @@ class PatternPreview extends Component {
 		const rows = []; // svg elements for picks
 		const rowNumberElms = []; // html elements
 		const rowNumbers = (
-			<div className="row-numbers" style={rowNumbersStyle}>
+			<div
+				className='row-numbers'
+				style={rowNumbersStyle}
+			>
 				{rowNumberElms}
 			</div>
 		);
@@ -344,7 +350,10 @@ class PatternPreview extends Component {
 
 		const rowAtStartPositionElms = [];
 		const rowAtStartPositionParent = (
-			<div className="row-at-start-position" style={rowAtStartPositionStyle}>
+			<div
+				className='row-at-start-position'
+				style={rowAtStartPositionStyle}
+			>
 				{rowAtStartPositionElms}
 			</div>
 		);
@@ -373,7 +382,7 @@ class PatternPreview extends Component {
 					<g
 						key={`preview-weft-${i + currentRepeat * numberOfRows}`}
 						transform={transform}
-						className={currentRepeat !== 1 ? "repeat" : ""}
+						className={currentRepeat !== 1 ? 'repeat' : ''}
 					>
 						<PathWeft
 							fill={palette[weftColor]}
@@ -447,10 +456,10 @@ class PatternPreview extends Component {
 
 			totalTurnCells.push(
 				<span
-					className={`${totalTurns === 0 ? "twist-neutral" : ""} ${
-						startPosition ? "start-position" : ""
+					className={`${totalTurns === 0 ? 'twist-neutral' : ''} ${
+						startPosition ? 'start-position' : ''
 					} ${
-						includeInTwist && includeInTwist[tabletIndex] ? "" : "not-in-twist"
+						includeInTwist && includeInTwist[tabletIndex] ? '' : 'not-in-twist'
 					}`}
 					key={`preview-total-turns-${tabletIndex}`}
 					title={title}
@@ -462,9 +471,12 @@ class PatternPreview extends Component {
 
 		let totalTurnsDisplay;
 
-		if (patternType !== "freehand") {
+		if (patternType !== 'freehand') {
 			totalTurnsDisplay = (
-				<span className="total-turns" style={totalTurnsDisplayStyle}>
+				<span
+					className='total-turns'
+					style={totalTurnsDisplayStyle}
+				>
 					{totalTurnCells}
 				</span>
 			);
@@ -487,7 +499,10 @@ class PatternPreview extends Component {
 		}
 
 		const tabletLabels = (
-			<span className="tablet-labels" style={tabletLabelsStyle}>
+			<span
+				className='tablet-labels'
+				style={tabletLabelsStyle}
+			>
 				{tabletLabelCells}
 			</span>
 		);
@@ -497,18 +512,21 @@ class PatternPreview extends Component {
 				className={`pattern-preview ${previewOrientation}`}
 				style={previewStyle}
 			>
-				<div className="preview-wrapper" style={wrapperStyle}>
+				<div
+					className='preview-wrapper'
+					style={wrapperStyle}
+				>
 					{totalTurnsDisplay}
 					{rowAtStartPositionParent}
 					{rowNumbers}
 					<div
-						id="preview-holder"
-						className="preview-holder"
+						id='preview-holder'
+						className='preview-holder'
 						style={holderStyle}
 					>
 						<svg
 							viewBox={viewBox}
-							shapeRendering="geometricPrecision"
+							shapeRendering='geometricPrecision'
 							width={imageWidth}
 						>
 							{wefts}
