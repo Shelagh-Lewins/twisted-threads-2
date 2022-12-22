@@ -17,7 +17,7 @@ import './Home.scss';
 
 const queryString = require('query-string');
 
-const bodyClass = 'new-patterns';
+const bodyClass = 'recent-patterns';
 
 class RecentPatterns extends Component {
 	constructor(props) {
