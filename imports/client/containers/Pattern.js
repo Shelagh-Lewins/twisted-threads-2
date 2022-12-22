@@ -496,12 +496,12 @@ class Pattern extends PureComponent {
 			return (
 				<div className='pattern-images selected'>
 					<Button
-						className='btn btn-secondary close-image'
+						type='button'
+						className='close btn-close btn-close-white'
+						aria-label='Close'
 						onClick={() => this.onClickPatternImageThumbnail(null)}
 						title='Close'
-					>
-						X
-					</Button>
+					/>
 					<div
 						className='full-size'
 						style={{

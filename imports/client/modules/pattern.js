@@ -2,9 +2,9 @@
 
 // And also for Pattern page state
 // import * as svg from 'save-svg-as-png';
-import { createSelector } from "reselect";
+import { createSelector } from 'reselect';
 // import createCachedSelector from 're-reselect';
-import { logErrors, clearErrors } from "./errors";
+import { logErrors, clearErrors } from './errors';
 import {
 	buildDoubleFacedWeavingInstructionsForTablet,
 	buildOffsetThreadingForTablet,
@@ -17,7 +17,7 @@ import {
 	getThreadingByTablet,
 	getTotalTurnsForTablet,
 	modulus,
-} from "./weavingUtils";
+} from './weavingUtils';
 import {
 	BROKEN_TWILL_BACKGROUND,
 	BROKEN_TWILL_FOREGROUND,
@@ -30,14 +30,14 @@ import {
 	DOUBLE_FACED_BACKGROUND,
 	DOUBLE_FACED_THREADING,
 	MAX_TABLETS,
-} from "../../modules/parameters";
-import getColorsForRolesByTablet from "../../modules/getColorsForRolesByTablet";
-import patternAsText from "./patternAsText";
-import newPatternFromFile from "./newPatternFromFile";
-import getDoubleFacedOrientation from "../../modules/getDoubleFacedOrientation";
+} from '../../modules/parameters';
+import getColorsForRolesByTablet from '../../modules/getColorsForRolesByTablet';
+import patternAsText from './patternAsText';
+import newPatternFromFile from './newPatternFromFile';
+import getDoubleFacedOrientation from '../../modules/getDoubleFacedOrientation';
 
-const updeep = require("updeep");
-const filenamify = require("filenamify");
+const updeep = require('updeep');
+const filenamify = require('filenamify');
 
 /* eslint-disable no-case-declarations */
 
@@ -46,55 +46,55 @@ const filenamify = require("filenamify");
 
 // define action types so they are visible
 // and export them so other reducers can use them
-export const SET_PATTERN_COUNT = "SET_PATTERN_COUNT";
-export const SET_PATTERN_COUNT_USERID = "SET_PATTERN_COUNT_USERID";
-export const SET_ISLOADING = "SET_ISLOADING";
-export const SET_PATTERN_ID = "SET_PATTERN_ID";
-export const SET_WEAVING_INSTRUCTIONS = "SET_WEAVING_INSTRUCTIONS";
-export const CLEAR_PATTERN_DATA = "CLEAR_PATTERN_DATA";
-export const SET_PATTERN_DATA = "SET_PATTERN_DATA";
+export const SET_PATTERN_COUNT = 'SET_PATTERN_COUNT';
+export const SET_PATTERN_COUNT_USERID = 'SET_PATTERN_COUNT_USERID';
+export const SET_ISLOADING = 'SET_ISLOADING';
+export const SET_PATTERN_ID = 'SET_PATTERN_ID';
+export const SET_WEAVING_INSTRUCTIONS = 'SET_WEAVING_INSTRUCTIONS';
+export const CLEAR_PATTERN_DATA = 'CLEAR_PATTERN_DATA';
+export const SET_PATTERN_DATA = 'SET_PATTERN_DATA';
 
 // edit pattern charts
-export const SET_IS_EDITING_WEAVING = "SET_IS_EDITING_WEAVING";
-export const SET_IS_EDITING_THREADING = "SET_IS_EDITING_THREADING";
+export const SET_IS_EDITING_WEAVING = 'SET_IS_EDITING_WEAVING';
+export const SET_IS_EDITING_THREADING = 'SET_IS_EDITING_THREADING';
 
 // 'individual' patternType
-export const UPDATE_WEAVING_CELL_DIRECTION = "UPDATE_WEAVING_CELL_DIRECTION";
-export const UPDATE_WEAVING_CELL_TURNS = "UPDATE_WEAVING_CELL_TURNS";
+export const UPDATE_WEAVING_CELL_DIRECTION = 'UPDATE_WEAVING_CELL_DIRECTION';
+export const UPDATE_WEAVING_CELL_TURNS = 'UPDATE_WEAVING_CELL_TURNS';
 
 // 'allTogether' patternType
-export const UPDATE_WEAVING_ROW_DIRECTION = "UPDATE_WEAVING_ROW_DIRECTION";
+export const UPDATE_WEAVING_ROW_DIRECTION = 'UPDATE_WEAVING_ROW_DIRECTION';
 
 // 'doubleFaced' patternType
-export const UPDATE_DOUBLE_FACED_CHART = "UPDATE_DOUBLE_FACED_CHART";
+export const UPDATE_DOUBLE_FACED_CHART = 'UPDATE_DOUBLE_FACED_CHART';
 
 // 'brokenTwill' patternType
-export const UPDATE_TWILL_CHART = "UPDATE_TWILL_CHART";
-export const UPDATE_TWILL_WEAVING_START_ROW = "UPDATE_TWILL_WEAVING_START_ROW";
+export const UPDATE_TWILL_CHART = 'UPDATE_TWILL_CHART';
+export const UPDATE_TWILL_WEAVING_START_ROW = 'UPDATE_TWILL_WEAVING_START_ROW';
 
 // 'freehand' patternType
-export const UPDATE_FREEHAND_CELL_THREAD = "UPDATE_FREEHAND_CELL_THREAD";
-export const UPDATE_FREEHAND_CELL_DIRECTION = "UPDATE_FREEHAND_CELL_DIRECTION";
+export const UPDATE_FREEHAND_CELL_THREAD = 'UPDATE_FREEHAND_CELL_THREAD';
+export const UPDATE_FREEHAND_CELL_DIRECTION = 'UPDATE_FREEHAND_CELL_DIRECTION';
 
 // more than one patternType
 export const SET_UPDATE_PREVIEW_WHILE_EDITING =
-	"SET_UPDATE_PREVIEW_WHILE_EDITING";
-export const UPDATE_THREADING_CELL = "UPDATE_THREADING_CELL";
-export const UPDATE_INCLUDE_IN_TWIST = "UPDATE_INCLUDE_IN_TWIST";
-export const UPDATE_ORIENTATION = "UPDATE_ORIENTATION";
-export const UPDATE_PALETTE_COLOR = "UPDATE_PALETTE_COLOR";
-export const UPDATE_HOLE_HANDEDNESS = "UPDATE_HOLE_HANDEDNESS";
+	'SET_UPDATE_PREVIEW_WHILE_EDITING';
+export const UPDATE_THREADING_CELL = 'UPDATE_THREADING_CELL';
+export const UPDATE_INCLUDE_IN_TWIST = 'UPDATE_INCLUDE_IN_TWIST';
+export const UPDATE_ORIENTATION = 'UPDATE_ORIENTATION';
+export const UPDATE_PALETTE_COLOR = 'UPDATE_PALETTE_COLOR';
+export const UPDATE_HOLE_HANDEDNESS = 'UPDATE_HOLE_HANDEDNESS';
 
-export const UPDATE_ADD_WEAVING_ROWS = "UPDATE_ADD_WEAVING_ROWS";
-export const UPDATE_REMOVE_WEAVING_ROWS = "UPDATE_REMOVE_WEAVING_ROWS";
-export const UPDATE_ADD_TABLETS = "UPDATE_ADD_TABLETS";
-export const UPDATE_REMOVE_TABLET = "UPDATE_REMOVE_TABLET";
+export const UPDATE_ADD_WEAVING_ROWS = 'UPDATE_ADD_WEAVING_ROWS';
+export const UPDATE_REMOVE_WEAVING_ROWS = 'UPDATE_REMOVE_WEAVING_ROWS';
+export const UPDATE_ADD_TABLETS = 'UPDATE_ADD_TABLETS';
+export const UPDATE_REMOVE_TABLET = 'UPDATE_REMOVE_TABLET';
 
-export const SET_FILTER_IS_TWIST_NEUTRAL = "SET_FILTER_IS_TWIST_NEUTRAL";
-export const SET_FILTER_MAX_TABLETS = "SET_FILTER_MAX_TABLETS";
-export const SET_FILTER_MIN_TABLETS = "SET_FILTER_MIN_TABLETS";
-export const SET_FILTER_WILL_REPEAT = "SET_FILTER_WILL_REPEAT";
-export const REMOVE_TABLET_FILTER = "REMOVE_TABLET_FILTER";
+export const SET_FILTER_IS_TWIST_NEUTRAL = 'SET_FILTER_IS_TWIST_NEUTRAL';
+export const SET_FILTER_MAX_TABLETS = 'SET_FILTER_MAX_TABLETS';
+export const SET_FILTER_MIN_TABLETS = 'SET_FILTER_MIN_TABLETS';
+export const SET_FILTER_WILL_REPEAT = 'SET_FILTER_WILL_REPEAT';
+export const REMOVE_TABLET_FILTER = 'REMOVE_TABLET_FILTER';
 
 // ////////////////////////////
 // Actions that change the Store
@@ -127,7 +127,7 @@ export const getPatternCount = () => (dispatch, getState) => {
 	} = getState().pattern;
 
 	Meteor.call(
-		"pattern.getPatternCount",
+		'pattern.getPatternCount',
 		{
 			filterIsTwistNeutral,
 			filterMaxTablets,
@@ -137,7 +137,7 @@ export const getPatternCount = () => (dispatch, getState) => {
 		},
 		(error, result) => {
 			if (error) {
-				return dispatch(logErrors({ "get pattern count": error.reason }));
+				return dispatch(logErrors({ 'get pattern count': error.reason }));
 			}
 
 			dispatch(setPatternCount(result));
@@ -159,7 +159,7 @@ export const updatePatternCountUserId = (userId) => (dispatch, getState) => {
 	dispatch(setPatternCountUserId(userId));
 
 	Meteor.call(
-		"pattern.getPatternCount",
+		'pattern.getPatternCount',
 		{
 			filterIsTwistNeutral,
 			filterMaxTablets,
@@ -169,7 +169,7 @@ export const updatePatternCountUserId = (userId) => (dispatch, getState) => {
 		},
 		(error, result) => {
 			if (error) {
-				return dispatch(logErrors({ "update pattern count": error.reason }));
+				return dispatch(logErrors({ 'update pattern count': error.reason }));
 			}
 
 			dispatch(setPatternCount(result));
@@ -270,10 +270,10 @@ export const savePatternData = (patternObj) => (dispatch) => {
 
 	switch (patternType) {
 		// all simulation patterns
-		case "individual":
-		case "allTogether":
-		case "doubleFaced":
-		case "brokenTwill": {
+		case 'individual':
+		case 'allTogether':
+		case 'doubleFaced':
+		case 'brokenTwill': {
 			picks = calculateAllPicks({
 				numberOfRows,
 				numberOfTablets,
@@ -315,7 +315,7 @@ export const getNumberOfRowsForChart = (state) => {
 
 	let numberOfRowsForChart = numberOfRows || 0;
 
-	if (patternType === "brokenTwill") {
+	if (patternType === 'brokenTwill') {
 		numberOfRowsForChart = numberOfRows - patternDesign.weavingStartRow + 1;
 	}
 
@@ -340,7 +340,7 @@ export const getPicksForChart = (state) => {
 
 	const picks = [...state.pattern.picks];
 
-	if (patternType === "brokenTwill") {
+	if (patternType === 'brokenTwill') {
 		for (let i = 0; i < picks.length; i += 1) {
 			picks[i] = [...picks[i]];
 			picks[i].splice(0, patternDesign.weavingStartRow - 1);
@@ -366,7 +366,7 @@ export const getPicksForTabletForChart = (state, tabletIndex) => {
 		// can happen when preview re-renders after remove tablet
 		picksForTablet = [...state.pattern.picks[tabletIndex]];
 
-		if (patternType === "brokenTwill") {
+		if (patternType === 'brokenTwill') {
 			picksForTablet.splice(0, patternDesign.weavingStartRow - 1);
 		}
 	}
@@ -404,11 +404,11 @@ export const getThreadingForHole = ({
 		// in the interactive weaving chart
 		// update the threading chart for simulation patterns to show the current position of the tablets
 		// top row of weaving chart is row 0 so don't use falsy as a test
-		if (typeof selectedRow !== "undefined" && patternType !== "freehand") {
+		if (typeof selectedRow !== 'undefined' && patternType !== 'freehand') {
 			currentRow = getNumberOfRowsForChart(state) - selectedRow;
 		}
 
-		if (typeof weavingStartRow !== "undefined") {
+		if (typeof weavingStartRow !== 'undefined') {
 			currentRow += weavingStartRow - 1; // if starting on row 3, this is offset 2 from row 1
 		}
 
@@ -504,9 +504,9 @@ export const getTotalTurnsByTabletSelector = createSelector(
 export const addPattern = (data, history) => (dispatch) => {
 	dispatch(clearErrors());
 
-	Meteor.call("pattern.add", data, (error, result) => {
+	Meteor.call('pattern.add', data, (error, result) => {
 		if (error) {
-			return dispatch(logErrors({ "add-pattern": error.reason }));
+			return dispatch(logErrors({ 'add-pattern': error.reason }));
 		}
 
 		history.push(`/pattern/${result}`);
@@ -514,9 +514,9 @@ export const addPattern = (data, history) => (dispatch) => {
 };
 
 export const removePattern = (_id, history) => (dispatch) => {
-	Meteor.call("pattern.remove", _id, (error) => {
+	Meteor.call('pattern.remove', _id, (error) => {
 		if (error) {
-			return dispatch(logErrors({ "remove pattern": error.reason }));
+			return dispatch(logErrors({ 'remove pattern': error.reason }));
 		}
 	});
 
@@ -529,9 +529,9 @@ export const removePattern = (_id, history) => (dispatch) => {
 export const copyPattern = (_id, history) => (dispatch) => {
 	dispatch(clearErrors());
 
-	Meteor.call("pattern.copy", _id, (error, result) => {
+	Meteor.call('pattern.copy', _id, (error, result) => {
 		if (error) {
-			return dispatch(logErrors({ "copy-pattern": error.reason }));
+			return dispatch(logErrors({ 'copy-pattern': error.reason }));
 		}
 
 		history.push(`/pattern/${result}`);
@@ -544,19 +544,19 @@ export const downloadPattern = (_id, patternObj) => (dispatch) => {
 	const text = patternAsText(_id, patternObj);
 	const { name } = patternObj;
 	const filename = filenamify(name, {
-		replacement: "_",
+		replacement: '_',
 		maxLength: 100000, // 0.1MB
 	});
 
-	const element = document.createElement("a");
+	const element = document.createElement('a');
 
 	element.setAttribute(
-		"href",
+		'href',
 		`data:text/plain;charset=utf-8,${encodeURIComponent(text)}`
 	);
-	element.setAttribute("download", `${filename}.twt`);
+	element.setAttribute('download', `${filename}.twt`);
 
-	element.style.display = "none";
+	element.style.display = 'none';
 	document.body.appendChild(element);
 
 	element.click();
@@ -574,14 +574,14 @@ export const importPatternFromText =
 		// send to server
 		if (isValid) {
 			Meteor.call(
-				"pattern.newPatternFromData",
+				'pattern.newPatternFromData',
 				{
 					patternObj,
 				},
 				(error, result) => {
 					if (error) {
 						return dispatch(
-							logErrors({ "add new pattern from data": error.reason })
+							logErrors({ 'add new pattern from data': error.reason })
 						);
 					}
 
@@ -591,7 +591,7 @@ export const importPatternFromText =
 		} else {
 			dispatch(
 				logErrors({
-					"add new pattern from data":
+					'add new pattern from data':
 						"file is not valid. Imported file must be a Twisted Threads or Guntram's Tablet Weaving Thingy file.",
 				})
 			);
@@ -603,17 +603,17 @@ export const importPatternFromText =
 export function editIsPublic({ _id, isPublic }) {
 	return (dispatch) => {
 		Meteor.call(
-			"pattern.edit",
+			'pattern.edit',
 			{
 				_id,
 				data: {
-					type: "editIsPublic",
+					type: 'editIsPublic',
 					isPublic,
 				},
 			},
 			(error) => {
 				if (error) {
-					return dispatch(logErrors({ "edit is public": error.reason }));
+					return dispatch(logErrors({ 'edit is public': error.reason }));
 				}
 			}
 		);
@@ -624,17 +624,17 @@ export function editIsPublic({ _id, isPublic }) {
 export function editPatternIsTwistNeutral({ _id, patternIsTwistNeutral }) {
 	return (dispatch) => {
 		Meteor.call(
-			"pattern.edit",
+			'pattern.edit',
 			{
 				_id,
 				data: {
-					type: "editIsTwistNeutral",
+					type: 'editIsTwistNeutral',
 					isTwistNeutral: patternIsTwistNeutral,
 				},
 			},
 			(error) => {
 				if (error) {
-					return dispatch(logErrors({ "edit is twist neutral": error.reason }));
+					return dispatch(logErrors({ 'edit is twist neutral': error.reason }));
 				}
 			}
 		);
@@ -645,17 +645,17 @@ export function editPatternIsTwistNeutral({ _id, patternIsTwistNeutral }) {
 export function editPatternWillRepeat({ _id, patternWillRepeat }) {
 	return (dispatch) => {
 		Meteor.call(
-			"pattern.edit",
+			'pattern.edit',
 			{
 				_id,
 				data: {
-					type: "editWillRepeat",
+					type: 'editWillRepeat',
 					willRepeat: patternWillRepeat,
 				},
 			},
 			(error) => {
 				if (error) {
-					return dispatch(logErrors({ "edit will repeat": error.reason }));
+					return dispatch(logErrors({ 'edit will repeat': error.reason }));
 				}
 			}
 		);
@@ -675,11 +675,11 @@ export function updateWeavingCellDirection(data) {
 export function editWeavingCellDirection({ _id, row, tablet }) {
 	return (dispatch) => {
 		Meteor.call(
-			"pattern.edit",
+			'pattern.edit',
 			{
 				_id,
 				data: {
-					type: "editWeavingCellDirection",
+					type: 'editWeavingCellDirection',
 					row,
 					tablet,
 				},
@@ -689,7 +689,7 @@ export function editWeavingCellDirection({ _id, row, tablet }) {
 			(error) => {
 				if (error) {
 					return dispatch(
-						logErrors({ "edit weaving cell direction": error.reason })
+						logErrors({ 'edit weaving cell direction': error.reason })
 					);
 				}
 			}
@@ -720,11 +720,11 @@ export function editWeavingCellNumberOfTurns({
 }) {
 	return (dispatch) => {
 		Meteor.call(
-			"pattern.edit",
+			'pattern.edit',
 			{
 				_id,
 				data: {
-					type: "editWeavingCellNumberOfTurns",
+					type: 'editWeavingCellNumberOfTurns',
 					row,
 					tablet,
 					numberOfTurns,
@@ -733,7 +733,7 @@ export function editWeavingCellNumberOfTurns({
 			(error) => {
 				if (error) {
 					return dispatch(
-						logErrors({ "edit weaving cell turns": error.reason })
+						logErrors({ 'edit weaving cell turns': error.reason })
 					);
 				}
 			}
@@ -762,18 +762,18 @@ export function updateWeavingRowDirection(data) {
 export function editWeavingRowDirection({ _id, row }) {
 	return (dispatch) => {
 		Meteor.call(
-			"pattern.edit",
+			'pattern.edit',
 			{
 				_id,
 				data: {
-					type: "editWeavingRowDirection",
+					type: 'editWeavingRowDirection',
 					row,
 				},
 			},
 			(error) => {
 				if (error) {
 					return dispatch(
-						logErrors({ "edit weaving row direction": error.reason })
+						logErrors({ 'edit weaving row direction': error.reason })
 					);
 				}
 			}
@@ -799,11 +799,11 @@ export function updateDoubleFacedChart(data) {
 export function editDoubleFacedChart({ _id, rowIndex, tabletIndex }) {
 	return (dispatch) => {
 		Meteor.call(
-			"pattern.edit",
+			'pattern.edit',
 			{
 				_id,
 				data: {
-					type: "editDoubleFacedChart",
+					type: 'editDoubleFacedChart',
 					_id,
 					rowIndex,
 					tabletIndex,
@@ -812,7 +812,7 @@ export function editDoubleFacedChart({ _id, rowIndex, tabletIndex }) {
 			(error) => {
 				if (error) {
 					return dispatch(
-						logErrors({ "edit double faced pattern chart": error.reason })
+						logErrors({ 'edit double faced pattern chart': error.reason })
 					);
 				}
 			}
@@ -845,11 +845,11 @@ export function editTwillChart({
 }) {
 	return (dispatch) => {
 		Meteor.call(
-			"pattern.edit",
+			'pattern.edit',
 			{
 				_id,
 				data: {
-					type: "editTwillChart",
+					type: 'editTwillChart',
 					_id,
 					rowIndex,
 					tabletIndex,
@@ -859,7 +859,7 @@ export function editTwillChart({
 			(error) => {
 				if (error) {
 					return dispatch(
-						logErrors({ "edit twill pattern chart": error.reason })
+						logErrors({ 'edit twill pattern chart': error.reason })
 					);
 				}
 			}
@@ -887,11 +887,11 @@ export function updateTwillWeavingStartRow(data) {
 export function editTwillWeavingStartRow({ _id, weavingStartRow }) {
 	return (dispatch) => {
 		Meteor.call(
-			"pattern.edit",
+			'pattern.edit',
 			{
 				_id,
 				data: {
-					type: "editTwillWeavingStartRow",
+					type: 'editTwillWeavingStartRow',
 					_id,
 					weavingStartRow,
 				},
@@ -899,7 +899,7 @@ export function editTwillWeavingStartRow({ _id, weavingStartRow }) {
 			(error) => {
 				if (error) {
 					return dispatch(
-						logErrors({ "edit twill weaving start row": error.reason })
+						logErrors({ 'edit twill weaving start row': error.reason })
 					);
 				}
 			}
@@ -939,11 +939,11 @@ export function editFreehandCellThread({
 }) {
 	return (dispatch) => {
 		Meteor.call(
-			"pattern.edit",
+			'pattern.edit',
 			{
 				_id,
 				data: {
-					type: "editFreehandCellThread",
+					type: 'editFreehandCellThread',
 					_id,
 					row: rowIndex,
 					tablet: tabletIndex,
@@ -954,7 +954,7 @@ export function editFreehandCellThread({
 			(error) => {
 				if (error) {
 					return dispatch(
-						logErrors({ "edit freehand cell thread": error.reason })
+						logErrors({ 'edit freehand cell thread': error.reason })
 					);
 				}
 			}
@@ -993,11 +993,11 @@ export function editFreehandCellDirection({
 }) {
 	return (dispatch) => {
 		Meteor.call(
-			"pattern.edit",
+			'pattern.edit',
 			{
 				_id,
 				data: {
-					type: "editFreehandCellDirection",
+					type: 'editFreehandCellDirection',
 					_id,
 					row: rowIndex,
 					tablet: tabletIndex,
@@ -1006,7 +1006,7 @@ export function editFreehandCellDirection({
 			(error) => {
 				if (error) {
 					return dispatch(
-						logErrors({ "edit freehand cell direction": error.reason })
+						logErrors({ 'edit freehand cell direction': error.reason })
 					);
 				}
 			}
@@ -1034,11 +1034,11 @@ export function updateAddWeavingRows(data) {
 export function addWeavingRows({ _id, chartCell, insertNRows, insertRowsAt }) {
 	return (dispatch) => {
 		Meteor.call(
-			"pattern.edit",
+			'pattern.edit',
 			{
 				_id,
 				data: {
-					type: "addWeavingRows",
+					type: 'addWeavingRows',
 					chartCell,
 					insertNRows,
 					insertRowsAt,
@@ -1046,7 +1046,7 @@ export function addWeavingRows({ _id, chartCell, insertNRows, insertRowsAt }) {
 			},
 			(error) => {
 				if (error) {
-					return dispatch(logErrors({ "add weaving row": error.reason }));
+					return dispatch(logErrors({ 'add weaving row': error.reason }));
 				}
 			}
 		);
@@ -1072,18 +1072,18 @@ export function updateRemoveWeavingRows(data) {
 export function removeWeavingRows({ _id, removeNRows, removeRowsAt }) {
 	return (dispatch) => {
 		Meteor.call(
-			"pattern.edit",
+			'pattern.edit',
 			{
 				_id,
 				data: {
 					removeNRows,
 					removeRowsAt,
-					type: "removeWeavingRows",
+					type: 'removeWeavingRows',
 				},
 			},
 			(error) => {
 				if (error) {
-					return dispatch(logErrors({ "remove weaving row": error.reason }));
+					return dispatch(logErrors({ 'remove weaving row': error.reason }));
 				}
 			}
 		);
@@ -1128,7 +1128,7 @@ export function editThreadingCell({ _id, hole, tablet, colorIndex }) {
 
 		const holesToSet = [];
 		switch (patternType) {
-			case "doubleFaced":
+			case 'doubleFaced':
 				// set both holes with the role the user clicked
 				// find the role of the clicked cell F / B
 				colorRole = DOUBLE_FACED_THREADING[hole];
@@ -1142,7 +1142,7 @@ export function editThreadingCell({ _id, hole, tablet, colorIndex }) {
 
 				break;
 
-			case "brokenTwill":
+			case 'brokenTwill':
 				// set both holes with the role the user clicked
 				// offset threading is displayed
 				// find the threading cell clicked
@@ -1181,11 +1181,11 @@ export function editThreadingCell({ _id, hole, tablet, colorIndex }) {
 		}
 
 		Meteor.call(
-			"pattern.edit",
+			'pattern.edit',
 			{
 				_id,
 				data: {
-					type: "editThreadingCell",
+					type: 'editThreadingCell',
 					holesToSet,
 					tablet,
 					colorIndex,
@@ -1194,7 +1194,7 @@ export function editThreadingCell({ _id, hole, tablet, colorIndex }) {
 			(error) => {
 				if (error) {
 					return dispatch(
-						logErrors({ "edit threading cell direction": error.reason })
+						logErrors({ 'edit threading cell direction': error.reason })
 					);
 				}
 			}
@@ -1227,11 +1227,11 @@ export function addTablets({
 }) {
 	return (dispatch) => {
 		Meteor.call(
-			"pattern.edit",
+			'pattern.edit',
 			{
 				_id,
 				data: {
-					type: "addTablets",
+					type: 'addTablets',
 					colorIndex,
 					insertNTablets,
 					insertTabletsAt,
@@ -1239,7 +1239,7 @@ export function addTablets({
 			},
 			(error) => {
 				if (error) {
-					return dispatch(logErrors({ "add tablets": error.reason }));
+					return dispatch(logErrors({ 'add tablets': error.reason }));
 				}
 			}
 		);
@@ -1265,18 +1265,18 @@ export function updateRemoveTablet(data) {
 export function removeTablet({ _id, tablet }) {
 	return (dispatch) => {
 		Meteor.call(
-			"pattern.edit",
+			'pattern.edit',
 			{
 				_id,
 				tablet,
 				data: {
-					type: "removeTablet",
+					type: 'removeTablet',
 					tablet,
 				},
 			},
 			(error) => {
 				if (error) {
-					return dispatch(logErrors({ "remove tablet": error.reason }));
+					return dispatch(logErrors({ 'remove tablet': error.reason }));
 				}
 			}
 		);
@@ -1304,11 +1304,11 @@ export function editIncludeInTwist({ _id, tablet }) {
 		const tabletIncludeInTwist = !currentIncludeInTwist;
 
 		Meteor.call(
-			"pattern.edit",
+			'pattern.edit',
 			{
 				_id,
 				data: {
-					type: "includeInTwist",
+					type: 'includeInTwist',
 					tablet,
 					tabletIncludeInTwist,
 				},
@@ -1317,7 +1317,7 @@ export function editIncludeInTwist({ _id, tablet }) {
 				if (error) {
 					return dispatch(
 						logErrors({
-							"update include tablet in twist caluclations": error.reason,
+							'update include tablet in twist caluclations': error.reason,
 						})
 					);
 				}
@@ -1345,21 +1345,21 @@ export function editOrientation({ _id, tablet }) {
 	return (dispatch, getState) => {
 		const currentOrientation = getState().pattern.orientations[tablet];
 
-		const tabletOrientation = currentOrientation === "\\" ? "/" : "\\";
+		const tabletOrientation = currentOrientation === '\\' ? '/' : '\\';
 
 		Meteor.call(
-			"pattern.edit",
+			'pattern.edit',
 			{
 				_id,
 				data: {
-					type: "orientation",
+					type: 'orientation',
 					tablet,
 					tabletOrientation,
 				},
 			},
 			(error) => {
 				if (error) {
-					return dispatch(logErrors({ "update orientation": error.reason }));
+					return dispatch(logErrors({ 'update orientation': error.reason }));
 				}
 			}
 		);
@@ -1384,18 +1384,18 @@ export function updatePaletteColor(data) {
 export function editPaletteColor({ _id, colorHexValue, colorIndex }) {
 	return (dispatch) => {
 		Meteor.call(
-			"pattern.edit",
+			'pattern.edit',
 			{
 				_id,
 				data: {
-					type: "paletteColor",
+					type: 'paletteColor',
 					colorHexValue,
 					colorIndex,
 				},
 			},
 			(error) => {
 				if (error) {
-					return dispatch(logErrors({ "edit palette color": error.reason }));
+					return dispatch(logErrors({ 'edit palette color': error.reason }));
 				}
 			}
 		);
@@ -1420,16 +1420,16 @@ export function updateHoleHandedness(data) {
 export function editHoleHandedness({ _id }) {
 	return (dispatch) => {
 		Meteor.call(
-			"pattern.edit",
+			'pattern.edit',
 			{
 				_id,
 				data: {
-					type: "holeHandedness",
+					type: 'holeHandedness',
 				},
 			},
 			(error) => {
 				if (error) {
-					return dispatch(logErrors({ "edit hole handedness": error.reason }));
+					return dispatch(logErrors({ 'edit hole handedness': error.reason }));
 				}
 			}
 		);
@@ -1442,17 +1442,17 @@ export function editHoleHandedness({ _id }) {
 export function editWeftColor({ _id, colorIndex }) {
 	return (dispatch) => {
 		Meteor.call(
-			"pattern.edit",
+			'pattern.edit',
 			{
 				_id,
 				data: {
-					type: "weftColor",
+					type: 'weftColor',
 					colorIndex,
 				},
 			},
 			(error) => {
 				if (error) {
-					return dispatch(logErrors({ "edit weft colour": error.reason }));
+					return dispatch(logErrors({ 'edit weft colour': error.reason }));
 				}
 			}
 		);
@@ -1463,18 +1463,18 @@ export function editWeftColor({ _id, colorIndex }) {
 export function editPreviewOrientation({ _id, orientation }) {
 	return (dispatch) => {
 		Meteor.call(
-			"pattern.edit",
+			'pattern.edit',
 			{
 				_id,
 				data: {
-					type: "previewOrientation",
+					type: 'previewOrientation',
 					orientation,
 				},
 			},
 			(error) => {
 				if (error) {
 					return dispatch(
-						logErrors({ "edit preview orientation": error.reason })
+						logErrors({ 'edit preview orientation': error.reason })
 					);
 				}
 			}
@@ -1486,18 +1486,18 @@ export function editPreviewOrientation({ _id, orientation }) {
 export function editTextField({ _id, fieldName, fieldValue }) {
 	return (dispatch) => {
 		Meteor.call(
-			"pattern.edit",
+			'pattern.edit',
 			{
 				_id,
 				data: {
 					fieldName,
 					fieldValue,
-					type: "editTextField",
+					type: 'editTextField',
 				},
 			},
 			(error) => {
 				if (error) {
-					return dispatch(logErrors({ "edit text field": error.reason }));
+					return dispatch(logErrors({ 'edit text field': error.reason }));
 				}
 			}
 		);
@@ -1726,7 +1726,7 @@ export default function pattern(state = initialPatternState, action) {
 			for (let i = row; i < numberOfRows; i += 1) {
 				const obj = { ...weavingInstructionsForTablet[i] };
 				obj.direction =
-					weavingInstructionsForTablet[i].direction === "F" ? "B" : "F";
+					weavingInstructionsForTablet[i].direction === 'F' ? 'B' : 'F';
 				weavingInstructionsForTablet[i] = obj;
 			}
 
@@ -1759,7 +1759,7 @@ export default function pattern(state = initialPatternState, action) {
 
 			// update pattern design for this row
 			newWeavingInstructions[row] =
-				newWeavingInstructions[row] === "F" ? "B" : "F";
+				newWeavingInstructions[row] === 'F' ? 'B' : 'F';
 
 			// update weaving instructions for each tablet
 			for (let i = 0; i < numberOfTablets; i += 1) {
@@ -1769,7 +1769,7 @@ export default function pattern(state = initialPatternState, action) {
 
 				// change direction for this row
 				const obj = { ...weavingInstructionsForTablet[row] };
-				obj.direction = obj.direction === "F" ? "B" : "F";
+				obj.direction = obj.direction === 'F' ? 'B' : 'F';
 				weavingInstructionsForTablet[row] = obj;
 
 				const picksForTablet = calculatePicksForTablet({
@@ -1812,7 +1812,7 @@ export default function pattern(state = initialPatternState, action) {
 			const newChart = [...patternDesign.doubleFacedPatternChart];
 			const newRow = [...newChart[rowIndex]];
 			const currentValue = newChart[rowIndex][tabletIndex];
-			const newValue = currentValue === "." ? "X" : ".";
+			const newValue = currentValue === '.' ? 'X' : '.';
 			newRow[tabletIndex] = newValue;
 			newChart[rowIndex] = newRow;
 
@@ -1867,7 +1867,7 @@ export default function pattern(state = initialPatternState, action) {
 			const newTwillChart = [...patternDesign[twillChart]];
 			const newRow = [...newTwillChart[rowIndex]];
 			const currentValue = newTwillChart[rowIndex][tabletIndex];
-			const newValue = currentValue === "." ? "X" : ".";
+			const newValue = currentValue === '.' ? 'X' : '.';
 			newRow[tabletIndex] = newValue;
 			newTwillChart[rowIndex] = newRow;
 
@@ -1934,7 +1934,7 @@ export default function pattern(state = initialPatternState, action) {
 
 			// toggle cell direction
 			const cell = state.patternDesign.freehandChart[row][tablet];
-			const direction = cell.direction === "F" ? "B" : "F";
+			const direction = cell.direction === 'F' ? 'B' : 'F';
 
 			return updeep(
 				{
@@ -1992,7 +1992,7 @@ export default function pattern(state = initialPatternState, action) {
 				orientations: { [tablet]: tabletOrientation },
 			};
 
-			if (patternType !== "freehand") {
+			if (patternType !== 'freehand') {
 				// freehand doesn't calculate picks
 				// to calculate new picks for this tablet
 				const weavingInstructionsForTablet = [
@@ -2027,7 +2027,7 @@ export default function pattern(state = initialPatternState, action) {
 
 			// toggle handedness
 			const newHandedness =
-				currentHandedness === "anticlockwise" ? "clockwise" : "anticlockwise";
+				currentHandedness === 'anticlockwise' ? 'clockwise' : 'anticlockwise';
 
 			return updeep(
 				{
@@ -2059,8 +2059,8 @@ export default function pattern(state = initialPatternState, action) {
 
 			switch (patternType) {
 				// each tablet is independent so just remove it
-				case "individual":
-				case "allTogether":
+				case 'individual':
+				case 'allTogether':
 					// individual weaving instruction
 					const obj = {
 						direction: DEFAULT_DIRECTION,
@@ -2088,7 +2088,7 @@ export default function pattern(state = initialPatternState, action) {
 						newPicks.push(picksForTablet);
 					}
 
-					if (patternType === "allTogether") {
+					if (patternType === 'allTogether') {
 						// update patternDesign for patterns will be used for UI
 						const newPatternDesignRows = [];
 						let newWeavingInstructions = [];
@@ -2108,7 +2108,7 @@ export default function pattern(state = initialPatternState, action) {
 
 					break;
 
-				case "doubleFaced":
+				case 'doubleFaced':
 					const { doubleFacedPatternChart } = patternDesign;
 
 					const newDoubleFacedPatternChart = [...doubleFacedPatternChart];
@@ -2117,7 +2117,7 @@ export default function pattern(state = initialPatternState, action) {
 						const chartPosition = insertRowsAt / 2;
 
 						const newRow1 = new Array(numberOfTablets);
-						newRow1.fill(".");
+						newRow1.fill('.');
 						newDoubleFacedPatternChart.splice(chartPosition, 0, newRow1);
 					}
 
@@ -2158,7 +2158,7 @@ export default function pattern(state = initialPatternState, action) {
 
 					break;
 
-				case "brokenTwill":
+				case 'brokenTwill':
 					const {
 						twillDirection,
 						twillPatternChart,
@@ -2172,11 +2172,11 @@ export default function pattern(state = initialPatternState, action) {
 						const chartPosition = insertRowsAt / 2;
 
 						const newRow1 = new Array(numberOfTablets);
-						newRow1.fill(".");
+						newRow1.fill('.');
 						newTwillPatternChart.splice(chartPosition, 0, newRow1);
 
 						const newRow2 = new Array(numberOfTablets);
-						newRow2.fill(".");
+						newRow2.fill('.');
 						newTwillDirectionChangeChart.splice(chartPosition, 0, newRow2);
 					}
 
@@ -2220,7 +2220,7 @@ export default function pattern(state = initialPatternState, action) {
 
 					break;
 
-				case "freehand":
+				case 'freehand':
 					const { freehandChart } = patternDesign;
 
 					const newWeavingChart = [...freehandChart];
@@ -2269,8 +2269,8 @@ export default function pattern(state = initialPatternState, action) {
 
 			switch (patternType) {
 				// each tablet is independent so just remove it
-				case "individual":
-				case "allTogether":
+				case 'individual':
+				case 'allTogether':
 					for (let i = 0; i < numberOfTablets; i += 1) {
 						const newWeavingInstructionsForTablet = [
 							...weavingInstructionsByTablet[i],
@@ -2290,7 +2290,7 @@ export default function pattern(state = initialPatternState, action) {
 						newPicks.push(picksForTablet);
 					}
 
-					if (patternType === "allTogether") {
+					if (patternType === 'allTogether') {
 						const newWeavingInstructions = [
 							...patternDesign.weavingInstructions,
 						];
@@ -2306,7 +2306,7 @@ export default function pattern(state = initialPatternState, action) {
 
 					break;
 
-				case "doubleFaced":
+				case 'doubleFaced':
 					const { doubleFacedPatternChart } = patternDesign;
 
 					const newDoubleFacedPatternChart = [...doubleFacedPatternChart];
@@ -2346,7 +2346,7 @@ export default function pattern(state = initialPatternState, action) {
 
 					break;
 
-				case "brokenTwill":
+				case 'brokenTwill':
 					const {
 						twillDirection,
 						twillPatternChart,
@@ -2369,8 +2369,8 @@ export default function pattern(state = initialPatternState, action) {
 							...newTwillDirectionChangeChart[0],
 						];
 
-						newTwillPatternChart[0][i] = ".";
-						newTwillDirectionChangeChart[0][i] = ".";
+						newTwillPatternChart[0][i] = '.';
+						newTwillDirectionChangeChart[0][i] = '.';
 					}
 
 					// calculate weaving from removed row onwards
@@ -2410,7 +2410,7 @@ export default function pattern(state = initialPatternState, action) {
 
 					break;
 
-				case "freehand":
+				case 'freehand':
 					const { freehandChart } = patternDesign;
 					const newFreehandChart = [...freehandChart];
 
@@ -2462,7 +2462,7 @@ export default function pattern(state = initialPatternState, action) {
 			let newPicks;
 
 			// all simulation patterns
-			if (patternType !== "freehand") {
+			if (patternType !== 'freehand') {
 				newWeavingInstructionsByTablet = [...weavingInstructionsByTablet];
 				newPicks = [...picks];
 
@@ -2478,9 +2478,9 @@ export default function pattern(state = initialPatternState, action) {
 
 			// threading chart is the same for all these patterns
 			switch (patternType) {
-				case "individual":
-				case "allTogether":
-				case "freehand":
+				case 'individual':
+				case 'allTogether':
+				case 'freehand':
 					for (let i = 0; i < insertNTablets; i += 1) {
 						// update orientations
 						newOrientations.splice(insertTabletsAt, 0, DEFAULT_ORIENTATION);
@@ -2500,18 +2500,18 @@ export default function pattern(state = initialPatternState, action) {
 			}
 
 			switch (patternType) {
-				case "individual":
-				case "allTogether":
+				case 'individual':
+				case 'allTogether':
 					for (let i = 0; i < insertNTablets; i += 1) {
 						const newWeavingInstructionsForTablet = [];
 						for (let j = 0; j < numberOfRows; j += 1) {
 							let direction;
 							let numberOfTurns;
 
-							if (patternType === "individual") {
+							if (patternType === 'individual') {
 								direction = DEFAULT_DIRECTION;
 								numberOfTurns = DEFAULT_NUMBER_OF_TURNS;
-							} else if (patternType === "allTogether") {
+							} else if (patternType === 'allTogether') {
 								direction = patternDesign.weavingInstructions[j];
 								numberOfTurns = 1;
 							}
@@ -2540,7 +2540,7 @@ export default function pattern(state = initialPatternState, action) {
 					}
 					break;
 
-				case "doubleFaced":
+				case 'doubleFaced':
 					const { doubleFacedOrientations, doubleFacedPatternChart } =
 						patternDesign;
 					const doubleFacedChartLength = doubleFacedPatternChart.length;
@@ -2564,7 +2564,7 @@ export default function pattern(state = initialPatternState, action) {
 							newDoubleFacedPatternChart[j] = [
 								...newDoubleFacedPatternChart[j],
 							];
-							newDoubleFacedPatternChart[j].splice(insertTabletsAt, 0, ".");
+							newDoubleFacedPatternChart[j].splice(insertTabletsAt, 0, '.');
 						}
 					}
 
@@ -2579,7 +2579,7 @@ export default function pattern(state = initialPatternState, action) {
 						for (let j = 0; j < holes; j += 1) {
 							const colorRole = DOUBLE_FACED_THREADING[j];
 							newThreadingForTablet.push(
-								colorRole === "F"
+								colorRole === 'F'
 									? DOUBLE_FACED_FOREGROUND
 									: DOUBLE_FACED_BACKGROUND
 							);
@@ -2613,7 +2613,7 @@ export default function pattern(state = initialPatternState, action) {
 					};
 					break;
 
-				case "brokenTwill":
+				case 'brokenTwill':
 					const {
 						twillDirection,
 						twillPatternChart,
@@ -2632,12 +2632,12 @@ export default function pattern(state = initialPatternState, action) {
 						// these are by row, tablet
 						for (let j = 0; j < chartLength; j += 1) {
 							newTwillPatternChart[j] = [...newTwillPatternChart[j]];
-							newTwillPatternChart[j].splice(insertTabletsAt, 0, ".");
+							newTwillPatternChart[j].splice(insertTabletsAt, 0, '.');
 
 							newTwillDirectionChangeChart[j] = [
 								...newTwillDirectionChangeChart[j],
 							];
-							newTwillDirectionChangeChart[j].splice(insertTabletsAt, 0, ".");
+							newTwillDirectionChangeChart[j].splice(insertTabletsAt, 0, '.');
 						}
 					}
 
@@ -2648,7 +2648,7 @@ export default function pattern(state = initialPatternState, action) {
 						numberOfTablets,
 						startAt: insertTabletsAt,
 						threading: threadingByTablet,
-						threadingStructure: "byTablet",
+						threadingStructure: 'byTablet',
 					});
 
 					// insert the new tablets
@@ -2662,7 +2662,7 @@ export default function pattern(state = initialPatternState, action) {
 						for (let j = 0; j < holes; j += 1) {
 							const colorRole = BROKEN_TWILL_THREADING[j][i % holes];
 							newThreadingForTablet.push(
-								colorRole === "F"
+								colorRole === 'F'
 									? BROKEN_TWILL_FOREGROUND
 									: BROKEN_TWILL_BACKGROUND
 							);
@@ -2682,7 +2682,7 @@ export default function pattern(state = initialPatternState, action) {
 						for (let j = 0; j < holes; j += 1) {
 							const colorRole = BROKEN_TWILL_THREADING[j][tabletIndex % holes];
 
-							newThreadingByTablet[tabletIndex].push(colorRole === "F" ? F : B);
+							newThreadingByTablet[tabletIndex].push(colorRole === 'F' ? F : B);
 						}
 					}
 
@@ -2714,7 +2714,7 @@ export default function pattern(state = initialPatternState, action) {
 					};
 					break;
 
-				case "freehand":
+				case 'freehand':
 					const { freehandChart } = patternDesign;
 					const newFreehandChart = [...freehandChart];
 
@@ -2723,7 +2723,7 @@ export default function pattern(state = initialPatternState, action) {
 							const newChartCell = { ...DEFAULT_FREEHAND_CELL };
 							newChartCell.threadColor = colorIndex;
 							if (colorIndex === -1) {
-								newChartCell.threadShape = "forwardEmpty";
+								newChartCell.threadShape = 'forwardEmpty';
 							}
 
 							newFreehandChart[j] = [...newFreehandChart[j]];
@@ -2773,7 +2773,7 @@ export default function pattern(state = initialPatternState, action) {
 				threadingByTablet: newThreadingByTablet,
 			};
 
-			if (patternType !== "freehand") {
+			if (patternType !== 'freehand') {
 				newWeavingInstructionsByTablet = [...weavingInstructionsByTablet];
 				newPicks = [...picks];
 
@@ -2787,15 +2787,15 @@ export default function pattern(state = initialPatternState, action) {
 
 			switch (patternType) {
 				// each tablet is independent so just remove it
-				case "individual":
-				case "allTogether":
+				case 'individual':
+				case 'allTogether':
 					newOrientations.splice(tablet, 1);
 					newPicks.splice(tablet, 1);
 					newWeavingInstructionsByTablet.splice(tablet, 1);
 					newThreadingByTablet.splice(tablet, 1);
 					break;
 
-				case "doubleFaced":
+				case 'doubleFaced':
 					const { doubleFacedPatternChart } = patternDesign;
 					const doubleFacedChartLength = doubleFacedPatternChart.length;
 					const newDoubleFacedPatternChart = [...doubleFacedPatternChart];
@@ -2816,7 +2816,7 @@ export default function pattern(state = initialPatternState, action) {
 
 					break;
 
-				case "brokenTwill":
+				case 'brokenTwill':
 					const {
 						twillDirection,
 						twillPatternChart,
@@ -2837,7 +2837,7 @@ export default function pattern(state = initialPatternState, action) {
 						numberOfTablets,
 						startAt: tablet + 1,
 						threading: threadingByTablet,
-						threadingStructure: "byTablet",
+						threadingStructure: 'byTablet',
 					});
 
 					// shorten the threading array
@@ -2853,7 +2853,7 @@ export default function pattern(state = initialPatternState, action) {
 						for (let j = 0; j < holes; j += 1) {
 							const colorRole = BROKEN_TWILL_THREADING[j][tabletIndex % holes];
 
-							newThreadingByTablet[tabletIndex].push(colorRole === "F" ? F : B);
+							newThreadingByTablet[tabletIndex].push(colorRole === 'F' ? F : B);
 						}
 					}
 
@@ -2896,7 +2896,7 @@ export default function pattern(state = initialPatternState, action) {
 
 					break;
 
-				case "freehand":
+				case 'freehand':
 					newOrientations.splice(tablet, 1);
 					newThreadingByTablet.splice(tablet, 1);
 

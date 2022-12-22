@@ -2,12 +2,7 @@
 
 import React, { PureComponent } from 'react';
 import { Link } from 'react-router-dom';
-import {
-	Button,
-	Col,
-	Container,
-	Row,
-} from 'reactstrap';
+import { Button, Col, Container, Row } from 'reactstrap';
 import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
@@ -68,11 +63,11 @@ class User extends PureComponent {
 		const { _id, dispatch } = props;
 
 		this.state = {
-			'gotUser': false,
-			'isEditingColorBook': false,
-			'selectedColorBook': null,
-			'showAddColorBookForm': false,
-			'showAddPatternForm': false,
+			gotUser: false,
+			isEditingColorBook: false,
+			selectedColorBook: null,
+			showAddColorBookForm: false,
+			showAddPatternForm: false,
 		};
 
 		// bind onClick functions to provide context
@@ -100,18 +95,13 @@ class User extends PureComponent {
 	}
 
 	componentDidUpdate(prevProps) {
-		const {
-			_id,
-			colorBookAdded,
-			dispatch,
-			user,
-		} = this.props;
+		const { _id, colorBookAdded, dispatch, user } = this.props;
 		const { gotUser, isLoading } = this.state;
 
 		// wait for user details to load
 		if (!gotUser && !isLoading && user) {
 			this.setState({
-				'gotUser': true,
+				gotUser: true,
 			});
 		}
 
@@ -121,8 +111,9 @@ class User extends PureComponent {
 
 		// automatically select a new color book
 		if (prevProps.colorBookAdded === '' && colorBookAdded !== '') {
-			this.setState({ // eslint-disable-line react/no-did-update-set-state
-				'selectedColorBook': colorBookAdded,
+			this.setState({
+				// eslint-disable-line react/no-did-update-set-state
+				selectedColorBook: colorBookAdded,
 			});
 		}
 	}
@@ -142,9 +133,7 @@ class User extends PureComponent {
 	onClickEditableTextSave({ fieldValue, fieldName }) {
 		const {
 			dispatch,
-			'user': {
-				_id,
-			},
+			user: { _id },
 		} = this.props;
 
 		dispatch(editTextField({ _id, fieldValue, fieldName }));
@@ -153,7 +142,9 @@ class User extends PureComponent {
 	handleClickButtonRemoveColorBook = ({ _id, name }) => {
 		const { dispatch } = this.props;
 
-		const response = confirm(`Do you want to delete the colour book "${name}"?`); // eslint-disable-line no-restricted-globals
+		const response = confirm(
+			`Do you want to delete the colour book "${name}"?`
+		); // eslint-disable-line no-restricted-globals
 
 		if (response === true) {
 			dispatch(removeColorBook(_id));
@@ -165,7 +156,9 @@ class User extends PureComponent {
 		const thisColorBook = colorBooks.find((colorBook) => colorBook._id === _id);
 
 		if (thisColorBook) {
-			const response = confirm(`Do you want to make a copy of the color book "${thisColorBook.name}"?`); // eslint-disable-line no-restricted-globals
+			const response = confirm(
+				`Do you want to make a copy of the color book "${thisColorBook.name}"?`
+			); // eslint-disable-line no-restricted-globals
 
 			if (response === true) {
 				dispatch(copyColorBook(_id, history));
@@ -177,12 +170,12 @@ class User extends PureComponent {
 		this.setState({
 			isEditingColorBook,
 		});
-	}
+	};
 
 	// show the form to add a new color book
 	handleClickAddColorBookButton() {
 		this.setState({
-			'showAddColorBookForm': true,
+			showAddColorBookForm: true,
 		});
 	}
 
@@ -192,14 +185,14 @@ class User extends PureComponent {
 
 		dispatch(addColorBook({ colors, name }));
 		this.setState({
-			'showAddColorBookForm': false,
+			showAddColorBookForm: false,
 		});
 	}
 
 	// hide the add color book form and take no action
 	cancelAddColorBook() {
 		this.setState({
-			'showAddColorBookForm': false,
+			showAddColorBookForm: false,
 		});
 	}
 
@@ -215,13 +208,13 @@ class User extends PureComponent {
 		}
 
 		this.setState({
-			'selectedColorBook': newColorBook,
+			selectedColorBook: newColorBook,
 		});
 	}
 
 	updateShowAddPatternForm(showForm) {
 		this.setState({
-			'showAddPatternForm': showForm,
+			showAddPatternForm: showForm,
 		});
 	}
 
@@ -232,22 +225,19 @@ class User extends PureComponent {
 			colorBooks,
 			dispatch,
 			isAuthenticated,
-			'user': { _id },
+			user: { _id },
 		} = this.props;
-		const {
-			isEditingColorBook,
-			selectedColorBook,
-			showAddColorBookForm,
-		} = this.state;
+		const { isEditingColorBook, selectedColorBook, showAddColorBookForm } =
+			this.state;
 
 		const canCreate = canCreateColorBook && Meteor.userId() === _id;
 
 		const addButton = (
 			<Button
-				className="add"
-				color="primary"
+				className='add'
+				color='primary'
 				onClick={this.handleClickAddColorBookButton}
-				title="Add color book"
+				title='Add color book'
 			>
 				+ New colour book
 			</Button>
@@ -256,9 +246,9 @@ class User extends PureComponent {
 		return (
 			<>
 				<Row>
-					<Col lg="12">
+					<Col lg='12'>
 						{canCreate && (
-							<div className="add-controls">
+							<div className='add-controls'>
 								{!showAddColorBookForm && addButton}
 								{showAddColorBookForm && (
 									<AddColorBookForm
@@ -275,25 +265,30 @@ class User extends PureComponent {
 				)}
 				{!showAddColorBookForm && colorBooks.length > 0 && (
 					<Row>
-						<Col md="12" className="color-books-user">
-							{colorBooks.length > 0
-							&& colorBooks.map((colorBook) => (
-								<ColorBookSummary
-									canCreateColorBook={canCreateColorBook}
-									colorBook={colorBook}
-									colorBookAdded={colorBookAdded}
-									dispatch={dispatch}
-									handleClickButtonCopy={this.handleClickButtonCopy}
-									handleClickButtonRemove={this.handleClickButtonRemoveColorBook}
-									handleClickButtonSelect={this.handleClickSelectColorBook}
-									handleEditColorBook={this.handleEditColorBook}
-									isAuthenticated={isAuthenticated}
-									isEditingColorBook={isEditingColorBook}
-									isSelected={colorBook._id === selectedColorBook}
-									key={`color-book-${colorBook._id}`}
-									onChangeIsPublic={this.onChangeColorBookIsPublic}
-								/>
-							))}
+						<Col
+							md='12'
+							className='color-books-user'
+						>
+							{colorBooks.length > 0 &&
+								colorBooks.map((colorBook) => (
+									<ColorBookSummary
+										canCreateColorBook={canCreateColorBook}
+										colorBook={colorBook}
+										colorBookAdded={colorBookAdded}
+										dispatch={dispatch}
+										handleClickButtonCopy={this.handleClickButtonCopy}
+										handleClickButtonRemove={
+											this.handleClickButtonRemoveColorBook
+										}
+										handleClickButtonSelect={this.handleClickSelectColorBook}
+										handleEditColorBook={this.handleEditColorBook}
+										isAuthenticated={isAuthenticated}
+										isEditingColorBook={isEditingColorBook}
+										isSelected={colorBook._id === selectedColorBook}
+										key={`color-book-${colorBook._id}`}
+										onChangeIsPublic={this.onChangeColorBookIsPublic}
+									/>
+								))}
 						</Col>
 					</Row>
 				)}
@@ -342,10 +337,7 @@ class User extends PureComponent {
 
 	renderDescription() {
 		const {
-			'user': {
-				_id,
-				description,
-			},
+			user: { _id, description },
 		} = this.props;
 		const canEdit = _id === Meteor.userId();
 
@@ -358,12 +350,12 @@ class User extends PureComponent {
 		return (
 			<EditableText
 				canEdit={canEdit}
-				editButtonText="Edit description"
-				fieldName="description"
+				editButtonText='Edit description'
+				fieldName='description'
 				onClickSave={this.onClickEditableTextSave}
 				optional={true}
-				title="Profile"
-				type="textarea"
+				title='Profile'
+				type='textarea'
 				fieldValue={description}
 			/>
 		);
@@ -372,31 +364,25 @@ class User extends PureComponent {
 	renderTabs() {
 		const {
 			tab,
-			'user': { _id },
+			user: { _id },
 		} = this.props;
 
 		return (
-			<Container className="main-tabs">
+			<Container className='main-tabs'>
 				<ul>
 					<li className={`profile ${tab === 'profile' ? 'selected' : ''}`}>
-						<Link to={`/user/${_id}/profile`}>
-						Profile
-						</Link>
+						<Link to={`/user/${_id}/profile`}>Profile</Link>
 					</li>
 					<li className={`sets ${tab === 'sets' ? 'selected' : ''}`}>
-						<Link to={`/user/${_id}/sets`}>
-						Sets
-						</Link>
+						<Link to={`/user/${_id}/sets`}>Sets</Link>
 					</li>
 					<li className={`patterns ${tab === 'patterns' ? 'selected' : ''}`}>
-						<Link to={`/user/${_id}/patterns`}>
-						Patterns
-						</Link>
+						<Link to={`/user/${_id}/patterns`}>Patterns</Link>
 					</li>
-					<li className={`colorbooks ${tab === 'colorbooks' ? 'selected' : ''}`}>
-						<Link to={`/user/${_id}/colorbooks`}>
-						Colour books
-						</Link>
+					<li
+						className={`colorbooks ${tab === 'colorbooks' ? 'selected' : ''}`}
+					>
+						<Link to={`/user/${_id}/colorbooks`}>Colour books</Link>
 					</li>
 				</ul>
 			</Container>
@@ -404,20 +390,11 @@ class User extends PureComponent {
 	}
 
 	renderProfileTab() {
-		return (
-			<Container>
-				{this.renderDescription()}
-			</Container>
-		);
+		return <Container>{this.renderDescription()}</Container>;
 	}
 
 	renderPatternsTab() {
-		const {
-			canCreatePattern,
-			dispatch,
-			history,
-			user,
-		} = this.props;
+		const { canCreatePattern, dispatch, history, user } = this.props;
 
 		const { _id } = user;
 		const canCreate = canCreatePattern && Meteor.userId() === _id;
@@ -433,7 +410,7 @@ class User extends PureComponent {
 						/>
 					)}
 				</Container>
-				<Container className="pattern-list-holder">
+				<Container className='pattern-list-holder'>
 					{this.renderPatternsList()}
 				</Container>
 			</>
@@ -441,52 +418,45 @@ class User extends PureComponent {
 	}
 
 	renderColorBooksTab() {
-		return (
-			<Container>
-				{this.renderColorBooks()}
-			</Container>
-		);
+		return <Container>{this.renderColorBooks()}</Container>;
 	}
 
 	renderSetsTab() {
-		const {
-			dispatch,
-			isLoading,
-			patternsInSets,
-			patternPreviews,
-			sets,
-			user,
-		} = this.props;
+		const { dispatch, isLoading, patternsInSets, patternPreviews, sets, user } =
+			this.props;
 
 		return (
 			<>
 				{!isLoading && (!sets || sets.length > 0) && (
-					<div className="sets-list">
-						{sets && sets.map((set) => {
-							// find the patterns in this set
-							// note that patternsInSets only includes patterns the user can see
-							// any private patterns they did not create, are excluded
-							const patternsInThisSet = [];
+					<div className='sets-list'>
+						{sets &&
+							sets.map((set) => {
+								// find the patterns in this set
+								// note that patternsInSets only includes patterns the user can see
+								// any private patterns they did not create, are excluded
+								const patternsInThisSet = [];
 
-							set.patterns.forEach((patternId) => {
-								const visiblePattern = patternsInSets.find((pattern) => patternId === pattern._id);
-								if (visiblePattern) {
-									patternsInThisSet.push(visiblePattern);
-								}
-							});
+								set.patterns.forEach((patternId) => {
+									const visiblePattern = patternsInSets.find(
+										(pattern) => patternId === pattern._id
+									);
+									if (visiblePattern) {
+										patternsInThisSet.push(visiblePattern);
+									}
+								});
 
-							return (
-								<div key={`set-summary-${set._id}`}>
-									<SetSummary
-										dispatch={dispatch}
-										patternPreviews={patternPreviews}
-										patterns={patternsInThisSet}
-										set={set}
-										user={user}
-									/>
-								</div>
-							);
-						})}
+								return (
+									<div key={`set-summary-${set._id}`}>
+										<SetSummary
+											dispatch={dispatch}
+											patternPreviews={patternPreviews}
+											patterns={patternsInThisSet}
+											set={set}
+											user={user}
+										/>
+									</div>
+								);
+							})}
 					</div>
 				)}
 				{!isLoading && (!sets || sets.length === 0) && (
@@ -494,8 +464,14 @@ class User extends PureComponent {
 						<Container>
 							<Row>
 								<Col>
-									<div className="empty">There are no sets to display.</div>
-									{user._id === Meteor.userId() && <div className="empty">To create a new set, find a pattern and click the &apos;+&apos; button to open the &apos;Add to set&apos; panel.</div>}
+									<div className='empty'>There are no sets to display.</div>
+									{user._id === Meteor.userId() && (
+										<div className='empty'>
+											To create a new set, find a pattern and click the
+											&apos;+&apos; button to open the &apos;Add to set&apos;
+											panel.
+										</div>
+									)}
 								</Col>
 							</Row>
 						</Container>
@@ -506,9 +482,7 @@ class User extends PureComponent {
 	}
 
 	renderTabContent() {
-		const {
-			tab,
-		} = this.props;
+		const { tab } = this.props;
 
 		let tabContent;
 
@@ -534,20 +508,11 @@ class User extends PureComponent {
 				break;
 		}
 
-		return (
-			<div className="tab-content">
-				{tabContent}
-			</div>
-		);
+		return <div className='tab-content'>{tabContent}</div>;
 	}
 
 	render() {
-		const {
-			dispatch,
-			errors,
-			isLoading,
-			user,
-		} = this.props;
+		const { dispatch, errors, isLoading, user } = this.props;
 
 		let content = <Loading />;
 
@@ -561,7 +526,11 @@ class User extends PureComponent {
 							<h1>
 								<span
 									className={`${getUserpicStyle(_id)} icon`}
-									style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/user_profile.png')}` }}
+									style={{
+										backgroundImage: `url(${Meteor.absoluteUrl(
+											'/images/user_profile.png'
+										)}`,
+									}}
 								/>
 								{username}
 							</h1>
@@ -571,7 +540,12 @@ class User extends PureComponent {
 					</>
 				);
 			} else {
-				content = <p>Either this user does not exist or you do not have permission to view their details</p>;
+				content = (
+					<p>
+						Either this user does not exist or you do not have permission to
+						view their details
+					</p>
+				);
 			}
 		}
 
@@ -581,42 +555,38 @@ class User extends PureComponent {
 				errors={errors}
 			>
 				<MainMenu />
-				<div
-					className="menu-selected-area"
-				>
-					{content}
-				</div>
+				<div className='menu-selected-area'>{content}</div>
 			</PageWrapper>
 		);
 	}
 }
 
 User.propTypes = {
-	'_id': PropTypes.string.isRequired,
-	'canCreatePattern': PropTypes.bool.isRequired,
-	'colorBookAdded': PropTypes.string.isRequired,
-	'colorBooks': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'currentPageNumber': PropTypes.number,
-	'dispatch': PropTypes.func.isRequired,
-	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
+	_id: PropTypes.string.isRequired,
+	canCreatePattern: PropTypes.bool.isRequired,
+	colorBookAdded: PropTypes.string.isRequired,
+	colorBooks: PropTypes.arrayOf(PropTypes.any).isRequired,
+	currentPageNumber: PropTypes.number,
+	dispatch: PropTypes.func.isRequired,
+	errors: PropTypes.objectOf(PropTypes.any).isRequired,
 	// eslint doesn't realise the filters are used in Tracker
-	'filterIsTwistNeutral': PropTypes.bool,
-	'filterMaxTablets': PropTypes.number,
-	'filterMinTablets': PropTypes.number,
-	'filterWillRepeat': PropTypes.bool,
-	'history': PropTypes.objectOf(PropTypes.any).isRequired,
-	'isAuthenticated': PropTypes.bool.isRequired,
-	'isLoading': PropTypes.bool.isRequired,
-	'itemsPerPage': PropTypes.number.isRequired,
-	'patternCount': PropTypes.number.isRequired,
-	'patternPreviews': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'patternsInSets': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'sets': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'tab': PropTypes.string.isRequired,
-	'tags': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'user': PropTypes.objectOf(PropTypes.any),
-	'canCreateColorBook': PropTypes.bool.isRequired,
+	filterIsTwistNeutral: PropTypes.bool,
+	filterMaxTablets: PropTypes.number,
+	filterMinTablets: PropTypes.number,
+	filterWillRepeat: PropTypes.bool,
+	history: PropTypes.objectOf(PropTypes.any).isRequired,
+	isAuthenticated: PropTypes.bool.isRequired,
+	isLoading: PropTypes.bool.isRequired,
+	itemsPerPage: PropTypes.number.isRequired,
+	patternCount: PropTypes.number.isRequired,
+	patternPreviews: PropTypes.arrayOf(PropTypes.any).isRequired,
+	patterns: PropTypes.arrayOf(PropTypes.any).isRequired,
+	patternsInSets: PropTypes.arrayOf(PropTypes.any).isRequired,
+	sets: PropTypes.arrayOf(PropTypes.any).isRequired,
+	tab: PropTypes.string.isRequired,
+	tags: PropTypes.arrayOf(PropTypes.any).isRequired,
+	user: PropTypes.objectOf(PropTypes.any),
+	canCreateColorBook: PropTypes.bool.isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
@@ -638,22 +608,22 @@ function mapStateToProps(state, ownProps) {
 	} = state.pattern;
 
 	return {
-		'_id': ownProps.match.params.id, // read the url parameter to find the id of the user
-		'colorBookAdded': state.colorBook.colorBookAdded,
-		'canCreateColorBook': getCanCreateColorBook(state),
-		'canCreatePattern': getCanCreatePattern(state),
+		_id: ownProps.match.params.id, // read the url parameter to find the id of the user
+		colorBookAdded: state.colorBook.colorBookAdded,
+		canCreateColorBook: getCanCreateColorBook(state),
+		canCreatePattern: getCanCreatePattern(state),
 		currentPageNumber, // read the url parameter to find the currentPage
-		'errors': state.errors,
+		errors: state.errors,
 		filterIsTwistNeutral,
 		filterMaxTablets,
 		filterMinTablets,
 		filterWillRepeat,
-		'isAuthenticated': getIsAuthenticated(state),
-		'isLoading': state.pattern.isLoading,
+		isAuthenticated: getIsAuthenticated(state),
+		isLoading: state.pattern.isLoading,
 		itemsPerPage,
-		'pageSkip': (currentPageNumber - 1) * itemsPerPage,
-		'patternCount': state.pattern.patternCount,
-		'tab': ownProps.match.params.tab || 'profile', // read the url parameter to choose the tab
+		pageSkip: (currentPageNumber - 1) * itemsPerPage,
+		patternCount: state.pattern.patternCount,
+		tab: ownProps.match.params.tab || 'profile', // read the url parameter to choose the tab
 	};
 }
 
@@ -686,24 +656,30 @@ const Tracker = withTracker((props) => {
 		case 'sets':
 			// patterns contained in this user's visible sets
 			sets = Sets.find(
-				{ 'createdBy': _id },
+				{ createdBy: _id },
 				{
-					'sort': { 'nameSort': 1 },
-				},
+					sort: { nameSort: 1 },
+				}
 			).fetch();
 
-			patternsInSetsIds = Array.from(new Set(sets.reduce((patternIdsArray, set) => patternIdsArray.concat(set.patterns), [])));
+			patternsInSetsIds = Array.from(
+				new Set(
+					sets.reduce(
+						(patternIdsArray, set) => patternIdsArray.concat(set.patterns),
+						[]
+					)
+				)
+			);
 
 			patternsInSets = Patterns.find(
-				{ '_id': { '$in': patternsInSetsIds } },
-				{ 'sort': { 'nameSort': 1 } },
+				{ _id: { $in: patternsInSetsIds } },
+				{ sort: { nameSort: 1 } }
 			).fetch();
 
 			handle = Meteor.subscribe('setsForUser', _id, {
-				'onReady': () => {
-
+				onReady: () => {
 					Meteor.subscribe('patternsById', patternsInSetsIds, {
-						'onReady': () => {
+						onReady: () => {
 							secondaryPatternSubscriptions(patternsInSets);
 						},
 					});
@@ -716,55 +692,70 @@ const Tracker = withTracker((props) => {
 
 			// patterns created by user
 			patterns = Patterns.find(
-				{ 'createdBy': _id, 'pagesData': true },
+				{ createdBy: _id, pagesData: true },
 				{
-					'sort': { 'nameSort': 1 },
-					'limit': itemsPerPage,
-				},
+					sort: { nameSort: 1 },
+					limit: itemsPerPage,
+				}
 			).fetch();
 
-			handle = Meteor.subscribe('userPatterns', {
-				filterIsTwistNeutral,
-				filterMaxTablets,
-				filterMinTablets,
-				filterWillRepeat,
-				'limit': itemsPerPage,
-				'skip': pageSkip,
-				'userId': _id,
-			}, {
-				'onReady': () => {
-					const patternIds = patterns.map((pattern) => pattern._id);
-
-					Meteor.subscribe('patternPreviews', { patternIds }, _id);
+			handle = Meteor.subscribe(
+				'userPatterns',
+				{
+					filterIsTwistNeutral,
+					filterMaxTablets,
+					filterMinTablets,
+					filterWillRepeat,
+					limit: itemsPerPage,
+					skip: pageSkip,
+					userId: _id,
 				},
-			});
+				{
+					onReady: () => {
+						const patternIds = patterns.map((pattern) => pattern._id);
+
+						Meteor.subscribe('patternPreviews', { patternIds }, _id);
+					},
+				}
+			);
 			break;
 
 		default:
 			break;
 	}
 
+	// setTimeout prevents warning:
+	// Warning: Cannot update a component (`ConnectFunction`) while rendering a different component (`ForwardRef`)
 	if (handle) {
 		if (isLoading && handle.ready()) {
-			dispatch(setIsLoading(false));
+			setTimeout(() => {
+				dispatch(setIsLoading(false));
+			}, 1);
 		} else if (!isLoading && !handle.ready()) {
-			dispatch(setIsLoading(true));
+			setTimeout(() => {
+				dispatch(setIsLoading(true));
+			}, 1);
 		}
 	} else if (isLoading) {
-		dispatch(setIsLoading(false));
+		setTimeout(() => {
+			dispatch(setIsLoading(false));
+		}, 1);
 	}
 
 	// pass database data as props
 	return {
-		'colorBooks': ColorBooks.find({ 'createdBy': _id }, {
-			'sort': { 'nameSort': 1 },
-		}).fetch(),
+		colorBooks: ColorBooks.find(
+			{ createdBy: _id },
+			{
+				sort: { nameSort: 1 },
+			}
+		).fetch(),
 		patterns,
 		patternsInSets,
-		'patternPreviews': PatternPreviews.find().fetch(),
+		patternPreviews: PatternPreviews.find().fetch(),
 		sets,
-		'tags': Tags.find().fetch(),
-		'user': Meteor.users.findOne({ _id }), // note this is undefined when subscription not ready
+		tags: Tags.find().fetch(),
+		user: Meteor.users.findOne({ _id }), // note this is undefined when subscription not ready
 	};
 })(User);
 

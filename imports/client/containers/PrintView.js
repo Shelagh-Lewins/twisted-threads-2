@@ -1,11 +1,11 @@
 // printer-friendly view
 
-import React, { PureComponent } from "react";
-import { Button } from "reactstrap";
-import { connect } from "react-redux";
-import { withRouter } from "react-router-dom";
-import PropTypes from "prop-types";
-import PageWrapper from "../components/PageWrapper";
+import React, { PureComponent } from 'react';
+import { Button } from 'reactstrap';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
+import PropTypes from 'prop-types';
+import PageWrapper from '../components/PageWrapper';
 import {
 	getHoles,
 	getIsLoading,
@@ -14,20 +14,20 @@ import {
 	getPalette,
 	getPatternTwistSelector,
 	getTotalTurnsByTabletSelector,
-} from "../modules/pattern";
-import AppContext from "../modules/appContext";
-import { getNumberOfRepeats } from "../modules/weavingUtils";
-import Loading from "../components/Loading";
-import PatternPreview from "../components/PatternPreview";
-import WeavingChart from "../components/WeavingChart";
-import WeavingInstructionsAllTogetherPrint from "../components/WeavingInstructionsAllTogetherPrint";
-import Threading from "../components/Threading";
-import Notation from "../components/Notation";
-import TwistCalculationHints from "../components/TwistCalculationHints";
-import { findPatternTypeDisplayName } from "../../modules/parameters";
-import "./PrintView.scss";
+} from '../modules/pattern';
+import AppContext from '../modules/appContext';
+import { getNumberOfRepeats } from '../modules/weavingUtils';
+import Loading from '../components/Loading';
+import PatternPreview from '../components/PatternPreview';
+import WeavingChart from '../components/WeavingChart';
+import WeavingInstructionsAllTogetherPrint from '../components/WeavingInstructionsAllTogetherPrint';
+import Threading from '../components/Threading';
+import Notation from '../components/Notation';
+import TwistCalculationHints from '../components/TwistCalculationHints';
+import { findPatternTypeDisplayName } from '../../modules/parameters';
+import './PrintView.scss';
 
-const bodyClass = "print-view";
+const bodyClass = 'print-view';
 
 class PrintView extends PureComponent {
 	constructor(props) {
@@ -38,7 +38,7 @@ class PrintView extends PureComponent {
 		};
 
 		// bind onClick functions to provide context
-		const functionsToBind = ["onClickClose", "handleKeyUp"];
+		const functionsToBind = ['onClickClose', 'handleKeyUp'];
 
 		functionsToBind.forEach((functionName) => {
 			this[functionName] = this[functionName].bind(this);
@@ -47,12 +47,12 @@ class PrintView extends PureComponent {
 
 	componentDidMount() {
 		document.body.classList.add(bodyClass);
-		document.addEventListener("keyup", this.handleKeyUp);
+		document.addEventListener('keyup', this.handleKeyUp);
 	}
 
 	componentWillUnmount() {
 		document.body.classList.remove(bodyClass);
-		document.removeEventListener("keyup", this.handleKeyUp);
+		document.removeEventListener('keyup', this.handleKeyUp);
 	}
 
 	onClickClose() {
@@ -106,11 +106,11 @@ class PrintView extends PureComponent {
 				} = pattern;
 
 				const info = (
-					<div className="links">
+					<div className='links'>
 						<p>{`Printed from: ${Meteor.absoluteUrl()}pattern/${_id}`}</p>
 						<p>{`Created by: ${createdByUser.username}`}</p>
 						<p>{`Pattern type: ${findPatternTypeDisplayName(patternType)}`}</p>
-						{description && description !== "" && (
+						{description && description !== '' && (
 							<>
 								<div>{description}</div>
 								<br />
@@ -122,10 +122,10 @@ class PrintView extends PureComponent {
 				let weavingInstructions;
 
 				switch (patternType) {
-					case "individual":
-					case "brokenTwill":
-					case "doubleFaced":
-					case "freehand":
+					case 'individual':
+					case 'brokenTwill':
+					case 'doubleFaced':
+					case 'freehand':
 						weavingInstructions = (
 							<>
 								<h2>Weaving chart</h2>
@@ -139,7 +139,7 @@ class PrintView extends PureComponent {
 						);
 						break;
 
-					case "allTogether":
+					case 'allTogether':
 						weavingInstructions = (
 							<>
 								<h2>Weaving instructions</h2>
@@ -156,15 +156,15 @@ class PrintView extends PureComponent {
 				}
 
 				const printHint = (
-					<div className="print-hint">
-						<div className="innertube">
+					<div className='print-hint'>
+						<div className='innertube'>
 							<Button
-								type="button"
-								className="close"
+								type='button'
+								className='btn-close'
+								aria-label='Close'
+								title='close'
 								onClick={this.onClickClose}
-							>
-								X
-							</Button>
+							/>
 							<h2>Check your print settings</h2>
 							<p>
 								Look at the print preview before printing. If you do not see a
@@ -182,7 +182,7 @@ class PrintView extends PureComponent {
 								the settings back so you won&apos;t waste ink when printing
 								standard web pages.
 							</p>
-							<p className="key-hint">Press Esc to exit print view</p>
+							<p className='key-hint'>Press Esc to exit print view</p>
 						</div>
 					</div>
 				);
@@ -218,7 +218,7 @@ class PrintView extends PureComponent {
 									totalTurnsByTablet={totalTurnsByTablet}
 								/>
 								{weavingInstructions}
-								{weavingNotes && weavingNotes !== "" && (
+								{weavingNotes && weavingNotes !== '' && (
 									<>
 										<h2>Weaving notes</h2>
 										<div>{weavingNotes}</div>
@@ -232,7 +232,7 @@ class PrintView extends PureComponent {
 									numberOfTablets={numberOfTablets}
 									pattern={pattern}
 								/>
-								{threadingNotes && threadingNotes !== "" && (
+								{threadingNotes && threadingNotes !== '' && (
 									<>
 										<h2>Threading notes</h2>
 										<div>{threadingNotes}</div>
@@ -255,7 +255,10 @@ class PrintView extends PureComponent {
 		}
 
 		return (
-			<PageWrapper dispatch={dispatch} errors={errors}>
+			<PageWrapper
+				dispatch={dispatch}
+				errors={errors}
+			>
 				{content}
 			</PageWrapper>
 		);
@@ -285,7 +288,7 @@ function mapStateToProps(state) {
 
 	let totalTurnsByTablet = [];
 
-	if (patternType !== "freehand") {
+	if (patternType !== 'freehand') {
 		// all simulation patterns
 		totalTurnsByTablet = getTotalTurnsByTabletSelector(state);
 	}
