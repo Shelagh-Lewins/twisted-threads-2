@@ -25,15 +25,7 @@
 		}
 	}
 
-	.close {
-		appearance: none;
-		background-color: transparent;
-		border: 0;
-		color: $color-hint;
+	.btn-close {
 		float: right;
-		font-size: 1.5rem;
-		font-weight: 700;
-		line-height: 1;
-		padding: 0;
 	}
 }

@@ -1,9 +1,9 @@
 @import '../constants/variables';
 
 .navbar {
+	--bs-navbar-padding-x: 0.5rem !important;
 	background: $color-navbar-background;
 	color: $color-navbar-color;
-	padding: 0.5rem 1rem !important;
 
 	.pattern-menu,
 	.upload-menu {
@@ -46,6 +46,10 @@
 }
 
 @media (min-width: 768px) {
+	.navbar {
+		--bs-navbar-padding-x: 1rem !important;
+	}
+
 	.nav-link {
 		padding: 0.5rem 1rem !important;
 	}
