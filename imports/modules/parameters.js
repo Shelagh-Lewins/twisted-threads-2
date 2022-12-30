@@ -3,14 +3,14 @@
 
 export const ALLOWED_ITEMS_PER_PAGE = [10, 15, 20, 25, 30, 35, 40];
 export const USER_FIELDS = {
-	'_id': 1,
-	'description': 1,
-	'nameSort': 1,
-	'publicColorBooksCount': 1,
-	'publicPatternsCount': 1,
-	'publicSetsCount': 1,
-	'username': 1,
-	'weavingBackwardsBackgroundColor': 1,
+	_id: 1,
+	description: 1,
+	nameSort: 1,
+	publicColorBooksCount: 1,
+	publicPatternsCount: 1,
+	publicSetsCount: 1,
+	username: 1,
+	weavingBackwardsBackgroundColor: 1,
 };
 
 export const DEFAULT_PALETTE = [
@@ -40,95 +40,107 @@ export const HOLE_LABELS = ['A', 'B', 'C', 'D', 'E', 'F'];
 export const ALLOWED_HOLES = [2, 4, 6];
 export const DEFAULT_HOLES = 4;
 export const ALLOWED_PATTERN_TYPES = [
-	{ // simulation pattern, woven by turning each tablet individually
-		'allowedHoles': [2, 4, 6], // although the select returns string, these must be number for server side validation
-		'displayName': 'Individual',
-		'name': 'individual',
-		'previewOrientation': 'right',
-		'tag': 'individual',
-		'templates': [
+	{
+		// simulation pattern, woven by turning each tablet individually
+		allowedHoles: [2, 4, 6], // although the select returns string, these must be number for server side validation
+		displayName: 'Individual',
+		name: 'individual',
+		previewOrientation: 'right',
+		tag: 'individual',
+		templates: [
 			{
-				'displayName': 'Basic',
-				'name': 'all-/-forward',
-				'orientations': ['/'],
-				'templateHint': 'Basic template: a simple setup that can be easily used to create most types of pattern.',
-				'weavingChart': [
+				displayName: 'Basic',
+				name: 'all-/-forward',
+				orientations: ['/'],
+				templateHint:
+					'Basic template: a simple setup that can be easily used to create most types of pattern.',
+				weavingChart: [
 					[
 						{
-							'direction': 'F',
-							'numberOfTurns': 1,
+							direction: 'F',
+							numberOfTurns: 1,
 						},
 					],
 				],
 			},
 			{
-				'displayName': 'Idle packs',
-				'name': 'idle-packs',
-				'allowedHoles': [4], // only 4-hole tablets
-				'orientations': ['/', '\\'],
-				'templateHint': 'Idle packs template: setup for "Cambridge diamonds" with alternating tablets turned every other pick.',
-				'weavingChart': [
+				displayName: 'Idle packs',
+				name: 'idle-packs',
+				allowedHoles: [4], // only 4-hole tablets
+				orientations: ['/', '\\'],
+				templateHint:
+					'Idle packs template: setup for "Cambridge diamonds" with alternating tablets turned every other pick.',
+				weavingChart: [
 					[
 						{
-							'direction': 'F',
-							'numberOfTurns': 1,
+							direction: 'F',
+							numberOfTurns: 1,
 						},
 						{
-							'direction': 'F',
-							'numberOfTurns': 0,
+							direction: 'F',
+							numberOfTurns: 0,
 						},
 					],
 					[
 						{
-							'direction': 'F',
-							'numberOfTurns': 0,
+							direction: 'F',
+							numberOfTurns: 0,
 						},
 						{
-							'direction': 'F',
-							'numberOfTurns': 1,
+							direction: 'F',
+							numberOfTurns: 1,
 						},
 					],
 				],
 			},
 		],
-		'typeHint': 'Set the turning direction and number of turns for each tablet individually.',
+		typeHint:
+			'Set the turning direction and number of turns for each tablet individually.',
 	},
-	{ // simulation pattern, woven by turning all tablets together
-		'allowedHoles': [2, 4, 6],
-		'displayName': 'All together',
-		'name': 'allTogether',
-		'previewOrientation': 'right',
-		'tag': 'all together',
-		'typeHint': 'Turn all tablets together each pick, either forwards or backwards.',
+	{
+		// simulation pattern, woven by turning all tablets together
+		allowedHoles: [2, 4, 6],
+		displayName: 'All together',
+		name: 'allTogether',
+		previewOrientation: 'right',
+		tag: 'all together',
+		typeHint:
+			'Turn all tablets together each pick, either forwards or backwards.',
 	},
-	{ // double faced, designed on special graph paper
-		'allowedHoles': [4],
-		'displayName': 'Double faced',
-		'name': 'doubleFaced',
-		'previewOrientation': 'up',
-		'tag': 'double faced',
-		'typeHint': 'Weave a double-faced band in two colours.',
+	{
+		// double faced, designed on special graph paper
+		allowedHoles: [4],
+		displayName: 'Double faced',
+		name: 'doubleFaced',
+		previewOrientation: 'up',
+		tag: 'double faced',
+		typeHint: 'Weave a double-faced band in two colours.',
 	},
-	{ // 3 / 1 broken twill, designed on special graph paper
-		'allowedHoles': [4],
-		'displayName': '3/1 broken twill',
-		'name': 'brokenTwill',
-		'previewOrientation': 'up',
-		'tag': '3/1 broken twill',
-		'typeHint': 'Weave a double-faced band in two colours, using offset floats to create a diagonal texture.',
+	{
+		// 3 / 1 broken twill, designed on special graph paper
+		allowedHoles: [4],
+		displayName: '3/1 broken twill',
+		name: 'brokenTwill',
+		previewOrientation: 'up',
+		tag: '3/1 broken twill',
+		typeHint:
+			'Weave a double-faced band in two colours, using offset floats to create a diagonal texture.',
 	},
-	{ // threading is standard, but the weaving chart is hand drawn
+	{
+		// threading is standard, but the weaving chart is hand drawn
 		// and can have errors
 		// best for warp pickup patterns and brocade
-		'allowedHoles': [2, 4, 6],
-		'displayName': 'Freehand',
-		'name': 'freehand',
-		'previewOrientation': 'right',
-		'tag': 'freehand',
-		'typeHint': 'Draw the weaving chart freehand; errors will not be corrected. Ideal for brocade and warp pickup patterns.',
+		allowedHoles: [2, 4, 6],
+		displayName: 'Freehand',
+		name: 'freehand',
+		previewOrientation: 'right',
+		tag: 'freehand',
+		typeHint:
+			'Draw the weaving chart freehand; errors will not be corrected. Ideal for brocade and warp pickup patterns.',
 	},
 ];
-export const findPatternTypeDisplayName = (patternType) => ALLOWED_PATTERN_TYPES.find((type) => type.name === patternType).displayName;
+export const findPatternTypeDisplayName = (patternType) =>
+	ALLOWED_PATTERN_TYPES.find((type) => type.name === patternType).displayName;
 
 export const DEFAULT_COLOR = 3; // default thread color is different from that selected in palette, so that users will see something happen if they click on the threading chart
 export const DEFAULT_PALETTE_COLOR = 0; // default selection on palette
@@ -141,19 +153,19 @@ export const ALLOWED_NUMBER_OF_TURNS = 3; // max turns a tablet can be given in 
 // not currently using this but maybe will in future
 export const ALLOWED_DIRECTIONS = [
 	{
-		'displayName': 'Forward',
-		'value': 'F',
+		displayName: 'Forward',
+		value: 'F',
 	},
 	{
-		'displayName': 'Backward',
-		'value': 'B',
+		displayName: 'Backward',
+		value: 'B',
 	},
 ];
 
 export const DEFAULT_FREEHAND_CELL = {
-	'direction': DEFAULT_DIRECTION,
-	'threadColor': DEFAULT_COLOR,
-	'threadShape': 'forwardWarp',
+	direction: DEFAULT_DIRECTION,
+	threadColor: DEFAULT_COLOR,
+	threadShape: 'forwardWarp',
 };
 
 export const DEFAULT_HOLE_HANDEDNESS = 'clockwise';
@@ -162,20 +174,20 @@ export const DEFAULT_HOLE_HANDEDNESS = 'clockwise';
 // tablets are oriented as repeating pairs
 export const DOUBLE_FACED_ORIENTATIONS = [
 	{
-		'name': '/\\',
-		'displayName': 'Alternating / \\',
+		name: '/\\',
+		displayName: 'Alternating / \\',
 	},
 	{
-		'name': '\\/',
-		'displayName': 'Alternating \\ /',
+		name: '\\/',
+		displayName: 'Alternating \\ /',
 	},
 	{
-		'name': '//',
-		'displayName': 'All /',
+		name: '//',
+		displayName: 'All /',
 	},
 	{
-		'name': '\\\\',
-		'displayName': 'All \\',
+		name: '\\\\',
+		displayName: 'All \\',
 	},
 ];
 export const DOUBLE_FACED_THREADING = ['F', 'F', 'B', 'B'];
@@ -207,16 +219,16 @@ export const EMPTY_HOLE_COLOR = '#fff'; // used in weaving chart when multiple t
 export const DEFAULT_WEFT_COLOR = 3;
 export const ALLOWED_PREVIEW_ORIENTATIONS = [
 	{
-		'text': 'Up',
-		'value': 'up',
+		text: 'Up',
+		value: 'up',
 	},
 	{
-		'text': 'Left',
-		'value': 'left',
+		text: 'Left',
+		value: 'left',
 	},
 	{
-		'text': 'Right',
-		'value': 'right',
+		text: 'Right',
+		value: 'right',
 	},
 ];
 
@@ -231,8 +243,8 @@ export const MAX_PICKS_IN_REPEAT = 24;
 export const MAX_RECENTS = 50;
 
 export const iconColors = {
-	'default': '#7580ac',
-	'contrast': '#fff',
+	default: '#7580ac',
+	contrast: '#fff',
 };
 
 export const ROLES = [
@@ -243,20 +255,20 @@ export const ROLES = [
 ];
 
 export const ROLE_LIMITS = {
-	'registered': {
-		'maxColorBooksPerUser': 1,
-		'maxPatternsPerUser': 1,
-		'maxImagesPerPattern': 0,
+	registered: {
+		maxColorBooksPerUser: 1,
+		maxPatternsPerUser: 1,
+		maxImagesPerPattern: 0,
 	},
-	'verified': {
-		'maxColorBooksPerUser': 5,
-		'maxPatternsPerUser': 100,
-		'maxImagesPerPattern': 5,
+	verified: {
+		maxColorBooksPerUser: 5,
+		maxPatternsPerUser: 100,
+		maxImagesPerPattern: 5,
 	},
-	'premium': {
-		'maxColorBooksPerUser': 20,
-		'maxPatternsPerUser': 300,
-		'maxImagesPerPattern': 10,
+	premium: {
+		maxColorBooksPerUser: 20,
+		maxPatternsPerUser: 300,
+		maxImagesPerPattern: 10,
 	},
 };
 
@@ -264,7 +276,6 @@ export const MAX_TEXT_AREA_LENGTH = 10000; // max length of a user-editable text
 export const MAX_TEXT_INPUT_LENGTH = 256; // max length of a user-editable text input field such as pattern name
 
 export const NUMBER_OF_ACTIONS_LOGGED = 20;
-export const PATTERN_IMAGES_KEY = 'test/'; // this is a pseudo-folder that namespaces the pattern images. In the current live version it would be '' but here we are namespacing for testing.
 
 export const SEARCH_LIMIT = 10; // number of results to return
 export const SEARCH_MORE = 10; // show this many more when the user clicks 'show more...'
@@ -272,7 +283,7 @@ export const SEARCH_MORE = 10; // show this many more when the user clicks 'show
 export const ITEMS_PER_PREVIEW_LIST = 10;
 
 export const FLASH_MESSAGE_TEXTS = {
-	'emailVerified': 'Your email address has been verified',
+	emailVerified: 'Your email address has been verified',
 };
 
 export const MAX_TAG_LENGTH = 32;
@@ -287,74 +298,73 @@ export const MAX_PATTERNS_IN_SET = 200; // limit the number of patterns that can
 // these MUST NOT CHANGE as it will break pattern imports
 export const PATTERN_AS_TEXT_FIELDS = [
 	{
-		'fieldName': 'description',
-		'displayName': 'Description',
+		fieldName: 'description',
+		displayName: 'Description',
 	},
 	{
-		'fieldName': 'holes',
-		'displayName': 'Number of holes',
-		'required': true,
+		fieldName: 'holes',
+		displayName: 'Number of holes',
+		required: true,
 	},
 	{
-		'fieldName': 'includeInTwist',
-		'displayName': 'Include in twist calculations',
+		fieldName: 'includeInTwist',
+		displayName: 'Include in twist calculations',
 	},
 	{
-		'fieldName': 'name',
-		'displayName': 'Name',
-		'required': true,
+		fieldName: 'name',
+		displayName: 'Name',
+		required: true,
 	},
 	{
-		'fieldName': 'numberOfRows',
-		'displayName': 'Number of weaving rows',
-		'required': true,
+		fieldName: 'numberOfRows',
+		displayName: 'Number of weaving rows',
+		required: true,
 	},
 	{
-		'fieldName': 'numberOfTablets',
-		'displayName': 'Number of tablets',
-		'required': true,
+		fieldName: 'numberOfTablets',
+		displayName: 'Number of tablets',
+		required: true,
 	},
 	{
-		'fieldName': 'orientations',
-		'displayName': 'Tablet orientations',
-		'required': true,
+		fieldName: 'orientations',
+		displayName: 'Tablet orientations',
+		required: true,
 	},
 	{
-		'fieldName': 'palette',
-		'displayName': 'Colour palette',
-		'required': true,
+		fieldName: 'palette',
+		displayName: 'Colour palette',
+		required: true,
 	},
 	{
-		'fieldName': 'patternDesign',
-		'displayName': 'Pattern design',
-		'required': true,
+		fieldName: 'patternDesign',
+		displayName: 'Pattern design',
+		required: true,
 	},
 	{
-		'fieldName': 'patternType',
-		'displayName': 'Pattern type',
-		'required': true,
+		fieldName: 'patternType',
+		displayName: 'Pattern type',
+		required: true,
 	},
 	{
-		'fieldName': 'tags',
-		'displayName': 'Tags',
+		fieldName: 'tags',
+		displayName: 'Tags',
 	},
 	{
-		'fieldName': 'threading',
-		'displayName': 'Threading chart',
-		'required': true,
+		fieldName: 'threading',
+		displayName: 'Threading chart',
+		required: true,
 	},
 	{
-		'fieldName': 'threadingNotes',
-		'displayName': 'Threading notes',
+		fieldName: 'threadingNotes',
+		displayName: 'Threading notes',
 	},
 	{
-		'fieldName': 'weavingNotes',
-		'displayName': 'Weaving notes',
+		fieldName: 'weavingNotes',
+		displayName: 'Weaving notes',
 	},
 	{
-		'fieldName': 'weftColor',
-		'displayName': 'Weft colour',
-		'required': true,
-
+		fieldName: 'weftColor',
+		displayName: 'Weft colour',
+		required: true,
 	},
 ];
