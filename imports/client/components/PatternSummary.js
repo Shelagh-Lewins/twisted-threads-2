@@ -10,21 +10,21 @@ import IsPublicIndicator from './IsPublicIndicator';
 import AddToSet from './AddToSet';
 
 import { iconColors } from '../../modules/parameters';
+import getPatternPreviewAddress from '../modules/getPatternPreviewAddress';
 
 function PatternSummary(props) {
 	const {
 		dispatch,
-		'pattern':
-			{
-				_id,
-				createdBy,
-				description,
-				name,
-				numberOfTablets,
-				isPublic,
-				isTwistNeutral,
-				willRepeat,
-			},
+		pattern: {
+			_id,
+			createdBy,
+			description,
+			name,
+			numberOfTablets,
+			isPublic,
+			isTwistNeutral,
+			willRepeat,
+		},
 		patternPreview,
 		tagTexts,
 		user,
@@ -36,7 +36,7 @@ function PatternSummary(props) {
 	}
 
 	const onChangeIsPublic = () => {
-		dispatch(editIsPublic({ _id, 'isPublic': !isPublic }));
+		dispatch(editIsPublic({ _id, isPublic: !isPublic }));
 	};
 
 	const handleClickButtonRemove = () => {
@@ -54,23 +54,34 @@ function PatternSummary(props) {
 	let previewStyle = {};
 
 	if (patternPreview) {
-		previewStyle = { 'backgroundImage': `url(${patternPreview.uri})` };
+		previewStyle = {
+			backgroundImage: `url(${getPatternPreviewAddress(patternPreview)})`,
+		};
 	}
-	const patternPreviewHolder = <div style={previewStyle} className="pattern-preview" />;
+	const patternPreviewHolder = (
+		<div
+			style={previewStyle}
+			className='pattern-preview'
+		/>
+	);
 
 	const buttonRemove = (
 		<Button
-			type="button"
+			type='button'
 			onClick={() => handleClickButtonRemove({ _id, name })}
-			title="Delete pattern"
+			title='Delete pattern'
 		>
-			<FontAwesomeIcon icon={['fas', 'trash']} style={{ 'color': iconColors.default }} size="1x" />
+			<FontAwesomeIcon
+				icon={['fas', 'trash']}
+				style={{ color: iconColors.default }}
+				size='1x'
+			/>
 		</Button>
 	);
 
 	const tags = tagTexts.map((text, index) => (
 		<span
-			className="tag"
+			className='tag'
 			key={`tag-${index}`} // eslint-disable-line react/no-array-index-key
 		>
 			{text}
@@ -80,17 +91,17 @@ function PatternSummary(props) {
 	let twistInfo;
 
 	if (isTwistNeutral) {
-		twistInfo = <div className="twist-info item">twist neutral</div>;
+		twistInfo = <div className='twist-info item'>twist neutral</div>;
 	} else if (willRepeat) {
-		twistInfo = <div className="twist-info item">will repeat</div>;
+		twistInfo = <div className='twist-info item'>will repeat</div>;
 	}
 
 	return (
 		<div
-			className="pattern-summary"
+			className='pattern-summary'
 			title={`Pattern: ${name}`}
 		>
-			<div className="main">
+			<div className='main'>
 				<Link to={`/pattern/${_id}`}>
 					<h3>{name}</h3>
 					{canAddToSet && (
@@ -99,43 +110,46 @@ function PatternSummary(props) {
 							patternName={name}
 						/>
 					)}
-					<div className="description">{description}</div>
-					<div className="info">
+					<div className='description'>{description}</div>
+					<div className='info'>
 						<div
-							className="tablets item"
+							className='tablets item'
 							title={`Number of tablets: ${numberOfTablets}`}
 						>
 							<span
-								className="icon"
-								style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/tablet_white.svg')}` }}
+								className='icon'
+								style={{
+									backgroundImage: `url(${Meteor.absoluteUrl(
+										'/images/tablet_white.svg',
+									)}`,
+								}}
 							/>
 							{numberOfTablets}
 						</div>
-						{tags.length > 0 && (
-							<div className="tags item">
-								{tags}
-							</div>
-						)}
+						{tags.length > 0 && <div className='tags item'>{tags}</div>}
 						{twistInfo}
 					</div>
 					{patternPreviewHolder}
 				</Link>
-
 			</div>
-			<div className="footer">
+			<div className='footer'>
 				<Link
 					to={`/user/${createdBy}`}
-					className="created-by"
+					className='created-by'
 					title={`Created by: ${username}`}
 				>
 					<span
-						className="icon"
-						style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/created_by.png')}` }}
+						className='icon'
+						style={{
+							backgroundImage: `url(${Meteor.absoluteUrl(
+								'/images/created_by.png',
+							)}`,
+						}}
 					/>
 					{username}
 				</Link>
 				{canEdit && (
-					<div className="controls">
+					<div className='controls'>
 						<IsPublicIndicator
 							canEdit={canEdit}
 							isPublic={isPublic}
@@ -151,11 +165,11 @@ function PatternSummary(props) {
 }
 
 PatternSummary.propTypes = {
-	'dispatch': PropTypes.func.isRequired,
-	'pattern': PropTypes.objectOf(PropTypes.any),
-	'patternPreview': PropTypes.objectOf(PropTypes.any),
-	'tagTexts': PropTypes.arrayOf(PropTypes.any),
-	'user': PropTypes.objectOf(PropTypes.any),
+	dispatch: PropTypes.func.isRequired,
+	pattern: PropTypes.objectOf(PropTypes.any),
+	patternPreview: PropTypes.objectOf(PropTypes.any),
+	tagTexts: PropTypes.arrayOf(PropTypes.any),
+	user: PropTypes.objectOf(PropTypes.any),
 };
 
 export default PatternSummary;

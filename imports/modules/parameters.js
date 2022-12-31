@@ -252,6 +252,9 @@ export const ROLES = [
 	'verified',
 	'premium',
 	'administrator', // does not get a database allowance. Gets the ability to add and remove users from roles.
+	'serviceUser', // there should only be one service user
+	// The service user should only be used for scripted actions, in particular pattern preview generation, because it can view (but not modify) any pattern.
+	// Like an administrator, it does not get a database allowance.
 ];
 
 export const ROLE_LIMITS = {

@@ -23,15 +23,68 @@ import './PatternPreview.scss';
 /* eslint-disable react/no-array-index-key */
 
 class PatternPreview extends Component {
+	constructor(props) {
+		super(props);
+
+		// bind onClick functions to provide context
+		const functionsToBind = ['savePreviewPattern'];
+
+		functionsToBind.forEach((functionName) => {
+			this[functionName] = this[functionName].bind(this);
+		});
+	}
+
 	shouldComponentUpdate(nextProps) {
 		const { componentShouldUpdate } = nextProps;
 
 		return componentShouldUpdate;
 	}
 
-	render() {
+	componentDidUpdate() {
+		// the stored preview is updated prior to unmount
+		// so it doesn't need to be written immediately while editing
+		// this save is a guard in case network failure etc prevents clean unmount
+		clearTimeout(this.savePatternPreviewTimeout);
+		this.savePatternPreviewTimeout = setTimeout(() => {
+			this.savePreviewPattern();
+		}, 3000);
+	}
+
+	componentWillUnmount() {
+		this.savePreviewPattern();
+	}
+
+	savePreviewPattern() {
 		const {
 			dispatch,
+			pattern: { _id, createdBy },
+			printView,
+			showBackOfBand,
+		} = this.props;
+
+		const canSave =
+			!printView &&
+			(createdBy === Meteor.userId() ||
+				Roles.getRolesForUser(Meteor.userId()).includes('serviceUser'));
+
+		if (!canSave) return;
+
+		const holder = document.getElementById('preview-holder');
+
+		if (holder) {
+			// wait for render
+			const elm = document
+				.getElementById('preview-holder')
+				.getElementsByTagName('svg')[0];
+
+			if (elm && !showBackOfBand) {
+				dispatch(savePatternPreview({ _id, elm }));
+			}
+		}
+	}
+
+	render() {
+		const {
 			holes,
 			includeInTwist,
 			numberOfRows,
@@ -39,8 +92,6 @@ class PatternPreview extends Component {
 			patternWillRepeat,
 			palette,
 			pattern: {
-				_id,
-				createdBy,
 				patternType,
 				previewOrientation: patternPreviewOrientation,
 				weftColor,
@@ -51,7 +102,6 @@ class PatternPreview extends Component {
 			showStartPosition,
 			totalTurnsByTablet,
 		} = this.props;
-		const canEdit = createdBy === Meteor.userId();
 
 		// wait until the pattern details have loaded
 		if (!weftColor) {
@@ -60,31 +110,6 @@ class PatternPreview extends Component {
 
 		// in print view, always show preview 'up' to ensure it does not scroll
 		const previewOrientation = printView ? 'up' : patternPreviewOrientation;
-
-		// Update the saved preview image on load and change. Wait until the user pauses before saving the preview
-		// this also gives the preview time to render
-		if (canEdit) {
-			// do not save the back of the band view
-			const savePreviewPattern = function () {
-				const holder = document.getElementById('preview-holder');
-
-				if (holder) {
-					// wait for render
-					const elm = document
-						.getElementById('preview-holder')
-						.getElementsByTagName('svg')[0];
-
-					if (elm && !showBackOfBand) {
-						dispatch(savePatternPreview({ _id, elm }));
-					}
-				}
-			};
-
-			clearTimeout(global.savePatternPreviewTimeout);
-			global.savePatternPreviewTimeout = setTimeout(() => {
-				savePreviewPattern();
-			}, 1500);
-		}
 
 		// ///////////////////////////
 		// calculate sizes and rotations
@@ -126,7 +151,7 @@ class PatternPreview extends Component {
 			}
 
 			return {
-				height: height,
+				height,
 				width: pickWidth * widthInUnits,
 			};
 		};
@@ -134,7 +159,7 @@ class PatternPreview extends Component {
 		// size the svg viewbox
 		const { height: viewboxHeight, width: viewboxWidth } = getBoundingBox(
 			unitHeight,
-			unitWidth
+			unitWidth,
 		);
 
 		const viewBox = `0 0 ${viewboxWidth} ${viewboxHeight}`;
@@ -143,7 +168,7 @@ class PatternPreview extends Component {
 		const { height: imageHeight, width: imageWidth } = getBoundingBox(
 			cellHeight,
 			cellWidth,
-			hideRepeats
+			hideRepeats,
 		);
 
 		let previewStyle = {};
@@ -254,7 +279,7 @@ class PatternPreview extends Component {
 			currentRepeat,
 			repeatOffset,
 			rowIndex,
-			tabletIndex
+			tabletIndex,
 		) {
 			// position the cell's svg path
 			const xOffset = (findTabletIndex(tabletIndex) + weftOverlap) * unitWidth; // take account of whether we are viewing the front or the back of the band
@@ -327,7 +352,7 @@ class PatternPreview extends Component {
 		const renderRowAtStartPositionElm = function (
 			currentRepeat,
 			repeatOffset,
-			rowIndex
+			rowIndex,
 		) {
 			const xOffset = 0;
 			const yOffset =
@@ -388,7 +413,7 @@ class PatternPreview extends Component {
 							fill={palette[weftColor]}
 							scale={numberOfTablets + 2 * weftOverlap}
 						/>
-					</g>
+					</g>,
 				);
 
 				// draw the weaving cells
@@ -398,7 +423,7 @@ class PatternPreview extends Component {
 					// we do not need to change the order of the tablets depending on whether front or back of band is showing
 					// the xOffset will take care of this
 					cells.push(
-						renderCell(currentRepeat, svgRepeatOffset, numberOfRows - i - 1, j)
+						renderCell(currentRepeat, svgRepeatOffset, numberOfRows - i - 1, j),
 					);
 				}
 
@@ -415,7 +440,7 @@ class PatternPreview extends Component {
 				) {
 					if (!hideRepeats || currentRepeat === 1) {
 						rowNumberElms.push(
-							renderRowNumber(currentRepeat, elmRepeatOffset, i)
+							renderRowNumber(currentRepeat, elmRepeatOffset, i),
 						);
 					}
 				}
@@ -424,7 +449,7 @@ class PatternPreview extends Component {
 				if (showStartPosition && rowsAtStartPosition.indexOf(i) !== -1) {
 					if (!hideRepeats || currentRepeat === 1) {
 						rowAtStartPositionElms.push(
-							renderRowAtStartPositionElm(currentRepeat, elmRepeatOffset, i)
+							renderRowAtStartPositionElm(currentRepeat, elmRepeatOffset, i),
 						);
 					}
 				}
@@ -465,7 +490,7 @@ class PatternPreview extends Component {
 					title={title}
 				>
 					{totalTurns}
-				</span>
+				</span>,
 			);
 		}
 
@@ -494,7 +519,7 @@ class PatternPreview extends Component {
 					title={`tablet ${tabletIndex + 1}`}
 				>
 					{tabletIndex + 1}
-				</span>
+				</span>,
 			);
 		}
 

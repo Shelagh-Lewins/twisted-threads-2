@@ -114,6 +114,8 @@ Meteor.methods({
 			);
 		}
 
+		PatternImages.remove({ _id });
+
 		const s3 = new AWS.S3({
 			accessKeyId: process.env.AWS_ACCESS_KEY_ID,
 			secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -127,8 +129,14 @@ Meteor.methods({
 		s3.deleteObject(
 			params,
 			Meteor.bindEnvironment((error) => {
-				if (!error) {
-					PatternImages.remove({ _id });
+				if (error) {
+					console.log('error removing pattern image from AWS', error);
+				} else {
+					console.log(
+						'successfully removed pattern image from AWS',
+						process.env.AWS_BUCKET,
+						patternImage.key,
+					);
 				}
 			}),
 		);

@@ -1,4 +1,5 @@
 import { check } from 'meteor/check';
+import { nonEmptyStringCheck } from '../../imports/server/modules/utils';
 import { PatternPreviews, Patterns } from '../../imports/modules/collection';
 import {
 	PREVIEW_HEIGHT,
@@ -17,29 +18,32 @@ Meteor.methods({
 		check(uri, String);
 		this.unblock();
 
-		if (process.env.MIGRATIONS !== 'migrations') {
-			if (!Meteor.userId()) {
-				throw new Meteor.Error(
-					'save-preview-not-logged-in',
-					'Unable to save preview because the user is not logged in',
-				);
-			}
+		const pattern = Patterns.findOne({ _id });
 
-			const pattern = Patterns.findOne({ _id });
+		if (!Meteor.userId()) {
+			throw new Meteor.Error(
+				'save-preview-not-logged-in',
+				'Unable to save preview because the user is not logged in',
+			);
+		}
 
-			if (!pattern) {
-				throw new Meteor.Error(
-					'save-preview-not-found',
-					'Unable to save preview because the pattern was not found',
-				);
-			}
+		if (!pattern) {
+			throw new Meteor.Error(
+				'save-preview-not-found',
+				'Unable to save preview because the pattern was not found',
+			);
+		}
 
-			if (pattern.createdBy !== Meteor.userId()) {
-				throw new Meteor.Error(
-					'save-preview-not-created-by-user',
-					'Unable to save preview because pattern was not created by the current logged in user',
-				);
-			}
+		const { createdBy } = pattern;
+
+		if (
+			createdBy !== Meteor.userId() &&
+			!Roles.getRolesForUser(Meteor.userId()).includes('serviceUser')
+		) {
+			throw new Meteor.Error(
+				'save-preview-not-created-by-user',
+				'Unable to save preview because pattern was not created by the current logged in user',
+			);
 		}
 
 		// the image should have been rotated and sized correctly by the client
@@ -75,7 +79,7 @@ Meteor.methods({
 
 			const params = {
 				Bucket: process.env.AWS_BUCKET,
-				Key: `${Meteor.userId()}/${_id}-preview.png`,
+				Key: `${createdBy}/${_id}-preview.png`,
 				Body: Buffer.from(base64Image, 'base64'),
 				ContentType: 'image/png',
 			};
@@ -92,44 +96,94 @@ Meteor.methods({
 				});
 
 				const uploadedImage = future2.wait();
+				const patternPreview = PatternPreviews.findOne({ patternId: _id });
+				const { Key, Location } = uploadedImage;
 
-				console.log('after wait2', uploadedImage);
+				// calls to Mongo will not work inside the future, hence moving them to the 'try' block
+				if (!patternPreview) {
+					// create new
+					return PatternPreviews.insert({
+						patternId: _id,
+						url: Location, // where the file was actually saved
+						key: Key, // relative path to file from bucket address
+					});
+				}
+
+				if (!patternPreview.key) {
+					// migrate from old format where image uri is stored in database // TODO remove after full migration of all patternPreviews
+					return PatternPreviews.update(
+						{ _id: patternPreview._id },
+						{ $set: { url: Location, key: Key }, $unset: { uri: '' } },
+					);
+				}
 			} catch (err) {
 				throw new Meteor.Error('upload-preview-error', err);
 			}
 		} catch (err) {
 			throw new Meteor.Error('save-preview-error', err);
 		}
+	},
+	'patternPreview.remove': function ({ _id }) {
+		// remove an uploaded pattern preview from AWS and the database
+		check(_id, nonEmptyStringCheck);
 
-		// TODO why is this called twice on pattern load?
-		// TODO record url in PatternPreviews, remove uri
-		// TODO display new url - try for url first, fallback to uri? Remove altogether after migration is complete
-		// TODO check existing and migrate
-		// TODO delete preview from AWS if pattern deleted
-
-		return;
-
-		// act on the result of the check process
-		// note that calls to Mongo will not work inside the future, hence moving them to the 'try' block
-		try {
-			future1.wait();
-			const patternPreview = PatternPreviews.findOne({ patternId: _id });
-
-			if (!patternPreview) {
-				// create new
-				return PatternPreviews.insert({
-					patternId: _id,
-					uri: uri,
-				});
-			}
-
-			// update existing
-			return PatternPreviews.update(
-				{ _id: patternPreview._id },
-				{ $set: { uri: uri } },
+		if (!Meteor.userId()) {
+			throw new Meteor.Error(
+				'remove-pattern-preview-not-logged-in',
+				'Unable to remove pattern preview because the user is not logged in',
 			);
-		} catch (err) {
-			throw new Meteor.Error('save-preview-error', err);
 		}
+
+		const patternPreview = PatternPreviews.findOne({ _id });
+
+		if (!patternPreview) {
+			throw new Meteor.Error(
+				'remove-pattern-preview-not-found',
+				'Unable to remove pattern preview because the pattern preview was not found',
+			);
+		}
+
+		const pattern = Patterns.findOne({ _id: patternPreview.patternId });
+
+		if (!pattern) {
+			throw new Meteor.Error(
+				'remove-pattern-preview-not-found',
+				'Unable to remove pattern preview because the pattern was not found',
+			);
+		}
+
+		if (pattern.createdBy !== Meteor.userId()) {
+			throw new Meteor.Error(
+				'remove-pattern-preview-not-created-by-user',
+				'Unable to remove pattern preview because the pattern was not created by the current logged in user',
+			);
+		}
+
+		PatternPreviews.remove({ _id });
+
+		const s3 = new AWS.S3({
+			accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+			secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+		});
+
+		const params = {
+			Bucket: process.env.AWS_BUCKET,
+			Key: patternPreview.key,
+		};
+
+		s3.deleteObject(
+			params,
+			Meteor.bindEnvironment((error) => {
+				if (error) {
+					console.log('error removing pattern preview from AWS', error);
+				} else {
+					console.log(
+						'successfully removed pattern preview from AWS',
+						process.env.AWS_BUCKET,
+						patternPreview.key,
+					);
+				}
+			}),
+		);
 	},
 });
