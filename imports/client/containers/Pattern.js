@@ -145,7 +145,7 @@ class Pattern extends PureComponent {
 			const { patternImages } = this.context;
 
 			const patternImage = patternImages.find(
-				(image) => image._id === selectedPatternImage
+				(image) => image._id === selectedPatternImage,
 			);
 
 			if (!patternImage) {
@@ -185,7 +185,7 @@ class Pattern extends PureComponent {
 					editPatternIsTwistNeutral({
 						_id: patternId,
 						patternIsTwistNeutral,
-					})
+					}),
 				);
 			}
 
@@ -198,7 +198,7 @@ class Pattern extends PureComponent {
 					editPatternWillRepeat({
 						_id: patternId,
 						patternWillRepeat,
-					})
+					}),
 				);
 			}
 		}
@@ -216,7 +216,7 @@ class Pattern extends PureComponent {
 
 		if (!canPublish) {
 			alert(
-				'To change the privacy of patterns or colour books, please verify your email address'
+				'To change the privacy of patterns or colour books, please verify your email address',
 			);
 		} else {
 			dispatch(editIsPublic({ _id, isPublic: !isPublic }));
@@ -228,7 +228,7 @@ class Pattern extends PureComponent {
 		const { selectedPatternImage } = this.state;
 
 		dispatch(
-			editPatternImageCaption({ _id: selectedPatternImage, fieldValue })
+			editPatternImageCaption({ _id: selectedPatternImage, fieldValue }),
 		);
 	}
 
@@ -320,7 +320,7 @@ class Pattern extends PureComponent {
 			dispatch(
 				logErrors({
 					'copy-to-clipboard': `Error copying text to clipboard: ${error}`,
-				})
+				}),
 			);
 		}
 	}
@@ -342,7 +342,7 @@ class Pattern extends PureComponent {
 			dispatch(
 				logErrors({
 					'copy-to-clipboard': `Error copying text to clipboard: ${error}`,
-				})
+				}),
 			);
 		}
 	}
@@ -394,7 +394,7 @@ class Pattern extends PureComponent {
 						className='icon'
 						style={{
 							backgroundImage: `url(${Meteor.absoluteUrl(
-								'/images/search_pattern.png'
+								'/images/search_pattern.png',
 							)}`,
 						}}
 						title={`Pattern: ${name}`}
@@ -484,7 +484,7 @@ class Pattern extends PureComponent {
 
 		if (typeof selectedPatternImage === 'string') {
 			const patternImage = patternImages.find(
-				(image) => image._id === selectedPatternImage
+				(image) => image._id === selectedPatternImage,
 			);
 
 			if (!patternImage) {
