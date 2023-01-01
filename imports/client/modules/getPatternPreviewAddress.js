@@ -1,10 +1,13 @@
-// construct the URL for pattern previews
+// find the URL for pattern previews
 // either the URI (old format, TODO remove after full migration)
-// or a file in the AWS bucket
+// or the url of a file in the AWS bucket
+
+// images in AWS are saved / deleted using the current bucket name / key
+// but they are displayed using the absolute path (saved to the db as url)
 
 const getPatternPreviewAddress = (patternPreview) => {
-	const { key, rootAddress, uri } = patternPreview;
-	return key ? `${rootAddress}/${key}` : uri;
+	const { url, uri } = patternPreview;
+	return url || uri;
 };
 
 export default getPatternPreviewAddress;
