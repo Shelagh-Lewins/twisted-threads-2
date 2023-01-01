@@ -104,7 +104,7 @@ class PatternPreview extends Component {
 		} = this.props;
 
 		// wait until the pattern details have loaded
-		if (!weftColor) {
+		if (typeof weftColor === 'undefined') {
 			return null;
 		}
 
