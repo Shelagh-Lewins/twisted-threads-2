@@ -17,6 +17,7 @@
 	},
 	"rules": {
 		"array-callback-return": ["off"],
+		"implicit-arrow-linebreak": ["off"],
 		"no-underscore-dangle": ["off"],
 		"import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
 		"eol-last": ["error", "always"],
@@ -31,13 +32,7 @@
 		],
 		"padded-blocks": ["error", "never"],
 		"semi": ["error", "always"],
-		"indent": [
-			"error",
-			"tab",
-			{
-				"SwitchCase": 1
-			}
-		],
+		"indent": ["off"],
 		"key-spacing": [
 			"error",
 			{
@@ -46,13 +41,14 @@
 		],
 		"no-alert": ["off"],
 		"object-curly-spacing": ["error", "always"],
+		"object-curly-newline": ["off"],
 		"operator-linebreak": ["off"],
 		"quote-props": [2, "as-needed"],
 		"consistent-return": ["off"],
 		"no-return-assign": ["off"],
 		"no-tabs": ["off"],
 		"max-len": ["off"],
-		"react/jsx-indent": ["error", "tab"],
+		"react/jsx-indent": ["off"],
 		"react/jsx-indent-props": ["error", "tab"],
 		"react/jsx-filename-extension": [
 			1,

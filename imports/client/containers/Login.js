@@ -20,13 +20,13 @@ class Login extends Component {
 
 	handleSubmit = ({ user, password }) => {
 		const { dispatch, history } = this.props;
-
+		console.log('*** Component about to dispatch login', user, history);
 		dispatch(
 			login({
 				user,
 				password,
 				history,
-			})
+			}),
 		);
 	};
 
