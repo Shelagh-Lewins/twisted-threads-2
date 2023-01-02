@@ -87,6 +87,7 @@ Meteor.methods({
 				Key: `patternPreviews/${createdBy}/${_id}-${urlObfuscator}-preview.png`,
 				Body: Buffer.from(base64Image, 'base64'),
 				ContentType: 'image/png',
+				ACL: 'public-read',
 			};
 
 			try {
