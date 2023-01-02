@@ -5,16 +5,10 @@ import { ALLOWED_PREVIEW_ORIENTATIONS } from '../../modules/parameters';
 
 import './PreviewOrientation.scss';
 
-
 export default function PreviewOrientation(props) {
-	const {
-		_id,
-		disabled,
-		dispatch,
-		previewOrientation,
-	} = props;
+	const { _id, disabled, dispatch, previewOrientation } = props;
 	const handleChangeOrientation = (event) => {
-		dispatch(editPreviewOrientation({ _id, 'orientation': event.target.value }));
+		dispatch(editPreviewOrientation({ _id, orientation: event.target.value }));
 	};
 
 	const optionElms = ALLOWED_PREVIEW_ORIENTATIONS.map((option) => (
@@ -27,14 +21,14 @@ export default function PreviewOrientation(props) {
 	));
 
 	return (
-		<div className="preview-orientation">
-			<label htmlFor="previewOrientation">
-				<span className="text">Orientation of woven band:</span>
+		<div className='preview-orientation'>
+			<label htmlFor='previewOrientation'>
+				<span className='text'>Orientation of woven band:</span>
 				<select
-					className="form-control"
+					className='form-control'
 					disabled={disabled}
-					id="previewOrientation"
-					name="previewOrientation"
+					id='previewOrientation'
+					name='previewOrientation'
 					onChange={handleChangeOrientation}
 					value={previewOrientation}
 				>
@@ -46,8 +40,8 @@ export default function PreviewOrientation(props) {
 }
 
 PreviewOrientation.propTypes = {
-	'_id': PropTypes.string.isRequired,
-	'disabled': PropTypes.string.isRequired,
-	'dispatch': PropTypes.func.isRequired,
-	'previewOrientation': PropTypes.string.isRequired,
+	_id: PropTypes.string.isRequired,
+	disabled: PropTypes.string.isRequired,
+	dispatch: PropTypes.func.isRequired,
+	previewOrientation: PropTypes.string.isRequired,
 };

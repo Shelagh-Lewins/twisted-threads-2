@@ -1,43 +1,43 @@
 // detail of a single pattern
 
-import React, { PureComponent } from 'react';
-import { connect } from 'react-redux';
-import { Link, withRouter } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import PageWrapper from '../components/PageWrapper';
+import React, { PureComponent } from "react";
+import { connect } from "react-redux";
+import { Link, withRouter } from "react-router-dom";
+import PropTypes from "prop-types";
+import PageWrapper from "../components/PageWrapper";
 import {
 	getIsLoading,
 	getNumberOfRowsForChart,
 	getNumberOfTablets,
-} from '../modules/pattern';
-import { addRecentPattern } from '../modules/auth';
-import AppContext from '../modules/appContext';
-import { getLocalStorageItem } from '../modules/localStorage';
-import Loading from '../components/Loading';
-import WeavingChart from '../components/WeavingChart';
-import Threading from '../components/Threading';
-import Notation from '../components/Notation';
-import EditBackwardsBackgroundColor from '../components/EditBackwardsBackgroundColor';
-import './InteractiveWeavingChart.scss';
+} from "../modules/pattern";
+import { addRecentPattern } from "../modules/auth";
+import AppContext from "../modules/appContext";
+import { getLocalStorageItem } from "../modules/localStorage";
+import Loading from "../components/Loading";
+import WeavingChart from "../components/WeavingChart";
+import Threading from "../components/Threading";
+import Notation from "../components/Notation";
+import EditBackwardsBackgroundColor from "../components/EditBackwardsBackgroundColor";
+import "./InteractiveWeavingChart.scss";
 
-const bodyClass = 'interactive-weaving-chart';
+const bodyClass = "interactive-weaving-chart";
 
 class InteractiveWeavingChart extends PureComponent {
 	constructor(props) {
 		super(props);
 
 		this.state = {
-			'gotUser': false, // 0 at top, increasing down
-			'selectedRowHasBeenSet': false, // ensure we only load selectedRow from database once
+			gotUser: false, // 0 at top, increasing down
+			selectedRowHasBeenSet: false, // ensure we only load selectedRow from database once
 		};
 
 		// bind onClick functions to provide context
 		const functionsToBind = [
-			'handleClickDown',
-			'handleClickRow',
-			'handleClickUp',
-			'handleKeyUp',
-			'scrollRowIntoView',
+			"handleClickDown",
+			"handleClickRow",
+			"handleClickUp",
+			"handleKeyUp",
+			"scrollRowIntoView",
 		];
 
 		functionsToBind.forEach((functionName) => {
@@ -49,7 +49,7 @@ class InteractiveWeavingChart extends PureComponent {
 
 	componentDidMount() {
 		document.body.classList.add(bodyClass);
-		document.addEventListener('keyup', this.handleKeyUp);
+		document.addEventListener("keyup", this.handleKeyUp);
 
 		// give the chart time to render
 		setTimeout(() => {
@@ -58,17 +58,15 @@ class InteractiveWeavingChart extends PureComponent {
 	}
 
 	componentDidUpdate() {
-		const {
-			dispatch,
-			numberOfRows,
-		} = this.props;
+		const { dispatch, numberOfRows } = this.props;
 		const { gotUser, selectedRowHasBeenSet } = this.state;
 		const { patternId } = this.context;
 
 		// wait for user details to load
-		if (!gotUser && (Meteor.user() || Meteor.user() === null)) { // when user is not logged in, Meteor.user() is null after subscription has loaded
+		if (!gotUser && (Meteor.user() || Meteor.user() === null)) {
+			// when user is not logged in, Meteor.user() is null after subscription has loaded
 			this.setState({
-				'gotUser': true,
+				gotUser: true,
 			});
 		}
 
@@ -79,12 +77,18 @@ class InteractiveWeavingChart extends PureComponent {
 
 			let recentPatternsList;
 
-			if (Meteor.user()) { // user is logged in
+			if (Meteor.user()) {
+				// user is logged in
 				recentPatternsList = Meteor.user().profile.recentPatterns;
 			} else {
-				const valueFromLocalStorage = JSON.parse(getLocalStorageItem('recentPatterns'));
+				const valueFromLocalStorage = JSON.parse(
+					getLocalStorageItem("recentPatterns")
+				);
 
-				if (valueFromLocalStorage !== null && typeof valueFromLocalStorage === 'object') {
+				if (
+					valueFromLocalStorage !== null &&
+					typeof valueFromLocalStorage === "object"
+				) {
 					recentPatternsList = valueFromLocalStorage;
 				}
 			}
@@ -93,34 +97,41 @@ class InteractiveWeavingChart extends PureComponent {
 			// selectedRow starts with 0 at the last row, because that's how the HTML rows are constructed
 
 			if (recentPatternsList) {
-				const thisRecentPattern = recentPatternsList.find((recentPattern) => recentPattern.patternId === patternId);
-				const { currentWeavingRow } = thisRecentPattern;
+				const thisRecentPattern = recentPatternsList.find(
+					(recentPattern) => recentPattern.patternId === patternId
+				);
 
 				if (thisRecentPattern) {
-					if ((typeof currentWeavingRow !== 'undefined')
-						&& !isNaN(currentWeavingRow)
-						&& currentWeavingRow > 0
-						&& currentWeavingRow <= numberOfRows) {
+					const { currentWeavingRow } = thisRecentPattern;
+
+					if (
+						typeof currentWeavingRow !== "undefined" &&
+						!isNaN(currentWeavingRow) &&
+						currentWeavingRow > 0 &&
+						currentWeavingRow <= numberOfRows
+					) {
 						selectedRow = numberOfRows - currentWeavingRow;
 					}
 				}
 
-				dispatch(addRecentPattern({
-					'currentWeavingRow': this.getCurrentWeavingRow(selectedRow),
-					'patternId': patternId,
-				}));
+				dispatch(
+					addRecentPattern({
+						currentWeavingRow: this.getCurrentWeavingRow(selectedRow),
+						patternId: patternId,
+					})
+				);
 			}
 
 			this.setState({
 				selectedRow,
-				'selectedRowHasBeenSet': true,
+				selectedRowHasBeenSet: true,
 			});
 		}
 	}
 
 	componentWillUnmount() {
 		document.body.classList.remove(bodyClass);
-		document.removeEventListener('keyup', this.handleKeyUp);
+		document.removeEventListener("keyup", this.handleKeyUp);
 	}
 
 	getCurrentWeavingRow(selectedRow) {
@@ -132,7 +143,9 @@ class InteractiveWeavingChart extends PureComponent {
 
 	handleKeyUp(event) {
 		const { history } = this.props;
-		const { 'pattern': { _id } } = this.context;
+		const {
+			pattern: { _id },
+		} = this.context;
 
 		// use up / down arrow to change weaving row
 		switch (event.keyCode) {
@@ -154,30 +167,32 @@ class InteractiveWeavingChart extends PureComponent {
 	}
 
 	setSelectedRow(selectedRow) {
+		const { dispatch } = this.props;
 		const {
-			dispatch,
-		} = this.props;
-		const { 'pattern': { _id } } = this.context;
+			pattern: { _id },
+		} = this.context;
 
 		this.setState({
-			'selectedRow': selectedRow,
+			selectedRow: selectedRow,
 		});
 
-		dispatch(addRecentPattern({
-			'currentWeavingRow': this.getCurrentWeavingRow(selectedRow),
-			'patternId': _id,
-		}));
+		dispatch(
+			addRecentPattern({
+				currentWeavingRow: this.getCurrentWeavingRow(selectedRow),
+				patternId: _id,
+			})
+		);
 	}
 
 	scrollRowIntoView() {
 		// give the DOM time to render
 		setTimeout(() => {
-			const node = this.chartRef.current.querySelector('li.row.selected');
+			const node = this.chartRef.current.querySelector("li.row.selected");
 
 			node.scrollIntoView({
-				'behavior': 'smooth',
-				'block': 'center',
-				'inline': 'center',
+				behavior: "smooth",
+				block: "center",
+				inline: "center",
 			});
 		}, 50);
 	}
@@ -214,7 +229,9 @@ class InteractiveWeavingChart extends PureComponent {
 
 	handleClickRow(selectedRow) {
 		const { numberOfRows } = this.props;
-		const response = confirm(`Are you sure you want to jump to row ${numberOfRows - selectedRow}?`); // eslint-disable-line no-restricted-globals
+		const response = confirm(
+			`Are you sure you want to jump to row ${numberOfRows - selectedRow}?`
+		); // eslint-disable-line no-restricted-globals
 
 		if (response === true) {
 			this.setSelectedRow(selectedRow);
@@ -222,13 +239,8 @@ class InteractiveWeavingChart extends PureComponent {
 	}
 
 	render() {
-		const {
-			dispatch,
-			errors,
-			numberOfRows,
-			numberOfTablets,
-			isLoading,
-		} = this.props;
+		const { dispatch, errors, numberOfRows, numberOfTablets, isLoading } =
+			this.props;
 		const { selectedRow } = this.state;
 		const { pattern } = this.context;
 
@@ -236,19 +248,16 @@ class InteractiveWeavingChart extends PureComponent {
 
 		if (!isLoading) {
 			if (pattern) {
-				const {
-					_id,
-					holes,
-					name,
-					patternType,
-				} = pattern;
+				const { _id, holes, name, patternType } = pattern;
 
 				const links = (
 					<div className="links">
-						<Link className="btn btn-primary" to={`/pattern/${_id}`}>Close interactive weaving chart (Esc)</Link>
+						<Link className="btn btn-primary" to={`/pattern/${_id}`}>
+							Close interactive weaving chart (Esc)
+						</Link>
 					</div>
 				);
-				if (name && name !== '') {
+				if (name && name !== "") {
 					content = (
 						<>
 							<h1>{name}</h1>
@@ -271,12 +280,19 @@ class InteractiveWeavingChart extends PureComponent {
 										/>
 									</div>
 
-									{Meteor.user() && <EditBackwardsBackgroundColor dispatch={dispatch} />}
+									{Meteor.user() && (
+										<EditBackwardsBackgroundColor dispatch={dispatch} />
+									)}
 
-									{pattern.threading && patternType !== 'freehand' && (
+									{pattern.threading && patternType !== "freehand" && (
 										<>
 											<h2 className="clearing">Current position of threads</h2>
-											<p className="hint">The chart below shows how the threads should be arranged before weaving the current row. Note that ABCD on the chart refers to the position of the thread, not the label on the tablet.</p>
+											<p className="hint">
+												The chart below shows how the threads should be arranged
+												before weaving the current row. Note that ABCD on the
+												chart refers to the position of the thread, not the
+												label on the tablet.
+											</p>
 											<Threading
 												canEdit={false}
 												dispatch={dispatch}
@@ -294,16 +310,18 @@ class InteractiveWeavingChart extends PureComponent {
 						</>
 					);
 				} else {
-					content = <p>Either this pattern does not exist or you do not have permission to view it</p>;
+					content = (
+						<p>
+							Either this pattern does not exist or you do not have permission
+							to view it
+						</p>
+					);
 				}
 			}
 		}
 
 		return (
-			<PageWrapper
-				dispatch={dispatch}
-				errors={errors}
-			>
+			<PageWrapper dispatch={dispatch} errors={errors}>
 				{content}
 			</PageWrapper>
 		);
@@ -313,20 +331,20 @@ class InteractiveWeavingChart extends PureComponent {
 InteractiveWeavingChart.contextType = AppContext;
 
 InteractiveWeavingChart.propTypes = {
-	'dispatch': PropTypes.func.isRequired,
-	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
-	'history': PropTypes.objectOf(PropTypes.any).isRequired,
-	'isLoading': PropTypes.bool.isRequired,
-	'numberOfRows': PropTypes.number.isRequired,
-	'numberOfTablets': PropTypes.number.isRequired,
+	dispatch: PropTypes.func.isRequired,
+	errors: PropTypes.objectOf(PropTypes.any).isRequired,
+	history: PropTypes.objectOf(PropTypes.any).isRequired,
+	isLoading: PropTypes.bool.isRequired,
+	numberOfRows: PropTypes.number.isRequired,
+	numberOfTablets: PropTypes.number.isRequired,
 };
 
 function mapStateToProps(state) {
 	return {
-		'errors': state.errors,
-		'isLoading': getIsLoading(state),
-		'numberOfRows': getNumberOfRowsForChart(state),
-		'numberOfTablets': getNumberOfTablets(state),
+		errors: state.errors,
+		isLoading: getIsLoading(state),
+		numberOfRows: getNumberOfRowsForChart(state),
+		numberOfTablets: getNumberOfTablets(state),
 	};
 }
 

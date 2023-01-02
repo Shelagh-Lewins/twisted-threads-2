@@ -32,7 +32,10 @@ import {
 	setIsEditingWeaving,
 	setUpdatePreviewWhileEditing,
 } from '../modules/pattern';
-import { editPatternImageCaption, removePatternImage } from '../modules/patternImages';
+import {
+	editPatternImageCaption,
+	removePatternImage,
+} from '../modules/patternImages';
 import AppContext from '../modules/appContext';
 import { getNumberOfRepeats } from '../modules/weavingUtils';
 import PageWrapper from '../components/PageWrapper';
@@ -69,13 +72,13 @@ class Pattern extends PureComponent {
 		this.childWeaving = React.createRef();
 
 		this.state = {
-			'gotUser': false, // add to recents after user has loaded
-			'recentPatternId': null, // id that has been added to recent patterns list. This lets us check for navigation to a new pattern, e.g. because of copy
-			'showCopyIDSuccess': false,
-			'selectedPatternImage': null,
-			'showBackOfBand': false,
-			'showImageUploader': false,
-			'showStartPosition': true,
+			gotUser: false, // add to recents after user has loaded
+			recentPatternId: null, // id that has been added to recent patterns list. This lets us check for navigation to a new pattern, e.g. because of copy
+			showCopyIDSuccess: false,
+			selectedPatternImage: null,
+			showBackOfBand: false,
+			showImageUploader: false,
+			showStartPosition: true,
 		};
 
 		this.idRef = React.createRef();
@@ -113,12 +116,8 @@ class Pattern extends PureComponent {
 	componentDidUpdate(prevProps) {
 		// it is not good practice to use this.setState inside componentDidUpdate
 		// so be very careful to ensure that setState can only run once!
-		const {
-			dispatch,
-			isEditing,
-			patternIsTwistNeutral,
-			patternWillRepeat,
-		} = this.props;
+		const { dispatch, isEditing, patternIsTwistNeutral, patternWillRepeat } =
+			this.props;
 		const { gotUser, recentPatternId } = this.state;
 		const { isLoadingUser, pattern, patternId } = this.context;
 
@@ -127,16 +126,16 @@ class Pattern extends PureComponent {
 			dispatch(addRecentPattern({ patternId }));
 
 			this.setState({
-				'gotUser': true,
+				gotUser: true,
 			});
 		}
 
 		// catch navigation to new pattern, e.g. after copy pattern
-		if (gotUser && (patternId !== recentPatternId) && pattern) {
+		if (gotUser && patternId !== recentPatternId && pattern) {
 			dispatch(addRecentPattern({ patternId }));
 
 			this.setState({
-				'recentPatternId': patternId,
+				recentPatternId: patternId,
 			});
 		}
 
@@ -145,11 +144,13 @@ class Pattern extends PureComponent {
 			const { selectedPatternImage } = this.state;
 			const { patternImages } = this.context;
 
-			const patternImage = patternImages.find((image) => image._id === selectedPatternImage);
+			const patternImage = patternImages.find(
+				(image) => image._id === selectedPatternImage,
+			);
 
 			if (!patternImage) {
 				this.setState({
-					'selectedPatternImage': null,
+					selectedPatternImage: null,
 				});
 			}
 		}
@@ -158,7 +159,7 @@ class Pattern extends PureComponent {
 		// in case they have made changes to the pattern in another window or on another machine
 		if (!prevProps.isEditing && isEditing) {
 			this.setState({
-				'showBackOfBand': false,
+				showBackOfBand: false,
 			});
 
 			dispatch(savePatternData(pattern));
@@ -167,28 +168,38 @@ class Pattern extends PureComponent {
 		// update twist calculations
 		// only attempt these updates if all data have been loaded
 		// and the user owns the pattern
-		if (pattern
-			&& gotUser
-			&& Meteor.user()
-			&& Meteor.user()._id === pattern.createdBy
-			&& pattern.patternType !== 'freehand') {
+		if (
+			pattern &&
+			gotUser &&
+			Meteor.user() &&
+			Meteor.user()._id === pattern.createdBy &&
+			pattern.patternType !== 'freehand'
+		) {
 			const { isTwistNeutral, willRepeat } = pattern;
 			// record whether pattern is twist neutral
-			if ((typeof isTwistNeutral === 'undefined') // needs to be initialised
-				|| (patternIsTwistNeutral !== prevProps.patternIsTwistNeutral)) {
-				dispatch(editPatternIsTwistNeutral({
-					'_id': patternId,
-					patternIsTwistNeutral,
-				}));
+			if (
+				typeof isTwistNeutral === 'undefined' || // needs to be initialised
+				patternIsTwistNeutral !== prevProps.patternIsTwistNeutral
+			) {
+				dispatch(
+					editPatternIsTwistNeutral({
+						_id: patternId,
+						patternIsTwistNeutral,
+					}),
+				);
 			}
 
 			// record whether pattern will repeat
-			if ((typeof willRepeat === 'undefined') // needs to be initialised
-				|| (patternWillRepeat !== prevProps.patternWillRepeat)) {
-				dispatch(editPatternWillRepeat({
-					'_id': patternId,
-					patternWillRepeat,
-				}));
+			if (
+				typeof willRepeat === 'undefined' || // needs to be initialised
+				patternWillRepeat !== prevProps.patternWillRepeat
+			) {
+				dispatch(
+					editPatternWillRepeat({
+						_id: patternId,
+						patternWillRepeat,
+					}),
+				);
 			}
 		}
 	}
@@ -199,12 +210,16 @@ class Pattern extends PureComponent {
 
 	onChangeIsPublic = () => {
 		const { canPublish, dispatch } = this.props;
-		const { 'pattern': { _id, isPublic } } = this.context;
+		const {
+			pattern: { _id, isPublic },
+		} = this.context;
 
 		if (!canPublish) {
-			alert('To change the privacy of patterns or colour books, please verify your email address');
+			alert(
+				'To change the privacy of patterns or colour books, please verify your email address',
+			);
 		} else {
-			dispatch(editIsPublic({ _id, 'isPublic': !isPublic }));
+			dispatch(editIsPublic({ _id, isPublic: !isPublic }));
 		}
 	};
 
@@ -212,26 +227,30 @@ class Pattern extends PureComponent {
 		const { dispatch } = this.props;
 		const { selectedPatternImage } = this.state;
 
-		dispatch(editPatternImageCaption({ '_id': selectedPatternImage, fieldValue }));
+		dispatch(
+			editPatternImageCaption({ _id: selectedPatternImage, fieldValue }),
+		);
 	}
 
 	onClickEditableTextSave({ fieldValue, fieldName }) {
 		const { dispatch } = this.props;
-		const { 'pattern': { _id } } = this.context;
+		const {
+			pattern: { _id },
+		} = this.context;
 
 		dispatch(editTextField({ _id, fieldValue, fieldName }));
 	}
 
 	onClickPatternImageThumbnail(_id) {
 		this.setState({
-			'selectedPatternImage': _id,
+			selectedPatternImage: _id,
 		});
 	}
 
 	onCloseFlashMessage() {
 		this.setState({
-			'showCopyIDSuccess': false,
-			'showCopyUrlSuccess': false,
+			showCopyIDSuccess: false,
+			showCopyUrlSuccess: false,
 		});
 	}
 
@@ -252,7 +271,7 @@ class Pattern extends PureComponent {
 		const { showImageUploader } = this.state;
 
 		this.setState({
-			'showImageUploader': !showImageUploader,
+			showImageUploader: !showImageUploader,
 		});
 	}
 
@@ -264,28 +283,23 @@ class Pattern extends PureComponent {
 
 	handleChangeShowStartPosition(event) {
 		this.setState({
-			'showStartPosition': event.target.checked,
+			showStartPosition: event.target.checked,
 		});
 	}
 
 	handleChangeShowBackOfBand(event) {
-		const {
-			isEditingThreading,
-			isEditingWeaving,
-		} = this.props;
+		const { isEditingThreading, isEditingWeaving } = this.props;
 
 		this.setState({
-			'showBackOfBand': event.target.checked,
+			showBackOfBand: event.target.checked,
 		});
 
 		if (event.target.checked) {
 			if (isEditingThreading) {
-				console.log('childThreading', this.childThreading);
 				this.childThreading.current.toggleEditThreading();
 			}
 
 			if (isEditingWeaving) {
-				console.log('childWeaving', this.childWeaving);
 				this.childWeaving.current.toggleEditWeaving();
 			}
 		}
@@ -300,10 +314,14 @@ class Pattern extends PureComponent {
 			this.onCloseFlashMessage();
 
 			this.setState({
-				'showCopyIDSuccess': true,
+				showCopyIDSuccess: true,
 			});
 		} catch (error) {
-			dispatch(logErrors({ 'copy-to-clipboard': `Error copying text to clipboard: ${error}` }));
+			dispatch(
+				logErrors({
+					'copy-to-clipboard': `Error copying text to clipboard: ${error}`,
+				}),
+			);
 		}
 	}
 
@@ -318,27 +336,31 @@ class Pattern extends PureComponent {
 			this.onCloseFlashMessage();
 
 			this.setState({
-				'showCopyUrlSuccess': true,
+				showCopyUrlSuccess: true,
 			});
 		} catch (error) {
-			dispatch(logErrors({ 'copy-to-clipboard': `Error copying text to clipboard: ${error}` }));
+			dispatch(
+				logErrors({
+					'copy-to-clipboard': `Error copying text to clipboard: ${error}`,
+				}),
+			);
 		}
 	}
 
 	renderCopyButtons() {
 		return (
-			<span className="copy-buttons">
+			<span className='copy-buttons'>
 				<Button
-					type="button"
+					type='button'
 					onClick={this.copyPatternId}
-					className="btn btn-default"
+					className='btn btn-default'
 				>
 					Copy pattern ID
 				</Button>
 				<Button
-					type="button"
+					type='button'
 					onClick={this.copyPatternUrl}
-					className="btn btn-default"
+					className='btn btn-default'
 				>
 					Copy pattern URL
 				</Button>
@@ -348,51 +370,62 @@ class Pattern extends PureComponent {
 
 	// title and any other elements above tabs
 	renderHeader({ pattern }) {
-		const {
-			_id,
-			createdBy,
-			name,
-			patternDesign,
-			patternType,
-		} = pattern;
+		const { _id, createdBy, name, patternDesign, patternType } = pattern;
+		if (!patternDesign) {
+			return null;
+		}
 		const canEdit = createdBy === Meteor.userId();
 
 		let twillDirectionIndicator;
 
 		if (patternType === 'brokenTwill') {
-			twillDirectionIndicator = <p>Twill direction: {patternDesign.twillDirection === 'S' ? 'S-twill' : 'Z-twill'}</p>;
+			twillDirectionIndicator = (
+				<p>
+					Twill direction:{' '}
+					{patternDesign.twillDirection === 'S' ? 'S-twill' : 'Z-twill'}
+				</p>
+			);
 		}
 
 		return (
 			<>
-				<div className="pattern-page-name">
+				<div className='pattern-page-name'>
 					<span
-						className="icon"
-						style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/search_pattern.png')}` }}
+						className='icon'
+						style={{
+							backgroundImage: `url(${Meteor.absoluteUrl(
+								'/images/search_pattern.png',
+							)}`,
+						}}
 						title={`Pattern: ${name}`}
 					/>
 					<EditableText
 						canEdit={canEdit}
-						editButtonText="Edit name"
-						fieldName="name"
+						editButtonText='Edit name'
+						fieldName='name'
 						onClickSave={this.onClickEditableTextSave}
-						title="Name"
-						type="input"
+						title='Name'
+						type='input'
 						fieldValue={name}
 					/>
 				</div>
 				<p>Pattern type: {findPatternTypeDisplayName(patternType)}</p>
-				<p>Pattern ID: <span ref={this.idRef}>{_id}</span>{this.renderCopyButtons()}</p>
+				<p>
+					Pattern ID: <span ref={this.idRef}>{_id}</span>
+					{this.renderCopyButtons()}
+				</p>
 				{twillDirectionIndicator}
 			</>
 		);
 	}
 
 	renderIsPublic() {
-		const { 'pattern': { isPublic } } = this.context;
+		const {
+			pattern: { isPublic },
+		} = this.context;
 
 		const hintText = isPublic
-			? 'Public: people can see this pattern but they can\'t edit it.'
+			? "Public: people can see this pattern but they can't edit it."
 			: 'Private: nobody else can see this pattern.';
 
 		const buttonText = isPublic
@@ -401,17 +434,19 @@ class Pattern extends PureComponent {
 
 		return (
 			<>
-				<div className="pattern-is-public">
+				<div className='pattern-is-public'>
 					<Button
-						type="button"
+						type='button'
 						onClick={this.onChangeIsPublic}
-						className="btn btn-default"
+						className='btn btn-default'
 					>
 						{buttonText}
 					</Button>
-					<span className="text"><p>{hintText}</p></span>
+					<span className='text'>
+						<p>{hintText}</p>
+					</span>
 				</div>
-				<div className="clearing" />
+				<div className='clearing' />
 			</>
 		);
 	}
@@ -421,12 +456,12 @@ class Pattern extends PureComponent {
 		const { showImageUploader } = this.state;
 
 		return (
-			<div className="image-uploader-wrapper">
+			<div className='image-uploader-wrapper'>
 				{!showImageUploader && (
 					<Button
-						type="button"
+						type='button'
 						onClick={this.onToggleImageUploader}
-						title="Add images"
+						title='Add images'
 					>
 						Add images
 					</Button>
@@ -448,45 +483,42 @@ class Pattern extends PureComponent {
 		const { selectedPatternImage } = this.state;
 
 		if (typeof selectedPatternImage === 'string') {
-			const patternImage = patternImages.find((image) => image._id === selectedPatternImage);
+			const patternImage = patternImages.find(
+				(image) => image._id === selectedPatternImage,
+			);
 
 			if (!patternImage) {
 				return;
 			}
 
-			const {
-				caption,
-				height,
-				url,
-				width,
-			} = patternImage;
+			const { caption, height, url, width } = patternImage;
 
 			return (
-				<div className="pattern-images selected">
+				<div className='pattern-images selected'>
 					<Button
-						className="btn btn-secondary close-image"
+						type='button'
+						className='close btn-close btn-close-white'
+						aria-label='Close'
 						onClick={() => this.onClickPatternImageThumbnail(null)}
-						title="Close"
-					>
-						X
-					</Button>
+						title='Close'
+					/>
 					<div
-						className="full-size"
+						className='full-size'
 						style={{
-							'backgroundImage': `url("${url}")`,
-							'maxHeight': height,
-							'maxWidth': width,
+							backgroundImage: `url("${url}")`,
+							maxHeight: height,
+							maxWidth: width,
 						}}
 					/>
-					<div className="caption">
-						<div className="text">
+					<div className='caption'>
+						<div className='text'>
 							<EditableText
 								canEdit={canEdit}
-								editButtonText="Edit caption"
-								fieldName="caption"
+								editButtonText='Edit caption'
+								fieldName='caption'
 								onClickSave={this.onClickEditCaptionSave}
-								title="Caption"
-								type="input"
+								title='Caption'
+								type='input'
 								fieldValue={caption}
 							/>
 						</div>
@@ -495,25 +527,31 @@ class Pattern extends PureComponent {
 			);
 		}
 		return (
-			<div className="pattern-images">
+			<div className='pattern-images'>
 				{patternImages.map((patternImage) => (
 					<div
-						className="thumbnail"
+						className='thumbnail'
 						key={patternImage._id}
 						onClick={() => this.onClickPatternImageThumbnail(patternImage._id)}
-						onKeyPress={() => this.onClickPatternImageThumbnail(patternImage._id)}
-						role="button"
-						style={{ 'backgroundImage': `url("${patternImage.url}")` }}
-						tabIndex="0"
+						onKeyPress={() =>
+							this.onClickPatternImageThumbnail(patternImage._id)
+						}
+						role='button'
+						style={{ backgroundImage: `url("${patternImage.url}")` }}
+						tabIndex='0'
 					>
-						<div className="controls">
+						<div className='controls'>
 							{canEdit && (
 								<Button
 									onClick={this.onRemovePatternImage}
-									title="Delete image"
+									title='Delete image'
 									value={patternImage._id}
 								>
-									<FontAwesomeIcon icon={['fas', 'trash']} style={{ 'color': iconColors.contrast }} size="1x" />
+									<FontAwesomeIcon
+										icon={['fas', 'trash']}
+										style={{ color: iconColors.contrast }}
+										size='1x'
+									/>
 								</Button>
 							)}
 						</div>
@@ -526,7 +564,7 @@ class Pattern extends PureComponent {
 	renderTagInput(canEdit) {
 		const { dispatch } = this.props;
 		const {
-			'pattern': { _id, tags },
+			pattern: { _id, tags },
 			allTags,
 		} = this.context;
 
@@ -537,25 +575,16 @@ class Pattern extends PureComponent {
 				dispatch={dispatch}
 				tags={tags}
 				targetId={_id}
-				targetType="pattern"
+				targetType='pattern'
 			/>
 		);
 	}
 
 	renderWeavingInstructions() {
-		const {
-			colorBooks,
-			pattern,
-		} = this.context;
-		const {
-			dispatch,
-			numberOfRows,
-			numberOfTablets,
-			patternDesign,
-		} = this.props;
-		const {
-			patternType,
-		} = pattern;
+		const { colorBooks, pattern } = this.context;
+		const { dispatch, numberOfRows, numberOfTablets, patternDesign } =
+			this.props;
+		const { patternType } = pattern;
 
 		let weavingInstructions;
 
@@ -646,17 +675,22 @@ class Pattern extends PureComponent {
 		const { updatePreviewWhileEditing } = this.props;
 
 		return (
-			<div className="update-preview-control custom-checkbox custom-control">
+			<div className='display-option-control custom-checkbox custom-control'>
 				<input
 					checked={updatePreviewWhileEditing}
-					type="checkbox"
-					id="updatePreviewControl"
-					className="custom-control-input"
-					name="updatePreviewControl"
+					type='checkbox'
+					id='updatePreviewControl'
+					className='custom-control-input'
+					name='updatePreviewControl'
 					onChange={this.handleChangeUpdatePreviewWhileEditing}
 					onBlur={this.handleChangeUpdatePreviewWhileEditing}
 				/>
-				<label className="custom-control-label" htmlFor="updatePreviewControl">Update woven band while editing</label>
+				<label
+					className='custom-control-label'
+					htmlFor='updatePreviewControl'
+				>
+					Update woven band while editing
+				</label>
 			</div>
 		);
 	}
@@ -665,17 +699,22 @@ class Pattern extends PureComponent {
 		const { showStartPosition } = this.state;
 
 		return (
-			<div className="show-start-position-control custom-checkbox custom-control">
+			<div className='display-option-control custom-checkbox custom-control'>
 				<input
 					checked={showStartPosition}
-					type="checkbox"
-					id="updateShowStartPositionControl"
-					className="custom-control-input"
-					name="updateShowStartPositionControl"
+					type='checkbox'
+					id='updateShowStartPositionControl'
+					className='custom-control-input'
+					name='updateShowStartPositionControl'
 					onChange={this.handleChangeShowStartPosition}
 					onBlur={this.handleChangeShowStartPosition}
 				/>
-				<label className="custom-control-label" htmlFor="updateShowStartPositionControl">Highlight rows where all tablets are at their start position</label>
+				<label
+					className='custom-control-label'
+					htmlFor='updateShowStartPositionControl'
+				>
+					Highlight rows where all tablets are at their start position
+				</label>
 			</div>
 		);
 	}
@@ -684,28 +723,27 @@ class Pattern extends PureComponent {
 		const { showBackOfBand } = this.state;
 
 		return (
-			<div className="show-back-of-band-control custom-checkbox custom-control">
+			<div className='display-option-control custom-checkbox custom-control'>
 				<input
 					checked={showBackOfBand}
-					type="checkbox"
-					id="updateShowBackOfBandControl"
-					className="custom-control-input"
-					name="updateShowBackOfBandControl"
+					type='checkbox'
+					id='updateShowBackOfBandControl'
+					className='custom-control-input'
+					name='updateShowBackOfBandControl'
 					onChange={this.handleChangeShowBackOfBand}
 					onBlur={this.handleChangeShowBackOfBand}
 				/>
-				<label className="custom-control-label" htmlFor="updateShowBackOfBandControl">Show the back of the band</label>
+				<label
+					className='custom-control-label'
+					htmlFor='updateShowBackOfBandControl'
+				>
+					Show the back of the band
+				</label>
 			</div>
 		);
 	}
 
-	renderPreview({
-		_id,
-		canEdit,
-		pattern,
-		previewOrientation,
-		showBackOfBand,
-	}) {
+	renderPreview({ _id, canEdit, pattern, previewOrientation, showBackOfBand }) {
 		const {
 			dispatch,
 			holes,
@@ -720,12 +758,12 @@ class Pattern extends PureComponent {
 		const { showStartPosition } = this.state;
 
 		return (
-			<div className="preview-outer">
+			<div className='preview-outer'>
 				<h2>{showBackOfBand ? 'Back of woven band' : 'Woven band'}</h2>
-				{canEdit && (
+				{canEdit && previewOrientation && (
 					<PreviewOrientation
 						_id={_id}
-						disabled={(isEditing && !updatePreviewWhileEditing) ? 'disabled' : ''}
+						disabled={isEditing && !updatePreviewWhileEditing ? 'disabled' : ''}
 						dispatch={dispatch}
 						previewOrientation={previewOrientation}
 					/>
@@ -746,12 +784,7 @@ class Pattern extends PureComponent {
 		);
 	}
 
-	renderTabContent({
-		colorBooks,
-		createdByUser,
-		patternImages,
-		pattern,
-	}) {
+	renderTabContent({ colorBooks, createdByUser, patternImages, pattern }) {
 		const { showBackOfBand } = this.state;
 
 		const {
@@ -815,16 +848,23 @@ class Pattern extends PureComponent {
 				}
 
 				tabContent = (
-					<div className={`tab-content ${(isEditing && !updatePreviewWhileEditing) ? 'is-editing' : ''} ${previewClassName}`}>
-						<TwistCalculationHints
-							canEdit={canEdit}
-							includeInTwist={includeInTwist}
-							patternIsTwistNeutral={patternIsTwistNeutral}
-							patternType={patternType}
-							patternWillRepeat={patternWillRepeat}
-							previewOrientation={previewOrientation}
-							repeats={getNumberOfRepeats(numberOfRows)}
-						/>
+					<div
+						className={`tab-content ${
+							isEditing && !updatePreviewWhileEditing ? 'is-editing' : ''
+						} ${previewClassName}`}
+					>
+						{/* if navigating from the home page, the pattern summary is in MiniMongo before Tracker sets isLoading to true. This doesn't include the detail fields so we need to prevent errors. */}
+						{previewOrientation && (
+							<TwistCalculationHints
+								canEdit={canEdit}
+								includeInTwist={includeInTwist}
+								patternIsTwistNeutral={patternIsTwistNeutral}
+								patternType={patternType}
+								patternWillRepeat={patternWillRepeat}
+								previewOrientation={previewOrientation}
+								repeats={getNumberOfRepeats(numberOfRows)}
+							/>
+						)}
 						<Weft
 							colorBooks={colorBooks}
 							dispatch={dispatch}
@@ -832,34 +872,38 @@ class Pattern extends PureComponent {
 						/>
 						{this.renderUpdatePreviewControl()}
 						{includeInTwist && this.renderShowStartPositionControl()}
-						{includeInTwist && holes % 2 === 0 && this.renderShowBackOfBandControl()}
-						{!previewAtSide && this.renderPreview({
-							_id,
-							canEdit,
-							pattern,
-							previewOrientation,
-							showBackOfBand,
-						})}
-						<div className="orientation-change-container">
-							<div className="weaving-outer">
-								{pattern.patternDesign && this.renderWeavingInstructions()}
-							</div>
-							{previewAtSide && this.renderPreview({
+						{includeInTwist &&
+							holes % 2 === 0 &&
+							this.renderShowBackOfBandControl()}
+						{!previewAtSide &&
+							this.renderPreview({
 								_id,
 								canEdit,
 								pattern,
 								previewOrientation,
 								showBackOfBand,
 							})}
+						<div className='orientation-change-container'>
+							<div className='weaving-outer'>
+								{pattern.patternDesign && this.renderWeavingInstructions()}
+							</div>
+							{previewAtSide &&
+								this.renderPreview({
+									_id,
+									canEdit,
+									pattern,
+									previewOrientation,
+									showBackOfBand,
+								})}
 						</div>
 						<EditableText
 							canEdit={canEdit}
-							editButtonText="Edit weaving notes"
-							fieldName="weavingNotes"
+							editButtonText='Edit weaving notes'
+							fieldName='weavingNotes'
 							onClickSave={this.onClickEditableTextSave}
 							optional={true}
-							title="Weaving notes"
-							type="textarea"
+							title='Weaving notes'
+							type='textarea'
 							fieldValue={weavingNotes}
 						/>
 						<h2>Threading chart</h2>
@@ -876,12 +920,12 @@ class Pattern extends PureComponent {
 						)}
 						<EditableText
 							canEdit={canEdit}
-							editButtonText="Edit threading notes"
-							fieldName="threadingNotes"
+							editButtonText='Edit threading notes'
+							fieldName='threadingNotes'
 							onClickSave={this.onClickEditableTextSave}
 							optional={true}
-							title="Threading notes"
-							type="textarea"
+							title='Threading notes'
+							type='textarea'
 							fieldValue={threadingNotes}
 						/>
 						<Notation
@@ -896,9 +940,15 @@ class Pattern extends PureComponent {
 
 			case 'info':
 				tabContent = (
-					<div className="tab-content">
-						<p>Created by: <Link to={`/user/${createdBy}`} className="created-by">
-							{createdByUser && createdByUser.username}</Link>
+					<div className='tab-content'>
+						<p>
+							Created by:{' '}
+							<Link
+								to={`/user/${createdBy}`}
+								className='created-by'
+							>
+								{createdByUser && createdByUser.username}
+							</Link>
 						</p>
 						{canEdit && this.renderIsPublic()}
 						<p>Number of holes: {holes}</p>
@@ -906,17 +956,20 @@ class Pattern extends PureComponent {
 						{this.renderTagInput(canEdit)}
 						<EditableText
 							canEdit={canEdit}
-							editButtonText="Edit description"
-							fieldName="description"
+							editButtonText='Edit description'
+							fieldName='description'
 							onClickSave={this.onClickEditableTextSave}
 							optional={true}
-							title="Description"
-							type="textarea"
+							title='Description'
+							type='textarea'
 							fieldValue={description}
 						/>
 						{(canEdit || patternImages.length > 0) && <h2>Images</h2>}
-						{canAddPatternImage && canEdit && this.renderImageUploader(pattern._id)}
-						{patternImages.length > 0 && this.renderImages({ canEdit, patternImages })}
+						{canAddPatternImage &&
+							canEdit &&
+							this.renderImageUploader(pattern._id)}
+						{patternImages.length > 0 &&
+							this.renderImages({ canEdit, patternImages })}
 					</div>
 				);
 				break;
@@ -929,24 +982,11 @@ class Pattern extends PureComponent {
 	}
 
 	render() {
-		const {
-			dispatch,
-			errors,
-			isLoading,
-			tab,
-		} = this.props;
+		const { dispatch, errors, isLoading, tab } = this.props;
 
-		const {
-			showCopyIDSuccess,
-			showCopyUrlSuccess,
-		} = this.state;
+		const { showCopyIDSuccess, showCopyUrlSuccess } = this.state;
 
-		const {
-			colorBooks,
-			createdByUser,
-			patternImages,
-			pattern,
-		} = this.context;
+		const { colorBooks, createdByUser, patternImages, pattern } = this.context;
 
 		let content = <Loading />;
 
@@ -955,17 +995,13 @@ class Pattern extends PureComponent {
 				const { _id } = pattern;
 
 				const tabs = (
-					<div className="main-tabs">
+					<div className='main-tabs'>
 						<ul>
 							<li className={`design ${tab === 'design' ? 'selected' : ''}`}>
-								<Link to={`/pattern/${_id}/design`}>
-								Pattern design
-								</Link>
+								<Link to={`/pattern/${_id}/design`}>Pattern design</Link>
 							</li>
 							<li className={`info ${tab === 'info' ? 'selected' : ''}`}>
-								<Link to={`/pattern/${_id}/info`}>
-								Pattern info
-								</Link>
+								<Link to={`/pattern/${_id}/info`}>Pattern info</Link>
 							</li>
 						</ul>
 					</div>
@@ -973,9 +1009,19 @@ class Pattern extends PureComponent {
 
 				const links = (
 					<>
-						<div className="links">
-							<Link className="btn btn-primary" to={`/pattern/${_id}/print-view`}>Printer-friendly pattern</Link>
-							<Link className="btn btn-primary" to={`/pattern/${_id}/weaving`}>Interactive weaving chart</Link>
+						<div className='links'>
+							<Link
+								className='btn btn-primary'
+								to={`/pattern/${_id}/print-view`}
+							>
+								Printer-friendly pattern
+							</Link>
+							<Link
+								className='btn btn-primary'
+								to={`/pattern/${_id}/weaving`}
+							>
+								Interactive weaving chart
+							</Link>
 						</div>
 					</>
 				);
@@ -994,7 +1040,12 @@ class Pattern extends PureComponent {
 					</>
 				);
 			} else {
-				content = <p>Either this pattern does not exist or you do not have permission to view it</p>;
+				content = (
+					<p>
+						Either this pattern does not exist or you do not have permission to
+						view it
+					</p>
+				);
 			}
 		}
 
@@ -1029,68 +1080,62 @@ class Pattern extends PureComponent {
 Pattern.contextType = AppContext;
 
 Pattern.propTypes = {
-	'canAddPatternImage': PropTypes.bool.isRequired,
-	'canPublish': PropTypes.bool.isRequired,
-	'dispatch': PropTypes.func.isRequired,
-	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
-	'holeHandedness': PropTypes.string,
-	'holes': PropTypes.number.isRequired,
-	'isEditing': PropTypes.bool.isRequired,
-	'isEditingThreading': PropTypes.bool.isRequired,
-	'isEditingWeaving': PropTypes.bool.isRequired,
-	'isLoading': PropTypes.bool.isRequired,
-	'numberOfRows': PropTypes.number.isRequired,
-	'numberOfRowsForChart': PropTypes.number.isRequired,
-	'numberOfTablets': PropTypes.number.isRequired,
-	'patternDesign': PropTypes.objectOf(PropTypes.any).isRequired,
-	'patternIsTwistNeutral': PropTypes.bool,
-	'patternWillRepeat': PropTypes.bool,
-	'rowsAtStartPosition': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'tab': PropTypes.string.isRequired,
-	'totalTurnsByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'updatePreviewWhileEditing': PropTypes.bool.isRequired,
+	canAddPatternImage: PropTypes.bool.isRequired,
+	canPublish: PropTypes.bool.isRequired,
+	dispatch: PropTypes.func.isRequired,
+	errors: PropTypes.objectOf(PropTypes.any).isRequired,
+	holeHandedness: PropTypes.string,
+	holes: PropTypes.number.isRequired,
+	isEditing: PropTypes.bool.isRequired,
+	isEditingThreading: PropTypes.bool.isRequired,
+	isEditingWeaving: PropTypes.bool.isRequired,
+	isLoading: PropTypes.bool.isRequired,
+	numberOfRows: PropTypes.number.isRequired,
+	numberOfRowsForChart: PropTypes.number.isRequired,
+	numberOfTablets: PropTypes.number.isRequired,
+	patternDesign: PropTypes.objectOf(PropTypes.any).isRequired,
+	patternIsTwistNeutral: PropTypes.bool,
+	patternWillRepeat: PropTypes.bool,
+	rowsAtStartPosition: PropTypes.arrayOf(PropTypes.any).isRequired,
+	tab: PropTypes.string.isRequired,
+	totalTurnsByTablet: PropTypes.arrayOf(PropTypes.any).isRequired,
+	updatePreviewWhileEditing: PropTypes.bool.isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
-	const {
-		isEditingThreading,
-		isEditingWeaving,
-		patternType,
-	} = state.pattern;
+	const { isEditingThreading, isEditingWeaving, patternType } = state.pattern;
 
 	// defaults for freehand pattern
-	const {
-		patternIsTwistNeutral,
-		patternWillRepeat,
-		rowsAtStartPosition,
-	} = getPatternTwistSelector(state);
+	const { patternIsTwistNeutral, patternWillRepeat, rowsAtStartPosition } =
+		getPatternTwistSelector(state);
 	let totalTurnsByTablet = [];
 
-	if (patternType !== 'freehand') { // all simulation patterns
+	if (patternType !== 'freehand') {
+		// all simulation patterns
 		totalTurnsByTablet = getTotalTurnsByTabletSelector(state);
 	}
 
 	// pattern chart info like numberOfRows must be got from store or it may not be correct
 	return {
-		'canAddPatternImage': getCanAddPatternImage(state),
-		'canPublish': getCanPublish(state),
-		'errors': state.errors,
-		'holeHandedness': getHoleHandedness(state),
-		'holes': getHoles(state),
-		'isEditing': getIsEditing(state),
-		'isLoading': getIsLoading(state),
+		canAddPatternImage: getCanAddPatternImage(state),
+		canPublish: getCanPublish(state),
+		errors: state.errors,
+		holeHandedness: getHoleHandedness(state),
+		holes: getHoles(state),
+		isEditing: getIsEditing(state),
+		isLoading: getIsLoading(state),
 		isEditingThreading,
 		isEditingWeaving,
-		'numberOfRows': getNumberOfRows(state),
-		'numberOfRowsForChart': getNumberOfRowsForChart(state),
-		'numberOfTablets': getNumberOfTablets(state),
-		'patternDesign': getPatternDesign(state),
+		numberOfRows: getNumberOfRows(state),
+		numberOfRowsForChart: getNumberOfRowsForChart(state),
+		numberOfTablets: getNumberOfTablets(state),
+		patternDesign: getPatternDesign(state),
 		patternIsTwistNeutral,
 		patternWillRepeat,
 		rowsAtStartPosition,
-		'tab': ownProps.match.params.tab || 'design',
+		tab: ownProps.match.params.tab || 'design',
 		totalTurnsByTablet,
-		'updatePreviewWhileEditing': state.pattern.updatePreviewWhileEditing,
+		updatePreviewWhileEditing: state.pattern.updatePreviewWhileEditing,
 	};
 }
 

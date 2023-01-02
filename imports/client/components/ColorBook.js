@@ -9,7 +9,7 @@ class ColorBook extends PureComponent {
 		super(props);
 
 		this.state = {
-			'selectedColorIndex': 0,
+			selectedColorIndex: 0,
 		};
 
 		// Edit color book is rendered to the body element
@@ -28,11 +28,11 @@ class ColorBook extends PureComponent {
 
 	handleClickColor(index) {
 		const {
-			'colorBook': { colors },
+			colorBook: { colors },
 			onSelectColor,
 		} = this.props;
 		this.setState({
-			'selectedColorIndex': index,
+			selectedColorIndex: index,
 		});
 
 		const color = colors[index];
@@ -52,62 +52,58 @@ class ColorBook extends PureComponent {
 				title={`Thread colour ${color}`}
 			>
 				<span // eslint-disable-line jsx-a11y/control-has-associated-label
-					className={`color ${isEditing && (selectedColorIndex === index) ? 'selected' : ''} ${disabled ? 'disabled' : ''}`}
+					className={`color ${
+						isEditing && selectedColorIndex === index ? 'selected' : ''
+					} ${disabled ? 'disabled' : ''}`}
 					key={identifier}
 					onClick={() => this.handleClickColor(index)}
 					onKeyPress={() => this.handleClickColor(index)}
-					role="button"
-					style={{ 'backgroundColor': color }}
-					tabIndex="0"
+					role='button'
+					style={{ backgroundColor: color }}
+					tabIndex='0'
 				/>
 			</label>
 		);
 	}
 
 	renderEditColorBookPanel() {
-		const {
-			colorBook,
-			context,
-			dispatch,
-			handleEditColorBook,
-		} = this.props;
+		const { colorBook, context, dispatch, handleEditColorBook } = this.props;
 
-		return (
-			ReactDOM.createPortal(
-				<div className="wrapper">
-					<EditColorBook
-						colorBook={colorBook}
-						context={context}
-						dispatch={dispatch}
-						handleClickDone={() => handleEditColorBook(false)}
-					/>
-				</div>,
-				this.el,
-			)
+		return ReactDOM.createPortal(
+			<div className='wrapper'>
+				<EditColorBook
+					colorBook={colorBook}
+					context={context}
+					dispatch={dispatch}
+					handleClickDone={() => handleEditColorBook(false)}
+				/>
+			</div>,
+			this.el
 		);
 	}
 
 	render() {
 		const {
-			'colorBook': { colors },
+			colorBook: { colors },
 			context,
 			isEditing,
 		} = this.props;
 
-		const hintText = context === 'user'
-			? 'A set of reusable colour swatches that you can assign to any workinig palette.'
-			: 'Select a colour swatch above to assign that colour to the selected cell in the working palette below.';
+		const hintText =
+			context === 'user'
+				? 'A set of reusable colour swatches that you can assign to any working palette.'
+				: 'Select a colour swatch above to assign that colour to the selected cell in the working palette below.';
 
 		const colorsElm = (
-			<div className="colors">
+			<div className='colors'>
 				{colors.map((color, index) => this.renderColor(color, index))}
 			</div>
 		);
 
 		return (
-			<div className="color-book">
+			<div className='color-book'>
 				{colorsElm}
-				{<p className="hint">{hintText}</p>}
+				{<p className='hint'>{hintText}</p>}
 				{isEditing && this.renderEditColorBookPanel()}
 			</div>
 		);
@@ -115,13 +111,13 @@ class ColorBook extends PureComponent {
 }
 
 ColorBook.propTypes = {
-	'colorBook': PropTypes.objectOf(PropTypes.any).isRequired,
-	'context': PropTypes.string,
-	'disabled': PropTypes.bool.isRequired,
-	'dispatch': PropTypes.func.isRequired,
-	'handleEditColorBook': PropTypes.func.isRequired,
-	'isEditing': PropTypes.bool.isRequired,
-	'onSelectColor': PropTypes.func,
+	colorBook: PropTypes.objectOf(PropTypes.any).isRequired,
+	context: PropTypes.string,
+	disabled: PropTypes.bool.isRequired,
+	dispatch: PropTypes.func.isRequired,
+	handleEditColorBook: PropTypes.func.isRequired,
+	isEditing: PropTypes.bool.isRequired,
+	onSelectColor: PropTypes.func,
 };
 
 export default ColorBook;

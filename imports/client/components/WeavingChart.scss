@@ -1,4 +1,4 @@
-@import "../constants/variables";
+@import '../constants/variables';
 
 .weaving-chart-holder {
 	clear: both;
@@ -37,7 +37,6 @@
 			overflow: hidden;
 
 			span {
-
 				display: inline-block;
 				height: 32px;
 				width: 32px;
@@ -89,6 +88,8 @@
 
 	.highlight {
 		height: 100%;
+		margin: 0;
+		padding: 0;
 		position: absolute;
 		width: 100%;
 

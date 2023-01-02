@@ -77,7 +77,8 @@ export const UPDATE_FREEHAND_CELL_THREAD = 'UPDATE_FREEHAND_CELL_THREAD';
 export const UPDATE_FREEHAND_CELL_DIRECTION = 'UPDATE_FREEHAND_CELL_DIRECTION';
 
 // more than one patternType
-export const SET_UPDATE_PREVIEW_WHILE_EDITING = 'SET_UPDATE_PREVIEW_WHILE_EDITING';
+export const SET_UPDATE_PREVIEW_WHILE_EDITING =
+	'SET_UPDATE_PREVIEW_WHILE_EDITING';
 export const UPDATE_THREADING_CELL = 'UPDATE_THREADING_CELL';
 export const UPDATE_INCLUDE_IN_TWIST = 'UPDATE_INCLUDE_IN_TWIST';
 export const UPDATE_ORIENTATION = 'UPDATE_ORIENTATION';
@@ -103,15 +104,15 @@ export const REMOVE_TABLET_FILTER = 'REMOVE_TABLET_FILTER';
 // userId is mainly used for filters, so number of patterns can be checked without the component knowing the userId
 export function setPatternCountUserId(userId) {
 	return {
-		'type': SET_PATTERN_COUNT_USERID,
-		'payload': userId,
+		type: SET_PATTERN_COUNT_USERID,
+		payload: userId,
 	};
 }
 
 export function setPatternCount(patternCount) {
 	return {
-		'type': SET_PATTERN_COUNT,
-		'payload': patternCount,
+		type: SET_PATTERN_COUNT,
+		payload: patternCount,
 	};
 }
 
@@ -125,19 +126,23 @@ export const getPatternCount = () => (dispatch, getState) => {
 		patternCountUserId,
 	} = getState().pattern;
 
-	Meteor.call('pattern.getPatternCount', {
-		filterIsTwistNeutral,
-		filterMaxTablets,
-		filterMinTablets,
-		filterWillRepeat,
-		'userId': patternCountUserId,
-	}, (error, result) => {
-		if (error) {
-			return dispatch(logErrors({ 'get pattern count': error.reason }));
-		}
+	Meteor.call(
+		'pattern.getPatternCount',
+		{
+			filterIsTwistNeutral,
+			filterMaxTablets,
+			filterMinTablets,
+			filterWillRepeat,
+			userId: patternCountUserId,
+		},
+		(error, result) => {
+			if (error) {
+				return dispatch(logErrors({ 'get pattern count': error.reason }));
+			}
 
-		dispatch(setPatternCount(result));
-	});
+			dispatch(setPatternCount(result));
+		}
+	);
 };
 
 // User.js needs to set pattern count immediately
@@ -153,40 +158,44 @@ export const updatePatternCountUserId = (userId) => (dispatch, getState) => {
 	dispatch(setPatternCount(0));
 	dispatch(setPatternCountUserId(userId));
 
-	Meteor.call('pattern.getPatternCount', {
-		filterIsTwistNeutral,
-		filterMaxTablets,
-		filterMinTablets,
-		filterWillRepeat,
-		userId,
-	}, (error, result) => {
-		if (error) {
-			return dispatch(logErrors({ 'update pattern count': error.reason }));
-		}
+	Meteor.call(
+		'pattern.getPatternCount',
+		{
+			filterIsTwistNeutral,
+			filterMaxTablets,
+			filterMinTablets,
+			filterWillRepeat,
+			userId,
+		},
+		(error, result) => {
+			if (error) {
+				return dispatch(logErrors({ 'update pattern count': error.reason }));
+			}
 
-		dispatch(setPatternCount(result));
-	});
+			dispatch(setPatternCount(result));
+		}
+	);
 };
 
 // waiting for data subscription to be ready
 export function setIsLoading(isLoading) {
 	return {
-		'type': SET_ISLOADING,
-		'payload': isLoading,
+		type: SET_ISLOADING,
+		payload: isLoading,
 	};
 }
 
 export function setIsEditingWeaving(isEditingWeaving) {
 	return {
-		'type': SET_IS_EDITING_WEAVING,
-		'payload': isEditingWeaving,
+		type: SET_IS_EDITING_WEAVING,
+		payload: isEditingWeaving,
 	};
 }
 
 export function setIsEditingThreading(isEditingThreading) {
 	return {
-		'type': SET_IS_EDITING_THREADING,
-		'payload': isEditingThreading,
+		type: SET_IS_EDITING_THREADING,
+		payload: isEditingThreading,
 	};
 }
 
@@ -194,22 +203,22 @@ export function setIsEditingThreading(isEditingThreading) {
 // save pattern data in store for calculating charts
 export function setPatternId(_id) {
 	return {
-		'type': SET_PATTERN_ID,
-		'payload': _id,
+		type: SET_PATTERN_ID,
+		payload: _id,
 	};
 }
 // build and save the weaving instructions from pattern design
 export function setWeavingInstructions(weavingInstructionsByTablet) {
 	return {
-		'type': SET_WEAVING_INSTRUCTIONS,
-		'payload': weavingInstructionsByTablet,
+		type: SET_WEAVING_INSTRUCTIONS,
+		payload: weavingInstructionsByTablet,
 	};
 }
 
 export function clearPatternData() {
 	return {
-		'type': CLEAR_PATTERN_DATA,
-		'payload': false,
+		type: CLEAR_PATTERN_DATA,
+		payload: false,
 	};
 }
 
@@ -230,8 +239,8 @@ export function setPatternData({
 	} = patternObj;
 
 	return {
-		'type': SET_PATTERN_DATA,
-		'payload': {
+		type: SET_PATTERN_DATA,
+		payload: {
 			holes,
 			includeInTwist,
 			numberOfRows,
@@ -248,13 +257,10 @@ export function setPatternData({
 
 // build chart data and save it in the store
 export const savePatternData = (patternObj) => (dispatch) => {
-	const {
-		numberOfRows,
-		numberOfTablets,
-		patternDesign,
-		patternType,
-	} = patternObj;
-	const weavingInstructionsByTablet = buildWeavingInstructionsByTablet(patternObj);
+	const { numberOfRows, numberOfTablets, patternDesign, patternType } =
+		patternObj;
+	const weavingInstructionsByTablet =
+		buildWeavingInstructionsByTablet(patternObj);
 
 	dispatch(setWeavingInstructions(weavingInstructionsByTablet));
 
@@ -281,12 +287,14 @@ export const savePatternData = (patternObj) => (dispatch) => {
 			break;
 	}
 
-	dispatch(setPatternData({
-		picks,
-		patternDesign,
-		patternObj,
-		threadingByTablet,
-	}));
+	dispatch(
+		setPatternData({
+			picks,
+			patternDesign,
+			patternObj,
+			threadingByTablet,
+		})
+	);
 };
 
 // ///////////////////////////
@@ -303,11 +311,7 @@ export const getNumberOfRows = (state) => state.pattern.numberOfRows || 0;
 
 // chart may be truncated for broken twill
 export const getNumberOfRowsForChart = (state) => {
-	const {
-		numberOfRows,
-		patternDesign,
-		patternType,
-	} = state.pattern;
+	const { numberOfRows, patternDesign, patternType } = state.pattern;
 
 	let numberOfRowsForChart = numberOfRows || 0;
 
@@ -324,15 +328,15 @@ export const getHoles = (state) => state.pattern.holes;
 
 export const getPalette = (state) => state.pattern.palette;
 
-export const getHoleHandedness = (state) => (state.pattern.patternDesign ? state.pattern.patternDesign.holeHandedness : undefined);
+export const getHoleHandedness = (state) =>
+	state.pattern.patternDesign
+		? state.pattern.patternDesign.holeHandedness
+		: undefined;
 
 export const getPicks = (state) => state.pattern.picks;
 
 export const getPicksForChart = (state) => {
-	const {
-		patternDesign,
-		patternType,
-	} = state.pattern;
+	const { patternDesign, patternType } = state.pattern;
 
 	const picks = [...state.pattern.picks];
 
@@ -346,21 +350,20 @@ export const getPicksForChart = (state) => {
 	return picks;
 };
 
-export const getPick = (state, tabletIndex, rowIndex) => state.pattern.picks[tabletIndex][rowIndex];
+export const getPick = (state, tabletIndex, rowIndex) =>
+	state.pattern.picks[tabletIndex][rowIndex];
 
-export const getPicksForTablet = (state, tabletIndex) => state.pattern.picks[tabletIndex];
+export const getPicksForTablet = (state, tabletIndex) =>
+	state.pattern.picks[tabletIndex];
 
 // picks may be truncated for broken twill
 export const getPicksForTabletForChart = (state, tabletIndex) => {
-	const {
-		numberOfTablets,
-		patternDesign,
-		patternType,
-	} = state.pattern;
+	const { numberOfTablets, patternDesign, patternType } = state.pattern;
 
 	let picksForTablet = [];
 
-	if (tabletIndex < numberOfTablets) { // can happen when preview re-renders after remove tablet
+	if (tabletIndex < numberOfTablets) {
+		// can happen when preview re-renders after remove tablet
 		picksForTablet = [...state.pattern.picks[tabletIndex]];
 
 		if (patternType === 'brokenTwill') {
@@ -377,7 +380,8 @@ export const getPickForChart = (state, tabletIndex, rowIndex) => {
 	return picksForTablet[rowIndex];
 };
 
-export const getThreadingForTablet = (state, tabletIndex) => state.pattern.threadingByTablet[tabletIndex];
+export const getThreadingForTablet = (state, tabletIndex) =>
+	state.pattern.threadingByTablet[tabletIndex];
 
 // used for the threading chart
 export const getThreadingForHole = ({
@@ -392,9 +396,7 @@ export const getThreadingForHole = ({
 	if (threadingByTablet) {
 		// broken twill displays an offset threading diagram
 		// based on the weaving start row
-		const {
-			patternType,
-		} = state.pattern;
+		const { patternType } = state.pattern;
 
 		let offsetThreadingByTablet = threadingByTablet;
 		let currentRow = 1;
@@ -407,15 +409,11 @@ export const getThreadingForHole = ({
 		}
 
 		if (typeof weavingStartRow !== 'undefined') {
-			currentRow += (weavingStartRow - 1); // if starting on row 3, this is offset 2 from row 1
+			currentRow += weavingStartRow - 1; // if starting on row 3, this is offset 2 from row 1
 		}
 
 		if (currentRow) {
-			const {
-				holes,
-				numberOfTablets,
-				picks,
-			} = state.pattern;
+			const { holes, numberOfTablets, picks } = state.pattern;
 
 			offsetThreadingByTablet = buildOffsetThreading({
 				holes,
@@ -432,17 +430,26 @@ export const getThreadingForHole = ({
 	return undefined;
 };
 
-export const getTotalTurnsByTablet = (state) => state.pattern.picks.map((picksForTablet) => picksForTablet[state.pattern.numberOfRows - 1].totalTurns);
+export const getTotalTurnsByTablet = (state) =>
+	state.pattern.picks.map(
+		(picksForTablet) =>
+			picksForTablet[state.pattern.numberOfRows - 1].totalTurns
+	);
 
 export const getIncludeInTwist = (state) => state.pattern.includeInTwist;
 
-export const getIncludeInTwistForTablet = (state, tabletIndex) => state.pattern.includeInTwist && state.pattern.includeInTwist[tabletIndex]; // freehand patterns do not have includeInTwist; avoid error.
+export const getIncludeInTwistForTablet = (state, tabletIndex) =>
+	state.pattern.includeInTwist && state.pattern.includeInTwist[tabletIndex]; // freehand patterns do not have includeInTwist; avoid error.
 
-export const getOrientationForTablet = (state, tabletIndex) => state.pattern.orientations[tabletIndex];
+export const getOrientationForTablet = (state, tabletIndex) =>
+	state.pattern.orientations[tabletIndex];
 
-export const getIsEditing = (state) => state.pattern.isEditingWeaving || state.pattern.isEditingThreading;
+export const getIsEditing = (state) =>
+	state.pattern.isEditingWeaving || state.pattern.isEditingThreading;
 
-export const getPreviewShouldUpdate = (state) => (!state.pattern.isEditingWeaving && !state.pattern.isEditingThreading) || state.pattern.updatePreviewWhileEditing;
+export const getPreviewShouldUpdate = (state) =>
+	(!state.pattern.isEditingWeaving && !state.pattern.isEditingThreading) ||
+	state.pattern.updatePreviewWhileEditing;
 
 // ///////////////////////
 // cached selectors to provide props without triggering re-render
@@ -461,16 +468,17 @@ export const getPatternTwistSelector = createSelector(
 		numberOfTablets,
 		patternDesign,
 		patternType,
-		picks,
-	) => findPatternTwist({
-		holes,
-		includeInTwist,
-		numberOfRows,
-		numberOfTablets,
-		patternDesign,
-		patternType,
-		picks,
-	}),
+		picks
+	) =>
+		findPatternTwist({
+			holes,
+			includeInTwist,
+			numberOfRows,
+			numberOfTablets,
+			patternDesign,
+			patternType,
+			picks,
+		})
 );
 
 export const getTotalTurnsByTabletSelector = createSelector(
@@ -478,17 +486,15 @@ export const getTotalTurnsByTabletSelector = createSelector(
 	getPatternDesign,
 	getPatternType,
 	getPicks,
-	(
-		numberOfRows,
-		patternDesign,
-		patternType,
-		picks,
-	) => picks.map((picksForTablet) => getTotalTurnsForTablet({
-		numberOfRows,
-		patternDesign,
-		patternType,
-		picksForTablet,
-	})),
+	(numberOfRows, patternDesign, patternType, picks) =>
+		picks.map((picksForTablet) =>
+			getTotalTurnsForTablet({
+				numberOfRows,
+				patternDesign,
+				patternType,
+				picksForTablet,
+			})
+		)
 );
 
 // ///////////////////////////
@@ -514,7 +520,8 @@ export const removePattern = (_id, history) => (dispatch) => {
 		}
 	});
 
-	if (history) { // if deleting from Home page, no need to redirect
+	if (history) {
+		// if deleting from Home page, no need to redirect
 		history.push(`/`);
 	}
 };
@@ -537,13 +544,16 @@ export const downloadPattern = (_id, patternObj) => (dispatch) => {
 	const text = patternAsText(_id, patternObj);
 	const { name } = patternObj;
 	const filename = filenamify(name, {
-		'replacement': '_',
-		'maxLength': 100000, // 0.1MB
+		replacement: '_',
+		maxLength: 100000, // 0.1MB
 	});
 
 	const element = document.createElement('a');
 
-	element.setAttribute('href', `data:text/plain;charset=utf-8,${encodeURIComponent(text)}`);
+	element.setAttribute(
+		'href',
+		`data:text/plain;charset=utf-8,${encodeURIComponent(text)}`
+	);
 	element.setAttribute('download', `${filename}.twt`);
 
 	element.style.display = 'none';
@@ -554,88 +564,101 @@ export const downloadPattern = (_id, patternObj) => (dispatch) => {
 	document.body.removeChild(element);
 };
 
-export const importPatternFromText = ({ filename, text, history }) => (dispatch) => {
-	dispatch(clearErrors());
+export const importPatternFromText =
+	({ filename, text, history }) =>
+	(dispatch) => {
+		dispatch(clearErrors());
 
-	const { isValid, patternObj } = newPatternFromFile({ filename, text });
+		const { isValid, patternObj } = newPatternFromFile({ filename, text });
 
-	// console.log('isValid', isValid);
-	// console.log('patternObj', patternObj);
+		// send to server
+		if (isValid) {
+			Meteor.call(
+				'pattern.newPatternFromData',
+				{
+					patternObj,
+				},
+				(error, result) => {
+					if (error) {
+						return dispatch(
+							logErrors({ 'add new pattern from data': error.reason })
+						);
+					}
 
-	// send to server
-	if (isValid) {
-		Meteor.call('pattern.newPatternFromData', {
-			patternObj,
-		}, (error, result) => {
-			if (error) {
-				return dispatch(logErrors({ 'add new pattern from data': error.reason }));
-			}
-
-			history.push(`/pattern/${result}`);
-		});
-	} else {
-		dispatch(logErrors({ 'add new pattern from data': 'file is not valid. Imported file must be a Twisted Threads or Guntram\'s Tablet Weaving Thingy file.' }));
-	}
-};
+					history.push(`/pattern/${result}`);
+				}
+			);
+		} else {
+			dispatch(
+				logErrors({
+					'add new pattern from data':
+						"file is not valid. Imported file must be a Twisted Threads or Guntram's Tablet Weaving Thingy file.",
+				})
+			);
+		}
+	};
 
 // Edit pattern
 // Pattern as a whole
-export function editIsPublic({
-	_id,
-	isPublic,
-}) {
+export function editIsPublic({ _id, isPublic }) {
 	return (dispatch) => {
-		Meteor.call('pattern.edit', {
-			_id,
-			'data': {
-				'type': 'editIsPublic',
-				isPublic,
+		Meteor.call(
+			'pattern.edit',
+			{
+				_id,
+				data: {
+					type: 'editIsPublic',
+					isPublic,
+				},
 			},
-		}, (error) => {
-			if (error) {
-				return dispatch(logErrors({ 'edit is public': error.reason }));
+			(error) => {
+				if (error) {
+					return dispatch(logErrors({ 'edit is public': error.reason }));
+				}
 			}
-		});
+		);
 	};
 }
 
 // is pattern twist neutral?
-export function editPatternIsTwistNeutral({
-	_id,
-	patternIsTwistNeutral,
-}) {
+export function editPatternIsTwistNeutral({ _id, patternIsTwistNeutral }) {
 	return (dispatch) => {
-		Meteor.call('pattern.edit', {
-			_id,
-			'data': {
-				'type': 'editIsTwistNeutral',
-				'isTwistNeutral': patternIsTwistNeutral,
+		Meteor.call(
+			'pattern.edit',
+			{
+				_id,
+				data: {
+					type: 'editIsTwistNeutral',
+					isTwistNeutral: patternIsTwistNeutral,
+				},
 			},
-		}, (error) => {
-			if (error) {
-				return dispatch(logErrors({ 'edit is twist neutral': error.reason }));
+			(error) => {
+				if (error) {
+					return dispatch(logErrors({ 'edit is twist neutral': error.reason }));
+				}
 			}
-		});
+		);
 	};
 }
 
 // will pattern repeat?
-export function editPatternWillRepeat({
-	_id,
-	patternWillRepeat,
-}) {
+export function editPatternWillRepeat({ _id, patternWillRepeat }) {
 	return (dispatch) => {
-		Meteor.call('pattern.edit', {
-			_id,
-			'data': {
-				'type': 'editWillRepeat',
-				'willRepeat': patternWillRepeat,
+		Meteor.call(
+			'pattern.edit',
+			{
+				_id,
+				data: {
+					type: 'editWillRepeat',
+					willRepeat: patternWillRepeat,
+				},
 			},
-		}, (error) => {
-			if (error) {
-				return dispatch(logErrors({ 'edit will repeat': error.reason }));
+			(error) => {
+				if (error) {
+					return dispatch(logErrors({ 'edit will repeat': error.reason }));
+				}
 			}
-		});
+		);
 	};
 }
 
@@ -643,45 +666,49 @@ export function editPatternWillRepeat({
 // Weaving (individual)
 export function updateWeavingCellDirection(data) {
 	return {
-		'type': UPDATE_WEAVING_CELL_DIRECTION,
-		'payload': data,
+		type: UPDATE_WEAVING_CELL_DIRECTION,
+		payload: data,
 	};
 }
 
 // change direction of this row and all followiing rows
-export function editWeavingCellDirection({
-	_id,
-	row,
-	tablet,
-}) {
+export function editWeavingCellDirection({ _id, row, tablet }) {
 	return (dispatch) => {
-		Meteor.call('pattern.edit', {
-			_id,
-			'data': {
-				'type': 'editWeavingCellDirection',
+		Meteor.call(
+			'pattern.edit',
+			{
+				_id,
+				data: {
+					type: 'editWeavingCellDirection',
+					row,
+					tablet,
+				},
 				row,
 				tablet,
 			},
-			row,
-			tablet,
-		}, (error) => {
-			if (error) {
-				return dispatch(logErrors({ 'edit weaving cell direction': error.reason }));
+			(error) => {
+				if (error) {
+					return dispatch(
+						logErrors({ 'edit weaving cell direction': error.reason })
+					);
+				}
 			}
-		});
+		);
 
-		dispatch(updateWeavingCellDirection({
-			row,
-			tablet,
-		}));
+		dispatch(
+			updateWeavingCellDirection({
+				row,
+				tablet,
+			})
+		);
 	};
 }
 
 // number of turns
 export function updateWeavingCellNumberOfTurns(data) {
 	return {
-		'type': UPDATE_WEAVING_CELL_TURNS,
-		'payload': data,
+		type: UPDATE_WEAVING_CELL_TURNS,
+		payload: data,
 	};
 }
 
@@ -692,25 +719,33 @@ export function editWeavingCellNumberOfTurns({
 	numberOfTurns,
 }) {
 	return (dispatch) => {
-		Meteor.call('pattern.edit', {
-			_id,
-			'data': {
-				'type': 'editWeavingCellNumberOfTurns',
+		Meteor.call(
+			'pattern.edit',
+			{
+				_id,
+				data: {
+					type: 'editWeavingCellNumberOfTurns',
+					row,
+					tablet,
+					numberOfTurns,
+				},
+			},
+			(error) => {
+				if (error) {
+					return dispatch(
+						logErrors({ 'edit weaving cell turns': error.reason })
+					);
+				}
+			}
+		);
+
+		dispatch(
+			updateWeavingCellNumberOfTurns({
+				numberOfTurns,
 				row,
 				tablet,
-				numberOfTurns,
-			},
-		}, (error) => {
-			if (error) {
-				return dispatch(logErrors({ 'edit weaving cell turns': error.reason }));
-			}
-		});
-
-		dispatch(updateWeavingCellNumberOfTurns({
-			numberOfTurns,
-			row,
-			tablet,
-		}));
+			})
+		);
 	};
 }
 
@@ -719,31 +754,36 @@ export function editWeavingCellNumberOfTurns({
 // number of turns
 export function updateWeavingRowDirection(data) {
 	return {
-		'type': UPDATE_WEAVING_ROW_DIRECTION,
-		'payload': data,
+		type: UPDATE_WEAVING_ROW_DIRECTION,
+		payload: data,
 	};
 }
 
-export function editWeavingRowDirection({
-	_id,
-	row,
-}) {
+export function editWeavingRowDirection({ _id, row }) {
 	return (dispatch) => {
-		Meteor.call('pattern.edit', {
-			_id,
-			'data': {
-				'type': 'editWeavingRowDirection',
-				row,
+		Meteor.call(
+			'pattern.edit',
+			{
+				_id,
+				data: {
+					type: 'editWeavingRowDirection',
+					row,
+				},
 			},
-		}, (error) => {
-			if (error) {
-				return dispatch(logErrors({ 'edit weaving row direction': error.reason }));
+			(error) => {
+				if (error) {
+					return dispatch(
+						logErrors({ 'edit weaving row direction': error.reason })
+					);
+				}
 			}
-		});
+		);
 
-		dispatch(updateWeavingRowDirection({
-			row,
-		}));
+		dispatch(
+			updateWeavingRowDirection({
+				row,
+			})
+		);
 	};
 }
 
@@ -751,36 +791,40 @@ export function editWeavingRowDirection({
 // doubleFaced
 export function updateDoubleFacedChart(data) {
 	return {
-		'type': UPDATE_DOUBLE_FACED_CHART,
-		'payload': data,
+		type: UPDATE_DOUBLE_FACED_CHART,
+		payload: data,
 	};
 }
 
-export function editDoubleFacedChart({
-	_id,
-	rowIndex,
-	tabletIndex,
-}) {
+export function editDoubleFacedChart({ _id, rowIndex, tabletIndex }) {
 	return (dispatch) => {
-		Meteor.call('pattern.edit', {
-			_id,
-			'data': {
-				'type': 'editDoubleFacedChart',
+		Meteor.call(
+			'pattern.edit',
+			{
+				_id,
+				data: {
+					type: 'editDoubleFacedChart',
+					_id,
+					rowIndex,
+					tabletIndex,
+				},
+			},
+			(error) => {
+				if (error) {
+					return dispatch(
+						logErrors({ 'edit double faced pattern chart': error.reason })
+					);
+				}
+			}
+		);
+
+		dispatch(
+			updateDoubleFacedChart({
 				_id,
 				rowIndex,
 				tabletIndex,
-			},
-		}, (error) => {
-			if (error) {
-				return dispatch(logErrors({ 'edit double faced pattern chart': error.reason }));
-			}
-		});
-
-		dispatch(updateDoubleFacedChart({
-			_id,
-			rowIndex,
-			tabletIndex,
-		}));
+			})
+		);
 	};
 }
 
@@ -788,8 +832,8 @@ export function editDoubleFacedChart({
 // brokenTwill
 export function updateTwillChart(data) {
 	return {
-		'type': UPDATE_TWILL_CHART,
-		'payload': data,
+		type: UPDATE_TWILL_CHART,
+		payload: data,
 	};
 }
 
@@ -800,55 +844,66 @@ export function editTwillChart({
 	twillChart, // which chart to update
 }) {
 	return (dispatch) => {
-		Meteor.call('pattern.edit', {
-			_id,
-			'data': {
-				'type': 'editTwillChart',
+		Meteor.call(
+			'pattern.edit',
+			{
+				_id,
+				data: {
+					type: 'editTwillChart',
+					_id,
+					rowIndex,
+					tabletIndex,
+					twillChart,
+				},
+			},
+			(error) => {
+				if (error) {
+					return dispatch(
+						logErrors({ 'edit twill pattern chart': error.reason })
+					);
+				}
+			}
+		);
+
+		dispatch(
+			updateTwillChart({
 				_id,
 				rowIndex,
 				tabletIndex,
 				twillChart,
-			},
-		}, (error) => {
-			if (error) {
-				return dispatch(logErrors({ 'edit twill pattern chart': error.reason }));
-			}
-		});
-
-		dispatch(updateTwillChart({
-			_id,
-			rowIndex,
-			tabletIndex,
-			twillChart,
-		}));
+			})
+		);
 	};
 }
 
 // set weaving start row
 export function updateTwillWeavingStartRow(data) {
 	return {
-		'type': UPDATE_TWILL_WEAVING_START_ROW,
-		'payload': data,
+		type: UPDATE_TWILL_WEAVING_START_ROW,
+		payload: data,
 	};
 }
 
-export function editTwillWeavingStartRow({
-	_id,
-	weavingStartRow,
-}) {
+export function editTwillWeavingStartRow({ _id, weavingStartRow }) {
 	return (dispatch) => {
-		Meteor.call('pattern.edit', {
-			_id,
-			'data': {
-				'type': 'editTwillWeavingStartRow',
+		Meteor.call(
+			'pattern.edit',
+			{
 				_id,
-				weavingStartRow,
+				data: {
+					type: 'editTwillWeavingStartRow',
+					_id,
+					weavingStartRow,
+				},
 			},
-		}, (error) => {
-			if (error) {
-				return dispatch(logErrors({ 'edit twill weaving start row': error.reason }));
+			(error) => {
+				if (error) {
+					return dispatch(
+						logErrors({ 'edit twill weaving start row': error.reason })
+					);
+				}
 			}
-		});
+		);
 
 		dispatch(updateTwillWeavingStartRow(weavingStartRow));
 	};
@@ -859,65 +914,73 @@ export function editTwillWeavingStartRow({
 
 // set thread (colour and shape)
 export function updateFreehandCellThread({
-	'row': rowIndex,
-	'tablet': tabletIndex,
-	'threadColor': selectedColorIndex,
-	'threadShape': selectedThread,
+	row: rowIndex,
+	tablet: tabletIndex,
+	threadColor: selectedColorIndex,
+	threadShape: selectedThread,
 }) {
 	return {
-		'type': UPDATE_FREEHAND_CELL_THREAD,
-		'payload': {
-			'row': rowIndex,
-			'tablet': tabletIndex,
-			'threadColor': selectedColorIndex,
-			'threadShape': selectedThread,
+		type: UPDATE_FREEHAND_CELL_THREAD,
+		payload: {
+			row: rowIndex,
+			tablet: tabletIndex,
+			threadColor: selectedColorIndex,
+			threadShape: selectedThread,
 		},
 	};
 }
 
 export function editFreehandCellThread({
 	_id,
-	'row': rowIndex,
-	'tablet': tabletIndex,
-	'threadColor': selectedColorIndex,
-	'threadShape': selectedThread,
+	row: rowIndex,
+	tablet: tabletIndex,
+	threadColor: selectedColorIndex,
+	threadShape: selectedThread,
 }) {
 	return (dispatch) => {
-		Meteor.call('pattern.edit', {
-			_id,
-			'data': {
-				'type': 'editFreehandCellThread',
+		Meteor.call(
+			'pattern.edit',
+			{
 				_id,
-				'row': rowIndex,
-				'tablet': tabletIndex,
-				'threadColor': selectedColorIndex,
-				'threadShape': selectedThread,
+				data: {
+					type: 'editFreehandCellThread',
+					_id,
+					row: rowIndex,
+					tablet: tabletIndex,
+					threadColor: selectedColorIndex,
+					threadShape: selectedThread,
+				},
 			},
-		}, (error) => {
-			if (error) {
-				return dispatch(logErrors({ 'edit freehand cell thread': error.reason }));
+			(error) => {
+				if (error) {
+					return dispatch(
+						logErrors({ 'edit freehand cell thread': error.reason })
+					);
+				}
 			}
-		});
+		);
 
-		dispatch(updateFreehandCellThread({
-			'row': rowIndex,
-			'tablet': tabletIndex,
-			'threadColor': selectedColorIndex,
-			'threadShape': selectedThread,
-		}));
+		dispatch(
+			updateFreehandCellThread({
+				row: rowIndex,
+				tablet: tabletIndex,
+				threadColor: selectedColorIndex,
+				threadShape: selectedThread,
+			})
+		);
 	};
 }
 
 // set background (white or grey)
 export function updateFreehandCellDirection({
-	'row': rowIndex,
-	'tablet': tabletIndex,
+	row: rowIndex,
+	tablet: tabletIndex,
 }) {
 	return {
-		'type': UPDATE_FREEHAND_CELL_DIRECTION,
-		'payload': {
-			'row': rowIndex,
-			'tablet': tabletIndex,
+		type: UPDATE_FREEHAND_CELL_DIRECTION,
+		payload: {
+			row: rowIndex,
+			tablet: tabletIndex,
 		},
 	};
 }
@@ -925,29 +988,37 @@ export function updateFreehandCellDirection({
 export function editFreehandCellDirection({
 	_id,
 	direction,
-	'row': rowIndex,
-	'tablet': tabletIndex,
+	row: rowIndex,
+	tablet: tabletIndex,
 }) {
 	return (dispatch) => {
-		Meteor.call('pattern.edit', {
-			_id,
-			'data': {
-				'type': 'editFreehandCellDirection',
+		Meteor.call(
+			'pattern.edit',
+			{
 				_id,
-				'row': rowIndex,
-				'tablet': tabletIndex,
+				data: {
+					type: 'editFreehandCellDirection',
+					_id,
+					row: rowIndex,
+					tablet: tabletIndex,
+				},
 			},
-		}, (error) => {
-			if (error) {
-				return dispatch(logErrors({ 'edit freehand cell direction': error.reason }));
+			(error) => {
+				if (error) {
+					return dispatch(
+						logErrors({ 'edit freehand cell direction': error.reason })
+					);
+				}
 			}
-		});
+		);
 
-		dispatch(updateFreehandCellDirection({
-			direction,
-			'row': rowIndex,
-			'tablet': tabletIndex,
-		}));
+		dispatch(
+			updateFreehandCellDirection({
+				direction,
+				row: rowIndex,
+				tablet: tabletIndex,
+			})
+		);
 	};
 }
 
@@ -955,100 +1026,98 @@ export function editFreehandCellDirection({
 // add weaving rows
 export function updateAddWeavingRows(data) {
 	return {
-		'type': UPDATE_ADD_WEAVING_ROWS,
-		'payload': data,
+		type: UPDATE_ADD_WEAVING_ROWS,
+		payload: data,
 	};
 }
 
-export function addWeavingRows({
-	_id,
-	chartCell,
-	insertNRows,
-	insertRowsAt,
-}) {
+export function addWeavingRows({ _id, chartCell, insertNRows, insertRowsAt }) {
 	return (dispatch) => {
-		Meteor.call('pattern.edit', {
-			_id,
-			'data': {
-				'type': 'addWeavingRows',
+		Meteor.call(
+			'pattern.edit',
+			{
+				_id,
+				data: {
+					type: 'addWeavingRows',
+					chartCell,
+					insertNRows,
+					insertRowsAt,
+				},
+			},
+			(error) => {
+				if (error) {
+					return dispatch(logErrors({ 'add weaving row': error.reason }));
+				}
+			}
+		);
+
+		dispatch(
+			updateAddWeavingRows({
 				chartCell,
 				insertNRows,
 				insertRowsAt,
-			},
-		}, (error) => {
-			if (error) {
-				return dispatch(logErrors({ 'add weaving row': error.reason }));
-			}
-		});
-
-		dispatch(updateAddWeavingRows({
-			chartCell,
-			insertNRows,
-			insertRowsAt,
-		}));
+			})
+		);
 	};
 }
 
 // remove weaving rows
 export function updateRemoveWeavingRows(data) {
 	return {
-		'type': UPDATE_REMOVE_WEAVING_ROWS,
-		'payload': data,
+		type: UPDATE_REMOVE_WEAVING_ROWS,
+		payload: data,
 	};
 }
 
-export function removeWeavingRows({
-	_id,
-	removeNRows,
-	removeRowsAt,
-}) {
+export function removeWeavingRows({ _id, removeNRows, removeRowsAt }) {
 	return (dispatch) => {
-		Meteor.call('pattern.edit', {
-			_id,
-			'data': {
+		Meteor.call(
+			'pattern.edit',
+			{
+				_id,
+				data: {
+					removeNRows,
+					removeRowsAt,
+					type: 'removeWeavingRows',
+				},
+			},
+			(error) => {
+				if (error) {
+					return dispatch(logErrors({ 'remove weaving row': error.reason }));
+				}
+			}
+		);
+
+		dispatch(
+			updateRemoveWeavingRows({
 				removeNRows,
 				removeRowsAt,
-				'type': 'removeWeavingRows',
-			},
-		}, (error) => {
-			if (error) {
-				return dispatch(logErrors({ 'remove weaving row': error.reason }));
-			}
-		});
-
-		dispatch(updateRemoveWeavingRows({
-			removeNRows,
-			removeRowsAt,
-		}));
+			})
+		);
 	};
 }
 
 // Preview
 export function setUpdatePreviewWhileEditing(data) {
 	return {
-		'type': SET_UPDATE_PREVIEW_WHILE_EDITING,
-		'payload': data,
+		type: SET_UPDATE_PREVIEW_WHILE_EDITING,
+		payload: data,
 	};
 }
 
 // Threading
 export function updateThreadingCell(data) {
 	return {
-		'type': UPDATE_THREADING_CELL,
-		'payload': data,
+		type: UPDATE_THREADING_CELL,
+		payload: data,
 	};
 }
 
-export function editThreadingCell({
-	_id,
-	hole,
-	tablet,
-	colorIndex,
-}) {
+export function editThreadingCell({ _id, hole, tablet, colorIndex }) {
 	return (dispatch, getState) => {
 		const {
 			holes,
-			'patternDesign': { weavingStartRow },
+			patternDesign: { weavingStartRow },
 			patternType,
 			picks,
 			threadingByTablet,
@@ -1100,45 +1169,53 @@ export function editThreadingCell({
 				// rebuild offset threading for that tablet
 				newOffsetThreadingForTablet = buildOffsetThreadingForTablet({
 					holes,
-					'pick': picks[tablet],
-					'threadingForTablet': newThreadingForTablet,
+					pick: picks[tablet],
+					threadingForTablet: newThreadingForTablet,
 					weavingStartRow,
 				});
 				break;
 
-			default:
-				holesToSet.push(hole); // other pattern types just set the hole the user clicked
+			default: // other pattern types just set the hole the user clicked
+				holesToSet.push(hole);
 				break;
 		}
 
-		Meteor.call('pattern.edit', {
-			_id,
-			'data': {
-				'type': 'editThreadingCell',
-				holesToSet,
-				tablet,
-				colorIndex,
+		Meteor.call(
+			'pattern.edit',
+			{
+				_id,
+				data: {
+					type: 'editThreadingCell',
+					holesToSet,
+					tablet,
+					colorIndex,
+				},
 			},
-		}, (error) => {
-			if (error) {
-				return dispatch(logErrors({ 'edit threading cell direction': error.reason }));
+			(error) => {
+				if (error) {
+					return dispatch(
+						logErrors({ 'edit threading cell direction': error.reason })
+					);
+				}
 			}
-		});
+		);
 
-		dispatch(updateThreadingCell({
-			colorIndex,
-			holesToSet,
-			newOffsetThreadingForTablet,
-			tablet,
-		}));
+		dispatch(
+			updateThreadingCell({
+				colorIndex,
+				holesToSet,
+				newOffsetThreadingForTablet,
+				tablet,
+			})
+		);
 	};
 }
 
 // add tablets
 export function updateAddTablets(data) {
 	return {
-		'type': UPDATE_ADD_TABLETS,
-		'payload': data,
+		type: UPDATE_ADD_TABLETS,
+		payload: data,
 	};
 }
 
@@ -1149,254 +1226,281 @@ export function addTablets({
 	insertTabletsAt,
 }) {
 	return (dispatch) => {
-		Meteor.call('pattern.edit', {
-			_id,
-			'data': {
-				'type': 'addTablets',
+		Meteor.call(
+			'pattern.edit',
+			{
+				_id,
+				data: {
+					type: 'addTablets',
+					colorIndex,
+					insertNTablets,
+					insertTabletsAt,
+				},
+			},
+			(error) => {
+				if (error) {
+					return dispatch(logErrors({ 'add tablets': error.reason }));
+				}
+			}
+		);
+
+		dispatch(
+			updateAddTablets({
 				colorIndex,
 				insertNTablets,
 				insertTabletsAt,
-			},
-		}, (error) => {
-			if (error) {
-				return dispatch(logErrors({ 'add tablets': error.reason }));
-			}
-		});
-
-		dispatch(updateAddTablets({
-			colorIndex,
-			insertNTablets,
-			insertTabletsAt,
-		}));
+			})
+		);
 	};
 }
 
 // remove tablet
 export function updateRemoveTablet(data) {
 	return {
-		'type': UPDATE_REMOVE_TABLET,
-		'payload': data,
+		type: UPDATE_REMOVE_TABLET,
+		payload: data,
 	};
 }
 
-export function removeTablet({
-	_id,
-	tablet,
-}) {
+export function removeTablet({ _id, tablet }) {
 	return (dispatch) => {
-		Meteor.call('pattern.edit', {
-			_id,
-			tablet,
-			'data': {
-				'type': 'removeTablet',
+		Meteor.call(
+			'pattern.edit',
+			{
+				_id,
 				tablet,
+				data: {
+					type: 'removeTablet',
+					tablet,
+				},
 			},
-		}, (error) => {
-			if (error) {
-				return dispatch(logErrors({ 'remove tablet': error.reason }));
+			(error) => {
+				if (error) {
+					return dispatch(logErrors({ 'remove tablet': error.reason }));
+				}
 			}
-		});
+		);
 
-		dispatch(updateRemoveTablet({
-			tablet,
-		}));
+		dispatch(
+			updateRemoveTablet({
+				tablet,
+			})
+		);
 	};
 }
 
 // Include tablet in twist calculations
 export function updateIncludeInTwist(data) {
 	return {
-		'type': UPDATE_INCLUDE_IN_TWIST,
-		'payload': data,
+		type: UPDATE_INCLUDE_IN_TWIST,
+		payload: data,
 	};
 }
 
-export function editIncludeInTwist({
-	_id,
-	tablet,
-}) {
+export function editIncludeInTwist({ _id, tablet }) {
 	return (dispatch, getState) => {
 		const currentIncludeInTwist = getState().pattern.includeInTwist[tablet];
 
 		const tabletIncludeInTwist = !currentIncludeInTwist;
 
-		Meteor.call('pattern.edit', {
-			_id,
-			'data': {
-				'type': 'includeInTwist',
+		Meteor.call(
+			'pattern.edit',
+			{
+				_id,
+				data: {
+					type: 'includeInTwist',
+					tablet,
+					tabletIncludeInTwist,
+				},
+			},
+			(error) => {
+				if (error) {
+					return dispatch(
+						logErrors({
+							'update include tablet in twist caluclations': error.reason,
+						})
+					);
+				}
+			}
+		);
+
+		dispatch(
+			updateIncludeInTwist({
 				tablet,
 				tabletIncludeInTwist,
-			},
-		}, (error) => {
-			if (error) {
-				return dispatch(logErrors({ 'update include tablet in twist caluclations': error.reason }));
-			}
-		});
-
-		dispatch(updateIncludeInTwist({
-			tablet,
-			tabletIncludeInTwist,
-		}));
+			})
+		);
 	};
 }
 
 // Tablet orientation
 export function updateOrientation(data) {
 	return {
-		'type': UPDATE_ORIENTATION,
-		'payload': data,
+		type: UPDATE_ORIENTATION,
+		payload: data,
 	};
 }
 
-export function editOrientation({
-	_id,
-	tablet,
-}) {
+export function editOrientation({ _id, tablet }) {
 	return (dispatch, getState) => {
 		const currentOrientation = getState().pattern.orientations[tablet];
 
 		const tabletOrientation = currentOrientation === '\\' ? '/' : '\\';
 
-		Meteor.call('pattern.edit', {
-			_id,
-			'data': {
-				'type': 'orientation',
+		Meteor.call(
+			'pattern.edit',
+			{
+				_id,
+				data: {
+					type: 'orientation',
+					tablet,
+					tabletOrientation,
+				},
+			},
+			(error) => {
+				if (error) {
+					return dispatch(logErrors({ 'update orientation': error.reason }));
+				}
+			}
+		);
+
+		dispatch(
+			updateOrientation({
 				tablet,
 				tabletOrientation,
-			},
-		}, (error) => {
-			if (error) {
-				return dispatch(logErrors({ 'update orientation': error.reason }));
-			}
-		});
-
-		dispatch(updateOrientation({
-			tablet,
-			tabletOrientation,
-		}));
+			})
+		);
 	};
 }
 
 // Palette color
 export function updatePaletteColor(data) {
 	return {
-		'type': UPDATE_PALETTE_COLOR,
-		'payload': data,
+		type: UPDATE_PALETTE_COLOR,
+		payload: data,
 	};
 }
 
-export function editPaletteColor({
-	_id,
-	colorHexValue,
-	colorIndex,
-}) {
+export function editPaletteColor({ _id, colorHexValue, colorIndex }) {
 	return (dispatch) => {
-		Meteor.call('pattern.edit', {
-			_id,
-			'data': {
-				'type': 'paletteColor',
+		Meteor.call(
+			'pattern.edit',
+			{
+				_id,
+				data: {
+					type: 'paletteColor',
+					colorHexValue,
+					colorIndex,
+				},
+			},
+			(error) => {
+				if (error) {
+					return dispatch(logErrors({ 'edit palette color': error.reason }));
+				}
+			}
+		);
+
+		dispatch(
+			updatePaletteColor({
 				colorHexValue,
 				colorIndex,
-			},
-		}, (error) => {
-			if (error) {
-				return dispatch(logErrors({ 'edit palette color': error.reason }));
-			}
-		});
-
-		dispatch(updatePaletteColor({
-			colorHexValue,
-			colorIndex,
-		}));
+			})
+		);
 	};
 }
 
 // hole handedness (freehand patterns only)
 export function updateHoleHandedness(data) {
 	return {
-		'type': UPDATE_HOLE_HANDEDNESS,
-		'payload': data,
+		type: UPDATE_HOLE_HANDEDNESS,
+		payload: data,
 	};
 }
 
-export function editHoleHandedness({
-	_id,
-}) {
+export function editHoleHandedness({ _id }) {
 	return (dispatch) => {
-		Meteor.call('pattern.edit', {
-			_id,
-			'data': {
-				'type': 'holeHandedness',
+		Meteor.call(
+			'pattern.edit',
+			{
+				_id,
+				data: {
+					type: 'holeHandedness',
+				},
 			},
-		}, (error) => {
-			if (error) {
-				return dispatch(logErrors({ 'edit hole handedness': error.reason }));
+			(error) => {
+				if (error) {
+					return dispatch(logErrors({ 'edit hole handedness': error.reason }));
+				}
 			}
-		});
+		);
 
 		dispatch(updateHoleHandedness());
 	};
 }
 
 // Weft Color
-export function editWeftColor({
-	_id,
-	colorIndex,
-}) {
+export function editWeftColor({ _id, colorIndex }) {
 	return (dispatch) => {
-		Meteor.call('pattern.edit', {
-			_id,
-			'data': {
-				'type': 'weftColor',
-				colorIndex,
+		Meteor.call(
+			'pattern.edit',
+			{
+				_id,
+				data: {
+					type: 'weftColor',
+					colorIndex,
+				},
 			},
-		}, (error) => {
-			if (error) {
-				return dispatch(logErrors({ 'edit weft colour': error.reason }));
+			(error) => {
+				if (error) {
+					return dispatch(logErrors({ 'edit weft colour': error.reason }));
+				}
 			}
-		});
+		);
 	};
 }
 
 // Preview orientation
-export function editPreviewOrientation({
-	_id,
-	orientation,
-}) {
+export function editPreviewOrientation({ _id, orientation }) {
 	return (dispatch) => {
-		Meteor.call('pattern.edit', {
-			_id,
-			'data': {
-				'type': 'previewOrientation',
-				orientation,
+		Meteor.call(
+			'pattern.edit',
+			{
+				_id,
+				data: {
+					type: 'previewOrientation',
+					orientation,
+				},
 			},
-		}, (error) => {
-			if (error) {
-				return dispatch(logErrors({ 'edit preview orientation': error.reason }));
+			(error) => {
+				if (error) {
+					return dispatch(
+						logErrors({ 'edit preview orientation': error.reason })
+					);
+				}
 			}
-		});
+		);
 	};
 }
 
 // editable text fields like name, description
-export function editTextField({
-	_id,
-	fieldName,
-	fieldValue,
-}) {
+export function editTextField({ _id, fieldName, fieldValue }) {
 	return (dispatch) => {
-		Meteor.call('pattern.edit', {
-			_id,
-			'data': {
-				fieldName,
-				fieldValue,
-				'type': 'editTextField',
+		Meteor.call(
+			'pattern.edit',
+			{
+				_id,
+				data: {
+					fieldName,
+					fieldValue,
+					type: 'editTextField',
+				},
 			},
-		}, (error) => {
-			if (error) {
-				return dispatch(logErrors({ 'edit text field': error.reason }));
+			(error) => {
+				if (error) {
+					return dispatch(logErrors({ 'edit text field': error.reason }));
+				}
 			}
-		});
+		);
 	};
 }
 
@@ -1404,8 +1508,8 @@ export function editTextField({
 // filter pattern list on twist values
 export function setFilterIsTwistNeutral(isTwistNeutral) {
 	return {
-		'type': SET_FILTER_IS_TWIST_NEUTRAL,
-		'payload': isTwistNeutral,
+		type: SET_FILTER_IS_TWIST_NEUTRAL,
+		payload: isTwistNeutral,
 	};
 }
 
@@ -1418,8 +1522,8 @@ export function updateFilterIsTwistNeutral(isTwistNeutral) {
 
 export function setFilterWillRepeat(willRepeat) {
 	return {
-		'type': SET_FILTER_WILL_REPEAT,
-		'payload': willRepeat,
+		type: SET_FILTER_WILL_REPEAT,
+		payload: willRepeat,
 	};
 }
 
@@ -1434,8 +1538,8 @@ export function updateFilterWillRepeat(willRepeat) {
 // filter pattern list on number of tablets
 export function setFilterMaxTablets(maxTablets) {
 	return {
-		'type': SET_FILTER_MAX_TABLETS,
-		'payload': maxTablets,
+		type: SET_FILTER_MAX_TABLETS,
+		payload: maxTablets,
 	};
 }
 
@@ -1443,10 +1547,12 @@ export function updateFilterMaxTablets(maxTablets) {
 	return (dispatch, getState) => {
 		const value = parseFloat(maxTablets, 10);
 
-		if ((value) < 1
-			|| value > MAX_TABLETS
-			|| !Number.isInteger(value)
-			|| value <= getState().pattern.minTablets) {
+		if (
+			value < 1 ||
+			value > MAX_TABLETS ||
+			!Number.isInteger(value) ||
+			value <= getState().pattern.minTablets
+		) {
 			return;
 		}
 
@@ -1457,8 +1563,8 @@ export function updateFilterMaxTablets(maxTablets) {
 
 export function setFilterMinTablets(minTablets) {
 	return {
-		'type': SET_FILTER_MIN_TABLETS,
-		'payload': minTablets,
+		type: SET_FILTER_MIN_TABLETS,
+		payload: minTablets,
 	};
 }
 
@@ -1466,10 +1572,12 @@ export function updateFilterMinTablets(minTablets) {
 	return (dispatch, getState) => {
 		const value = parseFloat(minTablets, 10);
 
-		if ((value) < 1
-			|| value > MAX_TABLETS
-			|| !Number.isInteger(value)
-			|| value >= getState().pattern.maxTablets) {
+		if (
+			value < 1 ||
+			value > MAX_TABLETS ||
+			!Number.isInteger(value) ||
+			value >= getState().pattern.maxTablets
+		) {
 			return;
 		}
 
@@ -1480,10 +1588,10 @@ export function updateFilterMinTablets(minTablets) {
 
 export function removeTabletFilter() {
 	return {
-		'type': REMOVE_TABLET_FILTER,
-		'payload': {
-			'maxTablets': undefined,
-			'minTablets': undefined,
+		type: REMOVE_TABLET_FILTER,
+		payload: {
+			maxTablets: undefined,
+			minTablets: undefined,
 		},
 	};
 }
@@ -1498,50 +1606,50 @@ export function updateFilterRemove() {
 // ///////////////////////////
 // default state
 const initialPatternState = {
-	'error': null,
-	'filterIsTwistNeutral': false,
-	'filterMaxTablets': undefined,
-	'filterMinTablets': undefined,
-	'filterWillRepeat': false,
-	'holes': 0,
-	'isEditingThreading': false,
-	'isEditingWeaving': false,
-	'isLoading': true,
-	'palette': [],
-	'patternCount': 0,
-	'patternCountUserId': undefined,
-	'patternDataReady': false,
-	'patternDesign': undefined,
-	'picks': [],
-	'threadingByTablet': undefined,
-	'updatePreviewWhileEditing': false,
+	error: null,
+	filterIsTwistNeutral: false,
+	filterMaxTablets: undefined,
+	filterMinTablets: undefined,
+	filterWillRepeat: false,
+	holes: 0,
+	isEditingThreading: false,
+	isEditingWeaving: false,
+	isLoading: true,
+	palette: [],
+	patternCount: 0,
+	patternCountUserId: undefined,
+	patternDataReady: false,
+	patternDesign: undefined,
+	picks: [],
+	threadingByTablet: undefined,
+	updatePreviewWhileEditing: false,
 };
 
 // state updates
 export default function pattern(state = initialPatternState, action) {
 	switch (action.type) {
 		case SET_PATTERN_COUNT: {
-			return updeep({ 'patternCount': action.payload }, state);
+			return updeep({ patternCount: action.payload }, state);
 		}
 
 		case SET_PATTERN_COUNT_USERID: {
-			return updeep({ 'patternCountUserId': action.payload }, state);
+			return updeep({ patternCountUserId: action.payload }, state);
 		}
 
 		case SET_ISLOADING: {
-			return updeep({ 'isLoading': action.payload }, state);
+			return updeep({ isLoading: action.payload }, state);
 		}
 
 		case SET_PATTERN_ID: {
-			return updeep({ '_id': action.payload }, state);
+			return updeep({ _id: action.payload }, state);
 		}
 
 		case SET_WEAVING_INSTRUCTIONS: {
-			return updeep({ 'weavingInstructionsByTablet': action.payload }, state);
+			return updeep({ weavingInstructionsByTablet: action.payload }, state);
 		}
 
 		case CLEAR_PATTERN_DATA: {
-			return updeep({ 'patternDataReady': false }, state);
+			return updeep({ patternDataReady: false }, state);
 		}
 
 		case SET_PATTERN_DATA: {
@@ -1565,7 +1673,7 @@ export default function pattern(state = initialPatternState, action) {
 				numberOfTablets,
 				orientations,
 				palette,
-				'patternDataReady': true,
+				patternDataReady: true,
 				patternType,
 				picks,
 				threadingByTablet,
@@ -1585,66 +1693,79 @@ export default function pattern(state = initialPatternState, action) {
 			obj.numberOfTurns = numberOfTurns;
 
 			// to calculate new picks for this tablet
-			const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tablet]];
+			const weavingInstructionsForTablet = [
+				...weavingInstructionsByTablet[tablet],
+			];
 
 			weavingInstructionsForTablet[row] = obj;
 
 			const picksForTablet = calculatePicksForTablet({
-				'currentPicks': state.picks[tablet],
+				currentPicks: state.picks[tablet],
 				weavingInstructionsForTablet,
 				row,
 			});
 
-			return updeep({
-				'weavingInstructionsByTablet': { [tablet]: { [row]: obj } },
-				'picks': { [tablet]: picksForTablet },
-			}, state);
+			return updeep(
+				{
+					weavingInstructionsByTablet: { [tablet]: { [row]: obj } },
+					picks: { [tablet]: picksForTablet },
+				},
+				state
+			);
 		}
 
 		case UPDATE_WEAVING_CELL_DIRECTION: {
 			const { row, tablet } = action.payload;
 			const { numberOfRows, weavingInstructionsByTablet } = state;
 
-			const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tablet]];
+			const weavingInstructionsForTablet = [
+				...weavingInstructionsByTablet[tablet],
+			];
 
 			// change direction of tablet for this row and all following rows
 			for (let i = row; i < numberOfRows; i += 1) {
 				const obj = { ...weavingInstructionsForTablet[i] };
-				obj.direction = weavingInstructionsForTablet[i].direction === 'F' ? 'B' : 'F';
+				obj.direction =
+					weavingInstructionsForTablet[i].direction === 'F' ? 'B' : 'F';
 				weavingInstructionsForTablet[i] = obj;
 			}
 
 			const picksForTablet = calculatePicksForTablet({
-				'currentPicks': state.picks[tablet],
+				currentPicks: state.picks[tablet],
 				weavingInstructionsForTablet,
 				row,
 			});
 
-			return updeep({
-				'weavingInstructionsByTablet': { [tablet]: weavingInstructionsForTablet },
-				'picks': { [tablet]: picksForTablet },
-			}, state);
+			return updeep(
+				{
+					weavingInstructionsByTablet: {
+						[tablet]: weavingInstructionsForTablet,
+					},
+					picks: { [tablet]: picksForTablet },
+				},
+				state
+			);
 		}
 
 		case UPDATE_WEAVING_ROW_DIRECTION: {
 			// 'allTogether' patterns only
 			const { row } = action.payload;
-			const {
-				numberOfTablets,
-				patternDesign,
-				weavingInstructionsByTablet,
-			} = state;
+			const { numberOfTablets, patternDesign, weavingInstructionsByTablet } =
+				state;
 
 			const newWeavingInstructions = [...patternDesign.weavingInstructions];
 			const newWeavingInstructionsByTablet = [];
 			const newPicks = [];
 
 			// update pattern design for this row
-			newWeavingInstructions[row] = newWeavingInstructions[row] === 'F' ? 'B' : 'F';
+			newWeavingInstructions[row] =
+				newWeavingInstructions[row] === 'F' ? 'B' : 'F';
 
 			// update weaving instructions for each tablet
 			for (let i = 0; i < numberOfTablets; i += 1) {
-				const weavingInstructionsForTablet = [...weavingInstructionsByTablet[i]];
+				const weavingInstructionsForTablet = [
+					...weavingInstructionsByTablet[i],
+				];
 
 				// change direction for this row
 				const obj = { ...weavingInstructionsForTablet[row] };
@@ -1652,7 +1773,7 @@ export default function pattern(state = initialPatternState, action) {
 				weavingInstructionsForTablet[row] = obj;
 
 				const picksForTablet = calculatePicksForTablet({
-					'currentPicks': state.picks[i],
+					currentPicks: state.picks[i],
 					weavingInstructionsForTablet,
 					row,
 				});
@@ -1661,11 +1782,14 @@ export default function pattern(state = initialPatternState, action) {
 				newPicks.push(picksForTablet);
 			}
 
-			return updeep({
-				'patternDesign': { 'weavingInstructions': newWeavingInstructions },
-				'picks': newPicks,
-				'weavingInstructionsByTablet': newWeavingInstructionsByTablet,
-			}, state);
+			return updeep(
+				{
+					patternDesign: { weavingInstructions: newWeavingInstructions },
+					picks: newPicks,
+					weavingInstructionsByTablet: newWeavingInstructionsByTablet,
+				},
+				state
+			);
 		}
 
 		case UPDATE_DOUBLE_FACED_CHART: {
@@ -1676,13 +1800,12 @@ export default function pattern(state = initialPatternState, action) {
 				return state;
 			} */
 
-			const {
-				numberOfRows,
-				patternDesign,
-				weavingInstructionsByTablet,
-			} = state;
+			const { numberOfRows, patternDesign, weavingInstructionsByTablet } =
+				state;
 
-			const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tabletIndex]];
+			const weavingInstructionsForTablet = [
+				...weavingInstructionsByTablet[tabletIndex],
+			];
 
 			// toggle '.' or 'X' in the chart
 			// original arrays are immutable
@@ -1697,25 +1820,31 @@ export default function pattern(state = initialPatternState, action) {
 			const newPatternDesign = { ...patternDesign };
 			newPatternDesign.doubleFacedPatternChart = newChart;
 
-			const newWeavingInstructions = buildDoubleFacedWeavingInstructionsForTablet({
-				numberOfRows,
-				'patternDesign': newPatternDesign,
-				'startRow': Math.max(rowIndex * 2 - 2, 0), // reweave from previous block to catch color change
-				tabletIndex,
-				weavingInstructionsForTablet,
-			});
+			const newWeavingInstructions =
+				buildDoubleFacedWeavingInstructionsForTablet({
+					numberOfRows,
+					patternDesign: newPatternDesign,
+					startRow: Math.max(rowIndex * 2 - 2, 0), // reweave from previous block to catch color change
+					tabletIndex,
+					weavingInstructionsForTablet,
+				});
 
 			const picksForTablet = calculatePicksForTablet({
-				'currentPicks': state.picks[tabletIndex],
-				'weavingInstructionsForTablet': newWeavingInstructions,
-				'row': Math.max((rowIndex * 2) - 1, 0),
+				currentPicks: state.picks[tabletIndex],
+				weavingInstructionsForTablet: newWeavingInstructions,
+				row: Math.max(rowIndex * 2 - 1, 0),
 			});
 
-			return updeep({
-				'patternDesign': { 'doubleFacedPatternChart': newChart },
-				'weavingInstructionsByTablet': { [tabletIndex]: newWeavingInstructions },
-				'picks': { [tabletIndex]: picksForTablet },
-			}, state);
+			return updeep(
+				{
+					patternDesign: { doubleFacedPatternChart: newChart },
+					weavingInstructionsByTablet: {
+						[tabletIndex]: newWeavingInstructions,
+					},
+					picks: { [tabletIndex]: picksForTablet },
+				},
+				state
+			);
 		}
 
 		case UPDATE_TWILL_CHART: {
@@ -1726,13 +1855,12 @@ export default function pattern(state = initialPatternState, action) {
 				return state;
 			}
 
-			const {
-				numberOfRows,
-				patternDesign,
-				weavingInstructionsByTablet,
-			} = state;
+			const { numberOfRows, patternDesign, weavingInstructionsByTablet } =
+				state;
 
-			const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tabletIndex]];
+			const weavingInstructionsForTablet = [
+				...weavingInstructionsByTablet[tabletIndex],
+			];
 
 			// toggle '.' or 'X' in the chart
 			// original arrays are immutable
@@ -1749,80 +1877,92 @@ export default function pattern(state = initialPatternState, action) {
 
 			const newWeavingInstructions = buildTwillWeavingInstructionsForTablet({
 				numberOfRows,
-				'patternDesign': newPatternDesign,
-				'startRow': Math.max(rowIndex * 2 - 2, 0), // reweave from previous block to catch color change
+				patternDesign: newPatternDesign,
+				startRow: Math.max(rowIndex * 2 - 2, 0), // reweave from previous block to catch color change
 				tabletIndex,
 				weavingInstructionsForTablet,
 			});
 
 			const picksForTablet = calculatePicksForTablet({
-				'currentPicks': state.picks[tabletIndex],
-				'weavingInstructionsForTablet': newWeavingInstructions,
-				'row': Math.max((rowIndex * 2) - 1, 0),
+				currentPicks: state.picks[tabletIndex],
+				weavingInstructionsForTablet: newWeavingInstructions,
+				row: Math.max(rowIndex * 2 - 1, 0),
 			});
 
-			return updeep({
-				'patternDesign': { [twillChart]: newTwillChart },
-				'weavingInstructionsByTablet': { [tabletIndex]: newWeavingInstructions },
-				'picks': { [tabletIndex]: picksForTablet },
-			}, state);
+			return updeep(
+				{
+					patternDesign: { [twillChart]: newTwillChart },
+					weavingInstructionsByTablet: {
+						[tabletIndex]: newWeavingInstructions,
+					},
+					picks: { [tabletIndex]: picksForTablet },
+				},
+				state
+			);
 		}
 
 		case UPDATE_TWILL_WEAVING_START_ROW: {
 			const newWeavingStartRow = action.payload;
 
-			return updeep({
-				'patternDesign': {
-					'weavingStartRow': newWeavingStartRow,
+			return updeep(
+				{
+					patternDesign: {
+						weavingStartRow: newWeavingStartRow,
+					},
 				},
-			}, state);
+				state
+			);
 		}
 
 		case UPDATE_FREEHAND_CELL_THREAD: {
-			const {
-				row,
-				tablet,
-				threadColor,
-				threadShape,
-			} = action.payload;
+			const { row, tablet, threadColor, threadShape } = action.payload;
 
-			return updeep({ 'patternDesign': { 'freehandChart': { [row]: { [tablet]: { threadColor, threadShape } } } } }, state);
+			return updeep(
+				{
+					patternDesign: {
+						freehandChart: {
+							[row]: { [tablet]: { threadColor, threadShape } },
+						},
+					},
+				},
+				state
+			);
 		}
 
 		case UPDATE_FREEHAND_CELL_DIRECTION: {
-			const {
-				row,
-				tablet,
-			} = action.payload;
+			const { row, tablet } = action.payload;
 
 			// toggle cell direction
 			const cell = state.patternDesign.freehandChart[row][tablet];
 			const direction = cell.direction === 'F' ? 'B' : 'F';
 
-			return updeep({ 'patternDesign': { 'freehandChart': { [row]: { [tablet]: { direction } } } } }, state);
+			return updeep(
+				{
+					patternDesign: {
+						freehandChart: { [row]: { [tablet]: { direction } } },
+					},
+				},
+				state
+			);
 		}
 
 		case SET_IS_EDITING_WEAVING: {
-			return updeep({ 'isEditingWeaving': action.payload }, state);
+			return updeep({ isEditingWeaving: action.payload }, state);
 		}
 
 		case SET_IS_EDITING_THREADING: {
-			return updeep({ 'isEditingThreading': action.payload }, state);
+			return updeep({ isEditingThreading: action.payload }, state);
 		}
 
 		case SET_UPDATE_PREVIEW_WHILE_EDITING: {
-			return updeep({ 'updatePreviewWhileEditing': action.payload }, state);
+			return updeep({ updatePreviewWhileEditing: action.payload }, state);
 		}
 
 		case UPDATE_THREADING_CELL: {
-			const {
-				colorIndex,
-				holesToSet,
-				tablet,
-			} = action.payload;
+			const { colorIndex, holesToSet, tablet } = action.payload;
 
 			const update = {
-				'threadingByTablet': {
+				threadingByTablet: {
 					[tablet]: {},
 				},
 			};
@@ -1838,7 +1978,7 @@ export default function pattern(state = initialPatternState, action) {
 			const { tablet, tabletIncludeInTwist } = action.payload;
 
 			const update = {
-				'includeInTwist': { [tablet]: tabletIncludeInTwist },
+				includeInTwist: { [tablet]: tabletIncludeInTwist },
 			};
 
 			return updeep(update, state);
@@ -1849,17 +1989,20 @@ export default function pattern(state = initialPatternState, action) {
 			const { patternType, weavingInstructionsByTablet } = state;
 
 			const update = {
-				'orientations': { [tablet]: tabletOrientation },
+				orientations: { [tablet]: tabletOrientation },
 			};
 
-			if (patternType !== 'freehand') { // freehand doesn't calculate picks
+			if (patternType !== 'freehand') {
+				// freehand doesn't calculate picks
 				// to calculate new picks for this tablet
-				const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tablet]];
+				const weavingInstructionsForTablet = [
+					...weavingInstructionsByTablet[tablet],
+				];
 
 				const picksForTablet = calculatePicksForTablet({
-					'currentPicks': state.picks[tablet],
+					currentPicks: state.picks[tablet],
 					weavingInstructionsForTablet,
-					'row': 0,
+					row: 0,
 				});
 
 				update.picks = { [tablet]: picksForTablet };
@@ -1871,20 +2014,27 @@ export default function pattern(state = initialPatternState, action) {
 		case UPDATE_PALETTE_COLOR: {
 			const { colorHexValue, colorIndex } = action.payload;
 
-			return updeep({
-				'palette': { [colorIndex]: colorHexValue },
-			}, state);
+			return updeep(
+				{
+					palette: { [colorIndex]: colorHexValue },
+				},
+				state
+			);
 		}
 
 		case UPDATE_HOLE_HANDEDNESS: {
 			const currentHandedness = state.patternDesign.holeHandedness;
 
 			// toggle handedness
-			const newHandedness = currentHandedness === 'anticlockwise' ? 'clockwise' : 'anticlockwise';
+			const newHandedness =
+				currentHandedness === 'anticlockwise' ? 'clockwise' : 'anticlockwise';
 
-			return updeep({
-				'patternDesign': { 'holeHandedness': newHandedness },
-			}, state);
+			return updeep(
+				{
+					patternDesign: { holeHandedness: newHandedness },
+				},
+				state
+			);
 		}
 
 		case UPDATE_ADD_WEAVING_ROWS: {
@@ -1901,7 +2051,7 @@ export default function pattern(state = initialPatternState, action) {
 			const newNumberOfRows = numberOfRows + insertNRows;
 
 			const update = {
-				'numberOfRows': newNumberOfRows,
+				numberOfRows: newNumberOfRows,
 			};
 
 			const newPicks = [];
@@ -1913,24 +2063,28 @@ export default function pattern(state = initialPatternState, action) {
 				case 'allTogether':
 					// individual weaving instruction
 					const obj = {
-						'direction': DEFAULT_DIRECTION,
-						'numberOfTurns': DEFAULT_NUMBER_OF_TURNS,
+						direction: DEFAULT_DIRECTION,
+						numberOfTurns: DEFAULT_NUMBER_OF_TURNS,
 					};
 
 					for (let i = 0; i < numberOfTablets; i += 1) {
-						const newWeavingInstructionsForTablet = [...weavingInstructionsByTablet[i]];
+						const newWeavingInstructionsForTablet = [
+							...weavingInstructionsByTablet[i],
+						];
 
 						for (let j = 0; j < insertNRows; j += 1) {
 							newWeavingInstructionsForTablet.splice(insertRowsAt, 0, obj);
 						}
 
 						const picksForTablet = calculatePicksForTablet({
-							'currentPicks': picks[i],
-							'weavingInstructionsForTablet': newWeavingInstructionsForTablet,
-							'row': insertRowsAt,
+							currentPicks: picks[i],
+							weavingInstructionsForTablet: newWeavingInstructionsForTablet,
+							row: insertRowsAt,
 						});
 
-						newWeavingInstructionsByTablet.push(newWeavingInstructionsForTablet);
+						newWeavingInstructionsByTablet.push(
+							newWeavingInstructionsForTablet
+						);
 						newPicks.push(picksForTablet);
 					}
 
@@ -1942,8 +2096,11 @@ export default function pattern(state = initialPatternState, action) {
 						for (let i = 0; i < insertNRows; i += 1) {
 							newPatternDesignRows.push(DEFAULT_DIRECTION);
 						}
-						newWeavingInstructions = patternDesign.weavingInstructions.concat(newPatternDesignRows);
-						update.patternDesign = { 'weavingInstructions': newWeavingInstructions };
+						newWeavingInstructions =
+							patternDesign.weavingInstructions.concat(newPatternDesignRows);
+						update.patternDesign = {
+							weavingInstructions: newWeavingInstructions,
+						};
 					}
 
 					update.weavingInstructionsByTablet = newWeavingInstructionsByTablet;
@@ -1952,14 +2109,12 @@ export default function pattern(state = initialPatternState, action) {
 					break;
 
 				case 'doubleFaced':
-					const {
-						doubleFacedPatternChart,
-					} = patternDesign;
+					const { doubleFacedPatternChart } = patternDesign;
 
 					const newDoubleFacedPatternChart = [...doubleFacedPatternChart];
 
 					for (let i = 0; i < insertNRows / 2; i += 1) {
-						const chartPosition = ((insertRowsAt) / 2);
+						const chartPosition = insertRowsAt / 2;
 
 						const newRow1 = new Array(numberOfTablets);
 						newRow1.fill('.');
@@ -1968,29 +2123,34 @@ export default function pattern(state = initialPatternState, action) {
 
 					// calculate weaving from new row onwards
 					for (let i = 0; i < numberOfTablets; i += 1) {
-						const weavingInstructionsForTablet = [...weavingInstructionsByTablet[i]];
+						const weavingInstructionsForTablet = [
+							...weavingInstructionsByTablet[i],
+						];
 
-						const newWeavingInstructionsForTablet = buildDoubleFacedWeavingInstructionsForTablet({
-							'numberOfRows': newNumberOfRows,
-							'patternDesign': {
-								'doubleFacedPatternChart': newDoubleFacedPatternChart,
-							},
-							'startRow': insertRowsAt,
-							'tabletIndex': i,
-							weavingInstructionsForTablet,
-						});
+						const newWeavingInstructionsForTablet =
+							buildDoubleFacedWeavingInstructionsForTablet({
+								numberOfRows: newNumberOfRows,
+								patternDesign: {
+									doubleFacedPatternChart: newDoubleFacedPatternChart,
+								},
+								startRow: insertRowsAt,
+								tabletIndex: i,
+								weavingInstructionsForTablet,
+							});
 
 						const picksForTablet = calculatePicksForTablet({
-							'weavingInstructionsForTablet': newWeavingInstructionsForTablet,
-							'row': 0,
+							weavingInstructionsForTablet: newWeavingInstructionsForTablet,
+							row: 0,
 						});
 
-						newWeavingInstructionsByTablet.push(newWeavingInstructionsForTablet);
+						newWeavingInstructionsByTablet.push(
+							newWeavingInstructionsForTablet
+						);
 						newPicks.push(picksForTablet);
 					}
 
 					update.patternDesign = {
-						'doubleFacedPatternChart': newDoubleFacedPatternChart,
+						doubleFacedPatternChart: newDoubleFacedPatternChart,
 					};
 
 					update.weavingInstructionsByTablet = newWeavingInstructionsByTablet;
@@ -2009,7 +2169,7 @@ export default function pattern(state = initialPatternState, action) {
 					const newTwillDirectionChangeChart = [...twillDirectionChangeChart];
 
 					for (let i = 0; i < insertNRows / 2; i += 1) {
-						const chartPosition = ((insertRowsAt) / 2);
+						const chartPosition = insertRowsAt / 2;
 
 						const newRow1 = new Array(numberOfTablets);
 						newRow1.fill('.');
@@ -2022,32 +2182,37 @@ export default function pattern(state = initialPatternState, action) {
 
 					// calculate weaving from new row onwards
 					for (let i = 0; i < numberOfTablets; i += 1) {
-						const weavingInstructionsForTablet = [...weavingInstructionsByTablet[i]];
+						const weavingInstructionsForTablet = [
+							...weavingInstructionsByTablet[i],
+						];
 
-						const newWeavingInstructionsForTablet = buildTwillWeavingInstructionsForTablet({
-							'numberOfRows': newNumberOfRows,
-							'patternDesign': {
-								twillDirection,
-								'twillPatternChart': newTwillPatternChart,
-								'twillDirectionChangeChart': newTwillDirectionChangeChart,
-							},
-							'startRow': insertRowsAt,
-							'tabletIndex': i,
-							weavingInstructionsForTablet,
-						});
+						const newWeavingInstructionsForTablet =
+							buildTwillWeavingInstructionsForTablet({
+								numberOfRows: newNumberOfRows,
+								patternDesign: {
+									twillDirection,
+									twillPatternChart: newTwillPatternChart,
+									twillDirectionChangeChart: newTwillDirectionChangeChart,
+								},
+								startRow: insertRowsAt,
+								tabletIndex: i,
+								weavingInstructionsForTablet,
+							});
 
 						const picksForTablet = calculatePicksForTablet({
-							'weavingInstructionsForTablet': newWeavingInstructionsForTablet,
-							'row': 0,
+							weavingInstructionsForTablet: newWeavingInstructionsForTablet,
+							row: 0,
 						});
 
-						newWeavingInstructionsByTablet.push(newWeavingInstructionsForTablet);
+						newWeavingInstructionsByTablet.push(
+							newWeavingInstructionsForTablet
+						);
 						newPicks.push(picksForTablet);
 					}
 
 					update.patternDesign = {
-						'twillPatternChart': newTwillPatternChart,
-						'twillDirectionChangeChart': newTwillDirectionChangeChart,
+						twillPatternChart: newTwillPatternChart,
+						twillDirectionChangeChart: newTwillDirectionChangeChart,
 					};
 
 					update.weavingInstructionsByTablet = newWeavingInstructionsByTablet;
@@ -2056,9 +2221,7 @@ export default function pattern(state = initialPatternState, action) {
 					break;
 
 				case 'freehand':
-					const {
-						freehandChart,
-					} = patternDesign;
+					const { freehandChart } = patternDesign;
 
 					const newWeavingChart = [...freehandChart];
 
@@ -2073,7 +2236,7 @@ export default function pattern(state = initialPatternState, action) {
 					}
 
 					update.patternDesign = {
-						'freehandChart': newWeavingChart,
+						freehandChart: newWeavingChart,
 					};
 
 					break;
@@ -2098,7 +2261,7 @@ export default function pattern(state = initialPatternState, action) {
 			const newNumberOfRows = numberOfRows - removeNRows;
 
 			const update = {
-				'numberOfRows': newNumberOfRows,
+				numberOfRows: newNumberOfRows,
 			};
 
 			const newPicks = [];
@@ -2109,33 +2272,42 @@ export default function pattern(state = initialPatternState, action) {
 				case 'individual':
 				case 'allTogether':
 					for (let i = 0; i < numberOfTablets; i += 1) {
-						const newWeavingInstructionsForTablet = [...weavingInstructionsByTablet[i]];
+						const newWeavingInstructionsForTablet = [
+							...weavingInstructionsByTablet[i],
+						];
 
 						newWeavingInstructionsForTablet.splice(removeRowsAt, removeNRows);
 
 						const picksForTablet = calculatePicksForTablet({
-							'currentPicks': state.picks[i],
-							'weavingInstructionsForTablet': newWeavingInstructionsForTablet,
-							'row': removeRowsAt,
+							currentPicks: state.picks[i],
+							weavingInstructionsForTablet: newWeavingInstructionsForTablet,
+							row: removeRowsAt,
 						});
 
-						newWeavingInstructionsByTablet.push(newWeavingInstructionsForTablet);
+						newWeavingInstructionsByTablet.push(
+							newWeavingInstructionsForTablet
+						);
 						newPicks.push(picksForTablet);
 					}
 
 					if (patternType === 'allTogether') {
-						const newWeavingInstructions = [...patternDesign.weavingInstructions];
+						const newWeavingInstructions = [
+							...patternDesign.weavingInstructions,
+						];
 
-						newWeavingInstructions.splice(removeRowsAt - removeNRows + 1, removeNRows);
-						update.patternDesign = { 'weavingInstructions': newWeavingInstructions };
+						newWeavingInstructions.splice(
+							removeRowsAt - removeNRows + 1,
+							removeNRows
+						);
+						update.patternDesign = {
+							weavingInstructions: newWeavingInstructions,
+						};
 					}
 
 					break;
 
 				case 'doubleFaced':
-					const {
-						doubleFacedPatternChart,
-					} = patternDesign;
+					const { doubleFacedPatternChart } = patternDesign;
 
 					const newDoubleFacedPatternChart = [...doubleFacedPatternChart];
 
@@ -2143,28 +2315,33 @@ export default function pattern(state = initialPatternState, action) {
 
 					// calculate weaving from removed row onwards
 					for (let i = 0; i < numberOfTablets; i += 1) {
-						const weavingInstructionsForTablet = [...weavingInstructionsByTablet[i]];
+						const weavingInstructionsForTablet = [
+							...weavingInstructionsByTablet[i],
+						];
 
-						const newWeavingInstructionsForTablet = buildDoubleFacedWeavingInstructionsForTablet({
-							'numberOfRows': newNumberOfRows,
-							'patternDesign': {
-								'doubleFacedPatternChart': newDoubleFacedPatternChart,
-							},
-							'tabletIndex': i,
-							weavingInstructionsForTablet,
-						});
+						const newWeavingInstructionsForTablet =
+							buildDoubleFacedWeavingInstructionsForTablet({
+								numberOfRows: newNumberOfRows,
+								patternDesign: {
+									doubleFacedPatternChart: newDoubleFacedPatternChart,
+								},
+								tabletIndex: i,
+								weavingInstructionsForTablet,
+							});
 
 						const picksForTablet = calculatePicksForTablet({
-							'weavingInstructionsForTablet': newWeavingInstructionsForTablet,
-							'row': 0,
+							weavingInstructionsForTablet: newWeavingInstructionsForTablet,
+							row: 0,
 						});
 
-						newWeavingInstructionsByTablet.push(newWeavingInstructionsForTablet);
+						newWeavingInstructionsByTablet.push(
+							newWeavingInstructionsForTablet
+						);
 						newPicks.push(picksForTablet);
 					}
 
 					update.patternDesign = {
-						'doubleFacedPatternChart': newDoubleFacedPatternChart,
+						doubleFacedPatternChart: newDoubleFacedPatternChart,
 					};
 
 					break;
@@ -2180,12 +2357,17 @@ export default function pattern(state = initialPatternState, action) {
 					const newTwillDirectionChangeChart = [...twillDirectionChangeChart];
 
 					newTwillPatternChart.splice(removeRowsAt / 2, removeNRows / 2);
-					newTwillDirectionChangeChart.splice(removeRowsAt / 2, removeNRows / 2);
+					newTwillDirectionChangeChart.splice(
+						removeRowsAt / 2,
+						removeNRows / 2
+					);
 
 					// odd rows of twill charts cannot start with 'X'
 					for (let i = 1; i < numberOfTablets; i += 2) {
 						newTwillPatternChart[0] = [...newTwillPatternChart[0]];
-						newTwillDirectionChangeChart[0] = [...newTwillDirectionChangeChart[0]];
+						newTwillDirectionChangeChart[0] = [
+							...newTwillDirectionChangeChart[0],
+						];
 
 						newTwillPatternChart[0][i] = '.';
 						newTwillDirectionChangeChart[0][i] = '.';
@@ -2193,46 +2375,49 @@ export default function pattern(state = initialPatternState, action) {
 
 					// calculate weaving from removed row onwards
 					for (let i = 0; i < numberOfTablets; i += 1) {
-						const weavingInstructionsForTablet = [...weavingInstructionsByTablet[i]];
+						const weavingInstructionsForTablet = [
+							...weavingInstructionsByTablet[i],
+						];
 
-						const newWeavingInstructionsForTablet = buildTwillWeavingInstructionsForTablet({
-							'numberOfRows': newNumberOfRows,
-							'patternDesign': {
-								twillDirection,
-								'twillPatternChart': newTwillPatternChart,
-								'twillDirectionChangeChart': newTwillDirectionChangeChart,
-							},
-							'startRow': removeRowsAt,
-							'tabletIndex': i,
-							weavingInstructionsForTablet,
-						});
+						const newWeavingInstructionsForTablet =
+							buildTwillWeavingInstructionsForTablet({
+								numberOfRows: newNumberOfRows,
+								patternDesign: {
+									twillDirection,
+									twillPatternChart: newTwillPatternChart,
+									twillDirectionChangeChart: newTwillDirectionChangeChart,
+								},
+								startRow: removeRowsAt,
+								tabletIndex: i,
+								weavingInstructionsForTablet,
+							});
 
 						const picksForTablet = calculatePicksForTablet({
-							'weavingInstructionsForTablet': newWeavingInstructionsForTablet,
-							'row': 0,
+							weavingInstructionsForTablet: newWeavingInstructionsForTablet,
+							row: 0,
 						});
 
-						newWeavingInstructionsByTablet.push(newWeavingInstructionsForTablet);
+						newWeavingInstructionsByTablet.push(
+							newWeavingInstructionsForTablet
+						);
 						newPicks.push(picksForTablet);
 					}
 
 					update.patternDesign = {
-						'twillPatternChart': newTwillPatternChart,
-						'twillDirectionChangeChart': newTwillDirectionChangeChart,
+						twillPatternChart: newTwillPatternChart,
+						twillDirectionChangeChart: newTwillDirectionChangeChart,
 					};
 
 					break;
 
 				case 'freehand':
-					const {
-						freehandChart,
-					} = patternDesign;
+					const { freehandChart } = patternDesign;
 					const newFreehandChart = [...freehandChart];
 
 					newFreehandChart.splice(removeRowsAt, removeNRows);
 
 					update.patternDesign = {
-						'freehandChart': newFreehandChart,
+						freehandChart: newFreehandChart,
 					};
 
 					break;
@@ -2268,9 +2453,9 @@ export default function pattern(state = initialPatternState, action) {
 
 			// build update for updeep / state
 			const update = {
-				'numberOfTablets': newNumberOfTablets,
-				'orientations': newOrientations,
-				'threadingByTablet': newThreadingByTablet,
+				numberOfTablets: newNumberOfTablets,
+				orientations: newOrientations,
+				threadingByTablet: newThreadingByTablet,
 			};
 
 			let newWeavingInstructionsByTablet;
@@ -2338,11 +2523,16 @@ export default function pattern(state = initialPatternState, action) {
 							newWeavingInstructionsForTablet.push(obj);
 						}
 
-						newWeavingInstructionsByTablet.splice(insertTabletsAt, 0, newWeavingInstructionsForTablet);
+						newWeavingInstructionsByTablet.splice(
+							insertTabletsAt,
+							0,
+							newWeavingInstructionsForTablet
+						);
 
 						const picksForTablet = calculatePicksForTablet({
-							'weavingInstructionsForTablet': newWeavingInstructionsByTablet[insertTabletsAt],
-							'row': 0,
+							weavingInstructionsForTablet:
+								newWeavingInstructionsByTablet[insertTabletsAt],
+							row: 0,
 							numberOfRows,
 						});
 
@@ -2351,10 +2541,8 @@ export default function pattern(state = initialPatternState, action) {
 					break;
 
 				case 'doubleFaced':
-					const {
-						doubleFacedOrientations,
-						doubleFacedPatternChart,
-					} = patternDesign;
+					const { doubleFacedOrientations, doubleFacedPatternChart } =
+						patternDesign;
 					const doubleFacedChartLength = doubleFacedPatternChart.length;
 					const newDoubleFacedPatternChart = [...doubleFacedPatternChart];
 
@@ -2363,7 +2551,7 @@ export default function pattern(state = initialPatternState, action) {
 						// tablet orientations repeat, so the new ones can be added at the end
 						const orientation = getDoubleFacedOrientation({
 							doubleFacedOrientations,
-							'tablet': i + numberOfTablets,
+							tablet: i + numberOfTablets,
 						});
 						newOrientations.push(orientation);
 					}
@@ -2373,18 +2561,28 @@ export default function pattern(state = initialPatternState, action) {
 						// insert new tablet to double faced design chart
 						// these are by row, tablet
 						for (let j = 0; j < doubleFacedChartLength; j += 1) {
-							newDoubleFacedPatternChart[j] = [...newDoubleFacedPatternChart[j]];
+							newDoubleFacedPatternChart[j] = [
+								...newDoubleFacedPatternChart[j],
+							];
 							newDoubleFacedPatternChart[j].splice(insertTabletsAt, 0, '.');
 						}
 					}
 
 					// insert the new tablets into the threading chart
-					for (let i = insertTabletsAt; i < insertTabletsAt + insertNTablets; i += 1) {
+					for (
+						let i = insertTabletsAt;
+						i < insertTabletsAt + insertNTablets;
+						i += 1
+					) {
 						const newThreadingForTablet = [];
 
 						for (let j = 0; j < holes; j += 1) {
 							const colorRole = DOUBLE_FACED_THREADING[j];
-							newThreadingForTablet.push(colorRole === 'F' ? DOUBLE_FACED_FOREGROUND : DOUBLE_FACED_BACKGROUND);
+							newThreadingForTablet.push(
+								colorRole === 'F'
+									? DOUBLE_FACED_FOREGROUND
+									: DOUBLE_FACED_BACKGROUND
+							);
 						}
 
 						newThreadingByTablet.splice(i, 0, newThreadingForTablet);
@@ -2392,25 +2590,26 @@ export default function pattern(state = initialPatternState, action) {
 
 					// calculate weaving for new and subsequent tablets
 					for (let i = insertTabletsAt; i < newNumberOfTablets; i += 1) {
-						const newWeavingInstructions = buildDoubleFacedWeavingInstructionsForTablet({
-							numberOfRows,
-							'patternDesign': {
-								'doubleFacedPatternChart': newDoubleFacedPatternChart,
-							},
+						const newWeavingInstructions =
+							buildDoubleFacedWeavingInstructionsForTablet({
+								numberOfRows,
+								patternDesign: {
+									doubleFacedPatternChart: newDoubleFacedPatternChart,
+								},
 
-							'tabletIndex': i,
-						});
+								tabletIndex: i,
+							});
 
 						newWeavingInstructionsByTablet[i] = newWeavingInstructions;
 
 						newPicks[i] = calculatePicksForTablet({
-							'weavingInstructionsForTablet': newWeavingInstructions,
-							'row': 0,
+							weavingInstructionsForTablet: newWeavingInstructions,
+							row: 0,
 						});
 					}
 
 					update.patternDesign = {
-						'doubleFacedPatternChart': newDoubleFacedPatternChart,
+						doubleFacedPatternChart: newDoubleFacedPatternChart,
 					};
 					break;
 
@@ -2435,7 +2634,9 @@ export default function pattern(state = initialPatternState, action) {
 							newTwillPatternChart[j] = [...newTwillPatternChart[j]];
 							newTwillPatternChart[j].splice(insertTabletsAt, 0, '.');
 
-							newTwillDirectionChangeChart[j] = [...newTwillDirectionChangeChart[j]];
+							newTwillDirectionChangeChart[j] = [
+								...newTwillDirectionChangeChart[j],
+							];
 							newTwillDirectionChangeChart[j].splice(insertTabletsAt, 0, '.');
 						}
 					}
@@ -2445,18 +2646,26 @@ export default function pattern(state = initialPatternState, action) {
 					const colorsForRolesByTablet = getColorsForRolesByTablet({
 						holes,
 						numberOfTablets,
-						'startAt': insertTabletsAt,
-						'threading': threadingByTablet,
-						'threadingStructure': 'byTablet',
+						startAt: insertTabletsAt,
+						threading: threadingByTablet,
+						threadingStructure: 'byTablet',
 					});
 
 					// insert the new tablets
-					for (let i = insertTabletsAt; i < insertTabletsAt + insertNTablets; i += 1) {
+					for (
+						let i = insertTabletsAt;
+						i < insertTabletsAt + insertNTablets;
+						i += 1
+					) {
 						const newThreadingForTablet = [];
 
 						for (let j = 0; j < holes; j += 1) {
 							const colorRole = BROKEN_TWILL_THREADING[j][i % holes];
-							newThreadingForTablet.push(colorRole === 'F' ? BROKEN_TWILL_FOREGROUND : BROKEN_TWILL_BACKGROUND);
+							newThreadingForTablet.push(
+								colorRole === 'F'
+									? BROKEN_TWILL_FOREGROUND
+									: BROKEN_TWILL_BACKGROUND
+							);
 						}
 
 						newThreadingByTablet.splice(i, 0, newThreadingForTablet);
@@ -2479,28 +2688,29 @@ export default function pattern(state = initialPatternState, action) {
 
 					// calculate weaving for new and subsequent tablets
 					for (let i = insertTabletsAt; i < newNumberOfTablets; i += 1) {
-						const newWeavingInstructions = buildTwillWeavingInstructionsForTablet({
-							numberOfRows,
-							'patternDesign': {
-								twillDirection,
-								'twillPatternChart': newTwillPatternChart,
-								'twillDirectionChangeChart': newTwillDirectionChangeChart,
-							},
-							'startRow': 0, // reweave entire tablet
-							'tabletIndex': i,
-						});
+						const newWeavingInstructions =
+							buildTwillWeavingInstructionsForTablet({
+								numberOfRows,
+								patternDesign: {
+									twillDirection,
+									twillPatternChart: newTwillPatternChart,
+									twillDirectionChangeChart: newTwillDirectionChangeChart,
+								},
+								startRow: 0, // reweave entire tablet
+								tabletIndex: i,
+							});
 
 						newWeavingInstructionsByTablet[i] = newWeavingInstructions;
 
 						newPicks[i] = calculatePicksForTablet({
-							'weavingInstructionsForTablet': newWeavingInstructions,
-							'row': 0,
+							weavingInstructionsForTablet: newWeavingInstructions,
+							row: 0,
 						});
 					}
 
 					update.patternDesign = {
-						'twillPatternChart': newTwillPatternChart,
-						'twillDirectionChangeChart': newTwillDirectionChangeChart,
+						twillPatternChart: newTwillPatternChart,
+						twillDirectionChangeChart: newTwillDirectionChangeChart,
 					};
 					break;
 
@@ -2522,7 +2732,7 @@ export default function pattern(state = initialPatternState, action) {
 					}
 
 					update.patternDesign = {
-						'freehandChart': newFreehandChart,
+						freehandChart: newFreehandChart,
 					};
 
 					break;
@@ -2558,9 +2768,9 @@ export default function pattern(state = initialPatternState, action) {
 
 			// build update for updeep / state
 			const update = {
-				'numberOfTablets': newNumberOfTablets,
-				'orientations': newOrientations,
-				'threadingByTablet': newThreadingByTablet,
+				numberOfTablets: newNumberOfTablets,
+				orientations: newOrientations,
+				threadingByTablet: newThreadingByTablet,
 			};
 
 			if (patternType !== 'freehand') {
@@ -2586,9 +2796,7 @@ export default function pattern(state = initialPatternState, action) {
 					break;
 
 				case 'doubleFaced':
-					const {
-						doubleFacedPatternChart,
-					} = patternDesign;
+					const { doubleFacedPatternChart } = patternDesign;
 					const doubleFacedChartLength = doubleFacedPatternChart.length;
 					const newDoubleFacedPatternChart = [...doubleFacedPatternChart];
 
@@ -2603,7 +2811,7 @@ export default function pattern(state = initialPatternState, action) {
 					}
 
 					update.patternDesign = {
-						'doubleFacedPatternChart': newDoubleFacedPatternChart,
+						doubleFacedPatternChart: newDoubleFacedPatternChart,
 					};
 
 					break;
@@ -2627,9 +2835,9 @@ export default function pattern(state = initialPatternState, action) {
 					const colorsForRolesByTablet = getColorsForRolesByTablet({
 						holes,
 						numberOfTablets,
-						'startAt': tablet + 1,
-						'threading': threadingByTablet,
-						'threadingStructure': 'byTablet',
+						startAt: tablet + 1,
+						threading: threadingByTablet,
+						threadingStructure: 'byTablet',
 					});
 
 					// shorten the threading array
@@ -2655,32 +2863,35 @@ export default function pattern(state = initialPatternState, action) {
 						newTwillPatternChart[i] = [...newTwillPatternChart[i]];
 						newTwillPatternChart[i].splice(tablet, 1);
 
-						newTwillDirectionChangeChart[i] = [...newTwillDirectionChangeChart[i]];
+						newTwillDirectionChangeChart[i] = [
+							...newTwillDirectionChangeChart[i],
+						];
 						newTwillDirectionChangeChart[i].splice(tablet, 1);
 					}
 
 					// calculate weaving from removed tablet onwards
 					for (let i = tablet; i < newNumberOfTablets; i += 1) {
-						newWeavingInstructionsByTablet = buildTwillWeavingInstructionsForTablet({
-							numberOfRows,
-							'patternDesign': {
-								twillDirection,
-								'twillPatternChart': newTwillPatternChart,
-								'twillDirectionChangeChart': newTwillDirectionChangeChart,
-							},
-							'startRow': 0, // reweave entire tablet
-							'tabletIndex': i,
-						});
+						newWeavingInstructionsByTablet =
+							buildTwillWeavingInstructionsForTablet({
+								numberOfRows,
+								patternDesign: {
+									twillDirection,
+									twillPatternChart: newTwillPatternChart,
+									twillDirectionChangeChart: newTwillDirectionChangeChart,
+								},
+								startRow: 0, // reweave entire tablet
+								tabletIndex: i,
+							});
 
 						newPicks[i] = calculatePicksForTablet({
-							'weavingInstructionsForTablet': newWeavingInstructionsByTablet,
-							'row': 0,
+							weavingInstructionsForTablet: newWeavingInstructionsByTablet,
+							row: 0,
 						});
 					}
 
 					update.patternDesign = {
-						'twillPatternChart': newTwillPatternChart,
-						'twillDirectionChangeChart': newTwillDirectionChangeChart,
+						twillPatternChart: newTwillPatternChart,
+						twillDirectionChangeChart: newTwillDirectionChangeChart,
 					};
 
 					break;
@@ -2700,7 +2911,7 @@ export default function pattern(state = initialPatternState, action) {
 					}
 
 					update.patternDesign = {
-						'freehandChart': newFreehandChart,
+						freehandChart: newFreehandChart,
 					};
 
 					break;
@@ -2713,23 +2924,23 @@ export default function pattern(state = initialPatternState, action) {
 		}
 
 		case SET_FILTER_IS_TWIST_NEUTRAL: {
-			return updeep({ 'filterIsTwistNeutral': action.payload }, state);
+			return updeep({ filterIsTwistNeutral: action.payload }, state);
 		}
 
 		case SET_FILTER_MAX_TABLETS: {
-			return updeep({ 'filterMaxTablets': action.payload }, state);
+			return updeep({ filterMaxTablets: action.payload }, state);
 		}
 
 		case SET_FILTER_MIN_TABLETS: {
-			return updeep({ 'filterMinTablets': action.payload }, state);
+			return updeep({ filterMinTablets: action.payload }, state);
 		}
 
 		case SET_FILTER_WILL_REPEAT: {
-			return updeep({ 'filterWillRepeat': action.payload }, state);
+			return updeep({ filterWillRepeat: action.payload }, state);
 		}
 
 		case REMOVE_TABLET_FILTER: {
-			return updeep({ 'filterMaxTablets': null, 'filterMinTablets': null }, state);
+			return updeep({ filterMaxTablets: null, filterMinTablets: null }, state);
 		}
 
 		default:

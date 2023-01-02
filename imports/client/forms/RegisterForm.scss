@@ -1,0 +1,11 @@
+@import '../constants/variables';
+
+.register-form {
+	.custom-control-input {
+		margin-right: 8px;
+	}
+
+	.custom-control-label {
+		width: unset;
+	}
+}

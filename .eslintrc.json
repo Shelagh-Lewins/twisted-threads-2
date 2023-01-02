@@ -1,16 +1,10 @@
 {
 	"parser": "babel-eslint",
-	"plugins": [
-		"meteor"
-	],
+	"plugins": ["meteor"],
 	"settings": {
 		"import/resolver": "meteor"
 	},
-	"extends": [
-		"react-app",
-		"airbnb",
-		"plugin:meteor/recommended"
-	],
+	"extends": ["react-app", "airbnb", "plugin:meteor/recommended"],
 	"env": {
 		"meteor": true,
 		"node": true,
@@ -22,23 +16,11 @@
 		"Slingshot": true
 	},
 	"rules": {
-		"array-callback-return": [
-			"off"
-		],
-		"no-underscore-dangle": [
-			"off"
-		],
-		"import/no-extraneous-dependencies": [
-			"error", {"devDependencies": true}
-		],
-		"eol-last": [
-			"error",
-			"always"
-		],
-		"func-names": [
-			"error",
-			"as-needed"
-		],
+		"array-callback-return": ["off"],
+		"no-underscore-dangle": ["off"],
+		"import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
+		"eol-last": ["error", "always"],
+		"func-names": ["error", "as-needed"],
 		"quotes": [
 			2,
 			"single",
@@ -47,14 +29,8 @@
 				"allowTemplateLiterals": true
 			}
 		],
-		"padded-blocks": [
-			"error",
-			"never"
-		],
-		"semi": [
-			"error",
-			"always"
-		],
+		"padded-blocks": ["error", "never"],
+		"semi": ["error", "always"],
 		"indent": [
 			"error",
 			"tab",
@@ -68,66 +44,32 @@
 				"mode": "strict"
 			}
 		],
-		"no-alert": [
-			"off"
-		],
-		"object-curly-spacing": [
-			"error",
-			"always"
-		],
-		"quote-props": [
-			2,
-			"always"
-		],
-		"consistent-return": [
-			"off"
-		],
-		"no-return-assign": [
-			"off"
-		],
-		"no-tabs": [
-			"off"
-		],
-		"max-len": [
-			"off"
-		],
-		"react/jsx-indent": [
-			"error",
-			"tab"
-		],
-		"react/jsx-indent-props": [
-			"error",
-			"tab"
-		],
+		"no-alert": ["off"],
+		"object-curly-spacing": ["error", "always"],
+		"operator-linebreak": ["off"],
+		"quote-props": [2, "as-needed"],
+		"consistent-return": ["off"],
+		"no-return-assign": ["off"],
+		"no-tabs": ["off"],
+		"max-len": ["off"],
+		"react/jsx-indent": ["error", "tab"],
+		"react/jsx-indent-props": ["error", "tab"],
 		"react/jsx-filename-extension": [
 			1,
 			{
-				"extensions": [
-					".js",
-					".jsx"
-				]
+				"extensions": [".js", ".jsx"]
 			}
 		],
-		"react/jsx-fragments": [
-			"off"
-		],
-		"react/no-did-update-set-state": [
-			"warn"
-		],
-		"react/require-default-props": [
-			"off"
-		],
-		"react/jsx-one-expression-per-line": [
-			"warn"
-		],
-		"react/jsx-boolean-value": [
-			"off"
-		],
+		"react/jsx-fragments": ["off"],
+		"react/no-did-update-set-state": ["warn"],
+		"react/require-default-props": ["off"],
+		"react/jsx-one-expression-per-line": ["warn"],
+		"react/jsx-boolean-value": ["off"],
 		"jsx-a11y/label-has-associated-control": [
 			1,
-      {
-      	"assert": "either"
-      }
-    ]
+			{
+				"assert": "either"
+			}
+		]
 	}
 }

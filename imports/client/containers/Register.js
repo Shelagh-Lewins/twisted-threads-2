@@ -3,11 +3,7 @@ import { Container, Row, Col } from 'reactstrap';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import {
-	getIsLoading,
-	register,
-	setIsLoading,
-} from '../modules/auth';
+import { getIsLoading, register, setIsLoading } from '../modules/auth';
 import PageWrapper from '../components/PageWrapper';
 import RegisterForm from '../forms/RegisterForm';
 import Loading from '../components/Loading';
@@ -21,13 +17,15 @@ class Register extends Component {
 	handleSubmit = ({ email, username, password }) => {
 		const { dispatch, history } = this.props;
 
-		dispatch(register({
-			email,
-			username,
-			password,
-			history,
-		}));
-	}
+		dispatch(
+			register({
+				email,
+				username,
+				password,
+				history,
+			})
+		);
+	};
 
 	render() {
 		const { dispatch, isLoading, errors } = this.props;
@@ -39,14 +37,17 @@ class Register extends Component {
 			>
 				<Container>
 					{isLoading && <Loading />}
-					<Row>
-						<Col lg="12">
-							<h1>Create an account</h1>
-							<RegisterForm
-								handleSubmit={this.handleSubmit}
-							/>
-						</Col>
-					</Row>
+					{Meteor.userId() && !isLoading && (
+						<p>You cannot create a new account while you are logged in</p>
+					)}
+					{!Meteor.userId() && (
+						<Row>
+							<Col lg='12'>
+								<h1>Create an account</h1>
+								<RegisterForm handleSubmit={this.handleSubmit} />
+							</Col>
+						</Row>
+					)}
 				</Container>
 			</PageWrapper>
 		);
@@ -54,15 +55,15 @@ class Register extends Component {
 }
 
 Register.propTypes = {
-	'dispatch': PropTypes.func.isRequired,
-	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
-	'isLoading': PropTypes.bool.isRequired,
-	'history': PropTypes.objectOf(PropTypes.any).isRequired,
+	dispatch: PropTypes.func.isRequired,
+	errors: PropTypes.objectOf(PropTypes.any).isRequired,
+	isLoading: PropTypes.bool.isRequired,
+	history: PropTypes.objectOf(PropTypes.any).isRequired,
 };
 
 const mapStateToProps = (state) => ({
-	'errors': state.errors,
-	'isLoading': getIsLoading(state),
+	errors: state.errors,
+	isLoading: getIsLoading(state),
 });
 
 export default connect(mapStateToProps)(Register);

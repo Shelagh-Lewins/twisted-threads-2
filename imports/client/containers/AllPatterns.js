@@ -1,10 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import {
-	Col,
-	Container,
-	Row,
-} from 'reactstrap';
+import { Col, Container, Row } from 'reactstrap';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import PageWrapper from '../components/PageWrapper';
@@ -36,9 +32,7 @@ class AllPatterns extends Component {
 		const { dispatch } = props;
 
 		// bind onClick functions to provide context
-		const functionsToBind = [
-			'handlePaginationUpdate',
-		];
+		const functionsToBind = ['handlePaginationUpdate'];
 
 		functionsToBind.forEach((functionName) => {
 			this[functionName] = this[functionName].bind(this);
@@ -56,9 +50,7 @@ class AllPatterns extends Component {
 	}
 
 	handlePaginationUpdate() {
-		const {
-			dispatch,
-		} = this.props;
+		const { dispatch } = this.props;
 
 		dispatch(getPatternCount());
 	}
@@ -83,13 +75,11 @@ class AllPatterns extends Component {
 				errors={errors}
 			>
 				<MainMenu />
-				<div
-					className="menu-selected-area"
-				>
+				<div className='menu-selected-area'>
 					{isLoading && <Loading />}
 					<Container>
 						<Row>
-							<Col lg="12">
+							<Col lg='12'>
 								<h1>All patterns</h1>
 							</Col>
 						</Row>
@@ -121,26 +111,26 @@ class AllPatterns extends Component {
 }
 
 AllPatterns.defaultProps = {
-	'currentPageNumber': 1,
+	currentPageNumber: 1,
 };
 
 AllPatterns.propTypes = {
-	'currentPageNumber': PropTypes.number,
-	'dispatch': PropTypes.func.isRequired,
-	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
+	currentPageNumber: PropTypes.number,
+	dispatch: PropTypes.func.isRequired,
+	errors: PropTypes.objectOf(PropTypes.any).isRequired,
 	// eslint doesn't realise the filters are used in Tracker
-	'filterIsTwistNeutral': PropTypes.bool,
-	'filterMaxTablets': PropTypes.number,
-	'filterMinTablets': PropTypes.number,
-	'filterWillRepeat': PropTypes.bool,
-	'history': PropTypes.objectOf(PropTypes.any).isRequired,
-	'isLoading': PropTypes.bool.isRequired,
-	'itemsPerPage': PropTypes.number.isRequired,
-	'patternCount': PropTypes.number.isRequired,
-	'patternPreviews': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'tags': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'users': PropTypes.arrayOf(PropTypes.any).isRequired,
+	filterIsTwistNeutral: PropTypes.bool,
+	filterMaxTablets: PropTypes.number,
+	filterMinTablets: PropTypes.number,
+	filterWillRepeat: PropTypes.bool,
+	history: PropTypes.objectOf(PropTypes.any).isRequired,
+	isLoading: PropTypes.bool.isRequired,
+	itemsPerPage: PropTypes.number.isRequired,
+	patternCount: PropTypes.number.isRequired,
+	patternPreviews: PropTypes.arrayOf(PropTypes.any).isRequired,
+	patterns: PropTypes.arrayOf(PropTypes.any).isRequired,
+	tags: PropTypes.arrayOf(PropTypes.any).isRequired,
+	users: PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
@@ -163,15 +153,15 @@ function mapStateToProps(state, ownProps) {
 
 	return {
 		currentPageNumber, // read the url parameter to find the currentPage
-		'errors': state.errors,
+		errors: state.errors,
 		filterIsTwistNeutral,
 		filterMaxTablets,
 		filterMinTablets,
 		filterWillRepeat,
-		'isLoading': getIsLoading(state),
+		isLoading: getIsLoading(state),
 		itemsPerPage,
-		'pageSkip': (currentPageNumber - 1) * itemsPerPage,
-		'patternCount': state.pattern.patternCount,
+		pageSkip: (currentPageNumber - 1) * itemsPerPage,
+		patternCount: state.pattern.patternCount,
 	};
 }
 
@@ -187,37 +177,48 @@ const Tracker = withTracker((props) => {
 	} = props;
 	const state = store.getState();
 	const isLoading = getIsLoading(state);
-	const patterns = Patterns.find({}, {
-		'sort': { 'nameSort': 1 },
-		'limit': itemsPerPage,
-	}).fetch();
+	const patterns = Patterns.find(
+		{},
+		{
+			sort: { nameSort: 1 },
+			limit: itemsPerPage,
+		}
+	).fetch();
 
 	Meteor.subscribe('tags');
 
-	const handle = Meteor.subscribe('patterns', {
-		filterIsTwistNeutral,
-		filterMaxTablets,
-		filterMinTablets,
-		filterWillRepeat,
-		'limit': itemsPerPage,
-		'skip': pageSkip,
-	}, {
-		'onReady': () => {
-			secondaryPatternSubscriptions(patterns);
+	const handle = Meteor.subscribe(
+		'patterns',
+		{
+			filterIsTwistNeutral,
+			filterMaxTablets,
+			filterMinTablets,
+			filterWillRepeat,
+			limit: itemsPerPage,
+			skip: pageSkip,
 		},
-	});
+		{
+			onReady: () => {
+				secondaryPatternSubscriptions(patterns);
+			},
+		}
+	);
 
 	if (isLoading && handle.ready()) {
-		dispatch(setIsLoading(false));
+		setTimeout(() => {
+			dispatch(setIsLoading(false));
+		}, 1);
 	} else if (!isLoading && !handle.ready()) {
-		dispatch(setIsLoading(true));
+		setTimeout(() => {
+			dispatch(setIsLoading(true));
+		}, 1);
 	}
 
 	return {
 		patterns,
-		'patternPreviews': PatternPreviews.find().fetch(),
-		'tags': Tags.find().fetch(),
-		'users': Meteor.users.find().fetch(),
+		patternPreviews: PatternPreviews.find().fetch(),
+		tags: Tags.find().fetch(),
+		users: Meteor.users.find().fetch(),
 	};
 })(AllPatterns);
 

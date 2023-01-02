@@ -24,9 +24,7 @@ import WeavingInstructionsAllTogetherPrint from '../components/WeavingInstructio
 import Threading from '../components/Threading';
 import Notation from '../components/Notation';
 import TwistCalculationHints from '../components/TwistCalculationHints';
-import {
-	findPatternTypeDisplayName,
-} from '../../modules/parameters';
+import { findPatternTypeDisplayName } from '../../modules/parameters';
 import './PrintView.scss';
 
 const bodyClass = 'print-view';
@@ -36,14 +34,11 @@ class PrintView extends PureComponent {
 		super(props);
 
 		this.state = {
-			'showPrintHint': true,
+			showPrintHint: true,
 		};
 
 		// bind onClick functions to provide context
-		const functionsToBind = [
-			'onClickClose',
-			'handleKeyUp',
-		];
+		const functionsToBind = ['onClickClose', 'handleKeyUp'];
 
 		functionsToBind.forEach((functionName) => {
 			this[functionName] = this[functionName].bind(this);
@@ -62,15 +57,18 @@ class PrintView extends PureComponent {
 
 	onClickClose() {
 		this.setState({
-			'showPrintHint': false,
+			showPrintHint: false,
 		});
 	}
 
 	handleKeyUp(event) {
 		const { history } = this.props;
-		const { 'pattern': { _id } } = this.context;
+		const {
+			pattern: { _id },
+		} = this.context;
 
-		if (event.keyCode === 27) { // Esc key
+		if (event.keyCode === 27) {
+			// Esc key
 			history.push(`/pattern/${_id}`);
 		}
 	}
@@ -90,10 +88,7 @@ class PrintView extends PureComponent {
 		} = this.props;
 		const { showPrintHint } = this.state;
 
-		const {
-			createdByUser,
-			pattern,
-		} = this.context;
+		const { createdByUser, pattern } = this.context;
 
 		let content = <Loading />;
 
@@ -111,7 +106,7 @@ class PrintView extends PureComponent {
 				} = pattern;
 
 				const info = (
-					<div className="links">
+					<div className='links'>
 						<p>{`Printed from: ${Meteor.absoluteUrl()}pattern/${_id}`}</p>
 						<p>{`Created by: ${createdByUser.username}`}</p>
 						<p>{`Pattern type: ${findPatternTypeDisplayName(patternType)}`}</p>
@@ -161,20 +156,33 @@ class PrintView extends PureComponent {
 				}
 
 				const printHint = (
-					<div className="print-hint">
-						<div className="innertube">
+					<div className='print-hint'>
+						<div className='innertube'>
 							<Button
-								type="button"
-								className="close"
+								type='button'
+								className='btn-close'
+								aria-label='Close'
+								title='close'
 								onClick={this.onClickClose}
-							>
-							X
-							</Button>
+							/>
 							<h2>Check your print settings</h2>
-							<p>Look at the print preview before printing. If you do not see a background colour on any square, your browser is probably not set up to print background colours.</p>
-							<p>If you&apos;re not sure how to change the print settings, try searching the web for instructions, for example &quot;Firefox print background color&quot; or &quot;Chrome print background color&quot;.</p>
-							<p>Important! After printing your pattern, you may want to change the settings back so you won&apos;t waste ink when printing standard web pages.</p>
-							<p className="key-hint">Press Esc to exit print view</p>
+							<p>
+								Look at the print preview before printing. If you do not see a
+								background colour on any square, your browser is probably not
+								set up to print background colours.
+							</p>
+							<p>
+								If you&apos;re not sure how to change the print settings, try
+								searching the web for instructions, for example &quot;Firefox
+								print background color&quot; or &quot;Chrome print background
+								color&quot;.
+							</p>
+							<p>
+								Important! After printing your pattern, you may want to change
+								the settings back so you won&apos;t waste ink when printing
+								standard web pages.
+							</p>
+							<p className='key-hint'>Press Esc to exit print view</p>
 						</div>
 					</div>
 				);
@@ -185,10 +193,11 @@ class PrintView extends PureComponent {
 						<h1>{name}</h1>
 						{info}
 						{/* if navigating from the home page, the pattern summary is in MiniMongo before Tracker sets isLoading to true. This doesn't include the detail fields so we need to prevent errors. */}
-						{pattern.patternDesign && (
+						{pattern.patternDesign && pattern.previewOrientation && (
 							<>
 								<h2>Woven band</h2>
 								<TwistCalculationHints
+									canEdit={false}
 									includeInTwist={includeInTwist}
 									patternIsTwistNeutral={patternIsTwistNeutral}
 									patternType={patternType}
@@ -236,7 +245,12 @@ class PrintView extends PureComponent {
 					</>
 				);
 			} else {
-				content = <p>Either this pattern does not exist or you do not have permission to view it</p>;
+				content = (
+					<p>
+						Either this pattern does not exist or you do not have permission to
+						view it
+					</p>
+				);
 			}
 		}
 
@@ -252,40 +266,42 @@ class PrintView extends PureComponent {
 }
 
 PrintView.propTypes = {
-	'dispatch': PropTypes.func.isRequired,
-	'errors': PropTypes.objectOf(PropTypes.any).isRequired,
-	'history': PropTypes.objectOf(PropTypes.any).isRequired,
-	'holes': PropTypes.number.isRequired,
-	'isLoading': PropTypes.bool.isRequired,
-	'numberOfRows': PropTypes.number.isRequired,
-	'numberOfTablets': PropTypes.number.isRequired,
-	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'patternIsTwistNeutral': PropTypes.bool.isRequired,
-	'patternWillRepeat': PropTypes.bool.isRequired,
-	'totalTurnsByTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
+	dispatch: PropTypes.func.isRequired,
+	errors: PropTypes.objectOf(PropTypes.any).isRequired,
+	history: PropTypes.objectOf(PropTypes.any).isRequired,
+	holes: PropTypes.number.isRequired,
+	isLoading: PropTypes.bool.isRequired,
+	numberOfRows: PropTypes.number.isRequired,
+	numberOfTablets: PropTypes.number.isRequired,
+	palette: PropTypes.arrayOf(PropTypes.any).isRequired,
+	patternIsTwistNeutral: PropTypes.bool.isRequired,
+	patternWillRepeat: PropTypes.bool.isRequired,
+	totalTurnsByTablet: PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 PrintView.contextType = AppContext;
 
 function mapStateToProps(state) {
 	const { patternType } = state.pattern;
-	const { patternIsTwistNeutral, patternWillRepeat } = getPatternTwistSelector(state);
+	const { patternIsTwistNeutral, patternWillRepeat } =
+		getPatternTwistSelector(state);
 
 	let totalTurnsByTablet = [];
 
-	if (patternType !== 'freehand') { // all simulation patterns
+	if (patternType !== 'freehand') {
+		// all simulation patterns
 		totalTurnsByTablet = getTotalTurnsByTabletSelector(state);
 	}
 
 	return {
-		'errors': state.errors,
-		'holes': getHoles(state),
-		'isLoading': getIsLoading(state),
-		'numberOfRows': getNumberOfRowsForChart(state),
-		'numberOfTablets': getNumberOfTablets(state),
-		'palette': getPalette(state),
-		'patternIsTwistNeutral': patternIsTwistNeutral,
-		'patternWillRepeat': patternWillRepeat,
+		errors: state.errors,
+		holes: getHoles(state),
+		isLoading: getIsLoading(state),
+		numberOfRows: getNumberOfRowsForChart(state),
+		numberOfTablets: getNumberOfTablets(state),
+		palette: getPalette(state),
+		patternIsTwistNeutral: patternIsTwistNeutral,
+		patternWillRepeat: patternWillRepeat,
 		totalTurnsByTablet,
 	};
 }

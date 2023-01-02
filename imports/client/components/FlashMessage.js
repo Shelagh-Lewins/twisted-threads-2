@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Button } from 'reactstrap';
 
 import './FlashMessage.scss';
 
@@ -9,15 +10,19 @@ export default function FlashMessage({ message, type, onClick }) {
 	return (
 		<div className={`flash-message ${type}`}>
 			<span>{message}</span>
-			<button type="button" className="close" aria-label="Close" onClick={onClick}>
-				<span aria-hidden="true">&times;</span>
-			</button>
+			<Button
+				type='button'
+				className='btn-close'
+				aria-label='Close'
+				title='Close'
+				onClick={onClick}
+			/>
 		</div>
 	);
 }
 
 FlashMessage.propTypes = {
-	'message': PropTypes.string.isRequired,
-	'onClick': PropTypes.func.isRequired,
-	'type': PropTypes.string.isRequired,
+	message: PropTypes.string.isRequired,
+	onClick: PropTypes.func.isRequired,
+	type: PropTypes.string.isRequired,
 };

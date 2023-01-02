@@ -1,6 +1,7 @@
-@import "../constants/variables";
+@import '../constants/variables';
 
 .navbar {
+	--bs-navbar-padding-x: 0.5rem !important;
 	background: $color-navbar-background;
 	color: $color-navbar-color;
 
@@ -44,6 +45,25 @@
 	}
 }
 
+@media (min-width: 768px) {
+	.navbar {
+		--bs-navbar-padding-x: 1rem !important;
+	}
+
+	.nav-link {
+		padding: 0.5rem 1rem !important;
+	}
+}
+
+.nav-link {
+	padding-left: 0;
+	padding-right: 0;
+}
+
+.navbar-collapse {
+	justify-content: space-between;
+}
+
 .nav-item {
 	button {
 		width: auto;
@@ -55,6 +75,6 @@
 }
 
 .navbar-brand {
-	font-size: .8rem;
+	font-size: 0.8rem;
 	font-weight: bold;
 }

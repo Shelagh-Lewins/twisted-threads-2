@@ -29,7 +29,7 @@ import {
 
 // don't allow users to edit their profile
 // https://docs.meteor.com/api/accounts.html
-Meteor.users.deny({ 'update': () => true });
+Meteor.users.deny({ update: () => true });
 
 // note: if there is ever a need to publish nothing when the user is not logged in, the function should return explicitly like this:
 /*
@@ -46,12 +46,12 @@ if (!this.userId) {
 // Color books
 
 const ColorBooksFields = {
-	'colors': 1,
-	'createdAt': 1,
-	'createdBy': 1,
-	'isPublic': 1,
-	'name': 1,
-	'nameSort': 1,
+	colors: 1,
+	createdAt: 1,
+	createdBy: 1,
+	isPublic: 1,
+	name: 1,
+	nameSort: 1,
 };
 
 Meteor.publish('colorBooks', function (userId) {
@@ -61,26 +61,20 @@ Meteor.publish('colorBooks', function (userId) {
 	if (userId) {
 		return ColorBooks.find(
 			{
-				'$and': [
-					getPatternPermissionQuery(),
-					{ 'createdBy': userId },
-				],
+				$and: [getPatternPermissionQuery(), { createdBy: userId }],
 			},
 			{
-				'fields': ColorBooksFields,
-				'sort': { 'nameSort': 1 },
+				fields: ColorBooksFields,
+				sort: { nameSort: 1 },
 			},
 		);
 	}
 
 	// all color books the user can see
-	return ColorBooks.find(
-		getPatternPermissionQuery(),
-		{
-			'fields': ColorBooksFields,
-			'sort': { 'nameSort': 1 },
-		},
-	);
+	return ColorBooks.find(getPatternPermissionQuery(), {
+		fields: ColorBooksFields,
+		sort: { nameSort: 1 },
+	});
 });
 
 // //////////////////////////
@@ -89,19 +83,19 @@ Meteor.publish('colorBooks', function (userId) {
 // limited fields for all patterns
 // must include anything that can be searched
 const patternsFields = {
-	'createdAt': 1,
-	'createdBy': 1,
-	'description': 1,
-	'holes': 1,
-	'isTwistNeutral': 1,
-	'isPublic': 1,
-	'name': 1,
-	'nameSort': 1,
-	'numberOfRows': 1,
-	'numberOfTablets': 1,
-	'patternType': 1,
-	'tags': 1,
-	'willRepeat': 1,
+	createdAt: 1,
+	createdBy: 1,
+	description: 1,
+	holes: 1,
+	isTwistNeutral: 1,
+	isPublic: 1,
+	name: 1,
+	nameSort: 1,
+	numberOfRows: 1,
+	numberOfTablets: 1,
+	patternType: 1,
+	tags: 1,
+	willRepeat: 1,
 };
 
 // the field 'sets' is not published because it is only used on the server. If there is ever a feature added to show the sets to which a pattern belongs, then it could be published.
@@ -110,70 +104,70 @@ const patternsFields = {
 const patternFields = {
 	...patternsFields,
 	...{
-		'holeHandedness': 1,
-		'includeInTwist': 1,
-		'orientations': 1,
-		'palette': 1,
-		'patternDesign': 1,
-		'previewOrientation': 1,
-		'threading': 1,
-		'threadingNotes': 1,
-		'weavingNotes': 1,
-		'weftColor': 1,
+		holeHandedness: 1,
+		includeInTwist: 1,
+		orientations: 1,
+		palette: 1,
+		patternDesign: 1,
+		previewOrientation: 1,
+		threading: 1,
+		threadingNotes: 1,
+		weavingNotes: 1,
+		weftColor: 1,
 	},
 };
 
 // ////////////////////////////////
 // All patterns
-Meteor.publish('patterns', function ({
-	filterIsTwistNeutral,
-	filterMaxTablets,
-	filterMinTablets,
-	filterWillRepeat,
-	skip = 0,
-	limit,
-}) {
-	// this needs to return the same number of patterns as the getPatternCount method, for pagination
-	check(filterIsTwistNeutral, Match.Maybe(Boolean));
-	check(filterMaxTablets, Match.Maybe(positiveIntegerCheck));
-	check(filterMinTablets, Match.Maybe(positiveIntegerCheck));
-	check(filterWillRepeat, Match.Maybe(Boolean));
-	check(limit, positiveIntegerCheck);
-	check(skip, positiveIntegerCheck);
+Meteor.publish(
+	'patterns',
+	function ({
+		filterIsTwistNeutral,
+		filterMaxTablets,
+		filterMinTablets,
+		filterWillRepeat,
+		skip = 0,
+		limit,
+	}) {
+		// this needs to return the same number of patterns as the getPatternCount method, for pagination
+		check(filterIsTwistNeutral, Match.Maybe(Boolean));
+		check(filterMaxTablets, Match.Maybe(positiveIntegerCheck));
+		check(filterMinTablets, Match.Maybe(positiveIntegerCheck));
+		check(filterWillRepeat, Match.Maybe(Boolean));
+		check(limit, positiveIntegerCheck);
+		check(skip, positiveIntegerCheck);
 
-	return Patterns.find(
-		{
-			'$and': [
-				getPatternFilter({
-					filterIsTwistNeutral,
-					filterMaxTablets,
-					filterMinTablets,
-					filterWillRepeat,
-				}),
-				getPatternPermissionQuery(),
-			],
-		},
-		{
-			'fields': patternsFields,
-			'sort': { 'nameSort': 1 },
-			'skip': skip,
-			'limit': limit,
-		},
-	);
-});
+		return Patterns.find(
+			{
+				$and: [
+					getPatternFilter({
+						filterIsTwistNeutral,
+						filterMaxTablets,
+						filterMinTablets,
+						filterWillRepeat,
+					}),
+					getPatternPermissionQuery(),
+				],
+			},
+			{
+				fields: patternsFields,
+				sort: { nameSort: 1 },
+				skip,
+				limit,
+			},
+		);
+	},
+);
 
 Meteor.publish('patternsById', function (patternIds) {
 	check(patternIds, [nonEmptyStringCheck]);
 
 	return Patterns.find(
 		{
-			'$and': [
-				{ '_id': { '$in': patternIds } },
-				getPatternPermissionQuery(),
-			],
+			$and: [{ _id: { $in: patternIds } }, getPatternPermissionQuery()],
 		},
 		{
-			'fields': patternsFields,
+			fields: patternsFields,
 		},
 	);
 });
@@ -182,16 +176,26 @@ Meteor.publish('patternsById', function (patternIds) {
 Meteor.publish('pattern', function (_id) {
 	check(_id, nonEmptyStringCheck);
 
+	// NOTE service user can view any individual pattern
+	if (Roles.getRolesForUser(Meteor.userId()).includes('serviceUser')) {
+		return Patterns.find(
+			{
+				_id,
+			},
+			{
+				fields: patternFields,
+				limit: 1,
+			},
+		);
+	}
+
 	return Patterns.find(
 		{
-			'$and': [
-				{ _id },
-				getPatternPermissionQuery(),
-			],
+			$and: [{ _id }, getPatternPermissionQuery()],
 		},
 		{
-			'fields': patternFields,
-			'limit': 1,
+			fields: patternFields,
+			limit: 1,
 		},
 	);
 });
@@ -199,14 +203,11 @@ Meteor.publish('pattern', function (_id) {
 // preview list for all patterns
 // displayed on Home page
 Meteor.publish('allPatternsPreview', function () {
-	return Patterns.find(
-		getPatternPermissionQuery(),
-		{
-			'fields': patternsFields,
-			'limit': ITEMS_PER_PREVIEW_LIST,
-			'sort': { 'nameSort': 1 },
-		},
-	);
+	return Patterns.find(getPatternPermissionQuery(), {
+		fields: patternsFields,
+		limit: ITEMS_PER_PREVIEW_LIST,
+		sort: { nameSort: 1 },
+	});
 });
 
 // preview list for my patterns (my patterns main page uses userPattern publication
@@ -214,11 +215,11 @@ Meteor.publish('allPatternsPreview', function () {
 Meteor.publish('myPatternsPreview', function () {
 	if (this.userId) {
 		return Patterns.find(
-			{ 'createdBy': this.userId },
+			{ createdBy: this.userId },
 			{
-				'fields': patternsFields,
-				'limit': ITEMS_PER_PREVIEW_LIST,
-				'sort': { 'nameSort': 1 },
+				fields: patternsFields,
+				limit: ITEMS_PER_PREVIEW_LIST,
+				sort: { nameSort: 1 },
 			},
 		);
 	}
@@ -229,107 +230,113 @@ Meteor.publish('myPatternsPreview', function () {
 // ////////////////////////////////
 // New patterns
 // returns all patterns, but sorted by creation date
-Meteor.publish('newPatterns', function ({
-	filterIsTwistNeutral,
-	filterMaxTablets,
-	filterMinTablets,
-	filterWillRepeat,
-	skip = 0,
-	limit,
-}) {
-	// this needs to return the same number of patterns as the getPatternCount method, for pagination
-	check(filterIsTwistNeutral, Match.Maybe(Boolean));
-	check(filterMaxTablets, Match.Maybe(positiveIntegerCheck));
-	check(filterMinTablets, Match.Maybe(positiveIntegerCheck));
-	check(filterWillRepeat, Match.Maybe(Boolean));
-	check(limit, positiveIntegerCheck);
-	check(skip, positiveIntegerCheck);
+Meteor.publish(
+	'newPatterns',
+	function ({
+		filterIsTwistNeutral,
+		filterMaxTablets,
+		filterMinTablets,
+		filterWillRepeat,
+		skip = 0,
+		limit,
+	}) {
+		// this needs to return the same number of patterns as the getPatternCount method, for pagination
+		check(filterIsTwistNeutral, Match.Maybe(Boolean));
+		check(filterMaxTablets, Match.Maybe(positiveIntegerCheck));
+		check(filterMinTablets, Match.Maybe(positiveIntegerCheck));
+		check(filterWillRepeat, Match.Maybe(Boolean));
+		check(limit, positiveIntegerCheck);
+		check(skip, positiveIntegerCheck);
 
-	return Patterns.find(
-		{
-			'$and': [
-				getPatternFilter({
-					filterIsTwistNeutral,
-					filterMaxTablets,
-					filterMinTablets,
-					filterWillRepeat,
-				}),
-				getPatternPermissionQuery(),
-			],
-		},
-		{
-			'fields': patternsFields,
-			'sort': { 'createdAt': -1 },
-			'skip': skip,
-			'limit': limit,
-		},
-	);
-});
+		return Patterns.find(
+			{
+				$and: [
+					getPatternFilter({
+						filterIsTwistNeutral,
+						filterMaxTablets,
+						filterMinTablets,
+						filterWillRepeat,
+					}),
+					getPatternPermissionQuery(),
+				],
+			},
+			{
+				fields: patternsFields,
+				sort: { createdAt: -1 },
+				skip,
+				limit,
+			},
+		);
+	},
+);
 
 // preview list for new patterns
 // displayed on Home page
 // only public patterns to reduce overlap with Recents
 Meteor.publish('newPatternsPreview', function () {
 	return Patterns.find(
-		{ 'isPublic': { '$eq': true } },
+		{ isPublic: { $eq: true } },
 		{
-			'fields': patternsFields,
-			'limit': ITEMS_PER_PREVIEW_LIST,
-			'sort': { 'createdAt': -1 },
+			fields: patternsFields,
+			limit: ITEMS_PER_PREVIEW_LIST,
+			sort: { createdAt: -1 },
 		},
 	);
 });
 
 // patterns cretaed by a user
-Meteor.publish('userPatterns', function ({
-	filterIsTwistNeutral,
-	filterMaxTablets,
-	filterMinTablets,
-	filterWillRepeat,
-	skip = 0,
-	limit,
-	userId,
-}) {
-	// this needs to return the same number of patterns as the getPatternCount method, for pagination
-	check(filterIsTwistNeutral, Match.Maybe(Boolean));
-	check(filterMaxTablets, Match.Maybe(positiveIntegerCheck));
-	check(filterMinTablets, Match.Maybe(positiveIntegerCheck));
-	check(filterWillRepeat, Match.Maybe(Boolean));
-	check(limit, positiveIntegerCheck);
-	check(skip, positiveIntegerCheck);
-	check(userId, nonEmptyStringCheck);
+Meteor.publish(
+	'userPatterns',
+	function ({
+		filterIsTwistNeutral,
+		filterMaxTablets,
+		filterMinTablets,
+		filterWillRepeat,
+		skip = 0,
+		limit,
+		userId,
+	}) {
+		// this needs to return the same number of patterns as the getPatternCount method, for pagination
+		check(filterIsTwistNeutral, Match.Maybe(Boolean));
+		check(filterMaxTablets, Match.Maybe(positiveIntegerCheck));
+		check(filterMinTablets, Match.Maybe(positiveIntegerCheck));
+		check(filterWillRepeat, Match.Maybe(Boolean));
+		check(limit, positiveIntegerCheck);
+		check(skip, positiveIntegerCheck);
+		check(userId, nonEmptyStringCheck);
 
-	const self = this;
+		const self = this;
 
-	const myCursor = Patterns.find(
-		{
-			'$and': [
-				getPatternFilter({
-					filterIsTwistNeutral,
-					filterMaxTablets,
-					filterMinTablets,
-					filterWillRepeat,
-				}),
-				{ 'createdBy': userId },
-				getPatternPermissionQuery(),
-			],
-		},
-		{
-			'fields': patternsFields,
-			'sort': { 'nameSort': 1 },
-			'skip': skip,
-			'limit': limit,
-		},
-	);
+		const myCursor = Patterns.find(
+			{
+				$and: [
+					getPatternFilter({
+						filterIsTwistNeutral,
+						filterMaxTablets,
+						filterMinTablets,
+						filterWillRepeat,
+					}),
+					{ createdBy: userId },
+					getPatternPermissionQuery(),
+				],
+			},
+			{
+				fields: patternsFields,
+				sort: { nameSort: 1 },
+				skip,
+				limit,
+			},
+		);
 
-	// this is a hack to differentiate paginated list data from (for example) patterns loaded as part of Set data. Stopping the patternsById subscription does not remove the patterns from Minimongo and I can't work out why, so the client needs a way to filter data for pages.
-	myCursor.forEach((pattern) => {
-		pattern.pagesData = true;
-		self.added('patterns', pattern._id, pattern);
-	});
+		// this is a hack to differentiate paginated list data from (for example) patterns loaded as part of Set data. Stopping the patternsById subscription does not remove the patterns from Minimongo and I can't work out why, so the client needs a way to filter data for pages.
+		myCursor.forEach((pattern) => {
+			pattern.pagesData = true;
+			self.added('patterns', pattern._id, pattern);
+		});
 
-	self.ready();
-});
+		self.ready();
+	},
+);
 
 // //////////////////////////
 // Pattern preview graphics
@@ -344,17 +351,16 @@ Meteor.publish('patternPreviews', function ({ patternIds }) {
 		return;
 	}
 
+	const self = this;
+
 	// find the patterns the user can see
 	// and that are in the array passed in
 	const patterns = Patterns.find(
 		{
-			'$and': [
-				{ '_id': { '$in': patternIds } },
-				getPatternPermissionQuery(),
-			],
+			$and: [{ _id: { $in: patternIds } }, getPatternPermissionQuery()],
 		},
 		{
-			'fields': {},
+			fields: {},
 		},
 	).fetch();
 
@@ -362,9 +368,16 @@ Meteor.publish('patternPreviews', function ({ patternIds }) {
 	const targetPatternIds = patterns.map((pattern) => pattern._id);
 
 	// find the previews for those patterns
-	return PatternPreviews.find(
-		{ 'patternId': { '$in': targetPatternIds } },
-	);
+	const myCursor = PatternPreviews.find({
+		patternId: { $in: targetPatternIds },
+	});
+
+	myCursor.forEach((PatternPreview) => {
+		PatternPreview.rootAddress = `https://${process.env.AWS_BUCKET}.s3.amazonaws.com`; // allows us to switch environments for test
+		self.added('patternPreviews', PatternPreview._id, PatternPreview);
+	});
+
+	self.ready();
 });
 
 // Public information about particular users
@@ -385,13 +398,10 @@ Meteor.publish('users', function (userIds) {
 	// whose ids are in the array passed in
 	return Meteor.users.find(
 		{
-			'$and': [
-				getUserPermissionQuery(),
-				{ '_id': { '$in': userIds } },
-			],
+			$and: [getUserPermissionQuery(), { _id: { $in: userIds } }],
 		},
 		{
-			'fields': USER_FIELDS,
+			fields: USER_FIELDS,
 		},
 	);
 });
@@ -399,14 +409,11 @@ Meteor.publish('users', function (userIds) {
 // preview list for users
 // displayed on Home page
 Meteor.publish('allUsersPreview', function () {
-	return Meteor.users.find(
-		getUserPermissionQuery(),
-		{
-			'fields': USER_FIELDS,
-			'limit': ITEMS_PER_PREVIEW_LIST,
-			'sort': { 'nameSort': 1 },
-		},
-	);
+	return Meteor.users.find(getUserPermissionQuery(), {
+		fields: USER_FIELDS,
+		limit: ITEMS_PER_PREVIEW_LIST,
+		sort: { nameSort: 1 },
+	});
 });
 
 // Pattern Images that have been uploaded by the pattern's owner
@@ -415,8 +422,8 @@ Meteor.publish('patternImages', function (patternId) {
 	check(patternId, nonEmptyStringCheck);
 
 	const pattern = Patterns.findOne(
-		{ '_id': patternId },
-		{ 'fields': { 'createdBy': 1, 'isPublic': 1 } },
+		{ _id: patternId },
+		{ fields: { createdBy: 1, isPublic: 1 } },
 	);
 
 	if (!pattern) {
@@ -448,28 +455,18 @@ Meteor.publish('setsForUser', function (userId) {
 		return;
 	}
 
-	return Sets.find(
-		{
-			'$and': [
-				{ 'createdBy': userId },
-				getSetPermissionQuery(),
-			],
-		},
-	);
+	return Sets.find({
+		$and: [{ createdBy: userId }, getSetPermissionQuery()],
+	});
 });
 
 // an individual set
 Meteor.publish('set', function (_id) {
 	check(_id, nonEmptyStringCheck);
 
-	return Sets.find(
-		{
-			'$and': [
-				{ _id },
-				getSetPermissionQuery(),
-			],
-		},
-	);
+	return Sets.find({
+		$and: [{ _id }, getSetPermissionQuery()],
+	});
 });
 
 // //////////////////////////

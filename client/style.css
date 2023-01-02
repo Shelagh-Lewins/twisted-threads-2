@@ -1,30 +1,39 @@
 .main-container {
-	max-width: 600px;
-	margin: 0 auto;
-	padding-top: 16px;
+  max-width: 600px;
+  margin: 0 auto;
+  padding-top: 16px;
 }
 
 body {
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 .clearing {
-	clear: both;
+  clear: both;
 }
 
 /* this is a bootstrap reset which seems not to be correctly built by webpack */
 *,
 ::after,
 ::before {
-	box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 :root {
   --color-weaving-backwards-bg: #aaa; /* this is a placeholder value. The default is DEFAULT_WEAVING_BACKWARDS_BG in parameters.js */
+}
+
+/* styles from Bootstrap 4 which are not present iin BS 5*/
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  margin-bottom: 0.5rem;
 }

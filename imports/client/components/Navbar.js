@@ -29,8 +29,8 @@ class Navbar extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			'showDropdown': false,
-			'showUploadPatternForm': false,
+			showDropdown: false,
+			showUploadPatternForm: false,
 		};
 
 		// bind onClick functions to provide context
@@ -55,9 +55,7 @@ class Navbar extends Component {
 
 	handleClickButtonDownload({ _id }) {
 		const { dispatch } = this.props;
-		const {
-			pattern,
-		} = this.context;
+		const { pattern } = this.context;
 
 		dispatch(downloadPattern(_id, pattern));
 	}
@@ -66,7 +64,7 @@ class Navbar extends Component {
 		const { showUploadPatternForm } = this.state;
 
 		this.setState({
-			'showUploadPatternForm': !showUploadPatternForm,
+			showUploadPatternForm: !showUploadPatternForm,
 		});
 	}
 
@@ -78,11 +76,13 @@ class Navbar extends Component {
 
 		reader.onload = function fileReadCompleted() {
 			// when the reader is done, the content is in reader.result.
-			dispatch(importPatternFromText({
-				'filename': values.selectFile.name,
-				'text': reader.result,
-				history,
-			}));
+			dispatch(
+				importPatternFromText({
+					filename: values.selectFile.name,
+					text: reader.result,
+					history,
+				})
+			);
 			that.handleClickButtonUpload();
 		};
 		reader.readAsText(values.selectFile);
@@ -97,7 +97,7 @@ class Navbar extends Component {
 	showDropdown(e) {
 		e.preventDefault();
 		this.setState((prevState) => ({
-			'showDropdown': !prevState.showDropdown,
+			showDropdown: !prevState.showDropdown,
 		}));
 	}
 
@@ -125,12 +125,20 @@ class Navbar extends Component {
 
 		if (maintenanceMode) {
 			return (
-				<nav className="navbar navbar-expand-md navbar-dark">
-					<Link className="navbar-brand" to="/">
+				<nav className='navbar navbar-expand-md navbar-dark'>
+					<Link
+						className='navbar-brand'
+						to='/'
+					>
 						<span
-							className="logo"
-							style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/logo.png')}` }}
-						/>Twisted Threads
+							className='logo'
+							style={{
+								backgroundImage: `url(${Meteor.absoluteUrl(
+									'/images/logo.png'
+								)}`,
+							}}
+						/>
+						Twisted Threads
 					</Link>
 				</nav>
 			);
@@ -138,10 +146,7 @@ class Navbar extends Component {
 
 		const { showDropdown, showUploadPatternForm } = this.state;
 
-		const {
-			pattern,
-			patternId,
-		} = this.context;
+		const { pattern, patternId } = this.context;
 
 		let isOwner = false;
 
@@ -149,7 +154,8 @@ class Navbar extends Component {
 			isOwner = pattern.createdBy === Meteor.user()._id;
 		}
 
-		const showPatternMenu = !isLoading && patternId && pattern && (canCreatePattern || isOwner);
+		const showPatternMenu =
+			!isLoading && patternId && pattern && (canCreatePattern || isOwner);
 
 		let uploadMenu;
 		let patternMenu;
@@ -158,15 +164,21 @@ class Navbar extends Component {
 		if (canCreatePattern) {
 			// allow patterns to be uploaded / created from file
 			uploadMenu = (
-				<ul className="upload-menu navbar-nav">
-					<li className="nav-item">
+				<ul className='upload-menu navbar-nav'>
+					<li className='nav-item'>
 						<Button
-							type="button"
-							onClick={() => this.handleClickButtonUpload({ '_id': patternId })}
-							title="Import pattern from file"
+							type='button'
+							onClick={() => this.handleClickButtonUpload({ _id: patternId })}
+							title='Import pattern from file'
 						>
-							<FontAwesomeIcon icon={['fas', 'file-upload']} style={{ 'color': iconColors.contrast }} size="1x" />
-							<span className="d-inline d-md-none button-text nav-link">Import pattern</span>
+							<FontAwesomeIcon
+								icon={['fas', 'file-upload']}
+								style={{ color: iconColors.contrast }}
+								size='1x'
+							/>
+							<span className='d-inline d-md-none button-text nav-link'>
+								Import pattern
+							</span>
 						</Button>
 					</li>
 				</ul>
@@ -175,90 +187,137 @@ class Navbar extends Component {
 
 		if (Meteor.user()) {
 			myPatternsLink = (
-				<Link to={`/user/${Meteor.userId()}/patterns`} className="nav-link">My patterns</Link>
+				<Link
+					to={`/user/${Meteor.userId()}/patterns`}
+					className='nav-link'
+				>
+					My patterns
+				</Link>
 			);
 		}
 
 		if (showPatternMenu) {
 			const buttonDownload = (
 				<Button
-					type="button"
-					onClick={() => this.handleClickButtonDownload({ '_id': patternId })}
-					title="Download pattern"
+					type='button'
+					onClick={() => this.handleClickButtonDownload({ _id: patternId })}
+					title='Download pattern'
 				>
-					<FontAwesomeIcon icon={['fas', 'file-download']} style={{ 'color': iconColors.contrast }} size="1x" />
-					<span className="d-inline d-md-none button-text nav-link">Download pattern</span>
+					<FontAwesomeIcon
+						icon={['fas', 'file-download']}
+						style={{ color: iconColors.contrast }}
+						size='1x'
+					/>
+					<span className='d-inline d-md-none button-text nav-link'>
+						Download pattern
+					</span>
 				</Button>
 			);
 
 			const buttonCopy = (
 				<Button
-					type="button"
-					onClick={() => this.handleClickButtonCopy({ '_id': patternId })}
-					title="Copy pattern"
+					type='button'
+					onClick={() => this.handleClickButtonCopy({ _id: patternId })}
+					title='Copy pattern'
 				>
-					<FontAwesomeIcon icon={['fas', 'clone']} style={{ 'color': iconColors.contrast }} size="1x" />
-					<span className="d-inline d-md-none button-text nav-link">Copy pattern</span>
+					<FontAwesomeIcon
+						icon={['fas', 'clone']}
+						style={{ color: iconColors.contrast }}
+						size='1x'
+					/>
+					<span className='d-inline d-md-none button-text nav-link'>
+						Copy pattern
+					</span>
 				</Button>
 			);
 
 			const buttonAddToSet = (
 				<>
 					<AddToSet
-						iconStyle="white"
+						iconStyle='white'
 						navBar={true}
 						patternId={patternId}
 						patternName={pattern.name}
 					/>
-
 				</>
 			);
 
 			const buttonRemove = (
 				<Button
-					type="button"
-					onClick={() => this.handleClickButtonRemove({ '_id': patternId, 'name': pattern.name })}
-					title="Delete pattern"
+					type='button'
+					onClick={() =>
+						this.handleClickButtonRemove({ _id: patternId, name: pattern.name })
+					}
+					title='Delete pattern'
 				>
-					<FontAwesomeIcon icon={['fas', 'trash']} style={{ 'color': iconColors.contrast }} size="1x" />
-					<span className="d-inline d-md-none button-text nav-link">Delete pattern</span>
+					<FontAwesomeIcon
+						icon={['fas', 'trash']}
+						style={{ color: iconColors.contrast }}
+						size='1x'
+					/>
+					<span className='d-inline d-md-none button-text nav-link'>
+						Delete pattern
+					</span>
 				</Button>
 			);
 
 			patternMenu = (
-				<ul className="pattern-menu navbar-nav ml-auto">
-					<li className="nav-item">{buttonDownload}</li>
-					{canCreatePattern && <li className="nav-item">{buttonCopy}</li>}
-					{Meteor.userId() && <li className="nav-item">{buttonAddToSet}</li>}
-					{isOwner && <li className="nav-item">{buttonRemove}</li>}
+				<ul className='pattern-menu navbar-nav ml-auto'>
+					<li className='nav-item'>{buttonDownload}</li>
+					{canCreatePattern && <li className='nav-item'>{buttonCopy}</li>}
+					{Meteor.userId() && <li className='nav-item'>{buttonAddToSet}</li>}
+					{isOwner && <li className='nav-item'>{buttonRemove}</li>}
 				</ul>
 			);
 		}
 
 		const authLinks = (
-			<ul className="navbar-nav ml-auto">
-				<li className="nav-item"><Link to="/account" className="nav-link">{username}</Link></li>
+			<ul className='navbar-nav ml-auto'>
+				<li className='nav-item'>
+					<Link
+						to='/account'
+						className='nav-link'
+					>
+						{username}
+					</Link>
+				</li>
 			</ul>
 		);
 		const guestLinks = (
-			<ul className="navbar-nav ml-auto">
-				<li className="nav-item">
-					<Link className="nav-link" to="/register">Register</Link>
+			<ul className='navbar-nav ml-auto'>
+				<li className='nav-item'>
+					<Link
+						className='nav-link'
+						to='/register'
+					>
+						Register
+					</Link>
 				</li>
-				<li className="nav-item">
-					<Link className="nav-link" to="/login">Login</Link>
+				<li className='nav-item'>
+					<Link
+						className='nav-link'
+						to='/login'
+					>
+						Login
+					</Link>
 				</li>
 			</ul>
 		);
 
 		return (
-			<nav className="navbar navbar-expand-md navbar-dark">
+			<nav className='nav navbar navbar-expand-md navbar-dark'>
 				{showUploadPatternForm && this.renderUploadPatternForm()}
-				<Link className="navbar-brand" to="/">
+				<Link
+					className='navbar-brand'
+					to='/'
+				>
 					<span
-						className="logo"
-						style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/logo.png')}` }}
-					/>Twisted Threads
+						className='logo'
+						style={{
+							backgroundImage: `url(${Meteor.absoluteUrl('/images/logo.png')}`,
+						}}
+					/>
+					Twisted Threads
 				</Link>
 				<Search
 					dispatch={dispatch}
@@ -267,10 +326,24 @@ class Navbar extends Component {
 					searchTerm={searchTerm}
 				/>
 				{myPatternsLink}
-				<button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" onClick={(e) => { this.showDropdown(e); }}>
-					<span className="navbar-toggler-icon" />
+				<button
+					className='navbar-toggler'
+					type='button'
+					data-toggle='collapse'
+					data-target='#navbarSupportedContent'
+					aria-controls='navbarSupportedContent'
+					aria-expanded='false'
+					aria-label='Toggle navigation'
+					onClick={(e) => {
+						this.showDropdown(e);
+					}}
+				>
+					<span className='navbar-toggler-icon' />
 				</button>
-				<div className={`collapse navbar-collapse ${showDropdown ? 'show' : ''}`} id="navbarSupportedContent">
+				<div
+					className={`collapse navbar-collapse ${showDropdown ? 'show' : ''}`}
+					id='navbarSupportedContent'
+				>
 					{uploadMenu}
 					{showPatternMenu && patternMenu}
 					{isAuthenticated ? authLinks : guestLinks}
@@ -283,25 +356,25 @@ class Navbar extends Component {
 Navbar.contextType = AppContext;
 
 Navbar.propTypes = {
-	'canCreatePattern': PropTypes.bool.isRequired,
-	'dispatch': PropTypes.func.isRequired,
-	'history': PropTypes.objectOf(PropTypes.any).isRequired,
-	'isAuthenticated': PropTypes.bool.isRequired,
-	'isLoading': PropTypes.bool.isRequired,
-	'isSearching': PropTypes.bool.isRequired,
-	'maintenanceMode': PropTypes.bool,
-	'searchTerm': PropTypes.string.isRequired,
-	'username': PropTypes.string,
+	canCreatePattern: PropTypes.bool.isRequired,
+	dispatch: PropTypes.func.isRequired,
+	history: PropTypes.objectOf(PropTypes.any).isRequired,
+	isAuthenticated: PropTypes.bool.isRequired,
+	isLoading: PropTypes.bool.isRequired,
+	isSearching: PropTypes.bool.isRequired,
+	maintenanceMode: PropTypes.bool,
+	searchTerm: PropTypes.string.isRequired,
+	username: PropTypes.string,
 };
 
 const mapStateToProps = (state, ownProps) => ({
-	'canCreatePattern': getCanCreatePattern(state),
-	'isAuthenticated': getIsAuthenticated(state),
-	'isLoading': state.pattern.isLoading,
-	'isSearching': state.search.isSearching,
-	'maintenanceMode': getMaintenanceMode(state),
-	'searchTerm': state.search.searchTerm,
-	'username': getUsername(state),
+	canCreatePattern: getCanCreatePattern(state),
+	isAuthenticated: getIsAuthenticated(state),
+	isLoading: state.pattern.isLoading,
+	isSearching: state.search.isSearching,
+	maintenanceMode: getMaintenanceMode(state),
+	searchTerm: state.search.searchTerm,
+	username: getUsername(state),
 });
 
 export default withRouter(connect(mapStateToProps)(Navbar));

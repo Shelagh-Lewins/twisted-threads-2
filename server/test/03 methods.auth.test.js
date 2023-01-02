@@ -11,15 +11,17 @@ import {
 	stubUser,
 	unwrapUser,
 } from './mockUser';
+import { addPatternDataIndividual } from './testData';
 import {
-	addPatternDataIndividual,
-} from './testData';
-import { MAX_RECENTS, MAX_TEXT_AREA_LENGTH } from '../../imports/modules/parameters';
+	MAX_RECENTS,
+	MAX_TEXT_AREA_LENGTH,
+} from '../../imports/modules/parameters';
 
 const sinon = require('sinon');
 
 if (Meteor.isServer) {
-	describe('test auth methods', function () { // eslint-disable-line func-names
+	describe('test auth methods', function () {
+		// eslint-disable-line func-names
 		this.timeout(15000);
 		beforeEach(() => {
 			resetDatabase();
@@ -29,12 +31,15 @@ if (Meteor.isServer) {
 				function expectedError() {
 					Meteor.call('auth.sendVerificationEmail', 'abc');
 				}
-				expect(expectedError).to.throw(Meteor.Error(), 'send-verification-email-not-logged-in');
+				expect(expectedError).to.throw(
+					Meteor.Error(),
+					'send-verification-email-not-logged-in'
+				);
 			});
 			it('throws an error if the users email address is verified', () => {
 				const currentUser = stubUser();
 
-				Roles.createRole('verified', { 'unlessExists': true });
+				Roles.createRole('verified', { unlessExists: true });
 				Roles.addUsersToRoles(currentUser._id, ['verified']);
 
 				function expectedError() {
@@ -47,15 +52,22 @@ if (Meteor.isServer) {
 			it('sends the email if the user is logged in and unverified', (done) => {
 				const currentUser = stubUser();
 
-				Meteor.users.update({ '_id': currentUser._id }, { '$set': { 'emails.0.verified': false } });
+				Meteor.users.update(
+					{ _id: currentUser._id },
+					{ $set: { 'emails.0.verified': false } }
+				);
 
-				Roles.createRole('verified', { 'unlessExists': true });
+				Roles.createRole('verified', { unlessExists: true });
 				Roles.removeUsersFromRoles(currentUser._id, ['verified']);
 
-				Meteor.call('auth.sendVerificationEmail', currentUser._id, (error, result) => {
-					assert.equal(result.email, currentUser.emails[0].address);
-					done();
-				});
+				Meteor.call(
+					'auth.sendVerificationEmail',
+					currentUser._id,
+					(error, result) => {
+						assert.equal(result.email, currentUser.emails[0].address);
+						done();
+					}
+				);
 
 				unwrapUser();
 			});
@@ -64,30 +76,42 @@ if (Meteor.isServer) {
 			it('throws an error if the user is not logged in', () => {
 				function expectedError() {
 					Meteor.call('auth.setRecentPatterns', {
-						'userId': 'xxx',
-						'newRecentPatterns': [],
+						userId: 'xxx',
+						newRecentPatterns: [],
 					});
 				}
-				expect(expectedError).to.throw(Meteor.Error(), 'set-recent-patterns-not-logged-in');
+				expect(expectedError).to.throw(
+					Meteor.Error(),
+					'set-recent-patterns-not-logged-in'
+				);
 			});
 			it('adds the recent pattern if the user is logged in', (done) => {
 				const currentUser = stubUser();
 				const patternId = Meteor.call('pattern.add', addPatternDataIndividual);
 
-				Meteor.call('auth.setRecentPatterns', {
-					'userId': currentUser._id,
-					'newRecentPatterns': [{
-						'currentWeavingRow': 2,
-						'patternId': patternId,
-						'updatedAt': new Date(),
-					}],
-				}, (error, result) => {
-					const updated = Meteor.users.findOne({ '_id': currentUser._id });
-					assert.equal(updated.profile.recentPatterns.length, 1);
-					assert.equal(updated.profile.recentPatterns[0].currentWeavingRow, 2);
-					assert.equal(error, undefined);
-					done();
-				});
+				Meteor.call(
+					'auth.setRecentPatterns',
+					{
+						userId: currentUser._id,
+						newRecentPatterns: [
+							{
+								currentWeavingRow: 2,
+								patternId: patternId,
+								updatedAt: new Date(),
+							},
+						],
+					},
+					(error, result) => {
+						const updated = Meteor.users.findOne({ _id: currentUser._id });
+						assert.equal(updated.profile.recentPatterns.length, 1);
+						assert.equal(
+							updated.profile.recentPatterns[0].currentWeavingRow,
+							2
+						);
+						assert.equal(error, undefined);
+						done();
+					}
+				);
 
 				unwrapUser();
 			});
@@ -95,26 +119,35 @@ if (Meteor.isServer) {
 				const currentUser = stubUser();
 				const patternId = Meteor.call('pattern.add', addPatternDataIndividual);
 
-				Meteor.call('auth.setRecentPatterns', {
-					'userId': currentUser._id,
-					'newRecentPatterns': [{
-						'currentWeavingRow': -1,
-						'patternId': patternId,
-						'updatedAt': new Date(),
-					}],
-				}, (error, result) => {
-					const updated = Meteor.users.findOne({ '_id': currentUser._id });
-					assert.equal(updated.profile.recentPatterns.length, 1);
-					assert.equal(updated.profile.recentPatterns[0].currentWeavingRow, 1);
-					assert.equal(error, undefined);
-					done();
-				});
+				Meteor.call(
+					'auth.setRecentPatterns',
+					{
+						userId: currentUser._id,
+						newRecentPatterns: [
+							{
+								currentWeavingRow: -1,
+								patternId: patternId,
+								updatedAt: new Date(),
+							},
+						],
+					},
+					(error, result) => {
+						const updated = Meteor.users.findOne({ _id: currentUser._id });
+						assert.equal(updated.profile.recentPatterns.length, 1);
+						assert.equal(
+							updated.profile.recentPatterns[0].currentWeavingRow,
+							1
+						);
+						assert.equal(error, undefined);
+						done();
+					}
+				);
 
 				unwrapUser();
 			});
 			it('stores the maximum number of recents', (done) => {
 				const currentUser = stubUser();
-				Roles.createRole('verified', { 'unlessExists': true });
+				Roles.createRole('verified', { unlessExists: true });
 				Roles.addUsersToRoles(currentUser._id, ['verified']);
 
 				const newRecentPatterns = [];
@@ -123,30 +156,37 @@ if (Meteor.isServer) {
 				const initialDateAsString = now.toString();
 
 				for (let i = 0; i < numberOfRecents; i += 1) {
-					const patternId = Meteor.call('pattern.add', addPatternDataIndividual);
-					now.setSeconds(now.getSeconds() - (10 * i));
+					const patternId = Meteor.call(
+						'pattern.add',
+						addPatternDataIndividual
+					);
+					now.setSeconds(now.getSeconds() - 10 * i);
 					newRecentPatterns.push({
-						'currentWeavingRow': 3,
-						'patternId': patternId,
-						'updatedAt': new Date(now),
+						currentWeavingRow: 3,
+						patternId: patternId,
+						updatedAt: new Date(now),
 					});
 				}
 
-				Meteor.call('auth.setRecentPatterns', {
-					'userId': currentUser._id,
-					newRecentPatterns,
-				}, (error, result) => {
-					const updated = Meteor.users.findOne({ '_id': currentUser._id });
-					assert.equal(updated.profile.recentPatterns.length, MAX_RECENTS);
+				Meteor.call(
+					'auth.setRecentPatterns',
+					{
+						userId: currentUser._id,
+						newRecentPatterns,
+					},
+					(error, result) => {
+						const updated = Meteor.users.findOne({ _id: currentUser._id });
+						assert.equal(updated.profile.recentPatterns.length, MAX_RECENTS);
 
-					// the most recent date is the first entry
-					assert.equal(
-						updated.profile.recentPatterns[0].updatedAt.toString(),
-						initialDateAsString,
-					);
-					assert.equal(error, undefined);
-					done();
-				});
+						// the most recent date is the first entry
+						assert.equal(
+							updated.profile.recentPatterns[0].updatedAt.toString(),
+							initialDateAsString
+						);
+						assert.equal(error, undefined);
+						done();
+					}
+				);
 
 				unwrapUser();
 			});
@@ -157,46 +197,36 @@ if (Meteor.isServer) {
 			// https://github.com/meteor/meteor/issues/7395
 			// I've tested this manually and it worked
 			it('creates an account with the expected values', () => {
-				// Roles.createRole('registered', { 'unlessExists': true });
-
 				const userId = Accounts.createUser({
-					'email': 'me@there.com',
-					'username': 'NewUser',
-					'password': '12345678',
+					email: 'me@there.com',
+					username: 'NewUser',
+					password: '12345678',
 				});
 
-				const { emails, username } = Meteor.users.findOne({ '_id': userId });
+				const { emails, username } = Meteor.users.findOne({ _id: userId });
 				// const { emails, nameSort, username } = Meteor.users.findOne({ '_id': userId });
 
 				assert.equal(emails[0].address, 'me@there.com');
 				assert.equal(username, 'NewUser');
-				// assert.equal(nameSort, 'NewUser'.toLowerCase());
-
-				// const roles = Roles.getRolesForUser(userId);
-				// console.log('in test roles', roles);
-
-				// assert.equal(roles.length, 1);
 			});
 		});
 		describe('get user count', () => {
 			// counts all users with public patterns
 			// plus the user themselves if logged in
 			it('returns the number of users with public patterns if the user is not logged in', () => {
-				const {
-					publicPatternUsernames,
-				} = createManyUsers();
+				const { publicPatternUsernames } = createManyUsers();
 
 				const result = Meteor.call('auth.getUserCount');
 
 				assert.equal(result, publicPatternUsernames.length);
 			});
 			it('returns the number of users with public patterns plus one for the user if the user is logged in', () => {
-				const {
-					privatePatternUserIds,
-					publicPatternUsernames,
-				} = createManyUsers();
+				const { privatePatternUserIds, publicPatternUsernames } =
+					createManyUsers();
 
-				const currentUser = Meteor.users.findOne({ '_id': privatePatternUserIds[0] });
+				const currentUser = Meteor.users.findOne({
+					_id: privatePatternUserIds[0],
+				});
 				sinon.stub(Meteor, 'user');
 				Meteor.user.returns(currentUser); // now Meteor.user() will return the user we just created
 
@@ -213,9 +243,7 @@ if (Meteor.isServer) {
 			// counts all users with public patterns
 			// returns the number required for the page
 			it('returns the users for the first page, user not logged in', () => {
-				const {
-					publicPatternUsernames,
-				} = createManyUsers();
+				const { publicPatternUsernames } = createManyUsers();
 
 				const skip = 0;
 				const limit = 10;
@@ -234,9 +262,7 @@ if (Meteor.isServer) {
 				});
 			});
 			it('returns the users for the second page, user not logged in', () => {
-				const {
-					publicPatternUsernames,
-				} = createManyUsers();
+				const { publicPatternUsernames } = createManyUsers();
 
 				const skip = 10;
 				const limit = 10;
@@ -248,19 +274,21 @@ if (Meteor.isServer) {
 
 				assert.equal(result.length, limit);
 
-				const expectedUsernames = publicPatternUsernames.sort().slice(limit, limit * 2);
+				const expectedUsernames = publicPatternUsernames
+					.sort()
+					.slice(limit, limit * 2);
 
 				expectedUsernames.forEach((username) => {
 					assert.notEqual(expectedUsernames.indexOf(username), -1);
 				});
 			});
 			it('returns the users for the first page, user is logged in', () => {
-				const {
-					privatePatternUserIds,
-					publicPatternUsernames,
-				} = createManyUsers();
+				const { privatePatternUserIds, publicPatternUsernames } =
+					createManyUsers();
 
-				const currentUser = Meteor.users.findOne({ '_id': privatePatternUserIds[0] });
+				const currentUser = Meteor.users.findOne({
+					_id: privatePatternUserIds[0],
+				});
 				sinon.stub(Meteor, 'user');
 				Meteor.user.returns(currentUser); // now Meteor.user() will return the user we just created
 
@@ -287,12 +315,12 @@ if (Meteor.isServer) {
 				unwrapUser();
 			});
 			it('returns the users for the second page, user is logged in', () => {
-				const {
-					privatePatternUserIds,
-					publicPatternUsernames,
-				} = createManyUsers();
+				const { privatePatternUserIds, publicPatternUsernames } =
+					createManyUsers();
 
-				const currentUser = Meteor.users.findOne({ '_id': privatePatternUserIds[0] });
+				const currentUser = Meteor.users.findOne({
+					_id: privatePatternUserIds[0],
+				});
 				sinon.stub(Meteor, 'user');
 				Meteor.user.returns(currentUser); // now Meteor.user() will return the user we just created
 
@@ -311,7 +339,9 @@ if (Meteor.isServer) {
 
 				publicPatternUsernames.push(currentUser.username);
 
-				const expectedUsernames = publicPatternUsernames.sort().slice(limit, limit * 2);
+				const expectedUsernames = publicPatternUsernames
+					.sort()
+					.slice(limit, limit * 2);
 
 				expectedUsernames.forEach((username) => {
 					assert.notEqual(expectedUsernames.indexOf(username), -1);
@@ -324,12 +354,15 @@ if (Meteor.isServer) {
 			it('cannot edit description if they are not logged in', () => {
 				function expectedError() {
 					Meteor.call('auth.editTextField', {
-						'_id': 'xxx',
-						'fieldName': 'description',
-						'fieldValue': 'someText',
+						_id: 'xxx',
+						fieldName: 'description',
+						fieldValue: 'someText',
 					});
 				}
-				expect(expectedError).to.throw(Meteor.Error(), 'edit-text-field-not-logged-in');
+				expect(expectedError).to.throw(
+					Meteor.Error(),
+					'edit-text-field-not-logged-in'
+				);
 			});
 			it('cannot edit description of a different user', () => {
 				function expectedError() {
@@ -337,12 +370,15 @@ if (Meteor.isServer) {
 					stubOtherUser();
 
 					Meteor.call('auth.editTextField', {
-						'_id': currentUser._id,
-						'fieldName': 'description',
-						'fieldValue': 'someText',
+						_id: currentUser._id,
+						fieldName: 'description',
+						fieldValue: 'someText',
 					});
 				}
-				expect(expectedError).to.throw(Meteor.Error(), 'edit-text-field-not-logged-in');
+				expect(expectedError).to.throw(
+					Meteor.Error(),
+					'edit-text-field-not-logged-in'
+				);
 				unwrapUser();
 			});
 			it('cannot edit a different field if they are logged in', () => {
@@ -350,12 +386,15 @@ if (Meteor.isServer) {
 
 				function expectedError() {
 					Meteor.call('auth.editTextField', {
-						'_id': currentUser._id,
-						'fieldName': 'thingy',
-						'fieldValue': 'someText',
+						_id: currentUser._id,
+						fieldName: 'thingy',
+						fieldValue: 'someText',
 					});
 				}
-				expect(expectedError).to.throw(Meteor.Error(), 'edit-text-field-not-allowed');
+				expect(expectedError).to.throw(
+					Meteor.Error(),
+					'edit-text-field-not-allowed'
+				);
 				unwrapUser();
 			});
 			it('can edit description if they are logged in', () => {
@@ -364,12 +403,12 @@ if (Meteor.isServer) {
 				const newDescription = 'Some text';
 
 				Meteor.call('auth.editTextField', {
-					'_id': currentUser._id,
-					'fieldName': 'description',
-					'fieldValue': newDescription,
+					_id: currentUser._id,
+					fieldName: 'description',
+					fieldValue: newDescription,
 				});
 
-				const updated = Meteor.users.findOne({ '_id': currentUser._id });
+				const updated = Meteor.users.findOne({ _id: currentUser._id });
 
 				assert.equal(updated.description, newDescription);
 
@@ -385,12 +424,12 @@ if (Meteor.isServer) {
 				}
 
 				Meteor.call('auth.editTextField', {
-					'_id': currentUser._id,
-					'fieldName': 'description',
-					'fieldValue': newDescription,
+					_id: currentUser._id,
+					fieldName: 'description',
+					fieldValue: newDescription,
 				});
 
-				const updated = Meteor.users.findOne({ '_id': currentUser._id });
+				const updated = Meteor.users.findOne({ _id: currentUser._id });
 
 				assert.equal(updated.description, newDescription);
 
@@ -398,12 +437,15 @@ if (Meteor.isServer) {
 
 				function expectedError() {
 					Meteor.call('auth.editTextField', {
-						'_id': currentUser._id,
-						'fieldName': 'description',
-						'fieldValue': newDescription,
+						_id: currentUser._id,
+						fieldName: 'description',
+						fieldValue: newDescription,
 					});
 				}
-				expect(expectedError).to.throw(Meteor.Error(), 'edit-text-field-too-long');
+				expect(expectedError).to.throw(
+					Meteor.Error(),
+					'edit-text-field-too-long'
+				);
 
 				unwrapUser();
 			});
@@ -415,11 +457,14 @@ if (Meteor.isServer) {
 
 				function expectedError() {
 					Meteor.call('auth.addUserToRole', {
-						'_id': targetUser._id,
-						'role': 'premium',
+						_id: targetUser._id,
+						role: 'premium',
 					});
 				}
-				expect(expectedError).to.throw(Meteor.Error(), 'add-user-to-role-not-logged-in');
+				expect(expectedError).to.throw(
+					Meteor.Error(),
+					'add-user-to-role-not-logged-in'
+				);
 				unwrapUser();
 			});
 			it('cannot add a user to a role if the user is not an administrator', () => {
@@ -428,27 +473,33 @@ if (Meteor.isServer) {
 
 				function expectedError() {
 					Meteor.call('auth.addUserToRole', {
-						'_id': targetUser._id,
-						'role': 'premium',
+						_id: targetUser._id,
+						role: 'premium',
 					});
 				}
-				expect(expectedError).to.throw(Meteor.Error(), 'add-user-to-role-not-administrator');
+				expect(expectedError).to.throw(
+					Meteor.Error(),
+					'add-user-to-role-not-administrator'
+				);
 				unwrapUser();
 			});
 			it('cannot add a user to a role if the user does not exist', () => {
 				stubUser(); // only so stubOtherUser has something to unwrap
 				const currentUser = stubOtherUser(); // the administrator
 
-				Roles.createRole('administrator', { 'unlessExists': true });
+				Roles.createRole('administrator', { unlessExists: true });
 				Roles.addUsersToRoles(currentUser._id, ['administrator']);
 
 				function expectedError() {
 					Meteor.call('auth.addUserToRole', {
-						'_id': 'abc',
-						'role': 'premium',
+						_id: 'abc',
+						role: 'premium',
 					});
 				}
-				expect(expectedError).to.throw(Meteor.Error(), 'add-user-to-role-user-not-found');
+				expect(expectedError).to.throw(
+					Meteor.Error(),
+					'add-user-to-role-user-not-found'
+				);
 				unwrapUser();
 			});
 			it('cannot add a user to a role if the role does not exist', () => {
@@ -456,16 +507,19 @@ if (Meteor.isServer) {
 
 				const currentUser = stubOtherUser(); // the administrator
 
-				Roles.createRole('administrator', { 'unlessExists': true });
+				Roles.createRole('administrator', { unlessExists: true });
 				Roles.addUsersToRoles(currentUser._id, ['administrator']);
 
 				function expectedError() {
 					Meteor.call('auth.addUserToRole', {
-						'_id': targetUser._id,
-						'role': 'aardvark',
+						_id: targetUser._id,
+						role: 'aardvark',
 					});
 				}
-				expect(expectedError).to.throw(Meteor.Error(), 'add-user-to-role-role-not-found');
+				expect(expectedError).to.throw(
+					Meteor.Error(),
+					'add-user-to-role-role-not-found'
+				);
 				unwrapUser();
 			});
 			it('cannot add a user to a role if the user is already in the role', () => {
@@ -473,19 +527,22 @@ if (Meteor.isServer) {
 
 				const currentUser = stubOtherUser(); // the administrator
 
-				Roles.createRole('administrator', { 'unlessExists': true });
+				Roles.createRole('administrator', { unlessExists: true });
 				Roles.addUsersToRoles(currentUser._id, ['administrator']);
 
-				Roles.createRole('premium', { 'unlessExists': true });
+				Roles.createRole('premium', { unlessExists: true });
 				Roles.addUsersToRoles(targetUser._id, ['premium']);
 
 				function expectedError() {
 					Meteor.call('auth.addUserToRole', {
-						'_id': targetUser._id,
-						'role': 'premium',
+						_id: targetUser._id,
+						role: 'premium',
 					});
 				}
-				expect(expectedError).to.throw(Meteor.Error(), 'add-user-to-role-already-in-role');
+				expect(expectedError).to.throw(
+					Meteor.Error(),
+					'add-user-to-role-already-in-role'
+				);
 				unwrapUser();
 			});
 			it('cannot add a user to a role if the user is already in the role', () => {
@@ -493,14 +550,14 @@ if (Meteor.isServer) {
 
 				const currentUser = stubOtherUser(); // the administrator
 
-				Roles.createRole('administrator', { 'unlessExists': true });
+				Roles.createRole('administrator', { unlessExists: true });
 				Roles.addUsersToRoles(currentUser._id, ['administrator']);
 
-				Roles.createRole('premium', { 'unlessExists': true });
+				Roles.createRole('premium', { unlessExists: true });
 
 				Meteor.call('auth.addUserToRole', {
-					'_id': targetUser._id,
-					'role': 'premium',
+					_id: targetUser._id,
+					role: 'premium',
 				});
 
 				assert.equal(Roles.userIsInRole(targetUser._id, 'premium'), true);
@@ -515,11 +572,14 @@ if (Meteor.isServer) {
 
 				function expectedError() {
 					Meteor.call('auth.removeUserFromRole', {
-						'_id': targetUser._id,
-						'role': 'premium',
+						_id: targetUser._id,
+						role: 'premium',
 					});
 				}
-				expect(expectedError).to.throw(Meteor.Error(), 'remove-user-from-role-not-logged-in');
+				expect(expectedError).to.throw(
+					Meteor.Error(),
+					'remove-user-from-role-not-logged-in'
+				);
 				unwrapUser();
 			});
 			it('cannot remove user from a role if the user is not an administrator', () => {
@@ -528,27 +588,33 @@ if (Meteor.isServer) {
 
 				function expectedError() {
 					Meteor.call('auth.removeUserFromRole', {
-						'_id': targetUser._id,
-						'role': 'premium',
+						_id: targetUser._id,
+						role: 'premium',
 					});
 				}
-				expect(expectedError).to.throw(Meteor.Error(), 'remove-user-from-role-not-administrator');
+				expect(expectedError).to.throw(
+					Meteor.Error(),
+					'remove-user-from-role-not-administrator'
+				);
 				unwrapUser();
 			});
 			it('cannot remove a user from a role if the user does not exist', () => {
 				stubUser(); // only so stubOtherUser has something to unwrap
 				const currentUser = stubOtherUser(); // the administrator
 
-				Roles.createRole('administrator', { 'unlessExists': true });
+				Roles.createRole('administrator', { unlessExists: true });
 				Roles.addUsersToRoles(currentUser._id, ['administrator']);
 
 				function expectedError() {
 					Meteor.call('auth.removeUserFromRole', {
-						'_id': 'abc',
-						'role': 'premium',
+						_id: 'abc',
+						role: 'premium',
 					});
 				}
-				expect(expectedError).to.throw(Meteor.Error(), 'remove-user-from-role-user-not-found');
+				expect(expectedError).to.throw(
+					Meteor.Error(),
+					'remove-user-from-role-user-not-found'
+				);
 				unwrapUser();
 			});
 			it('cannot remove a user from a role if the role does not exist', () => {
@@ -556,16 +622,19 @@ if (Meteor.isServer) {
 
 				const currentUser = stubOtherUser(); // the administrator
 
-				Roles.createRole('administrator', { 'unlessExists': true });
+				Roles.createRole('administrator', { unlessExists: true });
 				Roles.addUsersToRoles(currentUser._id, ['administrator']);
 
 				function expectedError() {
 					Meteor.call('auth.removeUserFromRole', {
-						'_id': targetUser._id,
-						'role': 'aardvark',
+						_id: targetUser._id,
+						role: 'aardvark',
 					});
 				}
-				expect(expectedError).to.throw(Meteor.Error(), 'remove-user-from-role-role-not-found');
+				expect(expectedError).to.throw(
+					Meteor.Error(),
+					'remove-user-from-role-role-not-found'
+				);
 				unwrapUser();
 			});
 			it('cannot remove a user from a role if the user is not in the role', () => {
@@ -573,35 +642,41 @@ if (Meteor.isServer) {
 
 				const currentUser = stubOtherUser(); // the administrator
 
-				Roles.createRole('administrator', { 'unlessExists': true });
+				Roles.createRole('administrator', { unlessExists: true });
 				Roles.addUsersToRoles(currentUser._id, ['administrator']);
 
-				Roles.createRole('premium', { 'unlessExists': true });
+				Roles.createRole('premium', { unlessExists: true });
 
 				function expectedError() {
 					Meteor.call('auth.removeUserFromRole', {
-						'_id': targetUser._id,
-						'role': 'premium',
+						_id: targetUser._id,
+						role: 'premium',
 					});
 				}
-				expect(expectedError).to.throw(Meteor.Error(), 'remove-user-from-role-not-in-role');
+				expect(expectedError).to.throw(
+					Meteor.Error(),
+					'remove-user-from-role-not-in-role'
+				);
 				unwrapUser();
 			});
 			it('does not allow an administrator to remove themself', () => {
 				const targetUser = stubUser(); // the user whose role is to be changed
 
-				Roles.createRole('administrator', { 'unlessExists': true });
+				Roles.createRole('administrator', { unlessExists: true });
 				Roles.addUsersToRoles(targetUser._id, ['administrator']);
 
 				assert.equal(Roles.userIsInRole(targetUser._id, 'administrator'), true);
 
 				function expectedError() {
 					Meteor.call('auth.removeUserFromRole', {
-						'_id': targetUser._id,
-						'role': 'administrator',
+						_id: targetUser._id,
+						role: 'administrator',
 					});
 				}
-				expect(expectedError).to.throw(Meteor.Error(), 'remove-user-from-role-administrator-not-remove-self');
+				expect(expectedError).to.throw(
+					Meteor.Error(),
+					'remove-user-from-role-administrator-not-remove-self'
+				);
 
 				assert.equal(Roles.userIsInRole(targetUser._id, 'administrator'), true);
 
@@ -612,17 +687,17 @@ if (Meteor.isServer) {
 
 				const currentUser = stubOtherUser(); // the administrator
 
-				Roles.createRole('administrator', { 'unlessExists': true });
+				Roles.createRole('administrator', { unlessExists: true });
 				Roles.addUsersToRoles(currentUser._id, ['administrator']);
 
-				Roles.createRole('premium', { 'unlessExists': true });
+				Roles.createRole('premium', { unlessExists: true });
 				Roles.addUsersToRoles(targetUser._id, ['premium']);
 
 				assert.equal(Roles.userIsInRole(targetUser._id, 'premium'), true);
 
 				Meteor.call('auth.removeUserFromRole', {
-					'_id': targetUser._id,
-					'role': 'premium',
+					_id: targetUser._id,
+					role: 'premium',
 				});
 
 				assert.equal(Roles.userIsInRole(targetUser._id, 'premium'), false);
@@ -636,7 +711,10 @@ if (Meteor.isServer) {
 					Meteor.call('auth.setWeavingBackwardsBackgroundColor', '#ff00ff');
 				}
 
-				expect(expectedError).to.throw(Meteor.Error(), 'set-weaving-backwards-background-color-not-logged-in');
+				expect(expectedError).to.throw(
+					Meteor.Error(),
+					'set-weaving-backwards-background-color-not-logged-in'
+				);
 			});
 			it('throws an error if the colour value is not specified', () => {
 				stubUser();
