@@ -5,6 +5,7 @@ import { ROLE_LIMITS } from '../../modules/parameters';
 import updateActionsLog from './actionsLog';
 
 const moment = require('moment');
+const getRandomValues = require('get-random-values');
 
 if (Meteor.isServer) {
 	Slingshot.fileRestrictions('myImageUploads', {
@@ -67,6 +68,9 @@ if (Meteor.isServer) {
 		},
 
 		key(file) {
+			const urlObfuscator = getRandomValues(new Uint8Array(8)).join(''); // pattern images are in AWS and cannot be restricted to the logged in user
+			// adding a long string to the URL makes it hard for anybody to guess and view private pattern preview URLs
+
 			const parts = file.name.split('.'); // find the file extension
 			const extension = parts.pop();
 			let name = parts.join(''); // find the name
@@ -77,7 +81,7 @@ if (Meteor.isServer) {
 				.valueOf()
 				.toString()}.${extension}`; // use the first 30 chars of the name, plus timestamp, plus file extension, to make a meaningful name that is unique to this user
 
-			return `${Meteor.userId()}/${name}`;
+			return `${Meteor.userId()}/${urlObfuscator}-${name}`;
 		},
 	});
 }
