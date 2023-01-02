@@ -73,18 +73,27 @@ Meteor.methods({
 		try {
 			future1.wait();
 
+			const patternPreview = PatternPreviews.findOne({ patternId: _id });
+
+			// check if the patternPreview has already been saved to AWS
+			// if so we are updating and do not create a new key
+			let key = patternPreview?.key;
+
+			if (!key) {
+				const urlObfuscator = getRandomValues(new Uint8Array(8)).join(''); // pattern previews are in AWS and cannot be restricted to the logged in user
+				// adding a long string to the URL makes it hard for anybody to guess and view private pattern preview URLs
+				key = `patternPreviews/${createdBy}/${_id}-${urlObfuscator}-preview.png`;
+			}
+
 			const s3 = new AWS.S3({
 				accessKeyId: process.env.AWS_ACCESS_KEY_ID,
 				secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 			});
 
-			const urlObfuscator = getRandomValues(new Uint8Array(8)).join(''); // pattern previews are in AWS and cannot be restricted to the logged in user
-			// adding a long string to the URL makes it hard for anybody to guess and view private pattern preview URLs
-
 			// namespacing pattern previews allows us to identify patterns with pattern images
 			const params = {
 				Bucket: process.env.AWS_BUCKET,
-				Key: `patternPreviews/${createdBy}/${_id}-${urlObfuscator}-preview.png`,
+				Key: key,
 				Body: Buffer.from(base64Image, 'base64'),
 				ContentType: 'image/png',
 				ACL: 'public-read',
@@ -102,7 +111,6 @@ Meteor.methods({
 				});
 
 				const uploadedImage = future2.wait();
-				const patternPreview = PatternPreviews.findOne({ patternId: _id });
 				const { Key, Location } = uploadedImage;
 
 				// calls to Mongo will not work inside the future, hence moving them to the 'try' block
@@ -111,11 +119,11 @@ Meteor.methods({
 					return PatternPreviews.insert({
 						patternId: _id,
 						url: Location, // where the file was actually saved
-						key: Key, // relative path to file from bucket address
+						key, // relative path to file from bucket address
 					});
 				}
 
-				if (!patternPreview.key) {
+				if (!key) {
 					// migrate from old format where image uri is stored in database // TODO remove after full migration of all patternPreviews
 					return PatternPreviews.update(
 						{ _id: patternPreview._id },
