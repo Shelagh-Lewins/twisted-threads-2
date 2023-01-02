@@ -40,9 +40,10 @@ Run server-side tests by executing the script `test_meteor.sh`
 ## Release 2.2.0
 
 2 January 2023
-Meteor upgraded to v2.9, and other upgrades
-Minor tweaks
-Pattern previews are now stored in AWS, not the database
+
+- Meteor upgraded to v2.9, and other upgrades
+- Minor tweaks
+- Pattern previews are now stored in AWS, not the database
 
 ## Release 2.0
 

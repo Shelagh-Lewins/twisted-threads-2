@@ -305,7 +305,7 @@ const Tracker = withTracker(({ dispatch }) => {
 		{
 			limit: ITEMS_PER_PREVIEW_LIST,
 			sort: { nameSort: 1 },
-		}
+		},
 	).fetch();
 
 	let myPatterns = [];
@@ -314,17 +314,17 @@ const Tracker = withTracker(({ dispatch }) => {
 
 	recentPatterns = recentPatterns.slice(0, ITEMS_PER_PREVIEW_LIST);
 
-	if (Accounts.loginServicesConfigured()) {
-		if (Meteor.userId()) {
-			myPatterns = Patterns.find(
-				{ createdBy: Meteor.userId() },
-				{
-					limit: ITEMS_PER_PREVIEW_LIST,
-					sort: { nameSort: 1 },
-				}
-			).fetch();
-		}
+	// if (Accounts.loginServicesConfigured()) { // broken in Meteor 2.9 https://github.com/meteor/meteor/issues/12375, but we only need this if the user is logged in.
+	if (Meteor.userId()) {
+		myPatterns = Patterns.find(
+			{ createdBy: Meteor.userId() },
+			{
+				limit: ITEMS_PER_PREVIEW_LIST,
+				sort: { nameSort: 1 },
+			},
+		).fetch();
 	}
+	//}
 
 	const allUsers = Meteor.users
 		.find(
@@ -332,7 +332,7 @@ const Tracker = withTracker(({ dispatch }) => {
 			{
 				limit: ITEMS_PER_PREVIEW_LIST,
 				sort: { nameSort: 1 },
-			}
+			},
 		)
 		.fetch();
 
@@ -358,7 +358,7 @@ const Tracker = withTracker(({ dispatch }) => {
 				{
 					limit: ITEMS_PER_PREVIEW_LIST,
 					sort: { createdAt: -1 },
-				}
+				},
 			).fetch();
 			secondaryPatternSubscriptions(newPatterns);
 		},

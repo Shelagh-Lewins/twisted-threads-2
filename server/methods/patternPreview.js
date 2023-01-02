@@ -9,6 +9,7 @@ import {
 
 const Jimp = require('jimp');
 const AWS = require('aws-sdk');
+const getRandomValues = require('get-random-values');
 
 const Future = Npm.require('fibers/future');
 
@@ -77,9 +78,13 @@ Meteor.methods({
 				secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 			});
 
+			const urlObfuscator = getRandomValues(new Uint8Array(8)).join(''); // pattern previews are in AWS and cannot be restricted to the logged in user
+			// adding a long string to the URL makes it hard for anybody to guess and view private pattern preview URLs
+
+			// namespacing pattern previews allows us to identify patterns with pattern images
 			const params = {
 				Bucket: process.env.AWS_BUCKET,
-				Key: `${createdBy}/${_id}-preview.png`,
+				Key: `patternPreviews/${createdBy}/${_id}-${urlObfuscator}-preview.png`,
 				Body: Buffer.from(base64Image, 'base64'),
 				ContentType: 'image/png',
 			};
@@ -143,6 +148,8 @@ Meteor.methods({
 			);
 		}
 
+		const { key } = patternPreview;
+
 		const pattern = Patterns.findOne({ _id: patternPreview.patternId });
 
 		if (!pattern) {
@@ -161,29 +168,31 @@ Meteor.methods({
 
 		PatternPreviews.remove({ _id });
 
-		const s3 = new AWS.S3({
-			accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-			secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-		});
+		if (key) {
+			const s3 = new AWS.S3({
+				accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+				secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+			});
 
-		const params = {
-			Bucket: process.env.AWS_BUCKET,
-			Key: patternPreview.key,
-		};
+			const params = {
+				Bucket: process.env.AWS_BUCKET,
+				Key: patternPreview.key,
+			};
 
-		s3.deleteObject(
-			params,
-			Meteor.bindEnvironment((error) => {
-				if (error) {
-					console.log('error removing pattern preview from AWS', error);
-				} else {
-					console.log(
-						'successfully removed pattern preview from AWS',
-						process.env.AWS_BUCKET,
-						patternPreview.key,
-					);
-				}
-			}),
-		);
+			s3.deleteObject(
+				params,
+				Meteor.bindEnvironment((error) => {
+					if (error) {
+						console.log('error removing pattern preview from AWS', error);
+					} else {
+						console.log(
+							'successfully removed pattern preview from AWS',
+							process.env.AWS_BUCKET,
+							patternPreview.key,
+						);
+					}
+				}),
+			);
+		}
 	},
 });
