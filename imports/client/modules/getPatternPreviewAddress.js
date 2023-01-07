@@ -7,7 +7,13 @@
 
 const getPatternPreviewAddress = (patternPreview) => {
 	const { url, uri } = patternPreview;
-	return url || uri;
+
+	if (url) {
+		const timestamp = new Date().getTime();
+		return `${url}?t=${timestamp}`; // force image reload
+	}
+
+	return uri;
 };
 
 export default getPatternPreviewAddress;
