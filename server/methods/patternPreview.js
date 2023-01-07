@@ -78,6 +78,7 @@ Meteor.methods({
 			// check if the patternPreview has already been saved to AWS
 			// if so we are updating and do not create a new key
 			let key = patternPreview?.key;
+			const noExistingKey = !key;
 
 			if (!key) {
 				const urlObfuscator = getRandomValues(new Uint8Array(8)).join(''); // pattern previews are in AWS and cannot be restricted to the logged in user
@@ -97,6 +98,7 @@ Meteor.methods({
 				Body: Buffer.from(base64Image, 'base64'),
 				ContentType: 'image/png',
 				ACL: 'public-read',
+				CacheControl: 'no-cache',
 			};
 
 			try {
@@ -123,7 +125,7 @@ Meteor.methods({
 					});
 				}
 
-				if (!key) {
+				if (noExistingKey) {
 					// migrate from old format where image uri is stored in database // TODO remove after full migration of all patternPreviews
 					return PatternPreviews.update(
 						{ _id: patternPreview._id },
