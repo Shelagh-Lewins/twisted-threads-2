@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { removeSet } from '../modules/set';
+import getPatternPreviewAddress from '../modules/getPatternPreviewAddress';
 
 import './SetSummary.scss';
 
@@ -12,14 +13,7 @@ import { iconColors } from '../../modules/parameters';
 function SetSummary(props) {
 	const {
 		dispatch,
-		'set':
-			{
-				_id,
-				createdBy,
-				description,
-				name,
-				tags,
-			},
+		set: { _id, createdBy, description, name, tags },
 		patterns,
 		patternPreviews,
 		user,
@@ -48,10 +42,14 @@ function SetSummary(props) {
 		const pattern = patterns[i];
 
 		if (pattern) {
-			const patternPreview = patternPreviews.find((preview) => pattern._id === preview.patternId);
+			const patternPreview = patternPreviews.find(
+				(preview) => pattern._id === preview.patternId,
+			);
 
 			if (patternPreview) {
-				previewStyle = { 'backgroundImage': `url(${patternPreview.uri})` };
+				previewStyle = {
+					backgroundImage: `url(${getPatternPreviewAddress(patternPreview)})`,
+				};
 			}
 		}
 
@@ -59,7 +57,7 @@ function SetSummary(props) {
 			<div
 				key={`pattern-preview-${i}`}
 				style={previewStyle}
-				className="pattern-preview"
+				className='pattern-preview'
 			/>
 		);
 
@@ -67,18 +65,20 @@ function SetSummary(props) {
 	}
 
 	const patternPreviewElm = (
-		<div className="pattern-previews">
-			{patternPreviewElms}
-		</div>
+		<div className='pattern-previews'>{patternPreviewElms}</div>
 	);
 
 	const buttonRemove = (
 		<Button
-			type="button"
+			type='button'
 			onClick={() => handleClickButtonRemove()}
-			title="Delete set"
+			title='Delete set'
 		>
-			<FontAwesomeIcon icon={['fas', 'trash']} style={{ 'color': iconColors.default }} size="1x" />
+			<FontAwesomeIcon
+				icon={['fas', 'trash']}
+				style={{ color: iconColors.default }}
+				size='1x'
+			/>
 		</Button>
 	);
 
@@ -86,14 +86,18 @@ function SetSummary(props) {
 	let text = description;
 
 	if (!description && patterns) {
-		text = patterns.reduce((workingString, pattern, index) => workingString
-			+ (pattern ? pattern.name : '')
-			+ (index === patterns.length - 1 ? '' : ', '), '');
+		text = patterns.reduce(
+			(workingString, pattern, index) =>
+				workingString +
+				(pattern ? pattern.name : '') +
+				(index === patterns.length - 1 ? '' : ', '),
+			'',
+		);
 	}
 
 	const tagElms = tags.map((Tagtext, index) => (
 		<span
-			className="tag"
+			className='tag'
 			key={`tag-${index}`} // eslint-disable-line react/no-array-index-key
 		>
 			{Tagtext}
@@ -102,24 +106,26 @@ function SetSummary(props) {
 
 	return (
 		<div
-			className="set-summary"
+			className='set-summary'
 			title={`Set: ${name}`}
 		>
-			<div className="main">
+			<div className='main'>
 				<Link to={`/set/${_id}`}>
 					<h3>{name}</h3>
-					<div className="description">{text}</div>
-					<div className="info">
-						<div className="tags">
-							{tagElms}
-						</div>
+					<div className='description'>{text}</div>
+					<div className='info'>
+						<div className='tags'>{tagElms}</div>
 						<div
-							className="number-of-patterns"
+							className='number-of-patterns'
 							title={`Number of patterns in set: ${patterns.length}`}
 						>
 							<span
-								className="icon"
-								style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/logo.png')}` }}
+								className='icon'
+								style={{
+									backgroundImage: `url(${Meteor.absoluteUrl(
+										'/images/logo.png',
+									)}`,
+								}}
 							/>
 							{patterns.length}
 						</div>
@@ -127,36 +133,35 @@ function SetSummary(props) {
 
 					{patternPreviewElm}
 				</Link>
-
 			</div>
-			<div className="footer">
+			<div className='footer'>
 				<Link
 					to={`/user/${createdBy}`}
-					className="created-by"
+					className='created-by'
 					title={`Created by: ${username}`}
 				>
 					<span
-						className="icon"
-						style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/created_by.png')}` }}
+						className='icon'
+						style={{
+							backgroundImage: `url(${Meteor.absoluteUrl(
+								'/images/created_by.png',
+							)}`,
+						}}
 					/>
 					{username}
 				</Link>
-				{canEdit && (
-					<div className="controls">
-						{buttonRemove}
-					</div>
-				)}
+				{canEdit && <div className='controls'>{buttonRemove}</div>}
 			</div>
 		</div>
 	);
 }
 
 SetSummary.propTypes = {
-	'dispatch': PropTypes.func.isRequired,
-	'patterns': PropTypes.arrayOf(PropTypes.any),
-	'patternPreviews': PropTypes.arrayOf(PropTypes.any),
-	'set': PropTypes.objectOf(PropTypes.any),
-	'user': PropTypes.objectOf(PropTypes.any),
+	dispatch: PropTypes.func.isRequired,
+	patterns: PropTypes.arrayOf(PropTypes.any),
+	patternPreviews: PropTypes.arrayOf(PropTypes.any),
+	set: PropTypes.objectOf(PropTypes.any),
+	user: PropTypes.objectOf(PropTypes.any),
 };
 
 export default SetSummary;
