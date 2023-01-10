@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
@@ -19,10 +19,40 @@ function SetSummary(props) {
 		user,
 	} = props;
 
+	const numberOfThumbnails = 4;
+
 	let username = '';
 	if (user) {
 		username = user.username;
 	}
+
+	const [patternPreviewAddresses, setPatternPreviewAddresses] = useState([]);
+	const [cacheDate] = useState(new Date()); // only refetch the patternPreview on remount
+
+	useEffect(() => {
+		const summaryPatternPreviewAddresses = patterns
+			.slice(0, numberOfThumbnails)
+			.map((pattern) => {
+				let patternPreviewAddress;
+
+				if (pattern) {
+					const patternPreview = patternPreviews.find(
+						(preview) => pattern._id === preview.patternId,
+					);
+
+					if (patternPreview) {
+						patternPreviewAddress = getPatternPreviewAddress(
+							patternPreview,
+							cacheDate,
+						);
+					}
+				}
+
+				return patternPreviewAddress;
+			});
+
+		setPatternPreviewAddresses(summaryPatternPreviewAddresses);
+	}, [patternPreviews, patterns, cacheDate]);
 
 	const handleClickButtonRemove = () => {
 		const response = confirm(`Do you want to delete the set "${name}"?`); // eslint-disable-line no-restricted-globals
@@ -37,20 +67,14 @@ function SetSummary(props) {
 	// use pattern previews for the first four patterns
 	const patternPreviewElms = [];
 
-	for (let i = 0; i < 4; i += 1) {
+	for (let i = 0; i < numberOfThumbnails; i += 1) {
 		let previewStyle = {};
 		const pattern = patterns[i];
 
 		if (pattern) {
-			const patternPreview = patternPreviews.find(
-				(preview) => pattern._id === preview.patternId,
-			);
-
-			if (patternPreview) {
-				previewStyle = {
-					backgroundImage: `url(${getPatternPreviewAddress(patternPreview)})`,
-				};
-			}
+			previewStyle = {
+				backgroundImage: `url(${patternPreviewAddresses[i]})`,
+			};
 		}
 
 		const elm = (

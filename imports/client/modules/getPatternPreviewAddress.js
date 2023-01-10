@@ -5,11 +5,15 @@
 // images in AWS are saved / deleted using the current bucket name / key
 // but they are displayed using the absolute path (saved to the db as url)
 
-const getPatternPreviewAddress = (patternPreview) => {
+const getPatternPreviewAddress = (patternPreview, myDate) => {
+	if (!patternPreview) {
+		return undefined;
+	}
+
 	const { url, uri } = patternPreview;
 
 	if (url) {
-		const timestamp = new Date().getTime();
+		const timestamp = myDate.getTime();
 		return `${url}?t=${timestamp}`; // force image reload
 	}
 

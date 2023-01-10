@@ -33,9 +33,9 @@ const puppeteer = require('puppeteer');
 	page.on('pageerror', (error) => {
 		console.log(error.message);
 	});
-	page.on('response', (response) => {
-		console.log(response.status(), response.url());
-	});
+	// page.on('response', (response) => {
+	// 	console.log(response.status(), response.url());
+	// });
 	page.on('requestfailed', (request) => {
 		console.log(request.failure().errorText, request.url());
 	});

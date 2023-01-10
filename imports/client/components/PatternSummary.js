@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
@@ -30,6 +30,17 @@ function PatternSummary(props) {
 		user,
 	} = props;
 
+	const [patternPreviewAddress, setPatternPreviewAddress] = useState(undefined);
+	const [cacheDate] = useState(new Date()); // only refetch the patternPreview on remount
+
+	useEffect(() => {
+		if (patternPreview) {
+			setPatternPreviewAddress(
+				getPatternPreviewAddress(patternPreview, cacheDate),
+			);
+		}
+	}, [patternPreview, cacheDate]);
+
 	let username = '';
 	if (user) {
 		username = user.username;
@@ -55,7 +66,7 @@ function PatternSummary(props) {
 
 	if (patternPreview) {
 		previewStyle = {
-			backgroundImage: `url(${getPatternPreviewAddress(patternPreview)})`,
+			backgroundImage: `url(${patternPreviewAddress})`,
 		};
 	}
 	const patternPreviewHolder = (
