@@ -76,7 +76,9 @@ const puppeteer = require('puppeteer');
 		const patternId = patternIds[i];
 		const patternPageURL = `${process.env.URL}/pattern/${patternId}`;
 		await page.goto(patternPageURL);
-		console.log('view pattern _id:', patternId);
+		console.log(
+			`*** view pattern _id: ${patternId}, ${i} of ${patternIds.length}`,
+		);
 
 		await page.waitForSelector('.preview-holder svg');
 		console.log('got selector .preview-holder.svg');

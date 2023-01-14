@@ -46,7 +46,7 @@ patterns.forEach((pattern) => {
 	}
 });
 
-const numberOfPatternsToProcess = 100;
+const numberOfPatternsToProcess = 200;
 const patternIdsToProcess = patternIds.slice(0, numberOfPatternsToProcess);
 //const patternIdsAsString = patternIdsToProcess.toString(','); // export as comma separated string so it can be provided as an environment variable for the next step
 // e.g. 'A4,B2,C8'
