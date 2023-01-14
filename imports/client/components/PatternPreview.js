@@ -66,7 +66,6 @@ class PatternPreview extends Component {
 			!printView &&
 			(createdBy === Meteor.userId() ||
 				Roles.getRolesForUser(Meteor.userId()).includes('serviceUser'));
-
 		if (!canSave) return;
 
 		const holder = document.getElementById('preview-holder');

@@ -22,6 +22,7 @@ export function savePatternPreview({ _id, elm }) {
 
 			Jimp.read(Buffer.from(base64Image, 'base64'), (err, image) => {
 				if (err) throw err;
+
 				image
 					.scaleToFit(
 						PREVIEW_HEIGHT * PREVIEW_SCALE,

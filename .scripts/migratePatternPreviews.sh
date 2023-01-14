@@ -47,31 +47,44 @@ export PASSWORD
 LOGDIR=~/logs
 LOGFILE=$LOGDIR/migratePatternPreviews.log
 
+echo `date` >> $LOGFILE
+echo Running bash script generatePatternPreviews.sh >> $LOGFILE
+
 ## find the patterns that need to be viewed
 # pass in environment variables
 MONGO_ADDRESS="${MONGO_HOST}"':'"${MONGO_PORT}"
 
 ENVVARS='var mongoAddress='\'"${MONGO_ADDRESS}"\''; var databaseName='\'"${DATABASE_NAME}"\''; var username='\'"${TWT_USERNAME}"\'';'
-
+echo 'about to check mongodb' $PATTERN_IDS
 # run script to find the pattern ids to view
 PATTERN_IDS=$(mongo --port $MONGO_PORT --quiet --eval "${ENVVARS}" $SCRIPTPATH/getPatternsWithoutAWSPreview.js)
 
+echo "pattern IDs" $PATTERN_IDS
+
 IFS=',' read -ra IDS_ARRAY <<< "$PATTERN_IDS"
 echo IDS_ARRAY $IDS_ARRAY
+# IDS_ARRAY is coded as comma separated string
+# e.g. // e.g. 'A4,B2,C8:3'
 
-LENGTH=${#IDS_ARRAY[@]}
-echo "number of patterns" $LENGTH
+#IN="bla@some.com;john@home.com"
+#SPLIT_DATA=(${IDS_ARRAY//:/ })
+#echo ${SPLIT_DATA[1]} 
 
 ## run script to visit each pattern
-echo `date` >> $LOGFILE
-echo Running bash script generatePatternPreviews.sh >> $LOGFILE
 
-for i in "${!IDS_ARRAY[@]}"
-do
-   echo processing pattern number "$i" / $LENGTH
-   echo "${IDS_ARRAY[$i]}"
-   PATTERN_ID=${IDS_ARRAY[$i]}
-   export PATTERN_ID
-   node $SCRIPTPATH/viewPatterns.js >> $LOGFILE 2>&1
-done
+
+LENGTH=${#IDS_ARRAY[@]}
+echo "number of patterns without AWS preview" $LENGTH
+
+export PATTERN_IDS
+node $SCRIPTPATH/viewPatterns.js >> $LOGFILE 2>&1
+
+#for i in "${!IDS_ARRAY[@]}"
+#do
+#   echo processing pattern number "$i" / $LENGTH
+#   echo "${IDS_ARRAY[$i]}"
+#   PATTERN_ID=${IDS_ARRAY[$i]}
+#   export PATTERN_ID
+#   node $SCRIPTPATH/viewPatterns.js >> $LOGFILE 2>&1
+#done
 
