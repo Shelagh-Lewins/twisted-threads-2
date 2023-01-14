@@ -40,22 +40,20 @@ class PreviewCell extends Component {
 		}
 
 		return (
-			orientation && (
-				<PreviewSVG
-					currentRepeat={currentRepeat}
-					holes={holes}
-					numberOfRepeats={numberOfRepeats}
-					numberOfRows={numberOfRows}
-					orientation={orientation}
-					palette={palette}
-					patternWillRepeat={patternWillRepeat}
-					picksForTablet={picksForTablet}
-					rowIndex={rowIndex}
-					showBackOfBand={showBackOfBand}
-					tabletIndex={tabletIndex}
-					threadingForTablet={threadingForTablet}
-				/>
-			)
+			<PreviewSVG
+				currentRepeat={currentRepeat}
+				holes={holes}
+				numberOfRepeats={numberOfRepeats}
+				numberOfRows={numberOfRows}
+				orientation={orientation}
+				palette={palette}
+				patternWillRepeat={patternWillRepeat}
+				picksForTablet={picksForTablet}
+				rowIndex={rowIndex}
+				showBackOfBand={showBackOfBand}
+				tabletIndex={tabletIndex}
+				threadingForTablet={threadingForTablet}
+			/>
 		);
 	}
 }
