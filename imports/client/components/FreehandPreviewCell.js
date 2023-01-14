@@ -21,12 +21,16 @@ class FreehandPreviewCell extends Component {
 		const {
 			orientation,
 			palette,
-			'patternDesign': { freehandChart },
+			patternDesign: { freehandChart },
 			rowIndex,
 			tabletIndex,
 		} = this.props;
 
-		return orientation && (
+		if (!orientation) {
+			return null;
+		}
+
+		return (
 			<FreehandPreviewSVG
 				freehandChart={freehandChart}
 				orientation={orientation}
@@ -40,22 +44,22 @@ class FreehandPreviewCell extends Component {
 
 // some props are briefly unavailable after a row or tablet has been deleted
 FreehandPreviewCell.propTypes = {
-	'componentShouldUpdate': PropTypes.bool.isRequired,
-	'orientation': PropTypes.string, // can be temporarily missing after remove last tablet
-	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'patternDesign': PropTypes.objectOf(PropTypes.any).isRequired,
-	'rowIndex': PropTypes.number.isRequired, // eslint-disable-line react/no-unused-prop-types
-	'tabletIndex': PropTypes.number.isRequired,
+	componentShouldUpdate: PropTypes.bool.isRequired,
+	orientation: PropTypes.string, // can be temporarily missing after remove last tablet
+	palette: PropTypes.arrayOf(PropTypes.any).isRequired,
+	patternDesign: PropTypes.objectOf(PropTypes.any).isRequired,
+	rowIndex: PropTypes.number.isRequired, // eslint-disable-line react/no-unused-prop-types
+	tabletIndex: PropTypes.number.isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
 	const { tabletIndex } = ownProps;
 
 	return {
-		'componentShouldUpdate': getPreviewShouldUpdate(state),
-		'orientation': getOrientationForTablet(state, tabletIndex),
-		'palette': getPalette(state),
-		'patternDesign': getPatternDesign(state),
+		componentShouldUpdate: getPreviewShouldUpdate(state),
+		orientation: getOrientationForTablet(state, tabletIndex),
+		palette: getPalette(state),
+		patternDesign: getPatternDesign(state),
 	};
 }
 

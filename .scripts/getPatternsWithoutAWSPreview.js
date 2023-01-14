@@ -20,10 +20,10 @@ const patternsWithoutPreview = []; // just for testing
 const patternsWithAWSPreview = []; // just for testing
 const patternsWithoutKey = []; // just for testing
 const allPatterns = []; // just for testing
-//print('**** here 1', patterns.count());
+//print('here 1', patterns.count());
 patterns.forEach((pattern) => {
 	const { _id } = pattern;
-	//prinrt('**** here 2', _id);
+
 	allPatterns.push(_id);
 
 	const patternPreview = db.patternPreviews.findOne({ patternId: _id });
@@ -46,10 +46,10 @@ patterns.forEach((pattern) => {
 	}
 });
 
-const numberOfPatternsToProcess = 3;
+const numberOfPatternsToProcess = 100;
 const patternIdsToProcess = patternIds.slice(0, numberOfPatternsToProcess);
 //const patternIdsAsString = patternIdsToProcess.toString(','); // export as comma separated string so it can be provided as an environment variable for the next step
 // e.g. 'A4,B2,C8'
 
-//print(patternIdsToProcess); // this is effectively the return value
-print(['gucN5KtX6Bpf2aLW7']); // single pattern id for testing
+print(patternIdsToProcess); // this is effectively the return value
+//print(['gucN5KtX6Bpf2aLW7']); // single pattern id for testing

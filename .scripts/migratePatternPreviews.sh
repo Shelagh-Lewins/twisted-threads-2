@@ -55,7 +55,7 @@ echo Running bash script generatePatternPreviews.sh >> $LOGFILE
 MONGO_ADDRESS="${MONGO_HOST}"':'"${MONGO_PORT}"
 
 ENVVARS='var mongoAddress='\'"${MONGO_ADDRESS}"\''; var databaseName='\'"${DATABASE_NAME}"\''; var username='\'"${TWT_USERNAME}"\'';'
-echo 'about to check mongodb' $PATTERN_IDS
+echo 'about to check mongodb'
 # run script to find the pattern ids to view
 PATTERN_IDS=$(mongo --port $MONGO_PORT --quiet --eval "${ENVVARS}" $SCRIPTPATH/getPatternsWithoutAWSPreview.js)
 
