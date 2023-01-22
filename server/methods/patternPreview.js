@@ -15,7 +15,6 @@ const Future = Npm.require('fibers/future');
 
 Meteor.methods({
 	'patternPreview.save': function ({ _id, uri }) {
-		console.log('saving', _id);
 		check(_id, String);
 		check(uri, String);
 		this.unblock();

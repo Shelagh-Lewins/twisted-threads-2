@@ -13,15 +13,20 @@ db = conn.getDB(databaseName);
 
 // all patterns ought to have a patternPreview, but there are more patterns than patternPreviews so clearly that's not the case
 // so work from the pattern list
-var patterns = db.patterns.find();
+var patterns = db.patterns.find().toArray(); // fetch isn't available in mongo shell
 
-const patternIds = []; // patterns that need to have a preview generated and saved in AWS
+const patternIdsToProcess = []; // patterns that need to have a preview generated and saved in AWS
 const patternsWithoutPreview = []; // just for testing
 const patternsWithAWSPreview = []; // just for testing
 const patternsWithoutKey = []; // just for testing
 const allPatterns = []; // just for testing
 //print('here 1', patterns.count());
-patterns.forEach((pattern) => {
+
+const numberOfPatternsToProcess = 1000;
+//print('patterns #', patterns.length);
+for (let i = 0; i < patterns.length; i += 1) {
+	const pattern = patterns[i];
+
 	const { _id } = pattern;
 
 	allPatterns.push(_id);
@@ -30,7 +35,7 @@ patterns.forEach((pattern) => {
 
 	// several runs are likely to be required because of timeout issues with Puppeteer
 	if (!patternPreview || !patternPreview.key) {
-		patternIds.push(_id);
+		patternIdsToProcess.push(_id);
 	}
 
 	if (!patternPreview) {
@@ -44,10 +49,16 @@ patterns.forEach((pattern) => {
 	if (patternPreview && !patternPreview.key) {
 		patternsWithoutKey.push(_id);
 	}
-});
 
-const numberOfPatternsToProcess = 200;
-const patternIdsToProcess = patternIds.slice(0, numberOfPatternsToProcess);
+	if (
+		patternIdsToProcess.length >= numberOfPatternsToProcess ||
+		i >= patterns.length - 1
+	) {
+		break;
+	}
+}
+
+//const patternIdsToProcess = patternIds.slice(0, numberOfPatternsToProcess);
 //const patternIdsAsString = patternIdsToProcess.toString(','); // export as comma separated string so it can be provided as an environment variable for the next step
 // e.g. 'A4,B2,C8'
 
