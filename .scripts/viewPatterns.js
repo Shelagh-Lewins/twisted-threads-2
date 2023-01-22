@@ -75,14 +75,23 @@ const puppeteer = require('puppeteer');
 		// forEach closes the browser
 		const patternId = patternIds[i];
 		const patternPageURL = `${process.env.URL}/pattern/${patternId}`;
-		await page.goto(patternPageURL);
+
+		try {
+			await page.goto(patternPageURL);
+		} catch (error) {
+			console.log('ERROR in page.goto', patternPageURL);
+		}
 		console.log(
-			`*** view pattern _id: ${patternId}, ${i} of ${patternIds.length}`,
+			`*** view pattern _id: ${patternId}, ${i + 1} of ${patternIds.length}`,
 		);
 
-		await page.waitForSelector('.preview-holder svg');
+		try {
+			await page.waitForSelector('.preview-holder svg');
+		} catch (error) {
+			console.log('ERROR in page.waitForSelector', patternId);
+		}
 		console.log('got selector .preview-holder.svg');
-		await page.waitForTimeout(10000); // wait for the preview to be rendered and saved; less time than this and the image processing stage may fail
+		await page.waitForTimeout(20000); // wait for the preview to be rendered and saved; less time than this and the image processing stage may fail
 
 		console.log('leaving pattern', patternId);
 	}
