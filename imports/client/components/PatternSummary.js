@@ -64,7 +64,7 @@ function PatternSummary(props) {
 	// import the preview
 	let previewStyle = {};
 
-	if (patternPreview) {
+	if (patternPreviewAddress) {
 		previewStyle = {
 			backgroundImage: `url(${patternPreviewAddress})`,
 		};
