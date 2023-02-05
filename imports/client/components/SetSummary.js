@@ -71,7 +71,7 @@ function SetSummary(props) {
 		let previewStyle = {};
 		const pattern = patterns[i];
 
-		if (pattern) {
+		if (pattern && patternPreviewAddresses[i]) {
 			previewStyle = {
 				backgroundImage: `url(${patternPreviewAddresses[i]})`,
 			};
