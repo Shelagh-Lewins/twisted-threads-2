@@ -689,6 +689,7 @@ Meteor.methods({
 		// remove the pattern preview
 		const patternPreview = PatternPreviews.findOne({ patternId: _id });
 
+		if (patternPreview) {
 		// remove from Amazon S3
 		Meteor.call(
 			'patternPreview.remove',
@@ -702,6 +703,7 @@ Meteor.methods({
 				}
 			},
 		);
+	}
 
 		// remove all pattern images
 		const patternImages = PatternImages.find({ patternId: _id }).fetch();

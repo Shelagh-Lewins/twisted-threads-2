@@ -84,7 +84,6 @@ Meteor.methods({
 		let fieldName;
 		let fieldValue;
 		let holesToSet;
-		//let includeInTwist;
 		let isPublic;
 		let insertNRows;
 		let insertRowsAt;
@@ -641,9 +640,26 @@ Meteor.methods({
 			case 'addTablets':
 				({ colorIndex, insertNTablets, insertTabletsAt } = data);
 
-				check(insertNTablets, Match.Integer);
-				check(insertTabletsAt, Match.Integer);
-				check(colorIndex, validPaletteIndexCheck);
+				// more logging added after a user report of a pattern not saving
+				// 1 May 2023
+				// Nginx log showed a check failure but it's not clear how an invalid value was sent
+				try {
+					check(insertNTablets, Match.Integer);
+				} catch (err) {
+					throw new Meteor.Error('edit-pattern-add-tablets-check-failed', `Unable to add tablets for pattern ${_id} because check insertNTablets failed with error ${err.message}`);
+				}
+
+				try {
+					check(insertTabletsAt, Match.Integer);
+				} catch (err) {
+					throw new Meteor.Error('edit-pattern-add-tablets-check-failed', `Unable to add tablets for pattern ${_id} because check insertTabletsAt failed with error ${err.message}`);
+				}
+
+				try {
+					check(colorIndex, validPaletteIndexCheck);
+				} catch (err) {
+					throw new Meteor.Error('edit-pattern-add-tablets-check-failed', `Unable to add tablets for pattern ${_id} because check colorIndex failed with error ${err.message}`);
+				}
 
 				update.$push = {};
 
@@ -1025,8 +1041,21 @@ Meteor.methods({
 
 			case 'paletteColor':
 				({ colorHexValue, colorIndex } = data);
-				check(colorHexValue, String);
-				check(colorIndex, validPaletteIndexCheck);
+
+				// more logging added after a user report of a pattern not saving
+				// 1 May 2023
+				// Nginx log showed a check failure but it's not clear how an invalid value was sent
+				try {
+					check(colorHexValue, String);
+				} catch (err) {
+					throw new Meteor.Error('edit-pattern-palette-color-check-failed', `Unable to edit palette for pattern ${_id} because check colorHexValue failed with error ${err.message}`);
+				}
+
+				try {
+					check(colorIndex, validPaletteIndexCheck);
+				} catch (err) {
+					throw new Meteor.Error('edit-pattern-palette-color-check-failed', `Unable to edit palette for pattern ${_id} because check colorIndex failed with error ${err.message}`);
+				}
 
 				if (!tinycolor(colorHexValue).isValid()) {
 					throw new Meteor.Error('edit-pattern-palette-color-invalid', 'Unable to edit pattern because the new palette color is not a valid color');
