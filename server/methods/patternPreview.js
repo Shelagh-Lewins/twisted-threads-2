@@ -52,14 +52,13 @@ Meteor.methods({
     const asyncJimpRead = util.promisify(Jimp.read);
 
     try {
-      const result1 = await asyncJimpRead(Buffer.from(base64Image, 'base64'));
-      // console.log('Jimp result', result);
+      const imageData = await asyncJimpRead(Buffer.from(base64Image, 'base64'));
 
       const imageIsOK =
-        result1.bitmap.width > 0 &&
-        result1.bitmap.height > 0 &&
-        result1.bitmap.width <= PREVIEW_WIDTH * PREVIEW_SCALE * 1.1 &&
-        result1.bitmap.height <= PREVIEW_HEIGHT * PREVIEW_SCALE * 1.1;
+        imageData.bitmap.width > 0 &&
+        imageData.bitmap.height > 0 &&
+        imageData.bitmap.width <= PREVIEW_WIDTH * PREVIEW_SCALE * 1.1 &&
+        imageData.bitmap.height <= PREVIEW_HEIGHT * PREVIEW_SCALE * 1.1;
 
       if (!imageIsOK) {
         throw new Meteor.Error(
