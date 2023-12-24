@@ -89,6 +89,7 @@ if (Meteor.isServer) {
         expect(expectedError).to.throw(
           Meteor.Error(),
           'save-preview-error', // expect an error as we don't actually want to save to S3 in the test!
+          's3.upload',
         );
       });
       it('cannot save pattern preview if image invalid', () => {
@@ -100,7 +101,11 @@ if (Meteor.isServer) {
             uri: 'a_uri',
           });
         }
-        expect(expectedError).to.throw(Meteor.Error(), 'save-preview-error');
+        expect(expectedError).to.throw(
+          Meteor.Error(),
+          'save-preview-error',
+          'image size',
+        );
       });
     });
     describe('patternPreview.remove method', () => {
