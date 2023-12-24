@@ -12,8 +12,6 @@ const Jimp = require('jimp');
 const AWS = require('aws-sdk');
 const getRandomValues = require('get-random-values');
 
-const Future = Npm.require('fibers/future');
-
 Meteor.methods({
   'patternPreview.save': async function ({ _id, uri }) {
     check(_id, String);
@@ -25,14 +23,14 @@ Meteor.methods({
     if (!Meteor.userId()) {
       throw new Meteor.Error(
         'save-preview-not-logged-in',
-        'Unable to save preview because the user is not logged in'
+        'Unable to save preview because the user is not logged in',
       );
     }
 
     if (!pattern) {
       throw new Meteor.Error(
         'save-preview-not-found',
-        'Unable to save preview because the pattern was not found'
+        'Unable to save preview because the pattern was not found',
       );
     }
 
@@ -44,44 +42,40 @@ Meteor.methods({
     ) {
       throw new Meteor.Error(
         'save-preview-not-created-by-user',
-        'Unable to save preview because pattern was not created by the current logged in user'
+        'Unable to save preview because pattern was not created by the current logged in user',
       );
     }
 
     // the image should have been rotated and sized correctly by the client
     // but the server should still check the image is valid and suitable in size
     const base64Image = uri.split(';base64,').pop();
-    const future1 = new Future();
     const asyncJimpRead = util.promisify(Jimp.read);
 
-    const testResult = await asyncJimpRead(Buffer.from(base64Image, 'base64'));
-    console.log('Jimp result', testResult);
-
     try {
-      Jimp.read(Buffer.from(base64Image, 'base64'), (error, result) => {
-        if (!error) {
-          if (
-            result.bitmap.width > 0 &&
-            result.bitmap.height > 0 &&
-            result.bitmap.width <= PREVIEW_WIDTH * PREVIEW_SCALE * 1.1 &&
-            result.bitmap.height <= PREVIEW_HEIGHT * PREVIEW_SCALE * 1.1
-          ) {
-            // image is of acceptable size
-            future1.return();
-          } else {
-            future1.throw('invalid image size');
-          }
-        } else {
-          future1.throw('image error');
-        }
-      });
+      const result1 = await asyncJimpRead(Buffer.from(base64Image, 'base64'));
+      // console.log('Jimp result', result);
+
+      const imageIsOK =
+        result1.bitmap.width > 0 &&
+        result1.bitmap.height > 0 &&
+        result1.bitmap.width <= PREVIEW_WIDTH * PREVIEW_SCALE * 1.1 &&
+        result1.bitmap.height <= PREVIEW_HEIGHT * PREVIEW_SCALE * 1.1;
+
+      if (!imageIsOK) {
+        throw new Meteor.Error(
+          'image error',
+          'Unable to save pattern preview because image size is invalid',
+        );
+      }
     } catch (error) {
-      future1.throw('image error');
+      throw new Meteor.Error(
+        'save-preview-error',
+        'Unable to save pattern preview because Jimp.read threw an error',
+        error,
+      );
     }
 
     try {
-      future1.wait();
-
       const patternPreview = PatternPreviews.findOne({ patternId: _id });
 
       // check if the patternPreview has already been saved to AWS
@@ -111,20 +105,10 @@ Meteor.methods({
       };
 
       try {
-        const future2 = new Future();
+        const uploadedImage = await s3.upload(params).promise();
 
-        s3.upload(params, (err, data) => {
-          if (err) {
-            future2.throw('upload error');
-          } else {
-            future2.return(data);
-          }
-        });
-
-        const uploadedImage = future2.wait();
         const { Key, Location } = uploadedImage;
 
-        // calls to Mongo will not work inside the future, hence moving them to the 'try' block
         if (!patternPreview) {
           // create new
           return PatternPreviews.insert({
@@ -135,14 +119,19 @@ Meteor.methods({
         }
 
         if (noExistingKey) {
-          // migrate from old format where image uri is stored in database // TODO remove after full migration of all patternPreviews
+          // migrate from old format where image uri is stored in database
+          // This should no longer be necessary but is still here just in case there is any pattern without an s3 key
           return PatternPreviews.update(
             { _id: patternPreview._id },
-            { $set: { url: Location, key: Key }, $unset: { uri: '' } }
+            { $set: { url: Location, key: Key }, $unset: { uri: '' } },
           );
         }
-      } catch (err) {
-        throw new Meteor.Error('upload-preview-error', err);
+      } catch (error) {
+        throw new Meteor.Error(
+          'save-preview-error',
+          'Unable to save pattern preview because s3.upload threw an error',
+          error,
+        );
       }
     } catch (err) {
       throw new Meteor.Error('save-preview-error', err);
@@ -155,7 +144,7 @@ Meteor.methods({
     if (!Meteor.userId()) {
       throw new Meteor.Error(
         'remove-pattern-preview-not-logged-in',
-        'Unable to remove pattern preview because the user is not logged in'
+        'Unable to remove pattern preview because the user is not logged in',
       );
     }
 
@@ -164,7 +153,7 @@ Meteor.methods({
     if (!patternPreview) {
       throw new Meteor.Error(
         'remove-pattern-preview-not-found',
-        'Unable to remove pattern preview because the pattern preview was not found'
+        'Unable to remove pattern preview because the pattern preview was not found',
       );
     }
 
@@ -175,14 +164,14 @@ Meteor.methods({
     if (!pattern) {
       throw new Meteor.Error(
         'remove-pattern-preview-not-found',
-        'Unable to remove pattern preview because the pattern was not found'
+        'Unable to remove pattern preview because the pattern was not found',
       );
     }
 
     if (pattern.createdBy !== Meteor.userId()) {
       throw new Meteor.Error(
         'remove-pattern-preview-not-created-by-user',
-        'Unable to remove pattern preview because the pattern was not created by the current logged in user'
+        'Unable to remove pattern preview because the pattern was not created by the current logged in user',
       );
     }
 
@@ -208,10 +197,10 @@ Meteor.methods({
             console.log(
               'successfully removed pattern preview from AWS',
               process.env.AWS_BUCKET,
-              patternPreview.key
+              patternPreview.key,
             );
           }
-        })
+        }),
       );
     }
   },
