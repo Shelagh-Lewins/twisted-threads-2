@@ -125,6 +125,18 @@ Meteor.methods({
             { $set: { url: Location, key: Key }, $unset: { uri: '' } },
           );
         }
+
+        // check whether the URL is correct
+        // This is most useful when editing patterns in Test that were created on Live
+        // i.e. Live database has been imported to Localhost or Test
+        // and bucket name is different
+        // note you may need to refresh the page to see the new URL
+        if (Location !== patternPreview.url) {
+          return PatternPreviews.update(
+            { _id: patternPreview._id },
+            { $set: { url: Location } },
+          );
+        }
       } catch (error) {
         throw new Meteor.Error(
           'save-preview-error',
