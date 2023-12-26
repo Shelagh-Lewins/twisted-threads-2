@@ -17,6 +17,7 @@ Meteor.methods({
     check(_id, String);
     check(uri, String);
     this.unblock();
+    console.log('*** save preview');
 
     const pattern = Patterns.findOne({ _id });
 
@@ -126,17 +127,17 @@ Meteor.methods({
           );
         }
 
-        // check whether the URL is correct
+        // ensure the URL is correct
         // This is most useful when editing patterns in Test that were created on Live
         // i.e. Live database has been imported to Localhost or Test
         // and bucket name is different
+        // but should also cover for any future change in AWS urls
+        // key is fixed so image location within AWS is consistent
         // note you may need to refresh the page to see the new URL
-        if (Location !== patternPreview.url) {
-          return PatternPreviews.update(
-            { _id: patternPreview._id },
-            { $set: { url: Location } },
-          );
-        }
+        return PatternPreviews.update(
+          { _id: patternPreview._id },
+          { $set: { url: Location } },
+        );
       } catch (error) {
         throw new Meteor.Error(
           'save-preview-error',
