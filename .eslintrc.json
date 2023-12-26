@@ -1,71 +1,72 @@
 {
-	"parser": "babel-eslint",
-	"plugins": ["meteor"],
-	"settings": {
-		"import/resolver": "meteor"
-	},
-	"extends": ["react-app", "airbnb", "plugin:meteor/recommended"],
-	"env": {
-		"meteor": true,
-		"node": true,
-		"browser": true
-	},
-	"globals": {
-		"Factory": true,
-		"Roles": true,
-		"Slingshot": true
-	},
-	"rules": {
-		"array-callback-return": ["off"],
-		"implicit-arrow-linebreak": ["off"],
-		"no-underscore-dangle": ["off"],
-		"import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
-		"eol-last": ["error", "always"],
-		"func-names": ["error", "as-needed"],
-		"quotes": [
-			2,
-			"single",
-			{
-				"avoidEscape": true,
-				"allowTemplateLiterals": true
-			}
-		],
-		"padded-blocks": ["error", "never"],
-		"semi": ["error", "always"],
-		"indent": ["off"],
-		"key-spacing": [
-			"error",
-			{
-				"mode": "strict"
-			}
-		],
-		"no-alert": ["off"],
-		"object-curly-spacing": ["error", "always"],
-		"object-curly-newline": ["off"],
-		"operator-linebreak": ["off"],
-		"quote-props": [2, "as-needed"],
-		"consistent-return": ["off"],
-		"no-return-assign": ["off"],
-		"no-tabs": ["off"],
-		"max-len": ["off"],
-		"react/jsx-indent": ["off"],
-		"react/jsx-indent-props": ["error", "tab"],
-		"react/jsx-filename-extension": [
-			1,
-			{
-				"extensions": [".js", ".jsx"]
-			}
-		],
-		"react/jsx-fragments": ["off"],
-		"react/no-did-update-set-state": ["warn"],
-		"react/require-default-props": ["off"],
-		"react/jsx-one-expression-per-line": ["warn"],
-		"react/jsx-boolean-value": ["off"],
-		"jsx-a11y/label-has-associated-control": [
-			1,
-			{
-				"assert": "either"
-			}
-		]
-	}
+  "parser": "babel-eslint",
+  "plugins": ["meteor"],
+  "settings": {
+    "import/resolver": "meteor"
+  },
+  "extends": ["react-app", "airbnb", "plugin:meteor/recommended"],
+  "env": {
+    "meteor": true,
+    "node": true,
+    "browser": true
+  },
+  "globals": {
+    "Factory": true,
+    "Roles": true,
+    "Slingshot": true
+  },
+  "rules": {
+    "array-callback-return": ["off"],
+    "implicit-arrow-linebreak": ["off"],
+    "no-underscore-dangle": ["off"],
+    "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
+    "eol-last": ["error", "always"],
+    "func-names": ["error", "as-needed"],
+    "quotes": [
+      2,
+      "single",
+      {
+        "avoidEscape": true,
+        "allowTemplateLiterals": true
+      }
+    ],
+    "jsx-quotes": ["error", "prefer-single"],
+    "padded-blocks": ["error", "never"],
+    "semi": ["error", "always"],
+    "indent": ["off"],
+    "key-spacing": [
+      "error",
+      {
+        "mode": "strict"
+      }
+    ],
+    "no-alert": ["off"],
+    "object-curly-spacing": ["error", "always"],
+    "object-curly-newline": ["off"],
+    "operator-linebreak": ["off"],
+    "quote-props": [2, "as-needed"],
+    "consistent-return": ["off"],
+    "no-return-assign": ["off"],
+    "no-tabs": ["off"],
+    "max-len": ["off"],
+    "react/jsx-indent": ["off"],
+    "react/jsx-indent-props": ["off"],
+    "react/jsx-filename-extension": [
+      1,
+      {
+        "extensions": [".js", ".jsx"]
+      }
+    ],
+    "react/jsx-fragments": ["off"],
+    "react/no-did-update-set-state": ["warn"],
+    "react/require-default-props": ["off"],
+    "react/jsx-one-expression-per-line": ["warn"],
+    "react/jsx-boolean-value": ["off"],
+    "jsx-a11y/label-has-associated-control": [
+      1,
+      {
+        "assert": "either"
+      }
+    ]
+  }
 }
