@@ -9,7 +9,6 @@ import CreatorMessage from '../components/CreatorMessage';
 import DonatePayPal from '../components/DonatePayPal';
 import DonateKoFi from '../components/DonateKoFi';
 import DonatePatreon from '../components/DonatePatreon';
-import { getVersion } from '../modules/auth';
 import './About.scss';
 
 const bodyClass = 'about';

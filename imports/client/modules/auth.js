@@ -79,17 +79,14 @@ export function setVersion(result) {
   };
 }
 
-export const getVersion = () => (dispatch) => {
-  console.log('*** get version');
+export const getVersion = () => (dispatch) =>
   Meteor.call('getVersion', (error, result) => {
-    console.log('*** got version', result);
     if (error) {
       return dispatch(logErrors({ 'get version': error.reason }));
     }
 
     dispatch(setVersion(result));
   });
-};
 
 export const getUserCount = () => (dispatch) =>
   Meteor.call('auth.getUserCount', (error, result) => {
