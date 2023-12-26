@@ -17,7 +17,6 @@ Meteor.methods({
     check(_id, String);
     check(uri, String);
     this.unblock();
-    console.log('*** save preview');
 
     const pattern = Patterns.findOne({ _id });
 
