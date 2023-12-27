@@ -1,0 +1,23 @@
+@import '../constants/variables';
+
+.vertical-guides {
+  bottom: 0;
+  position: absolute;
+  width: 100%;
+  left: 35px;
+  pointer-events: none;
+  z-index: 11;
+
+  .vertical-guide {
+    position: absolute;
+    border-right: 5px dotted $color-vertical-guide;
+    height: 100%;
+    margin-left: 1px; // adjust for line width
+    top: 0;
+
+    &.center {
+      border-color: $color-vertical-guide-center;
+      margin-left: -4px; // adjust for line width
+    }
+  }
+}

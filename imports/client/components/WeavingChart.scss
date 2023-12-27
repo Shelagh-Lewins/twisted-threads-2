@@ -167,26 +167,6 @@
   .hint {
     clear: both;
   }
-
-  .vertical-guides {
-    bottom: 0;
-    position: absolute;
-    width: 100%;
-    left: 35px;
-    pointer-events: none;
-    z-index: 11;
-
-    .vertical-guide {
-      position: absolute;
-      border-right: 3px dotted $color-vertical-guide;
-      height: 100%;
-      top: 0;
-
-      &.center {
-        border-color: $color-vertical-guide-center;
-      }
-    }
-  }
 }
 
 .weaving-chart-print {

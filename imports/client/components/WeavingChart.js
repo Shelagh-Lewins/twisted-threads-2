@@ -4,6 +4,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import WeavingChartCell from './WeavingChartCell';
 import FreehandChartCell from './FreehandChartCell';
+import VerticalGuides from './VerticalGuides';
 
 import './Threading.scss';
 import './WeavingChart.scss';
@@ -19,60 +20,6 @@ import './WeavingChart.scss';
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
 function WeavingChart(props) {
-  const verticalGuideInterval = 4;
-  const showVerticalGuides = true;
-
-  const renderVerticalGuides = () => {
-    const { numberOfRows, numberOfTablets } = props;
-    const cellWidth = 33;
-    const numberOfSections = numberOfTablets / verticalGuideInterval;
-
-    const centreGuideIndex =
-      numberOfSections % 2 === 0 ? numberOfSections / 2 : undefined;
-    // with an even number of sections, AND no partial sections, one of the section guides will be in the centre
-
-    const verticalGuides = [];
-    if (showVerticalGuides) {
-      for (let i = 0; i < numberOfSections - 1; i += 1) {
-        const left = i * verticalGuideInterval * cellWidth;
-        const width = verticalGuideInterval * cellWidth;
-
-        verticalGuides.push(
-          <div
-            className={`vertical-guide ${
-              i + 1 === centreGuideIndex ? 'center' : ''
-            }`}
-            style={{
-              left,
-              width,
-            }}
-          />,
-        );
-      }
-
-      // we need to add a guide for the centre
-      if (centreGuideIndex === undefined) {
-        const center = (cellWidth * numberOfTablets) / 2 - 3;
-
-        verticalGuides.push(
-          <div
-            className='vertical-guide center'
-            style={{
-              left: center,
-              width: 3,
-            }}
-          />,
-        );
-      }
-    }
-
-    return (
-      <div className='vertical-guides' style={{ height: numberOfRows * 33 }}>
-        {verticalGuides}
-      </div>
-    );
-  };
-
   const renderCell = (rowIndex, tabletIndex) => {
     const { patternType } = props;
     let cell;
@@ -177,7 +124,13 @@ function WeavingChart(props) {
   };
 
   const renderChart = () => {
-    const { handleClickRow, numberOfRows, printView, selectedRow } = props;
+    const {
+      handleClickRow,
+      numberOfRows,
+      numberOfTablets,
+      printView,
+      selectedRow,
+    } = props;
 
     const rows = [];
     for (let i = 0; i < numberOfRows; i += 1) {
@@ -208,7 +161,10 @@ function WeavingChart(props) {
       <div className='weaving-chart-holder'>
         {renderTabletLabels()}
         <ul className='weaving-chart'>{rows}</ul>
-        {renderVerticalGuides()}
+        <VerticalGuides
+          numberOfRows={numberOfRows}
+          numberOfTablets={numberOfTablets}
+        />
       </div>
     );
   };
