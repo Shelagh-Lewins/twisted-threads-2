@@ -17,6 +17,7 @@ const updeep = require('updeep');
 // define action types so they are visible
 // and export them so other reducers can use them
 export const SET_MAINTENANCE_MODE = 'SET_MAINTENANCE_MODE';
+export const SET_VERSION = 'SET_VERSION';
 export const SET_USER_COUNT = 'SET_USER_COUNT';
 export const SET_USERS_FOR_PAGE = 'SET_USERS_FOR_PAGE';
 export const SET_ISLOADING = 'SET_ISLOADING';
@@ -70,6 +71,23 @@ export function setUserCount(userCount) {
   };
 }
 
+// find the current version of Twisted Threads from package.json
+export function setVersion(result) {
+  return {
+    type: SET_VERSION,
+    payload: result,
+  };
+}
+
+export const getVersion = () => (dispatch) =>
+  Meteor.call('getVersion', (error, result) => {
+    if (error) {
+      return dispatch(logErrors({ 'get version': error.reason }));
+    }
+
+    dispatch(setVersion(result));
+  });
+
 export const getUserCount = () => (dispatch) =>
   Meteor.call('auth.getUserCount', (error, result) => {
     if (error) {
@@ -115,7 +133,7 @@ export function setIsLoading(isLoading) {
 export function setWeavingBackwardsBackgroundColor(colorValue) {
   document.documentElement.style.setProperty(
     '--color-weaving-backwards-bg',
-    colorValue
+    colorValue,
   );
 
   return {
@@ -187,7 +205,7 @@ export function editTextField({ _id, fieldName, fieldValue }) {
         if (error) {
           return dispatch(logErrors({ 'edit text field': error.reason }));
         }
-      }
+      },
     );
   };
 }
@@ -203,12 +221,12 @@ export function editWeavingBackwardsBackgroundColor(colorValue) {
           return dispatch(
             logErrors({
               'edit weaving backwards background color': error.reason,
-            })
+            }),
           );
         }
 
         dispatch(setWeavingBackwardsBackgroundColor(colorValue));
-      }
+      },
     );
   };
 }
@@ -421,7 +439,7 @@ export function updateRecentPatterns({ currentWeavingRow, patternId }) {
 
   // find existing entry, if any
   const thisRecentPattern = currentRecentPatterns.find(
-    (recentPattern) => recentPattern.patternId === patternId
+    (recentPattern) => recentPattern.patternId === patternId,
   );
 
   // capture currentWeavingRow from existing entry
@@ -472,7 +490,7 @@ export const addRecentPattern =
           if (error) {
             return dispatch(logErrors({ 'add recent pattern': error.reason }));
           }
-        }
+        },
       );
     }
 
@@ -631,6 +649,7 @@ const initialAuthState = {
   forgotPasswordEmailSent: false,
   isLoading: true,
   maintenanceMode: false,
+  version: 0,
   numberOfColorBooks: 0,
   numberOfPatternImages: 0,
   numberOfPatterns: 0,
@@ -655,6 +674,10 @@ export default function auth(state = initialAuthState, action) {
 
     case SET_USER_COUNT: {
       return updeep({ userCount: action.payload }, state);
+    }
+
+    case SET_VERSION: {
+      return updeep({ version: action.payload }, state);
     }
 
     case SET_USERS_FOR_PAGE: {
