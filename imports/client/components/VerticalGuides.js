@@ -28,6 +28,7 @@ function VerticalGuides(props) {
           left,
           width,
         }}
+        key={`guide-${i}`}
       />,
     );
   }
@@ -40,8 +41,7 @@ function VerticalGuides(props) {
       <div
         className='vertical-guide center'
         style={{
-          left: center,
-          width: 3,
+          left: center - 5,
         }}
       />,
     );

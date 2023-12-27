@@ -5,6 +5,7 @@
   position: absolute;
   width: 100%;
   left: 35px;
+  opacity: 75%;
   pointer-events: none;
   z-index: 11;
 
@@ -17,7 +18,6 @@
 
     &.center {
       border-color: $color-vertical-guide-center;
-      margin-left: -4px; // adjust for line width
     }
   }
 }
