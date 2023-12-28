@@ -71,10 +71,12 @@ function WeavingChart(props) {
             <span>{rowLabel}</span>
           </li>
           {cells}
+          {printView && <VerticalGuides numberOfTablets={numberOfTablets} />}
         </ul>
         {!printView && (
           <div className='highlight'>
             <div className='innertube' />
+            <VerticalGuides numberOfTablets={numberOfTablets} />
             <div className='buttons'>
               <button
                 type='button'
@@ -124,13 +126,7 @@ function WeavingChart(props) {
   };
 
   const renderChart = () => {
-    const {
-      handleClickRow,
-      numberOfRows,
-      numberOfTablets,
-      printView,
-      selectedRow,
-    } = props;
+    const { handleClickRow, numberOfRows, printView, selectedRow } = props;
 
     const rows = [];
     for (let i = 0; i < numberOfRows; i += 1) {
@@ -161,10 +157,6 @@ function WeavingChart(props) {
       <div className='weaving-chart-holder'>
         {renderTabletLabels()}
         <ul className='weaving-chart'>{rows}</ul>
-        <VerticalGuides
-          numberOfRows={numberOfRows}
-          numberOfTablets={numberOfTablets}
-        />
       </div>
     );
   };

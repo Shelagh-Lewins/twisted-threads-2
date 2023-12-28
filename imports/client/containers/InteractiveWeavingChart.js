@@ -141,6 +141,24 @@ class InteractiveWeavingChart extends PureComponent {
     return numberOfRows - selectedRow;
   }
 
+  setSelectedRow(selectedRow) {
+    const { dispatch } = this.props;
+    const {
+      pattern: { _id },
+    } = this.context;
+
+    this.setState({
+      selectedRow,
+    });
+
+    dispatch(
+      addRecentPattern({
+        currentWeavingRow: this.getCurrentWeavingRow(selectedRow),
+        patternId: _id,
+      }),
+    );
+  }
+
   handleKeyUp(event) {
     const { history } = this.props;
     const {
@@ -164,24 +182,6 @@ class InteractiveWeavingChart extends PureComponent {
       default:
         break;
     }
-  }
-
-  setSelectedRow(selectedRow) {
-    const { dispatch } = this.props;
-    const {
-      pattern: { _id },
-    } = this.context;
-
-    this.setState({
-      selectedRow: selectedRow,
-    });
-
-    dispatch(
-      addRecentPattern({
-        currentWeavingRow: this.getCurrentWeavingRow(selectedRow),
-        patternId: _id,
-      }),
-    );
   }
 
   scrollRowIntoView() {

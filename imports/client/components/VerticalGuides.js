@@ -6,7 +6,7 @@ import './VerticalGuides.scss';
 function VerticalGuides(props) {
   const verticalGuideInterval = 4;
 
-  const { numberOfRows, numberOfTablets } = props;
+  const { numberOfTablets } = props;
   const cellWidth = 33;
   const numberOfSections = numberOfTablets / verticalGuideInterval;
 
@@ -16,7 +16,7 @@ function VerticalGuides(props) {
 
   const verticalGuides = [];
   for (let i = 0; i < numberOfSections - 1; i += 1) {
-    const left = i * verticalGuideInterval * cellWidth;
+    const left = i * verticalGuideInterval * cellWidth + 5;
     const width = verticalGuideInterval * cellWidth;
 
     verticalGuides.push(
@@ -35,29 +35,23 @@ function VerticalGuides(props) {
 
   // we need to add a guide for the centre
   if (centreGuideIndex === undefined) {
-    const center = (cellWidth * numberOfTablets) / 2;
+    const center = (cellWidth * (numberOfTablets - 1)) / 2;
 
     verticalGuides.push(
       <div
         className='vertical-guide center'
         style={{
-          left: center - 5,
+          left: center,
+          width: 33,
         }}
       />,
     );
   }
 
-  return (
-    <div className='vertical-guides' style={{ height: numberOfRows * 33 }}>
-      {verticalGuides}
-    </div>
-  );
+  return <div className='vertical-guides'>{verticalGuides}</div>;
 }
 
-// known bug that eslint does not reliably detect props inside functions in a functional component
-// https://github.com/yannickcr/eslint-plugin-react/issues/885
 VerticalGuides.propTypes = {
-  numberOfRows: PropTypes.number.isRequired,
   numberOfTablets: PropTypes.number.isRequired,
 };
 

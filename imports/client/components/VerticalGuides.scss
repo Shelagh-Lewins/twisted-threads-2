@@ -2,22 +2,36 @@
 
 .vertical-guides {
   bottom: 0;
+  height: 33px;
   position: absolute;
-  width: 100%;
-  left: 35px;
-  opacity: 75%;
+  left: 33px;
   pointer-events: none;
-  z-index: 11;
+  opacity: 0.85;
 
   .vertical-guide {
     position: absolute;
-    border-right: 5px dotted $color-vertical-guide;
-    height: 100%;
+    height: 33px;
     margin-left: 1px; // adjust for line width
     top: 0;
 
+    // dotted line where we control the size and spacing
+    // so the dots are consistently spaced between cells
+    background-position: right;
+    background-size: 11px 11px;
+    background-repeat: repeat-y;
+    background-image: radial-gradient(
+      circle,
+      $color-vertical-guide 3px,
+      $color-vertical-guide-trans 3px
+    );
+
     &.center {
-      border-color: $color-vertical-guide-center;
+      background-position: center;
+      background-image: radial-gradient(
+        circle,
+        $color-vertical-guide-center 3px,
+        $color-vertical-guide-center-trans 3px
+      );
     }
   }
 }
