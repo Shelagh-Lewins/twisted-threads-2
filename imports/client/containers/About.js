@@ -74,7 +74,7 @@ class About extends Component {
           </Button>
         )}
         {showEmailCheckbox && (
-          <div className='update-preview-control custom-checkbox custom-control'>
+          <div className='show-email-control custom-checkbox custom-control'>
             <input
               checked={showEmailAddress}
               type='checkbox'

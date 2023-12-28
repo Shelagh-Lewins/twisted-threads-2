@@ -76,7 +76,10 @@ function WeavingChart(props) {
         {!printView && (
           <div className='highlight'>
             <div className='innertube' />
-            <VerticalGuides numberOfTablets={numberOfTablets} />
+            <VerticalGuides
+              numberOfTablets={numberOfTablets}
+              reduceContrast={true}
+            />
             <div className='buttons'>
               <button
                 type='button'

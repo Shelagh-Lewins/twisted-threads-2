@@ -6,7 +6,10 @@
   position: absolute;
   left: 33px;
   pointer-events: none;
-  opacity: 0.85;
+
+  &.reduce-contrast {
+    opacity: 0.75;
+  }
 
   .vertical-guide {
     position: absolute;

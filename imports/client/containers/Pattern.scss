@@ -1,217 +1,208 @@
 @import '../constants/variables';
 
 .pattern {
-	background-color: $color-pattern-page-background;
-	min-height: 100vh;
-	position: relative;
+  background-color: $color-pattern-page-background;
+  min-height: 100vh;
+  position: relative;
 
-	.main-container {
-		margin: 0 0 0 8px;
-	}
+  .main-container {
+    margin: 0 0 0 8px;
+  }
 
-	h2 {
-		clear: both;
-	}
+  h2 {
+    clear: both;
+  }
 
-	.pattern-page-name {
-		position: relative;
+  .pattern-page-name {
+    position: relative;
 
-		.icon {
-			background-size: 40px 40px;
-			height: 40px;
-			left: 0;
-			position: absolute;
-			top: 0;
-			width: 40px;
-		}
+    .icon {
+      background-size: 40px 40px;
+      height: 40px;
+      left: 0;
+      position: absolute;
+      top: 0;
+      width: 40px;
+    }
 
-		h2 {
-			margin-left: 40px;
-			padding-left: 4px;
-			padding-top: 4px;
-		}
+    h2 {
+      margin-left: 40px;
+      padding-left: 4px;
+      padding-top: 4px;
+    }
 
-		input {
-			margin-left: 46px;
-		}
-	}
+    input {
+      margin-left: 46px;
+    }
+  }
 
-	// vertical preview is by the side of the weaving chart
-	.orientation-change-container {
-		clear: both;
-		display: flex;
-	}
+  // vertical preview is by the side of the weaving chart
+  .orientation-change-container {
+    clear: both;
+    display: flex;
+  }
 
-	.preview-outer {
-		clear: both;
-	}
+  .preview-outer {
+    clear: both;
+  }
 
-	.weaving-outer {
-		margin-top: 8px;
-	}
+  .weaving-outer {
+    margin-top: 8px;
+  }
 
-	.preview-up {
-		.weaving-outer {
-			margin-right: 16px;
-			margin-top: 0;
-		}
-	}
+  .preview-up {
+    .weaving-outer {
+      margin-right: 16px;
+      margin-top: 0;
+    }
+  }
 
-	.update-preview-control,
-	.show-start-position-control {
-		margin: 8px 0;
+  .display-option-control {
+    margin: 8px 0;
 
-		input {
-			margin-right: 8px;
-		}
-	}
+    input {
+      margin-right: 8px;
+    }
+  }
 
-	.display-option-control {
-		margin: 8px 0;
+  // forms in edit weaving, threading
+  .edit-pattern-form {
+    label {
+      width: auto;
+    }
 
-		input {
-			margin-right: 8px;
-		}
-	}
+    .form-control {
+      display: inline;
+      margin: 0 8px;
+      width: auto;
 
-	// forms in edit weaving, threading
-	.edit-pattern-form {
-		label {
-			width: auto;
-		}
+      &[type='number'] {
+        width: 6em;
+      }
+    }
 
-		.form-control {
-			display: inline;
-			margin: 0 8px;
-			width: auto;
+    .controls {
+      display: inline;
+    }
+  }
 
-			&[type='number'] {
-				width: 6em;
-			}
-		}
+  .hint {
+    clear: both;
+    display: block;
+    width: 100%;
+  }
 
-		.controls {
-			display: inline;
-		}
-	}
+  .preview-orientation {
+    margin: 8px 0;
+  }
 
-	.hint {
-		clear: both;
-		display: block;
-		width: 100%;
-	}
+  .menu {
+    margin: 8px 0;
+  }
 
-	.preview-orientation {
-		margin: 8px 0;
-	}
+  .copy-buttons {
+    display: inline-block;
+    margin: 8px 0;
 
-	.menu {
-		margin: 8px 0;
-	}
+    button {
+      margin-left: 8px;
+    }
+  }
 
-	.copy-buttons {
-		display: inline-block;
-		margin: 8px 0;
+  .links {
+    margin: 8px 0;
 
-		button {
-			margin-left: 8px;
-		}
-	}
+    a {
+      margin-right: 8px;
+    }
+  }
 
-	.links {
-		margin: 8px 0;
+  .pattern-is-public {
+    clear: both;
+    overflow: hidden;
 
-		a {
-			margin-right: 8px;
-		}
-	}
+    button {
+      float: right;
+    }
+  }
 
-	.pattern-is-public {
-		clear: both;
-		overflow: hidden;
+  .pattern-images {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    padding: 8px;
 
-		button {
-			float: right;
-		}
-	}
+    .thumbnail {
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      cursor: pointer;
+      height: 150px;
+      width: 150px;
 
-	.pattern-images {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: space-evenly;
-		padding: 8px;
+      button {
+        float: right;
+        margin: 8px;
+      }
+    }
 
-		.thumbnail {
-			background-position: center center;
-			background-repeat: no-repeat;
-			background-size: cover;
-			cursor: pointer;
-			height: 150px;
-			width: 150px;
+    button {
+      svg {
+        pointer-events: none;
+      }
+    }
 
-			button {
-				float: right;
-				margin: 8px;
-			}
-		}
+    &.selected {
+      align-items: center;
+      background-color: $color-pattern-image-background;
+      display: flex;
+      height: 100vh;
+      justify-content: center;
+      left: 0;
+      position: fixed;
+      top: 0;
+      width: 100vw;
+      z-index: 4;
 
-		button {
-			svg {
-				pointer-events: none;
-			}
-		}
+      button {
+        &.close {
+          position: absolute;
+          right: 8px;
+          top: 8px;
+        }
+      }
 
-		&.selected {
-			align-items: center;
-			background-color: $color-pattern-image-background;
-			display: flex;
-			height: 100vh;
-			justify-content: center;
-			left: 0;
-			position: fixed;
-			top: 0;
-			width: 100vw;
-			z-index: 4;
+      .full-size {
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-size: contain;
+        height: 100%;
+        padding: 8px;
+        width: 100%;
+      }
+    }
 
-			button {
-				&.close {
-					position: absolute;
-					right: 8px;
-					top: 8px;
-				}
-			}
+    .caption {
+      background-color: $color-pattern-image-caption-bg;
+      border-radius: 4px;
+      bottom: 8px;
+      min-height: 60px;
+      overflow: hidden;
+      padding: 8px;
+      position: absolute;
+      width: 80%;
 
-			.full-size {
-				background-position: center center;
-				background-repeat: no-repeat;
-				background-size: contain;
-				height: 100%;
-				padding: 8px;
-				width: 100%;
-			}
-		}
+      .field-value {
+        clear: none;
+      }
 
-		.caption {
-			background-color: $color-pattern-image-caption-bg;
-			border-radius: 4px;
-			bottom: 8px;
-			min-height: 60px;
-			overflow: hidden;
-			padding: 8px;
-			position: absolute;
-			width: 80%;
-
-			.field-value {
-				clear: none;
-			}
-
-			h2 {
-				color: $color-pattern-image-color;
-				display: inline;
-				font-size: 1rem !important;
-				font-weight: normal;
-				max-height: 100px;
-			}
-		}
-	}
+      h2 {
+        color: $color-pattern-image-color;
+        display: inline;
+        font-size: 1rem !important;
+        font-weight: normal;
+        max-height: 100px;
+      }
+    }
+  }
 }

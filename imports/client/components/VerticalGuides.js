@@ -1,15 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 
 import './VerticalGuides.scss';
 
 function VerticalGuides(props) {
   const verticalGuideInterval = 4;
-
-  const { numberOfTablets } = props;
+  const { numberOfTablets, reduceContrast, showVerticalGuides } = props;
   const cellWidth = 33;
   const numberOfSections = numberOfTablets / verticalGuideInterval;
-
   const centreGuideIndex =
     numberOfSections % 2 === 0 ? numberOfSections / 2 : undefined;
   // with an even number of sections, AND no partial sections, one of the section guides will be in the centre
@@ -44,15 +43,30 @@ function VerticalGuides(props) {
           left: center,
           width: 33,
         }}
+        key='guide-center'
       />,
     );
   }
 
-  return <div className='vertical-guides'>{verticalGuides}</div>;
+  return showVerticalGuides ? (
+    <div
+      className={`vertical-guides ${reduceContrast ? 'reduce-contrast' : ''}`}
+    >
+      {verticalGuides}
+    </div>
+  ) : null;
 }
 
 VerticalGuides.propTypes = {
   numberOfTablets: PropTypes.number.isRequired,
+  reduceContrast: PropTypes.bool,
+  showVerticalGuides: PropTypes.bool.isRequired,
 };
 
-export default VerticalGuides;
+function mapStateToProps(state) {
+  return {
+    showVerticalGuides: state.pattern.showVerticalGuides,
+  };
+}
+
+export default connect(mapStateToProps)(VerticalGuides);

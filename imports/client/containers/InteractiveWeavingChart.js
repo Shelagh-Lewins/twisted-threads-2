@@ -18,6 +18,7 @@ import WeavingChart from '../components/WeavingChart';
 import Threading from '../components/Threading';
 import Notation from '../components/Notation';
 import EditBackwardsBackgroundColor from '../components/EditBackwardsBackgroundColor';
+import ShowVerticalGuides from '../components/ShowVerticalGuides';
 import './InteractiveWeavingChart.scss';
 
 const bodyClass = 'interactive-weaving-chart';
@@ -267,6 +268,7 @@ class InteractiveWeavingChart extends PureComponent {
               {/* if navigating from the home page, the pattern summary is in MiniMongo before Tracker sets isLoading to true. This doesn't include the detail fields so we need to prevent errors. */}
               {pattern.patternDesign && (
                 <>
+                  <ShowVerticalGuides />
                   <h2>Weaving chart</h2>
                   <div ref={this.chartRef}>
                     <WeavingChart

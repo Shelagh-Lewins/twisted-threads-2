@@ -1,14 +1,22 @@
-@import "../constants/variables";
+@import '../constants/variables';
 
 .about {
-	.donations {
-		align-items: center;
-		display: flex;
-		justify-content: space-evenly;
-		margin-bottom: 8px;
-	}
+  .donations {
+    align-items: center;
+    display: flex;
+    justify-content: space-evenly;
+    margin-bottom: 8px;
+  }
 
-	.contact-info {
-		margin-bottom: 8px;
-	}
+  .contact-info {
+    margin-bottom: 8px;
+  }
+
+  .show-email-control {
+    margin: 8px 0;
+
+    input {
+      margin-right: 8px;
+    }
+  }
 }
