@@ -17,10 +17,10 @@ function ShowVerticalGuides(props) {
   };
 
   const text =
-    'Show vertical guidelines every 4 tablets and in the centre of the band';
+    'Show vertical guide lines every 4 tablets and in the centre of the band';
   const labelInner = (
     <>
-      Show guidelines every 4 tablets
+      Show guide lines every 4 tablets
       <span className='key vertical-guide' />
       and in the centre of the band
       <span className='key vertical-guide-center' />

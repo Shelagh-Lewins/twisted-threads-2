@@ -1,6 +1,6 @@
 {
   "name": "twisted-threads-2",
-  "version": "2.2.5",
+  "version": "2.2.6",
   "description": "An app for tablet weaving built with Meteor, React and Redux.",
   "main": "main.js",
   "repository": {

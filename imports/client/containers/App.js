@@ -13,6 +13,7 @@ import { connect, Provider } from 'react-redux';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import {
   faBookOpen,
+  faQuestionCircle,
   faClone,
   faFileDownload,
   faFileUpload,
@@ -87,6 +88,7 @@ import './App.scss';
 
 library.add(
   faBookOpen,
+  faQuestionCircle,
   faClone,
   faFileDownload,
   faFileUpload,

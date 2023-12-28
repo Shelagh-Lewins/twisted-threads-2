@@ -17,6 +17,7 @@ import './Threading.scss';
 import { DEFAULT_PALETTE_COLOR, HOLE_LABELS } from '../../modules/parameters';
 import Palette from './Palette';
 import VerticalGuides from './VerticalGuides';
+import InfoButton from './InfoButton';
 
 // row and tablet have nothing to identify them except index
 // note row here indicates hole of the tablet
@@ -334,8 +335,16 @@ class Threading extends PureComponent {
       );
     }
 
+    const twistInfoText =
+      'Uncheck the "Include in twist calculations" checkbox for any border tablet that you will always turn forwards. Otherwise, border tablets may prevent the pattern from being identified as twist neutral, or repeating.';
+    const twistInfoTitle =
+      'Click to learn about the "Include in twist calculations" checkboxes';
+
     return (
       <div className='include-in-twist-buttons'>
+        <div className='twist-info-button'>
+          <InfoButton message={twistInfoText} title={twistInfoTitle} />
+        </div>
         <ul>{buttons}</ul>
       </div>
     );
