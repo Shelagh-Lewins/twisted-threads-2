@@ -128,8 +128,10 @@ $color-userpic-5: #c90;
 $color-row-direction: #424a6c;
 $color-row-direction-background: #fff;
 $color-row-direction-background-disabled: #ccc;
-$color-vertical-guide: #7accf9;
+$color-vertical-guide: rgb(122, 204, 249);
+$color-vertical-guide-trans: rgba(122, 204, 249, 0);
 $color-vertical-guide-center: rgb(255, 95, 95);
+$color-vertical-guide-center-trans: rgba(255, 95, 95, 0);
 
 $color-twill-design-cell-background: #fff;
 $color-twill-design-cell-border: #999;

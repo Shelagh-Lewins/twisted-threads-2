@@ -294,6 +294,7 @@ class Threading extends PureComponent {
             <span>{HOLE_LABELS[labelIndex]}</span>
           </li>
           {cells}
+          <VerticalGuides numberOfTablets={numberOfTablets} />
         </ul>
       </>
     );
@@ -356,7 +357,7 @@ class Threading extends PureComponent {
   }
 
   renderChart() {
-    const { holes, numberOfTablets } = this.props;
+    const { holes } = this.props;
     const rows = [];
     for (let i = 0; i < holes; i += 1) {
       rows.push(
@@ -372,10 +373,6 @@ class Threading extends PureComponent {
         {this.renderIncludeInTwistCalculationsButtons()}
         <div className='threading-chart-holder'>
           <ul className='threading-chart'>{rows}</ul>
-          <VerticalGuides
-            numberOfRows={holes}
-            numberOfTablets={numberOfTablets}
-          />
         </div>
       </>
     );
