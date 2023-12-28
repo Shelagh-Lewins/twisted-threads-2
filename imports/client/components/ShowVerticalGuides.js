@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { setShowVerticalGuides } from '../modules/pattern';
 import './ShowVerticalGuides.scss';
+import './VerticalGuides.scss';
 
 function ShowVerticalGuides(props) {
   const { showVerticalGuides } = props;
@@ -17,6 +18,14 @@ function ShowVerticalGuides(props) {
 
   const text =
     'Show vertical guidelines every 4 tablets and in the centre of the band';
+  const labelInner = (
+    <>
+      Show guidelines every 4 tablets
+      <span className='key vertical-guide' />
+      and in the centre of the band
+      <span className='key vertical-guide-center' />
+    </>
+  );
 
   return (
     <div className='show-vertical-guides'>
@@ -28,7 +37,7 @@ function ShowVerticalGuides(props) {
         onChange={(event) => handleChangeCheckbox(event)}
         title={text}
       />
-      <label htmlFor='showVerticalGuides'>{text}</label>
+      <label htmlFor='showVerticalGuides'>{labelInner}</label>
     </div>
   );
 }
