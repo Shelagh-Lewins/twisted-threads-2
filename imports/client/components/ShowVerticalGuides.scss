@@ -1,7 +1,26 @@
+@import '../constants/variables';
+@import '../constants/mixins.scss';
+
 .show-vertical-guides {
   margin: 8px 0;
 
   input {
     margin-right: 8px;
+  }
+
+  .key {
+    width: 15px;
+    height: 32px;
+    display: inline-block;
+    margin: 0 8px;
+    vertical-align: middle;
+  }
+
+  .vertical-guide {
+    @include verticalGuide();
+  }
+
+  .vertical-guide-center {
+    @include verticalGuideCenter();
   }
 }

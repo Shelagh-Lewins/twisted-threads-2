@@ -1,0 +1,23 @@
+@import '../constants/variables';
+
+@mixin verticalGuide() {
+  background-position: right;
+  background-size: 11px 11px;
+  background-repeat: repeat-y;
+  background-image: radial-gradient(
+    circle,
+    $color-vertical-guide 3px,
+    $color-vertical-guide-trans 3px
+  );
+}
+
+@mixin verticalGuideCenter() {
+  background-position: center;
+  background-size: 11px 11px;
+  background-repeat: repeat-y;
+  background-image: radial-gradient(
+    circle,
+    $color-vertical-guide-center 3px,
+    $color-vertical-guide-center-trans 3px
+  );
+}
