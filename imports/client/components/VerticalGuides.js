@@ -11,12 +11,8 @@ function VerticalGuides(props) {
   const showVerticalGuides = showTabletGuides || showCenterGuide;
   const cellWidth = 33;
   const numberOfSections = numberOfTablets / verticalGuideInterval;
-  //const centreGuideIndex =
-  //numberOfSections % 2 === 0 ? numberOfSections / 2 : undefined;
-  // with an even number of sections, AND no partial sections, one of the section guides will be in the centre
-  console.log('tablets', numberOfTablets);
-  console.log('show tablet guides', showTabletGuides);
   const verticalGuides = [];
+
   if (showTabletGuides) {
     for (let i = 0; i < numberOfSections - 1; i += 1) {
       const left = i * verticalGuideInterval * cellWidth + 5;
@@ -35,10 +31,9 @@ function VerticalGuides(props) {
     }
   }
 
-  // we need to add a guide for the centre
   if (showCenterGuide) {
     const center = Math.floor((cellWidth * (numberOfTablets - 1)) / 2);
-    console.log('center', center);
+
     verticalGuides.push(
       <div
         className='vertical-guide center'
