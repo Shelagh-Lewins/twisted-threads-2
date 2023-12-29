@@ -5,7 +5,7 @@ import { setShowTabletGuides, setShowCenterGuide } from '../modules/pattern';
 import './ShowVerticalGuides.scss';
 import './VerticalGuides.scss';
 
-function ShowGuides(props) {
+function ShowVerticalGuides(props) {
   const { showTabletGuides, showCenterGuide } = props;
 
   const handleChangeTabletGuidesCheckbox = (event) => {
@@ -66,7 +66,7 @@ function ShowGuides(props) {
   );
 }
 
-ShowGuides.propTypes = {
+ShowVerticalGuides.propTypes = {
   dispatch: PropTypes.func.isRequired,
   showTabletGuides: PropTypes.bool.isRequired,
   showCenterGuide: PropTypes.bool.isRequired,
@@ -79,4 +79,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps)(ShowGuides);
+export default connect(mapStateToProps)(ShowVerticalGuides);
