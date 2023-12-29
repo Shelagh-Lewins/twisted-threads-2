@@ -1,55 +1,81 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { setShowVerticalGuides } from '../modules/pattern';
+import { setShowTabletGuides, setShowCenterGuide } from '../modules/pattern';
 import './ShowVerticalGuides.scss';
 import './VerticalGuides.scss';
 
 function ShowVerticalGuides(props) {
-  const { showVerticalGuides } = props;
+  const { showTabletGuides, showCenterGuide } = props;
 
-  const handleChangeCheckbox = (event) => {
+  const handleChangeTabletGuidesCheckbox = (event) => {
     const { dispatch } = props;
     const value = event.target.checked;
 
-    dispatch(setShowVerticalGuides(value));
-    setShowVerticalGuides(value);
+    dispatch(setShowTabletGuides(value));
   };
 
-  const text =
-    'Show vertical guidelines every 4 tablets and in the centre of the band';
-  const labelInner = (
+  const handleChangeCenterGuideCheckbox = (event) => {
+    const { dispatch } = props;
+    const value = event.target.checked;
+
+    dispatch(setShowCenterGuide(value));
+  };
+
+  const tabletGuidesTitle = 'Show guide lines every 4 tablets';
+  const tabletGuidesLabel = (
     <>
-      Show guidelines every 4 tablets
+      Show guide lines every 4 tablets
       <span className='key vertical-guide' />
-      and in the centre of the band
+    </>
+  );
+
+  const centerGuideTitle = 'Show guide line in the centre of the band';
+  const centerGuideLabel = (
+    <>
+      Show guide line in the centre of the band
       <span className='key vertical-guide-center' />
     </>
   );
 
   return (
     <div className='show-vertical-guides'>
-      <input
-        checked={showVerticalGuides}
-        type='checkbox'
-        id='showVerticalGuides'
-        name='showVerticalGuides'
-        onChange={(event) => handleChangeCheckbox(event)}
-        title={text}
-      />
-      <label htmlFor='showVerticalGuides'>{labelInner}</label>
+      <div className='wrapper'>
+        <input
+          checked={showCenterGuide}
+          type='checkbox'
+          id='showCenterGuide'
+          name='showCenterGuide'
+          onChange={(event) => handleChangeCenterGuideCheckbox(event)}
+          title={centerGuideTitle}
+        />
+        <label htmlFor='showCenterGuide'>{centerGuideLabel}</label>
+      </div>
+      <div className='wrapper'>
+        <input
+          checked={showTabletGuides}
+          type='checkbox'
+          id='showTabletGuides'
+          name='showTabletGuides'
+          onChange={(event) => handleChangeTabletGuidesCheckbox(event)}
+          title={tabletGuidesTitle}
+        />
+        <label htmlFor='showVerticalGuides'>{tabletGuidesLabel}</label>
+      </div>
     </div>
   );
 }
 
 ShowVerticalGuides.propTypes = {
   dispatch: PropTypes.func.isRequired,
-  showVerticalGuides: PropTypes.bool.isRequired,
+  showTabletGuides: PropTypes.bool.isRequired,
+  showCenterGuide: PropTypes.bool.isRequired,
 };
 
 function mapStateToProps(state) {
   return {
-    showVerticalGuides: state.pattern.showVerticalGuides,
+    showTabletGuides: state.pattern.showTabletGuides,
+    showCenterGuide: state.pattern.showCenterGuide,
   };
 }
 

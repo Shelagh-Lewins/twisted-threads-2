@@ -97,7 +97,8 @@ export const SET_FILTER_WILL_REPEAT = 'SET_FILTER_WILL_REPEAT';
 export const REMOVE_TABLET_FILTER = 'REMOVE_TABLET_FILTER';
 
 // tracking aids
-export const SET_SHOW_VERTICAL_GUIDES = 'SET_SHOW_VERTICAL_GUIDES';
+export const SET_SHOW_TABLET_GUIDES = 'SET_SHOW_TABLET_GUIDES';
+export const SET_SHOW_CENTER_GUIDE = 'SET_SHOW_CENTER_GUIDE';
 
 // ////////////////////////////
 // Actions that change the Store
@@ -454,8 +455,9 @@ export const getPreviewShouldUpdate = (state) =>
   (!state.pattern.isEditingWeaving && !state.pattern.isEditingThreading) ||
   state.pattern.updatePreviewWhileEditing;
 
-export const getShowVerticalGuides = (state) =>
-  state.pattern.showVerticalGuides;
+export const getShowTabletGuides = (state) => state.pattern.showTabletGuides;
+
+export const getShowCenterGuide = (state) => state.pattern.showCenterGuide;
 
 // ///////////////////////
 // cached selectors to provide props without triggering re-render
@@ -1112,9 +1114,16 @@ export function setUpdatePreviewWhileEditing(data) {
 }
 
 // Tracking aids
-export function setShowVerticalGuides(data) {
+export function setShowTabletGuides(data) {
   return {
-    type: SET_SHOW_VERTICAL_GUIDES,
+    type: SET_SHOW_TABLET_GUIDES,
+    payload: data,
+  };
+}
+
+export function setShowCenterGuide(data) {
+  return {
+    type: SET_SHOW_CENTER_GUIDE,
     payload: data,
   };
 }
@@ -1637,7 +1646,8 @@ const initialPatternState = {
   picks: [],
   threadingByTablet: undefined,
   updatePreviewWhileEditing: false,
-  showVerticalGuides: true,
+  showTabletGuides: false,
+  showCenterGuide: true,
 };
 
 // state updates
@@ -1973,8 +1983,12 @@ export default function pattern(state = initialPatternState, action) {
       return updeep({ updatePreviewWhileEditing: action.payload }, state);
     }
 
-    case SET_SHOW_VERTICAL_GUIDES: {
-      return updeep({ showVerticalGuides: action.payload }, state);
+    case SET_SHOW_TABLET_GUIDES: {
+      return updeep({ showTabletGuides: action.payload }, state);
+    }
+
+    case SET_SHOW_CENTER_GUIDE: {
+      return updeep({ showCenterGuide: action.payload }, state);
     }
 
     case UPDATE_THREADING_CELL: {

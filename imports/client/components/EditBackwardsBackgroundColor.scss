@@ -1,64 +1,64 @@
-@import "../constants/variables";
+@import '../constants/variables';
 
 .color-weaving-backwards-bg {
-	display: inline-block;
-	margin: 8px 0 16px 0;
-	position: relative;
+  display: inline-block;
+  margin: 8px 0 16px 0;
+  position: relative;
 
-	&.editing {
-		.content {
-			background: $color-chart-editing-background;
-			border: 1px solid $color-focus;
-			color: $color-text;
-			min-width: 677px; // align with palette
-			padding: 12px 8px 8px 8px;
-		}
+  &.editing {
+    .content {
+      background: $color-chart-editing-background;
+      border: 1px solid $color-focus;
+      color: $color-text;
+      min-width: 677px; // align with palette
+      padding: 12px 8px 8px 8px;
+    }
 
-		label {
-			margin-bottom: 0.5rem;
-		}
-	}
+    label {
+      margin-bottom: 0.5rem;
+    }
+  }
 
-	label {
-		margin-bottom: 0;
+  label {
+    margin-bottom: 0;
 
-		&[for="empty-hole"] {
-			display: none;
-		}
-	}
+    &[for='empty-hole'] {
+      display: none;
+    }
+  }
 
-	.color-holder {
-		margin-left: 0;
-	}
+  .color-holder {
+    margin-left: 0;
+  }
 
-	.content {
-		border: 1px solid transparent;
-		border-radius: 4px;
-		margin: 8px 8px 0 0;
-		padding: 12px 8px 0 8px;
-	}
+  .content {
+    border: 1px solid transparent;
+    border-radius: 4px;
+    margin: 8px 8px 0 0;
+    padding: 12px 8px 0 8px;
+  }
 
-	.text {
-		line-height: 24px;
-		vertical-align: top;
-	}
+  .text {
+    line-height: 24px;
+    vertical-align: top;
+  }
 
-	button {
-		margin-right: 8px;
-	}
+  button {
+    margin-right: 8px;
+  }
 
-	.background-color-swatch {
-		-moz-appearance: none; /* Mozilla */
-		-webkit-appearance: none; /* WebKit */
-		appearance: none; /* CSS3 */
-		background: var(--color-weaving-backwards-bg);
-		border: 2px solid $color-weft-picker-border;
-		display: inline-block;
-		height: 32px;
-		margin-left: 8px;
-		position: relative;
-		top: -4px;
-		vertical-align: bottom;
-		width: 32px;
-	}
+  .background-color-swatch {
+    -moz-appearance: none; /* Mozilla */
+    -webkit-appearance: none; /* WebKit */
+    appearance: none; /* CSS3 */
+    background: var(--color-weaving-backwards-bg);
+    border: 2px solid $color-weft-picker-border;
+    display: inline-block;
+    height: 32px;
+    margin-left: 8px;
+    position: relative;
+    top: -4px;
+    vertical-align: bottom;
+    width: 32px;
+  }
 }

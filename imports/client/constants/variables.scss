@@ -148,6 +148,8 @@ $color-donate-patreon-text: #fff;
 $color-connection-status-bg: #fc0;
 $color-connection-status-text: #424a6c;
 
+$color-info-message: #fff;
+
 // this is a hack to extract variable values from scss
 // https://stackoverflow.com/questions/3326494/parsing-css-in-javascript-jquery
 // :export { var: $var } is the right way but I can't get it to work
