@@ -54,7 +54,7 @@ import EditableText from '../components/EditableText';
 import ImageUploader from '../components/ImageUploader';
 import TagInput from '../components/TagInput';
 import TwistCalculationHints from '../components/TwistCalculationHints';
-import ShowVerticalGuides from '../components/ShowVerticalGuides';
+import ShowGuides from '../components/ShowVerticalGuides';
 import {
   findPatternTypeDisplayName,
   iconColors,
@@ -905,7 +905,7 @@ class Pattern extends PureComponent {
               fieldValue={weavingNotes}
             />
             <h2>Threading chart</h2>
-            <ShowVerticalGuides />
+            <ShowGuides />
             {pattern.threading && (
               <Threading
                 canEdit={canEdit}
