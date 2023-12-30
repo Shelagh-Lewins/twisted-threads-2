@@ -234,6 +234,7 @@ export function setPatternData({
   threadingByTablet,
 }) {
   const {
+    createdBy,
     holes,
     includeInTwist,
     numberOfRows,
@@ -241,16 +242,19 @@ export function setPatternData({
     orientations,
     palette,
     patternType,
+    tabletGuides,
   } = patternObj;
-  const tabletGuides = new Array(numberOfTablets); // TODO get / save to pattern
-  tabletGuides.fill(false); // TODO real pattern data
+
+  const defaultTabletGuides = new Array(numberOfTablets);
+  defaultTabletGuides.fill(false);
 
   return {
     type: SET_PATTERN_DATA,
     payload: {
+      createdBy,
       holes,
       includeInTwist,
-      tabletGuides,
+      tabletGuides: tabletGuides || defaultTabletGuides,
       numberOfRows,
       numberOfTablets,
       orientations,
@@ -1347,7 +1351,7 @@ export function editIncludeInTwist({ _id, tablet }) {
         if (error) {
           return dispatch(
             logErrors({
-              'update include tablet in twist caluclations': error.reason,
+              'update include tablet in twist calculations': error.reason,
             }),
           );
         }
@@ -1371,33 +1375,34 @@ export function updateTabletGuides(data) {
   };
 }
 
-export function editTabletGuides({ _id, tablet }) {
+export function editTabletGuides({ canSave, _id, tablet }) {
   return (dispatch, getState) => {
-    const currentTabletGuide = getState().pattern.tabletGuides[tablet];
+    const tabletGuide = !getState().pattern.tabletGuides[tablet];
 
-    const tabletGuide = !currentTabletGuide;
-
-    // TODO create call to save guides to pattern
-    // Meteor.call(
-    //   'pattern.edit',
-    //   {
-    //     _id,
-    //     data: {
-    //       type: 'tabletGuides',
-    //       tablet,
-    //       tabletIncludeInTwist,
-    //     },
-    //   },
-    //   (error) => {
-    //     if (error) {
-    //       return dispatch(
-    //         logErrors({
-    //           'update include tablet in twist caluclations': error.reason,
-    //         }),
-    //       );
-    //     }
-    //   },
-    // );
+    // Any user can set guides in the client
+    // Only the pattern's owner can save guides to the pattern
+    if (canSave) {
+      Meteor.call(
+        'pattern.edit',
+        {
+          _id,
+          data: {
+            type: 'tabletGuides',
+            tablet,
+            tabletGuide,
+          },
+        },
+        (error) => {
+          if (error) {
+            return dispatch(
+              logErrors({
+                'update include tablet in twist calculations': error.reason,
+              }),
+            );
+          }
+        },
+      );
+    }
 
     dispatch(
       updateTabletGuides({
@@ -1681,6 +1686,7 @@ export function updateFilterRemove() {
 // ///////////////////////////
 // default state
 const initialPatternState = {
+  createdBy: '',
   error: null,
   filterIsTwistNeutral: false,
   filterMaxTablets: undefined,
@@ -1731,6 +1737,7 @@ export default function pattern(state = initialPatternState, action) {
 
     case SET_PATTERN_DATA: {
       const {
+        createdBy,
         holes,
         includeInTwist,
         numberOfRows,
@@ -1745,6 +1752,7 @@ export default function pattern(state = initialPatternState, action) {
       } = action.payload;
 
       const update = {
+        createdBy,
         holes,
         includeInTwist,
         numberOfRows,
@@ -2540,6 +2548,7 @@ export default function pattern(state = initialPatternState, action) {
         patternDesign,
         patternType,
         picks,
+        tabletGuides,
         threadingByTablet,
         weavingInstructionsByTablet,
       } = state;
@@ -2572,6 +2581,13 @@ export default function pattern(state = initialPatternState, action) {
         }
         update.includeInTwist = newIncludeInTwist;
       }
+
+      // tablet guides are the same for all pattern types
+      const newTabletGuides = [...tabletGuides];
+      for (let i = 0; i < insertNTablets; i += 1) {
+        newTabletGuides.splice(insertTabletsAt, 0, false);
+      }
+      update.tabletGuides = newTabletGuides;
 
       // threading chart is the same for all these patterns
       switch (patternType) {
@@ -2852,6 +2868,7 @@ export default function pattern(state = initialPatternState, action) {
         patternDesign,
         patternType,
         picks,
+        tabletGuides,
         threadingByTablet,
         weavingInstructionsByTablet,
       } = state;
@@ -2881,6 +2898,10 @@ export default function pattern(state = initialPatternState, action) {
         newIncludeInTwist.splice(tablet, 1);
         update.includeInTwist = newIncludeInTwist;
       }
+
+      const newTabletGuides = [...tabletGuides];
+      newTabletGuides.splice(tablet, 1);
+      update.tabletGuides = newTabletGuides;
 
       switch (patternType) {
         // each tablet is independent so just remove it

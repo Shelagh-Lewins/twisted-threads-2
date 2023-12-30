@@ -63,7 +63,7 @@ VerticalGuides.propTypes = {
   reduceContrast: PropTypes.bool,
   showTabletGuides: PropTypes.bool.isRequired,
   showCenterGuide: PropTypes.bool.isRequired,
-  tabletGuides: PropTypes.arrayOf.bool,
+  tabletGuides: PropTypes.arrayOf(PropTypes.bool),
 };
 
 function mapStateToProps(state) {

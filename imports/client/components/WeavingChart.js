@@ -23,11 +23,28 @@ import './WeavingChart.scss';
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
 function WeavingChart(props) {
+  const {
+    createdBy,
+    printView,
+    dispatch,
+    handleClickRow,
+    patternId,
+    patternType,
+    handleClickDown,
+    handleClickUp,
+    numberOfRows,
+    numberOfTablets,
+    selectedRow,
+  } = props;
+
   const handleChangeShowGuideCheckbox = (event, tabletIndex) => {
-    const { dispatch, patternId } = props;
+    const canSave =
+      createdBy === Meteor.userId() ||
+      Roles.getRolesForUser(Meteor.userId()).includes('serviceUser');
 
     dispatch(
       editTabletGuides({
+        canSave,
         _id: patternId,
         tablet: tabletIndex,
       }),
@@ -35,7 +52,6 @@ function WeavingChart(props) {
   };
 
   const renderCell = (rowIndex, tabletIndex) => {
-    const { patternType } = props;
     let cell;
 
     if (patternType === 'freehand') {
@@ -57,13 +73,6 @@ function WeavingChart(props) {
   };
 
   const renderRow = (rowIndex) => {
-    const {
-      handleClickDown,
-      handleClickUp,
-      numberOfRows,
-      numberOfTablets,
-      printView,
-    } = props;
     const rowLabel = numberOfRows - rowIndex;
 
     const cells = [];
@@ -121,19 +130,12 @@ function WeavingChart(props) {
   const renderShowTabletGuidesButton = (tabletIndex) => (
     <ShowGuideForTabletCell
       handleChangeShowGuideCheckbox={handleChangeShowGuideCheckbox}
-      isDisabled={false}
+      isDisabled={printView}
       tabletIndex={tabletIndex}
     />
   );
 
   const renderShowTabletGuideButtons = () => {
-    const { patternType, numberOfTablets } = props;
-
-    // all together patterns cannot have guides
-    if (patternType === 'allTogether') {
-      return;
-    }
-
     const buttons = [];
     for (let i = 0; i < numberOfTablets; i += 1) {
       buttons.push(
@@ -159,7 +161,6 @@ function WeavingChart(props) {
   };
 
   const renderTabletLabels = () => {
-    const { numberOfTablets, printView, selectedRow } = props;
     let offset = 0;
 
     if (!printView) {
@@ -183,8 +184,6 @@ function WeavingChart(props) {
   };
 
   const renderChart = () => {
-    const { handleClickRow, numberOfRows, printView, selectedRow } = props;
-
     const rows = [];
     for (let i = 0; i < numberOfRows; i += 1) {
       if (printView) {
@@ -219,8 +218,6 @@ function WeavingChart(props) {
     );
   };
 
-  const { printView } = props;
-
   return (
     <div className={`weaving ${printView && 'weaving-chart-print'}`}>
       <div className='content'>{renderChart()}</div>
@@ -231,6 +228,7 @@ function WeavingChart(props) {
 // known bug that eslint does not reliably detect props inside functions in a functional component
 // https://github.com/yannickcr/eslint-plugin-react/issues/885
 WeavingChart.propTypes = {
+  createdBy: PropTypes.string.isRequired,
   dispatch: PropTypes.func,
   handleClickUp: PropTypes.func,
   handleClickRow: PropTypes.func,

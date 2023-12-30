@@ -95,6 +95,7 @@ class PrintView extends PureComponent {
     if (!isLoading) {
       if (pattern) {
         const {
+          createdBy,
           _id,
           description,
           includeInTwist,
@@ -130,6 +131,7 @@ class PrintView extends PureComponent {
               <>
                 <h2>Weaving chart</h2>
                 <WeavingChart
+                  createdBy={createdBy}
                   numberOfRows={numberOfRows}
                   numberOfTablets={numberOfTablets}
                   patternType={patternType}
@@ -292,14 +294,15 @@ function mapStateToProps(state) {
   }
 
   return {
+    createdBy: state.pattern.createdBy,
     errors: state.errors,
     holes: getHoles(state),
     isLoading: getIsLoading(state),
     numberOfRows: getNumberOfRowsForChart(state),
     numberOfTablets: getNumberOfTablets(state),
     palette: getPalette(state),
-    patternIsTwistNeutral: patternIsTwistNeutral,
-    patternWillRepeat: patternWillRepeat,
+    patternIsTwistNeutral,
+    patternWillRepeat,
     totalTurnsByTablet,
   };
 }

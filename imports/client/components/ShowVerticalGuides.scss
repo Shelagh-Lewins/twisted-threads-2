@@ -3,9 +3,17 @@
 
 .show-vertical-guides {
   margin: 8px 0;
+  position: relative;
 
   input {
     margin-right: 8px;
+    position: relative;
+    float: left;
+    top: 8px;
+  }
+
+  label {
+    display: inline;
   }
 
   .key {

@@ -23,12 +23,13 @@ function ShowVerticalGuides(props) {
   };
 
   const tabletGuidesTitle =
-    'Show guide lines after tablets (guide lines can be set up using the checkboxes on the interactive weaving chart)';
+    'Show guide lines after tablets (guide lines can be set up using the checkboxes above the interactive weaving chart)';
   const tabletGuidesLabel = (
     <>
-      Show guide lines after tablets (guide lines can be set up using the
-      checkboxes on the interactive weaving chart)
-      <span className='key vertical-guide' />
+      Show guide lines after tablets <span className='key vertical-guide' />
+      <br />
+      To set up guide lines, use the checkboxes above the interactive weaving
+      chart
     </>
   );
 
@@ -52,6 +53,7 @@ function ShowVerticalGuides(props) {
           title={centerGuideTitle}
         />
         <label htmlFor='showCenterGuide'>{centerGuideLabel}</label>
+        <div className='clearing' />
       </div>
       <div className='wrapper'>
         <input
@@ -63,6 +65,7 @@ function ShowVerticalGuides(props) {
           title={tabletGuidesTitle}
         />
         <label htmlFor='showVerticalGuides'>{tabletGuidesLabel}</label>
+        <div className='clearing' />
       </div>
     </div>
   );

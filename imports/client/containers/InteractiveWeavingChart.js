@@ -242,8 +242,14 @@ class InteractiveWeavingChart extends PureComponent {
   }
 
   render() {
-    const { dispatch, errors, numberOfRows, numberOfTablets, isLoading } =
-      this.props;
+    const {
+      createdBy,
+      dispatch,
+      errors,
+      numberOfRows,
+      numberOfTablets,
+      isLoading,
+    } = this.props;
     const { selectedRow } = this.state;
     const { pattern } = this.context;
 
@@ -272,6 +278,7 @@ class InteractiveWeavingChart extends PureComponent {
                   <h2>Weaving chart</h2>
                   <div ref={this.chartRef}>
                     <WeavingChart
+                      createdBy={createdBy}
                       dispatch={dispatch}
                       handleClickDown={this.handleClickDown}
                       handleClickRow={this.handleClickRow}
@@ -343,6 +350,7 @@ class InteractiveWeavingChart extends PureComponent {
 InteractiveWeavingChart.contextType = AppContext;
 
 InteractiveWeavingChart.propTypes = {
+  createdBy: PropTypes.string.isRequired,
   dispatch: PropTypes.func.isRequired,
   errors: PropTypes.objectOf(PropTypes.any).isRequired,
   history: PropTypes.objectOf(PropTypes.any).isRequired,
@@ -353,6 +361,7 @@ InteractiveWeavingChart.propTypes = {
 
 function mapStateToProps(state) {
   return {
+    createdBy: state.pattern.createdBy,
     errors: state.errors,
     isLoading: getIsLoading(state),
     numberOfRows: getNumberOfRowsForChart(state),
