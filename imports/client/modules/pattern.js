@@ -99,6 +99,7 @@ export const REMOVE_TABLET_FILTER = 'REMOVE_TABLET_FILTER';
 // tracking aids
 export const SET_SHOW_TABLET_GUIDES = 'SET_SHOW_TABLET_GUIDES';
 export const SET_SHOW_CENTER_GUIDE = 'SET_SHOW_CENTER_GUIDE';
+export const UPDATE_TABLET_GUIDES = 'UPDATE_TABLET_GUIDES';
 
 // ////////////////////////////
 // Actions that change the Store
@@ -241,12 +242,15 @@ export function setPatternData({
     palette,
     patternType,
   } = patternObj;
+  const tabletGuides = new Array(numberOfTablets); // TODO get / save to pattern
+  tabletGuides.fill(false); // TODO real pattern data
 
   return {
     type: SET_PATTERN_DATA,
     payload: {
       holes,
       includeInTwist,
+      tabletGuides,
       numberOfRows,
       numberOfTablets,
       orientations,
@@ -444,6 +448,9 @@ export const getIncludeInTwist = (state) => state.pattern.includeInTwist;
 
 export const getIncludeInTwistForTablet = (state, tabletIndex) =>
   state.pattern.includeInTwist && state.pattern.includeInTwist[tabletIndex]; // freehand patterns do not have includeInTwist; avoid error.
+
+export const getShowGuideForTablet = (state, tabletIndex) =>
+  state.pattern.tabletGuides && state.pattern.tabletGuides[tabletIndex];
 
 export const getOrientationForTablet = (state, tabletIndex) =>
   state.pattern.orientations[tabletIndex];
@@ -1356,6 +1363,51 @@ export function editIncludeInTwist({ _id, tablet }) {
   };
 }
 
+// Show guide line for tablet
+export function updateTabletGuides(data) {
+  return {
+    type: UPDATE_TABLET_GUIDES,
+    payload: data,
+  };
+}
+
+export function editTabletGuides({ _id, tablet }) {
+  return (dispatch, getState) => {
+    const currentTabletGuide = getState().pattern.tabletGuides[tablet];
+
+    const tabletGuide = !currentTabletGuide;
+
+    // TODO create call to save guides to pattern
+    // Meteor.call(
+    //   'pattern.edit',
+    //   {
+    //     _id,
+    //     data: {
+    //       type: 'tabletGuides',
+    //       tablet,
+    //       tabletIncludeInTwist,
+    //     },
+    //   },
+    //   (error) => {
+    //     if (error) {
+    //       return dispatch(
+    //         logErrors({
+    //           'update include tablet in twist caluclations': error.reason,
+    //         }),
+    //       );
+    //     }
+    //   },
+    // );
+
+    dispatch(
+      updateTabletGuides({
+        tablet,
+        tabletGuide,
+      }),
+    );
+  };
+}
+
 // Tablet orientation
 export function updateOrientation(data) {
   return {
@@ -1646,7 +1698,7 @@ const initialPatternState = {
   picks: [],
   threadingByTablet: undefined,
   updatePreviewWhileEditing: false,
-  showTabletGuides: false,
+  showTabletGuides: true,
   showCenterGuide: true,
 };
 
@@ -1689,6 +1741,7 @@ export default function pattern(state = initialPatternState, action) {
         patternType,
         picks,
         threadingByTablet,
+        tabletGuides,
       } = action.payload;
 
       const update = {
@@ -1702,6 +1755,7 @@ export default function pattern(state = initialPatternState, action) {
         patternType,
         picks,
         threadingByTablet,
+        tabletGuides,
       };
 
       update.patternDesign = updeep.constant(patternDesign); // completely replace patternDesign from any previous pattern
@@ -2012,6 +2066,16 @@ export default function pattern(state = initialPatternState, action) {
 
       const update = {
         includeInTwist: { [tablet]: tabletIncludeInTwist },
+      };
+
+      return updeep(update, state);
+    }
+
+    case UPDATE_TABLET_GUIDES: {
+      const { tablet, tabletGuide } = action.payload;
+
+      const update = {
+        tabletGuides: { [tablet]: tabletGuide },
       };
 
       return updeep(update, state);

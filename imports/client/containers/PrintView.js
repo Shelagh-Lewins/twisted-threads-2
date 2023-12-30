@@ -133,6 +133,7 @@ class PrintView extends PureComponent {
                   numberOfRows={numberOfRows}
                   numberOfTablets={numberOfTablets}
                   patternType={patternType}
+                  patternId={_id}
                   printView={true}
                 />
               </>

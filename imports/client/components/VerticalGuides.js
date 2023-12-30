@@ -5,30 +5,33 @@ import { connect } from 'react-redux';
 import './VerticalGuides.scss';
 
 function VerticalGuides(props) {
-  const verticalGuideInterval = 4;
-  const { numberOfTablets, reduceContrast, showTabletGuides, showCenterGuide } =
-    props;
+  const {
+    numberOfTablets,
+    reduceContrast,
+    showTabletGuides,
+    showCenterGuide,
+    tabletGuides,
+  } = props;
   const showVerticalGuides = showTabletGuides || showCenterGuide;
   const cellWidth = 33;
-  const numberOfSections = numberOfTablets / verticalGuideInterval;
   const verticalGuides = [];
 
   if (showTabletGuides) {
-    for (let i = 0; i < numberOfSections - 1; i += 1) {
-      const left = i * verticalGuideInterval * cellWidth + 5;
-      const width = verticalGuideInterval * cellWidth;
+    tabletGuides.forEach((tabletGuide, tabletIndex) => {
+      const left = tabletIndex * cellWidth + 5;
 
-      verticalGuides.push(
-        <div
-          className='vertical-guide'
-          style={{
-            left,
-            width,
-          }}
-          key={`guide-${i}`}
-        />,
-      );
-    }
+      if (tabletGuide) {
+        verticalGuides.push(
+          <div
+            className='vertical-guide'
+            style={{
+              left,
+            }}
+            key={`guide-${tabletIndex}`}
+          />,
+        );
+      }
+    });
   }
 
   if (showCenterGuide) {
@@ -60,12 +63,14 @@ VerticalGuides.propTypes = {
   reduceContrast: PropTypes.bool,
   showTabletGuides: PropTypes.bool.isRequired,
   showCenterGuide: PropTypes.bool.isRequired,
+  tabletGuides: PropTypes.arrayOf.bool,
 };
 
 function mapStateToProps(state) {
   return {
     showTabletGuides: state.pattern.showTabletGuides,
     showCenterGuide: state.pattern.showCenterGuide,
+    tabletGuides: state.pattern.tabletGuides,
   };
 }
 

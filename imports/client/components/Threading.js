@@ -336,7 +336,7 @@ class Threading extends PureComponent {
     }
 
     const twistInfoText =
-      'Uncheck the "Include in twist calculations" checkbox for any border tablet that you will always turn forwards. Otherwise, border tablets may prevent the pattern from being identified as twist neutral, or repeating.';
+      'Uncheck the "Include in twist calculations" checkbox for any border tablet that you will always turn forwards. Otherwise, border tablets may prevent the pattern from being identified as twist neutral or repeating.';
     const twistInfoTitle =
       'Click to learn about the "Include in twist calculations" checkboxes';
 

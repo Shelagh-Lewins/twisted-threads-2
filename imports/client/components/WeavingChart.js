@@ -5,6 +5,9 @@ import PropTypes from 'prop-types';
 import WeavingChartCell from './WeavingChartCell';
 import FreehandChartCell from './FreehandChartCell';
 import VerticalGuides from './VerticalGuides';
+import ShowGuideForTabletCell from './ShowGuideForTabletCell';
+import InfoButton from './InfoButton';
+import { editTabletGuides } from '../modules/pattern';
 
 import './Threading.scss';
 import './WeavingChart.scss';
@@ -20,6 +23,17 @@ import './WeavingChart.scss';
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
 function WeavingChart(props) {
+  const handleChangeShowGuideCheckbox = (event, tabletIndex) => {
+    const { dispatch, patternId } = props;
+
+    dispatch(
+      editTabletGuides({
+        _id: patternId,
+        tablet: tabletIndex,
+      }),
+    );
+  };
+
   const renderCell = (rowIndex, tabletIndex) => {
     const { patternType } = props;
     let cell;
@@ -104,12 +118,52 @@ function WeavingChart(props) {
     );
   };
 
+  const renderShowTabletGuidesButton = (tabletIndex) => (
+    <ShowGuideForTabletCell
+      handleChangeShowGuideCheckbox={handleChangeShowGuideCheckbox}
+      isDisabled={false}
+      tabletIndex={tabletIndex}
+    />
+  );
+
+  const renderShowTabletGuideButtons = () => {
+    const { patternType, numberOfTablets } = props;
+
+    // all together patterns cannot have guides
+    if (patternType === 'allTogether') {
+      return;
+    }
+
+    const buttons = [];
+    for (let i = 0; i < numberOfTablets; i += 1) {
+      buttons.push(
+        <li className='cell label' key={`show-tabletguide-${i}`}>
+          {renderShowTabletGuidesButton(i)}
+        </li>,
+      );
+    }
+
+    const guideInfoText =
+      'Check the "Show guide line for tablet" checkbox to display a vertical guide line after this tablet on the weaving and threading charts';
+    const guideInfoTitle =
+      'Click to learn about the "Show guide lines for tablets" checkboxes';
+
+    return (
+      <div className='tablet-guide-buttons'>
+        <div className='tablet-guide-info-button'>
+          <InfoButton message={guideInfoText} title={guideInfoTitle} />
+        </div>
+        <ul>{buttons}</ul>
+      </div>
+    );
+  };
+
   const renderTabletLabels = () => {
     const { numberOfTablets, printView, selectedRow } = props;
     let offset = 0;
 
     if (!printView) {
-      offset = 33 * selectedRow;
+      offset = 33 * selectedRow + 15; // add space for vertical guide checkboxes
     }
 
     const labels = [];
@@ -159,6 +213,7 @@ function WeavingChart(props) {
     return (
       <div className='weaving-chart-holder'>
         {renderTabletLabels()}
+        {renderShowTabletGuideButtons()}
         <ul className='weaving-chart'>{rows}</ul>
       </div>
     );
@@ -176,12 +231,14 @@ function WeavingChart(props) {
 // known bug that eslint does not reliably detect props inside functions in a functional component
 // https://github.com/yannickcr/eslint-plugin-react/issues/885
 WeavingChart.propTypes = {
+  dispatch: PropTypes.func,
   handleClickUp: PropTypes.func,
   handleClickRow: PropTypes.func,
   handleClickDown: PropTypes.func,
   numberOfRows: PropTypes.number.isRequired,
   numberOfTablets: PropTypes.number.isRequired,
   patternType: PropTypes.string.isRequired,
+  patternId: PropTypes.string.isRequired,
   printView: PropTypes.bool.isRequired,
   selectedRow: PropTypes.number,
 };

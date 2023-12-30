@@ -279,6 +279,7 @@ class InteractiveWeavingChart extends PureComponent {
                       numberOfRows={numberOfRows}
                       numberOfTablets={numberOfTablets}
                       patternType={patternType}
+                      patternId={_id}
                       printView={false}
                       selectedRow={selectedRow}
                     />
