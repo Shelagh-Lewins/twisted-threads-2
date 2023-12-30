@@ -23,7 +23,7 @@ function ShowVerticalGuides(props) {
   };
 
   const tabletGuidesTitle =
-    'Show guide lines after tablets (guide lines can be set up using the checkboxes above the interactive weaving chart)';
+    'Show guide lines after tablets. To set up guide lines, use the checkboxes above the interactive weaving chart';
   const tabletGuidesLabel = (
     <>
       Show guide lines after tablets <span className='key vertical-guide' />
