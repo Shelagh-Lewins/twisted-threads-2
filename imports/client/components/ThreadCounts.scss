@@ -1,0 +1,38 @@
+@import '../constants/variables';
+
+.thread-counts {
+  margin: 8px 0 1rem 0;
+  position: relative;
+
+  .wrapper {
+    display: inline-block;
+    margin-right: 8px;
+  }
+
+  .count {
+    text-align: center;
+  }
+
+  .thread-count {
+    border: 1px solid $color-panel-border;
+    display: inline-block;
+    height: 32px;
+    position: relative;
+    width: 32px;
+  }
+
+  .empty-hole {
+    background: $color-palette-background;
+    border: 1px solid $color-panel-border;
+    display: inline-block;
+
+    height: 32px;
+    margin-right: 8px;
+    position: relative;
+    width: 32px;
+
+    svg {
+      position: absolute;
+    }
+  }
+}

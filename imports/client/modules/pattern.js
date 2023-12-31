@@ -470,6 +470,9 @@ export const getShowTabletGuides = (state) => state.pattern.showTabletGuides;
 
 export const getShowCenterGuide = (state) => state.pattern.showCenterGuide;
 
+export const getStateThreadingByTablet = (state) =>
+  state.pattern.threadingByTablet;
+
 // ///////////////////////
 // cached selectors to provide props without triggering re-render
 export const getPatternTwistSelector = createSelector(
@@ -514,6 +517,31 @@ export const getTotalTurnsByTabletSelector = createSelector(
         picksForTablet,
       }),
     ),
+);
+
+export const getThreadCounts = createSelector(
+  getStateThreadingByTablet,
+  getPalette,
+  (threading) =>
+    threading.flat().reduce((accumulator, currentValue) => {
+      if (typeof accumulator[currentValue] === 'undefined') {
+        accumulator[currentValue] = 1;
+      } else {
+        accumulator[currentValue] += 1;
+      }
+
+      return accumulator;
+    }, {}),
+);
+
+export const getTotalThreads = createSelector(getThreadCounts, (threadCounts) =>
+  Object.keys(threadCounts).reduce(
+    (accumulator, currentValue) =>
+      currentValue === '-1'
+        ? accumulator
+        : accumulator + threadCounts[currentValue],
+    0,
+  ),
 );
 
 // ///////////////////////////

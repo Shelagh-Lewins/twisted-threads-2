@@ -48,6 +48,7 @@ import WeavingDesignFreehand from '../components/WeavingDesignFreehand';
 import Weft from '../components/Weft';
 import PatternPreview from '../components/PatternPreview';
 import Threading from '../components/Threading';
+import ThreadCounts from '../components/ThreadCounts';
 import Notation from '../components/Notation';
 import PreviewOrientation from '../components/PreviewOrientation';
 import EditableText from '../components/EditableText';
@@ -907,15 +908,19 @@ class Pattern extends PureComponent {
             <h2>Threading chart</h2>
             <ShowVerticalGuides />
             {pattern.threading && (
-              <Threading
-                canEdit={canEdit}
-                colorBooks={colorBooks}
-                dispatch={dispatch}
-                holes={holes}
-                numberOfTablets={numberOfTablets}
-                pattern={pattern}
-                ref={this.childThreading}
-              />
+              <>
+                <Threading
+                  canEdit={canEdit}
+                  colorBooks={colorBooks}
+                  dispatch={dispatch}
+                  holes={holes}
+                  numberOfTablets={numberOfTablets}
+                  pattern={pattern}
+                  ref={this.childThreading}
+                />
+                <h2>Thread counts</h2>
+                <ThreadCounts pattern={pattern} />
+              </>
             )}
             <EditableText
               canEdit={canEdit}
