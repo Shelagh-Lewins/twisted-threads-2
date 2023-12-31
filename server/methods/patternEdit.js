@@ -1138,7 +1138,10 @@ Meteor.methods({
           update.$set[`includeInTwist.${tablet}`] = 'toBeRemoved';
         }
 
-        update.$set[`tabletGuides.${tablet}`] = 'toBeRemoved';
+        // if this is an old pattern, it may not have tabletGuides set up yet
+        if (pattern.tabletGuides) {
+          update.$set[`tabletGuides.${tablet}`] = 'toBeRemoved';
+        }
 
         // updates for weaving depend on pattern type
         switch (patternType) {
@@ -1197,9 +1200,12 @@ Meteor.methods({
           update2.$pull.includeInTwist = 'toBeRemoved';
         }
 
-        update2.$pull = {
-          tabletGuides: 'toBeRemoved',
-        };
+        // if this is an old pattern, it may not have tabletGuides set up yet
+        if (pattern.tabletGuides) {
+          update2.$pull = {
+            tabletGuides: 'toBeRemoved',
+          };
+        }
 
         update2.$set = {
           numberOfTablets: pattern.numberOfTablets - 1,
