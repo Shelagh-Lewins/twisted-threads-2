@@ -22,6 +22,7 @@ import PatternPreview from '../components/PatternPreview';
 import WeavingChart from '../components/WeavingChart';
 import WeavingInstructionsAllTogetherPrint from '../components/WeavingInstructionsAllTogetherPrint';
 import Threading from '../components/Threading';
+import ThreadCounts from '../components/ThreadCounts';
 import Notation from '../components/Notation';
 import TwistCalculationHints from '../components/TwistCalculationHints';
 import { findPatternTypeDisplayName } from '../../modules/parameters';
@@ -235,6 +236,8 @@ class PrintView extends PureComponent {
                   numberOfTablets={numberOfTablets}
                   pattern={pattern}
                 />
+                <h2>Thread counts</h2>
+                <ThreadCounts pattern={pattern} />
                 {threadingNotes && threadingNotes !== '' && (
                   <>
                     <h2>Threading notes</h2>
