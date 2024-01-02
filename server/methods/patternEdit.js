@@ -1138,7 +1138,7 @@ Meteor.methods({
           update.$set[`includeInTwist.${tablet}`] = 'toBeRemoved';
         }
 
-        // if this is an old pattern, it may not have tabletGuides set up yet
+        // the pattern may not have tabletGuides set up yet
         if (pattern.tabletGuides) {
           update.$set[`tabletGuides.${tablet}`] = 'toBeRemoved';
         }
@@ -1189,22 +1189,22 @@ Meteor.methods({
 
         Patterns.update({ _id }, update, { bypassCollection2: true });
 
-        const update2 = {};
+        const update2 = {}; // create the update object
 
+        // create the pull object
         // update for orientation is the same for all pattern types
         update2.$pull = {
           orientations: 'toBeRemoved',
         };
 
+        // modify the pull object and don't overwrite the previous pull instruction
         if (patternType !== 'freehand') {
           update2.$pull.includeInTwist = 'toBeRemoved';
         }
 
-        // if this is an old pattern, it may not have tabletGuides set up yet
+        // the pattern may not have tabletGuides set up yet
         if (pattern.tabletGuides) {
-          update2.$pull = {
-            tabletGuides: 'toBeRemoved',
-          };
+          update2.$pull.tabletGuides = 'toBeRemoved';
         }
 
         update2.$set = {
