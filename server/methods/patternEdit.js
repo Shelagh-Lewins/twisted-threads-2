@@ -1138,7 +1138,7 @@ Meteor.methods({
           update.$set[`includeInTwist.${tablet}`] = 'toBeRemoved';
         }
 
-        // ithe pattern may not have tabletGuides set up yet
+        // the pattern may not have tabletGuides set up yet
         if (pattern.tabletGuides) {
           update.$set[`tabletGuides.${tablet}`] = 'toBeRemoved';
         }
