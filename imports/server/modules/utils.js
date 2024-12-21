@@ -1,24 +1,24 @@
 import {
-	ColorBooks,
-	Sets,
-	PatternImages,
-	Patterns,
+  ColorBooks,
+  Sets,
+  PatternImages,
+  Patterns,
 } from '../../modules/collection';
 import {
-	ALLOWED_DIRECTIONS,
-	ALLOWED_HOLES,
-	ALLOWED_PATTERN_TYPES,
-	BROKEN_TWILL_FOREGROUND,
-	BROKEN_TWILL_BACKGROUND,
-	BROKEN_TWILL_THREADING,
-	DEFAULT_ORIENTATION,
-	DEFAULT_PALETTE,
-	DOUBLE_FACED_THREADING,
-	DOUBLE_FACED_BACKGROUND,
-	DOUBLE_FACED_FOREGROUND,
-	MAX_ROWS,
-	MAX_TABLETS,
-	ROLE_LIMITS,
+  ALLOWED_DIRECTIONS,
+  ALLOWED_HOLES,
+  ALLOWED_PATTERN_TYPES,
+  BROKEN_TWILL_FOREGROUND,
+  BROKEN_TWILL_BACKGROUND,
+  BROKEN_TWILL_THREADING,
+  DEFAULT_ORIENTATION,
+  DEFAULT_PALETTE,
+  DOUBLE_FACED_THREADING,
+  DOUBLE_FACED_BACKGROUND,
+  DOUBLE_FACED_FOREGROUND,
+  MAX_ROWS,
+  MAX_TABLETS,
+  ROLE_LIMITS,
 } from '../../modules/parameters';
 import getDoubleFacedOrientation from '../../modules/getDoubleFacedOrientation';
 
@@ -26,392 +26,419 @@ const moment = require('moment');
 
 // used to check parameters supplied to methods and publications
 export const nonEmptyStringCheck = Match.Where((x) => {
-	check(x, String);
-	return x !== '';
+  check(x, String);
+  return x !== '';
 });
 
 export const validHolesCheck = Match.Where((x) => {
-	check(x, Match.Integer);
+  check(x, Match.Integer);
 
-	return ALLOWED_HOLES.indexOf(x) !== -1;
+  return ALLOWED_HOLES.indexOf(x) !== -1;
 });
 
 export const validRowsCheck = Match.Where((x) => {
-	check(x, Match.Integer);
+  check(x, Match.Integer);
 
-	return x >= 0 && x < MAX_ROWS;
+  return x >= 0 && x < MAX_ROWS;
 });
 
 export const validTabletsCheck = Match.Where((x) => {
-	check(x, Match.Integer);
+  check(x, Match.Integer);
 
-	return x >= 0 && x < MAX_TABLETS;
+  return x >= 0 && x < MAX_TABLETS;
 });
 
 export const validPatternTypeCheck = Match.Where((x) => {
-	check(x, String);
-	const allowedType = ALLOWED_PATTERN_TYPES.find((type) => type.name === x);
+  check(x, String);
+  const allowedType = ALLOWED_PATTERN_TYPES.find((type) => type.name === x);
 
-	return typeof allowedType.name === 'string';
+  return typeof allowedType.name === 'string';
 });
 
 export const positiveIntegerCheck = Match.Where((x) => {
-	check(x, Match.Integer);
-	return x >= 0;
+  check(x, Match.Integer);
+  return x >= 0;
 });
 
 export const validPaletteIndexCheck = Match.Where((x) => {
-	check(x, Match.Integer);
-	return x >= -1 && x < DEFAULT_PALETTE.length; // -1 is empty hole, 0 + are colors
+  check(x, Match.Integer);
+  return x >= -1 && x < DEFAULT_PALETTE.length; // -1 is empty hole, 0 + are colors
 });
 
 export const validDirectionCheck = Match.Where((x) => {
-	check(x, String);
-	const directionDefFound = ALLOWED_DIRECTIONS.find((directionDef) => directionDef.value === x);
-	return typeof directionDefFound !== 'undefined';
+  check(x, String);
+  const directionDefFound = ALLOWED_DIRECTIONS.find(
+    (directionDef) => directionDef.value === x,
+  );
+  return typeof directionDefFound !== 'undefined';
 });
 
 export const validTwillChartCheck = Match.Where((x) => {
-	check(x, String);
+  check(x, String);
 
-	const twillCharts = ['twillPatternChart', 'twillDirectionChangeChart'];
-	return twillCharts.indexOf(x) !== -1;
+  const twillCharts = ['twillPatternChart', 'twillDirectionChangeChart'];
+  return twillCharts.indexOf(x) !== -1;
 });
 
 export const validHexColorCheck = Match.Where((colorValue) => {
-	check(colorValue, String);
-	return colorValue !== '' && colorValue.length <= 7; // accept #aaa, #aa00aa
+  check(colorValue, String);
+  return colorValue !== '' && colorValue.length <= 7; // accept #aaa, #aa00aa
 });
 
 // check whether the current logged in user can create a pattern
 // this may be a new pattern, or a copy
 export const checkUserCanCreatePattern = () => {
-	let error;
+  let error;
 
-	// user must be logged in
-	if (!Meteor.userId()) {
-		error = new Meteor.Error('add-pattern-not-logged-in', 'Unable to add pattern because the user is not logged in');
-	// user must have role 'registered', which is automatically assigned when account is created
-	} else if (!Roles.userIsInRole(Meteor.userId(), 'registered')) {
-		error = new Meteor.Error('add-pattern-not-registered', 'Unable to add pattern because the user does not have role \'registered\'');
-	} else {
-		// user must not have reached the limit on number of patterns
-		const numberOfPatterns = Patterns.find({ 'createdBy': Meteor.userId() }).count();
+  // user must be logged in
+  if (!Meteor.userId()) {
+    error = new Meteor.Error(
+      'add-pattern-not-logged-in',
+      'Unable to add pattern because the user is not logged in',
+    );
+    // user must have role 'registered', which is automatically assigned when account is created
+  } else if (!Roles.userIsInRole(Meteor.userId(), 'registered')) {
+    error = new Meteor.Error(
+      'add-pattern-not-registered',
+      "Unable to add pattern because the user does not have role 'registered'",
+    );
+  } else {
+    // user must not have reached the limit on number of patterns
+    const numberOfPatterns = Patterns.find({
+      createdBy: Meteor.userId(),
+    }).count();
 
-		const limits = [];
-		Roles.getRolesForUser(Meteor.userId()).forEach((role) => {
-			if (ROLE_LIMITS[role]) {
-				limits.push(ROLE_LIMITS[role].maxPatternsPerUser);
-			}
-		});
+    const limits = [];
+    Roles.getRolesForUser(Meteor.userId()).forEach((role) => {
+      if (ROLE_LIMITS[role]) {
+        limits.push(ROLE_LIMITS[role].maxPatternsPerUser);
+      }
+    });
 
-		const limit = Math.max(...limits); // user can create the largest number of patterns of any role they have
+    const limit = Math.max(...limits); // user can create the largest number of patterns of any role they have
 
-		if (numberOfPatterns >= limit) {
-			error = new Meteor.Error('add-pattern-too-many-patterns', 'Unable to add pattern because the user has reached the pattern limit');
-		}
-	}
+    if (numberOfPatterns >= limit) {
+      error = new Meteor.Error(
+        'add-pattern-too-many-patterns',
+        'Unable to add pattern because the user has reached the pattern limit',
+      );
+    }
+  }
 
-	return {
-		error,
-		'value': !error,
-	};
+  return {
+    error,
+    value: !error,
+  };
 };
 
 // check whether the current logged in user can add an image to a pattern
-export const checkUserCanAddPatternImage = (patternId) => {
-	let error;
+export const checkUserCanAddPatternImage = async (patternId) => {
+  let error;
 
-	// user must be logged in
-	if (!Meteor.userId()) {
-		error = new Meteor.Error('add-pattern-image-not-logged-in', 'Unable to add pattern image because the user is not logged in');
-	// user must have role 'registered', which is automatically assigned when account is created
-	} else if (!Roles.userIsInRole(Meteor.userId(), 'registered')) {
-		error = new Meteor.Error('add-pattern-image-not-logged-in', 'Unable to add pattern image because the user does not have role \'registered\'');
-	} else {
-		const pattern = Patterns.findOne({ '_id': patternId });
+  // user must be logged in
+  if (!Meteor.userId()) {
+    error = new Meteor.Error(
+      'add-pattern-image-not-logged-in',
+      'Unable to add pattern image because the user is not logged in',
+    );
+    // user must have role 'registered', which is automatically assigned when account is created
+  } else if (!Roles.userIsInRole(Meteor.userId(), 'registered')) {
+    error = new Meteor.Error(
+      'add-pattern-image-not-logged-in',
+      "Unable to add pattern image because the user does not have role 'registered'",
+    );
+  } else {
+    const pattern = await Patterns.findOneAsync({ _id: patternId });
 
-		if (!pattern) {
-			error = new Meteor.Error('add-pattern-image-not-found', 'Unable to add pattern image because the pattern was not found');
-		} else if (pattern.createdBy !== Meteor.userId()) {
-			error = new Meteor.Error('add-pattern-image-not-created-by-user', 'Unable to add pattern image because the pattern was not created by the current logged in user');
-		} else {
-			// user must not have reached the limit on number of images for this pattern
-			const numberOfImages = PatternImages.find({ patternId }).count();
+    if (!pattern) {
+      error = new Meteor.Error(
+        'add-pattern-image-not-found',
+        'Unable to add pattern image because the pattern was not found',
+      );
+    } else if (pattern.createdBy !== Meteor.userId()) {
+      error = new Meteor.Error(
+        'add-pattern-image-not-created-by-user',
+        'Unable to add pattern image because the pattern was not created by the current logged in user',
+      );
+    } else {
+      // user must not have reached the limit on number of images for this pattern
+      const numberOfImages = PatternImages.find({ patternId }).count();
 
-			const limits = [];
-			Roles.getRolesForUser(Meteor.userId()).forEach((role) => {
-				if (ROLE_LIMITS[role]) {
-					limits.push(ROLE_LIMITS[role].maxImagesPerPattern);
-				}
-			});
+      const limits = [];
+      Roles.getRolesForUser(Meteor.userId()).forEach((role) => {
+        if (ROLE_LIMITS[role]) {
+          limits.push(ROLE_LIMITS[role].maxImagesPerPattern);
+        }
+      });
 
-			const limit = Math.max(...limits); // user can create the largest number of images of any role they have
+      const limit = Math.max(...limits); // user can create the largest number of images of any role they have
 
-			if (numberOfImages >= limit) {
-				error = new Meteor.Error('add-image-too-many-images', 'Unable to add image because the user has reached the image limit for the pattern');
-			}
-		}
-	}
+      if (numberOfImages >= limit) {
+        error = new Meteor.Error(
+          'add-image-too-many-images',
+          'Unable to add image because the user has reached the image limit for the pattern',
+        );
+      }
+    }
+  }
 
-	return {
-		error,
-		'value': !error,
-	};
+  return {
+    error,
+    value: !error,
+  };
 };
 
 // check whether the current logged in user can create a color book
 // this may be a new color book, or a copy
 export const checkCanCreateColorBook = () => {
-	// user must be logged in
-	let error;
+  // user must be logged in
+  let error;
 
-	if (!Meteor.userId()) {
-		error = new Meteor.Error('add-color-book-not-logged-in', 'Unable to add color book because the user is not logged in');
-	} else if (!Roles.userIsInRole(Meteor.userId(), 'registered')) {
-		// user must have role 'registered', which is automatically assigned when account is created
-		error = new Meteor.Error('add-color-book-not-registered', 'Unable to add color book because the user does not have role \'registered\'');
-	} else {
-		// user must not have reached the limit on number of color books
-		const numberOfColorBooks = ColorBooks.find({ 'createdBy': Meteor.userId() }).count();
+  if (!Meteor.userId()) {
+    error = new Meteor.Error(
+      'add-color-book-not-logged-in',
+      'Unable to add color book because the user is not logged in',
+    );
+  } else if (!Roles.userIsInRole(Meteor.userId(), 'registered')) {
+    // user must have role 'registered', which is automatically assigned when account is created
+    error = new Meteor.Error(
+      'add-color-book-not-registered',
+      "Unable to add color book because the user does not have role 'registered'",
+    );
+  } else {
+    // user must not have reached the limit on number of color books
+    const numberOfColorBooks = ColorBooks.find({
+      createdBy: Meteor.userId(),
+    }).count();
 
-		const limits = [];
-		Roles.getRolesForUser(Meteor.userId()).forEach((role) => {
-			if (ROLE_LIMITS[role]) {
-				limits.push(ROLE_LIMITS[role].maxColorBooksPerUser);
-			}
-		});
+    const limits = [];
+    Roles.getRolesForUser(Meteor.userId()).forEach((role) => {
+      if (ROLE_LIMITS[role]) {
+        limits.push(ROLE_LIMITS[role].maxColorBooksPerUser);
+      }
+    });
 
-		const limit = Math.max(...limits); // user can create the largest number of color books of any role they have
+    const limit = Math.max(...limits); // user can create the largest number of color books of any role they have
 
-		if (numberOfColorBooks >= limit) {
-			error = new Meteor.Error('add-color-book-too-many-color-books', 'Unable to add color book because the user has reached the color book limit');
-		}
-	}
+    if (numberOfColorBooks >= limit) {
+      error = new Meteor.Error(
+        'add-color-book-too-many-color-books',
+        'Unable to add color book because the user has reached the color book limit',
+      );
+    }
+  }
 
-	return {
-		error,
-		'value': !error,
-	};
+  return {
+    error,
+    value: !error,
+  };
 };
 
-export const updatePublicPatternsCountForUser = (_id) => {
-	const publicPatternsCount = Patterns.find(
-		{
-			'$and': [
-				{ 'isPublic': { '$eq': true } },
-				{ 'createdBy': _id },
-			],
-		},
-	).count();
+export const updatePublicPatternsCountForUser = async (_id) => {
+  const publicPatternsCount = Patterns.find({
+    $and: [{ isPublic: { $eq: true } }, { createdBy: _id }],
+  }).count();
 
-	Meteor.users.update(
-		{ _id },
-		{
-			'$set': { 'publicPatternsCount': publicPatternsCount },
-		},
-	);
+  await Meteor.users.updateAsync(
+    { _id },
+    {
+      $set: { publicPatternsCount },
+    },
+  );
 };
 
-export const updatePublicPatternsCountForSet = (_id) => {
-	const set = Sets.findOne({ _id });
-	const publicPatternsCount = Patterns.find(
-		{
-			'$and': [
-				{ 'isPublic': { '$eq': true } },
-				{ '_id': { '$in': set.patterns } },
-			],
-		},
-	).count();
+export const updatePublicPatternsCountForSet = async (_id) => {
+  const set = await Sets.findOneAsync({ _id });
+  const publicPatternsCount = Patterns.find({
+    $and: [{ isPublic: { $eq: true } }, { _id: { $in: set.patterns } }],
+  }).count();
 
-	Sets.update(
-		{ _id },
-		{
-			'$set': { 'publicPatternsCount': publicPatternsCount },
-		},
-	);
+  await Sets.updateAsync(
+    { _id },
+    {
+      $set: { publicPatternsCount },
+    },
+  );
 };
 
-export const updatePublicColorBooksCount = (_id) => {
-	const publicColorBooksCount = ColorBooks.find(
-		{
-			'$and': [
-				{ 'isPublic': { '$eq': true } },
-				{ 'createdBy': _id },
-			],
-		},
-	).count();
+export const updatePublicColorBooksCount = async (_id) => {
+  const publicColorBooksCount = ColorBooks.find({
+    $and: [{ isPublic: { $eq: true } }, { createdBy: _id }],
+  }).count();
 
-	Meteor.users.update(
-		{ _id },
-		{
-			'$set': { 'publicColorBooksCount': publicColorBooksCount },
-		},
-	);
+  await Meteor.users.updateAsync(
+    { _id },
+    {
+      $set: { publicColorBooksCount },
+    },
+  );
 };
 
-// update the public sets count of a ser
-export const updatePublicSetsCount = (userId) => {
-	const publicSetsCount = Sets.find(
-		{
-			'$and': [
-				{ 'publicPatternsCount': { '$gt': 0 } },
-				{ 'createdBy': userId },
-			],
-		},
-	).count();
+// update the public sets count of a user
+export const updatePublicSetsCount = async (userId) => {
+  const publicSetsCount = Sets.find({
+    $and: [{ publicPatternsCount: { $gt: 0 } }, { createdBy: userId }],
+  }).count();
 
-	Meteor.users.update(
-		{ '_id': userId },
-		{
-			'$set': { 'publicSetsCount': publicSetsCount },
-		},
-	);
+  await Meteor.users.updateAsync(
+    { _id: userId },
+    {
+      $set: { publicSetsCount },
+    },
+  );
 };
 
 // for an array of set ids, update the public set count of each owner
 export const updateMultiplePublicSetsCount = (setIds) => {
-	if (setIds) {
-		setIds.forEach((setId) => {
-			const set = Sets.findOne({ '_id': setId });
-			if (set) {
-				updatePublicSetsCount(set.createdBy);
-			}
-		});
-	}
+  if (setIds) {
+    setIds.forEach(async (setId) => {
+      const set = await Sets.findOneAsync({ _id: setId });
+      if (set) {
+        updatePublicSetsCount(set.createdBy);
+      }
+    });
+  }
 };
 
 export const getPatternFilter = ({
-	filterIsTwistNeutral,
-	filterMaxTablets,
-	filterMinTablets,
-	filterWillRepeat,
+  filterIsTwistNeutral,
+  filterMaxTablets,
+  filterMinTablets,
+  filterWillRepeat,
 }) => {
-	check(filterIsTwistNeutral, Match.Maybe(Boolean));
-	check(filterMaxTablets, Match.Maybe(positiveIntegerCheck));
-	check(filterMinTablets, Match.Maybe(positiveIntegerCheck));
-	check(filterWillRepeat, Match.Maybe(Boolean));
+  check(filterIsTwistNeutral, Match.Maybe(Boolean));
+  check(filterMaxTablets, Match.Maybe(positiveIntegerCheck));
+  check(filterMinTablets, Match.Maybe(positiveIntegerCheck));
+  check(filterWillRepeat, Match.Maybe(Boolean));
 
-	// max and min must be integers between 1 and MAX_TABLETS
-	let min = 1;
-	if (filterMinTablets) {
-		min = Math.max(filterMinTablets, 1);
-	}
-	min = Math.min(min, MAX_TABLETS);
+  // max and min must be integers between 1 and MAX_TABLETS
+  let min = 1;
+  if (filterMinTablets) {
+    min = Math.max(filterMinTablets, 1);
+  }
+  min = Math.min(min, MAX_TABLETS);
 
-	let max = MAX_TABLETS;
-	if (filterMaxTablets) {
-		max = Math.min(filterMaxTablets, MAX_TABLETS);
-	}
-	max = Math.max(max, 1);
+  let max = MAX_TABLETS;
+  if (filterMaxTablets) {
+    max = Math.min(filterMaxTablets, MAX_TABLETS);
+  }
+  max = Math.max(max, 1);
 
-	const selector = [
-		{ 'numberOfTablets': { '$gte': min } },
-		{ 'numberOfTablets': { '$lte': max } },
-	];
+  const selector = [
+    { numberOfTablets: { $gte: min } },
+    { numberOfTablets: { $lte: max } },
+  ];
 
-	if (filterIsTwistNeutral) {
-		selector.push({ 'isTwistNeutral': true });
-	}
+  if (filterIsTwistNeutral) {
+    selector.push({ isTwistNeutral: true });
+  }
 
-	if (filterWillRepeat) {
-		selector.push({ 'willRepeat': true });
-	}
+  if (filterWillRepeat) {
+    selector.push({ willRepeat: true });
+  }
 
-	return {
-		'$and': selector,
-	};
+  return {
+    $and: selector,
+  };
 };
 
 export const setupOrientations = ({
-	doubleFacedOrientations,
-	patternType,
-	tablets,
-	templateTypeDef,
+  doubleFacedOrientations,
+  patternType,
+  tablets,
+  templateTypeDef,
 }) => {
-	// most patterns have tablets all oriented the same
-	const orientationsForPattern = new Array(tablets).fill(DEFAULT_ORIENTATION);
+  // most patterns have tablets all oriented the same
+  const orientationsForPattern = new Array(tablets).fill(DEFAULT_ORIENTATION);
 
-	if (templateTypeDef) {
-		const { orientations } = templateTypeDef;
-		const templateChartTablets = orientations.length;
+  if (templateTypeDef) {
+    const { orientations } = templateTypeDef;
+    const templateChartTablets = orientations.length;
 
-		for (let i = 0; i < tablets; i += 1) {
-			orientationsForPattern[i] = orientations[i % templateChartTablets];
-		}
-	} else if (patternType === 'doubleFaced') {
-		for (let i = 0; i < tablets; i += 1) {
-			orientationsForPattern[i] = getDoubleFacedOrientation({
-				'tablet': i,
-				doubleFacedOrientations,
-			});
-		}
-	}
+    for (let i = 0; i < tablets; i += 1) {
+      orientationsForPattern[i] = orientations[i % templateChartTablets];
+    }
+  } else if (patternType === 'doubleFaced') {
+    for (let i = 0; i < tablets; i += 1) {
+      orientationsForPattern[i] = getDoubleFacedOrientation({
+        tablet: i,
+        doubleFacedOrientations,
+      });
+    }
+  }
 
-	return orientationsForPattern;
+  return orientationsForPattern;
 };
 
-export const setupDoubleFacedThreading = ({
-	holes,
-	numberOfTablets,
-}) => {
-	// double faced threading is set up with two colours in a repeating pattern
-	// all tablets are the same
+export const setupDoubleFacedThreading = ({ holes, numberOfTablets }) => {
+  // double faced threading is set up with two colours in a repeating pattern
+  // all tablets are the same
 
-	const threadingForNewTablets = [];
+  const threadingForNewTablets = [];
 
-	for (let i = 0; i < holes; i += 1) {
-		const threadingForHole = [];
+  for (let i = 0; i < holes; i += 1) {
+    const threadingForHole = [];
 
-		for (let j = 0; j < numberOfTablets; j += 1) {
-			const colorRole = DOUBLE_FACED_THREADING[i];
+    for (let j = 0; j < numberOfTablets; j += 1) {
+      const colorRole = DOUBLE_FACED_THREADING[i];
 
-			threadingForHole.push(colorRole === 'F' ? DOUBLE_FACED_FOREGROUND : DOUBLE_FACED_BACKGROUND);
-		}
+      threadingForHole.push(
+        colorRole === 'F' ? DOUBLE_FACED_FOREGROUND : DOUBLE_FACED_BACKGROUND,
+      );
+    }
 
-		threadingForNewTablets.push(threadingForHole);
-	}
+    threadingForNewTablets.push(threadingForHole);
+  }
 
-	return threadingForNewTablets;
+  return threadingForNewTablets;
 };
 
 export const setupTwillThreading = ({
-	holes,
-	startTablet,
-	numberOfTablets,
+  holes,
+  startTablet,
+  numberOfTablets,
 }) => {
-	// broken twill threading is set up with two colours in a repeating pattern
-	// this returns twill threading from a specified start tablet onwards
-	// useful when inserting tablets; the return is all tablets from the insertion onwards
+  // broken twill threading is set up with two colours in a repeating pattern
+  // this returns twill threading from a specified start tablet onwards
+  // useful when inserting tablets; the return is all tablets from the insertion onwards
 
-	const threadingForNewTablets = [];
+  const threadingForNewTablets = [];
 
-	for (let i = 0; i < holes; i += 1) {
-		const threadingForHole = [];
+  for (let i = 0; i < holes; i += 1) {
+    const threadingForHole = [];
 
-		for (let j = 0; j < numberOfTablets - startTablet; j += 1) {
-			const positionInThreadingSequence = j + startTablet;
-			const colorRole = BROKEN_TWILL_THREADING[i][positionInThreadingSequence % holes];
+    for (let j = 0; j < numberOfTablets - startTablet; j += 1) {
+      const positionInThreadingSequence = j + startTablet;
+      const colorRole =
+        BROKEN_TWILL_THREADING[i][positionInThreadingSequence % holes];
 
-			threadingForHole.push(colorRole === 'F' ? BROKEN_TWILL_FOREGROUND : BROKEN_TWILL_BACKGROUND);
-		}
+      threadingForHole.push(
+        colorRole === 'F' ? BROKEN_TWILL_FOREGROUND : BROKEN_TWILL_BACKGROUND,
+      );
+    }
 
-		threadingForNewTablets.push(threadingForHole);
-	}
+    threadingForNewTablets.push(threadingForHole);
+  }
 
-	return threadingForNewTablets;
+  return threadingForNewTablets;
 };
 
 // build a string to be written to the Nginx log
 // suitable for parsing by a fail2ban filter
 // may be an error like login failure
 // or an action we need to monitor like registering a new user
-export const buildServerLogText = ((text) => {
-	if (Meteor.isTest) {
-		return `${moment(new Date()).format('YYYY/MM/DD HH:mm:ss')} ${text}, client: local.testing, host: "local.testing"`;
-	}
+export const buildServerLogText = (text) => {
+  if (Meteor.isTest) {
+    return `${moment(new Date()).format(
+      'YYYY/MM/DD HH:mm:ss',
+    )} ${text}, client: local.testing, host: "local.testing"`;
+  }
 
-	const connection = Meteor.call('auth.getClientConnection');
+  const connection = Meteor.call('auth.getClientConnection');
 
-	return `${moment(new Date()).format('YYYY/MM/DD HH:mm:ss')} ${text}, client: ${connection.clientAddress}, host: "${connection.httpHeaders.host}"`;
-});
+  return `${moment(new Date()).format(
+    'YYYY/MM/DD HH:mm:ss',
+  )} ${text}, client: ${connection.clientAddress}, host: "${
+    connection.httpHeaders.host
+  }"`;
+};

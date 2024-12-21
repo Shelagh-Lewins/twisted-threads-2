@@ -35,7 +35,7 @@ Meteor.methods({
 
     return Accounts.sendVerificationEmail(userId);
   },
-  'auth.setRecentPatterns': function ({ userId, newRecentPatterns }) {
+  'auth.setRecentPatterns': async function ({ userId, newRecentPatterns }) {
     check(userId, nonEmptyStringCheck);
 
     // recentPatterns is stored in Profile so that it is published to the user
@@ -55,7 +55,7 @@ Meteor.methods({
       check(
         updatedAt,
         Match.Where((value) => {
-          if (isNaN(new Date(value).getTime())) {
+          if (Number.isNaN(Number(new Date(value).getTime()))) {
             return false;
           }
           return true;
@@ -71,6 +71,7 @@ Meteor.methods({
       // check in case of invalid weaving row
       check(currentWeavingRow, Match.Maybe(Number));
       if (currentWeavingRow < 0 || currentWeavingRow > pattern.numberOfRows) {
+        // eslint-disable-next-line no-param-reassign
         entry.currentWeavingRow = 1;
       }
 
@@ -84,7 +85,7 @@ Meteor.methods({
       recentPatterns.pop();
     }
 
-    Meteor.users.update(
+    await Meteor.users.updateAsync(
       { _id: Meteor.userId() },
       { $set: { 'profile.recentPatterns': recentPatterns } },
     );
@@ -119,7 +120,7 @@ Meteor.methods({
       })
       .fetch();
   },
-  'auth.editTextField': function ({ _id, fieldName, fieldValue }) {
+  'auth.editTextField': async function ({ _id, fieldName, fieldValue }) {
     if (_id !== Meteor.userId()) {
       throw new Meteor.Error(
         'edit-text-field-not-logged-in',
@@ -160,7 +161,7 @@ Meteor.methods({
     const update = {};
     update[fieldName] = fieldValue;
 
-    Meteor.users.update({ _id: Meteor.userId() }, { $set: update });
+    await Meteor.users.updateAsync({ _id: Meteor.userId() }, { $set: update });
   },
   'auth.addUserToRole': function ({ _id, role }) {
     // user is logged in
@@ -282,7 +283,7 @@ Meteor.methods({
 
     return false;
   },
-  'auth.setWeavingBackwardsBackgroundColor': function (colorValue) {
+  'auth.setWeavingBackwardsBackgroundColor': async function (colorValue) {
     check(colorValue, validHexColorCheck);
 
     if (!Meteor.userId()) {
@@ -292,7 +293,7 @@ Meteor.methods({
       );
     }
 
-    Meteor.users.update(
+    await Meteor.users.updateAsync(
       { _id: Meteor.userId() },
       { $set: { weavingBackwardsBackgroundColor: colorValue } },
     );

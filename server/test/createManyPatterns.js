@@ -1,88 +1,113 @@
-import {
-	Patterns,
-} from '../../imports/modules/collection';
+// Creates patterns for tests. Not used in main application.
 
-const createManyPatterns = () => {
-	Patterns.remove({});
+import { Patterns } from '../../imports/modules/collection';
 
-	const publicMyPatternNames = [];
-	const privateMyPatternNames = [];
+// this must be called with async / await
+const createManyPatterns = async () => {
+  Patterns.removeAsync({});
 
-	const publicOtherPatternNames = [];
-	const privateOtherPatternNames = [];
+  const publicMyPatternNames = [];
+  const privateMyPatternNames = [];
 
-	const numberOfMyPublicPatterns = 20;
-	const numberOfMyPrivatePatterns = 15;
-	const numberOfOtherPublicPatterns = 9;
-	const numberOfOtherPrivatePatterns = 23;
+  const publicOtherPatternNames = [];
+  const privateOtherPatternNames = [];
 
-	// patterns belonging to current user
-	for (let i = 0; i < numberOfMyPublicPatterns; i += 1) {
-		const name = `${i} my public pattern`;
-		publicMyPatternNames.push(name);
+  const numberOfMyPublicPatterns = 20;
+  const numberOfMyPrivatePatterns = 15;
+  const numberOfOtherPublicPatterns = 9;
+  const numberOfOtherPrivatePatterns = 23;
 
-		Factory.create('pattern', {
-			'name': name,
-			'nameSort': name,
-			'createdBy': Meteor.user()._id,
-			'isPublic': true,
-		});
-	}
+  // make sure all patterns have consistent, different createdAt dates
+  const now = new Date();
+  let count = 0;
 
-	for (let i = 0; i < numberOfMyPrivatePatterns; i += 1) {
-		const name = `${i} my private pattern`;
-		privateMyPatternNames.push(name);
+  const setCreatedAt = async (pattern) => {
+    const newDate = now.setSeconds(now.getSeconds() + 10 * count);
 
-		Factory.create('pattern', {
-			'name': name,
-			'nameSort': name,
-			'createdBy': Meteor.user()._id,
-			'isPublic': false,
-		});
-	}
+    await Patterns.updateAsync(
+      { _id: pattern._id },
+      { $set: { createdAt: newDate } },
+    );
+    count += 1;
+  };
 
-	// patterns belongiing to some other user
-	for (let i = 0; i < numberOfOtherPublicPatterns; i += 1) {
-		const name = `${i} other public pattern`;
-		publicOtherPatternNames.push(name);
+  // patterns belonging to current user
+  for (let i = 0; i < numberOfMyPublicPatterns; i += 1) {
+    const name = `${i} my public pattern`;
+    publicMyPatternNames.push(name);
 
-		Factory.create('pattern', {
-			'name': name,
-			'nameSort': name,
-			'createdBy': 'xxx',
-			'isPublic': true,
-		});
-	}
+    const pattern = Factory.create('pattern', {
+      name,
+      nameSort: name,
+      createdBy: Meteor.userAsync()._id,
+      isPublic: true,
+    });
 
-	for (let i = 0; i < numberOfOtherPrivatePatterns; i += 1) {
-		const name = `${i} other private pattern`;
-		privateOtherPatternNames.push(name);
+    setCreatedAt(pattern);
+  }
 
-		Factory.create('pattern', {
-			'name': name,
-			'nameSort': name,
-			'createdBy': 'xxx',
-			'isPublic': false,
-		});
-	}
+  for (let i = 0; i < numberOfMyPrivatePatterns; i += 1) {
+    const name = `${i} my private pattern`;
+    privateMyPatternNames.push(name);
 
-	// make sure all patterns have different createdAt dates
-	const now = new Date();
-	let count = 0;
+    const pattern = Factory.create('pattern', {
+      name,
+      nameSort: name,
+      createdBy: Meteor.userAsync()._id,
+      isPublic: false,
+    });
 
-	Patterns.find().fetch().forEach((pattern) => {
-		const newDate = pattern.createdAt.setSeconds(now.getSeconds() + (10 * count));
-		Patterns.update({ '_id': pattern._id },
-			{ '$set': { 'createdAt': newDate } });
-		count += 1;
-	});
+    setCreatedAt(pattern);
+  }
 
-	return {
-		publicMyPatternNames,
-		privateMyPatternNames,
-		publicOtherPatternNames,
-		privateOtherPatternNames,
-	};
+  // patterns belonging to some other user
+  for (let i = 0; i < numberOfOtherPublicPatterns; i += 1) {
+    const name = `${i} other public pattern`;
+    publicOtherPatternNames.push(name);
+
+    const pattern = Factory.create('pattern', {
+      name,
+      nameSort: name,
+      createdBy: 'xxx',
+      isPublic: true,
+    });
+
+    setCreatedAt(pattern);
+  }
+
+  for (let i = 0; i < numberOfOtherPrivatePatterns; i += 1) {
+    const name = `${i} other private pattern`;
+    privateOtherPatternNames.push(name);
+
+    const pattern = Factory.create('pattern', {
+      name,
+      nameSort: name,
+      createdBy: 'xxx',
+      isPublic: false,
+    });
+
+    setCreatedAt(pattern);
+  }
+
+  // Patterns.find()
+  //   .fetch()
+  //   .forEach(async (pattern) => {
+  //     const newDate = pattern.createdAt.setSeconds(
+  //       now.getSeconds() + 10 * count,
+  //     );
+  //     await Patterns.updateAsync(
+  //       { _id: pattern._id },
+  //       { $set: { createdAt: newDate } },
+  //     );
+  //     count += 1;
+  //   });
+
+  return {
+    publicMyPatternNames,
+    privateMyPatternNames,
+    publicOtherPatternNames,
+    privateOtherPatternNames,
+  };
 };
 
 export default createManyPatterns;

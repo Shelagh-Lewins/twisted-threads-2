@@ -110,7 +110,7 @@ Meteor.methods({
 
         if (!patternPreview) {
           // create new
-          return PatternPreviews.insert({
+          return await PatternPreviews.insertAsync({
             patternId: _id,
             url: Location, // where the file was actually saved
             key, // relative path to file from bucket address
@@ -120,7 +120,7 @@ Meteor.methods({
         if (noExistingKey) {
           // migrate from old format where image uri is stored in database
           // This should no longer be necessary but is still here just in case there is any pattern without an s3 key
-          return PatternPreviews.update(
+          return PatternPreviews.updateAsync(
             { _id: patternPreview._id },
             { $set: { url: Location, key: Key }, $unset: { uri: '' } },
           );
@@ -133,7 +133,7 @@ Meteor.methods({
         // but should also cover for any future change in AWS urls
         // key is fixed so image location within AWS is consistent
         // note you may need to refresh the page to see the new URL
-        return PatternPreviews.update(
+        return PatternPreviews.updateAsync(
           { _id: patternPreview._id },
           { $set: { url: Location } },
         );
@@ -148,7 +148,7 @@ Meteor.methods({
       throw new Meteor.Error('save-preview-error', err);
     }
   },
-  'patternPreview.remove': function ({ _id }) {
+  'patternPreview.remove': async function ({ _id }) {
     // remove an uploaded pattern preview from AWS and the database
     check(_id, nonEmptyStringCheck);
 
@@ -186,7 +186,7 @@ Meteor.methods({
       );
     }
 
-    PatternPreviews.remove({ _id });
+    await PatternPreviews.removeAsync({ _id });
 
     if (key) {
       const s3 = new AWS.S3({

@@ -249,7 +249,7 @@ Meteor.publish(
     check(limit, positiveIntegerCheck);
     check(skip, positiveIntegerCheck);
 
-    return Patterns.find(
+    const patternsToPublish = Patterns.find(
       {
         $and: [
           getPatternFilter({
@@ -268,6 +268,8 @@ Meteor.publish(
         limit,
       },
     );
+
+    return patternsToPublish;
   },
 );
 
@@ -331,6 +333,7 @@ Meteor.publish(
 
     // this is a hack to differentiate paginated list data from (for example) patterns loaded as part of Set data. Stopping the patternsById subscription does not remove the patterns from Minimongo and I can't work out why, so the client needs a way to filter data for pages.
     myCursor.forEach((pattern) => {
+      // eslint-disable-next-line no-param-reassign
       pattern.pagesData = true;
       self.added('patterns', pattern._id, pattern);
     });
@@ -374,6 +377,7 @@ Meteor.publish('patternPreviews', function ({ patternIds }) {
   });
 
   myCursor.forEach((PatternPreview) => {
+    // eslint-disable-next-line no-param-reassign
     PatternPreview.rootAddress = `https://${process.env.AWS_BUCKET}.s3.amazonaws.com`; // allows us to switch environments for test
     self.added('patternPreviews', PatternPreview._id, PatternPreview);
   });
@@ -419,10 +423,10 @@ Meteor.publish('allUsersPreview', function () {
 
 // Pattern Images that have been uploaded by the pattern's owner
 // Show images for a particular pattern
-Meteor.publish('patternImages', function (patternId) {
+Meteor.publish('patternImages', async function (patternId) {
   check(patternId, nonEmptyStringCheck);
 
-  const pattern = Patterns.findOne(
+  const pattern = await Patterns.findOneAsync(
     { _id: patternId },
     { fields: { createdBy: 1, isPublic: 1 } },
   );
