@@ -41,7 +41,7 @@ Meteor.methods({
       );
     }
 
-    const colorBook = ColorBooks.findOne({ _id });
+    const colorBook = await ColorBooks.findOneAsync({ _id });
 
     if (!colorBook) {
       throw new Meteor.Error(
@@ -64,7 +64,7 @@ Meteor.methods({
 
     return removed;
   },
-  'colorBook.copy': function (_id) {
+  'colorBook.copy': async function (_id) {
     check(_id, nonEmptyStringCheck);
 
     const { error } = checkCanCreateColorBook();
@@ -73,7 +73,7 @@ Meteor.methods({
       throw error;
     }
 
-    const colorBook = ColorBooks.findOne({ _id });
+    const colorBook = await ColorBooks.findOneAsync({ _id });
 
     if (!colorBook) {
       throw new Meteor.Error(
@@ -113,7 +113,7 @@ Meteor.methods({
       );
     }
 
-    const colorBook = ColorBooks.findOne({ _id });
+    const colorBook = await ColorBooks.findOneAsync({ _id });
 
     // to be filled in by data depending on case
     let colorHexValue;

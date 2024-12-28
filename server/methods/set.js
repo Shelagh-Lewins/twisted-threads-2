@@ -33,14 +33,16 @@ Meteor.methods({
       );
     }
 
-    if (Sets.find({ createdBy: Meteor.userId() }).count() >= MAX_SETS) {
+    if (
+      (await Sets.find({ createdBy: Meteor.userId() }).countAsync()) >= MAX_SETS
+    ) {
       throw new Meteor.Error(
         'add-set-too-many-sets',
         `Unable to create set because the user has created the maximum allowed number of sets (${MAX_SETS})`,
       );
     }
 
-    const pattern = Patterns.findOne({ _id: patternId });
+    const pattern = await Patterns.findOneAsync({ _id: patternId });
 
     if (!pattern) {
       throw new Meteor.Error(
@@ -69,7 +71,7 @@ Meteor.methods({
     );
 
     // update the user's count of public sets
-    updatePublicSetsCount(Meteor.userId());
+    await updatePublicSetsCount(Meteor.userId());
 
     return setId;
   },
@@ -89,7 +91,7 @@ Meteor.methods({
     }
 
     // check set exists
-    const set = Sets.findOne({ _id: setId });
+    const set = await Sets.findOneAsync({ _id: setId });
 
     if (!set) {
       throw new Meteor.Error(
@@ -107,7 +109,7 @@ Meteor.methods({
     }
 
     // check pattern is visible to user
-    const pattern = Patterns.findOne({
+    const pattern = await Patterns.findOneAsync({
       $and: [{ _id: patternId }, getPatternPermissionQuery()],
     });
 
@@ -147,7 +149,7 @@ Meteor.methods({
     }
 
     // update the user's count of public sets
-    updatePublicSetsCount(Meteor.userId());
+    await updatePublicSetsCount(Meteor.userId());
   },
   'set.removePattern': async function ({
     // remove a pattern from a set
@@ -165,7 +167,7 @@ Meteor.methods({
     }
 
     // check set exists
-    const set = Sets.findOne({ _id: setId });
+    const set = await Sets.findOneAsync({ _id: setId });
 
     if (!set) {
       throw new Meteor.Error(
@@ -183,7 +185,7 @@ Meteor.methods({
     }
 
     // check pattern is visible to user
-    const pattern = Patterns.findOne({
+    const pattern = await Patterns.findOneAsync({
       $and: [{ _id: patternId }, getPatternPermissionQuery()],
     });
 
@@ -212,7 +214,7 @@ Meteor.methods({
     await Patterns.updateAsync({ _id: patternId }, { $pull: { sets: setId } });
 
     // delete set if now empty
-    const setUpdated = Sets.findOne({ _id: setId });
+    const setUpdated = await Sets.findOneAsync({ _id: setId });
 
     if (setUpdated.patterns.length === 0) {
       await Sets.removeAsync({ _id: setId });
@@ -231,7 +233,7 @@ Meteor.methods({
       );
     }
 
-    const set = Sets.findOne({ _id });
+    const set = await Sets.findOneAsync({ _id });
 
     if (!set) {
       throw new Meteor.Error(
@@ -257,13 +259,13 @@ Meteor.methods({
     await Sets.removeAsync({ _id });
 
     // update the user's count of public sets
-    updatePublicSetsCount(Meteor.userId());
+    await updatePublicSetsCount(Meteor.userId());
   },
   // /////////////////////
   // multi-purpose edit pattern method to avoid having to repeat the same permissions checks
   // at present, this is simpler than pattern.edit because only name and description can be edited
   // so it's always a text field
-  'set.edit': function ({ _id, data }) {
+  'set.edit': async function ({ _id, data }) {
     check(_id, nonEmptyStringCheck);
     check(data, Match.ObjectIncluding({ type: String }));
 
@@ -274,7 +276,7 @@ Meteor.methods({
       );
     }
 
-    const set = Sets.findOne({ _id });
+    const set = await Sets.findOneAsync({ _id });
 
     if (!set) {
       throw new Meteor.Error(

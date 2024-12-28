@@ -98,7 +98,7 @@ Factory.define('set', Sets, defaultSetData);
 
 if (Meteor.isServer) {
   // eslint-disable-next-line func-names
-  describe.only('test publications', function () {
+  describe('test publications', function () {
     this.timeout(15000);
     beforeEach(async () => {
       resetDatabase();
@@ -1093,7 +1093,7 @@ if (Meteor.isServer) {
           { $set: { isPublic: true } },
         );
 
-        ColorBooks.findOne({ _id: this.colorBook._id });
+        await ColorBooks.findOneAsync({ _id: this.colorBook._id });
 
         const collector = new PublicationCollector();
 
@@ -1117,7 +1117,7 @@ if (Meteor.isServer) {
           { $set: { isPublic: true } },
         );
 
-        ColorBooks.findOne({ _id: this.colorBook._id });
+        await ColorBooks.findOneAsync({ _id: this.colorBook._id });
 
         const collector = new PublicationCollector();
 
@@ -1408,7 +1408,7 @@ if (Meteor.isServer) {
         Roles.createRole('verified', { unlessExists: true });
         Roles.addUsersToRoles(userId, ['verified']);
 
-        Meteor.call('pattern.edit', {
+        await Meteor.callAsync('pattern.edit', {
           _id: this.pattern1._id,
           data: {
             type: 'editIsPublic',
@@ -1419,6 +1419,8 @@ if (Meteor.isServer) {
         unwrapUser();
         stubNoUser();
 
+        // wait before rechecking the database
+        await new Promise((resolve) => setTimeout(resolve, 10));
         const collector = new PublicationCollector();
 
         const testPromise = new Promise((resolve) => {

@@ -10,12 +10,12 @@ Meteor.methods({
   'migrations.getPatternIds': function () {
     // tell the client whether to run migrations
     return Patterns.find({}, { fields: { _id: 1 } })
-      .fetch()
-      .map((pattern) => pattern._id);
+      .fetchAsync()
+      .mapAsync((pattern) => pattern._id);
   },
   'migrations.getPatternPreview': function (_id) {
     // tell the client whether to run migrations
-    return Patterns.findOne({ _id }, { fields: { auto_preview: 1 } });
+    return Patterns.findOneAsync({ _id }, { fields: { auto_preview: 1 } });
   },
   'migrations.deleteAutoPreview': function (_id) {
     // tell the client whether to run migrations

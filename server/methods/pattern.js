@@ -1,5 +1,6 @@
 import { check } from 'meteor/check';
 import {
+  asyncForEach,
   checkUserCanCreatePattern,
   getPatternFilter,
   nonEmptyStringCheck,
@@ -314,20 +315,20 @@ Meteor.methods({
     }
 
     // update the user's count of public patterns
-    updatePublicPatternsCountForUser(Meteor.userId());
+    await updatePublicPatternsCountForUser(Meteor.userId());
 
     // add the tags
-    tags.forEach((tagName) => {
-      const existing = Tags.findOne({ name: tagName });
+    await asyncForEach(tags, async (tagName) => {
+      const existing = await Tags.findOneAsync({ name: tagName });
 
       if (existing) {
-        Meteor.call('tags.assignToDocument', {
+        await Meteor.callAsync('tags.assignToDocument', {
           targetId: patternId,
           targetType: 'pattern',
           name: existing.name,
         });
       } else {
-        Meteor.call('tags.add', {
+        await Meteor.callAsync('tags.add', {
           targetId: patternId,
           targetType: 'pattern',
           name: tagName,
@@ -673,7 +674,7 @@ Meteor.methods({
       );
     }
 
-    const pattern = Patterns.findOne({ _id });
+    const pattern = await Patterns.findOneAsync({ _id });
 
     if (!pattern) {
       throw new Meteor.Error(
@@ -690,7 +691,9 @@ Meteor.methods({
     }
 
     // remove the pattern preview
-    const patternPreview = PatternPreviews.findOne({ patternId: _id });
+    const patternPreview = await PatternPreviews.findOneAsync({
+      patternId: _id,
+    });
 
     if (patternPreview) {
       // remove from Amazon S3
@@ -753,7 +756,7 @@ Meteor.methods({
     Meteor.call('tags.removeUnused', pattern.tags);
 
     // update the user's count of public patterns
-    updatePublicPatternsCountForUser(Meteor.userId());
+    await updatePublicPatternsCountForUser(Meteor.userId());
 
     return removed;
   },
@@ -767,7 +770,7 @@ Meteor.methods({
       throw error;
     }
 
-    const pattern = Patterns.findOne({ _id });
+    const pattern = await Patterns.findOneAsync({ _id });
 
     if (!pattern) {
       throw new Meteor.Error(
@@ -837,7 +840,7 @@ Meteor.methods({
 
     return newPatternId;
   },
-  'pattern.getPatternCount': function ({
+  'pattern.getPatternCount': async function ({
     filterIsTwistNeutral,
     filterMaxTablets,
     filterMinTablets,
@@ -865,7 +868,8 @@ Meteor.methods({
 
     // if a user is specified, make sure they exist
     if (userId) {
-      if (!Meteor.users.findOne({ _id: userId })) {
+      const user = await Meteor.users.findOneAsync({ _id: userId });
+      if (!user) {
         throw new Meteor.Error(
           'get-pattern-count-user-not-found',
           'Unable to get pattern count because the specified user did not exist',

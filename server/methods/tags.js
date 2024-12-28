@@ -39,7 +39,7 @@ Meteor.methods({
     }
 
     const collection = getTagTargetCollection(targetType);
-    const document = collection.findOne({ _id: targetId });
+    const document = await collection.findOneAsync({ _id: targetId });
 
     if (!document) {
       throw new Meteor.Error(
@@ -109,7 +109,7 @@ Meteor.methods({
     }
 
     const collection = getTagTargetCollection(targetType);
-    const document = collection.findOne({ _id: targetId });
+    const document = await collection.findOneAsync({ _id: targetId });
 
     if (!document) {
       throw new Meteor.Error(
@@ -126,7 +126,7 @@ Meteor.methods({
     }
 
     // check the tag exists
-    const existing = Tags.findOne({ name });
+    const existing = await Tags.findOneAsync({ name });
     if (!existing) {
       throw new Meteor.Error(
         'assign-tag-not-found',
@@ -144,7 +144,7 @@ Meteor.methods({
 
     await collection.updateAsync({ _id: targetId }, { $push: { tags: name } });
   },
-  'tags.ensureExistsAndAssignToDocument': function ({
+  'tags.ensureExistsAndAssignToDocument': async function ({
     name,
     targetId,
     targetType,
@@ -154,7 +154,7 @@ Meteor.methods({
     check(targetType, nonEmptyStringCheck);
 
     // create the tag if it does not already exist
-    const existing = Tags.findOne({ name });
+    const existing = await Tags.findOneAsync({ name });
 
     if (!existing) {
       Meteor.call('tags.add', {
@@ -165,7 +165,7 @@ Meteor.methods({
     } else {
       // check the tag isn't already assigned to the document
       const collection = getTagTargetCollection(targetType);
-      const document = collection.findOne({ _id: targetId });
+      const document = await collection.findOneAsync({ _id: targetId });
 
       const { tags } = document;
       if (tags.indexOf(name) === -1) {
@@ -191,7 +191,7 @@ Meteor.methods({
     }
 
     const collection = getTagTargetCollection(targetType);
-    const document = collection.findOne({ _id: targetId });
+    const document = await collection.findOneAsync({ _id: targetId });
 
     if (!document) {
       throw new Meteor.Error(
@@ -241,7 +241,6 @@ Meteor.methods({
     };
 
     for (let i = 0; i < namesArray.length; i += 1) {
-      // eslint-disable-next-line no-await-in-loop
       await checkNames(namesArray[i]);
     }
   },

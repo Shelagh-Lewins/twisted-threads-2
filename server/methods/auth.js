@@ -7,6 +7,7 @@ import {
 } from '../../imports/modules/parameters';
 import { Patterns } from '../../imports/modules/collection';
 import {
+  asyncForEach,
   buildServerLogText,
   checkCanCreateColorBook,
   checkUserCanAddPatternImage,
@@ -31,6 +32,7 @@ Meteor.methods({
 
     // log send of verification email so fail2ban can find them in the nginx logs
     const text = buildServerLogText('[action]: Meteor send verification email');
+    // eslint-disable-next-line no-console
     console.log(text);
 
     return Accounts.sendVerificationEmail(userId);
@@ -48,7 +50,7 @@ Meteor.methods({
 
     const recentPatterns = [];
 
-    newRecentPatterns.forEach((entry) => {
+    await asyncForEach(newRecentPatterns, async (entry) => {
       const { currentWeavingRow, patternId, updatedAt } = entry;
 
       check(patternId, String);
@@ -62,7 +64,7 @@ Meteor.methods({
         }),
       );
 
-      const pattern = Patterns.findOne({ _id: patternId });
+      const pattern = await Patterns.findOneAsync({ _id: patternId });
 
       if (!pattern) {
         return;
@@ -163,7 +165,7 @@ Meteor.methods({
 
     await Meteor.users.updateAsync({ _id: Meteor.userId() }, { $set: update });
   },
-  'auth.addUserToRole': function ({ _id, role }) {
+  'auth.addUserToRole': async function ({ _id, role }) {
     // user is logged in
     if (!Meteor.userId()) {
       throw new Meteor.Error(
@@ -180,7 +182,7 @@ Meteor.methods({
     }
 
     // user to add exists
-    const userToAdd = Meteor.users.findOne({ _id });
+    const userToAdd = await Meteor.users.findOneAsync({ _id });
 
     if (!userToAdd) {
       throw new Meteor.Error(
@@ -212,7 +214,7 @@ Meteor.methods({
 
     return 'success';
   },
-  'auth.removeUserFromRole': function ({ _id, role }) {
+  'auth.removeUserFromRole': async function ({ _id, role }) {
     // user is logged in
     if (!Meteor.userId()) {
       throw new Meteor.Error(
@@ -230,7 +232,7 @@ Meteor.methods({
     }
 
     // user to add exists
-    const userToRemove = Meteor.users.findOne({ _id });
+    const userToRemove = await Meteor.users.findOneAsync({ _id });
 
     if (!userToRemove) {
       throw new Meteor.Error(

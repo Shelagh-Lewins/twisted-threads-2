@@ -85,6 +85,17 @@ export const validHexColorCheck = Match.Where((colorValue) => {
   return colorValue !== '' && colorValue.length <= 7; // accept #aaa, #aa00aa
 });
 
+// in Meteor 2, internal server and collection methods were synchronous
+// with the removal of Fibers,these calls are now async
+// but for internal methods we often need to complete tasks sequentially
+// a 'for' loop is the recommended way to loop over an array, not for .. in
+// usage: await asyncForEach(myArray, async (element) => { // do something with element});
+export const asyncForEach = async (myArray, myFunction) => {
+  for (let i = 0; i < myArray.length; i += 1) {
+    await myFunction(myArray[i]);
+  }
+};
+
 // check whether the current logged in user can create a pattern
 // this may be a new pattern, or a copy
 export const checkUserCanCreatePattern = () => {
@@ -235,9 +246,9 @@ export const checkCanCreateColorBook = () => {
 };
 
 export const updatePublicPatternsCountForUser = async (_id) => {
-  const publicPatternsCount = Patterns.find({
+  const publicPatternsCount = await Patterns.find({
     $and: [{ isPublic: { $eq: true } }, { createdBy: _id }],
-  }).count();
+  }).countAsync();
 
   await Meteor.users.updateAsync(
     { _id },
@@ -249,9 +260,9 @@ export const updatePublicPatternsCountForUser = async (_id) => {
 
 export const updatePublicPatternsCountForSet = async (_id) => {
   const set = await Sets.findOneAsync({ _id });
-  const publicPatternsCount = Patterns.find({
+  const publicPatternsCount = await Patterns.find({
     $and: [{ isPublic: { $eq: true } }, { _id: { $in: set.patterns } }],
-  }).count();
+  }).countAsync();
 
   await Sets.updateAsync(
     { _id },
@@ -276,9 +287,9 @@ export const updatePublicColorBooksCount = async (_id) => {
 
 // update the public sets count of a user
 export const updatePublicSetsCount = async (userId) => {
-  const publicSetsCount = Sets.find({
+  const publicSetsCount = await Sets.find({
     $and: [{ publicPatternsCount: { $gt: 0 } }, { createdBy: userId }],
-  }).count();
+  }).countAsync();
 
   await Meteor.users.updateAsync(
     { _id: userId },
@@ -289,12 +300,12 @@ export const updatePublicSetsCount = async (userId) => {
 };
 
 // for an array of set ids, update the public set count of each owner
-export const updateMultiplePublicSetsCount = (setIds) => {
+export const updateMultiplePublicSetsCount = async (setIds) => {
   if (setIds) {
-    setIds.forEach(async (setId) => {
+    await asyncForEach(setIds, async (setId) => {
       const set = await Sets.findOneAsync({ _id: setId });
       if (set) {
-        updatePublicSetsCount(set.createdBy);
+        await updatePublicSetsCount(set.createdBy);
       }
     });
   }

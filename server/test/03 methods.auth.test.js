@@ -1,7 +1,8 @@
 /* eslint-env mocha */
 
 import { resetDatabase } from 'meteor/xolvio:cleaner';
-import { assert, expect } from 'chai';
+import * as chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
 import '../../imports/server/modules/publications';
 import '../methods/auth';
 import {
@@ -17,6 +18,9 @@ import {
   MAX_TEXT_AREA_LENGTH,
 } from '../../imports/modules/parameters';
 
+chai.use(chaiAsPromised);
+const { assert, expect } = chai;
+
 const sinon = require('sinon');
 
 if (Meteor.isServer) {
@@ -25,29 +29,33 @@ if (Meteor.isServer) {
     beforeEach(() => {
       resetDatabase();
     });
+
     describe('sendVerificationEmail method', () => {
-      it('throws an error if the user is not logged in', () => {
-        function expectedError() {
-          Meteor.call('auth.sendVerificationEmail', 'abc');
+      it('throws an error if the user is not logged in', async () => {
+        async function expectedError() {
+          await Meteor.callAsync('auth.sendVerificationEmail', 'abc');
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'send-verification-email-not-logged-in',
         );
       });
+
       it('throws an error if the users email address is verified', async () => {
-        const currentUser = await stubUser();
+        const currentUser = stubUser();
 
         Roles.createRole('verified', { unlessExists: true });
         Roles.addUsersToRoles(currentUser._id, ['verified']);
 
-        function expectedError() {
-          Meteor.call('auth.sendVerificationEmail', currentUser._id);
+        async function expectedError() {
+          await Meteor.call('auth.sendVerificationEmail', currentUser._id);
         }
-        expect(expectedError).to.throw(Meteor.Error(), 'no unverified email');
+
+        await expect(expectedError()).to.be.rejectedWith('no unverified email');
 
         unwrapUser();
       });
+
       it('sends the email if the user is logged in and unverified', async (done) => {
         const currentUser = stubUser();
 
@@ -72,23 +80,26 @@ if (Meteor.isServer) {
       });
     });
     describe('setRecentPatterns method', () => {
-      it('throws an error if the user is not logged in', () => {
-        function expectedError() {
-          Meteor.call('auth.setRecentPatterns', {
+      it('throws an error if the user is not logged in', async () => {
+        async function expectedError() {
+          await Meteor.callAsync('auth.setRecentPatterns', {
             userId: 'xxx',
             newRecentPatterns: [],
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'set-recent-patterns-not-logged-in',
         );
       });
-      it('adds the recent pattern if the user is logged in', (done) => {
+      it('adds the recent pattern if the user is logged in', async () => {
         const currentUser = stubUser();
-        const patternId = Meteor.call('pattern.add', addPatternDataIndividual);
+        const patternId = await Meteor.callAsync(
+          'pattern.add',
+          addPatternDataIndividual,
+        );
 
-        Meteor.call(
+        await Meteor.callAsync(
           'auth.setRecentPatterns',
           {
             userId: currentUser._id,
@@ -100,25 +111,29 @@ if (Meteor.isServer) {
               },
             ],
           },
-          (error) => {
-            const updated = Meteor.users.findOne({ _id: currentUser._id });
+          async (error) => {
+            const updated = await Meteor.users.findOneAsync({
+              _id: currentUser._id,
+            });
             assert.equal(updated.profile.recentPatterns.length, 1);
             assert.equal(
               updated.profile.recentPatterns[0].currentWeavingRow,
               2,
             );
             assert.equal(error, undefined);
-            done();
           },
         );
 
         unwrapUser();
       });
-      it('sets current weaving row to 1 if invalid', (done) => {
+      it('sets current weaving row to 1 if invalid', async () => {
         const currentUser = stubUser();
-        const patternId = Meteor.call('pattern.add', addPatternDataIndividual);
+        const patternId = await Meteor.callAsync(
+          'pattern.add',
+          addPatternDataIndividual,
+        );
 
-        Meteor.call(
+        await Meteor.callAsync(
           'auth.setRecentPatterns',
           {
             userId: currentUser._id,
@@ -130,21 +145,22 @@ if (Meteor.isServer) {
               },
             ],
           },
-          (error) => {
-            const updated = Meteor.users.findOne({ _id: currentUser._id });
+          async (error) => {
+            const updated = await Meteor.users.findOneAsync({
+              _id: currentUser._id,
+            });
             assert.equal(updated.profile.recentPatterns.length, 1);
             assert.equal(
               updated.profile.recentPatterns[0].currentWeavingRow,
               1,
             );
             assert.equal(error, undefined);
-            done();
           },
         );
 
         unwrapUser();
       });
-      it('stores the maximum number of recents', (done) => {
+      it('stores the maximum number of recents', async () => {
         const currentUser = stubUser();
         Roles.createRole('verified', { unlessExists: true });
         Roles.addUsersToRoles(currentUser._id, ['verified']);
@@ -155,7 +171,7 @@ if (Meteor.isServer) {
         const initialDateAsString = now.toString();
 
         for (let i = 0; i < numberOfRecents; i += 1) {
-          const patternId = Meteor.call(
+          const patternId = await Meteor.callAsync(
             'pattern.add',
             addPatternDataIndividual,
           );
@@ -167,14 +183,14 @@ if (Meteor.isServer) {
           });
         }
 
-        Meteor.call(
+        await Meteor.callAsync(
           'auth.setRecentPatterns',
           {
             userId: currentUser._id,
             newRecentPatterns,
           },
           (error) => {
-            const updated = Meteor.users.findOne({ _id: currentUser._id });
+            const updated = Meteor.users.findOneAsync({ _id: currentUser._id });
             assert.equal(updated.profile.recentPatterns.length, MAX_RECENTS);
 
             // the most recent date is the first entry
@@ -183,7 +199,6 @@ if (Meteor.isServer) {
               initialDateAsString,
             );
             assert.equal(error, undefined);
-            done();
           },
         );
 
@@ -195,15 +210,16 @@ if (Meteor.isServer) {
       // There is a bug reported but closed:
       // https://github.com/meteor/meteor/issues/7395
       // I've tested this manually and it worked
-      it('creates an account with the expected values', () => {
+      it('creates an account with the expected values', async () => {
         const userId = Accounts.createUser({
           email: 'me@there.com',
           username: 'NewUser',
           password: '12345678',
         });
 
-        const { emails, username } = Meteor.users.findOne({ _id: userId });
-        // const { emails, nameSort, username } = Meteor.users.findOne({ '_id': userId });
+        const { emails, username } = await Meteor.users.findOneAsync({
+          _id: userId,
+        });
 
         assert.equal(emails[0].address, 'me@there.com');
         assert.equal(username, 'NewUser');
@@ -219,11 +235,11 @@ if (Meteor.isServer) {
 
         assert.equal(result, publicPatternUsernames.length);
       });
-      it('returns the number of users with public patterns plus one for the user if the user is logged in', () => {
+      it('returns the number of users with public patterns plus one for the user if the user is logged in', async () => {
         const { privatePatternUserIds, publicPatternUsernames } =
           createManyUsers();
 
-        const currentUser = Meteor.users.findOne({
+        const currentUser = await Meteor.users.findOneAsync({
           _id: privatePatternUserIds[0],
         });
         sinon.stub(Meteor, 'userAsync');
@@ -281,11 +297,11 @@ if (Meteor.isServer) {
           assert.notEqual(expectedUsernames.indexOf(username), -1);
         });
       });
-      it('returns the users for the first page, user is logged in', () => {
+      it('returns the users for the first page, user is logged in', async () => {
         const { privatePatternUserIds, publicPatternUsernames } =
           createManyUsers();
 
-        const currentUser = Meteor.users.findOne({
+        const currentUser = await Meteor.users.findOneAsync({
           _id: privatePatternUserIds[0],
         });
         sinon.stub(Meteor, 'userAsync');
@@ -313,11 +329,11 @@ if (Meteor.isServer) {
         });
         unwrapUser();
       });
-      it('returns the users for the second page, user is logged in', () => {
+      it('returns the users for the second page, user is logged in', async () => {
         const { privatePatternUserIds, publicPatternUsernames } =
           createManyUsers();
 
-        const currentUser = Meteor.users.findOne({
+        const currentUser = await Meteor.users.findOneAsync({
           _id: privatePatternUserIds[0],
         });
         sinon.stub(Meteor, 'userAsync');
@@ -350,70 +366,76 @@ if (Meteor.isServer) {
     });
     describe('edit text field', () => {
       // the only  editable field for user is description
-      it('cannot edit description if they are not logged in', () => {
-        function expectedError() {
-          Meteor.call('auth.editTextField', {
+      it('cannot edit description if they are not logged in', async () => {
+        async function expectedError() {
+          await Meteor.callAsync('auth.editTextField', {
             _id: 'xxx',
             fieldName: 'description',
             fieldValue: 'someText',
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'edit-text-field-not-logged-in',
         );
       });
-      it('cannot edit description of a different user', () => {
-        function expectedError() {
+
+      it('cannot edit description of a different user', async () => {
+        async function expectedError() {
           const currentUser = stubUser();
           stubOtherUser();
 
-          Meteor.call('auth.editTextField', {
+          await Meteor.callAsync('auth.editTextField', {
             _id: currentUser._id,
             fieldName: 'description',
             fieldValue: 'someText',
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'edit-text-field-not-logged-in',
         );
+
         unwrapUser();
       });
-      it('cannot edit a different field if they are logged in', () => {
+      it('cannot edit a different field if they are logged in', async () => {
         const currentUser = stubUser();
 
-        function expectedError() {
-          Meteor.call('auth.editTextField', {
+        async function expectedError() {
+          await Meteor.callAsync('auth.editTextField', {
             _id: currentUser._id,
             fieldName: 'thingy',
             fieldValue: 'someText',
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'edit-text-field-not-allowed',
         );
+
         unwrapUser();
       });
-      it('can edit description if they are logged in', () => {
+      it('can edit description if they are logged in', async () => {
         const currentUser = stubUser();
         assert.equal(currentUser.description, undefined);
         const newDescription = 'Some text';
 
-        Meteor.call('auth.editTextField', {
+        await Meteor.callAsync('auth.editTextField', {
           _id: currentUser._id,
           fieldName: 'description',
           fieldValue: newDescription,
         });
 
-        const updated = Meteor.users.findOne({ _id: currentUser._id });
+        const updated = await Meteor.users.findOneAsync({
+          _id: currentUser._id,
+        });
 
         assert.equal(updated.description, newDescription);
 
         unwrapUser();
       });
-      it('cannot set a value that is too long', () => {
+
+      it('cannot set a value that is too long', async () => {
         const currentUser = stubUser();
         assert.equal(currentUser.description, undefined);
         let newDescription = '';
@@ -422,27 +444,29 @@ if (Meteor.isServer) {
           newDescription += 'a';
         }
 
-        Meteor.call('auth.editTextField', {
+        await Meteor.callAsync('auth.editTextField', {
           _id: currentUser._id,
           fieldName: 'description',
           fieldValue: newDescription,
         });
 
-        const updated = Meteor.users.findOne({ _id: currentUser._id });
+        const updated = await Meteor.users.findOneAsync({
+          _id: currentUser._id,
+        });
 
         assert.equal(updated.description, newDescription);
 
         newDescription += 'longer';
 
-        function expectedError() {
-          Meteor.call('auth.editTextField', {
+        async function expectedError() {
+          await Meteor.callAsync('auth.editTextField', {
             _id: currentUser._id,
             fieldName: 'description',
             fieldValue: newDescription,
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'edit-text-field-too-long',
         );
 
@@ -450,58 +474,62 @@ if (Meteor.isServer) {
       });
     });
     describe('add user to role', () => {
-      it('cannot add a user to a role if the user is not logged in', () => {
+      it('cannot add a user to a role if the user is not logged in', async () => {
         const targetUser = stubUser(); // the user whose role is to be changed
         logOutButLeaveUser();
 
-        function expectedError() {
-          Meteor.call('auth.addUserToRole', {
+        async function expectedError() {
+          await Meteor.callAsync('auth.addUserToRole', {
             _id: targetUser._id,
             role: 'premium',
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'add-user-to-role-not-logged-in',
         );
+
         unwrapUser();
       });
-      it('cannot add a user to a role if the user is not an administrator', () => {
+      it('cannot add a user to a role if the user is not an administrator', async () => {
         const targetUser = stubUser(); // the user whose role is to be changed
         stubOtherUser(); // the administrator
 
-        function expectedError() {
-          Meteor.call('auth.addUserToRole', {
+        async function expectedError() {
+          await Meteor.callAsync('auth.addUserToRole', {
             _id: targetUser._id,
             role: 'premium',
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'add-user-to-role-not-administrator',
         );
+
         unwrapUser();
       });
-      it('cannot add a user to a role if the user does not exist', () => {
+      it('cannot add a user to a role if the user does not exist', async () => {
         stubUser(); // only so stubOtherUser has something to unwrap
         const currentUser = stubOtherUser(); // the administrator
 
         Roles.createRole('administrator', { unlessExists: true });
         Roles.addUsersToRoles(currentUser._id, ['administrator']);
 
-        function expectedError() {
-          Meteor.call('auth.addUserToRole', {
+        async function expectedError() {
+          await Meteor.callAsync('auth.addUserToRole', {
             _id: 'abc',
             role: 'premium',
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'add-user-to-role-user-not-found',
         );
+
         unwrapUser();
       });
-      it('cannot add a user to a role if the role does not exist', () => {
+
+      it('cannot add a user to a role if the role does not exist', async () => {
         const targetUser = stubUser(); // the user whose role is to be changed
 
         const currentUser = stubOtherUser(); // the administrator
@@ -509,19 +537,21 @@ if (Meteor.isServer) {
         Roles.createRole('administrator', { unlessExists: true });
         Roles.addUsersToRoles(currentUser._id, ['administrator']);
 
-        function expectedError() {
-          Meteor.call('auth.addUserToRole', {
+        async function expectedError() {
+          await Meteor.callAsync('auth.addUserToRole', {
             _id: targetUser._id,
             role: 'aardvark',
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'add-user-to-role-role-not-found',
         );
+
         unwrapUser();
       });
-      it('cannot add a user to a role if the user is already in the role', () => {
+
+      it('cannot add a user to a role if the user is already in the role', async () => {
         const targetUser = stubUser(); // the user whose role is to be changed
 
         const currentUser = stubOtherUser(); // the administrator
@@ -532,16 +562,17 @@ if (Meteor.isServer) {
         Roles.createRole('premium', { unlessExists: true });
         Roles.addUsersToRoles(targetUser._id, ['premium']);
 
-        function expectedError() {
-          Meteor.call('auth.addUserToRole', {
+        async function expectedError() {
+          await Meteor.call('auth.addUserToRole', {
             _id: targetUser._id,
             role: 'premium',
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'add-user-to-role-already-in-role',
         );
+
         unwrapUser();
       });
       it('cannot add a user to a role if the user is already in the role', () => {

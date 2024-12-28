@@ -18,7 +18,7 @@ Meteor.methods({
     check(uri, String);
     this.unblock();
 
-    const pattern = Patterns.findOne({ _id });
+    const pattern = await Patterns.findOneAsync({ _id });
 
     if (!Meteor.userId()) {
       throw new Meteor.Error(
@@ -75,7 +75,9 @@ Meteor.methods({
     }
 
     try {
-      const patternPreview = PatternPreviews.findOne({ patternId: _id });
+      const patternPreview = await PatternPreviews.findOneAsync({
+        patternId: _id,
+      });
 
       // check if the patternPreview has already been saved to AWS
       // if so we are updating and do not create a new key
@@ -159,7 +161,7 @@ Meteor.methods({
       );
     }
 
-    const patternPreview = PatternPreviews.findOne({ _id });
+    const patternPreview = await PatternPreviews.findOneAsync({ _id });
 
     if (!patternPreview) {
       throw new Meteor.Error(
@@ -170,7 +172,9 @@ Meteor.methods({
 
     const { key } = patternPreview;
 
-    const pattern = Patterns.findOne({ _id: patternPreview.patternId });
+    const pattern = await Patterns.findOneAsync({
+      _id: patternPreview.patternId,
+    });
 
     if (!pattern) {
       throw new Meteor.Error(

@@ -18,23 +18,26 @@ if (Meteor.isServer) {
   describe('test edit method for patterns', function testEditMethod() {
     // eslint-disable-line func-names
     this.timeout(15000);
-    beforeEach(() => {
+    beforeEach(async () => {
       resetDatabase();
       stubUser();
-      this.patternId = Meteor.call('pattern.add', addPatternDataIndividual);
+      this.patternId = await Meteor.callAsync(
+        'pattern.add',
+        addPatternDataIndividual,
+      );
     });
     afterEach(() => {
       unwrapUser();
     });
     describe('pattern.edit method', () => {
-      it('cannot edit pattern if not logged in', () => {
+      it('cannot edit pattern if not logged in', async () => {
         // make sure publications know there is no user
         unwrapUser();
         stubNoUser();
         const { patternId } = this; // seems to be a scoping issue otherwise
 
-        function expectedError() {
-          Meteor.call('pattern.edit', {
+        async function expectedError() {
+          await Meteor.callAsync('pattern.edit', {
             _id: patternId,
             data: {
               type: 'editThreadingCell',
@@ -44,8 +47,8 @@ if (Meteor.isServer) {
             },
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'edit-pattern-not-logged-in',
         );
       });
@@ -123,7 +126,7 @@ if (Meteor.isServer) {
           'edit-pattern-unknown-type',
         );
       });
-      it('can edit pattern if all good', () => {
+      it('can edit pattern if all good', async () => {
         const { patternId } = this;
 
         Meteor.call('pattern.edit', {
@@ -136,7 +139,7 @@ if (Meteor.isServer) {
           },
         });
 
-        const updated = Patterns.findOne({ _id: patternId });
+        const updated = await Patterns.findOneAsync({ _id: patternId });
 
         assert.equal(updated.threading[0][0], 3);
       });

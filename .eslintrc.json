@@ -18,6 +18,7 @@
   "rules": {
     "array-callback-return": ["off"],
     "implicit-arrow-linebreak": ["off"],
+    "no-await-in-loop": ["off"],
     "no-confusing-arrow": ["off"],
     "no-underscore-dangle": ["off"],
     "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],

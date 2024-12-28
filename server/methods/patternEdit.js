@@ -54,7 +54,7 @@ Meteor.methods({
       );
     }
 
-    const pattern = Patterns.findOne({ _id });
+    const pattern = await Patterns.findOneAsync({ _id });
 
     if (!pattern) {
       throw new Meteor.Error(
@@ -137,10 +137,10 @@ Meteor.methods({
         });
 
         // update the user's count of public patterns
-        updatePublicPatternsCountForUser(Meteor.userId());
+        await updatePublicPatternsCountForUser(Meteor.userId());
 
         // for each set to which the pattern belongs, update the owner's count of public sets
-        updateMultiplePublicSetsCount(pattern.sets);
+        await updateMultiplePublicSetsCount(pattern.sets);
 
         return;
 
@@ -614,7 +614,6 @@ Meteor.methods({
             for (let i = 0; i < removeNRows; i += 1) {
               rowIndex = i + removeRowsAt;
 
-              // eslint-disable-next-line no-await-in-loop
               await Patterns.updateAsync(
                 { _id },
                 {
@@ -645,7 +644,6 @@ Meteor.methods({
             for (let i = 0; i < removeNRows; i += 1) {
               rowIndex = i + start;
 
-              // eslint-disable-next-line no-await-in-loop
               await Patterns.updateAsync(
                 { _id },
                 {
@@ -684,7 +682,6 @@ Meteor.methods({
             for (let i = 0; i < removeNRows / 2; i += 1) {
               rowIndex = i + removeRowsAt / 2;
 
-              // eslint-disable-next-line no-await-in-loop
               await Patterns.updateAsync(
                 { _id },
                 {
@@ -720,7 +717,6 @@ Meteor.methods({
             for (let i = 0; i < removeNRows / 2; i += 1) {
               rowIndex = i + removeRowsAt / 2;
 
-              // eslint-disable-next-line no-await-in-loop
               await Patterns.updateAsync(
                 { _id },
                 {
@@ -747,7 +743,6 @@ Meteor.methods({
                   i
                 ] === 'X'
               ) {
-                // eslint-disable-next-line no-await-in-loop
                 await Patterns.updateAsync(
                   { _id },
                   {
@@ -762,7 +757,6 @@ Meteor.methods({
               if (
                 pattern.patternDesign.twillPatternChart[newFirstRow][i] === 'X'
               ) {
-                // eslint-disable-next-line no-await-in-loop
                 await Patterns.updateAsync(
                   { _id },
                   {
@@ -786,7 +780,6 @@ Meteor.methods({
             for (let i = 0; i < removeNRows; i += 1) {
               rowIndex = i + removeRowsAt;
 
-              // eslint-disable-next-line no-await-in-loop
               await Patterns.updateAsync(
                 { _id },
                 {

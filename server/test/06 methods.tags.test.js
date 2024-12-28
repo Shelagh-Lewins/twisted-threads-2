@@ -18,54 +18,62 @@ if (Meteor.isServer) {
   describe('test methods for tags', function testTagMethods() {
     // eslint-disable-line func-names
     this.timeout(15000);
+
     beforeEach(() => {
       resetDatabase();
       stubUser();
       this.patternId = Meteor.call('pattern.add', addPatternDataIndividual);
     });
+
     afterEach(() => {
       unwrapUser();
     });
+
     describe('tags.add method', () => {
       // create a tag and assign it to a pattern
-      it('cannot add tag to pattern if not logged in', () => {
+      it('cannot add tag to pattern if not logged in', async () => {
         // make sure publications know there is no user
         unwrapUser();
         stubNoUser();
         const { patternId } = this; // seems to be a scoping issue otherwise
 
-        function expectedError() {
-          Meteor.call('tags.add', {
+        async function expectedError() {
+          await Meteor.callAsync('tags.add', {
             targetId: patternId,
             targetType: 'pattern',
             name: 'easy',
           });
         }
-        expect(expectedError).to.throw(Meteor.Error(), 'add-tag-not-logged-in');
+
+        await expect(expectedError()).to.be.rejectedWith(
+          'add-tag-not-logged-in',
+        );
       });
-      it('cannot add tag to pattern if pattern not found', () => {
-        function expectedError() {
-          Meteor.call('tags.add', {
+
+      it('cannot add tag to pattern if pattern not found', async () => {
+        async function expectedError() {
+          await Meteor.callAsync('tags.add', {
             targetId: 'abc',
             targetType: 'pattern',
             name: 'easy',
           });
         }
-        expect(expectedError).to.throw(Meteor.Error(), 'add-tag-not-found');
+
+        await expect(expectedError()).to.be.rejectedWith('add-tag-not-found');
       });
-      it('cannot add tag to pattern if pattern created by another user', () => {
+      it('cannot add tag to pattern if pattern created by another user', async () => {
         stubOtherUser();
         const { patternId } = this; // seems to be a scoping issue otherwise
 
-        function expectedError() {
-          Meteor.call('tags.add', {
+        async function expectedError() {
+          await Meteor.call('tags.add', {
             targetId: patternId,
             targetType: 'pattern',
             name: 'easy',
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'add-tag-not-created-by-user',
         );
       });
@@ -121,49 +129,52 @@ if (Meteor.isServer) {
         }
         expect(expectedError).to.throw(Meteor.Error(), 'add-tag-too-long');
       });
-      it('can add tag to pattern', () => {
+
+      it('can add tag to pattern', async () => {
         const { patternId } = this; // seems to be a scoping issue otherwise
 
         const tagText = 'easy';
 
-        Meteor.call('tags.add', {
+        await Meteor.callAsync('tags.add', {
           targetId: patternId,
           targetType: 'pattern',
           name: tagText,
         });
 
-        const newTag = Tags.findOne({ name: tagText });
+        const newTag = await Tags.findOneAsync({ name: tagText });
 
         // the tag has been created
         assert.equal(newTag.name, tagText);
 
         // the tag has been assigned to the pattern
-        const updatedPattern = Patterns.findOne({ _id: patternId });
+        const updatedPattern = await Patterns.findOneAsync({ _id: patternId });
         assert.notEqual(updatedPattern.tags.indexOf(tagText), -1);
       });
-      it('converts the tag text to lowercase', () => {
+
+      it('converts the tag text to lowercase', async () => {
         const { patternId } = this; // seems to be a scoping issue otherwise
 
         const tagText = 'EaSy';
         const processedTagText = tagText.toLowerCase();
 
-        Meteor.call('tags.add', {
+        await Meteor.callAsync('tags.add', {
           targetId: patternId,
           targetType: 'pattern',
           name: tagText,
         });
 
-        const newTag = Tags.findOne({ name: processedTagText });
+        const newTag = await Tags.findOneAsync({ name: processedTagText });
 
         // the tag has been created
         assert.equal(newTag.name, processedTagText);
 
         // the tag has been assigned to the pattern
-        const updatedPattern = Patterns.findOne({ _id: patternId });
+        const updatedPattern = await Patterns.findOneAsync({ _id: patternId });
 
         assert.notEqual(updatedPattern.tags.indexOf(processedTagText), -1);
       });
     });
+
     describe('tags.assignToDocument method', () => {
       // assign an existing tag to a pattern
       it('cannot assign tag to pattern if not logged in', async () => {
@@ -187,6 +198,7 @@ if (Meteor.isServer) {
           'assign-tag-not-logged-in',
         );
       });
+
       it('cannot assign tag to pattern if pattern not found', async () => {
         const tagText = 'easy';
         await Tags.insertAsync({ name: tagText });
@@ -200,6 +212,7 @@ if (Meteor.isServer) {
         }
         expect(expectedError).to.throw(Meteor.Error(), 'assign-tag-not-found');
       });
+
       it('cannot assign tag to pattern if pattern created by another user', async () => {
         stubOtherUser();
 
@@ -261,19 +274,19 @@ if (Meteor.isServer) {
         const tagText = 'easy';
         await Tags.insertAsync({ name: tagText });
 
-        Meteor.call('tags.assignToDocument', {
+        await Meteor.callAsync('tags.assignToDocument', {
           targetId: patternId,
           targetType: 'pattern',
           name: tagText,
         });
 
-        const tag = Tags.findOne({ name: tagText });
+        const tag = await Tags.findOneAsync({ name: tagText });
 
         // the tag exists
         assert.equal(tag.name, tagText);
 
         // the tag has been assigned to the pattern
-        const updatedPattern = Patterns.findOne({ _id: patternId });
+        const updatedPattern = await Patterns.findOneAsync({ _id: patternId });
         assert.notEqual(updatedPattern.tags.indexOf(tagText), -1);
       });
     });
@@ -286,37 +299,37 @@ if (Meteor.isServer) {
         const tagText = 'easy';
         await Tags.insertAsync({ name: tagText });
 
-        Meteor.call('tags.ensureExistsAndAssignToDocument', {
+        await Meteor.call('tags.ensureExistsAndAssignToDocument', {
           targetId: patternId,
           targetType: 'pattern',
           name: tagText,
         });
 
         // the tag exists
-        const tag = Tags.findOne({ name: tagText });
+        const tag = await Tags.findOneAsync({ name: tagText });
         assert.equal(tag.name, tagText);
 
         // the tag has been assigned to the pattern
-        const updatedPattern = Patterns.findOne({ _id: patternId });
+        const updatedPattern = await Patterns.findOneAsync({ _id: patternId });
         assert.notEqual(updatedPattern.tags.indexOf(tagText), -1);
       });
-      it('can ensureExistsAndAssignToDocument with new tag', () => {
+      it('can ensureExistsAndAssignToDocument with new tag', async () => {
         const { patternId } = this; // seems to be a scoping issue otherwise
 
         const tagText = 'easy';
 
-        Meteor.call('tags.ensureExistsAndAssignToDocument', {
+        await Meteor.callAsync('tags.ensureExistsAndAssignToDocument', {
           targetId: patternId,
           targetType: 'pattern',
           name: tagText,
         });
 
         // the tag exists
-        const tag = Tags.findOne({ name: tagText });
+        const tag = await Tags.findOneAsync({ name: tagText });
         assert.equal(tag.name, tagText);
 
         // the tag has been assigned to the pattern
-        const updatedPattern = Patterns.findOne({ _id: patternId });
+        const updatedPattern = await Patterns.findOneAsync({ _id: patternId });
         assert.notEqual(updatedPattern.tags.indexOf(tagText), -1);
       });
     });
@@ -423,14 +436,14 @@ if (Meteor.isServer) {
 
         // the tag has been removed from the pattern
         // effectively testing tags.removeUnused
-        const updatedPattern = Patterns.findOne({ _id: patternId });
+        const updatedPattern = await Patterns.findOneAsync({ _id: patternId });
         const { tags } = updatedPattern;
         const index = tags.indexOf(tagText);
 
         assert.equal(index, -1);
 
         // the tag no longer exists
-        const tag = Tags.findOne({ name: tagText });
+        const tag = await Tags.findOneAsync({ name: tagText });
         assert.equal(tag, undefined);
       });
     });

@@ -31,7 +31,9 @@ Meteor.methods({
 
     let imageId;
 
-    if (!PatternImages.findOne({ key })) {
+    const currentImage = await PatternImages.findOneAsync({ key });
+
+    if (!currentImage) {
       // add the new object to the PatternImages collection
       imageId = await PatternImages.insertAsync({
         url: downloadUrl,
@@ -45,7 +47,10 @@ Meteor.methods({
     } else {
       // uploading a new version of an existing file, just update "created_at"
       // this is just here in case we add an "update existing picture" function. The generated keys ought to be unique otherwise.
-      imageId = PatternImages.findOne({ key }, { fields: { _id: 1 } });
+      imageId = await PatternImages.findOneAsync(
+        { key },
+        { fields: { _id: 1 } },
+      );
       await PatternImages.updateAsync(
         { _id: imageId },
         {
@@ -90,7 +95,7 @@ Meteor.methods({
       );
     }
 
-    const patternImage = PatternImages.findOne({ _id });
+    const patternImage = await PatternImages.findOneAsync({ _id });
 
     if (!patternImage) {
       throw new Meteor.Error(
@@ -99,7 +104,9 @@ Meteor.methods({
       );
     }
 
-    const pattern = Patterns.findOne({ _id: patternImage.patternId });
+    const pattern = await Patterns.findOneAsync({
+      _id: patternImage.patternId,
+    });
 
     if (!pattern) {
       throw new Meteor.Error(
@@ -153,7 +160,7 @@ Meteor.methods({
       );
     }
 
-    const patternImage = PatternImages.findOne({ _id });
+    const patternImage = await PatternImages.findOneAsync({ _id });
 
     if (!patternImage) {
       throw new Meteor.Error(
@@ -162,7 +169,9 @@ Meteor.methods({
       );
     }
 
-    const pattern = Patterns.findOne({ _id: patternImage.patternId });
+    const pattern = await Patterns.findOneAsync({
+      _id: patternImage.patternId,
+    });
 
     if (!pattern) {
       throw new Meteor.Error(

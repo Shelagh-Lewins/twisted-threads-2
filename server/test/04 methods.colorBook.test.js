@@ -264,7 +264,8 @@ if (Meteor.isServer) {
 
         unwrapUser();
       });
-      it('can edit color book color if user created the color book', () => {
+
+      it('can edit color book color if user created the color book', async () => {
         const currentUser = stubUser();
         const colorBook = Factory.create('colorBook', {
           name: 'Color Book 1',
@@ -273,7 +274,7 @@ if (Meteor.isServer) {
 
         assert.equal(ColorBooks.find().fetch().length, 1);
 
-        Meteor.call('colorBook.edit', {
+        await Meteor.callAsync('colorBook.edit', {
           _id: colorBook._id,
           data: {
             colorHexValue: '#333333',
@@ -282,13 +283,16 @@ if (Meteor.isServer) {
           },
         });
 
-        const colorBookUpdated = ColorBooks.findOne({ _id: colorBook._id });
+        const colorBookUpdated = await ColorBooks.findOneAsync({
+          _id: colorBook._id,
+        });
 
         assert.equal(colorBookUpdated.colors[1], '#333333');
 
         unwrapUser();
       });
-      it('can edit color book name if user created the color book', () => {
+
+      it('can edit color book name if user created the color book', async () => {
         const currentUser = stubUser();
         const colorBook = Factory.create('colorBook', {
           name: 'Color Book 1',
@@ -297,7 +301,7 @@ if (Meteor.isServer) {
 
         const newName = 'The new name';
 
-        Meteor.call('colorBook.edit', {
+        await Meteor.callAsync('colorBook.edit', {
           _id: colorBook._id,
           data: {
             name: newName,
@@ -306,25 +310,27 @@ if (Meteor.isServer) {
           },
         });
 
-        const colorBookUpdated = ColorBooks.findOne({ _id: colorBook._id });
+        const colorBookUpdated = await ColorBooks.findOneAsync({
+          _id: colorBook._id,
+        });
 
         assert.equal(colorBookUpdated.name, newName);
 
         unwrapUser();
       });
-      it('can edit color book isPublic if user created the color book', () => {
+      it('can edit color book isPublic if user created the color book', async () => {
         const currentUser = stubUser();
         const colorBook = Factory.create('colorBook', {
           name: 'Color Book 1',
           createdBy: currentUser._id,
         });
 
-        assert.equal(
-          ColorBooks.findOne({ _id: colorBook._id }).isPublic,
-          false,
-        );
+        const colorBookInitial = await ColorBooks.findOneAsync({
+          _id: colorBook._id,
+        });
+        assert.equal(colorBookInitial.isPublic, false);
 
-        Meteor.call('colorBook.edit', {
+        await Meteor.callAsync('colorBook.edit', {
           _id: colorBook._id,
           data: {
             isPublic: true,
@@ -332,7 +338,9 @@ if (Meteor.isServer) {
           },
         });
 
-        const colorBookUpdated = ColorBooks.findOne({ _id: colorBook._id });
+        const colorBookUpdated = await ColorBooks.findOneAsync({
+          _id: colorBook._id,
+        });
 
         assert.equal(colorBookUpdated.isPublic, true);
 
