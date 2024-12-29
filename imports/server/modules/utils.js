@@ -98,7 +98,7 @@ export const asyncForEach = async (myArray, myFunction) => {
 
 // check whether the current logged in user can create a pattern
 // this may be a new pattern, or a copy
-export const checkUserCanCreatePattern = () => {
+export const checkUserCanCreatePattern = async () => {
   let error;
 
   // user must be logged in
@@ -115,9 +115,9 @@ export const checkUserCanCreatePattern = () => {
     );
   } else {
     // user must not have reached the limit on number of patterns
-    const numberOfPatterns = Patterns.find({
+    const numberOfPatterns = await Patterns.find({
       createdBy: Meteor.userId(),
-    }).count();
+    }).countAsync();
 
     const limits = [];
     Roles.getRolesForUser(Meteor.userId()).forEach((role) => {
@@ -173,7 +173,9 @@ export const checkUserCanAddPatternImage = async (patternId) => {
       );
     } else {
       // user must not have reached the limit on number of images for this pattern
-      const numberOfImages = PatternImages.find({ patternId }).count();
+      const numberOfImages = await PatternImages.find({
+        patternId,
+      }).countAsync();
 
       const limits = [];
       Roles.getRolesForUser(Meteor.userId()).forEach((role) => {
@@ -201,7 +203,7 @@ export const checkUserCanAddPatternImage = async (patternId) => {
 
 // check whether the current logged in user can create a color book
 // this may be a new color book, or a copy
-export const checkCanCreateColorBook = () => {
+export const checkCanCreateColorBook = async () => {
   // user must be logged in
   let error;
 
@@ -218,9 +220,9 @@ export const checkCanCreateColorBook = () => {
     );
   } else {
     // user must not have reached the limit on number of color books
-    const numberOfColorBooks = ColorBooks.find({
+    const numberOfColorBooks = await ColorBooks.find({
       createdBy: Meteor.userId(),
-    }).count();
+    }).countAsync();
 
     const limits = [];
     Roles.getRolesForUser(Meteor.userId()).forEach((role) => {
@@ -275,7 +277,7 @@ export const updatePublicPatternsCountForSet = async (_id) => {
 export const updatePublicColorBooksCount = async (_id) => {
   const publicColorBooksCount = ColorBooks.find({
     $and: [{ isPublic: { $eq: true } }, { createdBy: _id }],
-  }).count();
+  }).countAsync();
 
   await Meteor.users.updateAsync(
     { _id },
@@ -438,14 +440,14 @@ export const setupTwillThreading = ({
 // suitable for parsing by a fail2ban filter
 // may be an error like login failure
 // or an action we need to monitor like registering a new user
-export const buildServerLogText = (text) => {
+export const buildServerLogText = async (text) => {
   if (Meteor.isTest) {
     return `${moment(new Date()).format(
       'YYYY/MM/DD HH:mm:ss',
     )} ${text}, client: local.testing, host: "local.testing"`;
   }
 
-  const connection = Meteor.call('auth.getClientConnection');
+  const connection = await Meteor.callAsync('auth.getClientConnection');
 
   return `${moment(new Date()).format(
     'YYYY/MM/DD HH:mm:ss',

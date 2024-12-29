@@ -2,6 +2,7 @@
 
 import { check } from 'meteor/check';
 import {
+  asyncForEach,
   nonEmptyStringCheck,
   positiveIntegerCheck,
   updateMultiplePublicSetsCount,
@@ -130,10 +131,13 @@ Meteor.methods({
         await Patterns.updateAsync({ _id }, { $set: { isPublic } });
 
         // find all sets that contain this pattern
-        const sets = Sets.find({ _id: { $in: pattern.sets } }).fetch();
-        sets.forEach((set) => {
+        const sets = await Sets.find({
+          _id: { $in: pattern.sets },
+        }).fetchAsync();
+
+        await asyncForEach(sets, async (set) => {
           // update the set's count of public pattern
-          updatePublicPatternsCountForSet(set._id);
+          await updatePublicPatternsCountForSet(set._id);
         });
 
         // update the user's count of public patterns
@@ -816,7 +820,7 @@ Meteor.methods({
         check(colorIndex, validPaletteIndexCheck);
 
         // update the value in the nested arrays
-        holesToSet.forEach(async (holeIndex) => {
+        await asyncForEach(holesToSet, async (holeIndex) => {
           await Patterns.updateAsync(
             { _id },
             { $set: { [`threading.${holeIndex}.${tablet}`]: colorIndex } },

@@ -61,6 +61,7 @@ if (Meteor.isServer) {
 
         await expect(expectedError()).to.be.rejectedWith('add-tag-not-found');
       });
+
       it('cannot add tag to pattern if pattern created by another user', async () => {
         stubOtherUser();
         const { patternId } = this; // seems to be a scoping issue otherwise
@@ -77,23 +78,25 @@ if (Meteor.isServer) {
           'add-tag-not-created-by-user',
         );
       });
+
       it('cannot add tag to pattern if the tag already exists', async () => {
         const { patternId } = this; // seems to be a scoping issue otherwise
         await Tags.insertAsync({ name: 'easy' });
 
-        function expectedError() {
-          Meteor.call('tags.add', {
+        async function expectedError() {
+          await Meteor.callAsync('tags.add', {
             targetId: patternId,
             targetType: 'pattern',
             name: 'easy',
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'add-tag-already-exists',
         );
       });
-      it('cannot add tag to pattern if the tag name is too short', () => {
+
+      it('cannot add tag to pattern if the tag name is too short', async () => {
         const { patternId } = this; // seems to be a scoping issue otherwise
 
         let tagText = '';
@@ -102,16 +105,18 @@ if (Meteor.isServer) {
           tagText += 'a';
         }
 
-        function expectedError() {
-          Meteor.call('tags.add', {
+        async function expectedError() {
+          await Meteor.callAsync('tags.add', {
             targetId: patternId,
             targetType: 'pattern',
             name: tagText,
           });
         }
-        expect(expectedError).to.throw(Meteor.Error(), 'add-tag-too-short');
+
+        await expect(expectedError()).to.be.rejectedWith('add-tag-too-short');
       });
-      it('cannot add tag to pattern if the tag name is too long', () => {
+
+      it('cannot add tag to pattern if the tag name is too long', async () => {
         const { patternId } = this; // seems to be a scoping issue otherwise
 
         let tagText = '';
@@ -120,14 +125,15 @@ if (Meteor.isServer) {
           tagText += 'a';
         }
 
-        function expectedError() {
-          Meteor.call('tags.add', {
+        async function expectedError() {
+          await Meteor.callAsync('tags.add', {
             targetId: patternId,
             targetType: 'pattern',
             name: tagText,
           });
         }
-        expect(expectedError).to.throw(Meteor.Error(), 'add-tag-too-long');
+
+        await expect(expectedError()).to.be.rejectedWith('add-tag-too-long');
       });
 
       it('can add tag to pattern', async () => {

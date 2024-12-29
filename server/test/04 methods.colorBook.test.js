@@ -15,62 +15,65 @@ if (Meteor.isServer) {
       resetDatabase();
     });
     describe('colorBook.add method', () => {
-      it('cannot create color book if not logged in', () => {
-        function expectedError() {
-          Meteor.call('colorBook.add', {
+      it('cannot create color book if not logged in', async () => {
+        async function expectedError() {
+          await Meteor.callAsync('colorBook.add', {
             colors: defaultColorBookData.colors,
             name: defaultColorBookData.name,
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'add-color-book-not-logged-in',
         );
       });
-      it('cannot create color book if not registered', () => {
-        function expectedError() {
+
+      it('cannot create color book if not registered', async () => {
+        async function expectedError() {
           stubUser();
           Roles.removeUsersFromRoles(Meteor.userId(), ['registered']);
 
-          Meteor.call('colorBook.add', {
+          await Meteor.callAsync('colorBook.add', {
             colors: defaultColorBookData.colors,
             name: defaultColorBookData.name,
           });
         }
 
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+        await expect(expectedError()).to.be.rejectedWith(
           'add-color-book-not-registered',
         );
+
         unwrapUser();
       });
-      it('can create the correct number of color books if registered', () => {
+
+      it('can create the correct number of color books if registered', async () => {
         stubUser();
 
         const colorBookLimit = ROLE_LIMITS.registered.maxColorBooksPerUser;
         for (let i = 0; i < colorBookLimit; i += 1) {
-          Meteor.call('colorBook.add', {
+          await Meteor.callAsync('colorBook.add', {
             colors: defaultColorBookData.colors,
             name: defaultColorBookData.name,
           });
         }
 
-        assert.equal(ColorBooks.find().fetch().length, colorBookLimit);
+        assert.equal(await ColorBooks.find().countAsync(), colorBookLimit);
 
-        function expectedError() {
-          Meteor.call('colorBook.add', {
+        async function expectedError() {
+          await Meteor.callAsync('colorBook.add', {
             colors: defaultColorBookData.colors,
             name: defaultColorBookData.name,
           });
         }
 
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+        await expect(expectedError()).to.be.rejectedWith(
           'add-color-book-too-many-color-books',
         );
+
         unwrapUser();
       });
-      it('can create the correct number of color books if verified', () => {
+
+      it('can create the correct number of color books if verified', async () => {
         const currentUser = stubUser();
 
         Roles.createRole('verified', { unlessExists: true });
@@ -78,28 +81,29 @@ if (Meteor.isServer) {
 
         const colorBookLimit = ROLE_LIMITS.verified.maxColorBooksPerUser;
         for (let i = 0; i < colorBookLimit; i += 1) {
-          Meteor.call('colorBook.add', {
+          await Meteor.callAsync('colorBook.add', {
             colors: defaultColorBookData.colors,
             name: defaultColorBookData.name,
           });
         }
 
-        assert.equal(ColorBooks.find().fetch().length, colorBookLimit);
+        assert.equal(await ColorBooks.find().countAsync(), colorBookLimit);
 
-        function expectedError() {
-          Meteor.call('colorBook.add', {
+        async function expectedError() {
+          await Meteor.callAsync('colorBook.add', {
             colors: defaultColorBookData.colors,
             name: defaultColorBookData.name,
           });
         }
 
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+        await expect(expectedError()).to.be.rejectedWith(
           'add-color-book-too-many-color-books',
         );
+
         unwrapUser();
       });
-      it('can create the correct number of color books if premium', () => {
+
+      it('can create the correct number of color books if premium', async () => {
         const currentUser = stubUser();
 
         Roles.createRole('premium', { unlessExists: true });
@@ -107,45 +111,47 @@ if (Meteor.isServer) {
 
         const colorBookLimit = ROLE_LIMITS.premium.maxColorBooksPerUser;
         for (let i = 0; i < colorBookLimit; i += 1) {
-          Meteor.call('colorBook.add', {
+          await Meteor.callAsync('colorBook.add', {
             colors: defaultColorBookData.colors,
             name: defaultColorBookData.name,
           });
         }
 
-        assert.equal(ColorBooks.find().fetch().length, colorBookLimit);
+        assert.equal(await ColorBooks.find().countAsync(), colorBookLimit);
 
-        function expectedError() {
-          Meteor.call('colorBook.add', {
+        async function expectedError() {
+          await Meteor.callAsync('colorBook.add', {
             colors: defaultColorBookData.colors,
             name: defaultColorBookData.name,
           });
         }
 
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+        await expect(expectedError()).to.be.rejectedWith(
           'add-color-book-too-many-color-books',
         );
+
         unwrapUser();
       });
     });
+
     describe('colorBook.remove method', () => {
-      it('cannot remove color book if not logged in', () => {
+      it('cannot remove color book if not logged in', async () => {
         const colorBook = Factory.create('colorBook', {
           name: 'Color Book 1',
           createdBy: 'abc',
         });
 
-        function expectedError() {
-          Meteor.call('colorBook.remove', colorBook._id);
+        async function expectedError() {
+          await Meteor.callAsync('colorBook.remove', colorBook._id);
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'remove-color-book-not-logged-in',
         );
       });
-      it('cannot remove color book if did not create the color book', () => {
-        function expectedError() {
+
+      it('cannot remove color book if did not create the color book', async () => {
+        async function expectedError() {
           stubUser();
 
           const colorBook = Factory.create('colorBook', {
@@ -153,37 +159,39 @@ if (Meteor.isServer) {
             createdBy: 'abc',
           });
 
-          Meteor.call('colorBook.remove', colorBook._id);
+          await Meteor.callAsync('colorBook.remove', colorBook._id);
         }
 
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+        await expect(expectedError()).to.be.rejectedWith(
           'remove-color-book-not-created-by-user',
         );
+
         unwrapUser();
       });
-      it('can remove color book if user created the color book', () => {
+
+      it('can remove color book if user created the color book', async () => {
         const currentUser = stubUser();
         const colorBook = Factory.create('colorBook', {
           name: 'Color Book 1',
           createdBy: currentUser._id,
         });
 
-        assert.equal(ColorBooks.find().fetch().length, 1);
-        Meteor.call('colorBook.remove', colorBook._id);
-        assert.equal(ColorBooks.find().fetch().length, 0);
+        assert.equal(await ColorBooks.find().countAsync(), 1);
+        Meteor.callAsync('colorBook.remove', colorBook._id);
+        assert.equal(await ColorBooks.find().countAsync(), 0);
         unwrapUser();
       });
     });
+
     describe('colorBook.edit method', () => {
-      it('cannot edit color book color if not logged in', () => {
+      it('cannot edit color book color if not logged in', async () => {
         const colorBook = Factory.create('colorBook', {
           name: 'Color Book 1',
           createdBy: 'abc',
         });
 
-        function expectedError() {
-          Meteor.call('colorBook.edit', {
+        async function expectedError() {
+          await Meteor.callAsync('colorBook.edit', {
             _id: colorBook._id,
             data: {
               colorHexValue: '#333333',
@@ -192,16 +200,17 @@ if (Meteor.isServer) {
             },
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'edit-color-book-not-logged-in',
         );
       });
-      it("cannot edit color book color if color books doesn't exist", () => {
+
+      it("cannot edit color book color if color books doesn't exist", async () => {
         stubUser();
 
-        function expectedError() {
-          Meteor.call('colorBook.edit', {
+        async function expectedError() {
+          await Meteor.callAsync('colorBook.edit', {
             _id: 'abc',
             data: {
               colorHexValue: '#333333',
@@ -210,14 +219,15 @@ if (Meteor.isServer) {
             },
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'edit-color-book-not-found',
         );
         unwrapUser();
       });
-      it('cannot edit color book color if did not create the color book', () => {
-        function expectedError() {
+
+      it('cannot edit color book color if did not create the color book', async () => {
+        async function expectedError() {
           stubUser();
 
           const colorBook = Factory.create('colorBook', {
@@ -225,7 +235,7 @@ if (Meteor.isServer) {
             createdBy: 'abc',
           });
 
-          Meteor.call('colorBook.edit', {
+          await Meteor.callAsync('colorBook.edit', {
             _id: colorBook._id,
             data: {
               colorHexValue: '#333333',
@@ -235,22 +245,22 @@ if (Meteor.isServer) {
           });
         }
 
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+        await expect(expectedError()).to.be.rejectedWith(
           'edit-color-book-not-created-by-user',
         );
+
         unwrapUser();
       });
 
-      it('cannot edit color book color if user created the color book but color is not a string', () => {
-        function expectedError() {
+      it('cannot edit color book color if user created the color book but color is not a string', async () => {
+        async function expectedError() {
           const currentUser = stubUser();
           const colorBook = Factory.create('colorBook', {
             name: 'Color Book 1',
             createdBy: currentUser._id,
           });
 
-          Meteor.call('colorBook.edit', {
+          await Meteor.callAsync('colorBook.edit', {
             _id: colorBook._id,
             data: {
               colorHexValue: 4,
@@ -260,7 +270,7 @@ if (Meteor.isServer) {
           });
         }
 
-        expect(expectedError).to.throw(Meteor.Error(), 'Match error');
+        await expect(expectedError()).to.be.rejectedWith('Match error');
 
         unwrapUser();
       });
@@ -272,7 +282,7 @@ if (Meteor.isServer) {
           createdBy: currentUser._id,
         });
 
-        assert.equal(ColorBooks.find().fetch().length, 1);
+        assert.equal(await ColorBooks.find().countAsync(), 1);
 
         await Meteor.callAsync('colorBook.edit', {
           _id: colorBook._id,
@@ -318,6 +328,7 @@ if (Meteor.isServer) {
 
         unwrapUser();
       });
+
       it('can edit color book isPublic if user created the color book', async () => {
         const currentUser = stubUser();
         const colorBook = Factory.create('colorBook', {

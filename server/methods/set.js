@@ -207,7 +207,7 @@ Meteor.methods({
     await Sets.updateAsync({ _id: setId }, { $pull: { patterns: patternId } });
 
     if (pattern.isPublic) {
-      updatePublicPatternsCountForSet(setId);
+      await updatePublicPatternsCountForSet(setId);
     }
 
     // remove this set from the pattern's list of sets to which it belongs
@@ -221,7 +221,7 @@ Meteor.methods({
     }
 
     // update the user's count of public sets
-    updateMultiplePublicSetsCount([setId]);
+    await updateMultiplePublicSetsCount([setId]);
   },
   'set.remove': async function (_id) {
     check(_id, nonEmptyStringCheck);

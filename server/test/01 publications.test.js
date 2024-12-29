@@ -678,13 +678,13 @@ if (Meteor.isServer) {
           publicOtherPatternNames,
         );
 
-        const allPatternsObjs = Patterns.find(
+        const allPatternsObjs = await Patterns.find(
           { name: { $in: allPatterns } },
           {
             sort: { createdAt: -1 },
             fields: { nameSort: 1, createdAt: 1 },
           },
-        ).fetch();
+        ).fetchAsync();
         const expectedNames = allPatternsObjs
           .map((pattern) => pattern.nameSort)
           .slice(0, ALLOWED_ITEMS_PER_PAGE[0]);
@@ -721,13 +721,13 @@ if (Meteor.isServer) {
           .concat(publicOtherPatternNames)
           .concat(privateMyPatternNames);
 
-        const allPatternsObjs = Patterns.find(
+        const allPatternsObjs = await Patterns.find(
           { name: { $in: allPatterns } },
           {
             sort: { createdAt: -1 },
             fields: { nameSort: 1, createdAt: 1 },
           },
-        ).fetch();
+        ).fetchAsync();
         const expectedNames = allPatternsObjs
           .map((pattern) => pattern.nameSort)
           .slice(0, ALLOWED_ITEMS_PER_PAGE[0]);
@@ -767,13 +767,13 @@ if (Meteor.isServer) {
           .concat(publicOtherPatternNames)
           .concat(privateMyPatternNames);
 
-        const allPatternsObjs = Patterns.find(
+        const allPatternsObjs = await Patterns.find(
           { name: { $in: allPatterns } },
           {
             sort: { createdAt: -1 },
             fields: { nameSort: 1, createdAt: 1 },
           },
-        ).fetch();
+        ).fetchAsync();
         const expectedNames = allPatternsObjs
           .map((pattern) => pattern.nameSort)
           .slice(ALLOWED_ITEMS_PER_PAGE[0], ALLOWED_ITEMS_PER_PAGE[0] * 2);
@@ -811,13 +811,13 @@ if (Meteor.isServer) {
           publicOtherPatternNames,
         );
 
-        const allPatternsObjs = Patterns.find(
+        const allPatternsObjs = await Patterns.find(
           { name: { $in: allPatterns } },
           {
             sort: { createdAt: -1 },
             fields: { nameSort: 1, createdAt: 1 },
           },
-        ).fetch();
+        ).fetchAsync();
         const expectedNames = allPatternsObjs
           .map((pattern) => pattern.nameSort)
           .slice(0, ALLOWED_ITEMS_PER_PAGE[0]);
@@ -854,13 +854,13 @@ if (Meteor.isServer) {
           publicOtherPatternNames,
         );
 
-        const allPatternsObjs = Patterns.find(
+        const allPatternsObjs = await Patterns.find(
           { name: { $in: allPatterns } },
           {
             sort: { createdAt: -1 },
             fields: { nameSort: 1, createdAt: 1 },
           },
-        ).fetch();
+        ).fetchAsync();
         const expectedNames = allPatternsObjs
           .map((pattern) => pattern.nameSort)
           .slice(0, ITEMS_PER_PREVIEW_LIST);
@@ -891,13 +891,13 @@ if (Meteor.isServer) {
           publicOtherPatternNames,
         );
 
-        const allPatternsObjs = Patterns.find(
+        const allPatternsObjs = await Patterns.find(
           { name: { $in: allPatterns } },
           {
             sort: { createdAt: -1 },
             fields: { nameSort: 1, createdAt: 1 },
           },
-        ).fetch();
+        ).fetchAsync();
 
         const expectedNames = allPatternsObjs
           .map((pattern) => pattern.nameSort)
@@ -932,13 +932,13 @@ if (Meteor.isServer) {
           publicOtherPatternNames,
         );
 
-        const allPatternsObjs = Patterns.find(
+        const allPatternsObjs = await Patterns.find(
           { name: { $in: allPatterns } },
           {
             sort: { createdAt: -1 },
             fields: { nameSort: 1, createdAt: 1 },
           },
-        ).fetch();
+        ).fetchAsync();
         const expectedNames = allPatternsObjs
           .map((pattern) => pattern.nameSort)
           .slice(0, ITEMS_PER_PREVIEW_LIST);
@@ -1463,7 +1463,7 @@ if (Meteor.isServer) {
         Roles.addUsersToRoles(userId, ['verified']);
 
         // set 1 pattern in set to public
-        Meteor.call('pattern.edit', {
+        await Meteor.callAsync('pattern.edit', {
           _id: this.pattern1._id,
           data: {
             type: 'editIsPublic',

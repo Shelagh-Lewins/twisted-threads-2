@@ -56,8 +56,9 @@ Meteor.methods({
     }
 
     // check the name does not already exist
-    const existing = Tags.find({ name: processedName });
-    if (existing.count() > 0) {
+    const existingCount = await Tags.find({ name: processedName }).countAsync();
+
+    if (existingCount > 0) {
       throw new Meteor.Error(
         'add-tag-already-exists',
         'Unable to add tag because a tag with that name already exists',
@@ -157,7 +158,7 @@ Meteor.methods({
     const existing = await Tags.findOneAsync({ name });
 
     if (!existing) {
-      Meteor.call('tags.add', {
+      await Meteor.callAsync('tags.add', {
         name,
         targetId,
         targetType,
@@ -169,7 +170,7 @@ Meteor.methods({
 
       const { tags } = document;
       if (tags.indexOf(name) === -1) {
-        Meteor.call('tags.assignToDocument', {
+        await Meteor.callAsync('tags.assignToDocument', {
           targetId,
           targetType,
           name,

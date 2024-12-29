@@ -255,6 +255,7 @@ if (Meteor.isServer) {
           'add-to-set-already-in-set',
         );
       });
+
       it('can add the correct number of patterns to the set', () => {
         // give user premium role so they can create many patterns
         Roles.createRole('premium', { unlessExists: true });
@@ -297,6 +298,7 @@ if (Meteor.isServer) {
         );
       });
     });
+
     describe('set.removePattern method', () => {
       it('cannot remove pattern from set if not logged in', async () => {
         // create a set by adding a pattern
@@ -310,6 +312,7 @@ if (Meteor.isServer) {
         // create a second pattern
         Roles.createRole('verified', { unlessExists: true });
         Roles.addUsersToRoles(Meteor.userId(), ['verified']);
+
         const newPatternId = await Meteor.callAsync(
           'pattern.add',
           addPatternDataIndividual,
@@ -326,36 +329,37 @@ if (Meteor.isServer) {
           });
         }
 
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+        await expect(expectedError()).to.be.rejectedWith(
           'remove-from-set-not-logged-in',
         );
       });
-      it('cannot remove pattern from set if the set not found', () => {
+
+      it('cannot remove pattern from set if the set not found', async () => {
         // create a set by adding a pattern
         const { patternId } = this; // seems to be a scoping issue otherwise
 
-        Meteor.call('set.add', {
+        await Meteor.callAsync('set.add', {
           patternId,
           name: 'Favourites',
         });
 
-        function expectedError() {
-          Meteor.call('set.removePattern', {
+        async function expectedError() {
+          await Meteor.callAsync('set.removePattern', {
             patternId,
             setId: 'abc',
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'remove-from-set-set-not-found',
         );
       });
-      it('cannot remove pattern from set if the set was created by another user', () => {
+
+      it('cannot remove pattern from set if the set was created by another user', async () => {
         // create a set by adding a pattern
         const { patternId } = this; // seems to be a scoping issue otherwise
 
-        const setId = Meteor.call('set.add', {
+        const setId = await Meteor.callAsync('set.add', {
           patternId,
           name: 'Favourites',
         });
@@ -363,38 +367,40 @@ if (Meteor.isServer) {
         // log in a different user
         stubOtherUser();
 
-        function expectedError() {
-          Meteor.call('set.removePattern', {
+        async function expectedError() {
+          await Meteor.callAsync('set.removePattern', {
             patternId,
             setId,
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'remove-from-set-not-created-by-user',
         );
       });
-      it('cannot remove pattern from set if the pattern was not found', () => {
+
+      it('cannot remove pattern from set if the pattern was not found', async () => {
         // create a set by adding a pattern
         const { patternId } = this; // seems to be a scoping issue otherwise
 
-        const setId = Meteor.call('set.add', {
+        const setId = await Meteor.callAsync('set.add', {
           patternId,
           name: 'Favourites',
         });
 
-        function expectedError() {
-          Meteor.call('set.removePattern', {
+        async function expectedError() {
+          await Meteor.callAsync('set.removePattern', {
             patternId: 'abc',
             setId,
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'remove-from-set-pattern-not-found',
         );
       });
-      it('cannot remove pattern from set if the pattern was not in the set', () => {
+
+      it('cannot remove pattern from set if the pattern was not in the set', async () => {
         // give user verified role so they can create many patterns
         Roles.createRole('verified', { unlessExists: true });
         Roles.addUsersToRoles(Meteor.userId(), ['verified']);
@@ -402,27 +408,28 @@ if (Meteor.isServer) {
         // create a set by adding a pattern
         const { patternId } = this; // seems to be a scoping issue otherwise
 
-        const setId = Meteor.call('set.add', {
+        const setId = await Meteor.callAsync('set.add', {
           patternId,
           name: 'Favourites',
         });
 
-        const newPatternId = Meteor.call(
+        const newPatternId = await Meteor.callAsync(
           'pattern.add',
           addPatternDataIndividual,
         );
 
-        function expectedError() {
-          Meteor.call('set.removePattern', {
+        async function expectedError() {
+          await Meteor.callAsync('set.removePattern', {
             patternId: newPatternId,
             setId,
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'remove-from-set-not-in-set',
         );
       });
+
       it('can remove pattern from set', async () => {
         // give user verified role so they can create many patterns
         Roles.createRole('verified', { unlessExists: true });
@@ -466,16 +473,16 @@ if (Meteor.isServer) {
           setId,
         });
 
-        assert.equal(Sets.find({}).fetch().length, 0);
+        assert.equal(await Sets.find({}).countAsync(), 0);
       });
     });
 
     describe('set.remove method', () => {
-      it('cannot remove a set if not logged in', () => {
+      it('cannot remove a set if not logged in', async () => {
         // create a set by adding a pattern
         const { patternId } = this; // seems to be a scoping issue otherwise
 
-        const setId = Meteor.call('set.add', {
+        const setId = await Meteor.callAsync('set.add', {
           patternId,
           name: 'Favourites',
         });
@@ -484,61 +491,68 @@ if (Meteor.isServer) {
         unwrapUser();
         stubNoUser();
 
-        function expectedError() {
-          Meteor.call('set.remove', setId);
+        async function expectedError() {
+          await Meteor.callAsync('set.remove', setId);
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'remove-set-not-logged-in',
         );
       });
-      it('cannot remove a set if set not found', () => {
-        function expectedError() {
-          Meteor.call('set.remove', 'abc');
+
+      it('cannot remove a set if set not found', async () => {
+        async function expectedError() {
+          await Meteor.call('set.remove', 'abc');
         }
-        expect(expectedError).to.throw(Meteor.Error(), 'remove-set-not-found');
+
+        await expect(expectedError()).to.be.rejectedWith(
+          'remove-set-not-found',
+        );
       });
-      it('cannot remove a set if set not created by the user', () => {
+
+      it('cannot remove a set if set not created by the user', async () => {
         // create a set by adding a pattern
         const { patternId } = this; // seems to be a scoping issue otherwise
 
-        const setId = Meteor.call('set.add', {
+        const setId = await Meteor.callAsync('set.add', {
           patternId,
           name: 'Favourites',
         });
 
         stubOtherUser();
 
-        function expectedError() {
-          Meteor.call('set.remove', setId);
+        async function expectedError() {
+          await Meteor.callAsync('set.remove', setId);
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'remove-set-not-created-by-user',
         );
       });
-      it('can remove a set', () => {
+
+      it('can remove a set', async () => {
         // create a set by adding a pattern
         const { patternId } = this; // seems to be a scoping issue otherwise
 
-        const setId = Meteor.call('set.add', {
+        const setId = await Meteor.callAsync('set.add', {
           patternId,
           name: 'Favourites',
         });
 
-        assert.equal(Sets.find({}).fetch().length, 1);
+        assert.equal(await Sets.find({}).countAsync(), 1);
 
-        Meteor.call('set.remove', setId);
+        await Meteor.callAsync('set.remove', setId);
 
-        assert.equal(Sets.find({}).fetch().length, 0);
+        assert.equal(await Sets.find({}).countAsync(), 0);
       });
     });
+
     describe('set.edit method', () => {
-      it('cannot edit a set if not logged in', () => {
+      it('cannot edit a set if not logged in', async () => {
         // create a set by adding a pattern
         const { patternId } = this; // seems to be a scoping issue otherwise
 
-        const setId = Meteor.call('set.add', {
+        const setId = await Meteor.callAsync('set.add', {
           patternId,
           name: 'Favourites',
         });
@@ -550,8 +564,8 @@ if (Meteor.isServer) {
         const fieldName = 'name';
         const fieldValue = 'My favourites';
 
-        function expectedError() {
-          Meteor.call('set.edit', {
+        async function expectedError() {
+          await Meteor.callAsync('set.edit', {
             _id: setId,
             data: {
               fieldName,
@@ -560,17 +574,18 @@ if (Meteor.isServer) {
             },
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'edit-set-not-logged-in',
         );
       });
-      it('cannot edit a set if the set was not found', () => {
+
+      it('cannot edit a set if the set was not found', async () => {
         const fieldName = 'name';
         const fieldValue = 'My favourites';
 
-        function expectedError() {
-          Meteor.call('set.edit', {
+        async function expectedError() {
+          await Meteor.callAsync('set.edit', {
             _id: 'abc',
             data: {
               fieldName,
@@ -579,13 +594,15 @@ if (Meteor.isServer) {
             },
           });
         }
-        expect(expectedError).to.throw(Meteor.Error(), 'edit-set-not-found');
+
+        await expect(expectedError()).to.be.rejectedWith('edit-set-not-found');
       });
-      it('cannot edit a set if the set was not created by the current user', () => {
+
+      it('cannot edit a set if the set was not created by the current user', async () => {
         // create a set by adding a pattern
         const { patternId } = this; // seems to be a scoping issue otherwise
 
-        const setId = Meteor.call('set.add', {
+        const setId = await Meteor.callAsync('set.add', {
           patternId,
           name: 'Favourites',
         });
@@ -595,8 +612,8 @@ if (Meteor.isServer) {
         const fieldName = 'name';
         const fieldValue = 'My favourites';
 
-        function expectedError() {
-          Meteor.call('set.edit', {
+        async function expectedError() {
+          await Meteor.callAsync('set.edit', {
             _id: setId,
             data: {
               fieldName,
@@ -605,11 +622,12 @@ if (Meteor.isServer) {
             },
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'edit-set-not-created-by-user',
         );
       });
+
       it('can edit a set', async () => {
         // create a set by adding a pattern
         const { patternId } = this; // seems to be a scoping issue otherwise

@@ -95,7 +95,7 @@ Meteor.methods({
       check(doubleFacedOrientations, String);
     }
 
-    const { error } = checkUserCanCreatePattern();
+    const { error } = await checkUserCanCreatePattern();
 
     if (error) {
       throw error;
@@ -378,7 +378,7 @@ Meteor.methods({
       weftColor,
     } = patternObj;
 
-    const { error } = checkUserCanCreatePattern();
+    const { error } = await checkUserCanCreatePattern();
 
     if (error) {
       throw error;
@@ -615,7 +615,7 @@ Meteor.methods({
     }
 
     // create a new blank pattern
-    const patternId = Meteor.call('pattern.add', {
+    const patternId = await Meteor.callAsync('pattern.add', {
       doubleFacedOrientations,
       holes,
       name,
@@ -653,8 +653,8 @@ Meteor.methods({
 
     if (tags) {
       // add each tag
-      tags.forEach((tagName) => {
-        Meteor.call('tags.ensureExistsAndAssignToDocument', {
+      await asyncForEach(tags, async (tagName) => {
+        await Meteor.callAsync('tags.ensureExistsAndAssignToDocument', {
           targetId: patternId,
           targetType: 'pattern',
           name: tagName,
@@ -697,7 +697,7 @@ Meteor.methods({
 
     if (patternPreview) {
       // remove from Amazon S3
-      Meteor.call(
+      await Meteor.callAsync(
         'patternPreview.remove',
         { _id: patternPreview._id },
         (error) => {
@@ -712,11 +712,13 @@ Meteor.methods({
     }
 
     // remove all pattern images
-    const patternImages = PatternImages.find({ patternId: _id }).fetch();
+    const patternImages = await PatternImages.find({
+      patternId: _id,
+    }).fetchAsync();
 
-    patternImages.forEach((patternImage) => {
+    await asyncForEach(patternImages, async (patternImage) => {
       // remove from Amazon S3
-      Meteor.call(
+      await Meteor.callAsync(
         'patternImages.remove',
         { _id: patternImage._id },
         (error) => {
@@ -730,10 +732,10 @@ Meteor.methods({
       );
     });
     // find all sets that contain this pattern
-    const sets = Sets.find({ _id: { $in: pattern.sets } }).fetch();
+    const sets = await Sets.find({ _id: { $in: pattern.sets } }).fetchAsync();
 
     if (pattern.isPublic) {
-      sets.forEach(async (set) => {
+      await asyncForEach(sets, async (set) => {
         // remove the pattern from the set's patterns array
         await Sets.updateAsync({ _id: set._id }, { $pull: { patterns: _id } });
 
@@ -753,7 +755,7 @@ Meteor.methods({
     const removed = await Patterns.removeAsync({ _id });
 
     // Delete unused tags
-    Meteor.call('tags.removeUnused', pattern.tags);
+    await Meteor.callAsync('tags.removeUnused', pattern.tags);
 
     // update the user's count of public patterns
     await updatePublicPatternsCountForUser(Meteor.userId());
@@ -764,7 +766,7 @@ Meteor.methods({
     check(_id, nonEmptyStringCheck);
     // TO DO write this properly for all pattern types
 
-    const { error } = checkUserCanCreatePattern();
+    const { error } = await checkUserCanCreatePattern();
 
     if (error) {
       throw error;
@@ -816,7 +818,7 @@ Meteor.methods({
       data.twillDirection = pattern.patternDesign.twillDirection;
     }
 
-    const newPatternId = Meteor.call('pattern.add', data);
+    const newPatternId = await Meteor.callAsync('pattern.add', data);
 
     await Patterns.updateAsync(
       { _id: newPatternId },
@@ -884,17 +886,17 @@ Meteor.methods({
           { createdBy: userId },
           tabletFilter,
         ],
-      }).count();
+      }).countAsync();
     }
 
     // return all patterns visible to this user
-    return Patterns.find({
+    return await Patterns.find({
       $and: [
         {
           $or: [{ isPublic: { $eq: true } }, { createdBy: Meteor.userId() }],
         },
         tabletFilter,
       ],
-    }).count();
+    }).countAsync();
   },
 });

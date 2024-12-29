@@ -345,7 +345,7 @@ Meteor.publish(
 // //////////////////////////
 // Pattern preview graphics
 
-Meteor.publish('patternPreviews', function ({ patternIds }) {
+Meteor.publish('patternPreviews', async function ({ patternIds }) {
   // we previously explicitly returned nothing when user was not logged in
   // this is so we can test behaviour when user is not logged in: PublicationCollector passes in undefined userId, and find() is inconsistent between Meteor and MongoDB on undefined
   check(patternIds, [String]);
@@ -359,17 +359,17 @@ Meteor.publish('patternPreviews', function ({ patternIds }) {
 
   // find the patterns the user can see
   // and that are in the array passed in
-  const patterns = Patterns.find(
+  const patterns = await Patterns.find(
     {
       $and: [{ _id: { $in: patternIds } }, getPatternPermissionQuery()],
     },
     {
       fields: {},
     },
-  ).fetch();
+  ).fetchAsync();
 
   // extract their _ids as an array
-  const targetPatternIds = patterns.map((pattern) => pattern._id);
+  const targetPatternIds = await patterns.map((pattern) => pattern._id);
 
   // find the previews for those patterns
   const myCursor = PatternPreviews.find({

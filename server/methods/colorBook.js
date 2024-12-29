@@ -11,7 +11,7 @@ Meteor.methods({
     check(colors, [String]);
     check(name, nonEmptyStringCheck);
 
-    const { error } = checkCanCreateColorBook();
+    const { error } = await checkCanCreateColorBook();
 
     if (error) {
       throw error;
@@ -67,7 +67,7 @@ Meteor.methods({
   'colorBook.copy': async function (_id) {
     check(_id, nonEmptyStringCheck);
 
-    const { error } = checkCanCreateColorBook();
+    const { error } = await checkCanCreateColorBook();
 
     if (error) {
       throw error;
@@ -94,7 +94,10 @@ Meteor.methods({
     let { name } = colorBook;
     name = `${name} (copy)`;
 
-    const newColorBookId = Meteor.call('colorBook.add', { colors, name });
+    const newColorBookId = await Meteor.callAsync('colorBook.add', {
+      colors,
+      name,
+    });
 
     return newColorBookId;
   },

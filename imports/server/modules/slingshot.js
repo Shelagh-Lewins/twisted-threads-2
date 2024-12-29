@@ -54,7 +54,7 @@ if (Meteor.isServer) {
       }
 
       // check user hasn't exceeded their image allocation
-      const count = PatternImages.find({ patternId }).count();
+      const count = await PatternImages.find({ patternId }).countAsync();
 
       // TO DO check verified, premium users
       if (count >= ROLE_LIMITS.verified.numberOfImagesPerPattern) {

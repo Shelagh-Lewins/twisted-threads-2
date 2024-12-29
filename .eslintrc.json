@@ -20,6 +20,7 @@
     "implicit-arrow-linebreak": ["off"],
     "no-await-in-loop": ["off"],
     "no-confusing-arrow": ["off"],
+    "no-return-await": ["off"],
     "no-underscore-dangle": ["off"],
     "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
     "eol-last": ["error", "always"],

@@ -11,67 +11,73 @@ import { stubNoUser, stubOtherUser, stubUser, unwrapUser } from './mockUser';
 import { addPatternDataIndividual } from './testData';
 
 if (Meteor.isServer) {
+  // eslint-disable-next-line func-names
   describe('test methods for pattern previews', function () {
     // eslint-disable-line func-names
     this.timeout(15000);
-    beforeEach(() => {
+    beforeEach(async () => {
       resetDatabase();
       stubUser();
-      this.patternId = Meteor.call('pattern.add', {
+      this.patternId = await Meteor.callAsync('pattern.add', {
         ...{ createdBy: Meteor.userId() },
         ...addPatternDataIndividual,
       });
     });
+
     afterEach(() => {
       resetDatabase();
       unwrapUser();
     });
+
     describe('patternPreview.save method', () => {
-      it('cannot save pattern preview if not logged in', () => {
+      it('cannot save pattern preview if not logged in', async () => {
         // make sure publications know there is no user
         unwrapUser();
         stubNoUser();
         const { patternId } = this; // seems to be a scoping issue otherwise
 
-        function expectedError() {
-          Meteor.call('patternPreview.save', {
+        async function expectedError() {
+          await Meteor.callAsync('patternPreview.save', {
             _id: patternId,
             uri: 'a_uri',
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'save-preview-not-logged-in',
         );
       });
-      it('cannot save pattern preview if pattern not found', () => {
-        function expectedError() {
-          Meteor.call('patternPreview.save', {
+
+      it('cannot save pattern preview if pattern not found', async () => {
+        async function expectedError() {
+          await Meteor.callAsync('patternPreview.save', {
             _id: 'abc',
             uri: 'a_uri',
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'save-preview-not-found',
         );
       });
-      it('cannot save pattern preview if pattern created by another user', () => {
+
+      it('cannot save pattern preview if pattern created by another user', async () => {
         stubOtherUser();
         const { patternId } = this; // seems to be a scoping issue otherwise
 
-        function expectedError() {
-          Meteor.call('patternPreview.save', {
+        async function expectedError() {
+          await Meteor.callAsync('patternPreview.save', {
             _id: patternId,
             uri: 'a_uri',
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'save-preview-not-created-by-user',
         );
       });
-      it('can save pattern preview if user has serviceUser role', () => {
+
+      it('can save pattern preview if user has serviceUser role', async () => {
         stubOtherUser();
 
         // give user serviceUser role
@@ -80,14 +86,14 @@ if (Meteor.isServer) {
 
         const { patternId } = this; // seems to be a scoping issue otherwise
 
-        function expectedError() {
-          Meteor.call('patternPreview.save', {
+        async function expectedError() {
+          await Meteor.callAsync('patternPreview.save', {
             _id: patternId,
             uri: 'a_uri',
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'save-preview-error', // expect an error as we don't actually want to save to S3 in the test!
           's3.upload',
         );

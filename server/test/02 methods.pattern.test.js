@@ -26,49 +26,55 @@ if (Meteor.isServer) {
       resetDatabase();
     });
     describe('pattern.add method', () => {
-      it('cannot create pattern if not logged in', () => {
-        function expectedError() {
-          Meteor.call('pattern.add', addPatternDataIndividual);
+      it('cannot create pattern if not logged in', async () => {
+        async function expectedError() {
+          await Meteor.callAsync('pattern.add', addPatternDataIndividual);
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'add-pattern-not-logged-in',
         );
       });
-      it('cannot create pattern if not registered', () => {
+
+      it('cannot create pattern if not registered', async () => {
         stubUser();
         Roles.removeUsersFromRoles(Meteor.userId(), ['registered']);
 
-        function expectedError() {
-          Meteor.call('pattern.add', addPatternDataIndividual);
+        async function expectedError() {
+          await Meteor.callAsync('pattern.add', addPatternDataIndividual);
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'add-pattern-not-registered',
         );
+
         unwrapUser();
       });
-      it('can create the correct number of patterns if not verified', () => {
+
+      it('can create the correct number of patterns if not verified', async () => {
         stubUser();
 
         const patternLimit = ROLE_LIMITS.registered.maxPatternsPerUser;
         for (let i = 0; i < patternLimit; i += 1) {
-          Meteor.call('pattern.add', addPatternDataIndividual);
+          await Meteor.callAsync('pattern.add', addPatternDataIndividual);
         }
 
-        assert.equal(Patterns.find().fetch().length, patternLimit);
+        const numberOfPatterns = await Patterns.find().countAsync();
 
-        function expectedError() {
-          Meteor.call('pattern.add', addPatternDataIndividual);
+        assert.equal(numberOfPatterns, patternLimit);
+
+        async function expectedError() {
+          await Meteor.callAsync('pattern.add', addPatternDataIndividual);
         }
 
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+        await expect(expectedError()).to.be.rejectedWith(
           'add-pattern-too-many-patterns',
         );
+
         unwrapUser();
       });
-      it('can create the correct number of patterns if verified', () => {
+
+      it('can create the correct number of patterns if verified', async () => {
         const currentUser = stubUser();
 
         Roles.createRole('verified', { unlessExists: true });
@@ -76,22 +82,25 @@ if (Meteor.isServer) {
 
         const patternLimit = ROLE_LIMITS.verified.maxPatternsPerUser;
         for (let i = 0; i < patternLimit; i += 1) {
-          Meteor.call('pattern.add', addPatternDataIndividual);
+          await Meteor.callAsync('pattern.add', addPatternDataIndividual);
         }
 
-        assert.equal(Patterns.find().fetch().length, patternLimit);
+        const numberOfPatterns = await Patterns.find().countAsync();
 
-        function expectedError() {
-          Meteor.call('pattern.add', addPatternDataIndividual);
+        assert.equal(numberOfPatterns, patternLimit);
+
+        async function expectedError() {
+          await Meteor.callAsync('pattern.add', addPatternDataIndividual);
         }
 
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+        await expect(expectedError()).to.be.rejectedWith(
           'add-pattern-too-many-patterns',
         );
+
         unwrapUser();
       });
-      it('can create the correct number of patterns if premium', () => {
+
+      it('can create the correct number of patterns if premium', async () => {
         const currentUser = stubUser();
 
         Roles.createRole('premium', { unlessExists: true });
@@ -99,39 +108,42 @@ if (Meteor.isServer) {
 
         const patternLimit = ROLE_LIMITS.premium.maxPatternsPerUser;
         for (let i = 0; i < patternLimit; i += 1) {
-          Meteor.call('pattern.add', addPatternDataIndividual);
+          await Meteor.callAsync('pattern.add', addPatternDataIndividual);
         }
 
-        assert.equal(Patterns.find().fetch().length, patternLimit);
+        const numberOfPatterns = await Patterns.find().countAsync();
+        assert.equal(numberOfPatterns, patternLimit);
 
-        function expectedError() {
-          Meteor.call('pattern.add', addPatternDataIndividual);
+        async function expectedError() {
+          await Meteor.callAsync('pattern.add', addPatternDataIndividual);
         }
 
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+        await expect(expectedError()).to.be.rejectedWith(
           'add-pattern-too-many-patterns',
         );
+
         unwrapUser();
       });
     });
+
     describe('pattern.remove method', () => {
-      it('cannot remove pattern if not logged in', () => {
+      it('cannot remove pattern if not logged in', async () => {
         const pattern = Factory.create('pattern', {
           name: 'Pattern 1',
           createdBy: 'abc',
         });
 
-        function expectedError() {
-          Meteor.call('pattern.remove', pattern._id);
+        async function expectedError() {
+          await Meteor.callAsync('pattern.remove', pattern._id);
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'remove-pattern-not-logged-in',
         );
       });
-      it('cannot remove pattern if did not create the pattern', () => {
-        function expectedError() {
+
+      it('cannot remove pattern if did not create the pattern', async () => {
+        async function expectedError() {
           stubUser();
 
           const pattern = Factory.create('pattern', {
@@ -139,16 +151,17 @@ if (Meteor.isServer) {
             createdBy: 'abc',
           });
 
-          Meteor.call('pattern.remove', pattern._id);
+          await Meteor.callAsync('pattern.remove', pattern._id);
         }
 
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+        await expect(expectedError()).to.be.rejectedWith(
           'remove-pattern-not-created-by-user',
         );
+
         unwrapUser();
       });
-      it('can remove pattern if user created the pattern', () => {
+
+      it('can remove pattern if user created the pattern', async () => {
         // there will be errors in the log because we can't actually write to AWS in test; ignore them
         const currentUser = stubUser();
         const pattern = Factory.create('pattern', {
@@ -163,19 +176,20 @@ if (Meteor.isServer) {
           patternId: pattern._id,
         });
 
-        assert.equal(Patterns.find().fetch().length, 1);
-        assert.equal(PatternPreviews.find().fetch().length, 1);
-        assert.equal(PatternImages.find().fetch().length, 1);
-        Meteor.call('pattern.remove', pattern._id);
-        assert.equal(Patterns.find().fetch().length, 0);
-        assert.equal(PatternPreviews.find().fetch().length, 0);
-        assert.equal(PatternImages.find().fetch().length, 0);
+        assert.equal(await Patterns.find().countAsync(), 1);
+        assert.equal(await PatternPreviews.find().countAsync(), 1);
+        assert.equal(await PatternImages.find().countAsync(), 1);
+        await Meteor.callAsync('pattern.remove', pattern._id);
+        assert.equal(await Patterns.find().countAsync(), 0);
+        assert.equal(await PatternPreviews.find().countAsync(), 0);
+        assert.equal(await PatternImages.find().countAsync(), 0);
         unwrapUser();
       });
     });
+
     describe('pattern.getPatternCount method', () => {
       // getPatternCount should count the patterns the user can see, for pagination.
-      it('returns 0 when the user is not logged in', () => {
+      it('returns 0 when the user is not logged in', async () => {
         // create patterns owned by other users
         Factory.create('pattern', {
           name: 'Other Pattern 1',
@@ -190,10 +204,11 @@ if (Meteor.isServer) {
           createdBy: 'ghic',
         });
 
-        const result = Meteor.call('pattern.getPatternCount', {});
+        const result = await Meteor.callAsync('pattern.getPatternCount', {});
         assert.equal(result, 0);
       });
-      it('returns 2 when the user has 2 patterns in the database', () => {
+
+      it('returns 2 when the user has 2 patterns in the database', async () => {
         // create patterns owned by other users
         Factory.create('pattern', {
           name: 'Other Pattern 1',
@@ -219,7 +234,7 @@ if (Meteor.isServer) {
           createdBy: currentUser._id,
         });
 
-        const result = Meteor.call('pattern.getPatternCount', {});
+        const result = await Meteor.callAsync('pattern.getPatternCount', {});
         assert.equal(result, 2);
         unwrapUser();
       });
@@ -231,7 +246,7 @@ if (Meteor.isServer) {
           publicOtherPatternNames,
         } = await createManyPatterns();
 
-        const result = Meteor.call('pattern.getPatternCount', {});
+        const result = await Meteor.callAsync('pattern.getPatternCount', {});
         const expectedNumber =
           publicMyPatternNames.length +
           privateMyPatternNames.length +

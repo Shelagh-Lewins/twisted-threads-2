@@ -48,7 +48,7 @@ if (Meteor.isServer) {
         Roles.addUsersToRoles(currentUser._id, ['verified']);
 
         async function expectedError() {
-          await Meteor.call('auth.sendVerificationEmail', currentUser._id);
+          await Meteor.callAsync('auth.sendVerificationEmail', currentUser._id);
         }
 
         await expect(expectedError()).to.be.rejectedWith('no unverified email');
@@ -56,7 +56,7 @@ if (Meteor.isServer) {
         unwrapUser();
       });
 
-      it('sends the email if the user is logged in and unverified', async (done) => {
+      it('sends the email if the user is logged in and unverified', async () => {
         const currentUser = stubUser();
 
         await Meteor.users.updateAsync(
@@ -67,18 +67,17 @@ if (Meteor.isServer) {
         Roles.createRole('verified', { unlessExists: true });
         Roles.removeUsersFromRoles(currentUser._id, ['verified']);
 
-        Meteor.call(
+        const result = await Meteor.callAsync(
           'auth.sendVerificationEmail',
           currentUser._id,
-          (error, result) => {
-            assert.equal(result.email, currentUser.emails[0].address);
-            done();
-          },
         );
+
+        assert.equal(result.email, currentUser.emails[0].address);
 
         unwrapUser();
       });
     });
+
     describe('setRecentPatterns method', () => {
       it('throws an error if the user is not logged in', async () => {
         async function expectedError() {
@@ -92,6 +91,7 @@ if (Meteor.isServer) {
           'set-recent-patterns-not-logged-in',
         );
       });
+
       it('adds the recent pattern if the user is logged in', async () => {
         const currentUser = stubUser();
         const patternId = await Meteor.callAsync(
@@ -126,6 +126,7 @@ if (Meteor.isServer) {
 
         unwrapUser();
       });
+
       it('sets current weaving row to 1 if invalid', async () => {
         const currentUser = stubUser();
         const patternId = await Meteor.callAsync(
@@ -160,6 +161,7 @@ if (Meteor.isServer) {
 
         unwrapUser();
       });
+
       it('stores the maximum number of recents', async () => {
         const currentUser = stubUser();
         Roles.createRole('verified', { unlessExists: true });
@@ -205,6 +207,7 @@ if (Meteor.isServer) {
         unwrapUser();
       });
     });
+
     describe('register a new user', () => {
       // the tests that rely on Accounts.onCreateUser don't work because Accounts.onCreateUser doesn't run in testing.
       // There is a bug reported but closed:
@@ -225,16 +228,18 @@ if (Meteor.isServer) {
         assert.equal(username, 'NewUser');
       });
     });
+
     describe('get user count', () => {
       // counts all users with public patterns
       // plus the user themselves if logged in
-      it('returns the number of users with public patterns if the user is not logged in', () => {
+      it('returns the number of users with public patterns if the user is not logged in', async () => {
         const { publicPatternUsernames } = createManyUsers();
 
-        const result = Meteor.call('auth.getUserCount');
+        const result = await Meteor.callAsync('auth.getUserCount');
 
         assert.equal(result, publicPatternUsernames.length);
       });
+
       it('returns the number of users with public patterns plus one for the user if the user is logged in', async () => {
         const { privatePatternUserIds, publicPatternUsernames } =
           createManyUsers();
@@ -248,22 +253,23 @@ if (Meteor.isServer) {
         sinon.stub(Meteor, 'userId');
         Meteor.userId.returns(currentUser._id);
 
-        const result = Meteor.call('auth.getUserCount');
+        const result = await Meteor.callAsync('auth.getUserCount');
 
         assert.equal(result, publicPatternUsernames.length + 1);
         unwrapUser();
       });
     });
+
     describe('get users for page', () => {
       // counts all users with public patterns
       // returns the number required for the page
-      it('returns the users for the first page, user not logged in', () => {
+      it('returns the users for the first page, user not logged in', async () => {
         const { publicPatternUsernames } = createManyUsers();
 
         const skip = 0;
         const limit = 10;
 
-        const result = Meteor.call('auth.getUsersForPage', {
+        const result = await Meteor.callAsync('auth.getUsersForPage', {
           skip,
           limit,
         });
@@ -276,13 +282,14 @@ if (Meteor.isServer) {
           assert.notEqual(expectedUsernames.indexOf(username), -1);
         });
       });
-      it('returns the users for the second page, user not logged in', () => {
+
+      it('returns the users for the second page, user not logged in', async () => {
         const { publicPatternUsernames } = createManyUsers();
 
         const skip = 10;
         const limit = 10;
 
-        const result = Meteor.call('auth.getUsersForPage', {
+        const result = await Meteor.callAsync('auth.getUsersForPage', {
           skip,
           limit,
         });
@@ -313,7 +320,7 @@ if (Meteor.isServer) {
         const skip = 0;
         const limit = 10;
 
-        const result = Meteor.call('auth.getUsersForPage', {
+        const result = await Meteor.callAsync('auth.getUsersForPage', {
           skip,
           limit,
         });
@@ -329,6 +336,7 @@ if (Meteor.isServer) {
         });
         unwrapUser();
       });
+
       it('returns the users for the second page, user is logged in', async () => {
         const { privatePatternUserIds, publicPatternUsernames } =
           createManyUsers();
@@ -345,7 +353,7 @@ if (Meteor.isServer) {
         const skip = 10;
         const limit = 10;
 
-        const result = Meteor.call('auth.getUsersForPage', {
+        const result = await Meteor.callAsync('auth.getUsersForPage', {
           skip,
           limit,
         });
@@ -563,7 +571,7 @@ if (Meteor.isServer) {
         Roles.addUsersToRoles(targetUser._id, ['premium']);
 
         async function expectedError() {
-          await Meteor.call('auth.addUserToRole', {
+          await Meteor.callAsync('auth.addUserToRole', {
             _id: targetUser._id,
             role: 'premium',
           });
@@ -575,7 +583,8 @@ if (Meteor.isServer) {
 
         unwrapUser();
       });
-      it('cannot add a user to a role if the user is already in the role', () => {
+
+      it('cannot add a user to a role if the user is already in the role', async () => {
         const targetUser = stubUser(); // the user whose role is to be changed
 
         const currentUser = stubOtherUser(); // the administrator
@@ -585,7 +594,7 @@ if (Meteor.isServer) {
 
         Roles.createRole('premium', { unlessExists: true });
 
-        Meteor.call('auth.addUserToRole', {
+        await Meteor.callAsync('auth.addUserToRole', {
           _id: targetUser._id,
           role: 'premium',
         });
@@ -595,59 +604,66 @@ if (Meteor.isServer) {
         unwrapUser();
       });
     });
+
     describe('remove user from role', () => {
-      it('cannot remove a user from a role if the user is not logged in', () => {
+      it('cannot remove a user from a role if the user is not logged in', async () => {
         const targetUser = stubUser(); // the user whose role is to be changed
         logOutButLeaveUser();
 
-        function expectedError() {
-          Meteor.call('auth.removeUserFromRole', {
+        async function expectedError() {
+          await Meteor.callAsync('auth.removeUserFromRole', {
             _id: targetUser._id,
             role: 'premium',
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'remove-user-from-role-not-logged-in',
         );
+
         unwrapUser();
       });
-      it('cannot remove user from a role if the user is not an administrator', () => {
+
+      it('cannot remove user from a role if the user is not an administrator', async () => {
         const targetUser = stubUser(); // the user whose role is to be changed
         stubOtherUser(); // the administrator
 
-        function expectedError() {
-          Meteor.call('auth.removeUserFromRole', {
+        async function expectedError() {
+          await Meteor.callAsync('auth.removeUserFromRole', {
             _id: targetUser._id,
             role: 'premium',
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'remove-user-from-role-not-administrator',
         );
+
         unwrapUser();
       });
-      it('cannot remove a user from a role if the user does not exist', () => {
+
+      it('cannot remove a user from a role if the user does not exist', async () => {
         stubUser(); // only so stubOtherUser has something to unwrap
         const currentUser = stubOtherUser(); // the administrator
 
         Roles.createRole('administrator', { unlessExists: true });
         Roles.addUsersToRoles(currentUser._id, ['administrator']);
 
-        function expectedError() {
-          Meteor.call('auth.removeUserFromRole', {
+        async function expectedError() {
+          await Meteor.callAsync('auth.removeUserFromRole', {
             _id: 'abc',
             role: 'premium',
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'remove-user-from-role-user-not-found',
         );
+
         unwrapUser();
       });
-      it('cannot remove a user from a role if the role does not exist', () => {
+
+      it('cannot remove a user from a role if the role does not exist', async () => {
         const targetUser = stubUser(); // the user whose role is to be changed
 
         const currentUser = stubOtherUser(); // the administrator
@@ -655,19 +671,21 @@ if (Meteor.isServer) {
         Roles.createRole('administrator', { unlessExists: true });
         Roles.addUsersToRoles(currentUser._id, ['administrator']);
 
-        function expectedError() {
-          Meteor.call('auth.removeUserFromRole', {
+        async function expectedError() {
+          await Meteor.callAsync('auth.removeUserFromRole', {
             _id: targetUser._id,
             role: 'aardvark',
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'remove-user-from-role-role-not-found',
         );
+
         unwrapUser();
       });
-      it('cannot remove a user from a role if the user is not in the role', () => {
+
+      it('cannot remove a user from a role if the user is not in the role', async () => {
         const targetUser = stubUser(); // the user whose role is to be changed
 
         const currentUser = stubOtherUser(); // the administrator
@@ -677,19 +695,21 @@ if (Meteor.isServer) {
 
         Roles.createRole('premium', { unlessExists: true });
 
-        function expectedError() {
-          Meteor.call('auth.removeUserFromRole', {
+        async function expectedError() {
+          await Meteor.callAsync('auth.removeUserFromRole', {
             _id: targetUser._id,
             role: 'premium',
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'remove-user-from-role-not-in-role',
         );
+
         unwrapUser();
       });
-      it('does not allow an administrator to remove themself', () => {
+
+      it('does not allow an administrator to remove themself', async () => {
         const targetUser = stubUser(); // the user whose role is to be changed
 
         Roles.createRole('administrator', { unlessExists: true });
@@ -697,14 +717,14 @@ if (Meteor.isServer) {
 
         assert.equal(Roles.userIsInRole(targetUser._id, 'administrator'), true);
 
-        function expectedError() {
-          Meteor.call('auth.removeUserFromRole', {
+        async function expectedError() {
+          await Meteor.callAsync('auth.removeUserFromRole', {
             _id: targetUser._id,
             role: 'administrator',
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'remove-user-from-role-administrator-not-remove-self',
         );
 
@@ -712,7 +732,8 @@ if (Meteor.isServer) {
 
         unwrapUser();
       });
-      it('can remove a user from a role', () => {
+
+      it('can remove a user from a role', async () => {
         const targetUser = stubUser(); // the user whose role is to be changed
 
         const currentUser = stubOtherUser(); // the administrator
@@ -725,7 +746,7 @@ if (Meteor.isServer) {
 
         assert.equal(Roles.userIsInRole(targetUser._id, 'premium'), true);
 
-        Meteor.call('auth.removeUserFromRole', {
+        await Meteor.callAsync('auth.removeUserFromRole', {
           _id: targetUser._id,
           role: 'premium',
         });
@@ -735,44 +756,58 @@ if (Meteor.isServer) {
         unwrapUser();
       });
     });
+
     describe('setWeavingBackwardsBackgroundColor method', () => {
-      it('throws an error if the user is not logged in', () => {
-        function expectedError() {
-          Meteor.call('auth.setWeavingBackwardsBackgroundColor', '#ff00ff');
+      it('throws an error if the user is not logged in', async () => {
+        async function expectedError() {
+          await Meteor.callAsync(
+            'auth.setWeavingBackwardsBackgroundColor',
+            '#ff00ff',
+          );
         }
 
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+        await expect(expectedError()).to.be.rejectedWith(
           'set-weaving-backwards-background-color-not-logged-in',
         );
       });
-      it('throws an error if the colour value is not specified', () => {
+
+      it('throws an error if the colour value is not specified', async () => {
         stubUser();
 
-        function expectedError() {
-          Meteor.call('auth.setWeavingBackwardsBackgroundColor', undefined);
+        async function expectedError() {
+          await Meteor.callAsync(
+            'auth.setWeavingBackwardsBackgroundColor',
+            undefined,
+          );
         }
-        expect(expectedError).to.throw(Meteor.Error(), 'Match error');
+
+        await expect(expectedError()).to.be.rejectedWith('Match error');
 
         unwrapUser();
       });
-      it('throws an error if the colour value is empty string', () => {
+
+      it('throws an error if the colour value is empty string', async () => {
         stubUser();
 
-        function expectedError() {
-          Meteor.call('auth.setWeavingBackwardsBackgroundColor', '');
+        async function expectedError() {
+          await Meteor.callAsync('auth.setWeavingBackwardsBackgroundColor', '');
         }
-        expect(expectedError).to.throw(Meteor.Error(), 'Match error');
+
+        await expect(expectedError()).to.be.rejectedWith('Match error');
 
         unwrapUser();
       });
-      it('throws an error if the colour value is too long', () => {
+      it('throws an error if the colour value is too long', async () => {
         stubUser();
 
-        function expectedError() {
-          Meteor.call('auth.setWeavingBackwardsBackgroundColor', '#ff00ffg');
+        async function expectedError() {
+          await Meteor.callAsync(
+            'auth.setWeavingBackwardsBackgroundColor',
+            '#ff00ffg',
+          );
         }
-        expect(expectedError).to.throw(Meteor.Error(), 'Match error');
+
+        await expect(expectedError()).to.be.rejectedWith('Match error');
 
         unwrapUser();
       });

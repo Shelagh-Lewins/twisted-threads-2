@@ -89,19 +89,6 @@ const createManyPatterns = async () => {
     setCreatedAt(pattern);
   }
 
-  // Patterns.find()
-  //   .fetch()
-  //   .forEach(async (pattern) => {
-  //     const newDate = pattern.createdAt.setSeconds(
-  //       now.getSeconds() + 10 * count,
-  //     );
-  //     await Patterns.updateAsync(
-  //       { _id: pattern._id },
-  //       { $set: { createdAt: newDate } },
-  //     );
-  //     count += 1;
-  //   });
-
   return {
     publicMyPatternNames,
     privateMyPatternNames,

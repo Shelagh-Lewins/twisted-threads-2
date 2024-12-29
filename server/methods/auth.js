@@ -18,7 +18,7 @@ import updateActionsLog from '../../imports/server/modules/actionsLog';
 import { getUserPermissionQuery } from '../../imports/modules/permissionQueries';
 
 Meteor.methods({
-  'auth.sendVerificationEmail': function (userId) {
+  'auth.sendVerificationEmail': async function (userId) {
     check(userId, nonEmptyStringCheck);
 
     if (userId !== Meteor.userId()) {
@@ -35,7 +35,7 @@ Meteor.methods({
     // eslint-disable-next-line no-console
     console.log(text);
 
-    return Accounts.sendVerificationEmail(userId);
+    return await Accounts.sendVerificationEmail(userId);
   },
   'auth.setRecentPatterns': async function ({ userId, newRecentPatterns }) {
     check(userId, nonEmptyStringCheck);
@@ -92,15 +92,15 @@ Meteor.methods({
       { $set: { 'profile.recentPatterns': recentPatterns } },
     );
   },
-  'auth.checkUserCanCreateColorBook': function () {
-    return checkCanCreateColorBook();
+  'auth.checkUserCanCreateColorBook': async function () {
+    return await checkCanCreateColorBook();
   },
-  'auth.checkUserCanAddPatternImage': function ({ patternId }) {
+  'auth.checkUserCanAddPatternImage': async function ({ patternId }) {
     check(patternId, nonEmptyStringCheck);
 
-    return checkUserCanAddPatternImage(patternId);
+    return await checkUserCanAddPatternImage(patternId);
   },
-  'auth.getUserCount': function () {
+  'auth.getUserCount': async function () {
     // required for pagination
     // must return the same number as the relevant publications function
 
@@ -108,19 +108,19 @@ Meteor.methods({
     // plus the user themselves if logged in
 
     // return all users visible to this user
-    return Meteor.users.find(getUserPermissionQuery()).count();
+    return await Meteor.users.find(getUserPermissionQuery()).countAsync();
   },
-  'auth.getUsersForPage': function ({ skip, limit }) {
+  'auth.getUsersForPage': async function ({ skip, limit }) {
     // required for pagination
     // return the users for a particular page
-    return Meteor.users
+    return await Meteor.users
       .find(getUserPermissionQuery(), {
         fields: USER_FIELDS,
         sort: { nameSort: 1 },
         skip,
         limit,
       })
-      .fetch();
+      .fetchAsync();
   },
   'auth.editTextField': async function ({ _id, fieldName, fieldValue }) {
     if (_id !== Meteor.userId()) {
@@ -192,7 +192,7 @@ Meteor.methods({
     }
 
     // role exists
-    const allRoles = Roles.getAllRoles().fetch();
+    const allRoles = await Roles.getAllRoles().fetchAsync();
     const thisRole = allRoles.find((roleObj) => roleObj._id === role);
 
     if (!thisRole) {
@@ -242,7 +242,7 @@ Meteor.methods({
     }
 
     // role exists
-    const allRoles = Roles.getAllRoles().fetch();
+    const allRoles = await Roles.getAllRoles().fetchAsync();
     const thisRole = allRoles.find((roleObj) => roleObj._id === role);
 
     if (!thisRole) {
@@ -272,11 +272,11 @@ Meteor.methods({
 
     return 'success';
   },
-  'auth.getClientConnection': function () {
+  'auth.getClientConnection': async function () {
     // used to log client addresses to the Nginx log
     return this.connection;
   },
-  'auth.getMaintenanceMode': function () {
+  'auth.getMaintenanceMode': async function () {
     // pass up the environment variable that puts the UI into maintenance mode
     // converting it from string to boolean
     if (process.env.MAINTENANCE_MODE === 'true') {
@@ -300,7 +300,7 @@ Meteor.methods({
       { $set: { weavingBackwardsBackgroundColor: colorValue } },
     );
   },
-  'auth.getVersion': function () {
+  'auth.getVersion': async function () {
     return version;
   },
 });
