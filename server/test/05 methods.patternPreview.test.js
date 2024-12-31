@@ -98,53 +98,57 @@ if (Meteor.isServer) {
           's3.upload',
         );
       });
-      it('cannot save pattern preview if image invalid', () => {
+
+      it('cannot save pattern preview if image invalid', async () => {
         const { patternId } = this; // seems to be a scoping issue otherwise
 
-        function expectedError() {
-          Meteor.call('patternPreview.save', {
+        async function expectedError() {
+          await Meteor.callAsync('patternPreview.save', {
             _id: patternId,
             uri: 'a_uri',
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'save-preview-error',
           'image size',
         );
       });
     });
+
     describe('patternPreview.remove method', () => {
-      it('cannot remove pattern preview if not logged in', () => {
+      it('cannot remove pattern preview if not logged in', async () => {
         // make sure publications know there is no user
         unwrapUser();
         stubNoUser();
         const { patternId } = this; // seems to be a scoping issue otherwise
 
-        function expectedError() {
-          Meteor.call('patternPreview.remove', {
+        async function expectedError() {
+          await Meteor.callAsync('patternPreview.remove', {
             _id: patternId,
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'remove-pattern-preview-not-logged-in',
         );
       });
-      it('cannot remove pattern preview if pattern not found', () => {
+
+      it('cannot remove pattern preview if pattern not found', async () => {
         const { patternId } = this; // seems to be a scoping issue otherwise
 
-        function expectedError() {
-          Meteor.call('patternPreview.remove', {
+        async function expectedError() {
+          await Meteor.callAsync('patternPreview.remove', {
             _id: patternId,
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'remove-pattern-preview-not-found',
         );
       });
-      it('cannot remove pattern preview if pattern created by another user', () => {
+
+      it('cannot remove pattern preview if pattern created by another user', async () => {
         const { patternId } = this; // seems to be a scoping issue otherwise
 
         const patternPreview = Factory.create('patternPreview', {
@@ -155,17 +159,18 @@ if (Meteor.isServer) {
 
         stubOtherUser();
 
-        function expectedError() {
-          Meteor.call('patternPreview.remove', {
+        async function expectedError() {
+          await Meteor.callAsync('patternPreview.remove', {
             _id: patternPreview._id,
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'remove-pattern-preview-not-created-by-user',
         );
       });
-      it('cannot remove pattern preview if user has serviceUser role', () => {
+
+      it('cannot remove pattern preview if user has serviceUser role', async () => {
         const { patternId } = this; // seems to be a scoping issue otherwise
 
         const patternPreview = Factory.create('patternPreview', {
@@ -180,13 +185,13 @@ if (Meteor.isServer) {
         Roles.createRole('serviceUser', { unlessExists: true });
         Roles.addUsersToRoles(Meteor.userId(), ['serviceUser']);
 
-        function expectedError() {
-          Meteor.call('patternPreview.remove', {
+        async function expectedError() {
+          await Meteor.callAsync('patternPreview.remove', {
             _id: patternPreview._id,
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'remove-pattern-preview-not-created-by-user',
         );
       });

@@ -19,10 +19,13 @@ if (Meteor.isServer) {
     // eslint-disable-line func-names
     this.timeout(15000);
 
-    beforeEach(() => {
+    beforeEach(async () => {
       resetDatabase();
       stubUser();
-      this.patternId = Meteor.call('pattern.add', addPatternDataIndividual);
+      this.patternId = await Meteor.callAsync(
+        'pattern.add',
+        addPatternDataIndividual,
+      );
     });
 
     afterEach(() => {
@@ -67,7 +70,7 @@ if (Meteor.isServer) {
         const { patternId } = this; // seems to be a scoping issue otherwise
 
         async function expectedError() {
-          await Meteor.call('tags.add', {
+          await Meteor.callAsync('tags.add', {
             targetId: patternId,
             targetType: 'pattern',
             name: 'easy',
@@ -190,17 +193,17 @@ if (Meteor.isServer) {
         const { patternId } = this; // seems to be a scoping issue otherwise
 
         const tagText = 'easy';
-        Tags.insertAsync({ name: tagText });
+        await Tags.insertAsync({ name: tagText });
 
-        function expectedError() {
-          Meteor.call('tags.assignToDocument', {
+        async function expectedError() {
+          await Meteor.callAsync('tags.assignToDocument', {
             targetId: patternId,
             targetType: 'pattern',
             name: tagText,
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'assign-tag-not-logged-in',
         );
       });
@@ -209,14 +212,17 @@ if (Meteor.isServer) {
         const tagText = 'easy';
         await Tags.insertAsync({ name: tagText });
 
-        function expectedError() {
-          Meteor.call('tags.assignToDocument', {
+        async function expectedError() {
+          await Meteor.callAsync('tags.assignToDocument', {
             targetId: 'abc',
             targetType: 'pattern',
             name: tagText,
           });
         }
-        expect(expectedError).to.throw(Meteor.Error(), 'assign-tag-not-found');
+
+        await expect(expectedError()).to.be.rejectedWith(
+          'assign-tag-not-found',
+        );
       });
 
       it('cannot assign tag to pattern if pattern created by another user', async () => {
@@ -227,31 +233,36 @@ if (Meteor.isServer) {
 
         const { patternId } = this; // seems to be a scoping issue otherwise
 
-        function expectedError() {
-          Meteor.call('tags.assignToDocument', {
+        async function expectedError() {
+          await Meteor.callAsync('tags.assignToDocument', {
             targetId: patternId,
             targetType: 'pattern',
             name: tagText,
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'assign-tag-not-created-by-user',
         );
       });
-      it("cannot assign tag to pattern if the tag doesn't exist", () => {
+
+      it("cannot assign tag to pattern if the tag doesn't exist", async () => {
         const { patternId } = this; // seems to be a scoping issue otherwise
         const tagText = 'easy';
 
-        function expectedError() {
-          Meteor.call('tags.assignToDocument', {
+        async function expectedError() {
+          await Meteor.callAsync('tags.assignToDocument', {
             targetId: patternId,
             targetType: 'pattern',
             name: tagText,
           });
         }
-        expect(expectedError).to.throw(Meteor.Error(), 'assign-tag-not-found');
+
+        await expect(expectedError()).to.be.rejectedWith(
+          'assign-tag-not-found',
+        );
       });
+
       it('cannot assign tag to pattern if tag already assigned to pattern', async () => {
         const { patternId } = this; // seems to be a scoping issue otherwise
         const tagText = 'easy';
@@ -262,18 +273,19 @@ if (Meteor.isServer) {
           { $push: { tags: tagText } },
         );
 
-        function expectedError() {
-          Meteor.call('tags.assignToDocument', {
+        async function expectedError() {
+          await Meteor.callAsync('tags.assignToDocument', {
             targetId: patternId,
             targetType: 'pattern',
             name: tagText,
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'assign-tag-already-assigned',
         );
       });
+
       it('can assign tag to pattern', async () => {
         const { patternId } = this; // seems to be a scoping issue otherwise
 
@@ -305,7 +317,7 @@ if (Meteor.isServer) {
         const tagText = 'easy';
         await Tags.insertAsync({ name: tagText });
 
-        await Meteor.call('tags.ensureExistsAndAssignToDocument', {
+        await Meteor.callAsync('tags.ensureExistsAndAssignToDocument', {
           targetId: patternId,
           targetType: 'pattern',
           name: tagText,
@@ -339,13 +351,14 @@ if (Meteor.isServer) {
         assert.notEqual(updatedPattern.tags.indexOf(tagText), -1);
       });
     });
+
     describe('tags.removeFromDocument method', () => {
-      it('cannot remove tag if not logged in', () => {
+      it('cannot remove tag if not logged in', async () => {
         const { patternId } = this; // seems to be a scoping issue otherwise
 
         const tagText = 'easy';
 
-        Meteor.call('tags.ensureExistsAndAssignToDocument', {
+        await Meteor.callAsync('tags.ensureExistsAndAssignToDocument', {
           targetId: patternId,
           targetType: 'pattern',
           name: tagText,
@@ -354,38 +367,43 @@ if (Meteor.isServer) {
         unwrapUser();
         stubNoUser();
 
-        function expectedError() {
-          Meteor.call('tags.removeFromDocument', {
+        async function expectedError() {
+          await Meteor.callAsync('tags.removeFromDocument', {
             targetId: patternId,
             targetType: 'pattern',
             name: tagText,
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'remove-tag-not-logged-in',
         );
       });
-      it('cannot remove tag if pattern not found', () => {
+
+      it('cannot remove tag if pattern not found', async () => {
         const patternId = 'abc'; // seems to be a scoping issue otherwise
 
         const tagText = 'easy';
 
-        function expectedError() {
-          Meteor.call('tags.removeFromDocument', {
+        async function expectedError() {
+          await Meteor.callAsync('tags.removeFromDocument', {
             targetId: patternId,
             targetType: 'pattern',
             name: tagText,
           });
         }
-        expect(expectedError).to.throw(Meteor.Error(), 'remove-tag-not-found');
+
+        await expect(expectedError()).to.be.rejectedWith(
+          'remove-tag-not-found',
+        );
       });
-      it('cannot remove tag if pattern created by another user', () => {
+
+      it('cannot remove tag if pattern created by another user', async () => {
         const { patternId } = this; // seems to be a scoping issue otherwise
 
         const tagText = 'easy';
 
-        Meteor.call('tags.ensureExistsAndAssignToDocument', {
+        await Meteor.callAsync('tags.ensureExistsAndAssignToDocument', {
           targetId: patternId,
           targetType: 'pattern',
           name: tagText,
@@ -393,33 +411,33 @@ if (Meteor.isServer) {
 
         stubOtherUser();
 
-        function expectedError() {
-          Meteor.call('tags.removeFromDocument', {
+        async function expectedError() {
+          await Meteor.callAsync('tags.removeFromDocument', {
             targetId: patternId,
             targetType: 'pattern',
             name: tagText,
           });
         }
 
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+        await expect(expectedError()).to.be.rejectedWith(
           'remove-tag-not-created-by-user',
         );
       });
-      it('cannot remove tag if tag not assigned to the pattern', () => {
+
+      it('cannot remove tag if tag not assigned to the pattern', async () => {
         const { patternId } = this; // seems to be a scoping issue otherwise
 
         const tagText = 'easy';
 
-        function expectedError() {
-          Meteor.call('tags.removeFromDocument', {
+        async function expectedError() {
+          await Meteor.callAsync('tags.removeFromDocument', {
             targetId: patternId,
             targetType: 'pattern',
             name: tagText,
           });
         }
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+
+        await expect(expectedError()).to.be.rejectedWith(
           'remove-tag-not-assigned',
         );
       });

@@ -27,10 +27,13 @@ if (Meteor.isServer) {
     // eslint-disable-line func-names
     this.timeout(30000);
 
-    beforeEach(() => {
+    beforeEach(async () => {
       resetDatabase();
       stubUser();
-      this.patternId = Meteor.call('pattern.add', addPatternDataIndividual);
+      this.patternId = await Meteor.callAsync(
+        'pattern.add',
+        addPatternDataIndividual,
+      );
     });
 
     afterEach(() => {
@@ -123,7 +126,7 @@ if (Meteor.isServer) {
 
       it('cannot create set if pattern not found', async () => {
         async function expectedError() {
-          await Meteor.call('set.add', {
+          await Meteor.callAsync('set.add', {
             patternId: 'abc',
             name: 'Favourites',
           });
@@ -256,44 +259,43 @@ if (Meteor.isServer) {
         );
       });
 
-      it('can add the correct number of patterns to the set', () => {
+      it('can add the correct number of patterns to the set', async () => {
         // give user premium role so they can create many patterns
         Roles.createRole('premium', { unlessExists: true });
         Roles.addUsersToRoles(Meteor.userId(), ['premium']);
 
         const { patternId } = this; // seems to be a scoping issue otherwise
 
-        const setId = Meteor.call('set.add', {
+        const setId = await Meteor.callAsync('set.add', {
           patternId,
           name: 'Favourites',
         });
 
         for (let i = 0; i < MAX_PATTERNS_IN_SET - 1; i += 1) {
-          const newPatternId = Meteor.call(
+          const newPatternId = await Meteor.callAsync(
             'pattern.add',
             addPatternDataIndividual,
           );
 
-          Meteor.call('set.addPattern', {
+          await Meteor.callAsync('set.addPattern', {
             patternId: newPatternId,
             setId,
           });
         }
 
-        const newPatternId2 = Meteor.call(
+        const newPatternId2 = await Meteor.callAsync(
           'pattern.add',
           addPatternDataIndividual,
         );
 
-        function expectedError() {
-          Meteor.call('set.addPattern', {
+        async function expectedError() {
+          await Meteor.callAsync('set.addPattern', {
             patternId: newPatternId2,
             setId,
           });
         }
 
-        expect(expectedError).to.throw(
-          Meteor.Error(),
+        await expect(expectedError()).to.be.rejectedWith(
           'add-set-too-many-patterns',
         );
       });
@@ -502,7 +504,7 @@ if (Meteor.isServer) {
 
       it('cannot remove a set if set not found', async () => {
         async function expectedError() {
-          await Meteor.call('set.remove', 'abc');
+          await Meteor.callAsync('set.remove', 'abc');
         }
 
         await expect(expectedError()).to.be.rejectedWith(
