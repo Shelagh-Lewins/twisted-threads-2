@@ -2,7 +2,7 @@
 // displayed on home page
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { Button } from 'reactstrap';
 
 import UserSummary from './UserSummary';

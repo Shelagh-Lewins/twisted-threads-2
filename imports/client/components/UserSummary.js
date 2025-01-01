@@ -1,7 +1,7 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import getUserpicStyle from '../modules/getUserpicStyle';
 import { iconColors } from '../../modules/parameters';
 import './UserSummary.scss';

@@ -5,7 +5,7 @@ import { Button, Col, Row } from 'reactstrap';
 import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router';
 import validateInteger from '../modules/validateInteger';
 import {
 	updateFilterIsTwistNeutral,

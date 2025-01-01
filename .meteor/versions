@@ -42,7 +42,6 @@ hot-code-push@1.0.5
 html-tools@2.0.0
 htmljs@2.0.1
 id-map@1.2.0
-illusionfield:scss@0.6.0
 inter-process-messaging@0.1.2
 johanbrook:publication-collector@1.0.0
 launch-screen@2.0.1
@@ -66,6 +65,7 @@ mongo@2.0.3
 mongo-decimal@0.2.0
 mongo-dev-server@1.1.1
 mongo-id@1.0.9
+nodsec:scss@6.0.0
 npm-mongo@6.10.0
 observe-sequence@2.0.0
 ordered-dict@1.2.0

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Button, Container, Row, Col } from 'reactstrap';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import PropTypes from 'prop-types';
 import { FLASH_MESSAGE_TEXTS } from '../../modules/parameters';
 

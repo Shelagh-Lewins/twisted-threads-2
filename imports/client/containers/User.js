@@ -1,7 +1,7 @@
 // detail of a single user
 
 import React, { PureComponent } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { Button, Col, Container, Row } from 'reactstrap';
 import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';

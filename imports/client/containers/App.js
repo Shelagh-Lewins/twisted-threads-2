@@ -6,7 +6,7 @@ import {
   Route,
   Switch,
   withRouter,
-} from 'react-router-dom';
+} from 'react-router';
 import { connect, Provider } from 'react-redux';
 
 // fontawesome

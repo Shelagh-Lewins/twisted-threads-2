@@ -17,7 +17,6 @@ ecmascript@0.16.10              # Enable ECMAScript2015+ syntax in app code
 shell-server@0.6.1            # Server-side component of the `meteor shell` command
 
 check
-illusionfield:scss
 accounts-password
 email
 meteortesting:mocha
@@ -31,3 +30,4 @@ reactive-var
 alanning:roles
 matb33:collection-hooks
 react-meteor-data
+nodsec:scss
