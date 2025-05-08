@@ -32,7 +32,7 @@
     "jimp": "^0.9.3",
     "js-beautify": "^1.10.3",
     "meteor-node-stubs": "^1.2.1",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "prop-types": "^15.7.2",
     "query-string": "^6.8.3",
     "re-reselect": "^3.4.0",
