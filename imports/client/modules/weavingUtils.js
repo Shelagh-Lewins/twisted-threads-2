@@ -269,11 +269,17 @@ export const getThread = ({
   // I'm not sure if this is right or whether an idling first row should be adjusted, as in the commented-out code below. This seems to work for Cambridge Diamonds, so leave as is for now.
   // idle first row: tablet has not yet turned.
   // so go back one hole
-  if (direction === 'F' || holes === 2) {
-    // not first row, or not idle
-    // show thread in position A
+  if (holes === 2) {
     // for two-hole tablets, the top hole is always the one that shows
     // whether turning forwards or backwards
+    if (netTurns === 0) {
+      holeToShow = 1; // bottom tablet will be brought to top
+    } else {
+      holeToShow = 0; // top tablet stays in place
+    }
+  } else if (direction === 'F') {
+    // not first row, or not idle
+    // show thread in position A
     holeToShow = modulus(holes - netTurns, holes);
   } else {
     // show thread in position D
