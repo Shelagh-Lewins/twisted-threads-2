@@ -26,7 +26,7 @@ Meteor.methods({
       );
     }
 
-    if (!Roles.userIsInRole(Meteor.userId(), 'registered')) {
+    if (!(await Roles.userIsInRoleAsync(Meteor.userId(), 'registered'))) {
       throw new Meteor.Error(
         'add-set-not-registered',
         "Unable to add set because the user does not have role 'registered'",

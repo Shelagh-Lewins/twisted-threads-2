@@ -1,5 +1,4 @@
 import { check } from 'meteor/check';
-import util from 'util';
 import { nonEmptyStringCheck } from '../../imports/server/modules/utils';
 import { PatternPreviews, Patterns } from '../../imports/modules/collection';
 import {
@@ -36,9 +35,10 @@ Meteor.methods({
 
     const { createdBy } = pattern;
 
+    const userRoles = await Roles.getRolesForUserAsync(Meteor.userId());
     if (
       createdBy !== Meteor.userId() &&
-      !Roles.getRolesForUser(Meteor.userId()).includes('serviceUser')
+      !userRoles.includes('serviceUser')
     ) {
       throw new Meteor.Error(
         'save-preview-not-created-by-user',
@@ -49,10 +49,9 @@ Meteor.methods({
     // the image should have been rotated and sized correctly by the client
     // but the server should still check the image is valid and suitable in size
     const base64Image = uri.split(';base64,').pop();
-    const asyncJimpRead = util.promisify(Jimp.read);
 
     try {
-      const imageData = await asyncJimpRead(Buffer.from(base64Image, 'base64'));
+      const imageData = await Jimp.read(Buffer.from(base64Image, 'base64'));
 
       const imageIsOK =
         imageData.bitmap.width > 0 &&

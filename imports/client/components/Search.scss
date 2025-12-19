@@ -33,14 +33,11 @@ $rw-img-path: "~/img";
 		max-height: 300px;
 	}
 
-	li {
+	.rw-list-option {
 		float: left;
 		line-height: 1;
 		width: 100%;
-
-		&.rw-list-option {
-			padding: 0;
-		}
+		padding: 0;
 
 		.search-result-pattern,
 		.search-result-user,

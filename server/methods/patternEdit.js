@@ -120,7 +120,7 @@ Meteor.methods({
         check(isPublic, Boolean);
 
         // only verified users can publish patterns
-        if (!Roles.userIsInRole(Meteor.userId(), 'verified')) {
+        if (!(await Roles.userIsInRoleAsync(Meteor.userId(), 'verified'))) {
           throw new Meteor.Error(
             'edit-pattern-not-verified',
             "Unable to make the pattern public or private because the user's email address is not verified",

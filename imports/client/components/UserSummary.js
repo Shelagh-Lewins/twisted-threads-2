@@ -31,7 +31,7 @@ function UserSummary(props) {
 						{username}
 					</h3>
 					<div className="info">
-						<div className="description">{description}</div>
+						<div className="description">{description || ''}</div>
 						<div
 							className="public-patterns"
 							title="Number of published patterns"
@@ -40,14 +40,14 @@ function UserSummary(props) {
 								className="icon"
 								style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/number_of_patterns.png')}` }}
 							/>
-							{publicPatternsCount}
+							{publicPatternsCount || 0}
 						</div>
 						<div
 							className="public-color-books"
 							title="Number of published colour books"
 						>
 							<span className="icon"><FontAwesomeIcon icon={['fas', 'book-open']} style={{ 'color': iconColors.default }} size="1x" /></span>
-							{publicColorBooksCount}
+							{typeof publicColorBooksCount === 'number' ? publicColorBooksCount : 0}
 						</div>
 					</div>
 				</Link>

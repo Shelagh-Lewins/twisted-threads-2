@@ -174,7 +174,7 @@ Meteor.methods({
       );
     }
     // user is administrator
-    if (!Roles.userIsInRole(Meteor.userId(), 'administrator')) {
+    if (!(await Roles.userIsInRoleAsync(Meteor.userId(), 'administrator'))) {
       throw new Meteor.Error(
         'add-user-to-role-not-administrator',
         'Unable to add user to role because the current user is not an administrator',
@@ -203,14 +203,14 @@ Meteor.methods({
     }
 
     // user is not already in role
-    if (Roles.userIsInRole(_id, role)) {
+    if (await Roles.userIsInRoleAsync(_id, role)) {
       throw new Meteor.Error(
         'add-user-to-role-already-in-role',
         'Unable to add user to role because the user is already in the role',
       );
     }
 
-    Roles.addUsersToRoles(_id, [role]);
+    await Roles.addUsersToRolesAsync(_id, [role]);
 
     return 'success';
   },
@@ -224,7 +224,7 @@ Meteor.methods({
     }
 
     // user is administrator
-    if (!Roles.userIsInRole(Meteor.userId(), 'administrator')) {
+    if (!(await Roles.userIsInRoleAsync(Meteor.userId(), 'administrator'))) {
       throw new Meteor.Error(
         'remove-user-from-role-not-administrator',
         'Unable to remove user from role because the current user is not an administrator',
@@ -253,7 +253,7 @@ Meteor.methods({
     }
 
     // user is in role
-    if (!Roles.userIsInRole(_id, role)) {
+    if (!(await Roles.userIsInRoleAsync(_id, role))) {
       throw new Meteor.Error(
         'remove-user-from-role-not-in-role',
         'Unable to remove user from role because the user is not in the role',
@@ -268,7 +268,7 @@ Meteor.methods({
       );
     }
 
-    Roles.removeUsersFromRoles(_id, [role]);
+    await Roles.removeUsersFromRolesAsync(_id, [role]);
 
     return 'success';
   },

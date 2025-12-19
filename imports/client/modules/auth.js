@@ -649,7 +649,7 @@ const initialAuthState = {
   forgotPasswordEmailSent: false,
   isLoading: true,
   maintenanceMode: false,
-  version: 0,
+  version: '',
   numberOfColorBooks: 0,
   numberOfPatternImages: 0,
   numberOfPatterns: 0,

@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button, Input } from 'reactstrap';
@@ -20,7 +19,7 @@ import {
   showMoreUsers,
   showMoreSets,
 } from '../modules/search';
-import 'react-widgets/dist/css/react-widgets.css';
+import 'react-widgets/styles.css';
 import { Patterns, Sets } from '../../modules/collection';
 import { iconColors, SEARCH_MORE } from '../../modules/parameters';
 
@@ -34,6 +33,8 @@ class Search extends PureComponent {
     this.state = {
       open: false,
     };
+
+    this.searchBoxRef = React.createRef();
 
     // bind onClick functions to provide context
     const functionsToBind = [
@@ -53,8 +54,13 @@ class Search extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    const { isSearching, searchTerm } = this.props;
+    const { dispatch, hasSearchTerm, isSearching, searchTerm } = this.props;
     const { open } = this.state;
+
+    // Stop searching once we have search term and results are ready
+    if (hasSearchTerm && isSearching && !prevProps.hasSearchTerm) {
+      dispatch(setIsSearching(false));
+    }
 
     if (prevProps.isSearching && !isSearching && searchTerm !== '' && !open) {
       // allow search results to appear
@@ -128,8 +134,9 @@ class Search extends PureComponent {
   };
 
   handleClickOutside(event) {
-    // only way I could think of to find the list inside the Combobox component
-    const node = ReactDOM.findDOMNode(this); // eslint-disable-line react/no-find-dom-node
+    const node = this.searchBoxRef.current;
+    if (!node) return;
+
     const listNode = node.querySelector('.rw-list');
     const toggleNode = node.querySelector('.toggle-results');
 
@@ -374,14 +381,14 @@ class Search extends PureComponent {
     }
 
     return (
-      <div className='search-box'>
+      <div className='search-box' ref={this.searchBoxRef}>
         {this.renderSearchInput()}
         <Combobox
           busy={isSearching}
           data={searchResults}
           groupBy='type'
-          groupComponent={GroupHeading}
-          itemComponent={ListItem}
+          renderListGroup={GroupHeading}
+          renderListItem={ListItem}
           messages={{
             emptyList: message,
           }}
@@ -390,7 +397,7 @@ class Search extends PureComponent {
           onSelect={this.onSelect}
           onToggle={() => {}}
           textField='name'
-          valueField='_id'
+          dataKey='_id'
         />
       </div>
     );
@@ -402,6 +409,7 @@ Search.updateMe = new ReactiveVar(false);
 
 Search.propTypes = {
   dispatch: PropTypes.func.isRequired,
+  hasSearchTerm: PropTypes.bool.isRequired,
   history: PropTypes.objectOf(PropTypes.any).isRequired,
   isSearching: PropTypes.bool.isRequired,
   searchResults: PropTypes.arrayOf(PropTypes.any).isRequired,
@@ -495,13 +503,12 @@ const Tracker = withTracker(({ dispatch }) => {
     }
 
     setsResults = displayedSets;
-
-    dispatch(setIsSearching(false));
   }
   Search.updateMe.set('false');
 
   return {
     searchResults: patternsResults.concat(usersResults).concat(setsResults),
+    hasSearchTerm: !!searchTerm,
   };
 })(Search);
 

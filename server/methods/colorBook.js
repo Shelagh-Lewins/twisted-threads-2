@@ -27,7 +27,7 @@ Meteor.methods({
     });
 
     // update the user's count of public color books
-    updatePublicColorBooksCount(Meteor.userId());
+    await updatePublicColorBooksCount(Meteor.userId());
 
     return colorBookId;
   },
@@ -60,7 +60,7 @@ Meteor.methods({
     const removed = await ColorBooks.removeAsync({ _id });
 
     // update the user's count of public color books
-    updatePublicColorBooksCount(Meteor.userId());
+    await updatePublicColorBooksCount(Meteor.userId());
 
     return removed;
   },
@@ -146,7 +146,7 @@ Meteor.methods({
         await ColorBooks.updateAsync({ _id }, { $set: { isPublic } });
 
         // update the user's count of public color books
-        updatePublicColorBooksCount(Meteor.userId());
+        await updatePublicColorBooksCount(Meteor.userId());
 
         return;
 

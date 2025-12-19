@@ -2,3 +2,4 @@
 . .env
 
 meteor
+# NODE_OPTIONS='--trace-warnings' meteor

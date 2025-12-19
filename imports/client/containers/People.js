@@ -80,7 +80,7 @@ class People extends Component {
 			users,
 		} = this.props;
 
-		if (users.length === 0) {
+		if (!Array.isArray(users) || users.length === 0) {
 			return (
 				<div className="empty">There are no people to display</div>
 			);
@@ -88,7 +88,6 @@ class People extends Component {
 
 		return users.map((user) => {
 			const { _id } = user;
-
 			return (
 				<div key={`user-summary-${_id}`}>
 					<UserSummary

@@ -175,11 +175,12 @@ Meteor.publish('patternsById', function (patternIds) {
 });
 
 // individual pattern
-Meteor.publish('pattern', function (_id) {
+Meteor.publish('pattern', async function (_id) {
   check(_id, nonEmptyStringCheck);
 
   // NOTE service user can view any individual pattern
-  if (Roles.getRolesForUser(Meteor.userId()).includes('serviceUser')) {
+  const userRoles = await Roles.getRolesForUserAsync(Meteor.userId());
+  if (userRoles.includes('serviceUser')) {
     return Patterns.find(
       {
         _id,

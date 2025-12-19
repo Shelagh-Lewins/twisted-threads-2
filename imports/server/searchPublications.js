@@ -75,22 +75,18 @@ Meteor.publish('search.patterns', async function (searchTerm, limit = 20) {
     const matchingTags = await Tags.find({ name: { $regex: regex } }).fetchAsync();
     const matchingTagNames = matchingTags.map(t => t.name);
 
+    const searchConditions = [{ $text: { $search: trimmed } }];
+
+    if (matchingTagNames.length) {
+      searchConditions.push({ tags: { $in: matchingTagNames } });
+    }
+
     selector = {
       $and: [
         permission,
-        {
-          $or: [
-            { $text: { $search: trimmed } },
-            { nameSort: { $regex: regex } },
-            { name: { $regex: regex } },
-          ],
-        },
+        { $or: searchConditions },
       ],
     };
-
-    if (matchingTagNames.length) {
-      selector.$and[1].$or.push({ tags: { $in: matchingTagNames } });
-    }
   }
 
   const fields = {
@@ -112,7 +108,7 @@ Meteor.publish('search.patterns', async function (searchTerm, limit = 20) {
 
   return [
     cursor,
-    userIds.length ? Meteor.users.find({ _id: { $in: userIds } }, { fields: { username: 1 } }) : this.ready(),
+    Meteor.users.find({ _id: { $in: userIds.length ? userIds : [] } }, { fields: { username: 1 } }),
   ];
 });
 
@@ -162,22 +158,18 @@ Meteor.publish('search.sets', async function (searchTerm, limit = 20) {
     const matchingTags = await Tags.find({ name: { $regex: regex } }).fetchAsync();
     const matchingTagNames = matchingTags.map(t => t.name);
 
+    const searchConditions = [{ $text: { $search: trimmed } }];
+
+    if (matchingTagNames.length) {
+      searchConditions.push({ tags: { $in: matchingTagNames } });
+    }
+
     selector = {
       $and: [
         permission,
-        {
-          $or: [
-            { $text: { $search: trimmed } },
-            { nameSort: { $regex: regex } },
-            { name: { $regex: regex } },
-          ],
-        },
+        { $or: searchConditions },
       ],
     };
-
-    if (matchingTagNames.length) {
-      selector.$and[1].$or.push({ tags: { $in: matchingTagNames } });
-    }
   }
 
   const fields = {
@@ -198,6 +190,6 @@ Meteor.publish('search.sets', async function (searchTerm, limit = 20) {
 
   return [
     cursor,
-    userIds.length ? Meteor.users.find({ _id: { $in: userIds } }, { fields: { username: 1 } }) : this.ready(),
+    Meteor.users.find({ _id: { $in: userIds.length ? userIds : [] } }, { fields: { username: 1 } }),
   ];
 });

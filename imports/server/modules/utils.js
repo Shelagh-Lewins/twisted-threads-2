@@ -109,7 +109,7 @@ export const checkUserCanCreatePattern = async () => {
       'Unable to add pattern because the user is not logged in',
     );
     // user must have role 'registered', which is automatically assigned when account is created
-  } else if (!Roles.userIsInRole(Meteor.userId(), 'registered')) {
+  } else if (!(await Roles.userIsInRoleAsync(Meteor.userId(), 'registered'))) {
     error = new Meteor.Error(
       'add-pattern-not-registered',
       "Unable to add pattern because the user does not have role 'registered'",
@@ -121,7 +121,8 @@ export const checkUserCanCreatePattern = async () => {
     }).countAsync();
 
     const limits = [];
-    Roles.getRolesForUser(Meteor.userId()).forEach((role) => {
+    const userRoles = await Roles.getRolesForUserAsync(Meteor.userId());
+    userRoles.forEach((role) => {
       if (ROLE_LIMITS[role]) {
         limits.push(ROLE_LIMITS[role].maxPatternsPerUser);
       }
@@ -154,7 +155,7 @@ export const checkUserCanAddPatternImage = async (patternId) => {
       'Unable to add pattern image because the user is not logged in',
     );
     // user must have role 'registered', which is automatically assigned when account is created
-  } else if (!Roles.userIsInRole(Meteor.userId(), 'registered')) {
+  } else if (!(await Roles.userIsInRoleAsync(Meteor.userId(), 'registered'))) {
     error = new Meteor.Error(
       'add-pattern-image-not-logged-in',
       "Unable to add pattern image because the user does not have role 'registered'",
@@ -179,7 +180,8 @@ export const checkUserCanAddPatternImage = async (patternId) => {
       }).countAsync();
 
       const limits = [];
-      Roles.getRolesForUser(Meteor.userId()).forEach((role) => {
+      const userRoles = await Roles.getRolesForUserAsync(Meteor.userId());
+      userRoles.forEach((role) => {
         if (ROLE_LIMITS[role]) {
           limits.push(ROLE_LIMITS[role].maxImagesPerPattern);
         }
@@ -213,7 +215,7 @@ export const checkCanCreateColorBook = async () => {
       'add-color-book-not-logged-in',
       'Unable to add color book because the user is not logged in',
     );
-  } else if (!Roles.userIsInRole(Meteor.userId(), 'registered')) {
+  } else if (!(await Roles.userIsInRoleAsync(Meteor.userId(), 'registered'))) {
     // user must have role 'registered', which is automatically assigned when account is created
     error = new Meteor.Error(
       'add-color-book-not-registered',
@@ -226,7 +228,8 @@ export const checkCanCreateColorBook = async () => {
     }).countAsync();
 
     const limits = [];
-    Roles.getRolesForUser(Meteor.userId()).forEach((role) => {
+    const userRoles = await Roles.getRolesForUserAsync(Meteor.userId());
+    userRoles.forEach((role) => {
       if (ROLE_LIMITS[role]) {
         limits.push(ROLE_LIMITS[role].maxColorBooksPerUser);
       }
@@ -276,7 +279,7 @@ export const updatePublicPatternsCountForSet = async (_id) => {
 };
 
 export const updatePublicColorBooksCount = async (_id) => {
-  const publicColorBooksCount = ColorBooks.find({
+  const publicColorBooksCount = await ColorBooks.find({
     $and: [{ isPublic: { $eq: true } }, { createdBy: _id }],
   }).countAsync();
 
