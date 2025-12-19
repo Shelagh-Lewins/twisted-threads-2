@@ -2,7 +2,7 @@
 // it retrieves a token from the url and attempts to verify the email address
 
 import React, { Component } from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import {

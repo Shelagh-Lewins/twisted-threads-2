@@ -97,7 +97,7 @@ Meteor.startup(async () => {
   });
 });
 
-Accounts.onCreateUser((options, user) => {
+Accounts.onCreateUser(async (options, user) => {
   const newUser = { ...user };
   // We still want the default hook's 'profile' behavior.
   newUser.profile = options.profile || {};
@@ -106,7 +106,7 @@ Accounts.onCreateUser((options, user) => {
   newUser.publicColorBooksCount = 0;
 
   // assign the user the default role
-  Roles.addUsersToRoles(newUser._id, 'registered');
+  await Roles.addUsersToRolesAsync(newUser._id, 'registered');
 
   // log new user registrations so fail2ban can find them in the nginx logs
   const text = buildServerLogText('[action]: Meteor create user');

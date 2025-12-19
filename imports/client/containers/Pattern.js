@@ -3,7 +3,7 @@
 import React, { PureComponent } from 'react';
 import { Button } from 'reactstrap';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
 import {

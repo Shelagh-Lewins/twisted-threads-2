@@ -19,10 +19,9 @@ import PaginatedList from '../components/PaginatedList';
 import PatternList from '../components/PatternList';
 
 import secondaryPatternSubscriptions from '../modules/secondaryPatternSubscriptions';
+import queryString from 'query-string';
 
 import './Home.scss';
-
-const queryString = require('query-string');
 
 const bodyClass = 'new-patterns';
 

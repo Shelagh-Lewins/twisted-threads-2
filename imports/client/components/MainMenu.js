@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import {
 	matchPath,
 	withRouter,
-} from 'react-router';
+} from 'react-router-dom';
 import PropTypes from 'prop-types';
 import {
 	getIsAuthenticated,

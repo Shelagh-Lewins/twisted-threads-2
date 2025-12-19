@@ -17,10 +17,9 @@ import UserSummary from '../components/UserSummary';
 import Loading from '../components/Loading';
 import MainMenu from '../components/MainMenu';
 import PaginatedList from '../components/PaginatedList';
+import queryString from 'query-string';
 
 import './Home.scss';
-
-const queryString = require('query-string');
 
 const bodyClass = 'people';
 

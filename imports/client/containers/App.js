@@ -1,12 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-  matchPath,
-} from 'react-router';
-import {
   BrowserRouter as Router,
   Route,
   Switch,
+  matchPath,
   withRouter,
 } from 'react-router-dom';
 import { connect, Provider } from 'react-redux';

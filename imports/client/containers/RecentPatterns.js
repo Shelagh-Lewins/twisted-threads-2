@@ -12,10 +12,9 @@ import MainMenu from '../components/MainMenu';
 import PaginatedList from '../components/PaginatedList';
 import PatternList from '../components/PatternList';
 import findRecentPatterns from '../modules/findRecentPatterns';
+import queryString from 'query-string';
 
 import './Home.scss';
-
-const queryString = require('query-string');
 
 const bodyClass = 'recent-patterns';
 

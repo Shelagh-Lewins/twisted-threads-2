@@ -1,7 +1,7 @@
 // detail of a single user
 
 import React, { PureComponent } from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { Button, Col, Container, Row } from 'reactstrap';
 import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
@@ -51,8 +51,7 @@ import getUserpicStyle from '../modules/getUserpicStyle';
 import './User.scss';
 import './MainTabs.scss';
 import '../components/Userpic.scss';
-
-const queryString = require('query-string');
+import queryString from 'query-string';
 
 const bodyClass = 'user';
 
