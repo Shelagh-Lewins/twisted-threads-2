@@ -100,20 +100,29 @@ Meteor.publish('search.patterns', async function (searchTerm, limit = 20) {
 
   const sort = trimmed ? { score: { $meta: 'textScore' } } : { nameSort: 1 };
 
-  const cursor = Patterns.find(selector, { fields, sort, limit });
+  const patterns = await Patterns.find(selector, { fields, sort, limit }).fetchAsync();
 
-  // publish owners for username lookup
-  const patterns = await cursor.fetchAsync();
+  // fetch usernames for pattern owners
   const userIds = Array.from(new Set(patterns.map(p => p.createdBy).filter(Boolean)));
+  const users = await Meteor.users.find(
+    { _id: { $in: userIds.length ? userIds : [] } },
+    { fields: { username: 1 } }
+  ).fetchAsync();
+  const usernameMap = Object.fromEntries(users.map(u => [u._id, u.username]));
 
-  return [
-    cursor,
-    Meteor.users.find({ _id: { $in: userIds.length ? userIds : [] } }, { fields: { username: 1 } }),
-  ];
+  // publish to dedicated searchPatterns collection with username included
+  patterns.forEach(pattern => {
+    this.added('searchPatterns', pattern._id, {
+      ...pattern,
+      username: usernameMap[pattern.createdBy] || '',
+    });
+  });
+
+  this.ready();
 });
 
 // publish matching users
-Meteor.publish('search.users', function (searchTerm, limit = 20) {
+Meteor.publish('search.users', async function (searchTerm, limit = 20) {
   check(searchTerm, String);
   check(limit, Number);
 
@@ -140,7 +149,14 @@ Meteor.publish('search.users', function (searchTerm, limit = 20) {
   const fields = { _id: 1, username: 1 };
   const sort = trimmed ? { score: { $meta: 'textScore' } } : { username: 1 };
 
-  return Meteor.users.find(selector, { fields, sort, limit });
+  const users = await Meteor.users.find(selector, { fields, sort, limit }).fetchAsync();
+
+  // publish to dedicated searchUsers collection
+  users.forEach(user => {
+    this.added('searchUsers', user._id, user);
+  });
+
+  this.ready();
 });
 
 // publish matching sets
@@ -183,13 +199,23 @@ Meteor.publish('search.sets', async function (searchTerm, limit = 20) {
 
   const sort = trimmed ? { score: { $meta: 'textScore' } } : { nameSort: 1 };
 
-  const cursor = Sets.find(selector, { fields, sort, limit });
+  const sets = await Sets.find(selector, { fields, sort, limit }).fetchAsync();
 
-  const sets = await cursor.fetchAsync();
+  // fetch usernames for set owners
   const userIds = Array.from(new Set(sets.map(s => s.createdBy).filter(Boolean)));
+  const users = await Meteor.users.find(
+    { _id: { $in: userIds.length ? userIds : [] } },
+    { fields: { username: 1 } }
+  ).fetchAsync();
+  const usernameMap = Object.fromEntries(users.map(u => [u._id, u.username]));
 
-  return [
-    cursor,
-    Meteor.users.find({ _id: { $in: userIds.length ? userIds : [] } }, { fields: { username: 1 } }),
-  ];
+  // publish to dedicated searchSets collection with username included
+  sets.forEach(set => {
+    this.added('searchSets', set._id, {
+      ...set,
+      username: usernameMap[set.createdBy] || '',
+    });
+  });
+
+  this.ready();
 });

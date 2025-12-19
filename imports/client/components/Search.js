@@ -20,7 +20,7 @@ import {
   showMoreSets,
 } from '../modules/search';
 import 'react-widgets/styles.css';
-import { Patterns, Sets } from '../../modules/collection';
+import { SearchPatterns, SearchSets, SearchUsers } from '../../modules/searchCollections';
 import { iconColors, SEARCH_MORE } from '../../modules/parameters';
 
 import getUserpicStyle from '../modules/getUserpicStyle';
@@ -441,17 +441,13 @@ const Tracker = withTracker(({ dispatch }) => {
     Meteor.subscribe('search.sets', searchTerm, setsLimit);
 
     // patterns
-    const patternsCursor = Patterns.find({}, { sort: { nameSort: 1 } });
+    const patternsCursor = SearchPatterns.find({}, { sort: { nameSort: 1 } });
     let fetchedPatterns = patternsCursor.fetch();
-    fetchedPatterns = fetchedPatterns.map((p) => {
-      const owner = Meteor.users.findOne(p.createdBy);
-      return {
-        ...p,
-        username: owner ? owner.username : '',
-        type: 'pattern',
-        __originalId: p._id,
-      };
-    });
+    fetchedPatterns = fetchedPatterns.map((p) => ({
+      ...p,
+      type: 'pattern',
+      __originalId: p._id,
+    }));
 
     const numberOfPatterns = fetchedPatterns.length;
     const displayedPatterns = fetchedPatterns.slice(0, patternSearchLimit);
@@ -465,7 +461,7 @@ const Tracker = withTracker(({ dispatch }) => {
     patternsResults = displayedPatterns;
 
     // users
-    const usersCursor = Meteor.users.find({}, { sort: { username: 1 } });
+    const usersCursor = SearchUsers.find({}, { sort: { username: 1 } });
     let fetchedUsers = usersCursor.fetch();
     fetchedUsers = fetchedUsers.map((u) => ({
       _id: u._id,
@@ -484,17 +480,13 @@ const Tracker = withTracker(({ dispatch }) => {
     usersResults = displayedUsers;
 
     // sets
-    const setsCursor = Sets.find({}, { sort: { nameSort: 1 } });
+    const setsCursor = SearchSets.find({}, { sort: { nameSort: 1 } });
     let fetchedSets = setsCursor.fetch();
-    fetchedSets = fetchedSets.map((s) => {
-      const owner = Meteor.users.findOne(s.createdBy);
-      return {
-        ...s,
-        username: owner ? owner.username : '',
-        type: 'set',
-        __originalId: s._id,
-      };
-    });
+    fetchedSets = fetchedSets.map((s) => ({
+      ...s,
+      type: 'set',
+      __originalId: s._id,
+    }));
 
     const numberOfSets = fetchedSets.length;
     const displayedSets = fetchedSets.slice(0, setSearchLimit);
