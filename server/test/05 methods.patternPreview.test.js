@@ -4,6 +4,7 @@
 
 import { resetDatabase } from 'meteor/xolvio:cleaner';
 import { expect } from 'chai';
+import { Roles } from 'meteor/roles';
 import '../../imports/server/modules/publications';
 // import all the methods we'll need
 import '../methods/patternPreview';
@@ -81,8 +82,8 @@ if (Meteor.isServer) {
         stubOtherUser();
 
         // give user serviceUser role
-        Roles.createRole('serviceUser', { unlessExists: true });
-        Roles.addUsersToRoles(Meteor.userId(), ['serviceUser']);
+        await Roles.createRoleAsync('serviceUser', { unlessExists: true });
+        await Roles.addUsersToRolesAsync(Meteor.userId(), ['serviceUser']);
 
         const { patternId } = this; // seems to be a scoping issue otherwise
 
@@ -182,8 +183,8 @@ if (Meteor.isServer) {
         stubOtherUser();
 
         // give user serviceUser role
-        Roles.createRole('serviceUser', { unlessExists: true });
-        Roles.addUsersToRoles(Meteor.userId(), ['serviceUser']);
+        await Roles.createRoleAsync('serviceUser', { unlessExists: true });
+        await Roles.addUsersToRolesAsync(Meteor.userId(), ['serviceUser']);
 
         async function expectedError() {
           await Meteor.callAsync('patternPreview.remove', {

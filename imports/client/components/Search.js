@@ -21,7 +21,7 @@ import {
   showMoreSets,
 } from '../modules/search';
 import 'react-widgets/dist/css/react-widgets.css';
-import { PatternsIndex, SetsIndex, UsersIndex } from '../../modules/collection';
+import { Patterns, Sets } from '../../modules/collection';
 import { iconColors, SEARCH_MORE } from '../../modules/parameters';
 
 import getUserpicStyle from '../modules/getUserpicStyle';
@@ -423,59 +423,78 @@ const Tracker = withTracker(({ dispatch }) => {
   let setsResults = [];
 
   if (searchTerm) {
-    // search for patterns
-    // server returns extra results so the client knows if 'show more' should be shown
-    const patternsCursor = PatternsIndex.search(searchTerm, {
-      limit: patternSearchLimit + SEARCH_MORE,
-    }); // search is a reactive data source
+    const patternsLimit = patternSearchLimit + SEARCH_MORE;
+    const usersLimit = userSearchLimit + SEARCH_MORE;
+    const setsLimit = setSearchLimit + SEARCH_MORE;
 
-    patternsResults = patternsCursor.fetch();
+    // subscribe to server publications (reactive)
+    Meteor.subscribe('search.patterns', searchTerm, patternsLimit);
+    Meteor.subscribe('search.users', searchTerm, usersLimit);
+    Meteor.subscribe('search.sets', searchTerm, setsLimit);
 
-    // hide the 'more' results'
-    patternsResults = patternsResults.slice(0, patternSearchLimit);
-    const numberOfPatterns = patternsCursor.count();
+    // patterns
+    const patternsCursor = Patterns.find({}, { sort: { nameSort: 1 } });
+    let fetchedPatterns = patternsCursor.fetch();
+    fetchedPatterns = fetchedPatterns.map((p) => {
+      const owner = Meteor.users.findOne(p.createdBy);
+      return {
+        ...p,
+        username: owner ? owner.username : '',
+        type: 'pattern',
+        __originalId: p._id,
+      };
+    });
 
-    if (patternsResults.length < numberOfPatterns) {
-      patternsResults.push({
+    const numberOfPatterns = fetchedPatterns.length;
+    const displayedPatterns = fetchedPatterns.slice(0, patternSearchLimit);
+    if (numberOfPatterns > patternSearchLimit) {
+      displayedPatterns.push({
         name: 'Show more patterns',
         type: 'showMorePatterns',
       });
     }
 
-    // search for users
-    // server returns extra results so the client knows if 'show more' should be shown
-    const usersCursor = UsersIndex.search(searchTerm, {
-      limit: userSearchLimit + SEARCH_MORE,
-    }); // search is a reactive data source
-    usersResults = usersCursor.fetch();
+    patternsResults = displayedPatterns;
 
-    // hide the 'more' results'
-    usersResults = usersResults.slice(0, userSearchLimit);
-    const numberOfUsers = usersCursor.count();
+    // users
+    const usersCursor = Meteor.users.find({}, { sort: { username: 1 } });
+    let fetchedUsers = usersCursor.fetch();
+    fetchedUsers = fetchedUsers.map((u) => ({
+      _id: u._id,
+      name: u.username,
+      username: u.username,
+      type: 'user',
+      __originalId: u._id,
+    }));
 
-    if (usersResults.length < numberOfUsers) {
-      usersResults.push({
-        name: 'Show more users',
-        type: 'showMoreUsers',
-      });
+    const numberOfUsers = fetchedUsers.length;
+    const displayedUsers = fetchedUsers.slice(0, userSearchLimit);
+    if (numberOfUsers > userSearchLimit) {
+      displayedUsers.push({ name: 'Show more users', type: 'showMoreUsers' });
     }
 
-    // search for sets
-    const setsCursor = SetsIndex.search(searchTerm, {
-      limit: userSearchLimit + SEARCH_MORE,
-    }); // search is a reactive data source
-    setsResults = setsCursor.fetch();
+    usersResults = displayedUsers;
 
-    // hide the 'more' results'
-    setsResults = setsResults.slice(0, setSearchLimit);
-    const numberOfSets = setsCursor.count();
+    // sets
+    const setsCursor = Sets.find({}, { sort: { nameSort: 1 } });
+    let fetchedSets = setsCursor.fetch();
+    fetchedSets = fetchedSets.map((s) => {
+      const owner = Meteor.users.findOne(s.createdBy);
+      return {
+        ...s,
+        username: owner ? owner.username : '',
+        type: 'set',
+        __originalId: s._id,
+      };
+    });
 
-    if (setsResults.length < numberOfSets) {
-      usersResults.push({
-        name: 'Show more sets',
-        type: 'showMoreSets',
-      });
+    const numberOfSets = fetchedSets.length;
+    const displayedSets = fetchedSets.slice(0, setSearchLimit);
+    if (numberOfSets > setSearchLimit) {
+      displayedSets.push({ name: 'Show more sets', type: 'showMoreSets' });
     }
+
+    setsResults = displayedSets;
 
     dispatch(setIsSearching(false));
   }

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Col, Container, Row } from 'reactstrap';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import PageWrapper from '../components/PageWrapper';
 import store from '../modules/store';

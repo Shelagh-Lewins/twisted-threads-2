@@ -1,5 +1,6 @@
 // errorReducer.js
-const updeep = require('updeep');
+import * as updeepModule from 'updeep';
+const updeep = updeepModule.default || updeepModule;
 
 const LOG_ERRORS = 'LOG_ERRORS';
 const CLEAR_ERRORS = 'CLEAR_ERRORS';

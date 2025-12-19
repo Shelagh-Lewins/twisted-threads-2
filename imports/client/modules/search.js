@@ -2,8 +2,8 @@
 import { clearErrors, logErrors } from './errors';
 // import { createSelector } from 'reselect';
 import { SEARCH_LIMIT, SEARCH_MORE } from '../../modules/parameters';
-
-const updeep = require('updeep');
+import * as updeepModule from 'updeep';
+const updeep = updeepModule.default || updeepModule;
 
 // ////////////////////////////////
 // Action creators

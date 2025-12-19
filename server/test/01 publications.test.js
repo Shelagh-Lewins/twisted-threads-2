@@ -7,6 +7,7 @@
 import { PublicationCollector } from 'meteor/johanbrook:publication-collector';
 import { resetDatabase } from 'meteor/xolvio:cleaner';
 import { assert } from 'chai';
+import { Roles } from 'meteor/roles';
 import '../../imports/server/modules/publications';
 import {
   ColorBooks,
@@ -364,8 +365,8 @@ if (Meteor.isServer) {
         stubUser();
 
         // give user serviceUser role
-        Roles.createRole('serviceUser', { unlessExists: true });
-        Roles.addUsersToRoles(Meteor.userId(), ['serviceUser']);
+        await Roles.createRoleAsync('serviceUser', { unlessExists: true });
+        await Roles.addUsersToRolesAsync(Meteor.userId(), ['serviceUser']);
 
         const collector = new PublicationCollector({
           userId: Meteor.userAsync()._id,
@@ -1405,8 +1406,8 @@ if (Meteor.isServer) {
         const userId = Meteor.userId();
 
         // set 1 pattern in set to public
-        Roles.createRole('verified', { unlessExists: true });
-        Roles.addUsersToRoles(userId, ['verified']);
+        await Roles.createRoleAsync('verified', { unlessExists: true });
+        await Roles.addUsersToRolesAsync(userId, ['verified']);
 
         await Meteor.callAsync('pattern.edit', {
           _id: this.pattern1._id,
@@ -1459,8 +1460,8 @@ if (Meteor.isServer) {
         // make sure publications know there is no user
         const userId = Meteor.userId();
 
-        Roles.createRole('verified', { unlessExists: true });
-        Roles.addUsersToRoles(userId, ['verified']);
+        await Roles.createRoleAsync('verified', { unlessExists: true });
+        await Roles.addUsersToRolesAsync(userId, ['verified']);
 
         // set 1 pattern in set to public
         await Meteor.callAsync('pattern.edit', {

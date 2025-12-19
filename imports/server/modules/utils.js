@@ -1,3 +1,4 @@
+import { Roles } from 'meteor/roles';
 import {
   ColorBooks,
   Sets,

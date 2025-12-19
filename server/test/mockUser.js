@@ -1,11 +1,19 @@
 const sinon = require('sinon');
+import { Roles } from 'meteor/roles';
 
-export function stubUser(params) {
+export async function stubUser(params) {
   // create a fake logged in user
   Meteor.users.removeAsync({});
   const currentUser = Factory.create('user', params);
-  Roles.createRole('registered', { unlessExists: true });
-  Roles.addUsersToRoles(currentUser._id, ['registered']);
+  if (Roles && typeof Roles.createRoleAsync === 'function') {
+    await Roles.createRoleAsync('registered', { unlessExists: true });
+    await Roles.addUsersToRolesAsync(currentUser._id, ['registered']);
+  } else if (Roles && typeof Roles.createRole === 'function') {
+    Roles.createRole('registered', { unlessExists: true });
+    Roles.addUsersToRoles(currentUser._id, ['registered']);
+  } else {
+    console.warn('[roles] Roles APIs not available; skipping role assignment in stubUser');
+  }
 
   sinon.stub(Meteor, 'userAsync');
   Meteor.userAsync.returns(currentUser); // now Meteor.userAsync() will return the user we just created
@@ -46,7 +54,7 @@ export function logOutButLeaveUser() {
   return undefined;
 }
 
-export function stubOtherUser() {
+export async function stubOtherUser() {
   // create a new fake logged in user
   unwrapUser();
   const currentUser = Factory.create('user', {
@@ -60,8 +68,15 @@ export function stubOtherUser() {
     publicPatternsCount: 0,
     publicColorBooksCount: 0,
   });
-  Roles.createRole('registered', { unlessExists: true });
-  Roles.addUsersToRoles(currentUser._id, ['registered']);
+  if (Roles && typeof Roles.createRoleAsync === 'function') {
+    await Roles.createRoleAsync('registered', { unlessExists: true });
+    await Roles.addUsersToRolesAsync(currentUser._id, ['registered']);
+  } else if (Roles && typeof Roles.createRole === 'function') {
+    Roles.createRole('registered', { unlessExists: true });
+    Roles.addUsersToRoles(currentUser._id, ['registered']);
+  } else {
+    console.warn('[roles] Roles APIs not available; skipping role assignment in stubOtherUser');
+  }
 
   sinon.stub(Meteor, 'userAsync');
   Meteor.userAsync.returns(currentUser); // now Meteor.userAsync() will return the user we just created

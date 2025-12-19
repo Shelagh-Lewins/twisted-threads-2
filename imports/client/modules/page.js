@@ -1,7 +1,6 @@
-// Partial reducer for page, e.g. selected main menu item
 import { ALLOWED_ITEMS_PER_PAGE } from '../../modules/parameters';
-
-const updeep = require('updeep');
+import * as updeepModule from 'updeep';
+const updeep = updeepModule.default || updeepModule;
 
 export const SET_MAIN_MENU_ITEM = 'SET_MAIN_MENU_ITEM';
 export const SET_ITEMS_PER_PAGE	= 'SET_ITEMS_PER_PAGE';

@@ -3,6 +3,7 @@
 
 import { resetDatabase } from 'meteor/xolvio:cleaner';
 import { assert, expect } from 'chai';
+import { Roles } from 'meteor/roles';
 import {
   PatternImages,
   Patterns,
@@ -37,8 +38,8 @@ if (Meteor.isServer) {
       });
 
       it('cannot create pattern if not registered', async () => {
-        stubUser();
-        Roles.removeUsersFromRoles(Meteor.userId(), ['registered']);
+        await stubUser();
+        await Roles.removeUsersFromRolesAsync(Meteor.userId(), ['registered']);
 
         async function expectedError() {
           await Meteor.callAsync('pattern.add', addPatternDataIndividual);
@@ -52,7 +53,7 @@ if (Meteor.isServer) {
       });
 
       it('can create the correct number of patterns if not verified', async () => {
-        stubUser();
+        await stubUser();
 
         const patternLimit = ROLE_LIMITS.registered.maxPatternsPerUser;
         for (let i = 0; i < patternLimit; i += 1) {
@@ -75,10 +76,10 @@ if (Meteor.isServer) {
       });
 
       it('can create the correct number of patterns if verified', async () => {
-        const currentUser = stubUser();
+        const currentUser = await stubUser();
 
-        Roles.createRole('verified', { unlessExists: true });
-        Roles.addUsersToRoles(currentUser._id, ['verified']);
+        await Roles.createRoleAsync('verified', { unlessExists: true });
+        await Roles.addUsersToRolesAsync(currentUser._id, ['verified']);
 
         const patternLimit = ROLE_LIMITS.verified.maxPatternsPerUser;
         for (let i = 0; i < patternLimit; i += 1) {
@@ -101,10 +102,10 @@ if (Meteor.isServer) {
       });
 
       it('can create the correct number of patterns if premium', async () => {
-        const currentUser = stubUser();
+        const currentUser = await stubUser();
 
-        Roles.createRole('premium', { unlessExists: true });
-        Roles.addUsersToRoles(currentUser._id, ['premium']);
+        await Roles.createRoleAsync('premium', { unlessExists: true });
+        await Roles.addUsersToRolesAsync(currentUser._id, ['premium']);
 
         const patternLimit = ROLE_LIMITS.premium.maxPatternsPerUser;
         for (let i = 0; i < patternLimit; i += 1) {

@@ -1,4 +1,5 @@
 import { check } from 'meteor/check';
+import { Roles } from 'meteor/roles';
 import {
   ColorBooks,
   FAQ,

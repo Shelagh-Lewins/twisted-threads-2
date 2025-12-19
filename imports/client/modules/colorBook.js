@@ -1,8 +1,8 @@
 // Partial store for ColorBooks collection in database e.g. actions to call a method to edit a color book
 
 import { logErrors, clearErrors } from './errors';
-
-const updeep = require('updeep');
+import * as updeepModule from 'updeep';
+const updeep = updeepModule.default || updeepModule;
 
 // ////////////////////////////////
 // Action creators

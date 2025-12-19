@@ -35,8 +35,8 @@ import getColorsForRolesByTablet from '../../modules/getColorsForRolesByTablet';
 import patternAsText from './patternAsText';
 import newPatternFromFile from './newPatternFromFile';
 import getDoubleFacedOrientation from '../../modules/getDoubleFacedOrientation';
-
-const updeep = require('updeep');
+import * as updeepModule from 'updeep';
+const updeep = updeepModule.default || updeepModule;
 const filenamify = require('filenamify');
 
 /* eslint-disable no-case-declarations */

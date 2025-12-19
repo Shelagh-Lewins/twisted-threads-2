@@ -1,7 +1,9 @@
 import { applyMiddleware, createStore, compose } from "redux";
-import thunk from "redux-thunk";
+import * as thunkModule from "redux-thunk";
 import rootReducer from "./rootReducer";
 
+// Support both ESM named export and CommonJS default
+const thunk = thunkModule.thunk || thunkModule.default || thunkModule;
 const middleware = [thunk];
 
 // compose with Redux Devtools extension in development only

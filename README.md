@@ -24,10 +24,18 @@ To send emails, you'll need to provide a valid MAIL_URL.
 
 To save pattern images and preview thumbnails, you'll need to provide AWS credentials.
 
+Required environment variables for S3 uploads (Slingshot):
+
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `AWS_BUCKET`
+- (optional) `AWSRegion`
+
 1. Copy and rename the file `.env.template` to `.env`
 2. Enter your mail and any other credentials in `.env`. NEVER commit `.env` to GitHub.
-3. Start the app by executing the script `
-run_meteor.js`
+3. Start the app by executing the script `run_meteor.js`
+
+Note: The application creates search-related MongoDB indexes automatically at server startup. If the database user does not have privileges to create indexes, the index creation will fail and an error will be logged on startup; ensure the DB user has index creation privileges in environments where automatic creation is desired.
 
 The script will first load the environment variables from .env and then run Meteor. This avoids using settings.json and better simulates a production environment.
 

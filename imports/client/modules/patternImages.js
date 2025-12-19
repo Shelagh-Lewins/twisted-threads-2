@@ -1,7 +1,7 @@
 // Partial store for PatternImages collection in database, which logs urls of images that have been uploaded by users to their patterns
 import { clearErrors, logErrors } from './errors';
-
-const updeep = require('updeep');
+import * as updeepModule from 'updeep';
+const updeep = updeepModule.default || updeepModule;
 
 // ////////////////////////////////
 // Action creators

@@ -3,6 +3,7 @@
 import { resetDatabase } from 'meteor/xolvio:cleaner';
 import * as chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
+import { Roles } from 'meteor/roles';
 import '../../imports/server/modules/publications';
 import '../methods/auth';
 import {
@@ -44,8 +45,8 @@ if (Meteor.isServer) {
       it('throws an error if the users email address is verified', async () => {
         const currentUser = stubUser();
 
-        Roles.createRole('verified', { unlessExists: true });
-        Roles.addUsersToRoles(currentUser._id, ['verified']);
+        await Roles.createRoleAsync('verified', { unlessExists: true });
+        await Roles.addUsersToRolesAsync(currentUser._id, ['verified']);
 
         async function expectedError() {
           await Meteor.callAsync('auth.sendVerificationEmail', currentUser._id);
@@ -64,8 +65,8 @@ if (Meteor.isServer) {
           { $set: { 'emails.0.verified': false } },
         );
 
-        Roles.createRole('verified', { unlessExists: true });
-        Roles.removeUsersFromRoles(currentUser._id, ['verified']);
+        await Roles.createRoleAsync('verified', { unlessExists: true });
+        await Roles.removeUsersFromRolesAsync(currentUser._id, ['verified']);
 
         const result = await Meteor.callAsync(
           'auth.sendVerificationEmail',
@@ -164,8 +165,8 @@ if (Meteor.isServer) {
 
       it('stores the maximum number of recents', async () => {
         const currentUser = stubUser();
-        Roles.createRole('verified', { unlessExists: true });
-        Roles.addUsersToRoles(currentUser._id, ['verified']);
+        await Roles.createRoleAsync('verified', { unlessExists: true });
+        await Roles.addUsersToRolesAsync(currentUser._id, ['verified']);
 
         const newRecentPatterns = [];
         const numberOfRecents = MAX_RECENTS + 5;
@@ -520,8 +521,8 @@ if (Meteor.isServer) {
         stubUser(); // only so stubOtherUser has something to unwrap
         const currentUser = stubOtherUser(); // the administrator
 
-        Roles.createRole('administrator', { unlessExists: true });
-        Roles.addUsersToRoles(currentUser._id, ['administrator']);
+        await Roles.createRoleAsync('administrator', { unlessExists: true });
+        await Roles.addUsersToRolesAsync(currentUser._id, ['administrator']);
 
         async function expectedError() {
           await Meteor.callAsync('auth.addUserToRole', {
@@ -542,8 +543,8 @@ if (Meteor.isServer) {
 
         const currentUser = stubOtherUser(); // the administrator
 
-        Roles.createRole('administrator', { unlessExists: true });
-        Roles.addUsersToRoles(currentUser._id, ['administrator']);
+        await Roles.createRoleAsync('administrator', { unlessExists: true });
+        await Roles.addUsersToRolesAsync(currentUser._id, ['administrator']);
 
         async function expectedError() {
           await Meteor.callAsync('auth.addUserToRole', {
@@ -564,11 +565,11 @@ if (Meteor.isServer) {
 
         const currentUser = stubOtherUser(); // the administrator
 
-        Roles.createRole('administrator', { unlessExists: true });
-        Roles.addUsersToRoles(currentUser._id, ['administrator']);
+        await Roles.createRoleAsync('administrator', { unlessExists: true });
+        await Roles.addUsersToRolesAsync(currentUser._id, ['administrator']);
 
-        Roles.createRole('premium', { unlessExists: true });
-        Roles.addUsersToRoles(targetUser._id, ['premium']);
+        await Roles.createRoleAsync('premium', { unlessExists: true });
+        await Roles.addUsersToRolesAsync(targetUser._id, ['premium']);
 
         async function expectedError() {
           await Meteor.callAsync('auth.addUserToRole', {
@@ -589,10 +590,10 @@ if (Meteor.isServer) {
 
         const currentUser = stubOtherUser(); // the administrator
 
-        Roles.createRole('administrator', { unlessExists: true });
-        Roles.addUsersToRoles(currentUser._id, ['administrator']);
+        await Roles.createRoleAsync('administrator', { unlessExists: true });
+        await Roles.addUsersToRolesAsync(currentUser._id, ['administrator']);
 
-        Roles.createRole('premium', { unlessExists: true });
+        await Roles.createRoleAsync('premium', { unlessExists: true });
 
         await Meteor.callAsync('auth.addUserToRole', {
           _id: targetUser._id,
@@ -646,8 +647,8 @@ if (Meteor.isServer) {
         stubUser(); // only so stubOtherUser has something to unwrap
         const currentUser = stubOtherUser(); // the administrator
 
-        Roles.createRole('administrator', { unlessExists: true });
-        Roles.addUsersToRoles(currentUser._id, ['administrator']);
+        await Roles.createRoleAsync('administrator', { unlessExists: true });
+        await Roles.addUsersToRolesAsync(currentUser._id, ['administrator']);
 
         async function expectedError() {
           await Meteor.callAsync('auth.removeUserFromRole', {
@@ -668,8 +669,8 @@ if (Meteor.isServer) {
 
         const currentUser = stubOtherUser(); // the administrator
 
-        Roles.createRole('administrator', { unlessExists: true });
-        Roles.addUsersToRoles(currentUser._id, ['administrator']);
+        await Roles.createRoleAsync('administrator', { unlessExists: true });
+        await Roles.addUsersToRolesAsync(currentUser._id, ['administrator']);
 
         async function expectedError() {
           await Meteor.callAsync('auth.removeUserFromRole', {
@@ -690,10 +691,10 @@ if (Meteor.isServer) {
 
         const currentUser = stubOtherUser(); // the administrator
 
-        Roles.createRole('administrator', { unlessExists: true });
-        Roles.addUsersToRoles(currentUser._id, ['administrator']);
+        await Roles.createRoleAsync('administrator', { unlessExists: true });
+        await Roles.addUsersToRolesAsync(currentUser._id, ['administrator']);
 
-        Roles.createRole('premium', { unlessExists: true });
+        await Roles.createRoleAsync('premium', { unlessExists: true });
 
         async function expectedError() {
           await Meteor.callAsync('auth.removeUserFromRole', {
@@ -712,8 +713,8 @@ if (Meteor.isServer) {
       it('does not allow an administrator to remove themself', async () => {
         const targetUser = stubUser(); // the user whose role is to be changed
 
-        Roles.createRole('administrator', { unlessExists: true });
-        Roles.addUsersToRoles(targetUser._id, ['administrator']);
+        await Roles.createRoleAsync('administrator', { unlessExists: true });
+        await Roles.addUsersToRolesAsync(targetUser._id, ['administrator']);
 
         assert.equal(Roles.userIsInRole(targetUser._id, 'administrator'), true);
 
@@ -738,11 +739,11 @@ if (Meteor.isServer) {
 
         const currentUser = stubOtherUser(); // the administrator
 
-        Roles.createRole('administrator', { unlessExists: true });
-        Roles.addUsersToRoles(currentUser._id, ['administrator']);
+        await Roles.createRoleAsync('administrator', { unlessExists: true });
+        await Roles.addUsersToRolesAsync(currentUser._id, ['administrator']);
 
-        Roles.createRole('premium', { unlessExists: true });
-        Roles.addUsersToRoles(targetUser._id, ['premium']);
+        await Roles.createRoleAsync('premium', { unlessExists: true });
+        await Roles.addUsersToRolesAsync(targetUser._id, ['premium']);
 
         assert.equal(Roles.userIsInRole(targetUser._id, 'premium'), true);
 

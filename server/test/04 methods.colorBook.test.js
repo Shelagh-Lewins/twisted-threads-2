@@ -2,6 +2,7 @@
 
 import { resetDatabase } from 'meteor/xolvio:cleaner';
 import { assert, expect } from 'chai';
+import { Roles } from 'meteor/roles';
 import { ColorBooks } from '../../imports/modules/collection';
 import '../../imports/server/modules/publications';
 import '../methods/colorBook';
@@ -31,7 +32,7 @@ if (Meteor.isServer) {
       it('cannot create color book if not registered', async () => {
         async function expectedError() {
           stubUser();
-          Roles.removeUsersFromRoles(Meteor.userId(), ['registered']);
+          await Roles.removeUsersFromRolesAsync(Meteor.userId(), ['registered']);
 
           await Meteor.callAsync('colorBook.add', {
             colors: defaultColorBookData.colors,
@@ -76,8 +77,8 @@ if (Meteor.isServer) {
       it('can create the correct number of color books if verified', async () => {
         const currentUser = stubUser();
 
-        Roles.createRole('verified', { unlessExists: true });
-        Roles.addUsersToRoles(currentUser._id, ['verified']);
+        await Roles.createRoleAsync('verified', { unlessExists: true });
+        await Roles.addUsersToRolesAsync(currentUser._id, ['verified']);
 
         const colorBookLimit = ROLE_LIMITS.verified.maxColorBooksPerUser;
         for (let i = 0; i < colorBookLimit; i += 1) {
@@ -106,8 +107,8 @@ if (Meteor.isServer) {
       it('can create the correct number of color books if premium', async () => {
         const currentUser = stubUser();
 
-        Roles.createRole('premium', { unlessExists: true });
-        Roles.addUsersToRoles(currentUser._id, ['premium']);
+        await Roles.createRoleAsync('premium', { unlessExists: true });
+        await Roles.addUsersToRolesAsync(currentUser._id, ['premium']);
 
         const colorBookLimit = ROLE_LIMITS.premium.maxColorBooksPerUser;
         for (let i = 0; i < colorBookLimit; i += 1) {

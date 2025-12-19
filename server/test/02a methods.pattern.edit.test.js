@@ -20,7 +20,7 @@ if (Meteor.isServer) {
     this.timeout(15000);
     beforeEach(async () => {
       resetDatabase();
-      stubUser();
+      await stubUser();
       this.patternId = await Meteor.callAsync(
         'pattern.add',
         addPatternDataIndividual,
@@ -55,7 +55,7 @@ if (Meteor.isServer) {
       });
 
       it('cannot edit pattern if pattern not found', async () => {
-        stubOtherUser();
+        await stubOtherUser();
 
         async function expectedError() {
           await Meteor.callAsync('pattern.edit', {
