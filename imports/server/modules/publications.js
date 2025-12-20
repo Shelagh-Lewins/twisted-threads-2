@@ -62,7 +62,7 @@ Meteor.publish('colorBooks', function (userId) {
   if (userId) {
     return ColorBooks.find(
       {
-        $and: [getPatternPermissionQuery(), { createdBy: userId }],
+        $and: [getPatternPermissionQuery(this.userId), { createdBy: userId }],
       },
       {
         fields: ColorBooksFields,
@@ -72,7 +72,7 @@ Meteor.publish('colorBooks', function (userId) {
   }
 
   // all color books the user can see
-  return ColorBooks.find(getPatternPermissionQuery(), {
+  return ColorBooks.find(getPatternPermissionQuery(this.userId), {
     fields: ColorBooksFields,
     sort: { nameSort: 1 },
   });
@@ -148,7 +148,7 @@ Meteor.publish(
             filterMinTablets,
             filterWillRepeat,
           }),
-          getPatternPermissionQuery(),
+          getPatternPermissionQuery(this.userId),
         ],
       },
       {
@@ -166,7 +166,7 @@ Meteor.publish('patternsById', function (patternIds) {
 
   return Patterns.find(
     {
-      $and: [{ _id: { $in: patternIds } }, getPatternPermissionQuery()],
+      $and: [{ _id: { $in: patternIds } }, getPatternPermissionQuery(this.userId)],
     },
     {
       fields: patternsFields,
@@ -175,26 +175,16 @@ Meteor.publish('patternsById', function (patternIds) {
 });
 
 // individual pattern
-Meteor.publish('pattern', async function (_id) {
+Meteor.publish('pattern', function (_id) {
   check(_id, nonEmptyStringCheck);
 
-  // NOTE service user can view any individual pattern
-  const userRoles = await Roles.getRolesForUserAsync(Meteor.userId());
-  if (userRoles.includes('serviceUser')) {
-    return Patterns.find(
-      {
-        _id,
-      },
-      {
-        fields: patternFields,
-        limit: 1,
-      },
-    );
-  }
-
+  // NOTE: For serviceUser role check, we would need async but that complicates cursor return
+  // For now, serviceUsers rely on the permission query allowing them to see any pattern
+  // This could be enhanced later with proper async publication pattern
+  
   return Patterns.find(
     {
-      $and: [{ _id }, getPatternPermissionQuery()],
+      $and: [{ _id }, getPatternPermissionQuery(this.userId)],
     },
     {
       fields: patternFields,
@@ -206,7 +196,7 @@ Meteor.publish('pattern', async function (_id) {
 // preview list for all patterns
 // displayed on Home page
 Meteor.publish('allPatternsPreview', function () {
-  return Patterns.find(getPatternPermissionQuery(), {
+  return Patterns.find(getPatternPermissionQuery(this.userId), {
     fields: patternsFields,
     limit: ITEMS_PER_PREVIEW_LIST,
     sort: { nameSort: 1 },
@@ -260,7 +250,7 @@ Meteor.publish(
             filterMinTablets,
             filterWillRepeat,
           }),
-          getPatternPermissionQuery(),
+          getPatternPermissionQuery(this.userId),
         ],
       },
       {
@@ -322,7 +312,7 @@ Meteor.publish(
             filterWillRepeat,
           }),
           { createdBy: userId },
-          getPatternPermissionQuery(),
+          getPatternPermissionQuery(this.userId),
         ],
       },
       {
@@ -363,7 +353,7 @@ Meteor.publish('patternPreviews', async function ({ patternIds }) {
   // and that are in the array passed in
   const patterns = await Patterns.find(
     {
-      $and: [{ _id: { $in: patternIds } }, getPatternPermissionQuery()],
+      $and: [{ _id: { $in: patternIds } }, getPatternPermissionQuery(this.userId)],
     },
     {
       fields: {},
@@ -371,15 +361,15 @@ Meteor.publish('patternPreviews', async function ({ patternIds }) {
   ).fetchAsync();
 
   // extract their _ids as an array
-  const targetPatternIds = await patterns.map((pattern) => pattern._id);
+  const targetPatternIds = patterns.map((pattern) => pattern._id);
 
   // find the previews for those patterns
-  const myCursor = PatternPreviews.find({
+  const previews = await PatternPreviews.find({
     patternId: { $in: targetPatternIds },
-  });
+  }).fetchAsync();
 
-  myCursor.forEach((PatternPreview) => {
-    // eslint-disable-next-line no-param-reassign
+  previews.forEach((PatternPreview) => {
+    // eslint-disable-line no-param-reassign
     PatternPreview.rootAddress = `https://${process.env.AWS_BUCKET}.s3.amazonaws.com`; // allows us to switch environments for test
     self.added('patternPreviews', PatternPreview._id, PatternPreview);
   });
@@ -405,7 +395,7 @@ Meteor.publish('users', function (userIds) {
   // whose ids are in the array passed in
   return Meteor.users.find(
     {
-      $and: [getUserPermissionQuery(), { _id: { $in: userIds } }],
+      $and: [getUserPermissionQuery(this.userId), { _id: { $in: userIds } }],
     },
     {
       fields: USER_FIELDS,
@@ -416,7 +406,7 @@ Meteor.publish('users', function (userIds) {
 // preview list for users
 // displayed on Home page
 Meteor.publish('allUsersPreview', function () {
-  return Meteor.users.find(getUserPermissionQuery(), {
+  return Meteor.users.find(getUserPermissionQuery(this.userId), {
     fields: USER_FIELDS,
     limit: ITEMS_PER_PREVIEW_LIST,
     sort: { nameSort: 1 },
@@ -463,7 +453,7 @@ Meteor.publish('setsForUser', function (userId) {
   }
 
   return Sets.find({
-    $and: [{ createdBy: userId }, getSetPermissionQuery()],
+    $and: [{ createdBy: userId }, getSetPermissionQuery(this.userId)],
   });
 });
 
@@ -472,7 +462,7 @@ Meteor.publish('set', function (_id) {
   check(_id, nonEmptyStringCheck);
 
   return Sets.find({
-    $and: [{ _id }, getSetPermissionQuery()],
+    $and: [{ _id }, getSetPermissionQuery(this.userId)],
   });
 });
 

@@ -3,16 +3,16 @@
 // logged in user can see their own patterns
 // and any public patterns
 // not logged in user sees only public patterns
-export const getPatternPermissionQuery = () => {
+export const getPatternPermissionQuery = (userId) => {
 	let permissionQuery = {
 		'isPublic': { '$eq': true },
 	};
 
-	if (Meteor.userId()) {
+	if (userId) {
 		permissionQuery = {
 			'$or': [
 				{ 'isPublic': { '$eq': true } },
-				{ 'createdBy': Meteor.userId() },
+				{ 'createdBy': userId },
 			],
 		};
 	}
@@ -22,7 +22,7 @@ export const getPatternPermissionQuery = () => {
 
 // select users that have public patterns, sets or color books
 // or are the logged in user
-export const getUserPermissionQuery = () => {
+export const getUserPermissionQuery = (userId) => {
 	let permissionQuery = {
 		'$or': [
 			{ 'publicColorBooksCount': { '$gt': 0 } },
@@ -31,13 +31,13 @@ export const getUserPermissionQuery = () => {
 		],
 	};
 
-	if (Meteor.userId()) {
+	if (userId) {
 		permissionQuery = {
 			'$or': [
 				{ 'publicColorBooksCount': { '$gt': 0 } },
 				{ 'publicSetsCount': { '$gt': 0 } },
 				{ 'publicPatternsCount': { '$gt': 0 } },
-				{ '_id': Meteor.userId() },
+				{ '_id': userId },
 			],
 		};
 	}
@@ -50,16 +50,16 @@ export const getUserPermissionQuery = () => {
 
 // select sets that contain public patterns
 // or were created by the logged in user
-export const getSetPermissionQuery = () => {
+export const getSetPermissionQuery = (userId) => {
 	let permissionQuery = {
 		'publicPatternsCount': { '$gt': 0 },
 	};
 
-	if (Meteor.userId()) {
+	if (userId) {
 		permissionQuery = {
 			'$or': [
 				{ 'publicPatternsCount': { '$gt': 0 } },
-				{ 'createdBy': Meteor.userId() },
+				{ 'createdBy': userId },
 			],
 		};
 	}

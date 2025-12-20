@@ -24,7 +24,6 @@ accounts-password@3.2.1
 email@3.1.2
 meteortesting:mocha
 dburles:factory
-johanbrook:publication-collector
 xolvio:cleaner
 edgee:slingshot
 reactive-var@1.0.13
