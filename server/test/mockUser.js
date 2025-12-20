@@ -1,16 +1,35 @@
 const sinon = require('sinon');
 import { Roles } from 'meteor/roles';
 
-export async function stubUser(params) {
+// Default user data
+const defaultUserData = {
+  username: 'Jennifer',
+  nameSort: 'jennifer',
+  emails: [
+    {
+      address: 'jennifer@here.com',
+      verified: true,
+    },
+  ],
+  publicPatternsCount: 0,
+  publicColorBooksCount: 0,
+  weavingBackwardsBackgroundColor: '#aabbcc',
+};
+
+export async function stubUser(params = {}) {
   // create a fake logged in user
-  Meteor.users.removeAsync({});
-  const currentUser = Factory.create('user', params);
+  await Meteor.users.removeAsync({});
+  
+  const userData = { ...defaultUserData, ...params };
+  const userId = await Meteor.users.insertAsync(userData);
+  const currentUser = await Meteor.users.findOneAsync(userId);
+  
   if (Roles && typeof Roles.createRoleAsync === 'function') {
     await Roles.createRoleAsync('registered', { unlessExists: true });
-    await Roles.addUsersToRolesAsync(currentUser._id, ['registered']);
+    await Roles.addUsersToRolesAsync([userId], ['registered']);
   } else if (Roles && typeof Roles.createRole === 'function') {
     Roles.createRole('registered', { unlessExists: true });
-    Roles.addUsersToRoles(currentUser._id, ['registered']);
+    Roles.addUsersToRoles([userId], ['registered']);
   } else {
     console.warn('[roles] Roles APIs not available; skipping role assignment in stubUser');
   }
@@ -38,9 +57,41 @@ export function stubNoUser() {
   return undefined;
 }
 
+// Helper to create user directly without Roles
+export async function createUser(params = {}) {
+  const userData = { ...defaultUserData, ...params };
+  const userId = await Meteor.users.insertAsync(userData);
+  return Meteor.users.findOneAsync(userId);
+}
+
 export function unwrapUser() {
-  Meteor.userAsync.restore(); // Unwraps the spy
-  Meteor.userId.restore();
+  // Check if stubs exist before restoring
+  if (Meteor.userAsync && typeof Meteor.userAsync.restore === 'function') {
+    Meteor.userAsync.restore(); // Unwraps the spy
+  }
+  if (Meteor.userId && typeof Meteor.userId.restore === 'function') {
+    Meteor.userId.restore();
+  }
+}
+
+// Helper to call Meteor methods with userId context
+// This ensures this.userId is set properly in the method
+export async function callMethodWithUser(userId, methodName, ...args) {
+  const methodHandler = Meteor.server.method_handlers[methodName];
+  if (!methodHandler) {
+    throw new Error(`Method ${methodName} not found`);
+  }
+  
+  // Create a method invocation context with userId
+  const context = {
+    userId,
+    connection: { id: 'test-connection' },
+    setUserId: () => {},
+    unblock: () => {},
+  };
+  
+  // Call the method with the proper context
+  return await methodHandler.apply(context, args);
 }
 
 export function logOutButLeaveUser() {
@@ -57,8 +108,10 @@ export function logOutButLeaveUser() {
 export async function stubOtherUser() {
   // create a new fake logged in user
   unwrapUser();
-  const currentUser = Factory.create('user', {
+  
+  const userData = {
     username: 'Bob',
+    nameSort: 'bob',
     emails: [
       {
         address: 'bob@there.com',
@@ -67,13 +120,17 @@ export async function stubOtherUser() {
     ],
     publicPatternsCount: 0,
     publicColorBooksCount: 0,
-  });
+  };
+  
+  const userId = await Meteor.users.insertAsync(userData);
+  const currentUser = await Meteor.users.findOneAsync(userId);
+  
   if (Roles && typeof Roles.createRoleAsync === 'function') {
     await Roles.createRoleAsync('registered', { unlessExists: true });
-    await Roles.addUsersToRolesAsync(currentUser._id, ['registered']);
+    await Roles.addUsersToRolesAsync([userId], ['registered']);
   } else if (Roles && typeof Roles.createRole === 'function') {
     Roles.createRole('registered', { unlessExists: true });
-    Roles.addUsersToRoles(currentUser._id, ['registered']);
+    Roles.addUsersToRoles([userId], ['registered']);
   } else {
     console.warn('[roles] Roles APIs not available; skipping role assignment in stubOtherUser');
   }
@@ -89,7 +146,7 @@ export async function stubOtherUser() {
 
 // ////////////////////////
 // lots of users
-export function createManyUsers() {
+export async function createManyUsers() {
   const numberOfUsersWithPublicPatterns = 23;
   const numberOfUsersWithPrivatePatterns = 13;
 
@@ -99,11 +156,11 @@ export function createManyUsers() {
   const publicPatternUsernames = [];
   const privatePatternUsernames = [];
 
-  Meteor.users.removeAsync({});
+  await Meteor.users.removeAsync({});
 
   for (let i = 0; i < numberOfUsersWithPublicPatterns; i += 1) {
     const username = `username_${i}_public`;
-    const user = Factory.create('user', {
+    const userId = await Meteor.users.insertAsync({
       username,
       nameSort: username,
       emails: [
@@ -116,13 +173,13 @@ export function createManyUsers() {
       publicColorBooksCount: 0,
     });
 
-    publicPatternUserIds.push(user._id);
-    publicPatternUsernames.push(user.username);
+    publicPatternUserIds.push(userId);
+    publicPatternUsernames.push(username);
   }
 
   for (let i = 0; i < numberOfUsersWithPrivatePatterns; i += 1) {
     const username = `username_${i}_private`;
-    const user = Factory.create('user', {
+    const userId = await Meteor.users.insertAsync({
       username,
       nameSort: username,
       emails: [
@@ -135,8 +192,8 @@ export function createManyUsers() {
       publicColorBooksCount: 0,
     });
 
-    privatePatternUserIds.push(user._id);
-    privatePatternUsernames.push(user.username);
+    privatePatternUserIds.push(userId);
+    privatePatternUsernames.push(username);
   }
 
   return {

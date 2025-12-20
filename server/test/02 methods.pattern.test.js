@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 // general tests for pattern methods
 
-import { resetDatabase } from 'meteor/xolvio:cleaner';
+import { resetDatabase } from './00_setup';
 import { assert, expect } from 'chai';
 import { Roles } from 'meteor/roles';
 import {
@@ -13,123 +13,86 @@ import '../../imports/server/modules/publications';
 // import all the methods we'll need
 import '../methods/pattern';
 import '../methods/patternImages';
+import '../methods/patternPreview';
 import '../methods/tags';
 import { ROLE_LIMITS } from '../../imports/modules/parameters';
-import { stubUser, unwrapUser } from './mockUser';
-import { addPatternDataIndividual } from './testData';
+import { stubUser, unwrapUser, callMethodWithUser } from './mockUser';
+import { addPatternDataIndividual, createPattern, createPatternPreview, createPatternImage } from './testData';
 import createManyPatterns from './createManyPatterns';
+import { setupUserWithRole, createOtherUsersPatterns } from './testHelpers';
+
+// Helper function to test pattern creation limits for a role
+async function testPatternLimit(userId, expectedLimit) {
+  // Create patterns up to the limit
+  for (let i = 0; i < expectedLimit; i += 1) {
+    await callMethodWithUser(userId, 'pattern.add', addPatternDataIndividual);
+  }
+  
+  const numberOfPatterns = await Patterns.find().countAsync();
+  assert.equal(numberOfPatterns, expectedLimit);
+  
+  // Attempting to exceed the limit should fail
+  await expect(
+    callMethodWithUser(userId, 'pattern.add', addPatternDataIndividual)
+  ).to.be.rejectedWith('add-pattern-too-many-patterns');
+}
 
 if (Meteor.isServer) {
   describe('test general methods for patterns', function testpatternmethods() {
     // eslint-disable-line func-names
     this.timeout(30000);
-    beforeEach(() => {
-      resetDatabase();
+    beforeEach(async () => {
+      unwrapUser(); // Clean up any existing stubs
+      await resetDatabase();
+    });
+
+    afterEach(() => {
+      unwrapUser(); // Clean up stubs after each test
     });
     describe('pattern.add method', () => {
+      // Tests for unauthenticated users use Meteor.callAsync() directly
+      // This ensures this.userId is undefined in the method context
       it('cannot create pattern if not logged in', async () => {
-        async function expectedError() {
-          await Meteor.callAsync('pattern.add', addPatternDataIndividual);
-        }
-
-        await expect(expectedError()).to.be.rejectedWith(
-          'add-pattern-not-logged-in',
-        );
+        await expect(
+          Meteor.callAsync('pattern.add', addPatternDataIndividual)
+        ).to.be.rejectedWith('add-pattern-not-logged-in');
       });
 
+      // Tests with authenticated users use callMethodWithUser() to properly set this.userId
       it('cannot create pattern if not registered', async () => {
-        await stubUser();
-        await Roles.removeUsersFromRolesAsync(Meteor.userId(), ['registered']);
+        const currentUser = await stubUser();
+        await Roles.removeUsersFromRolesAsync([currentUser._id], ['registered']);
 
-        async function expectedError() {
-          await Meteor.callAsync('pattern.add', addPatternDataIndividual);
-        }
-
-        await expect(expectedError()).to.be.rejectedWith(
-          'add-pattern-not-registered',
-        );
-
-        unwrapUser();
+        await expect(
+          callMethodWithUser(currentUser._id, 'pattern.add', addPatternDataIndividual)
+        ).to.be.rejectedWith('add-pattern-not-registered');
       });
 
       it('can create the correct number of patterns if not verified', async () => {
-        await stubUser();
-
+        const currentUser = await stubUser();
         const patternLimit = ROLE_LIMITS.registered.maxPatternsPerUser;
-        for (let i = 0; i < patternLimit; i += 1) {
-          await Meteor.callAsync('pattern.add', addPatternDataIndividual);
-        }
-
-        const numberOfPatterns = await Patterns.find().countAsync();
-
-        assert.equal(numberOfPatterns, patternLimit);
-
-        async function expectedError() {
-          await Meteor.callAsync('pattern.add', addPatternDataIndividual);
-        }
-
-        await expect(expectedError()).to.be.rejectedWith(
-          'add-pattern-too-many-patterns',
-        );
-
-        unwrapUser();
+        
+        await testPatternLimit(currentUser._id, patternLimit);
       });
 
       it('can create the correct number of patterns if verified', async () => {
-        const currentUser = await stubUser();
-
-        await Roles.createRoleAsync('verified', { unlessExists: true });
-        await Roles.addUsersToRolesAsync(currentUser._id, ['verified']);
-
+        const currentUser = await setupUserWithRole('verified');
         const patternLimit = ROLE_LIMITS.verified.maxPatternsPerUser;
-        for (let i = 0; i < patternLimit; i += 1) {
-          await Meteor.callAsync('pattern.add', addPatternDataIndividual);
-        }
-
-        const numberOfPatterns = await Patterns.find().countAsync();
-
-        assert.equal(numberOfPatterns, patternLimit);
-
-        async function expectedError() {
-          await Meteor.callAsync('pattern.add', addPatternDataIndividual);
-        }
-
-        await expect(expectedError()).to.be.rejectedWith(
-          'add-pattern-too-many-patterns',
-        );
-
-        unwrapUser();
+        
+        await testPatternLimit(currentUser._id, patternLimit);
       });
 
       it('can create the correct number of patterns if premium', async () => {
-        const currentUser = await stubUser();
-
-        await Roles.createRoleAsync('premium', { unlessExists: true });
-        await Roles.addUsersToRolesAsync(currentUser._id, ['premium']);
-
+        const currentUser = await setupUserWithRole('premium');
         const patternLimit = ROLE_LIMITS.premium.maxPatternsPerUser;
-        for (let i = 0; i < patternLimit; i += 1) {
-          await Meteor.callAsync('pattern.add', addPatternDataIndividual);
-        }
-
-        const numberOfPatterns = await Patterns.find().countAsync();
-        assert.equal(numberOfPatterns, patternLimit);
-
-        async function expectedError() {
-          await Meteor.callAsync('pattern.add', addPatternDataIndividual);
-        }
-
-        await expect(expectedError()).to.be.rejectedWith(
-          'add-pattern-too-many-patterns',
-        );
-
-        unwrapUser();
+        
+        await testPatternLimit(currentUser._id, patternLimit);
       });
     });
 
     describe('pattern.remove method', () => {
       it('cannot remove pattern if not logged in', async () => {
-        const pattern = Factory.create('pattern', {
+        const pattern = await createPattern({
           name: 'Pattern 1',
           createdBy: 'abc',
         });
@@ -144,116 +107,166 @@ if (Meteor.isServer) {
       });
 
       it('cannot remove pattern if did not create the pattern', async () => {
+        const currentUser = await stubUser();
+
+        const pattern = await createPattern({
+          name: 'Pattern 1',
+          createdBy: 'abc',
+        });
+
         async function expectedError() {
-          stubUser();
-
-          const pattern = Factory.create('pattern', {
-            name: 'Pattern 1',
-            createdBy: 'abc',
-          });
-
-          await Meteor.callAsync('pattern.remove', pattern._id);
+          await callMethodWithUser(currentUser._id, 'pattern.remove', pattern._id);
         }
 
         await expect(expectedError()).to.be.rejectedWith(
           'remove-pattern-not-created-by-user',
         );
-
-        unwrapUser();
       });
 
       it('can remove pattern if user created the pattern', async () => {
         // there will be errors in the log because we can't actually write to AWS in test; ignore them
-        const currentUser = stubUser();
-        const pattern = Factory.create('pattern', {
+        const currentUser = await stubUser();
+        const pattern = await createPattern({
           name: 'Pattern 1',
           createdBy: currentUser._id,
         });
-        Factory.create('patternPreview', {
+        await createPatternPreview({
           patternId: pattern._id,
           key: 'somekey',
         });
-        Factory.create('patternImage', {
+        await createPatternImage({
           patternId: pattern._id,
         });
 
         assert.equal(await Patterns.find().countAsync(), 1);
         assert.equal(await PatternPreviews.find().countAsync(), 1);
         assert.equal(await PatternImages.find().countAsync(), 1);
-        await Meteor.callAsync('pattern.remove', pattern._id);
+        await callMethodWithUser(currentUser._id, 'pattern.remove', pattern._id);
         assert.equal(await Patterns.find().countAsync(), 0);
         assert.equal(await PatternPreviews.find().countAsync(), 0);
         assert.equal(await PatternImages.find().countAsync(), 0);
-        unwrapUser();
       });
     });
 
     describe('pattern.getPatternCount method', () => {
       // getPatternCount should count the patterns the user can see, for pagination.
       it('returns 0 when the user is not logged in', async () => {
-        // create patterns owned by other users
-        Factory.create('pattern', {
-          name: 'Other Pattern 1',
-          createdBy: 'abc',
-        });
-        Factory.create('pattern', {
-          name: 'Other Pattern 2',
-          createdBy: 'def',
-        });
-        Factory.create('pattern', {
-          name: 'Other Pattern 3',
-          createdBy: 'ghic',
-        });
+        // Create patterns owned by other users
+        await createOtherUsersPatterns(3);
 
         const result = await Meteor.callAsync('pattern.getPatternCount', {});
         assert.equal(result, 0);
       });
 
       it('returns 2 when the user has 2 patterns in the database', async () => {
-        // create patterns owned by other users
-        Factory.create('pattern', {
-          name: 'Other Pattern 1',
-          createdBy: 'abc',
-        });
-        Factory.create('pattern', {
-          name: 'Other Pattern 2',
-          createdBy: 'def',
-        });
-        Factory.create('pattern', {
-          name: 'Other Pattern 3',
-          createdBy: 'ghic',
-        });
+        // Create patterns owned by other users (not visible to current user)
+        await createOtherUsersPatterns(3);
 
-        // create patterns owned by the current user
-        const currentUser = stubUser();
-        Factory.create('pattern', {
+        // Create patterns owned by the current user
+        const currentUser = await stubUser();
+        await createPattern({
           name: 'My Pattern 1',
           createdBy: currentUser._id,
         });
-        Factory.create('pattern', {
+        await createPattern({
           name: 'My Pattern 2',
           createdBy: currentUser._id,
         });
 
-        const result = await Meteor.callAsync('pattern.getPatternCount', {});
+        const result = await callMethodWithUser(currentUser._id, 'pattern.getPatternCount', {});
         assert.equal(result, 2);
-        unwrapUser();
       });
       it("returns the user's own patterns plus public patterns", async () => {
-        stubUser();
+        const currentUser = await stubUser();
         const {
           publicMyPatternNames,
           privateMyPatternNames,
           publicOtherPatternNames,
         } = await createManyPatterns();
 
-        const result = await Meteor.callAsync('pattern.getPatternCount', {});
+        const result = await callMethodWithUser(currentUser._id, 'pattern.getPatternCount', {});
         const expectedNumber =
           publicMyPatternNames.length +
           privateMyPatternNames.length +
           publicOtherPatternNames.length;
         assert.equal(result, expectedNumber);
-        unwrapUser();
+      });
+    });
+
+    describe('pattern.copy method', () => {
+      it('cannot copy pattern if not logged in', async () => {
+        const pattern = await createPattern({
+          name: 'Pattern 1',
+          createdBy: 'abc',
+          isPublic: true,
+        });
+
+        await expect(
+          Meteor.callAsync('pattern.copy', pattern._id)
+        ).to.be.rejectedWith('add-pattern-not-logged-in');
+      });
+
+      it('cannot copy another user\'s private pattern', async () => {
+        const otherPattern = await createPattern({
+          name: 'Private Pattern',
+          createdBy: 'other_user',
+          isPublic: false,
+        });
+
+        const currentUser = await stubUser();
+
+        await expect(
+          callMethodWithUser(currentUser._id, 'pattern.copy', otherPattern._id)
+        ).to.be.rejectedWith('copy-pattern-not-created-by-user');
+      });
+
+      it('can copy another user\'s public pattern', async () => {
+        // Create a fresh user for this test to avoid pattern limit issues
+        const currentUser = await stubUser();
+        
+        const publicPattern = await createPattern({
+          name: 'Public Pattern',
+          createdBy: 'other_user',
+          isPublic: true,
+        });
+
+        const newPatternId = await callMethodWithUser(
+          currentUser._id,
+          'pattern.copy',
+          publicPattern._id
+        );
+
+        assert.isString(newPatternId);
+        assert.notEqual(newPatternId, publicPattern._id);
+
+        const newPattern = await Patterns.findOneAsync({ _id: newPatternId });
+        assert.equal(newPattern.createdBy, currentUser._id);
+        assert.include(newPattern.name, publicPattern.name);
+        assert.include(newPattern.name, '(copy)');
+      });
+
+      it('can copy own pattern', async () => {
+        // Create a fresh user with verified role for higher pattern limit
+        const currentUser = await setupUserWithRole('verified');
+        
+        const myPattern = await createPattern({
+          name: 'My Pattern',
+          createdBy: currentUser._id,
+          isPublic: false,
+        });
+
+        const newPatternId = await callMethodWithUser(
+          currentUser._id,
+          'pattern.copy',
+          myPattern._id
+        );
+
+        assert.isString(newPatternId);
+        assert.notEqual(newPatternId, myPattern._id);
+
+        // Should have 2 patterns now (original + copy)
+        const count = await Patterns.find({ createdBy: currentUser._id }).countAsync();
+        assert.equal(count, 2);
       });
     });
   });

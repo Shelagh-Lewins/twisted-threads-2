@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 // test for sets methods
 
-import { resetDatabase } from 'meteor/xolvio:cleaner';
+import { resetDatabase } from './00_setup';
 import * as chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { Roles } from 'meteor/roles';
@@ -62,7 +62,7 @@ if (Meteor.isServer) {
       });
 
       it('cannot create set if not registered', async () => {
-        await Roles.removeUsersFromRolesAsync(Meteor.userId(), ['registered']);
+        await Roles.removeUsersFromRolesAsync([Meteor.userId()], ['registered']);
         const { patternId } = this; // seems to be a scoping issue otherwise
 
         async function expectedError() {
@@ -98,7 +98,7 @@ if (Meteor.isServer) {
 
         // set 1 pattern to public
         await Roles.createRoleAsync('verified', { unlessExists: true });
-        await Roles.addUsersToRolesAsync(Meteor.userId(), ['verified']);
+        await Roles.addUsersToRolesAsync([Meteor.userId()], ['verified']);
 
         await Meteor.callAsync('pattern.edit', {
           _id: patternId,
@@ -263,7 +263,7 @@ if (Meteor.isServer) {
       it('can add the correct number of patterns to the set', async () => {
         // give user premium role so they can create many patterns
         await Roles.createRoleAsync('premium', { unlessExists: true });
-        await Roles.addUsersToRolesAsync(Meteor.userId(), ['premium']);
+        await Roles.addUsersToRolesAsync([Meteor.userId()], ['premium']);
 
         const { patternId } = this; // seems to be a scoping issue otherwise
 
@@ -314,7 +314,7 @@ if (Meteor.isServer) {
 
         // create a second pattern
         await Roles.createRoleAsync('verified', { unlessExists: true });
-        await Roles.addUsersToRolesAsync(Meteor.userId(), ['verified']);
+        await Roles.addUsersToRolesAsync([Meteor.userId()], ['verified']);
 
         const newPatternId = await Meteor.callAsync(
           'pattern.add',
@@ -406,7 +406,7 @@ if (Meteor.isServer) {
       it('cannot remove pattern from set if the pattern was not in the set', async () => {
         // give user verified role so they can create many patterns
         await Roles.createRoleAsync('verified', { unlessExists: true });
-        await Roles.addUsersToRolesAsync(Meteor.userId(), ['verified']);
+        await Roles.addUsersToRolesAsync([Meteor.userId()], ['verified']);
 
         // create a set by adding a pattern
         const { patternId } = this; // seems to be a scoping issue otherwise
@@ -436,7 +436,7 @@ if (Meteor.isServer) {
       it('can remove pattern from set', async () => {
         // give user verified role so they can create many patterns
         await Roles.createRoleAsync('verified', { unlessExists: true });
-        await Roles.addUsersToRolesAsync(Meteor.userId(), ['verified']);
+        await Roles.addUsersToRolesAsync([Meteor.userId()], ['verified']);
 
         // create a set by adding a pattern
         const { patternId } = this; // seems to be a scoping issue otherwise

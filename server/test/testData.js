@@ -1,6 +1,14 @@
 // this is used to create patterns for publications test with a direct insert, not the Meteor method
 // it must be updated to include all pattern fields
 
+import {
+  Patterns,
+  ColorBooks,
+  Sets,
+  PatternPreviews,
+  PatternImages,
+} from '../../imports/modules/collection';
+
 export const defaultPatternData = {
 	'createdAt': new Date('Tue, 03 Mar 2020 17:58:05 GMT'),
 	'createdBy': 'abc',
@@ -96,3 +104,34 @@ export const defaultSetData = {
 	'publicPatternsCount': 0,
 	'tags': [],
 };
+
+// Async helper functions to create documents using insertAsync()
+export async function createPattern(params = {}) {
+	const data = { ...defaultPatternData, ...params };
+	const patternId = await Patterns.insertAsync(data);
+	return Patterns.findOneAsync(patternId);
+}
+
+export async function createColorBook(params = {}) {
+	const data = { ...defaultColorBookData, ...params };
+	const colorBookId = await ColorBooks.insertAsync(data);
+	return ColorBooks.findOneAsync(colorBookId);
+}
+
+export async function createSet(params = {}) {
+	const data = { ...defaultSetData, ...params };
+	const setId = await Sets.insertAsync(data);
+	return Sets.findOneAsync(setId);
+}
+
+export async function createPatternPreview(params = {}) {
+	const data = { ...defaultPatternPreviewData, ...params };
+	const previewId = await PatternPreviews.insertAsync(data);
+	return PatternPreviews.findOneAsync(previewId);
+}
+
+export async function createPatternImage(params = {}) {
+	const data = { ...defaultPatternImageData, ...params };
+	const imageId = await PatternImages.insertAsync(data);
+	return PatternImages.findOneAsync(imageId);
+}

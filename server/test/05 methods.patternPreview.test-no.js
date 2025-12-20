@@ -2,14 +2,14 @@
 // test for pattern preview methods
 // we only check permissions because the image would come from the client
 
-import { resetDatabase } from 'meteor/xolvio:cleaner';
+import { resetDatabase } from './00_setup';
 import { expect } from 'chai';
 import { Roles } from 'meteor/roles';
 import '../../imports/server/modules/publications';
 // import all the methods we'll need
 import '../methods/patternPreview';
 import { stubNoUser, stubOtherUser, stubUser, unwrapUser } from './mockUser';
-import { addPatternDataIndividual } from './testData';
+import { addPatternDataIndividual, createPatternPreview } from './testData';
 
 if (Meteor.isServer) {
   // eslint-disable-next-line func-names
@@ -83,7 +83,7 @@ if (Meteor.isServer) {
 
         // give user serviceUser role
         await Roles.createRoleAsync('serviceUser', { unlessExists: true });
-        await Roles.addUsersToRolesAsync(Meteor.userId(), ['serviceUser']);
+        await Roles.addUsersToRolesAsync([Meteor.userId()], ['serviceUser']);
 
         const { patternId } = this; // seems to be a scoping issue otherwise
 
@@ -152,7 +152,7 @@ if (Meteor.isServer) {
       it('cannot remove pattern preview if pattern created by another user', async () => {
         const { patternId } = this; // seems to be a scoping issue otherwise
 
-        const patternPreview = Factory.create('patternPreview', {
+        const patternPreview = await createPatternPreview({
           patternId,
           uri: 'something',
           createdBy: Meteor.userId(),
@@ -174,7 +174,7 @@ if (Meteor.isServer) {
       it('cannot remove pattern preview if user has serviceUser role', async () => {
         const { patternId } = this; // seems to be a scoping issue otherwise
 
-        const patternPreview = Factory.create('patternPreview', {
+        const patternPreview = await createPatternPreview({
           patternId,
           uri: 'something',
           createdBy: Meteor.userId(),
@@ -184,7 +184,7 @@ if (Meteor.isServer) {
 
         // give user serviceUser role
         await Roles.createRoleAsync('serviceUser', { unlessExists: true });
-        await Roles.addUsersToRolesAsync(Meteor.userId(), ['serviceUser']);
+        await Roles.addUsersToRolesAsync([Meteor.userId()], ['serviceUser']);
 
         async function expectedError() {
           await Meteor.callAsync('patternPreview.remove', {

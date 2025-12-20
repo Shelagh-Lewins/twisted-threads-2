@@ -95,7 +95,7 @@ Meteor.methods({
       check(doubleFacedOrientations, String);
     }
 
-    const { error } = await checkUserCanCreatePattern();
+    const { error } = await checkUserCanCreatePattern(this.userId);
 
     if (error) {
       throw error;
@@ -285,7 +285,7 @@ Meteor.methods({
       nameSort: name.toLowerCase(),
       numberOfRows: rows,
       numberOfTablets: tablets,
-      createdBy: Meteor.userId(),
+      createdBy: this.userId,
       holes,
       isPublic: false,
       palette: DEFAULT_PALETTE,
@@ -315,7 +315,7 @@ Meteor.methods({
     }
 
     // update the user's count of public patterns
-    await updatePublicPatternsCountForUser(Meteor.userId());
+    await updatePublicPatternsCountForUser(this.userId);
 
     // add the tags
     await asyncForEach(tags, async (tagName) => {
@@ -378,7 +378,7 @@ Meteor.methods({
       weftColor,
     } = patternObj;
 
-    const { error } = await checkUserCanCreatePattern();
+    const { error } = await checkUserCanCreatePattern(this.userId);
 
     if (error) {
       throw error;
@@ -667,7 +667,7 @@ Meteor.methods({
   'pattern.remove': async function (_id) {
     check(_id, nonEmptyStringCheck);
 
-    if (!Meteor.userId()) {
+    if (!this.userId) {
       throw new Meteor.Error(
         'remove-pattern-not-logged-in',
         'Unable to remove pattern because the user is not logged in',
@@ -683,7 +683,7 @@ Meteor.methods({
       );
     }
 
-    if (pattern.createdBy !== Meteor.userId()) {
+    if (pattern.createdBy !== this.userId) {
       throw new Meteor.Error(
         'remove-pattern-not-created-by-user',
         'Unable to remove pattern because it was not created by the current logged in user',
@@ -758,7 +758,7 @@ Meteor.methods({
     await Meteor.callAsync('tags.removeUnused', pattern.tags);
 
     // update the user's count of public patterns
-    await updatePublicPatternsCountForUser(Meteor.userId());
+    await updatePublicPatternsCountForUser(this.userId);
 
     return removed;
   },
@@ -766,7 +766,7 @@ Meteor.methods({
     check(_id, nonEmptyStringCheck);
     // TO DO write this properly for all pattern types
 
-    const { error } = await checkUserCanCreatePattern();
+    const { error } = await checkUserCanCreatePattern(this.userId);
 
     if (error) {
       throw error;
@@ -782,7 +782,7 @@ Meteor.methods({
     }
 
     // you can only copy another user's pattern if it is public
-    if (pattern.createdBy !== Meteor.userId() && !pattern.isPublic) {
+    if (pattern.createdBy !== this.userId && !pattern.isPublic) {
       throw new Meteor.Error(
         'copy-pattern-not-created-by-user',
         'Unable to copy pattern because it was not created by the current logged in user',
@@ -818,7 +818,9 @@ Meteor.methods({
       data.twillDirection = pattern.patternDesign.twillDirection;
     }
 
-    const newPatternId = await Meteor.callAsync('pattern.add', data);
+    // Call pattern.add with the current userId context
+    const addMethod = Meteor.server.method_handlers['pattern.add'];
+    const newPatternId = await addMethod.call(this, data);
 
     await Patterns.updateAsync(
       { _id: newPatternId },
@@ -893,7 +895,7 @@ Meteor.methods({
     return await Patterns.find({
       $and: [
         {
-          $or: [{ isPublic: { $eq: true } }, { createdBy: Meteor.userId() }],
+          $or: [{ isPublic: { $eq: true } }, { createdBy: this.userId }],
         },
         tabletFilter,
       ],

@@ -5,7 +5,7 @@
 // ideally, all edit operations would be fully tested
 // but that is currently out of scope
 
-import { resetDatabase } from 'meteor/xolvio:cleaner';
+import { resetDatabase } from './00_setup';
 import { assert, expect } from 'chai';
 import { Patterns } from '../../imports/modules/collection';
 import '../../imports/server/modules/publications';

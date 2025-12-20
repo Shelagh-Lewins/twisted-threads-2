@@ -1,13 +1,13 @@
 /* eslint-env mocha */
 
-import { resetDatabase } from 'meteor/xolvio:cleaner';
+import { resetDatabase } from './00_setup';
 import { assert, expect } from 'chai';
 import { Roles } from 'meteor/roles';
 import { ColorBooks } from '../../imports/modules/collection';
 import '../../imports/server/modules/publications';
 import '../methods/colorBook';
 import { ROLE_LIMITS } from '../../imports/modules/parameters';
-import { defaultColorBookData } from './testData';
+import { defaultColorBookData, createColorBook } from './testData';
 import { stubUser, unwrapUser } from './mockUser';
 
 if (Meteor.isServer) {
@@ -32,7 +32,7 @@ if (Meteor.isServer) {
       it('cannot create color book if not registered', async () => {
         async function expectedError() {
           stubUser();
-          await Roles.removeUsersFromRolesAsync(Meteor.userId(), ['registered']);
+          await Roles.removeUsersFromRolesAsync([Meteor.userId()], ['registered']);
 
           await Meteor.callAsync('colorBook.add', {
             colors: defaultColorBookData.colors,
@@ -137,7 +137,7 @@ if (Meteor.isServer) {
 
     describe('colorBook.remove method', () => {
       it('cannot remove color book if not logged in', async () => {
-        const colorBook = Factory.create('colorBook', {
+        const colorBook = await createColorBook({
           name: 'Color Book 1',
           createdBy: 'abc',
         });
@@ -155,7 +155,7 @@ if (Meteor.isServer) {
         async function expectedError() {
           stubUser();
 
-          const colorBook = Factory.create('colorBook', {
+          const colorBook = await createColorBook({
             name: 'Color Book 1',
             createdBy: 'abc',
           });
@@ -172,7 +172,7 @@ if (Meteor.isServer) {
 
       it('can remove color book if user created the color book', async () => {
         const currentUser = stubUser();
-        const colorBook = Factory.create('colorBook', {
+        const colorBook = await createColorBook({
           name: 'Color Book 1',
           createdBy: currentUser._id,
         });
@@ -186,7 +186,7 @@ if (Meteor.isServer) {
 
     describe('colorBook.edit method', () => {
       it('cannot edit color book color if not logged in', async () => {
-        const colorBook = Factory.create('colorBook', {
+        const colorBook = await createColorBook({
           name: 'Color Book 1',
           createdBy: 'abc',
         });
@@ -231,7 +231,7 @@ if (Meteor.isServer) {
         async function expectedError() {
           stubUser();
 
-          const colorBook = Factory.create('colorBook', {
+          const colorBook = await createColorBook({
             name: 'Color Book 1',
             createdBy: 'abc',
           });
@@ -256,7 +256,7 @@ if (Meteor.isServer) {
       it('cannot edit color book color if user created the color book but color is not a string', async () => {
         async function expectedError() {
           const currentUser = stubUser();
-          const colorBook = Factory.create('colorBook', {
+          const colorBook = await createColorBook({
             name: 'Color Book 1',
             createdBy: currentUser._id,
           });
@@ -278,7 +278,7 @@ if (Meteor.isServer) {
 
       it('can edit color book color if user created the color book', async () => {
         const currentUser = stubUser();
-        const colorBook = Factory.create('colorBook', {
+        const colorBook = await createColorBook({
           name: 'Color Book 1',
           createdBy: currentUser._id,
         });
@@ -305,7 +305,7 @@ if (Meteor.isServer) {
 
       it('can edit color book name if user created the color book', async () => {
         const currentUser = stubUser();
-        const colorBook = Factory.create('colorBook', {
+        const colorBook = await createColorBook({
           name: 'Color Book 1',
           createdBy: currentUser._id,
         });
@@ -332,7 +332,7 @@ if (Meteor.isServer) {
 
       it('can edit color book isPublic if user created the color book', async () => {
         const currentUser = stubUser();
-        const colorBook = Factory.create('colorBook', {
+        const colorBook = await createColorBook({
           name: 'Color Book 1',
           createdBy: currentUser._id,
         });

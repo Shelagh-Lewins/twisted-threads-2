@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 // test for tags methods
 
-import { resetDatabase } from 'meteor/xolvio:cleaner';
+import { resetDatabase } from './00_setup';
 import { assert, expect } from 'chai';
 import '../../imports/server/modules/publications';
 // import all the methods we'll need

@@ -1,10 +1,11 @@
 // Creates patterns for tests. Not used in main application.
 
 import { Patterns } from '../../imports/modules/collection';
+import { defaultPatternData } from './testData';
 
 // this must be called with async / await
 const createManyPatterns = async () => {
-  Patterns.removeAsync({});
+  await Patterns.removeAsync({});
 
   const publicMyPatternNames = [];
   const privateMyPatternNames = [];
@@ -21,11 +22,11 @@ const createManyPatterns = async () => {
   const now = new Date();
   let count = 0;
 
-  const setCreatedAt = async (pattern) => {
+  const setCreatedAt = async (patternId) => {
     const newDate = now.setSeconds(now.getSeconds() + 10 * count);
 
     await Patterns.updateAsync(
-      { _id: pattern._id },
+      { _id: patternId },
       { $set: { createdAt: newDate } },
     );
     count += 1;
@@ -36,28 +37,30 @@ const createManyPatterns = async () => {
     const name = `${i} my public pattern`;
     publicMyPatternNames.push(name);
 
-    const pattern = Factory.create('pattern', {
+    const patternId = await Patterns.insertAsync({
+      ...defaultPatternData,
       name,
       nameSort: name,
-      createdBy: Meteor.userAsync()._id,
+      createdBy: Meteor.userId(),
       isPublic: true,
     });
 
-    setCreatedAt(pattern);
+    await setCreatedAt(patternId);
   }
 
   for (let i = 0; i < numberOfMyPrivatePatterns; i += 1) {
     const name = `${i} my private pattern`;
     privateMyPatternNames.push(name);
 
-    const pattern = Factory.create('pattern', {
+    const patternId = await Patterns.insertAsync({
+      ...defaultPatternData,
       name,
       nameSort: name,
-      createdBy: Meteor.userAsync()._id,
+      createdBy: Meteor.userId(),
       isPublic: false,
     });
 
-    setCreatedAt(pattern);
+    await setCreatedAt(patternId);
   }
 
   // patterns belonging to some other user
@@ -65,28 +68,30 @@ const createManyPatterns = async () => {
     const name = `${i} other public pattern`;
     publicOtherPatternNames.push(name);
 
-    const pattern = Factory.create('pattern', {
+    const patternId = await Patterns.insertAsync({
+      ...defaultPatternData,
       name,
       nameSort: name,
       createdBy: 'xxx',
       isPublic: true,
     });
 
-    setCreatedAt(pattern);
+    await setCreatedAt(patternId);
   }
 
   for (let i = 0; i < numberOfOtherPrivatePatterns; i += 1) {
     const name = `${i} other private pattern`;
     privateOtherPatternNames.push(name);
 
-    const pattern = Factory.create('pattern', {
+    const patternId = await Patterns.insertAsync({
+      ...defaultPatternData,
       name,
       nameSort: name,
       createdBy: 'xxx',
       isPublic: false,
     });
 
-    setCreatedAt(pattern);
+    await setCreatedAt(patternId);
   }
 
   return {
@@ -98,3 +103,4 @@ const createManyPatterns = async () => {
 };
 
 export default createManyPatterns;
+

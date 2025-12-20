@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 
-import { resetDatabase } from 'meteor/xolvio:cleaner';
+import { resetDatabase } from './00_setup';
 import * as chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { Roles } from 'meteor/roles';
