@@ -1430,10 +1430,10 @@ if (Meteor.isServer) {
         });
 
         // log in other user
-        stubOtherUser();
+        const otherUser = await stubOtherUser();
 
         const mockContext = {
-          userId: this.currentUser._id,
+          userId: otherUser._id,
           ready: () => {},
           added: () => {},
           changed: () => {},
@@ -1508,6 +1508,10 @@ if (Meteor.isServer) {
     });
     // /////////////////////////
     describe('search publications', () => {
+      afterEach(async () => {
+        unwrapUser();
+      });
+
       describe('search.patterns', () => {
         it('should publish nothing if no search term provided', async () => {
           const addedDocs = [];
@@ -1561,14 +1565,29 @@ if (Meteor.isServer) {
         });
 
         it('should publish public and own private patterns if user logged in', async () => {
+          // Make pattern1 public using the pattern.edit method
+          await Roles.createRoleAsync('verified', { unlessExists: true });
+          await Roles.addUsersToRolesAsync(
+            [this.currentUser._id],
+            ['verified'],
+          );
+
+          await Meteor.callAsync('pattern.edit', {
+            _id: this.pattern1._id,
+            data: {
+              type: 'editIsPublic',
+              isPublic: true,
+            },
+          });
+
           await Patterns.updateAsync(
             { _id: this.pattern1._id },
-            { $set: { isPublic: true, name: 'PublicPattern' } },
+            { $set: { name: 'Public TestSearch' } },
           );
 
           await Patterns.updateAsync(
             { _id: this.pattern2._id },
-            { $set: { isPublic: false, name: 'PrivatePattern' } },
+            { $set: { name: 'Private TestSearch' } },
           );
 
           const addedDocs = [];
@@ -1583,7 +1602,7 @@ if (Meteor.isServer) {
           };
           
           const handler = Meteor.server.publish_handlers['search.patterns'];
-          await handler.call(mockContext, 'Pattern', 20);
+          await handler.call(mockContext, 'TestSearch', 20);
           const result = addedDocs;
 
           assert.equal(result.length, 2);
@@ -1673,6 +1692,7 @@ if (Meteor.isServer) {
           for (let i = 0; i < 5; i++) {
             await createUser({
               username: `searchuser${i}`,
+              emails: [{ address: `searchuser${i}@test.com`, verified: true }],
             });
           }
 
@@ -1715,9 +1735,6 @@ if (Meteor.isServer) {
         });
 
         it('should publish only public sets if user not logged in', async () => {
-          unwrapUser();
-          stubNoUser();
-
           // Make pattern public so set becomes public
           await Roles.createRoleAsync('verified', { unlessExists: true });
           await Roles.addUsersToRolesAsync(
@@ -1737,6 +1754,9 @@ if (Meteor.isServer) {
             { _id: this.set1._id },
             { $set: { name: 'TestSet' } },
           );
+
+          unwrapUser();
+          stubNoUser();
 
           const addedDocs = [];
           const mockContext = {
@@ -1760,15 +1780,37 @@ if (Meteor.isServer) {
         });
 
         it('should publish public and own private sets if user logged in', async () => {
+          // Make pattern1 public so set1 becomes public
+          await Roles.createRoleAsync('verified', { unlessExists: true });
+          await Roles.addUsersToRolesAsync(
+            [this.currentUser._id],
+            ['verified'],
+          );
+
+          await Meteor.callAsync('pattern.edit', {
+            _id: this.pattern1._id,
+            data: {
+              type: 'editIsPublic',
+              isPublic: true,
+            },
+          });
+
           await Sets.updateAsync(
             { _id: this.set1._id },
-            { $set: { name: 'MySet1' } },
+            { $set: { name: 'SearchableAlpha', nameSort: 'searchablealpha' } },
           );
 
           await Sets.updateAsync(
             { _id: this.set2._id },
-            { $set: { name: 'MySet2' } },
+            { $set: { name: 'SearchableBeta', nameSort: 'searchablebeta' } },
           );
+
+          // Verify sets are updated correctly
+          const set1 = await Sets.findOneAsync({ _id: this.set1._id });
+          const set2 = await Sets.findOneAsync({ _id: this.set2._id });
+          console.log('set1:', set1?.name, 'publicPatternsCount:', set1?.publicPatternsCount, 'createdBy:', set1?.createdBy);
+          console.log('set2:', set2?.name, 'publicPatternsCount:', set2?.publicPatternsCount, 'createdBy:', set2?.createdBy);
+          console.log('currentUser._id:', this.currentUser._id);
 
           const addedDocs = [];
           const mockContext = {
@@ -1782,8 +1824,9 @@ if (Meteor.isServer) {
           };
           
           const handler = Meteor.server.publish_handlers['search.sets'];
-          await handler.call(mockContext, 'MySet', 20);
+          await handler.call(mockContext, 'Searchable', 20);
           const result = addedDocs;
+          console.log('search.sets result:', result.length, result.map(r => ({ name: r.name, publicPatternsCount: r.publicPatternsCount })));
 
           assert.equal(result.length, 2);
           result.forEach((set) => {

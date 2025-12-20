@@ -65,29 +65,32 @@ Meteor.publish('search.patterns', async function (searchTerm, limit = 20) {
   check(searchTerm, String);
   check(limit, Number);
 
-  const permission = getPatternPermissionQuery();
   const trimmed = searchTerm.trim();
-
-  let selector = permission;
-
-  if (trimmed) {
-    const regex = new RegExp(escapeRegExp(trimmed), 'i');
-    const matchingTags = await Tags.find({ name: { $regex: regex } }).fetchAsync();
-    const matchingTagNames = matchingTags.map(t => t.name);
-
-    const searchConditions = [{ $text: { $search: trimmed } }];
-
-    if (matchingTagNames.length) {
-      searchConditions.push({ tags: { $in: matchingTagNames } });
-    }
-
-    selector = {
-      $and: [
-        permission,
-        { $or: searchConditions },
-      ],
-    };
+  
+  // Return nothing if no search term provided
+  if (!trimmed) {
+    this.ready();
+    return;
   }
+
+  const permission = getPatternPermissionQuery(this.userId);
+
+  const regex = new RegExp(escapeRegExp(trimmed), 'i');
+  const matchingTags = await Tags.find({ name: { $regex: regex } }).fetchAsync();
+  const matchingTagNames = matchingTags.map(t => t.name);
+
+  const searchConditions = [{ $text: { $search: trimmed } }];
+
+  if (matchingTagNames.length) {
+    searchConditions.push({ tags: { $in: matchingTagNames } });
+  }
+
+  const selector = {
+    $and: [
+      permission,
+      { $or: searchConditions },
+    ],
+  };
 
   const fields = {
     _id: 1,
@@ -98,7 +101,7 @@ Meteor.publish('search.patterns', async function (searchTerm, limit = 20) {
     tags: 1,
   };
 
-  const sort = trimmed ? { score: { $meta: 'textScore' } } : { nameSort: 1 };
+  const sort = { score: { $meta: 'textScore' } };
 
   const patterns = await Patterns.find(selector, { fields, sort, limit }).fetchAsync();
 
@@ -126,28 +129,31 @@ Meteor.publish('search.users', async function (searchTerm, limit = 20) {
   check(searchTerm, String);
   check(limit, Number);
 
-  const permission = getUserPermissionQuery();
   const trimmed = searchTerm.trim();
-
-  let selector = permission;
-
-  if (trimmed) {
-    const regex = new RegExp(escapeRegExp(trimmed), 'i');
-    selector = {
-      $and: [
-        permission,
-        {
-          $or: [
-            { $text: { $search: trimmed } },
-            { username: { $regex: regex } },
-          ],
-        },
-      ],
-    };
+  
+  // Return nothing if no search term provided
+  if (!trimmed) {
+    this.ready();
+    return;
   }
 
+  const permission = getUserPermissionQuery(this.userId);
+
+  const regex = new RegExp(escapeRegExp(trimmed), 'i');
+  const selector = {
+    $and: [
+      permission,
+      {
+        $or: [
+          { $text: { $search: trimmed } },
+          { username: { $regex: regex } },
+        ],
+      },
+    ],
+  };
+
   const fields = { _id: 1, username: 1 };
-  const sort = trimmed ? { score: { $meta: 'textScore' } } : { username: 1 };
+  const sort = { score: { $meta: 'textScore' } };
 
   const users = await Meteor.users.find(selector, { fields, sort, limit }).fetchAsync();
 
@@ -164,29 +170,32 @@ Meteor.publish('search.sets', async function (searchTerm, limit = 20) {
   check(searchTerm, String);
   check(limit, Number);
 
-  const permission = getSetPermissionQuery();
   const trimmed = searchTerm.trim();
-
-  let selector = permission;
-
-  if (trimmed) {
-    const regex = new RegExp(escapeRegExp(trimmed), 'i');
-    const matchingTags = await Tags.find({ name: { $regex: regex } }).fetchAsync();
-    const matchingTagNames = matchingTags.map(t => t.name);
-
-    const searchConditions = [{ $text: { $search: trimmed } }];
-
-    if (matchingTagNames.length) {
-      searchConditions.push({ tags: { $in: matchingTagNames } });
-    }
-
-    selector = {
-      $and: [
-        permission,
-        { $or: searchConditions },
-      ],
-    };
+  
+  // Return nothing if no search term provided
+  if (!trimmed) {
+    this.ready();
+    return;
   }
+
+  const permission = getSetPermissionQuery(this.userId);
+
+  const regex = new RegExp(escapeRegExp(trimmed), 'i');
+  const matchingTags = await Tags.find({ name: { $regex: regex } }).fetchAsync();
+  const matchingTagNames = matchingTags.map(t => t.name);
+
+  const searchConditions = [{ $text: { $search: trimmed } }];
+
+  if (matchingTagNames.length) {
+    searchConditions.push({ tags: { $in: matchingTagNames } });
+  }
+
+  const selector = {
+    $and: [
+      permission,
+      { $or: searchConditions },
+    ],
+  };
 
   const fields = {
     _id: 1,
@@ -197,7 +206,7 @@ Meteor.publish('search.sets', async function (searchTerm, limit = 20) {
     publicPatternsCount: 1,
   };
 
-  const sort = trimmed ? { score: { $meta: 'textScore' } } : { nameSort: 1 };
+  const sort = { score: { $meta: 'textScore' } };
 
   const sets = await Sets.find(selector, { fields, sort, limit }).fetchAsync();
 
