@@ -79,7 +79,10 @@ Meteor.publish('search.patterns', async function (searchTerm, limit = 20) {
   const matchingTags = await Tags.find({ name: { $regex: regex } }).fetchAsync();
   const matchingTagNames = matchingTags.map(t => t.name);
 
-  const searchConditions = [{ $text: { $search: trimmed } }];
+  const searchConditions = [
+    { name: { $regex: regex } },
+    { nameSort: { $regex: regex } },
+  ];
 
   if (matchingTagNames.length) {
     searchConditions.push({ tags: { $in: matchingTagNames } });
@@ -101,7 +104,7 @@ Meteor.publish('search.patterns', async function (searchTerm, limit = 20) {
     tags: 1,
   };
 
-  const sort = { score: { $meta: 'textScore' } };
+  const sort = { nameSort: 1 };
 
   const patterns = await Patterns.find(selector, { fields, sort, limit }).fetchAsync();
 
@@ -143,17 +146,12 @@ Meteor.publish('search.users', async function (searchTerm, limit = 20) {
   const selector = {
     $and: [
       permission,
-      {
-        $or: [
-          { $text: { $search: trimmed } },
-          { username: { $regex: regex } },
-        ],
-      },
+      { username: { $regex: regex } },
     ],
   };
 
   const fields = { _id: 1, username: 1 };
-  const sort = { score: { $meta: 'textScore' } };
+  const sort = { username: 1 };
 
   const users = await Meteor.users.find(selector, { fields, sort, limit }).fetchAsync();
 
@@ -184,7 +182,10 @@ Meteor.publish('search.sets', async function (searchTerm, limit = 20) {
   const matchingTags = await Tags.find({ name: { $regex: regex } }).fetchAsync();
   const matchingTagNames = matchingTags.map(t => t.name);
 
-  const searchConditions = [{ $text: { $search: trimmed } }];
+  const searchConditions = [
+    { name: { $regex: regex } },
+    { nameSort: { $regex: regex } },
+  ];
 
   if (matchingTagNames.length) {
     searchConditions.push({ tags: { $in: matchingTagNames } });
@@ -206,7 +207,7 @@ Meteor.publish('search.sets', async function (searchTerm, limit = 20) {
     publicPatternsCount: 1,
   };
 
-  const sort = { score: { $meta: 'textScore' } };
+  const sort = { nameSort: 1 };
 
   const sets = await Sets.find(selector, { fields, sort, limit }).fetchAsync();
 

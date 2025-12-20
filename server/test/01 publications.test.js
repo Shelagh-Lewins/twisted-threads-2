@@ -1805,13 +1805,6 @@ if (Meteor.isServer) {
             { $set: { name: 'SearchableBeta', nameSort: 'searchablebeta' } },
           );
 
-          // Verify sets are updated correctly
-          const set1 = await Sets.findOneAsync({ _id: this.set1._id });
-          const set2 = await Sets.findOneAsync({ _id: this.set2._id });
-          console.log('set1:', set1?.name, 'publicPatternsCount:', set1?.publicPatternsCount, 'createdBy:', set1?.createdBy);
-          console.log('set2:', set2?.name, 'publicPatternsCount:', set2?.publicPatternsCount, 'createdBy:', set2?.createdBy);
-          console.log('currentUser._id:', this.currentUser._id);
-
           const addedDocs = [];
           const mockContext = {
             userId: this.currentUser._id,
@@ -1826,7 +1819,6 @@ if (Meteor.isServer) {
           const handler = Meteor.server.publish_handlers['search.sets'];
           await handler.call(mockContext, 'Searchable', 20);
           const result = addedDocs;
-          console.log('search.sets result:', result.length, result.map(r => ({ name: r.name, publicPatternsCount: r.publicPatternsCount })));
 
           assert.equal(result.length, 2);
           result.forEach((set) => {
