@@ -49,6 +49,21 @@ async function testPatternLimit(userId, expectedLimit) {
 if (Meteor.isServer) {
   describe('test general methods for patterns', function testpatternmethods() {
     // eslint-disable-line func-names
+    // ============================================================================
+    // METHOD TESTING PATTERN FOR METEOR 3:
+    // 
+    // 1. For NOT logged in tests: Use Meteor.callAsync() directly
+    //    - This ensures this.userId is undefined in the method context
+    //    - Methods will correctly reject with "not-logged-in" errors
+    //
+    // 2. For logged in tests: Use callMethodWithUser(userId, methodName, args)
+    //    - This directly invokes the method handler with proper context
+    //    - The context includes userId, so this.userId works inside methods
+    //    - See mockUser.js for implementation details
+    //
+    // This approach avoids the "stubUser() doesn't work in method context" issue
+    // that affected the initial Meteor 3 migration attempts.
+    // ============================================================================
     this.timeout(30000);
     beforeEach(async () => {
       unwrapUser(); // Clean up any existing stubs
@@ -59,16 +74,15 @@ if (Meteor.isServer) {
       unwrapUser(); // Clean up stubs after each test
     });
     describe('pattern.add method', () => {
-      // Tests for unauthenticated users use Meteor.callAsync() directly
-      // This ensures this.userId is undefined in the method context
       it('cannot create pattern if not logged in', async () => {
+        // NOT logged in: use Meteor.callAsync() - this.userId will be undefined
         await expect(
           Meteor.callAsync('pattern.add', addPatternDataIndividual)
         ).to.be.rejectedWith('add-pattern-not-logged-in');
       });
 
-      // Tests with authenticated users use callMethodWithUser() to properly set this.userId
       it('cannot create pattern if not registered', async () => {
+        // Logged in: use callMethodWithUser() to set this.userId properly
         const currentUser = await stubUser();
         await Roles.removeUsersFromRolesAsync([currentUser._id], ['registered']);
 
