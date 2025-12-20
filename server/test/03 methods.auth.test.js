@@ -264,23 +264,31 @@ if (Meteor.isServer) {
       });
 
       it('returns the number of users with public patterns plus one for the user if the user is logged in', async () => {
-        const { privatePatternUserIds, publicPatternUsernames } = await createManyUsers();
+        const { privatePatternUserIds, publicPatternUsernames } =
+          await createManyUsers();
         const currentUser = await Meteor.users.findOneAsync({
           _id: privatePatternUserIds[0],
         });
         // Use callMethodWithUser to set this.userId in the method context
-        const result = await callMethodWithUser(currentUser._id, 'auth.getUserCount');
+        const result = await callMethodWithUser(
+          currentUser._id,
+          'auth.getUserCount',
+        );
         assert.equal(result, publicPatternUsernames.length + 1);
         unwrapUser();
       });
     });
 
     describe('get users for page', () => {
+        describe('get users for page', () => {
       it('returns the users for the first page, user not logged in', async () => {
         const { publicPatternUsernames } = await createManyUsers();
         const skip = 0;
         const limit = 10;
-        const result = await Meteor.callAsync('auth.getUsersForPage', { skip, limit });
+        const result = await Meteor.callAsync('auth.getUsersForPage', {
+          skip,
+          limit,
+        });
         assert.equal(result.length, limit);
         const expectedUsernames = publicPatternUsernames.sort().slice(0, limit);
         expectedUsernames.forEach((username) => {
@@ -294,11 +302,16 @@ if (Meteor.isServer) {
         const limit = 10;
         const skip = Math.floor(total / limit) * limit;
         // If total is 23, skip = 20, so expect 3 users
-        const result = await Meteor.callAsync('auth.getUsersForPage', { skip, limit });
+        const result = await Meteor.callAsync('auth.getUsersForPage', {
+          skip,
+          limit,
+        });
         const expectedCount = total - skip;
         assert.equal(result.length, expectedCount);
-        const resultUsernames = result.map(u => u.username).sort();
-        const expectedUsernames = publicPatternUsernames.sort().slice(skip, skip + limit);
+        const resultUsernames = result.map((u) => u.username).sort();
+        const expectedUsernames = publicPatternUsernames
+          .sort()
+          .slice(skip, skip + limit);
         assert.deepEqual(resultUsernames, expectedUsernames);
       });
 
@@ -307,7 +320,42 @@ if (Meteor.isServer) {
         const total = publicPatternUsernames.length;
         const limit = 10;
         const skip = total + 10; // skip past the end
-        const result = await Meteor.callAsync('auth.getUsersForPage', { skip, limit });
+        const result = await Meteor.callAsync('auth.getUsersForPage', {
+          skip,
+          limit,
+        });
+        assert.isArray(result);
+        assert.equal(result.length, 0);
+      });
+
+      it('returns the users for the last page, user not logged in', async () => {
+        const { publicPatternUsernames } = await createManyUsers();
+        const total = publicPatternUsernames.length;
+        const limit = 10;
+        const skip = Math.floor(total / limit) * limit;
+        // If total is 23, skip = 20, so expect 3 users
+        const result = await Meteor.callAsync('auth.getUsersForPage', {
+          skip,
+          limit,
+        });
+        const expectedCount = total - skip;
+        assert.equal(result.length, expectedCount);
+        const resultUsernames = result.map((u) => u.username).sort();
+        const expectedUsernames = publicPatternUsernames
+          .sort()
+          .slice(skip, skip + limit);
+        assert.deepEqual(resultUsernames, expectedUsernames);
+      });
+
+      it('returns an empty array for a page beyond the end', async () => {
+        const { publicPatternUsernames } = await createManyUsers();
+        const total = publicPatternUsernames.length;
+        const limit = 10;
+        const skip = total + 10; // skip past the end
+        const result = await Meteor.callAsync('auth.getUsersForPage', {
+          skip,
+          limit,
+        });
         assert.isArray(result);
         assert.equal(result.length, 0);
       });
@@ -316,15 +364,91 @@ if (Meteor.isServer) {
         const { publicPatternUsernames } = await createManyUsers();
         const skip = 10;
         const limit = 10;
-        const result = await Meteor.callAsync('auth.getUsersForPage', { skip, limit });
+        const result = await Meteor.callAsync('auth.getUsersForPage', {
+          skip,
+          limit,
+        });
         assert.equal(result.length, limit);
 
         // If result is array of user objects, extract usernames
-        const resultUsernames = result.map(u => u.username).sort();
-        const expectedUsernames = publicPatternUsernames.sort().slice(limit, limit * 2);
+        const resultUsernames = result.map((u) => u.username).sort();
+        const expectedUsernames = publicPatternUsernames
+          .sort()
+          .slice(limit, limit * 2);
         expectedUsernames.forEach((username) => {
           assert.notEqual(resultUsernames.indexOf(username), -1);
         });
+      });
+
+    describe('edit text field', () => {
+      it('cannot edit description of a different user', async () => {
+        async function expectedError() {
+          const currentUser = await stubUser();
+          await stubOtherUser();
+          await Meteor.callAsync('auth.editTextField', {
+            _id: currentUser._id,
+            fieldName: 'description',
+            fieldValue: 'someText',
+          });
+        }
+        await expect(expectedError()).to.be.rejectedWith(
+          'edit-text-field-not-logged-in',
+        );
+        unwrapUser();
+      });
+
+      it('cannot edit a different field if they are logged in', async () => {
+        const currentUser = await stubUser();
+        await expect(
+          callMethodWithUser(currentUser._id, 'auth.editTextField', {
+            _id: currentUser._id,
+            fieldName: 'thingy',
+            fieldValue: 'someText',
+          }),
+        ).to.be.rejectedWith('edit-text-field-not-allowed');
+      });
+
+      it('can edit description if they are logged in', async () => {
+        const currentUser = await stubUser();
+        assert.equal(currentUser.description, undefined);
+        const newDescription = 'Some text';
+        await callMethodWithUser(currentUser._id, 'auth.editTextField', {
+          _id: currentUser._id,
+          fieldName: 'description',
+          fieldValue: newDescription,
+        });
+        const updated = await Meteor.users.findOneAsync({
+          _id: currentUser._id,
+        });
+        assert.equal(updated.description, newDescription);
+      });
+
+      it('cannot set a value that is too long', async () => {
+        const currentUser = await stubUser();
+        assert.equal(currentUser.description, undefined);
+        let newDescription = '';
+        for (let i = 0; i < MAX_TEXT_AREA_LENGTH; i += 1) {
+          newDescription += 'a';
+        }
+        await callMethodWithUser(currentUser._id, 'auth.editTextField', {
+          _id: currentUser._id,
+          fieldName: 'description',
+          fieldValue: newDescription,
+        });
+        const updated = await Meteor.users.findOneAsync({
+          _id: currentUser._id,
+        });
+        assert.equal(updated.description, newDescription);
+        newDescription += 'longer';
+        await expect(
+          callMethodWithUser(currentUser._id, 'auth.editTextField', {
+            _id: currentUser._id,
+            fieldName: 'description',
+            fieldValue: newDescription,
+          }),
+        ).to.be.rejectedWith('edit-text-field-too-long');
+      });
+    });
       });
     });
     // ...existing migrated test blocks go here...
