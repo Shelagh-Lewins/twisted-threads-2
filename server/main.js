@@ -19,7 +19,9 @@ Meteor.startup(async () => {
         // fallback to sync API if present
         Roles.createRole(role, { unlessExists: true });
       } else {
-        console.warn(`[roles] Roles.createRole not available; skipping creation of role "${role}". Ensure package "alanning:roles" or core "roles" is installed and loaded.`);
+        console.warn(
+          `[roles] Roles.createRole not available; skipping creation of role "${role}". Ensure package "alanning:roles" or core "roles" is installed and loaded.`,
+        );
       }
     } catch (err) {
       console.error(`[roles] Failed to create role "${role}":`, err);

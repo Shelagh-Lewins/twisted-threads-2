@@ -62,7 +62,10 @@ if (Meteor.isServer) {
       });
 
       it('cannot create set if not registered', async () => {
-        await Roles.removeUsersFromRolesAsync([Meteor.userId()], ['registered']);
+        await Roles.removeUsersFromRolesAsync(
+          [Meteor.userId()],
+          ['registered'],
+        );
         const { patternId } = this; // seems to be a scoping issue otherwise
 
         async function expectedError() {

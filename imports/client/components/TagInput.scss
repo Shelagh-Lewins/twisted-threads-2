@@ -1,244 +1,244 @@
-@import "../constants/variables";
+@import '../constants/variables';
 
 .edit-tags {
-	margin-bottom: 8px;
+  margin-bottom: 8px;
 
-	.react-tags {
-		background: $color-tags-background;
-		border: 1px solid $color-tags-border;
-		border-radius: 1px;
-		color: $color-text;
-		cursor: text;
-		font-size: 1em;
-		line-height: 1.2;
-		padding: 6px 0 0 6px;
-		position: relative;
+  .react-tags {
+    background: $color-tags-background;
+    border: 1px solid $color-tags-border;
+    border-radius: 1px;
+    color: $color-text;
+    cursor: text;
+    font-size: 1em;
+    line-height: 1.2;
+    padding: 6px 0 0 6px;
+    position: relative;
 
-		// v7: Hide the label visually but keep for screen readers
-		#react-tags-label {
-			position: absolute;
-			width: 1px;
-			height: 1px;
-			padding: 0;
-			margin: -1px;
-			overflow: hidden;
-			clip: rect(0, 0, 0, 0);
-			white-space: nowrap;
-			border: 0;
-		}
+    // v7: Hide the label visually but keep for screen readers
+    #react-tags-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
 
-		// v7: Selected tags list
-		ul[aria-label="Selected tags"] {
-			display: inline;
-			list-style: none;
-			margin: 0;
-			padding: 0;
+    // v7: Selected tags list
+    ul[aria-label='Selected tags'] {
+      display: inline;
+      list-style: none;
+      margin: 0;
+      padding: 0;
 
-			li {
-				display: inline-block;
-				margin: 0;
-				padding: 0;
-			}
-		}
+      li {
+        display: inline-block;
+        margin: 0;
+        padding: 0;
+      }
+    }
 
-		button {
-			background: transparent;
-			border: 0;
-			color: $color-tags-delete;
-			margin-left: 8px;
-		}
+    button {
+      background: transparent;
+      border: 0;
+      color: $color-tags-delete;
+      margin-left: 8px;
+    }
 
-		.is-focused {
-			border-color: $color-tags-border;
-		}
+    .is-focused {
+      border-color: $color-tags-border;
+    }
 
-		.selected {
-			display: inline;
-		}
+    .selected {
+      display: inline;
+    }
 
-		.selected-tag {
-			background: $color-tags-selected;
-			border: 1px solid $color-tags-border;
-			border-radius: 2px;
-			box-sizing: border-box;
-			display: inline-block;
-			font-size: inherit;
-			line-height: inherit;
-			margin: 0 6px 6px 0;
-			padding: 6px 8px;
+    .selected-tag {
+      background: $color-tags-selected;
+      border: 1px solid $color-tags-border;
+      border-radius: 2px;
+      box-sizing: border-box;
+      display: inline-block;
+      font-size: inherit;
+      line-height: inherit;
+      margin: 0 6px 6px 0;
+      padding: 6px 8px;
 
-			&:hover,
-			&:focus {
-				border-color: $color-tags-hover-border;
-			}
-		}
+      &:hover,
+      &:focus {
+        border-color: $color-tags-hover-border;
+      }
+    }
 
-		.search,
-		#react-tags-combobox {
-			display: inline-block;
+    .search,
+    #react-tags-combobox {
+      display: inline-block;
 
-			// match tag layout
-			padding: 7px 2px;
-			margin-bottom: 6px;
+      // match tag layout
+      padding: 7px 2px;
+      margin-bottom: 6px;
 
-			// prevent autoresize overflowing the container
-			max-width: 100%;
-		}
+      // prevent autoresize overflowing the container
+      max-width: 100%;
+    }
 
-		@media screen and (min-width: 30em) {
-			.search,
-			#react-tags-combobox {
-				// this will become the offsetParent for suggestions
-				position: relative;
-			}
-		}
+    @media screen and (min-width: 30em) {
+      .search,
+      #react-tags-combobox {
+        // this will become the offsetParent for suggestions
+        position: relative;
+      }
+    }
 
-		input {
-			// prevent autoresize overflowing the container
-			max-width: 100%;
+    input {
+      // prevent autoresize overflowing the container
+      max-width: 100%;
 
-			// remove styles and layout from this element
-			margin: 0;
-			padding: 0;
-			border: 0;
-			outline: none;
+      // remove styles and layout from this element
+      margin: 0;
+      padding: 0;
+      border: 0;
+      outline: none;
 
-			// match the font styles
-			font-size: inherit;
-			line-height: inherit;
-		}
+      // match the font styles
+      font-size: inherit;
+      line-height: inherit;
+    }
 
-		::-ms-clear {
-			display: none;
-		}
+    ::-ms-clear {
+      display: none;
+    }
 
-		// v7: Dropdown listbox
-		#react-tags-listbox {
-			background: $color-tags-background;
-			border: 1px solid $color-tags-border;
-			border-radius: 2px;
-			box-shadow: 0 2px 6px $color-tags-shadow;
-			left: 0;
-			max-height: 200px;
-			overflow-y: auto;
-			position: absolute;
-			top: 100%;
-			width: 100%;
-			z-index: 1000;
+    // v7: Dropdown listbox
+    #react-tags-listbox {
+      background: $color-tags-background;
+      border: 1px solid $color-tags-border;
+      border-radius: 2px;
+      box-shadow: 0 2px 6px $color-tags-shadow;
+      left: 0;
+      max-height: 200px;
+      overflow-y: auto;
+      position: absolute;
+      top: 100%;
+      width: 100%;
+      z-index: 1000;
 
-			// Individual option divs
-			div[role="option"] {
-				padding: 6px 8px;
-				cursor: pointer;
+      // Individual option divs
+      div[role='option'] {
+        padding: 6px 8px;
+        cursor: pointer;
 
-				mark {
-					background: none;
-					font-weight: 600;
-					text-decoration: underline;
-				}
+        mark {
+          background: none;
+          font-weight: 600;
+          text-decoration: underline;
+        }
 
-				&:hover {
-					background: $color-tags-hover;
-				}
+        &:hover {
+          background: $color-tags-hover;
+        }
 
-				&[aria-selected="true"] {
-					background: $color-tags-bg-active;
-				}
+        &[aria-selected='true'] {
+          background: $color-tags-bg-active;
+        }
 
-				&[aria-disabled="true"] {
-					cursor: auto;
-					opacity: .5;
-				}
-			}
-		}
+        &[aria-disabled='true'] {
+          cursor: auto;
+          opacity: 0.5;
+        }
+      }
+    }
 
-		@media screen and (min-width: 30em) {
-			#react-tags-listbox {
-				width: 240px;
-			}
-		}
+    @media screen and (min-width: 30em) {
+      #react-tags-listbox {
+        width: 240px;
+      }
+    }
 
-		// v6 styles kept for backwards compatibility
-		.suggestions {
-			background: $color-tags-background;
-			border: 1px solid $color-tags-border;
-			border-radius: 2px;
-			box-shadow: 0 2px 6px $color-tags-shadow;
-			left: 0;
-			position: absolute;
-			top: 100%;
-			width: 100%;
+    // v6 styles kept for backwards compatibility
+    .suggestions {
+      background: $color-tags-background;
+      border: 1px solid $color-tags-border;
+      border-radius: 2px;
+      box-shadow: 0 2px 6px $color-tags-shadow;
+      left: 0;
+      position: absolute;
+      top: 100%;
+      width: 100%;
 
-			ul {
-				list-style: none;
-				margin: 4px -1px;
-				padding: 0;
-			}
+      ul {
+        list-style: none;
+        margin: 4px -1px;
+        padding: 0;
+      }
 
-			li {
-				float: left;
-				padding: 6px 8px;
+      li {
+        float: left;
+        padding: 6px 8px;
 
-				mark {
-					background: none;
-					font-weight: 600;
-					text-decoration: underline;
-				}
-			}
+        mark {
+          background: none;
+          font-weight: 600;
+          text-decoration: underline;
+        }
+      }
 
-			:hover {
-				background: $color-tags-hover;
-				cursor: pointer;
-			}
+      :hover {
+        background: $color-tags-hover;
+        cursor: pointer;
+      }
 
-			.is-active {
-				background: $color-tags-bg-active;
-			}
+      .is-active {
+        background: $color-tags-bg-active;
+      }
 
-			.is-disabled {
-				cursor: auto;
-				opacity: .5;
-			}
-		}
+      .is-disabled {
+        cursor: auto;
+        opacity: 0.5;
+      }
+    }
 
-		@media screen and (min-width: 30em) {
-			.suggestions {
-				width: 240px;
-			}
-		}
-	}
+    @media screen and (min-width: 30em) {
+      .suggestions {
+        width: 240px;
+      }
+    }
+  }
 
-	.invalid-feedback {
-		display: block;
-		font-size: .8rem;
-	}
+  .invalid-feedback {
+    display: block;
+    font-size: 0.8rem;
+  }
 }
 
 .view-tags {
-	.label {
-		float: left;
-		margin-bottom: 1rem;
-		margin-right: 8px;
-	}
+  .label {
+    float: left;
+    margin-bottom: 1rem;
+    margin-right: 8px;
+  }
 
-	ul {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-	}
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
 
-	li {
-		float: left;
-		padding: 0 4px 0 0;
+  li {
+    float: left;
+    padding: 0 4px 0 0;
 
-		&::after {
-			content: ",";
-		}
+    &::after {
+      content: ',';
+    }
 
-		&:last-child {
-			&::after {
-				content: "";
-			}
-		}
-	}
+    &:last-child {
+      &::after {
+        content: '';
+      }
+    }
+  }
 }

@@ -17,11 +17,13 @@ Twisted Threads 2 is a web application for tablet weaving built with Meteor, Rea
 **Status:** App is running but migration not complete
 
 **Completed:**
+
 - Core app functionality restored
 - React 18 integration
 - MongoDB driver updated
 
 **Pending Migrations:**
+
 1. **Search functionality** - Server publications need full migration
 2. **Roles system** - Migrating from `alanning:roles` to core `meteor/roles`
    - One-time database migration required for roles data structure
@@ -31,11 +33,13 @@ Twisted Threads 2 is a web application for tablet weaving built with Meteor, Rea
 ## Technology Stack
 
 ### Core Framework
+
 - **Meteor:** 3.3.2 (upgraded from 2.9)
 - **Node.js:** Compatible with Meteor 3.3.2
 - **MongoDB:** Primary database
 
 ### Frontend
+
 - **React:** 18.3.1 (upgraded from earlier version)
 - **React DOM:** 18.3.1
 - **Redux:** 5.0.1 (state management)
@@ -45,6 +49,7 @@ Twisted Threads 2 is a web application for tablet weaving built with Meteor, Rea
 - **React Router DOM:** 5.3.4
 
 ### UI Components & Styling
+
 - **Bootstrap:** 5.3.3
 - **Reactstrap:** 9.2.3
 - **SCSS:** Styling system
@@ -53,20 +58,24 @@ Twisted Threads 2 is a web application for tablet weaving built with Meteor, Rea
 - **FontAwesome:** 6.7.2 (icons)
 
 ### Forms & Validation
+
 - **Formik:** 2.4.6 (form management)
 - **SimpleSchema:** 1.13.1 (data validation)
 - **Collection2:** 4.1.4 (schema validation for collections)
 
 ### File Uploads
+
 - **Slingshot:** 0.7.1 (AWS S3 uploads)
 - **AWS SDK:** 2.1692.0
 - **React Dropzone:** 14.3.5
 
 ### Image Processing
+
 - **Jimp:** 0.9.8 (server-side image manipulation)
 - **save-svg-as-png:** 1.4.17
 
 ### Utilities
+
 - **Moment.js:** 2.30.1 (date handling)
 - **jQuery:** 3.7.1
 - **DOMPurify:** 3.2.3 (XSS protection)
@@ -75,12 +84,14 @@ Twisted Threads 2 is a web application for tablet weaving built with Meteor, Rea
 - **Re-reselect:** 5.1.0 (memoized selectors)
 
 ### Testing
+
 - **Mocha:** 8.2.0 (test framework)
 - **Chai:** 5.1.2 (assertions)
 - **Sinon:** 19.0.2 (mocking)
 - **Puppeteer:** 23.11.1 (E2E testing)
 
 ### Development Tools
+
 - **ESLint:** 9.17.0
 - **Prettier:** (code formatting)
 - **TypeScript ESLint:** 8.19.0
@@ -89,6 +100,7 @@ Twisted Threads 2 is a web application for tablet weaving built with Meteor, Rea
 ## Project Structure
 
 ### Root Level
+
 ```
 /client/              # Client-side entry point
 /server/              # Server-side entry point
@@ -99,14 +111,17 @@ Twisted Threads 2 is a web application for tablet weaving built with Meteor, Rea
 ```
 
 ### Client (`/client/`)
+
 - `index.html` - HTML template
 - `main.js` - Client entry point with React root rendering
 - `style.css` - Global styles
 
 ### Imports (`/imports/`)
+
 Main application code organized by client/server:
 
 **`/imports/client/`**
+
 - `components/` - React components (presentational)
 - `containers/` - React containers (connected to Redux)
 - `forms/` - Form components with Formik
@@ -114,16 +129,19 @@ Main application code organized by client/server:
 - `modules/` - Client utilities (store, reducers, actions)
 
 **`/imports/modules/`** (Shared)
+
 - `collection.js` - MongoDB collections definition
 - `parameters.js` - Shared configuration and constants
 - `permissionQueries.js` - Permission logic for collections
 - `schemas/` - SimpleSchema definitions for all collections
 
 **`/imports/server/`**
+
 - `modules/` - Server-side logic (publications, slingshot config)
 - `searchPublications.js` - Search functionality
 
 ### Server (`/server/`)
+
 - `main.js` - Server entry point
 - `methods/` - Meteor methods (API endpoints)
   - `auth.js` - Authentication
@@ -180,7 +198,9 @@ Main application code organized by client/server:
    - Extended with custom fields
 
 ### Search Implementation
+
 Search is handled via server publications in `/imports/server/searchPublications.js`:
+
 - `search.patterns` - Pattern search
 - `search.users` - User search
 - `search.sets` - Set search
@@ -190,6 +210,7 @@ Search is handled via server publications in `/imports/server/searchPublications
 ## User Roles & Permissions
 
 ### Role System
+
 Defined in `/imports/modules/parameters.js` as `ROLES`:
 
 1. **registered** - Basic registered user
@@ -199,10 +220,13 @@ Defined in `/imports/modules/parameters.js` as `ROLES`:
 5. **serviceUser** - Special system user for automated tasks (e.g., preview generation)
 
 ### Role Limits
+
 `ROLE_LIMITS` object defines storage/resource quotas per role.
 
 ### Migration Note
+
 Currently migrating from `alanning:roles` package to core `meteor/roles`:
+
 - Server code updated to use async role APIs (`createRoleAsync`)
 - Database migration script needed (one-time operation)
 - Check all role-related queries and method calls
@@ -210,11 +234,13 @@ Currently migrating from `alanning:roles` package to core `meteor/roles`:
 ## Authentication
 
 **Email/Password** authentication via Meteor Accounts:
+
 - Email verification required for full access
 - Password reset functionality
 - Custom email templates configured in `server/main.js`
 
 **Email Templates:**
+
 - Verify Email
 - Reset Password
 - Custom branding: "Twisted Threads"
@@ -222,11 +248,14 @@ Currently migrating from `alanning:roles` package to core `meteor/roles`:
 ## Key Features
 
 ### Pattern Types
+
 Defined in `ALLOWED_PATTERN_TYPES`:
+
 - **Individual** - Simulation pattern, tablets turned individually
 - Support for 2, 4, or 6 holes per tablet
 
 ### Pattern Capabilities
+
 - Max rows: 200 (`MAX_ROWS`)
 - Max tablets: 100 (`MAX_TABLETS`)
 - Freehand chart editing
@@ -237,6 +266,7 @@ Defined in `ALLOWED_PATTERN_TYPES`:
 - Tagging system
 
 ### Weaving Instructions
+
 - Interactive weaving chart
 - Print view functionality
 - Threading diagrams
@@ -245,10 +275,12 @@ Defined in `ALLOWED_PATTERN_TYPES`:
 ## File Uploads (Slingshot)
 
 **AWS S3 Integration** for pattern images:
+
 - Package: `edgee:slingshot@0.7.1`
 - Configuration: `/imports/server/modules/slingshot.js`
 
 **Required Environment Variables:**
+
 ```
 AWS_ACCESS_KEY_ID
 AWS_SECRET_ACCESS_KEY
@@ -257,6 +289,7 @@ AWSRegion (optional)
 ```
 
 **Restrictions:**
+
 - Max file size: 2MB
 - Allowed types: PNG, JPEG, GIF
 - Requires verified email
@@ -266,7 +299,9 @@ AWSRegion (optional)
 ## Environment Configuration
 
 ### Environment Variables
+
 Managed via `.env` file (not committed):
+
 - `MAIL_URL` - Email service configuration
 - `AWS_ACCESS_KEY_ID` - AWS access key
 - `AWS_SECRET_ACCESS_KEY` - AWS secret key
@@ -274,19 +309,23 @@ Managed via `.env` file (not committed):
 - `AWSRegion` - AWS region (optional)
 
 ### Startup Script
+
 Use `./run_meteor.sh` to:
+
 1. Load environment variables from `.env`
 2. Start Meteor with proper configuration
 
 ## Routing
 
 **React Router** integration:
+
 - Router setup: `/imports/client/containers/App.js`
 - Routes defined for all main views
 - Uses `react-router-dom` v5
 - Mix of old (`react-router`) and new (`react-router-dom`) imports
 
 **Main Routes:**
+
 - Home
 - Pattern (view/edit)
 - Print View
@@ -304,12 +343,14 @@ Use `./run_meteor.sh` to:
 
 **Redux DevTools** integration (development only)
 
-**Provider Setup:** 
+**Provider Setup:**
+
 - Redux Provider wraps entire app
 - Custom `DatabaseProvider` for Meteor data integration
 - `AppContext` for sharing database subscriptions
 
 **State Structure:**
+
 - Pattern data
 - Color books
 - User data
@@ -319,6 +360,7 @@ Use `./run_meteor.sh` to:
 ## Testing
 
 ### Test Scripts
+
 ```bash
 # Server tests (watch mode)
 ./test_meteor.sh
@@ -328,7 +370,9 @@ npm run test-app
 ```
 
 ### Test Organization
+
 **Server Tests** (`/server/test/`):
+
 - 01 - Publications
 - 02 - Pattern methods
 - 02a - Pattern edit methods
@@ -342,9 +386,11 @@ npm run test-app
 - 11 - Index creation
 
 **Schema Tests** (`/test/`):
+
 - 08 - Schema validation
 
 **Test Utilities:**
+
 - `mockUser.js` - User mocking
 - `testData.js` - Test data generation
 - `createManyPatterns.js` - Bulk pattern creation
@@ -352,10 +398,12 @@ npm run test-app
 ## Deployment
 
 ### Deploy Scripts
+
 - `testserver_deploy.sh` - Test server deployment
 - `unicorn2022_deploy.sh` - Production deployment
 
 ### Database Indexes
+
 **Automatic Index Creation:**
 MongoDB indexes are created automatically at server startup (`server/main.js`).
 
@@ -379,12 +427,14 @@ meteor npm install --save-dev package-name
 ```
 
 **Why `meteor npm`?**
+
 - Ensures you're using the Node.js version bundled with Meteor
 - Critical for compatibility with Meteor 3.3.2
 - Prevents version conflicts and build issues
 - Especially important for packages that depend on Node.js features
 
 ### Start Development Server
+
 ```bash
 meteor
 # OR with environment variables:
@@ -392,11 +442,13 @@ meteor
 ```
 
 ### Run Tests
+
 ```bash
 ./test_meteor.sh
 ```
 
 ### Code Style
+
 - ESLint configured
 - Prettier integration
 - React/JSX linting
@@ -405,6 +457,7 @@ meteor
 ## Known Issues & TODOs (Meteor 3.3.2 Migration)
 
 ### High Priority
+
 1. ✅ **Core app running** - Basic functionality restored
 2. 🔄 **Search migration** - Complete search publication migration
 3. 🔄 **Roles migration** - Complete migration to `meteor/roles`
@@ -414,6 +467,7 @@ meteor
 5. 🔄 **Environment variables** - Verify all modules handle missing env vars gracefully
 
 ### Testing Required
+
 - Full test suite pass after migrations
 - Role permission checks
 - Search functionality
@@ -423,12 +477,14 @@ meteor
 ## Architecture Patterns
 
 ### Meteor Patterns
+
 - Method calls for mutations
 - Publications for subscriptions
 - Server-side only sensitive operations
 - Optimistic UI updates via Redux
 
 ### React Patterns
+
 - Container/Component separation
 - HOCs for routing (`withRouter`)
 - Redux connect HOCs
@@ -436,6 +492,7 @@ meteor
 - Context API for database provider
 
 ### Data Flow
+
 1. User interaction → Component
 2. Component dispatches Redux action
 3. Action calls Meteor method
@@ -447,15 +504,18 @@ meteor
 ## Important Constants
 
 **Pattern Limits:**
+
 - `MAX_ROWS`: 200
 - `MAX_TABLETS`: 100
 - `ALLOWED_HOLES`: [2, 4, 6]
 - `DEFAULT_HOLES`: 4
 
 **Pagination:**
+
 - `ALLOWED_ITEMS_PER_PAGE`: [10, 15, 20, 25, 30, 35, 40]
 
 **Default Colors:**
+
 - `DEFAULT_PALETTE`: 16 colors for patterns
 - `DEFAULT_WEAVING_BACKWARDS_BACKGROUND_COLOR`: '#aaa'
 
@@ -464,23 +524,28 @@ meteor
 When working on specific features, these files are most helpful:
 
 **General Structure:**
+
 - `/imports/modules/parameters.js` - All constants
 - `/imports/modules/collection.js` - Collection definitions
 - `/imports/client/containers/App.js` - Routing and app structure
 
 **State Management:**
+
 - `/imports/client/modules/store.js` - Redux store setup
 
 **Server API:**
+
 - `/server/methods/` - All Meteor methods
 - `/imports/server/modules/publications.js` - Data publications
 
 **Schemas:**
+
 - `/imports/modules/schemas/` - All collection schemas
 
 ## Daily Development Checklist
 
 When starting work:
+
 1. Check current migration status in this document
 2. Review any pending TODOs related to your work
 3. Ensure environment variables are set (if needed)

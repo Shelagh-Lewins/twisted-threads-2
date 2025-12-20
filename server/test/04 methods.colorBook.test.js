@@ -32,7 +32,10 @@ if (Meteor.isServer) {
       it('cannot create color book if not registered', async () => {
         async function expectedError() {
           stubUser();
-          await Roles.removeUsersFromRolesAsync([Meteor.userId()], ['registered']);
+          await Roles.removeUsersFromRolesAsync(
+            [Meteor.userId()],
+            ['registered'],
+          );
 
           await Meteor.callAsync('colorBook.add', {
             colors: defaultColorBookData.colors,

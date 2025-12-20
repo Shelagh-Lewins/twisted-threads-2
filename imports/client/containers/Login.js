@@ -26,7 +26,7 @@ class Login extends Component {
         user,
         password,
         history,
-      })
+      }),
     );
   };
 

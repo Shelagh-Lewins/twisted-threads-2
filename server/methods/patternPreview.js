@@ -36,10 +36,7 @@ Meteor.methods({
     const { createdBy } = pattern;
 
     const userRoles = await Roles.getRolesForUserAsync(Meteor.userId());
-    if (
-      createdBy !== Meteor.userId() &&
-      !userRoles.includes('serviceUser')
-    ) {
+    if (createdBy !== Meteor.userId() && !userRoles.includes('serviceUser')) {
       throw new Meteor.Error(
         'save-preview-not-created-by-user',
         'Unable to save preview because pattern was not created by the current logged in user',

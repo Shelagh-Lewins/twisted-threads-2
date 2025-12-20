@@ -11,181 +11,178 @@ import './SetSummary.scss';
 import { iconColors } from '../../modules/parameters';
 
 function SetSummary(props) {
-	const {
-		dispatch,
-		set: { _id, createdBy, description, name, tags },
-		patterns,
-		patternPreviews,
-		user,
-	} = props;
+  const {
+    dispatch,
+    set: { _id, createdBy, description, name, tags },
+    patterns,
+    patternPreviews,
+    user,
+  } = props;
 
-	const numberOfThumbnails = 4;
+  const numberOfThumbnails = 4;
 
-	let username = '';
-	if (user) {
-		username = user.username;
-	}
+  let username = '';
+  if (user) {
+    username = user.username;
+  }
 
-	const [patternPreviewAddresses, setPatternPreviewAddresses] = useState([]);
-	const [cacheDate] = useState(new Date()); // only refetch the patternPreview on remount
+  const [patternPreviewAddresses, setPatternPreviewAddresses] = useState([]);
+  const [cacheDate] = useState(new Date()); // only refetch the patternPreview on remount
 
-	useEffect(() => {
-		const summaryPatternPreviewAddresses = patterns
-			.slice(0, numberOfThumbnails)
-			.map((pattern) => {
-				let patternPreviewAddress;
+  useEffect(() => {
+    const summaryPatternPreviewAddresses = patterns
+      .slice(0, numberOfThumbnails)
+      .map((pattern) => {
+        let patternPreviewAddress;
 
-				if (pattern) {
-					const patternPreview = patternPreviews.find(
-						(preview) => pattern._id === preview.patternId,
-					);
+        if (pattern) {
+          const patternPreview = patternPreviews.find(
+            (preview) => pattern._id === preview.patternId,
+          );
 
-					if (patternPreview) {
-						patternPreviewAddress = getPatternPreviewAddress(
-							patternPreview,
-							cacheDate,
-						);
-					}
-				}
+          if (patternPreview) {
+            patternPreviewAddress = getPatternPreviewAddress(
+              patternPreview,
+              cacheDate,
+            );
+          }
+        }
 
-				return patternPreviewAddress;
-			});
+        return patternPreviewAddress;
+      });
 
-		setPatternPreviewAddresses(summaryPatternPreviewAddresses);
-	}, [patternPreviews, patterns, cacheDate]);
+    setPatternPreviewAddresses(summaryPatternPreviewAddresses);
+  }, [patternPreviews, patterns, cacheDate]);
 
-	const handleClickButtonRemove = () => {
-		const response = confirm(`Do you want to delete the set "${name}"?`); // eslint-disable-line no-restricted-globals
+  const handleClickButtonRemove = () => {
+    const response = confirm(`Do you want to delete the set "${name}"?`); // eslint-disable-line no-restricted-globals
 
-		if (response === true) {
-			dispatch(removeSet(_id));
-		}
-	};
+    if (response === true) {
+      dispatch(removeSet(_id));
+    }
+  };
 
-	const canEdit = Meteor.userId() === createdBy;
+  const canEdit = Meteor.userId() === createdBy;
 
-	// use pattern previews for the first four patterns
-	const patternPreviewElms = [];
+  // use pattern previews for the first four patterns
+  const patternPreviewElms = [];
 
-	for (let i = 0; i < numberOfThumbnails; i += 1) {
-		let previewStyle = {};
-		const pattern = patterns[i];
+  for (let i = 0; i < numberOfThumbnails; i += 1) {
+    let previewStyle = {};
+    const pattern = patterns[i];
 
-		if (pattern && patternPreviewAddresses[i]) {
-			previewStyle = {
-				backgroundImage: `url(${patternPreviewAddresses[i]})`,
-			};
-		}
+    if (pattern && patternPreviewAddresses[i]) {
+      previewStyle = {
+        backgroundImage: `url(${patternPreviewAddresses[i]})`,
+      };
+    }
 
-		const elm = (
-			<div
-				key={`pattern-preview-${i}`}
-				style={previewStyle}
-				className='pattern-preview'
-			/>
-		);
+    const elm = (
+      <div
+        key={`pattern-preview-${i}`}
+        style={previewStyle}
+        className='pattern-preview'
+      />
+    );
 
-		patternPreviewElms.push(elm);
-	}
+    patternPreviewElms.push(elm);
+  }
 
-	const patternPreviewElm = (
-		<div className='pattern-previews'>{patternPreviewElms}</div>
-	);
+  const patternPreviewElm = (
+    <div className='pattern-previews'>{patternPreviewElms}</div>
+  );
 
-	const buttonRemove = (
-		<Button
-			type='button'
-			onClick={() => handleClickButtonRemove()}
-			title='Delete set'
-		>
-			<FontAwesomeIcon
-				icon={['fas', 'trash']}
-				style={{ color: iconColors.default }}
-				size='1x'
-			/>
-		</Button>
-	);
+  const buttonRemove = (
+    <Button
+      type='button'
+      onClick={() => handleClickButtonRemove()}
+      title='Delete set'
+    >
+      <FontAwesomeIcon
+        icon={['fas', 'trash']}
+        style={{ color: iconColors.default }}
+        size='1x'
+      />
+    </Button>
+  );
 
-	// if no description, concatenate pattern names instead
-	let text = description;
+  // if no description, concatenate pattern names instead
+  let text = description;
 
-	if (!description && patterns) {
-		text = patterns.reduce(
-			(workingString, pattern, index) =>
-				workingString +
-				(pattern ? pattern.name : '') +
-				(index === patterns.length - 1 ? '' : ', '),
-			'',
-		);
-	}
+  if (!description && patterns) {
+    text = patterns.reduce(
+      (workingString, pattern, index) =>
+        workingString +
+        (pattern ? pattern.name : '') +
+        (index === patterns.length - 1 ? '' : ', '),
+      '',
+    );
+  }
 
-	const tagElms = tags.map((Tagtext, index) => (
-		<span
-			className='tag'
-			key={`tag-${index}`} // eslint-disable-line react/no-array-index-key
-		>
-			{Tagtext}
-		</span>
-	));
+  const tagElms = tags.map((Tagtext, index) => (
+    <span
+      className='tag'
+      key={`tag-${index}`} // eslint-disable-line react/no-array-index-key
+    >
+      {Tagtext}
+    </span>
+  ));
 
-	return (
-		<div
-			className='set-summary'
-			title={`Set: ${name}`}
-		>
-			<div className='main'>
-				<Link to={`/set/${_id}`}>
-					<h3>{name}</h3>
-					<div className='description'>{text}</div>
-					<div className='info'>
-						<div className='tags'>{tagElms}</div>
-						<div
-							className='number-of-patterns'
-							title={`Number of patterns in set: ${patterns.length}`}
-						>
-							<span
-								className='icon'
-								style={{
-									backgroundImage: `url(${Meteor.absoluteUrl(
-										'/images/logo.png',
-									)}`,
-								}}
-							/>
-							{patterns.length}
-						</div>
-					</div>
+  return (
+    <div className='set-summary' title={`Set: ${name}`}>
+      <div className='main'>
+        <Link to={`/set/${_id}`}>
+          <h3>{name}</h3>
+          <div className='description'>{text}</div>
+          <div className='info'>
+            <div className='tags'>{tagElms}</div>
+            <div
+              className='number-of-patterns'
+              title={`Number of patterns in set: ${patterns.length}`}
+            >
+              <span
+                className='icon'
+                style={{
+                  backgroundImage: `url(${Meteor.absoluteUrl(
+                    '/images/logo.png',
+                  )}`,
+                }}
+              />
+              {patterns.length}
+            </div>
+          </div>
 
-					{patternPreviewElm}
-				</Link>
-			</div>
-			<div className='footer'>
-				<Link
-					to={`/user/${createdBy}`}
-					className='created-by'
-					title={`Created by: ${username}`}
-				>
-					<span
-						className='icon'
-						style={{
-							backgroundImage: `url(${Meteor.absoluteUrl(
-								'/images/created_by.png',
-							)}`,
-						}}
-					/>
-					{username}
-				</Link>
-				{canEdit && <div className='controls'>{buttonRemove}</div>}
-			</div>
-		</div>
-	);
+          {patternPreviewElm}
+        </Link>
+      </div>
+      <div className='footer'>
+        <Link
+          to={`/user/${createdBy}`}
+          className='created-by'
+          title={`Created by: ${username}`}
+        >
+          <span
+            className='icon'
+            style={{
+              backgroundImage: `url(${Meteor.absoluteUrl(
+                '/images/created_by.png',
+              )}`,
+            }}
+          />
+          {username}
+        </Link>
+        {canEdit && <div className='controls'>{buttonRemove}</div>}
+      </div>
+    </div>
+  );
 }
 
 SetSummary.propTypes = {
-	dispatch: PropTypes.func.isRequired,
-	patterns: PropTypes.arrayOf(PropTypes.any),
-	patternPreviews: PropTypes.arrayOf(PropTypes.any),
-	set: PropTypes.objectOf(PropTypes.any),
-	user: PropTypes.objectOf(PropTypes.any),
+  dispatch: PropTypes.func.isRequired,
+  patterns: PropTypes.arrayOf(PropTypes.any),
+  patternPreviews: PropTypes.arrayOf(PropTypes.any),
+  set: PropTypes.objectOf(PropTypes.any),
+  user: PropTypes.objectOf(PropTypes.any),
 };
 
 export default SetSummary;

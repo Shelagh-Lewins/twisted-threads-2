@@ -20,7 +20,11 @@ import {
   showMoreSets,
 } from '../modules/search';
 import 'react-widgets/styles.css';
-import { SearchPatterns, SearchSets, SearchUsers } from '../../modules/searchCollections';
+import {
+  SearchPatterns,
+  SearchSets,
+  SearchUsers,
+} from '../../modules/searchCollections';
 import { iconColors, SEARCH_MORE } from '../../modules/parameters';
 
 import getUserpicStyle from '../modules/getUserpicStyle';

@@ -17,19 +17,35 @@ const defaultUserData = {
 };
 
 export async function stubUser(params = {}) {
-  // create a fake logged in user
+  // Always unwrap before stubbing to avoid double-stubbing errors
+  unwrapUser();
   await Meteor.users.removeAsync({});
 
   const userData = { ...defaultUserData, ...params };
   const userId = await Meteor.users.insertAsync(userData);
+  // eslint-disable-next-line no-console
+  console.log('[stubUser] userId after insertAsync:', userId);
   const currentUser = await Meteor.users.findOneAsync(userId);
+  // eslint-disable-next-line no-console
+  console.log('[stubUser] currentUser after findOneAsync:', currentUser);
 
-  if (Roles && typeof Roles.createRoleAsync === 'function') {
-    await Roles.createRoleAsync('registered', { unlessExists: true });
+  // Print available Roles API methods for debugging
+  if (Roles) {
+    // eslint-disable-next-line no-console
+    console.log('[stubUser] Roles API methods:', Object.keys(Roles));
+  } else {
+    // eslint-disable-next-line no-console
+    console.error('[stubUser] Roles is undefined');
+  }
+
+  if (Roles && typeof Roles.addUsersToRolesAsync === 'function') {
     await Roles.addUsersToRolesAsync([userId], ['registered']);
-  } else if (Roles && typeof Roles.createRole === 'function') {
-    Roles.createRole('registered', { unlessExists: true });
+    // eslint-disable-next-line no-console
+    console.log('[stubUser] called Roles.addUsersToRolesAsync');
+  } else if (Roles && typeof Roles.addUsersToRoles === 'function') {
     Roles.addUsersToRoles([userId], ['registered']);
+    // eslint-disable-next-line no-console
+    console.log('[stubUser] called Roles.addUsersToRoles');
   } else {
     console.warn(
       '[roles] Roles APIs not available; skipping role assignment in stubUser',
@@ -37,10 +53,18 @@ export async function stubUser(params = {}) {
   }
 
   sinon.stub(Meteor, 'userAsync');
-  Meteor.userAsync.returns(currentUser); // now Meteor.userAsync() will return the user we just created
+  Meteor.userAsync.returns(currentUser);
 
   sinon.stub(Meteor, 'userId');
-  Meteor.userId.returns(currentUser._id);
+  Meteor.userId.returns(currentUser && currentUser._id);
+
+  if (!currentUser || !currentUser._id) {
+    // eslint-disable-next-line no-console
+    console.error(
+      'stubUser() failed: currentUser or currentUser._id is undefined',
+      { currentUser },
+    );
+  }
 
   return currentUser;
 }
@@ -108,7 +132,7 @@ export function logOutButLeaveUser() {
 }
 
 export async function stubOtherUser() {
-  // create a new fake logged in user
+  // Always unwrap before stubbing to avoid double-stubbing errors
   unwrapUser();
 
   const userData = {
@@ -127,12 +151,14 @@ export async function stubOtherUser() {
   const userId = await Meteor.users.insertAsync(userData);
   const currentUser = await Meteor.users.findOneAsync(userId);
 
-  if (Roles && typeof Roles.createRoleAsync === 'function') {
-    await Roles.createRoleAsync('registered', { unlessExists: true });
+  if (Roles && typeof Roles.addUsersToRolesAsync === 'function') {
     await Roles.addUsersToRolesAsync([userId], ['registered']);
-  } else if (Roles && typeof Roles.createRole === 'function') {
-    Roles.createRole('registered', { unlessExists: true });
+    // eslint-disable-next-line no-console
+    console.log('[stubOtherUser] called Roles.addUsersToRolesAsync');
+  } else if (Roles && typeof Roles.addUsersToRoles === 'function') {
     Roles.addUsersToRoles([userId], ['registered']);
+    // eslint-disable-next-line no-console
+    console.log('[stubOtherUser] called Roles.addUsersToRoles');
   } else {
     console.warn(
       '[roles] Roles APIs not available; skipping role assignment in stubOtherUser',
@@ -143,7 +169,15 @@ export async function stubOtherUser() {
   Meteor.userAsync.returns(currentUser); // now Meteor.userAsync() will return the user we just created
 
   sinon.stub(Meteor, 'userId');
-  Meteor.userId.returns(currentUser._id);
+  Meteor.userId.returns(currentUser && currentUser._id);
+
+  if (!currentUser || !currentUser._id) {
+    // eslint-disable-next-line no-console
+    console.error(
+      'stubOtherUser() failed: currentUser or currentUser._id is undefined',
+      { currentUser },
+    );
+  }
 
   return currentUser;
 }
