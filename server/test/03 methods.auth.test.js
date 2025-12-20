@@ -274,6 +274,59 @@ if (Meteor.isServer) {
         unwrapUser();
       });
     });
+
+    describe('get users for page', () => {
+      it('returns the users for the first page, user not logged in', async () => {
+        const { publicPatternUsernames } = await createManyUsers();
+        const skip = 0;
+        const limit = 10;
+        const result = await Meteor.callAsync('auth.getUsersForPage', { skip, limit });
+        assert.equal(result.length, limit);
+        const expectedUsernames = publicPatternUsernames.sort().slice(0, limit);
+        expectedUsernames.forEach((username) => {
+          assert.notEqual(expectedUsernames.indexOf(username), -1);
+        });
+      });
+
+      it('returns the users for the last page, user not logged in', async () => {
+        const { publicPatternUsernames } = await createManyUsers();
+        const total = publicPatternUsernames.length;
+        const limit = 10;
+        const skip = Math.floor(total / limit) * limit;
+        // If total is 23, skip = 20, so expect 3 users
+        const result = await Meteor.callAsync('auth.getUsersForPage', { skip, limit });
+        const expectedCount = total - skip;
+        assert.equal(result.length, expectedCount);
+        const resultUsernames = result.map(u => u.username).sort();
+        const expectedUsernames = publicPatternUsernames.sort().slice(skip, skip + limit);
+        assert.deepEqual(resultUsernames, expectedUsernames);
+      });
+
+      it('returns an empty array for a page beyond the end', async () => {
+        const { publicPatternUsernames } = await createManyUsers();
+        const total = publicPatternUsernames.length;
+        const limit = 10;
+        const skip = total + 10; // skip past the end
+        const result = await Meteor.callAsync('auth.getUsersForPage', { skip, limit });
+        assert.isArray(result);
+        assert.equal(result.length, 0);
+      });
+
+      it('returns the users for the second page, user not logged in', async () => {
+        const { publicPatternUsernames } = await createManyUsers();
+        const skip = 10;
+        const limit = 10;
+        const result = await Meteor.callAsync('auth.getUsersForPage', { skip, limit });
+        assert.equal(result.length, limit);
+
+        // If result is array of user objects, extract usernames
+        const resultUsernames = result.map(u => u.username).sort();
+        const expectedUsernames = publicPatternUsernames.sort().slice(limit, limit * 2);
+        expectedUsernames.forEach((username) => {
+          assert.notEqual(resultUsernames.indexOf(username), -1);
+        });
+      });
+    });
     // ...existing migrated test blocks go here...
     // For brevity, you would paste all the migrated describe/it blocks here,
     // ensuring they are all inside this top-level describe.
