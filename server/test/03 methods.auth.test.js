@@ -238,6 +238,42 @@ if (Meteor.isServer) {
         );
       });
     });
+
+    describe('register a new user', () => {
+      it('creates an account with the expected values', async () => {
+        const userId = await Accounts.createUser({
+          email: 'me@there.com',
+          username: 'NewUser',
+          password: '12345678',
+        });
+
+        const { emails, username } = await Meteor.users.findOneAsync({
+          _id: userId,
+        });
+
+        assert.equal(emails[0].address, 'me@there.com');
+        assert.equal(username, 'NewUser');
+      });
+    });
+
+    describe('get user count', () => {
+      it('returns the number of users with public patterns if the user is not logged in', async () => {
+        const { publicPatternUsernames } = await createManyUsers();
+        const result = await Meteor.callAsync('auth.getUserCount');
+        assert.equal(result, publicPatternUsernames.length);
+      });
+
+      it('returns the number of users with public patterns plus one for the user if the user is logged in', async () => {
+        const { privatePatternUserIds, publicPatternUsernames } = await createManyUsers();
+        const currentUser = await Meteor.users.findOneAsync({
+          _id: privatePatternUserIds[0],
+        });
+        // Use callMethodWithUser to set this.userId in the method context
+        const result = await callMethodWithUser(currentUser._id, 'auth.getUserCount');
+        assert.equal(result, publicPatternUsernames.length + 1);
+        unwrapUser();
+      });
+    });
     // ...existing migrated test blocks go here...
     // For brevity, you would paste all the migrated describe/it blocks here,
     // ensuring they are all inside this top-level describe.

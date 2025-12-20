@@ -108,7 +108,9 @@ Meteor.methods({
     // plus the user themselves if logged in
 
     // return all users visible to this user
-    return await Meteor.users.find(getUserPermissionQuery()).countAsync();
+    return await Meteor.users
+      .find(getUserPermissionQuery(this.userId))
+      .countAsync();
   },
   'auth.getUsersForPage': async function ({ skip, limit }) {
     // required for pagination
