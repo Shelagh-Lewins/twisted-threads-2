@@ -615,7 +615,9 @@ Meteor.methods({
     }
 
     // create a new blank pattern
-    const patternId = await Meteor.callAsync('pattern.add', {
+    // Call pattern.add with the current userId context
+    const addMethod = Meteor.server.method_handlers['pattern.add'];
+    const patternId = await addMethod.call(this, {
       doubleFacedOrientations,
       holes,
       name,

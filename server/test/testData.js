@@ -8,10 +8,75 @@ import {
   PatternPreviews,
   PatternImages,
 } from '../../imports/modules/collection';
+import { DEFAULT_PALETTE } from '../../imports/modules/parameters';
+
+// ============================================
+// TEST USER IDs
+// ============================================
+export const TEST_USER_ABC = 'abc';
+export const TEST_USER_OTHER = 'other_user';
+
+// ============================================
+// PATTERN IMPORT TEST DATA
+// ============================================
+
+// Reusable threading configuration (8 tablets, 4 holes)
+export const STANDARD_THREADING_8X4 = [
+  [0, 1, 2, 3, 0, 1, 2, 3],
+  [1, 2, 3, 0, 1, 2, 3, 0],
+  [2, 3, 0, 1, 2, 3, 0, 1],
+  [3, 0, 1, 2, 3, 0, 1, 2]
+];
+
+// Standard mixed orientations (8 tablets)
+export const STANDARD_ORIENTATIONS_8 = ['/', '/', '/', '/', '\\', '\\', '\\', '\\'];
+
+// Simple test palette (4 colors)
+export const TEST_PALETTE_SIMPLE = ['#ff0000', '#00ff00', '#0000ff', '#ffff00'];
+
+// Pattern test data - simple (for basic import tests)
+export const importPatternDataSimple = {
+  name: 'Imported Pattern',
+  numberOfRows: 10,
+  numberOfTablets: 8,
+  holes: 4,
+  patternType: 'individual',
+  description: 'Test pattern',
+  palette: TEST_PALETTE_SIMPLE,
+  threading: STANDARD_THREADING_8X4,
+  orientations: STANDARD_ORIENTATIONS_8,
+  patternDesign: { weavingInstructions: [] },
+  weftColor: '#000000',
+  threadingNotes: '',
+  weavingNotes: '',
+  tags: [],
+};
+
+// Pattern test data - with full palette and weaving instructions
+export const importPatternDataFull = {
+  name: 'Imported Pattern',
+  numberOfRows: 10,
+  numberOfTablets: 8,
+  holes: 4,
+  patternType: 'individual',
+  description: 'Imported pattern description',
+  palette: DEFAULT_PALETTE,
+  threading: STANDARD_THREADING_8X4,
+  orientations: STANDARD_ORIENTATIONS_8,
+  patternDesign: {
+    weavingInstructions: Array(10).fill(null).map(() =>
+      Array(8).fill({ direction: 'F', numberOfTurns: 1 })
+    )
+  },
+  weftColor: 11, // palette index for black
+  threadingNotes: 'Threading notes',
+  weavingNotes: 'Weaving notes',
+  tags: [],
+};
 
 export const defaultPatternData = {
 	'createdAt': new Date('Tue, 03 Mar 2020 17:58:05 GMT'),
-	'createdBy': 'abc',
+	'createdBy': TEST_USER_ABC,
 	'description': 'Description of a pattern',
 	'holeHandedness': 'clockwise',
 	'holes': 4,
@@ -86,7 +151,7 @@ export const defaultPatternPreviewData = {
 export const defaultPatternImageData = {
 	'caption': 'An image',
 	'createdAt': new Date('Tue, 03 Mar 2020 17:58:05 GMT'),
-	'createdBy': 'abc',
+	'createdBy': TEST_USER_ABC,
 	'height': 960,
 	'key': 'abc',
 	'patternId': 'xxx',
@@ -96,7 +161,7 @@ export const defaultPatternImageData = {
 
 export const defaultSetData = {
 	'createdAt': new Date('Tue, 03 Mar 2020 17:58:05 GMT'),
-	'createdBy': 'abc',
+	'createdBy': TEST_USER_ABC,
 	'description': 'Description of a set',
 	'name': 'Set 1',
 	'nameSort': 'set 1',
