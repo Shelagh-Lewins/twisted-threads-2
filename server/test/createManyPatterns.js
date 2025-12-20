@@ -103,4 +103,3 @@ const createManyPatterns = async () => {
 };
 
 export default createManyPatterns;
-

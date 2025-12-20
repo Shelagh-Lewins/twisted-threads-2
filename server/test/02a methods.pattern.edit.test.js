@@ -11,17 +11,28 @@ import { Patterns } from '../../imports/modules/collection';
 import '../../imports/server/modules/publications';
 // import all the methods we'll need
 import '../methods/patternEdit';
-import { stubNoUser, stubOtherUser, stubUser, unwrapUser } from './mockUser';
+import {
+  stubNoUser,
+  stubOtherUser,
+  stubUser,
+  unwrapUser,
+  callMethodWithUser,
+} from './mockUser';
 import { addPatternDataIndividual } from './testData';
 
 if (Meteor.isServer) {
   describe('test edit method for patterns', function testEditMethod() {
     // eslint-disable-line func-names
+    // We use callMethodWithUser to test methods that require a logged-in user
+    // This helper directly invokes the method handler with proper context including userId
+    // For testing "not logged in" scenarios, we use Meteor.callAsync with no user stub
     this.timeout(15000);
     beforeEach(async () => {
-      resetDatabase();
-      await stubUser();
-      this.patternId = await Meteor.callAsync(
+      unwrapUser(); // Clean up any existing stubs
+      await resetDatabase();
+      this.currentUser = await stubUser();
+      this.patternId = await callMethodWithUser(
+        this.currentUser._id,
         'pattern.add',
         addPatternDataIndividual,
       );
@@ -35,30 +46,25 @@ if (Meteor.isServer) {
         // make sure publications know there is no user
         unwrapUser();
         stubNoUser();
-        const { patternId } = this; // seems to be a scoping issue otherwise
 
-        async function expectedError() {
-          await Meteor.callAsync('pattern.edit', {
-            _id: patternId,
+        await expect(
+          Meteor.callAsync('pattern.edit', {
+            _id: this.patternId,
             data: {
               type: 'editThreadingCell',
               holesToSet: [0],
               tablet: 0,
               colorIndex: 3,
             },
-          });
-        }
-
-        await expect(expectedError()).to.be.rejectedWith(
-          'edit-pattern-not-logged-in',
-        );
+          }),
+        ).to.be.rejectedWith('edit-pattern-not-logged-in');
       });
 
       it('cannot edit pattern if pattern not found', async () => {
-        await stubOtherUser();
+        const otherUser = await stubOtherUser();
 
-        async function expectedError() {
-          await Meteor.callAsync('pattern.edit', {
+        await expect(
+          callMethodWithUser(otherUser._id, 'pattern.edit', {
             _id: 'xxx',
             data: {
               type: 'editThreadingCell',
@@ -66,20 +72,16 @@ if (Meteor.isServer) {
               tablet: 0,
               colorIndex: 3,
             },
-          });
-        }
-
-        await expect(expectedError()).to.be.rejectedWith(
-          'edit-pattern-not-found',
-        );
+          }),
+        ).to.be.rejectedWith('edit-pattern-not-found');
       });
 
       it('cannot edit pattern if pattern owned by another user', async () => {
-        stubOtherUser();
+        const otherUser = await stubOtherUser();
         const { patternId } = this;
 
-        async function expectedError() {
-          await Meteor.callAsync('pattern.edit', {
+        await expect(
+          callMethodWithUser(otherUser._id, 'pattern.edit', {
             _id: patternId,
             data: {
               type: 'editThreadingCell',
@@ -87,19 +89,15 @@ if (Meteor.isServer) {
               tablet: 0,
               colorIndex: 3,
             },
-          });
-        }
-
-        await expect(expectedError()).to.be.rejectedWith(
-          'edit-pattern-not-created-by-user',
-        );
+          }),
+        ).to.be.rejectedWith('edit-pattern-not-created-by-user');
       });
 
       it('cannot edit pattern if invalid values', async () => {
         const { patternId } = this;
 
-        async function expectedError() {
-          await Meteor.callAsync('pattern.edit', {
+        await expect(
+          callMethodWithUser(this.currentUser._id, 'pattern.edit', {
             _id: patternId,
             data: {
               type: 'editThreadingCell',
@@ -107,17 +105,15 @@ if (Meteor.isServer) {
               tablet: 0,
               colorIndex: 3,
             },
-          });
-        }
-
-        await expect(expectedError()).to.be.rejectedWith('Match');
+          }),
+        ).to.be.rejectedWith('Match');
       });
 
       it('cannot edit pattern if unknown edit type', async () => {
         const { patternId } = this;
 
-        async function expectedError() {
-          await Meteor.callAsync('pattern.edit', {
+        await expect(
+          callMethodWithUser(this.currentUser._id, 'pattern.edit', {
             _id: patternId,
             data: {
               type: 'abc',
@@ -125,18 +121,14 @@ if (Meteor.isServer) {
               tablet: 0,
               colorIndex: 3,
             },
-          });
-        }
-
-        await expect(expectedError()).to.be.rejectedWith(
-          'edit-pattern-unknown-type',
-        );
+          }),
+        ).to.be.rejectedWith('edit-pattern-unknown-type');
       });
 
       it('can edit pattern if all good', async () => {
         const { patternId } = this;
 
-        await Meteor.callAsync('pattern.edit', {
+        await callMethodWithUser(this.currentUser._id, 'pattern.edit', {
           _id: patternId,
           data: {
             type: 'editThreadingCell',

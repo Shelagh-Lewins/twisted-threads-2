@@ -36,13 +36,13 @@ async function testPatternLimit(userId, expectedLimit) {
   for (let i = 0; i < expectedLimit; i += 1) {
     await callMethodWithUser(userId, 'pattern.add', addPatternDataIndividual);
   }
-  
+
   const numberOfPatterns = await Patterns.find().countAsync();
   assert.equal(numberOfPatterns, expectedLimit);
-  
+
   // Attempting to exceed the limit should fail
   await expect(
-    callMethodWithUser(userId, 'pattern.add', addPatternDataIndividual)
+    callMethodWithUser(userId, 'pattern.add', addPatternDataIndividual),
   ).to.be.rejectedWith('add-pattern-too-many-patterns');
 }
 
@@ -51,7 +51,7 @@ if (Meteor.isServer) {
     // eslint-disable-line func-names
     // ============================================================================
     // METHOD TESTING PATTERN FOR METEOR 3:
-    // 
+    //
     // 1. For NOT logged in tests: Use Meteor.callAsync() directly
     //    - This ensures this.userId is undefined in the method context
     //    - Methods will correctly reject with "not-logged-in" errors
@@ -77,38 +77,45 @@ if (Meteor.isServer) {
       it('cannot create pattern if not logged in', async () => {
         // NOT logged in: use Meteor.callAsync() - this.userId will be undefined
         await expect(
-          Meteor.callAsync('pattern.add', addPatternDataIndividual)
+          Meteor.callAsync('pattern.add', addPatternDataIndividual),
         ).to.be.rejectedWith('add-pattern-not-logged-in');
       });
 
       it('cannot create pattern if not registered', async () => {
         // Logged in: use callMethodWithUser() to set this.userId properly
         const currentUser = await stubUser();
-        await Roles.removeUsersFromRolesAsync([currentUser._id], ['registered']);
+        await Roles.removeUsersFromRolesAsync(
+          [currentUser._id],
+          ['registered'],
+        );
 
         await expect(
-          callMethodWithUser(currentUser._id, 'pattern.add', addPatternDataIndividual)
+          callMethodWithUser(
+            currentUser._id,
+            'pattern.add',
+            addPatternDataIndividual,
+          ),
         ).to.be.rejectedWith('add-pattern-not-registered');
       });
 
       it('can create the correct number of patterns if not verified', async () => {
         const currentUser = await stubUser();
         const patternLimit = ROLE_LIMITS.registered.maxPatternsPerUser;
-        
+
         await testPatternLimit(currentUser._id, patternLimit);
       });
 
       it('can create the correct number of patterns if verified', async () => {
         const currentUser = await setupUserWithRole('verified');
         const patternLimit = ROLE_LIMITS.verified.maxPatternsPerUser;
-        
+
         await testPatternLimit(currentUser._id, patternLimit);
       });
 
       it('can create the correct number of patterns if premium', async () => {
         const currentUser = await setupUserWithRole('premium');
         const patternLimit = ROLE_LIMITS.premium.maxPatternsPerUser;
-        
+
         await testPatternLimit(currentUser._id, patternLimit);
       });
     });
@@ -121,7 +128,7 @@ if (Meteor.isServer) {
         });
 
         await expect(
-          Meteor.callAsync('pattern.remove', pattern._id)
+          Meteor.callAsync('pattern.remove', pattern._id),
         ).to.be.rejectedWith('remove-pattern-not-logged-in');
       });
 
@@ -134,7 +141,7 @@ if (Meteor.isServer) {
         });
 
         await expect(
-          callMethodWithUser(currentUser._id, 'pattern.remove', pattern._id)
+          callMethodWithUser(currentUser._id, 'pattern.remove', pattern._id),
         ).to.be.rejectedWith('remove-pattern-not-created-by-user');
       });
 
@@ -156,7 +163,11 @@ if (Meteor.isServer) {
         assert.equal(await Patterns.find().countAsync(), 1);
         assert.equal(await PatternPreviews.find().countAsync(), 1);
         assert.equal(await PatternImages.find().countAsync(), 1);
-        await callMethodWithUser(currentUser._id, 'pattern.remove', pattern._id);
+        await callMethodWithUser(
+          currentUser._id,
+          'pattern.remove',
+          pattern._id,
+        );
         assert.equal(await Patterns.find().countAsync(), 0);
         assert.equal(await PatternPreviews.find().countAsync(), 0);
         assert.equal(await PatternImages.find().countAsync(), 0);
@@ -189,7 +200,11 @@ if (Meteor.isServer) {
           createdBy: currentUser._id,
         });
 
-        const result = await callMethodWithUser(currentUser._id, 'pattern.getPatternCount', {});
+        const result = await callMethodWithUser(
+          currentUser._id,
+          'pattern.getPatternCount',
+          {},
+        );
         assert.equal(result, 2);
       });
       it("returns the user's own patterns plus public patterns", async () => {
@@ -200,7 +215,11 @@ if (Meteor.isServer) {
           publicOtherPatternNames,
         } = await createManyPatterns();
 
-        const result = await callMethodWithUser(currentUser._id, 'pattern.getPatternCount', {});
+        const result = await callMethodWithUser(
+          currentUser._id,
+          'pattern.getPatternCount',
+          {},
+        );
         const expectedNumber =
           publicMyPatternNames.length +
           privateMyPatternNames.length +
@@ -218,7 +237,7 @@ if (Meteor.isServer) {
         });
 
         await expect(
-          Meteor.callAsync('pattern.copy', pattern._id)
+          Meteor.callAsync('pattern.copy', pattern._id),
         ).to.be.rejectedWith('add-pattern-not-logged-in');
       });
 
@@ -226,11 +245,11 @@ if (Meteor.isServer) {
         const currentUser = await stubUser();
 
         await expect(
-          callMethodWithUser(currentUser._id, 'pattern.copy', 'nonexistent_id')
+          callMethodWithUser(currentUser._id, 'pattern.copy', 'nonexistent_id'),
         ).to.be.rejectedWith('copy-pattern-not-found');
       });
 
-      it('cannot copy another user\'s private pattern', async () => {
+      it("cannot copy another user's private pattern", async () => {
         const otherPattern = await createPattern({
           name: 'Private Pattern',
           createdBy: TEST_USER_OTHER,
@@ -240,14 +259,14 @@ if (Meteor.isServer) {
         const currentUser = await stubUser();
 
         await expect(
-          callMethodWithUser(currentUser._id, 'pattern.copy', otherPattern._id)
+          callMethodWithUser(currentUser._id, 'pattern.copy', otherPattern._id),
         ).to.be.rejectedWith('copy-pattern-not-created-by-user');
       });
 
-      it('can copy another user\'s public pattern', async () => {
+      it("can copy another user's public pattern", async () => {
         // Create a fresh user for this test to avoid pattern limit issues
         const currentUser = await stubUser();
-        
+
         const publicPattern = await createPattern({
           name: 'Public Pattern',
           createdBy: TEST_USER_OTHER,
@@ -257,7 +276,7 @@ if (Meteor.isServer) {
         const newPatternId = await callMethodWithUser(
           currentUser._id,
           'pattern.copy',
-          publicPattern._id
+          publicPattern._id,
         );
 
         assert.isString(newPatternId);
@@ -272,7 +291,7 @@ if (Meteor.isServer) {
       it('can copy own pattern', async () => {
         // Create a fresh user with verified role for higher pattern limit
         const currentUser = await setupUserWithRole('verified');
-        
+
         const myPattern = await createPattern({
           name: 'My Pattern',
           createdBy: currentUser._id,
@@ -282,14 +301,16 @@ if (Meteor.isServer) {
         const newPatternId = await callMethodWithUser(
           currentUser._id,
           'pattern.copy',
-          myPattern._id
+          myPattern._id,
         );
 
         assert.isString(newPatternId);
         assert.notEqual(newPatternId, myPattern._id);
 
         // Should have 2 patterns now (original + copy)
-        const count = await Patterns.find({ createdBy: currentUser._id }).countAsync();
+        const count = await Patterns.find({
+          createdBy: currentUser._id,
+        }).countAsync();
         assert.equal(count, 2);
       });
     });
@@ -297,16 +318,23 @@ if (Meteor.isServer) {
     describe('pattern.newPatternFromData method', () => {
       it('cannot import pattern if not logged in', async () => {
         await expect(
-          Meteor.callAsync('pattern.newPatternFromData', { patternObj: importPatternDataSimple })
+          Meteor.callAsync('pattern.newPatternFromData', {
+            patternObj: importPatternDataSimple,
+          }),
         ).to.be.rejectedWith('add-pattern-not-logged-in');
       });
 
       it('cannot import pattern if not registered', async () => {
         const currentUser = await stubUser();
-        await Roles.removeUsersFromRolesAsync([currentUser._id], ['registered']);
+        await Roles.removeUsersFromRolesAsync(
+          [currentUser._id],
+          ['registered'],
+        );
 
         await expect(
-          callMethodWithUser(currentUser._id, 'pattern.newPatternFromData', { patternObj: importPatternDataSimple })
+          callMethodWithUser(currentUser._id, 'pattern.newPatternFromData', {
+            patternObj: importPatternDataSimple,
+          }),
         ).to.be.rejectedWith('add-pattern-not-registered');
       });
 
@@ -316,7 +344,7 @@ if (Meteor.isServer) {
         const newPatternId = await callMethodWithUser(
           currentUser._id,
           'pattern.newPatternFromData',
-          { patternObj: importPatternDataFull }
+          { patternObj: importPatternDataFull },
         );
 
         assert.isString(newPatternId);

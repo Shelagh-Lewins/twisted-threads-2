@@ -138,11 +138,13 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         // Call publication handler directly
         const handler = Meteor.server.publish_handlers['patterns'];
-        const cursor = handler.call(mockContext, { limit: ALLOWED_ITEMS_PER_PAGE[0] });
-        
+        const cursor = handler.call(mockContext, {
+          limit: ALLOWED_ITEMS_PER_PAGE[0],
+        });
+
         // Fetch results
         const result = await cursor.fetchAsync();
 
@@ -162,11 +164,13 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         // Call publication handler directly
         const handler = Meteor.server.publish_handlers['patterns'];
-        const cursor = handler.call(mockContext, { limit: ALLOWED_ITEMS_PER_PAGE[0] });
-        
+        const cursor = handler.call(mockContext, {
+          limit: ALLOWED_ITEMS_PER_PAGE[0],
+        });
+
         // Fetch results
         const result = await cursor.fetchAsync();
 
@@ -181,11 +185,13 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         // Call publication handler directly
         const handler = Meteor.server.publish_handlers['patterns'];
-        const cursor = handler.call(mockContext, { limit: ALLOWED_ITEMS_PER_PAGE[0] });
-        
+        const cursor = handler.call(mockContext, {
+          limit: ALLOWED_ITEMS_PER_PAGE[0],
+        });
+
         // Fetch results
         const result = await cursor.fetchAsync();
 
@@ -227,11 +233,13 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         // Call publication handler directly
         const handler = Meteor.server.publish_handlers['patterns'];
-        const cursor = handler.call(mockContext, { limit: ALLOWED_ITEMS_PER_PAGE[0] });
-        
+        const cursor = handler.call(mockContext, {
+          limit: ALLOWED_ITEMS_PER_PAGE[0],
+        });
+
         // Fetch results
         const result = await cursor.fetchAsync();
 
@@ -247,7 +255,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['pattern'];
         const cursor = handler.call(mockContext, this.pattern1._id);
         const result = await cursor.fetchAsync();
@@ -267,7 +275,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['pattern'];
         const cursor = handler.call(mockContext, this.pattern1._id);
         const result = await cursor.fetchAsync();
@@ -282,7 +290,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['pattern'];
         const cursor = handler.call(mockContext, this.pattern1._id);
         const result = await cursor.fetchAsync();
@@ -322,7 +330,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['pattern'];
         const cursor = handler.call(mockContext, this.pattern1._id);
         const result = await cursor.fetchAsync();
@@ -344,7 +352,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['pattern'];
         const cursor = handler.call(mockContext, this.pattern1._id);
         const result = await cursor.fetchAsync();
@@ -362,9 +370,12 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['patternsById'];
-        const cursor = handler.call(mockContext, [this.pattern1._id, this.pattern2._id]);
+        const cursor = handler.call(mockContext, [
+          this.pattern1._id,
+          this.pattern2._id,
+        ]);
         const result = await cursor.fetchAsync();
 
         assert.equal(result.length, 0);
@@ -382,9 +393,12 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['patternsById'];
-        const cursor = handler.call(mockContext, [this.pattern1._id, this.pattern2._id]);
+        const cursor = handler.call(mockContext, [
+          this.pattern1._id,
+          this.pattern2._id,
+        ]);
         const result = await cursor.fetchAsync();
 
         assert.equal(result.length, 1);
@@ -397,9 +411,12 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['patternsById'];
-        const cursor = handler.call(mockContext, [this.pattern1._id, this.pattern2._id]);
+        const cursor = handler.call(mockContext, [
+          this.pattern1._id,
+          this.pattern2._id,
+        ]);
         const result = await cursor.fetchAsync();
 
         assert.equal(result.length, 2);
@@ -412,7 +429,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['patternsById'];
         const cursor = handler.call(mockContext, ['xxx']);
         const result = await cursor.fetchAsync();
@@ -427,9 +444,12 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['patternsById'];
-        const cursor = handler.call(mockContext, [this.pattern1._id, this.pattern2._id]);
+        const cursor = handler.call(mockContext, [
+          this.pattern1._id,
+          this.pattern2._id,
+        ]);
         const result = await cursor.fetchAsync();
 
         assert.equal(result.length, 0);
@@ -448,7 +468,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['allPatternsPreview'];
         const cursor = handler.call(mockContext);
         const result = await cursor.fetchAsync();
@@ -479,7 +499,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['allPatternsPreview'];
         const cursor = handler.call(mockContext);
         const result = await cursor.fetchAsync();
@@ -511,7 +531,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['allPatternsPreview'];
         const cursor = handler.call(mockContext);
         const result = await cursor.fetchAsync();
@@ -544,10 +564,10 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['myPatternsPreview'];
         handler.call(mockContext, {});
-        
+
         // When userId is undefined, publication calls this.ready() without returning a cursor
         // So we can't fetchAsync() - just verify it doesn't throw
       });
@@ -562,7 +582,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['myPatternsPreview'];
         const cursor = handler.call(mockContext, { limit: 100 });
         const result = await cursor.fetchAsync();
@@ -589,10 +609,10 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['myPatternsPreview'];
         handler.call(mockContext, {});
-        
+
         // When user has no patterns, publication calls this.ready() without returning a cursor
         // So we can't fetchAsync() - just verify it doesn't throw
       });
@@ -610,9 +630,11 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['newPatterns'];
-        const cursor = handler.call(mockContext, { limit: ALLOWED_ITEMS_PER_PAGE[0] });
+        const cursor = handler.call(mockContext, {
+          limit: ALLOWED_ITEMS_PER_PAGE[0],
+        });
         const result = await cursor.fetchAsync();
 
         const allPatterns = publicMyPatternNames.concat(
@@ -651,9 +673,11 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['newPatterns'];
-        const cursor = handler.call(mockContext, { limit: ALLOWED_ITEMS_PER_PAGE[0] });
+        const cursor = handler.call(mockContext, {
+          limit: ALLOWED_ITEMS_PER_PAGE[0],
+        });
         const result = await cursor.fetchAsync();
 
         const allPatterns = publicMyPatternNames
@@ -692,7 +716,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['newPatterns'];
         const cursor = handler.call(mockContext, {
           limit: ALLOWED_ITEMS_PER_PAGE[0],
@@ -734,9 +758,11 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['newPatterns'];
-        const cursor = handler.call(mockContext, { limit: ALLOWED_ITEMS_PER_PAGE[0] });
+        const cursor = handler.call(mockContext, {
+          limit: ALLOWED_ITEMS_PER_PAGE[0],
+        });
         const result = await cursor.fetchAsync();
 
         const allPatterns = publicMyPatternNames.concat(
@@ -776,7 +802,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['newPatternsPreview'];
         const cursor = handler.call(mockContext, {});
         const result = await cursor.fetchAsync();
@@ -815,7 +841,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['newPatternsPreview'];
         const cursor = handler.call(mockContext, {});
         const result = await cursor.fetchAsync();
@@ -855,7 +881,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['newPatternsPreview'];
         const cursor = handler.call(mockContext, {});
         const result = await cursor.fetchAsync();
@@ -977,7 +1003,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['colorBooks'];
         const cursor = handler.call(mockContext);
         const result = await cursor.fetchAsync();
@@ -992,7 +1018,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['colorBooks'];
         const cursor = handler.call(mockContext, this.currentUser._id);
         const result = await cursor.fetchAsync();
@@ -1013,7 +1039,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['colorBooks'];
         const cursor = handler.call(mockContext);
         const result = await cursor.fetchAsync();
@@ -1039,7 +1065,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['colorBooks'];
         const cursor = handler.call(mockContext);
         const result = await cursor.fetchAsync();
@@ -1061,7 +1087,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['colorBooks'];
         const cursor = handler.call(mockContext);
         const result = await cursor.fetchAsync();
@@ -1086,7 +1112,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['patternPreviews'];
         await handler.call(mockContext, { patternIds: [this.pattern1._id] });
         const result = addedDocs;
@@ -1113,7 +1139,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['patternPreviews'];
         await handler.call(mockContext, { patternIds: [this.pattern1._id] });
         const result = addedDocs;
@@ -1132,9 +1158,11 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['patternPreviews'];
-        await handler.call(mockContext, { patternIds: [this.pattern1._id, this.pattern2._id] });
+        await handler.call(mockContext, {
+          patternIds: [this.pattern1._id, this.pattern2._id],
+        });
         const result = addedDocs;
 
         assert.equal(result.length, 2);
@@ -1159,7 +1187,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['users'];
         const cursor = handler.call(mockContext, [userId]);
         const result = await cursor.fetchAsync();
@@ -1184,7 +1212,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['users'];
         const cursor = handler.call(mockContext, [userId]);
         const result = await cursor.fetchAsync();
@@ -1209,7 +1237,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['users'];
         const cursor = handler.call(mockContext, [userId]);
         const result = await cursor.fetchAsync();
@@ -1229,7 +1257,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['users'];
         const cursor = handler.call(mockContext, [userId]);
         const result = await cursor.fetchAsync();
@@ -1252,11 +1280,11 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['allUsersPreview'];
         const cursor = handler.call(mockContext);
         const result = await cursor.fetchAsync();
-        
+
         const expectedUsernames = publicPatternUsernames
           .sort()
           .slice(0, ITEMS_PER_PREVIEW_LIST);
@@ -1278,11 +1306,11 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['allUsersPreview'];
         const cursor = handler.call(mockContext);
         const result = await cursor.fetchAsync();
-        
+
         const expectedUsernames = publicPatternUsernames
           .sort()
           .slice(0, ITEMS_PER_PREVIEW_LIST);
@@ -1309,7 +1337,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['patternImages'];
         const result = await handler.call(mockContext, this.pattern1._id);
 
@@ -1324,7 +1352,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['patternImages'];
         const cursor = await handler.call(mockContext, this.pattern1._id);
         const result = await cursor.fetchAsync();
@@ -1353,7 +1381,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['setsForUser'];
         const cursor = handler.call(mockContext, userId);
         const result = await cursor.fetchAsync();
@@ -1378,7 +1406,7 @@ if (Meteor.isServer) {
 
         // wait before rechecking the database
         await new Promise((resolve) => setTimeout(resolve, 10));
-        
+
         const mockContext = {
           userId: undefined,
           ready: () => {},
@@ -1386,7 +1414,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['setsForUser'];
         const cursor = handler.call(mockContext, userId);
         const result = await cursor.fetchAsync();
@@ -1405,7 +1433,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler2 = Meteor.server.publish_handlers['patterns'];
         const cursor2 = handler2.call(mockContext2, { skip: 0, limit: 10 });
         const result2 = await cursor2.fetchAsync();
@@ -1439,7 +1467,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['setsForUser'];
         const cursor = handler.call(mockContext, userId);
         const result = await cursor.fetchAsync();
@@ -1458,7 +1486,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler2 = Meteor.server.publish_handlers['patterns'];
         const cursor2 = handler2.call(mockContext2, { skip: 0, limit: 10 });
         const result2 = await cursor2.fetchAsync();
@@ -1476,7 +1504,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['setsForUser'];
         const cursor = handler.call(mockContext, userId);
         const result = await cursor.fetchAsync();
@@ -1498,7 +1526,7 @@ if (Meteor.isServer) {
           changed: () => {},
           removed: () => {},
         };
-        
+
         const handler = Meteor.server.publish_handlers['users'];
         const cursor = handler.call(mockContext, [userId]);
         const result = await cursor.fetchAsync();
@@ -1524,7 +1552,7 @@ if (Meteor.isServer) {
             changed: () => {},
             removed: () => {},
           };
-          
+
           const handler = Meteor.server.publish_handlers['search.patterns'];
           await handler.call(mockContext, '', 20);
 
@@ -1550,7 +1578,7 @@ if (Meteor.isServer) {
             changed: () => {},
             removed: () => {},
           };
-          
+
           const handler = Meteor.server.publish_handlers['search.patterns'];
           await handler.call(mockContext, 'TestPattern', 20);
           const result = addedDocs;
@@ -1600,7 +1628,7 @@ if (Meteor.isServer) {
             changed: () => {},
             removed: () => {},
           };
-          
+
           const handler = Meteor.server.publish_handlers['search.patterns'];
           await handler.call(mockContext, 'TestSearch', 20);
           const result = addedDocs;
@@ -1635,7 +1663,7 @@ if (Meteor.isServer) {
             changed: () => {},
             removed: () => {},
           };
-          
+
           const handler = Meteor.server.publish_handlers['search.patterns'];
           await handler.call(mockContext, 'SearchTest', 3);
           const result = addedDocs;
@@ -1656,7 +1684,7 @@ if (Meteor.isServer) {
             changed: () => {},
             removed: () => {},
           };
-          
+
           const handler = Meteor.server.publish_handlers['search.users'];
           await handler.call(mockContext, '', 20);
 
@@ -1678,7 +1706,7 @@ if (Meteor.isServer) {
             changed: () => {},
             removed: () => {},
           };
-          
+
           const handler = Meteor.server.publish_handlers['search.users'];
           await handler.call(mockContext, currentUser.username, 20);
           const result = addedDocs;
@@ -1706,7 +1734,7 @@ if (Meteor.isServer) {
             changed: () => {},
             removed: () => {},
           };
-          
+
           const handler = Meteor.server.publish_handlers['search.users'];
           await handler.call(mockContext, 'searchuser', 3);
           const result = addedDocs;
@@ -1727,7 +1755,7 @@ if (Meteor.isServer) {
             changed: () => {},
             removed: () => {},
           };
-          
+
           const handler = Meteor.server.publish_handlers['search.sets'];
           await handler.call(mockContext, '', 20);
 
@@ -1768,7 +1796,7 @@ if (Meteor.isServer) {
             changed: () => {},
             removed: () => {},
           };
-          
+
           const handler = Meteor.server.publish_handlers['search.sets'];
           await handler.call(mockContext, 'TestSet', 20);
           const result = addedDocs;
@@ -1805,6 +1833,27 @@ if (Meteor.isServer) {
             { $set: { name: 'SearchableBeta', nameSort: 'searchablebeta' } },
           );
 
+          // Verify sets are updated correctly
+          const set1 = await Sets.findOneAsync({ _id: this.set1._id });
+          const set2 = await Sets.findOneAsync({ _id: this.set2._id });
+          console.log(
+            'set1:',
+            set1?.name,
+            'publicPatternsCount:',
+            set1?.publicPatternsCount,
+            'createdBy:',
+            set1?.createdBy,
+          );
+          console.log(
+            'set2:',
+            set2?.name,
+            'publicPatternsCount:',
+            set2?.publicPatternsCount,
+            'createdBy:',
+            set2?.createdBy,
+          );
+          console.log('currentUser._id:', this.currentUser._id);
+
           const addedDocs = [];
           const mockContext = {
             userId: this.currentUser._id,
@@ -1815,10 +1864,18 @@ if (Meteor.isServer) {
             changed: () => {},
             removed: () => {},
           };
-          
+
           const handler = Meteor.server.publish_handlers['search.sets'];
           await handler.call(mockContext, 'Searchable', 20);
           const result = addedDocs;
+          console.log(
+            'search.sets result:',
+            result.length,
+            result.map((r) => ({
+              name: r.name,
+              publicPatternsCount: r.publicPatternsCount,
+            })),
+          );
 
           assert.equal(result.length, 2);
           result.forEach((set) => {
@@ -1845,7 +1902,7 @@ if (Meteor.isServer) {
             changed: () => {},
             removed: () => {},
           };
-          
+
           const handler = Meteor.server.publish_handlers['search.sets'];
           await handler.call(mockContext, 'SearchSetTest', 3);
           const result = addedDocs;

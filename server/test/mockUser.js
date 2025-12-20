@@ -19,11 +19,11 @@ const defaultUserData = {
 export async function stubUser(params = {}) {
   // create a fake logged in user
   await Meteor.users.removeAsync({});
-  
+
   const userData = { ...defaultUserData, ...params };
   const userId = await Meteor.users.insertAsync(userData);
   const currentUser = await Meteor.users.findOneAsync(userId);
-  
+
   if (Roles && typeof Roles.createRoleAsync === 'function') {
     await Roles.createRoleAsync('registered', { unlessExists: true });
     await Roles.addUsersToRolesAsync([userId], ['registered']);
@@ -31,7 +31,9 @@ export async function stubUser(params = {}) {
     Roles.createRole('registered', { unlessExists: true });
     Roles.addUsersToRoles([userId], ['registered']);
   } else {
-    console.warn('[roles] Roles APIs not available; skipping role assignment in stubUser');
+    console.warn(
+      '[roles] Roles APIs not available; skipping role assignment in stubUser',
+    );
   }
 
   sinon.stub(Meteor, 'userAsync');
@@ -81,7 +83,7 @@ export async function callMethodWithUser(userId, methodName, ...args) {
   if (!methodHandler) {
     throw new Error(`Method ${methodName} not found`);
   }
-  
+
   // Create a method invocation context with userId
   const context = {
     userId,
@@ -89,7 +91,7 @@ export async function callMethodWithUser(userId, methodName, ...args) {
     setUserId: () => {},
     unblock: () => {},
   };
-  
+
   // Call the method with the proper context
   return await methodHandler.apply(context, args);
 }
@@ -108,7 +110,7 @@ export function logOutButLeaveUser() {
 export async function stubOtherUser() {
   // create a new fake logged in user
   unwrapUser();
-  
+
   const userData = {
     username: 'Bob',
     nameSort: 'bob',
@@ -121,10 +123,10 @@ export async function stubOtherUser() {
     publicPatternsCount: 0,
     publicColorBooksCount: 0,
   };
-  
+
   const userId = await Meteor.users.insertAsync(userData);
   const currentUser = await Meteor.users.findOneAsync(userId);
-  
+
   if (Roles && typeof Roles.createRoleAsync === 'function') {
     await Roles.createRoleAsync('registered', { unlessExists: true });
     await Roles.addUsersToRolesAsync([userId], ['registered']);
@@ -132,7 +134,9 @@ export async function stubOtherUser() {
     Roles.createRole('registered', { unlessExists: true });
     Roles.addUsersToRoles([userId], ['registered']);
   } else {
-    console.warn('[roles] Roles APIs not available; skipping role assignment in stubOtherUser');
+    console.warn(
+      '[roles] Roles APIs not available; skipping role assignment in stubOtherUser',
+    );
   }
 
   sinon.stub(Meteor, 'userAsync');

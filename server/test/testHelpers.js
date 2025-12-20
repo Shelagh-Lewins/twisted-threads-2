@@ -11,9 +11,9 @@ import { createPattern } from './testData';
  * @param {*} args - Arguments to pass to the method
  */
 export async function testRequiresAuth(methodName, ...args) {
-  await expect(
-    Meteor.callAsync(methodName, ...args)
-  ).to.be.rejectedWith('-not-logged-in');
+  await expect(Meteor.callAsync(methodName, ...args)).to.be.rejectedWith(
+    '-not-logged-in',
+  );
 }
 
 /**
@@ -24,10 +24,16 @@ export async function testRequiresAuth(methodName, ...args) {
  * @param {string} errorCode - Expected error code
  * @param {*} args - Method arguments
  */
-export async function testRequiresRole(userId, roleName, methodName, errorCode, ...args) {
+export async function testRequiresRole(
+  userId,
+  roleName,
+  methodName,
+  errorCode,
+  ...args
+) {
   await Roles.removeUsersFromRolesAsync([userId], [roleName]);
   await expect(
-    callMethodWithUser(userId, methodName, ...args)
+    callMethodWithUser(userId, methodName, ...args),
   ).to.be.rejectedWith(errorCode);
 }
 
@@ -51,10 +57,12 @@ export async function setupUserWithRole(roleName) {
 export async function createOtherUsersPatterns(count = 3) {
   const patterns = [];
   for (let i = 0; i < count; i += 1) {
-    patterns.push(await createPattern({
-      name: `Other Pattern ${i + 1}`,
-      createdBy: `user_${i}`,
-    }));
+    patterns.push(
+      await createPattern({
+        name: `Other Pattern ${i + 1}`,
+        createdBy: `user_${i}`,
+      }),
+    );
   }
   return patterns;
 }

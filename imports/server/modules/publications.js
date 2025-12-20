@@ -166,7 +166,10 @@ Meteor.publish('patternsById', function (patternIds) {
 
   return Patterns.find(
     {
-      $and: [{ _id: { $in: patternIds } }, getPatternPermissionQuery(this.userId)],
+      $and: [
+        { _id: { $in: patternIds } },
+        getPatternPermissionQuery(this.userId),
+      ],
     },
     {
       fields: patternsFields,
@@ -181,7 +184,7 @@ Meteor.publish('pattern', function (_id) {
   // NOTE: For serviceUser role check, we would need async but that complicates cursor return
   // For now, serviceUsers rely on the permission query allowing them to see any pattern
   // This could be enhanced later with proper async publication pattern
-  
+
   return Patterns.find(
     {
       $and: [{ _id }, getPatternPermissionQuery(this.userId)],
@@ -353,7 +356,10 @@ Meteor.publish('patternPreviews', async function ({ patternIds }) {
   // and that are in the array passed in
   const patterns = await Patterns.find(
     {
-      $and: [{ _id: { $in: patternIds } }, getPatternPermissionQuery(this.userId)],
+      $and: [
+        { _id: { $in: patternIds } },
+        getPatternPermissionQuery(this.userId),
+      ],
     },
     {
       fields: {},
