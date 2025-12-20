@@ -23,29 +23,12 @@ export async function stubUser(params = {}) {
 
   const userData = { ...defaultUserData, ...params };
   const userId = await Meteor.users.insertAsync(userData);
-  // eslint-disable-next-line no-console
-  console.log('[stubUser] userId after insertAsync:', userId);
   const currentUser = await Meteor.users.findOneAsync(userId);
-  // eslint-disable-next-line no-console
-  console.log('[stubUser] currentUser after findOneAsync:', currentUser);
-
-  // Print available Roles API methods for debugging
-  if (Roles) {
-    // eslint-disable-next-line no-console
-    console.log('[stubUser] Roles API methods:', Object.keys(Roles));
-  } else {
-    // eslint-disable-next-line no-console
-    console.error('[stubUser] Roles is undefined');
-  }
 
   if (Roles && typeof Roles.addUsersToRolesAsync === 'function') {
     await Roles.addUsersToRolesAsync([userId], ['registered']);
-    // eslint-disable-next-line no-console
-    console.log('[stubUser] called Roles.addUsersToRolesAsync');
   } else if (Roles && typeof Roles.addUsersToRoles === 'function') {
     Roles.addUsersToRoles([userId], ['registered']);
-    // eslint-disable-next-line no-console
-    console.log('[stubUser] called Roles.addUsersToRoles');
   } else {
     console.warn(
       '[roles] Roles APIs not available; skipping role assignment in stubUser',
@@ -153,12 +136,8 @@ export async function stubOtherUser() {
 
   if (Roles && typeof Roles.addUsersToRolesAsync === 'function') {
     await Roles.addUsersToRolesAsync([userId], ['registered']);
-    // eslint-disable-next-line no-console
-    console.log('[stubOtherUser] called Roles.addUsersToRolesAsync');
   } else if (Roles && typeof Roles.addUsersToRoles === 'function') {
     Roles.addUsersToRoles([userId], ['registered']);
-    // eslint-disable-next-line no-console
-    console.log('[stubOtherUser] called Roles.addUsersToRoles');
   } else {
     console.warn(
       '[roles] Roles APIs not available; skipping role assignment in stubOtherUser',

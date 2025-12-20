@@ -3,7 +3,7 @@
 // Testing publications by calling publication handlers directly
 // This approach tests the actual security logic without depending on PublicationCollector
 
-import { resetDatabase } from './00_setup';
+import { resetDatabase, ensureAllRolesExist } from './00_setup';
 import { assert } from 'chai';
 import { Roles } from 'meteor/roles';
 import '../../imports/server/modules/publications';
@@ -40,6 +40,7 @@ import {
   defaultSetData,
 } from './testData';
 import createManyPatterns from './createManyPatterns';
+import { ROLES } from '../../imports/modules/parameters';
 
 // fields that should be published for patterns list
 const patternsFields = [
@@ -83,6 +84,7 @@ if (Meteor.isServer) {
     beforeEach(async () => {
       unwrapUser(); // Clean up any existing stubs
       await resetDatabase();
+      await ensureAllRolesExist();
 
       this.currentUser = await stubUser();
 
@@ -1832,27 +1834,6 @@ if (Meteor.isServer) {
             { _id: this.set2._id },
             { $set: { name: 'SearchableBeta', nameSort: 'searchablebeta' } },
           );
-
-          // Verify sets are updated correctly
-          const set1 = await Sets.findOneAsync({ _id: this.set1._id });
-          const set2 = await Sets.findOneAsync({ _id: this.set2._id });
-          console.log(
-            'set1:',
-            set1?.name,
-            'publicPatternsCount:',
-            set1?.publicPatternsCount,
-            'createdBy:',
-            set1?.createdBy,
-          );
-          console.log(
-            'set2:',
-            set2?.name,
-            'publicPatternsCount:',
-            set2?.publicPatternsCount,
-            'createdBy:',
-            set2?.createdBy,
-          );
-          console.log('currentUser._id:', this.currentUser._id);
 
           const addedDocs = [];
           const mockContext = {

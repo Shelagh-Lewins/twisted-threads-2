@@ -13,6 +13,8 @@ import {
   PatternPreviews,
   PatternImages,
 } from '../../imports/modules/collection';
+import { Roles } from 'meteor/roles';
+import { ROLES } from '../../imports/modules/parameters';
 
 // Configure chai to use chai-as-promised for async assertions
 chai.use(chaiAsPromised);
@@ -41,7 +43,19 @@ export async function resetDatabase() {
   }
 }
 
-// Make resetDatabase globally available for backwards compatibility
+// Re-create all roles after resetDatabase to ensure roles exist for tests
+export async function ensureAllRolesExist() {
+  for (const role of ROLES) {
+    if (Roles && typeof Roles.createRoleAsync === 'function') {
+      await Roles.createRoleAsync(role, { unlessExists: true });
+    } else if (Roles && typeof Roles.createRole === 'function') {
+      Roles.createRole(role, { unlessExists: true });
+    }
+  }
+}
+
+// Make resetDatabase and ensureAllRolesExist globally available for backwards compatibility
 if (typeof global !== 'undefined') {
   global.resetDatabase = resetDatabase;
+  global.ensureAllRolesExist = ensureAllRolesExist;
 }

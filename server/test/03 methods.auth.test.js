@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 
-import { resetDatabase } from './00_setup';
+import { resetDatabase, ensureAllRolesExist } from './00_setup';
 import * as chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { Roles } from 'meteor/roles';
@@ -25,17 +25,6 @@ chai.use(chaiAsPromised);
 const { assert, expect } = chai;
 
 const sinon = require('sinon');
-
-// Re-create all roles after resetDatabase to ensure roles exist for tests
-async function ensureAllRolesExist() {
-  for (const role of ROLES) {
-    if (Roles && typeof Roles.createRoleAsync === 'function') {
-      await Roles.createRoleAsync(role, { unlessExists: true });
-    } else if (Roles && typeof Roles.createRole === 'function') {
-      Roles.createRole(role, { unlessExists: true });
-    }
-  }
-}
 
 if (Meteor.isServer) {
   describe('test auth methods', function testauthmethods() {
@@ -62,11 +51,6 @@ if (Meteor.isServer) {
       const currentUser = await stubUser();
       assert.isOk(currentUser, 'stubUser() should return a user');
       assert.isOk(currentUser._id, 'stubUser() should return a user with _id');
-      // eslint-disable-next-line no-console
-      console.log(
-        'sendVerificationEmail (unverified): currentUser._id =',
-        currentUser._id,
-      );
 
       await Meteor.users.updateAsync(
         { _id: currentUser._id },
@@ -77,11 +61,6 @@ if (Meteor.isServer) {
       assert.isOk(
         currentUser._id,
         'currentUser._id should be defined for removeUsersFromRolesAsync',
-      );
-      // eslint-disable-next-line no-console
-      console.log(
-        'removeUsersFromRolesAsync: currentUser._id =',
-        currentUser._id,
       );
       await Roles.removeUsersFromRolesAsync(currentUser._id, ['verified']);
 
@@ -114,8 +93,7 @@ if (Meteor.isServer) {
           currentUser._id,
           'stubUser() should return a user with _id',
         );
-        // eslint-disable-next-line no-console
-        console.log('setRecentPatterns: currentUser._id =', currentUser._id);
+
         // pattern.add must be called with a valid user context
         const patternId = await callMethodWithUser(
           currentUser._id,
@@ -148,11 +126,7 @@ if (Meteor.isServer) {
           currentUser._id,
           'stubUser() should return a user with _id',
         );
-        // eslint-disable-next-line no-console
-        console.log(
-          'setRecentPatterns (invalid row): currentUser._id =',
-          currentUser._id,
-        );
+
         // pattern.add must be called with a valid user context
         const patternId = await callMethodWithUser(
           currentUser._id,
@@ -185,21 +159,13 @@ if (Meteor.isServer) {
           currentUser._id,
           'stubUser() should return a user with _id',
         );
-        // eslint-disable-next-line no-console
-        console.log(
-          'setRecentPatterns (max recents): currentUser._id =',
-          currentUser._id,
-        );
+
         await Roles.createRoleAsync('verified', { unlessExists: true });
         assert.isOk(
           currentUser._id,
           'currentUser._id should be defined for addUsersToRolesAsync',
         );
-        // eslint-disable-next-line no-console
-        console.log(
-          'addUsersToRolesAsync (max recents): currentUser._id =',
-          currentUser._id,
-        );
+
         await Roles.addUsersToRolesAsync(currentUser._id, ['verified']);
 
         const newRecentPatterns = [];
@@ -280,175 +246,287 @@ if (Meteor.isServer) {
     });
 
     describe('get users for page', () => {
-        describe('get users for page', () => {
-      it('returns the users for the first page, user not logged in', async () => {
-        const { publicPatternUsernames } = await createManyUsers();
-        const skip = 0;
-        const limit = 10;
-        const result = await Meteor.callAsync('auth.getUsersForPage', {
-          skip,
-          limit,
-        });
-        assert.equal(result.length, limit);
-        const expectedUsernames = publicPatternUsernames.sort().slice(0, limit);
-        expectedUsernames.forEach((username) => {
-          assert.notEqual(expectedUsernames.indexOf(username), -1);
-        });
-      });
-
-      it('returns the users for the last page, user not logged in', async () => {
-        const { publicPatternUsernames } = await createManyUsers();
-        const total = publicPatternUsernames.length;
-        const limit = 10;
-        const skip = Math.floor(total / limit) * limit;
-        // If total is 23, skip = 20, so expect 3 users
-        const result = await Meteor.callAsync('auth.getUsersForPage', {
-          skip,
-          limit,
-        });
-        const expectedCount = total - skip;
-        assert.equal(result.length, expectedCount);
-        const resultUsernames = result.map((u) => u.username).sort();
-        const expectedUsernames = publicPatternUsernames
-          .sort()
-          .slice(skip, skip + limit);
-        assert.deepEqual(resultUsernames, expectedUsernames);
-      });
-
-      it('returns an empty array for a page beyond the end', async () => {
-        const { publicPatternUsernames } = await createManyUsers();
-        const total = publicPatternUsernames.length;
-        const limit = 10;
-        const skip = total + 10; // skip past the end
-        const result = await Meteor.callAsync('auth.getUsersForPage', {
-          skip,
-          limit,
-        });
-        assert.isArray(result);
-        assert.equal(result.length, 0);
-      });
-
-      it('returns the users for the last page, user not logged in', async () => {
-        const { publicPatternUsernames } = await createManyUsers();
-        const total = publicPatternUsernames.length;
-        const limit = 10;
-        const skip = Math.floor(total / limit) * limit;
-        // If total is 23, skip = 20, so expect 3 users
-        const result = await Meteor.callAsync('auth.getUsersForPage', {
-          skip,
-          limit,
-        });
-        const expectedCount = total - skip;
-        assert.equal(result.length, expectedCount);
-        const resultUsernames = result.map((u) => u.username).sort();
-        const expectedUsernames = publicPatternUsernames
-          .sort()
-          .slice(skip, skip + limit);
-        assert.deepEqual(resultUsernames, expectedUsernames);
-      });
-
-      it('returns an empty array for a page beyond the end', async () => {
-        const { publicPatternUsernames } = await createManyUsers();
-        const total = publicPatternUsernames.length;
-        const limit = 10;
-        const skip = total + 10; // skip past the end
-        const result = await Meteor.callAsync('auth.getUsersForPage', {
-          skip,
-          limit,
-        });
-        assert.isArray(result);
-        assert.equal(result.length, 0);
-      });
-
-      it('returns the users for the second page, user not logged in', async () => {
-        const { publicPatternUsernames } = await createManyUsers();
-        const skip = 10;
-        const limit = 10;
-        const result = await Meteor.callAsync('auth.getUsersForPage', {
-          skip,
-          limit,
-        });
-        assert.equal(result.length, limit);
-
-        // If result is array of user objects, extract usernames
-        const resultUsernames = result.map((u) => u.username).sort();
-        const expectedUsernames = publicPatternUsernames
-          .sort()
-          .slice(limit, limit * 2);
-        expectedUsernames.forEach((username) => {
-          assert.notEqual(resultUsernames.indexOf(username), -1);
-        });
-      });
-
-    describe('edit text field', () => {
-      it('cannot edit description of a different user', async () => {
-        async function expectedError() {
-          const currentUser = await stubUser();
-          await stubOtherUser();
-          await Meteor.callAsync('auth.editTextField', {
-            _id: currentUser._id,
-            fieldName: 'description',
-            fieldValue: 'someText',
+      describe('get users for page', () => {
+        it('returns the users for the first page, user not logged in', async () => {
+          const { publicPatternUsernames } = await createManyUsers();
+          const skip = 0;
+          const limit = 10;
+          const result = await Meteor.callAsync('auth.getUsersForPage', {
+            skip,
+            limit,
           });
-        }
-        await expect(expectedError()).to.be.rejectedWith(
-          'edit-text-field-not-logged-in',
-        );
-        unwrapUser();
-      });
+          assert.equal(result.length, limit);
+          const expectedUsernames = publicPatternUsernames
+            .sort()
+            .slice(0, limit);
+          expectedUsernames.forEach((username) => {
+            assert.notEqual(expectedUsernames.indexOf(username), -1);
+          });
+        });
 
-      it('cannot edit a different field if they are logged in', async () => {
-        const currentUser = await stubUser();
-        await expect(
-          callMethodWithUser(currentUser._id, 'auth.editTextField', {
-            _id: currentUser._id,
-            fieldName: 'thingy',
-            fieldValue: 'someText',
-          }),
-        ).to.be.rejectedWith('edit-text-field-not-allowed');
-      });
+        it('returns the users for the last page, user not logged in', async () => {
+          const { publicPatternUsernames } = await createManyUsers();
+          const total = publicPatternUsernames.length;
+          const limit = 10;
+          const skip = Math.floor(total / limit) * limit;
+          // If total is 23, skip = 20, so expect 3 users
+          const result = await Meteor.callAsync('auth.getUsersForPage', {
+            skip,
+            limit,
+          });
+          const expectedCount = total - skip;
+          assert.equal(result.length, expectedCount);
+          const resultUsernames = result.map((u) => u.username).sort();
+          const expectedUsernames = publicPatternUsernames
+            .sort()
+            .slice(skip, skip + limit);
+          assert.deepEqual(resultUsernames, expectedUsernames);
+        });
 
-      it('can edit description if they are logged in', async () => {
-        const currentUser = await stubUser();
-        assert.equal(currentUser.description, undefined);
-        const newDescription = 'Some text';
-        await callMethodWithUser(currentUser._id, 'auth.editTextField', {
-          _id: currentUser._id,
-          fieldName: 'description',
-          fieldValue: newDescription,
+        it('returns an empty array for a page beyond the end', async () => {
+          const { publicPatternUsernames } = await createManyUsers();
+          const total = publicPatternUsernames.length;
+          const limit = 10;
+          const skip = total + 10; // skip past the end
+          const result = await Meteor.callAsync('auth.getUsersForPage', {
+            skip,
+            limit,
+          });
+          assert.isArray(result);
+          assert.equal(result.length, 0);
         });
-        const updated = await Meteor.users.findOneAsync({
-          _id: currentUser._id,
-        });
-        assert.equal(updated.description, newDescription);
-      });
 
-      it('cannot set a value that is too long', async () => {
-        const currentUser = await stubUser();
-        assert.equal(currentUser.description, undefined);
-        let newDescription = '';
-        for (let i = 0; i < MAX_TEXT_AREA_LENGTH; i += 1) {
-          newDescription += 'a';
-        }
-        await callMethodWithUser(currentUser._id, 'auth.editTextField', {
-          _id: currentUser._id,
-          fieldName: 'description',
-          fieldValue: newDescription,
+        it('returns the users for the last page, user not logged in', async () => {
+          const { publicPatternUsernames } = await createManyUsers();
+          const total = publicPatternUsernames.length;
+          const limit = 10;
+          const skip = Math.floor(total / limit) * limit;
+          // If total is 23, skip = 20, so expect 3 users
+          const result = await Meteor.callAsync('auth.getUsersForPage', {
+            skip,
+            limit,
+          });
+          const expectedCount = total - skip;
+          assert.equal(result.length, expectedCount);
+          const resultUsernames = result.map((u) => u.username).sort();
+          const expectedUsernames = publicPatternUsernames
+            .sort()
+            .slice(skip, skip + limit);
+          assert.deepEqual(resultUsernames, expectedUsernames);
         });
-        const updated = await Meteor.users.findOneAsync({
-          _id: currentUser._id,
+
+        it('returns an empty array for a page beyond the end', async () => {
+          const { publicPatternUsernames } = await createManyUsers();
+          const total = publicPatternUsernames.length;
+          const limit = 10;
+          const skip = total + 10; // skip past the end
+          const result = await Meteor.callAsync('auth.getUsersForPage', {
+            skip,
+            limit,
+          });
+          assert.isArray(result);
+          assert.equal(result.length, 0);
         });
-        assert.equal(updated.description, newDescription);
-        newDescription += 'longer';
-        await expect(
-          callMethodWithUser(currentUser._id, 'auth.editTextField', {
-            _id: currentUser._id,
-            fieldName: 'description',
-            fieldValue: newDescription,
-          }),
-        ).to.be.rejectedWith('edit-text-field-too-long');
-      });
-    });
+
+        it('returns the users for the second page, user not logged in', async () => {
+          const { publicPatternUsernames } = await createManyUsers();
+          const skip = 10;
+          const limit = 10;
+          const result = await Meteor.callAsync('auth.getUsersForPage', {
+            skip,
+            limit,
+          });
+          assert.equal(result.length, limit);
+
+          // If result is array of user objects, extract usernames
+          const resultUsernames = result.map((u) => u.username).sort();
+          const expectedUsernames = publicPatternUsernames
+            .sort()
+            .slice(limit, limit * 2);
+          expectedUsernames.forEach((username) => {
+            assert.notEqual(resultUsernames.indexOf(username), -1);
+          });
+        });
+
+        describe('edit text field', () => {
+          describe('add user to role', () => {
+            it('cannot add a user to a role if the user is not logged in', async () => {
+              const targetUser = await stubUser(); // the user whose role is to be changed
+              logOutButLeaveUser();
+              async function expectedError() {
+                await Meteor.callAsync('auth.addUserToRole', {
+                  _id: targetUser._id,
+                  role: 'premium',
+                });
+              }
+              await expect(expectedError()).to.be.rejectedWith(
+                'add-user-to-role-not-logged-in',
+              );
+              unwrapUser();
+            });
+            it('cannot add a user to a role if the user is not an administrator', async () => {
+              const targetUser = await stubUser(); // the user whose role is to be changed
+              const adminUser = await stubOtherUser(); // the administrator
+
+              await expect(
+                callMethodWithUser(adminUser._id, 'auth.addUserToRole', {
+                  _id: targetUser._id,
+                  role: 'premium',
+                }),
+              ).to.be.rejectedWith('add-user-to-role-not-administrator');
+            });
+            it('cannot add a user to a role if the user does not exist', async () => {
+              await stubUser(); // only so stubOtherUser has something to unwrap
+              const adminUser = await stubOtherUser(); // the administrator
+
+              await Roles.createRoleAsync('administrator', {
+                unlessExists: true,
+              });
+              await Roles.addUsersToRolesAsync(adminUser._id, [
+                'administrator',
+              ]);
+
+              await expect(
+                callMethodWithUser(adminUser._id, 'auth.addUserToRole', {
+                  _id: 'abc',
+                  role: 'premium',
+                }),
+              ).to.be.rejectedWith('add-user-to-role-user-not-found');
+            });
+
+            it('cannot add a user to a role if the role does not exist', async () => {
+              const targetUser = await stubUser(); // the user whose role is to be changed
+              const adminUser = await stubOtherUser(); // the administrator
+
+              await Roles.createRoleAsync('administrator', {
+                unlessExists: true,
+              });
+              await Roles.addUsersToRolesAsync(adminUser._id, [
+                'administrator',
+              ]);
+
+              await expect(
+                callMethodWithUser(adminUser._id, 'auth.addUserToRole', {
+                  _id: targetUser._id,
+                  role: 'aardvark',
+                }),
+              ).to.be.rejectedWith('add-user-to-role-role-not-found');
+            });
+
+            it('cannot add a user to a role if the user is already in the role', async () => {
+              const targetUser = await stubUser(); // the user whose role is to be changed
+              const adminUser = await stubOtherUser(); // the administrator
+
+              await Roles.createRoleAsync('administrator', {
+                unlessExists: true,
+              });
+              await Roles.addUsersToRolesAsync(adminUser._id, [
+                'administrator',
+              ]);
+
+              await Roles.createRoleAsync('premium', { unlessExists: true });
+              await Roles.addUsersToRolesAsync(targetUser._id, ['premium']);
+
+              await expect(
+                callMethodWithUser(adminUser._id, 'auth.addUserToRole', {
+                  _id: targetUser._id,
+                  role: 'premium',
+                }),
+              ).to.be.rejectedWith('add-user-to-role-already-in-role');
+            });
+
+            it('can add a user to a role', async () => {
+              const targetUser = await stubUser(); // the user whose role is to be changed
+              const adminUser = await stubOtherUser(); // the administrator
+
+              await Roles.createRoleAsync('administrator', {
+                unlessExists: true,
+              });
+              await Roles.addUsersToRolesAsync(adminUser._id, [
+                'administrator',
+              ]);
+
+              await Roles.createRoleAsync('premium', { unlessExists: true });
+
+              await callMethodWithUser(adminUser._id, 'auth.addUserToRole', {
+                _id: targetUser._id,
+                role: 'premium',
+              });
+
+              assert.equal(
+                await Roles.userIsInRoleAsync(targetUser._id, 'premium'),
+                true,
+              );
+            });
+          });
+          it('cannot edit description of a different user', async () => {
+            async function expectedError() {
+              const currentUser = await stubUser();
+              await stubOtherUser();
+              await Meteor.callAsync('auth.editTextField', {
+                _id: currentUser._id,
+                fieldName: 'description',
+                fieldValue: 'someText',
+              });
+            }
+            await expect(expectedError()).to.be.rejectedWith(
+              'edit-text-field-not-logged-in',
+            );
+            unwrapUser();
+          });
+
+          it('cannot edit a different field if they are logged in', async () => {
+            const currentUser = await stubUser();
+            await expect(
+              callMethodWithUser(currentUser._id, 'auth.editTextField', {
+                _id: currentUser._id,
+                fieldName: 'thingy',
+                fieldValue: 'someText',
+              }),
+            ).to.be.rejectedWith('edit-text-field-not-allowed');
+          });
+
+          it('can edit description if they are logged in', async () => {
+            const currentUser = await stubUser();
+            assert.equal(currentUser.description, undefined);
+            const newDescription = 'Some text';
+            await callMethodWithUser(currentUser._id, 'auth.editTextField', {
+              _id: currentUser._id,
+              fieldName: 'description',
+              fieldValue: newDescription,
+            });
+            const updated = await Meteor.users.findOneAsync({
+              _id: currentUser._id,
+            });
+            assert.equal(updated.description, newDescription);
+          });
+
+          it('cannot set a value that is too long', async () => {
+            const currentUser = await stubUser();
+            assert.equal(currentUser.description, undefined);
+            let newDescription = '';
+            for (let i = 0; i < MAX_TEXT_AREA_LENGTH; i += 1) {
+              newDescription += 'a';
+            }
+            await callMethodWithUser(currentUser._id, 'auth.editTextField', {
+              _id: currentUser._id,
+              fieldName: 'description',
+              fieldValue: newDescription,
+            });
+            const updated = await Meteor.users.findOneAsync({
+              _id: currentUser._id,
+            });
+            assert.equal(updated.description, newDescription);
+            newDescription += 'longer';
+            await expect(
+              callMethodWithUser(currentUser._id, 'auth.editTextField', {
+                _id: currentUser._id,
+                fieldName: 'description',
+                fieldValue: newDescription,
+              }),
+            ).to.be.rejectedWith('edit-text-field-too-long');
+          });
+        });
       });
     });
     // ...existing migrated test blocks go here...

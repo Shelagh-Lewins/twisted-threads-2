@@ -5,7 +5,7 @@
 // ideally, all edit operations would be fully tested
 // but that is currently out of scope
 
-import { resetDatabase } from './00_setup';
+import { resetDatabase, ensureAllRolesExist } from './00_setup';
 import { assert, expect } from 'chai';
 import { Patterns } from '../../imports/modules/collection';
 import '../../imports/server/modules/publications';
@@ -30,6 +30,7 @@ if (Meteor.isServer) {
     beforeEach(async () => {
       unwrapUser(); // Clean up any existing stubs
       await resetDatabase();
+      await ensureAllRolesExist();
       this.currentUser = await stubUser();
       this.patternId = await callMethodWithUser(
         this.currentUser._id,

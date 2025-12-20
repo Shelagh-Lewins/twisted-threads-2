@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 // general tests for pattern methods
 
-import { resetDatabase } from './00_setup';
+import { resetDatabase, ensureAllRolesExist } from './00_setup';
 import { assert, expect } from 'chai';
 import { Roles } from 'meteor/roles';
 import {
@@ -29,6 +29,7 @@ import {
 } from './testData';
 import createManyPatterns from './createManyPatterns';
 import { setupUserWithRole, createOtherUsersPatterns } from './testHelpers';
+import { ROLES } from '../../imports/modules/parameters';
 
 // Helper function to test pattern creation limits for a role
 async function testPatternLimit(userId, expectedLimit) {
@@ -48,26 +49,11 @@ async function testPatternLimit(userId, expectedLimit) {
 
 if (Meteor.isServer) {
   describe('test general methods for patterns', function testpatternmethods() {
-    // eslint-disable-line func-names
-    // ============================================================================
-    // METHOD TESTING PATTERN FOR METEOR 3:
-    //
-    // 1. For NOT logged in tests: Use Meteor.callAsync() directly
-    //    - This ensures this.userId is undefined in the method context
-    //    - Methods will correctly reject with "not-logged-in" errors
-    //
-    // 2. For logged in tests: Use callMethodWithUser(userId, methodName, args)
-    //    - This directly invokes the method handler with proper context
-    //    - The context includes userId, so this.userId works inside methods
-    //    - See mockUser.js for implementation details
-    //
-    // This approach avoids the "stubUser() doesn't work in method context" issue
-    // that affected the initial Meteor 3 migration attempts.
-    // ============================================================================
-    this.timeout(30000);
+    this.timeout(15000);
     beforeEach(async () => {
-      unwrapUser(); // Clean up any existing stubs
+      unwrapUser();
       await resetDatabase();
+      await ensureAllRolesExist();
     });
 
     afterEach(() => {
