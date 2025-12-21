@@ -28,10 +28,29 @@ class TagInput extends PureComponent {
   }
 
   onDelete(i) {
-    const { dispatch, tags, targetId, targetType } = this.props;
+    const { dispatch, targetId, targetType, allTags, tags } = this.props;
+    // Rebuild tagObjects as in render
+    let tagObjects = [];
+    if (allTags) {
+      tags.forEach((tagNameInDocument) => {
+        const thisTagObject = allTags.find(
+          (tagObject) => tagNameInDocument === tagObject.name,
+        );
+        if (thisTagObject) {
+          tagObjects.push({
+            value: thisTagObject._id,
+            label: thisTagObject.name,
+          });
+        }
+      });
+    }
+    const tag = tagObjects[i];
+    const name = tag && tag.label;
 
-    const name = tags[i];
-
+    if (!name || typeof name !== 'string') {
+      // Do not dispatch if name is not a valid string
+      return;
+    }
     dispatch(
       removeTagFromDocument({
         name,
@@ -42,23 +61,28 @@ class TagInput extends PureComponent {
   }
 
   onAddition(tag) {
-    const { dispatch, targetId, targetType } = this.props;
+    const { dispatch, targetId, targetType, allTags } = this.props;
+    // react-tag-autocomplete v7.x: tag is { value, label }
+    const name = tag && tag.label;
 
-    const { value: tagId, label: name } = tag;
-
-    if (tagId) {
-      // user selected an existing tag
+    if (!name || typeof name !== 'string') {
+      // Do not dispatch if name is not a valid string
+      return;
+    }
+    // Check if tag exists in allTags (by name)
+    const existsInAllTags = allTags && allTags.some((t) => t.name === name);
+    if (tag.value === undefined || !existsInAllTags) {
       dispatch(
-        assignTagToDocument({
+        addTag({
           name,
           targetId,
           targetType,
         }),
       );
     } else {
-      // user has entered a new tag
+      // Existing tag: assign to document
       dispatch(
-        addTag({
+        assignTagToDocument({
           name,
           targetId,
           targetType,
@@ -67,15 +91,13 @@ class TagInput extends PureComponent {
     }
   }
 
-  onValidate(tag) {
-    // eslint-disable-line class-methods-use-this
+  onValidate(value) {
+    // value is the input string
     const isValid =
-      tag.label.length >= MIN_TAG_LENGTH && tag.label.length <= MAX_TAG_LENGTH;
-
-    this.setState({
-      isValid,
-    });
-
+      typeof value === 'string' &&
+      value.length >= MIN_TAG_LENGTH &&
+      value.length <= MAX_TAG_LENGTH;
+    this.setState({ isValid });
     return isValid;
   }
 
@@ -135,14 +157,7 @@ class TagInput extends PureComponent {
       );
     }
 
-    const tagComponent = ({ tag, onDelete }) => (
-      <div className='selected-tag'>
-        {tag.label}
-        <button onClick={onDelete} title='Delete tag' type='button'>
-          x
-        </button>
-      </div>
-    );
+    // Use the provided onDelete prop, which is already bound to the correct index
 
     return (
       <div className='edit-tags'>
@@ -165,7 +180,6 @@ class TagInput extends PureComponent {
           onDelete={this.onDelete}
           onAdd={this.onAddition}
           onValidate={this.onValidate}
-          renderTag={tagComponent}
         />
         {!isValid && (
           <div className='invalid-feedback'>{`Tags must be between ${MIN_TAG_LENGTH} and ${MAX_TAG_LENGTH} characters long`}</div>
