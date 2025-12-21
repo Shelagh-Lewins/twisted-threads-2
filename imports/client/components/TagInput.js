@@ -12,6 +12,7 @@ import './TagInput.scss';
 // Tags can be assigned to patterns or sets
 
 class TagInput extends PureComponent {
+  lastValidatedValue = '';
   constructor(props) {
     super(props);
 
@@ -24,7 +25,19 @@ class TagInput extends PureComponent {
 
     this.state = {
       isValid: true,
+      inputValue: '',
     };
+  }
+
+  validationTimeout = null;
+  validationDelay = 500;
+  lastValidatedValue = '';
+  lastValidatedIsValid = true;
+
+  componentWillUnmount() {
+    if (this.validationTimeout) {
+      clearTimeout(this.validationTimeout);
+    }
   }
 
   onDelete(i) {
@@ -65,7 +78,17 @@ class TagInput extends PureComponent {
     // react-tag-autocomplete v7.x: tag is { value, label }
     const name = tag && tag.label;
 
-    if (!name || typeof name !== 'string') {
+    // Clear validation timeout and validate immediately
+    if (this.validationTimeout) {
+      clearTimeout(this.validationTimeout);
+    }
+    const isValid =
+      typeof name === 'string' &&
+      name.length >= MIN_TAG_LENGTH &&
+      name.length <= MAX_TAG_LENGTH;
+    this.setState({ isValid });
+
+    if (!isValid) {
       // Do not dispatch if name is not a valid string
       return;
     }
@@ -91,14 +114,32 @@ class TagInput extends PureComponent {
     }
   }
 
+  // validate if the user stops typing, but not while they are typing
   onValidate(value) {
-    // value is the input string
-    const isValid =
-      typeof value === 'string' &&
-      value.length >= MIN_TAG_LENGTH &&
-      value.length <= MAX_TAG_LENGTH;
-    this.setState({ isValid });
-    return isValid;
+    if (this.validationTimeout) {
+      clearTimeout(this.validationTimeout);
+    }
+    // Store inputValue for error display, but do NOT call setState synchronously
+    this.inputValueTemp = value;
+
+    this.validationTimeout = setTimeout(() => {
+      const isValid =
+        typeof value === 'string' &&
+        value.length >= MIN_TAG_LENGTH &&
+        value.length <= MAX_TAG_LENGTH;
+
+      // Only update state if value or validity has changed
+      if (
+        value !== this.lastValidatedValue ||
+        isValid !== this.lastValidatedIsValid
+      ) {
+        this.lastValidatedValue = value;
+        this.lastValidatedIsValid = isValid;
+        this.setState({ isValid, inputValue: value });
+      }
+    }, this.validationDelay);
+
+    return true;
   }
 
   render() {
@@ -108,7 +149,7 @@ class TagInput extends PureComponent {
       tags, // array of tag ids assigned to the document
     } = this.props;
 
-    const { isValid } = this.state;
+    const { isValid, inputValue } = this.state;
 
     // build the list of suggested tags
     // only suggest tags that are not already assigned to the document
@@ -201,7 +242,7 @@ class TagInput extends PureComponent {
           onValidate={this.onValidate}
           renderTag={tagComponent}
         />
-        {!isValid && (
+        {inputValue && !isValid && (
           <div className='invalid-feedback'>{`Tags must be between ${MIN_TAG_LENGTH} and ${MAX_TAG_LENGTH} characters long`}</div>
         )}
       </div>
