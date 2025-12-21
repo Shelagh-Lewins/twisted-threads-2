@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 . .env-test
 
-# TEST_WATCH=1 meteor test --driver-package meteortesting:mocha
-
 # Usage: 
 #   ./test_meteor.sh                           # Run all tests
 #   ./test_meteor.sh "server/test/02a*"        # Run specific test file(s)
