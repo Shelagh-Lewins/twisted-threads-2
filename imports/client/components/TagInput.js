@@ -181,6 +181,7 @@ class TagInput extends PureComponent {
       <div className='edit-tags'>
         <ReactTags
           allowNew={true}
+          activateFirstOption={true}
           classNames={{
             root: 'react-tags',
             rootFocused: 'is-focused',
