@@ -29,7 +29,6 @@ import {
 } from './testData';
 import createManyPatterns from './createManyPatterns';
 import { setupUserWithRole, createOtherUsersPatterns } from './testHelpers';
-import { ROLES } from '../../imports/modules/parameters';
 
 // Helper function to test pattern creation limits for a role
 async function testPatternLimit(userId, expectedLimit) {

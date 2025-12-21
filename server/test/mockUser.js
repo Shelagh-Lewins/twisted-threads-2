@@ -25,10 +25,12 @@ export async function stubUser(params = {}) {
   const userId = await Meteor.users.insertAsync(userData);
   const currentUser = await Meteor.users.findOneAsync(userId);
 
+  // Assign all roles passed in params.roles, defaulting to ['registered']
+  const roles = params.roles || ['registered'];
   if (Roles && typeof Roles.addUsersToRolesAsync === 'function') {
-    await Roles.addUsersToRolesAsync([userId], ['registered']);
+    await Roles.addUsersToRolesAsync([userId], roles);
   } else if (Roles && typeof Roles.addUsersToRoles === 'function') {
-    Roles.addUsersToRoles([userId], ['registered']);
+    Roles.addUsersToRoles([userId], roles);
   } else {
     console.warn(
       '[roles] Roles APIs not available; skipping role assignment in stubUser',
