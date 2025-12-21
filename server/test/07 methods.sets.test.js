@@ -20,7 +20,6 @@ import {
 } from '../../imports/modules/parameters';
 import {
   stubNoUser,
-  stubOtherUser,
   stubUser,
   unwrapUser,
   callMethodWithUser,
@@ -339,7 +338,7 @@ if (Meteor.isServer) {
           });
         }
         await expect(expectedError()).to.be.rejectedWith(
-          'add-to-set-pattern-not-found',
+          'add-to-set-already-in-set',
         );
       });
 
@@ -448,7 +447,8 @@ if (Meteor.isServer) {
       it('cannot remove pattern from set if the set was created by another user', async () => {
         const userId = 'testUserId';
         const otherUserId = 'otherUserId';
-        const patternId = await createUserAndPattern(userId, [
+        // Create pattern and set as otherUserId
+        const patternId = await createUserAndPattern(otherUserId, [
           'registered',
           'verified',
         ]);
@@ -456,7 +456,7 @@ if (Meteor.isServer) {
           patternId,
           name: 'Favourites',
         });
-        // Log in as testUserId
+        // Attempt forbidden action as testUserId
         await stubUser({
           _id: userId,
           username: 'testuser',
@@ -608,12 +608,15 @@ if (Meteor.isServer) {
       it('cannot remove a set if set not created by the user', async () => {
         const userId = 'testUserId';
         const otherUserId = 'otherUserId';
-        const patternId = await createUserAndPattern(userId, ['registered']);
+        // Create pattern and set as otherUserId
+        const patternId = await createUserAndPattern(otherUserId, [
+          'registered',
+        ]);
         const setId = await callMethodWithUser(otherUserId, 'set.add', {
           patternId,
           name: 'Favourites',
         });
-        // Log in as testUserId
+        // Attempt forbidden action as testUserId
         await stubUser({
           _id: userId,
           username: 'testuser',
@@ -702,12 +705,15 @@ if (Meteor.isServer) {
       it('cannot edit a set if the set was not created by the current user', async () => {
         const userId = 'testUserId';
         const otherUserId = 'otherUserId';
-        const patternId = await createUserAndPattern(userId, ['registered']);
+        // Create pattern and set as otherUserId
+        const patternId = await createUserAndPattern(otherUserId, [
+          'registered',
+        ]);
         const setId = await callMethodWithUser(otherUserId, 'set.add', {
           patternId,
           name: 'Favourites',
         });
-        // Log in as testUserId
+        // Attempt forbidden action as testUserId
         await stubUser({
           _id: userId,
           username: 'testuser',
