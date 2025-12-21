@@ -24,39 +24,6 @@ if (Meteor.isServer) {
     this.timeout(10000);
 
     it('should include expected btree indexes for key collections', async function () {
-      // Insert a schema-compliant dummy document into each collection to ensure it exists
-      await Patterns.insertAsync({
-        ...defaultPatternData,
-        _id: 'dummy_pattern',
-      });
-      await Sets.insertAsync({ ...defaultSetData, _id: 'dummy_set' });
-      await Tags.insertAsync({ _id: 'dummy_tag', name: 'testtag' });
-      await FAQ.insertAsync({
-        _id: 'dummy_faq',
-        question: 'test question',
-        answer: 'test answer',
-      });
-      await ColorBooks.insertAsync({
-        ...defaultColorBookData,
-        _id: 'dummy_colorbook',
-      });
-      await ActionsLog.insertAsync({
-        _id: 'dummy_action',
-        userId: 'test',
-        imageUploaded: [],
-        locked: false,
-        username: 'test',
-        verificationEmailSent: [],
-      });
-      await PatternPreviews.insertAsync({
-        ...defaultPatternPreviewData,
-        _id: 'dummy_preview',
-      });
-      await PatternImages.insertAsync({
-        ...defaultPatternImageData,
-        _id: 'dummy_image',
-      });
-
       // Wait for MongoDB to build indexes (Meteor 3 async index creation)
       await new Promise((r) => setTimeout(r, 3000));
 
@@ -118,16 +85,6 @@ if (Meteor.isServer) {
         hasIndex(imagesInfo, 'patternId') || hasIndex(imagesInfo, 'createdAt'),
         'PatternImages should have patternId/createdAt index',
       );
-
-      // Clean up dummy documents
-      await Patterns.removeAsync({ _id: 'dummy_pattern' });
-      await Sets.removeAsync({ _id: 'dummy_set' });
-      await Tags.removeAsync({ _id: 'dummy_tag' });
-      await FAQ.removeAsync({ _id: 'dummy_faq' });
-      await ColorBooks.removeAsync({ _id: 'dummy_colorbook' });
-      await ActionsLog.removeAsync({ _id: 'dummy_action' });
-      await PatternPreviews.removeAsync({ _id: 'dummy_preview' });
-      await PatternImages.removeAsync({ _id: 'dummy_image' });
     });
   });
 }
