@@ -1,19 +1,5 @@
-// Helper to stub user and create a pattern, returns patternId
-async function createUserAndPattern(
-  userId = 'testUserId',
-  roles = ['registered', 'verified'],
-) {
-  const currentUser = await stubUser({
-    _id: userId,
-    username: 'testuser',
-    roles,
-  });
-  const patternData = {
-    ...addPatternDataIndividual,
-    createdBy: userId,
-  };
-  return callMethodWithUser(currentUser._id, 'pattern.add', patternData);
-}
+// Reuse shared helper
+import { createUserAndPattern } from './testHelpers';
 /* eslint-env mocha */
 // test for sets methods
 
@@ -371,7 +357,7 @@ if (Meteor.isServer) {
           ...addPatternDataIndividual,
           createdBy: userId,
         });
-        console.log('created patternId:', patternId);
+
         const setId = await callMethodWithUser(userId, 'set.add', {
           patternId,
           name: 'Favourites',

@@ -1,9 +1,35 @@
+/**
+ * Helper to stub user and create a pattern, returns patternId
+ * @param {string} userId - The user ID
+ * @param {string[]} roles - Roles to assign
+ * @returns {Promise<string>} patternId
+ */
+
+// Note that isPublic is false by default when any pattern is created
+// A pattern must be explicitly edited by the owner to become public
+export async function createUserAndPattern(
+  userId = 'testUserId',
+  roles = ['registered', 'verified'],
+  patternDataOverride = {},
+) {
+  const currentUser = await stubUser({
+    _id: userId,
+    username: 'testuser',
+    roles,
+  });
+  const patternData = {
+    ...addPatternDataIndividual,
+    createdBy: userId,
+    ...patternDataOverride,
+  };
+  return callMethodWithUser(currentUser._id, 'pattern.add', patternData);
+}
 // Shared test helper functions for reuse across test files
 
 import { expect } from 'chai';
 import { Roles } from 'meteor/roles';
 import { stubUser, callMethodWithUser } from './mockUser';
-import { createPattern } from './testData';
+import { createPattern, addPatternDataIndividual } from './testData';
 
 /**
  * Test that a method requires authentication

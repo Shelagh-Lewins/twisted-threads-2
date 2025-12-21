@@ -28,7 +28,11 @@ import {
   importPatternDataFull,
 } from './testData';
 import createManyPatterns from './createManyPatterns';
-import { setupUserWithRole, createOtherUsersPatterns } from './testHelpers';
+import {
+  setupUserWithRole,
+  createOtherUsersPatterns,
+  createUserAndPattern,
+} from './testHelpers';
 
 // Helper function to test pattern creation limits for a role
 async function testPatternLimit(userId, expectedLimit) {
@@ -160,6 +164,68 @@ if (Meteor.isServer) {
     });
 
     describe('pattern.getPatternCount method', () => {
+      it('returns private patterns for the owner, and only public patterns for others or logged-out users (regression test for userId permission bug)', async () => {
+        // Create two users
+        const userA = await stubUser();
+        const userB = await stubUser();
+
+        // As userA, create a private pattern
+        const privatePatternId = await createUserAndPattern(
+          userA._id,
+          ['registered', 'verified'],
+          { name: 'Private Pattern' },
+        );
+
+        // As userB, create a pattern, then set it public
+        const publicPatternId = await createUserAndPattern(
+          userB._id,
+          ['registered', 'verified'],
+          { name: 'Public Pattern' },
+        );
+        await callMethodWithUser(userB._id, 'pattern.edit', {
+          _id: publicPatternId,
+          data: {
+            type: 'editIsPublic',
+            isPublic: true,
+          },
+        });
+
+        // As userA, should see both their own private and userB's public pattern
+        const countA = await callMethodWithUser(
+          userA._id,
+          'pattern.getPatternCount',
+          {},
+        );
+        assert.equal(
+          countA,
+          2,
+          'userA should see their own private and userB public pattern',
+        );
+
+        // As userB, should see only their own public pattern
+        const countB = await callMethodWithUser(
+          userB._id,
+          'pattern.getPatternCount',
+          {},
+        );
+        assert.equal(
+          countB,
+          1,
+          'userB should see only their own public pattern',
+        );
+
+        // As logged-out user, should see only the public pattern
+        unwrapUser();
+        const countLoggedOut = await Meteor.callAsync(
+          'pattern.getPatternCount',
+          {},
+        );
+        assert.equal(
+          countLoggedOut,
+          1,
+          'logged-out user should see only the public pattern',
+        );
+      });
       // Tests counting patterns visible to user (used for pagination)
       // Users can see their own patterns (public + private) plus other users' public patterns
       it('returns 0 when the user is not logged in', async () => {
