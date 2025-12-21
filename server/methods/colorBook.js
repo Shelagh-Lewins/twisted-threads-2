@@ -1,3 +1,5 @@
+// Export Meteor method handlers for direct server-side testing
+export const methods = Meteor.server.method_handlers;
 import { check } from 'meteor/check';
 import {
   checkCanCreateColorBook,
