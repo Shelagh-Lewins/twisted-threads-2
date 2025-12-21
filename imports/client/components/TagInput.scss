@@ -41,7 +41,7 @@
       }
     }
 
-    button {
+    .delete-tag-x {
       background: transparent;
       border: 0;
       color: $color-tags-delete;
@@ -69,7 +69,8 @@
 
       &:hover,
       &:focus {
-        border-color: $color-tags-hover-border;
+        background: $color-tags-selected-hover;
+        border: 1px solid $color-tags-hover-border;
       }
     }
 

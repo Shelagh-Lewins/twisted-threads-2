@@ -159,6 +159,24 @@ class TagInput extends PureComponent {
 
     // Use the provided onDelete prop, which is already bound to the correct index
 
+    // Custom tag renderer using removeButton from react-tag-autocomplete v7.x
+    // Custom tag renderer: button with label and 'x', matching react-tag-autocomplete default
+    const tagComponent = ({ tag, classNames, index, ...props }) => (
+      <button
+        type='button'
+        className={classNames.selectedTag}
+        title={`Remove ${tag.label} from the list`}
+        aria-disabled='false'
+        onClick={() => this.onDelete(index)}
+        {...props}
+      >
+        <span className={classNames.selectedTagName}>{tag.label}</span>
+        <span className='delete-tag-x' aria-hidden='true'>
+          X
+        </span>
+      </button>
+    );
+
     return (
       <div className='edit-tags'>
         <ReactTags
@@ -180,6 +198,7 @@ class TagInput extends PureComponent {
           onDelete={this.onDelete}
           onAdd={this.onAddition}
           onValidate={this.onValidate}
+          renderTag={tagComponent}
         />
         {!isValid && (
           <div className='invalid-feedback'>{`Tags must be between ${MIN_TAG_LENGTH} and ${MAX_TAG_LENGTH} characters long`}</div>
