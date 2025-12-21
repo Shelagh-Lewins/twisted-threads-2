@@ -886,7 +886,7 @@ Meteor.methods({
       // which this user can see
       return Patterns.find({
         $and: [
-          getPatternPermissionQuery(),
+          getPatternPermissionQuery(this.userId),
           { createdBy: userId },
           tabletFilter,
         ],

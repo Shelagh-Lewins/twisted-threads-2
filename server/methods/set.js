@@ -110,7 +110,7 @@ Meteor.methods({
 
     // check pattern is visible to user
     const pattern = await Patterns.findOneAsync({
-      $and: [{ _id: patternId }, getPatternPermissionQuery()],
+      $and: [{ _id: patternId }, getPatternPermissionQuery(Meteor.userId())],
     });
 
     if (!pattern) {
@@ -186,7 +186,7 @@ Meteor.methods({
 
     // check pattern is visible to user
     const pattern = await Patterns.findOneAsync({
-      $and: [{ _id: patternId }, getPatternPermissionQuery()],
+      $and: [{ _id: patternId }, getPatternPermissionQuery(Meteor.userId())],
     });
 
     if (!pattern) {

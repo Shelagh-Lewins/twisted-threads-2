@@ -163,6 +163,55 @@ if (Meteor.isServer) {
     });
 
     describe('set.addPattern method', () => {
+      it('can add a public pattern created by another user to their own set', async () => {
+        const userId = 'testUserId';
+        const otherUserId = 'otherUserId';
+
+        // 1. Create a pattern as otherUserId and make it public
+        await stubUser({
+          _id: otherUserId,
+          username: otherUserId,
+          roles: ['registered', 'verified', 'premium'],
+        });
+        const patternId = await createUserAndPattern(otherUserId, [
+          'registered',
+          'verified',
+          'premium',
+        ]);
+        await callMethodWithUser(otherUserId, 'pattern.edit', {
+          _id: patternId,
+          data: {
+            type: 'editIsPublic',
+            isPublic: true,
+          },
+        });
+
+        // 2. Create a different pattern as userId (so the set is created with a different pattern)
+        await stubUser({
+          _id: userId,
+          username: userId,
+          roles: ['registered', 'verified', 'premium'],
+        });
+        const myPatternId = await createUserAndPattern(userId, [
+          'registered',
+          'verified',
+          'premium',
+        ]);
+        const setId = await callMethodWithUser(userId, 'set.add', {
+          patternId: myPatternId,
+          name: 'My Set',
+        });
+
+        // 3. Add the public pattern (created by otherUserId) to userId's set (should succeed)
+        await callMethodWithUser(userId, 'set.addPattern', {
+          patternId,
+          setId,
+        });
+
+        // 4. Confirm the pattern is now in the set
+        const set = await Sets.findOneAsync({ _id: setId });
+        assert.include(set.patterns, patternId);
+      });
       // create a set and assign a pattern to it
       it('cannot add pattern to set if not logged in', async () => {
         console.log('*** about to log user in');
@@ -311,25 +360,37 @@ if (Meteor.isServer) {
       it('can add the correct number of patterns to the set', async () => {
         // give user premium role so they can create many patterns
         const userId = 'testUserId';
-        // User context handled by callMethodWithUser
-        const patternId = await createUserAndPattern(userId, [
-          'registered',
-          'premium',
-        ]);
+        // Stub user once at the start
+        await stubUser({
+          _id: userId,
+          username: 'testuser',
+          roles: ['registered', 'verified', 'premium'],
+        });
+        // Create the first pattern and set as the user
+        const patternId = await callMethodWithUser(userId, 'pattern.add', {
+          ...addPatternDataIndividual,
+          createdBy: userId,
+        });
+        console.log('created patternId:', patternId);
         const setId = await callMethodWithUser(userId, 'set.add', {
           patternId,
           name: 'Favourites',
         });
+        // Add MAX_PATTERNS_IN_SET - 1 more patterns to the set
         for (let i = 0; i < MAX_PATTERNS_IN_SET - 1; i += 1) {
           const newPatternId = await callMethodWithUser(userId, 'pattern.add', {
             ...addPatternDataIndividual,
             createdBy: userId,
           });
+          // Wait a tick to ensure DB consistency
+          await new Promise((resolve) => setTimeout(resolve, 10));
           await callMethodWithUser(userId, 'set.addPattern', {
             patternId: newPatternId,
             setId,
           });
         }
+
+        // Try to add one more pattern, should fail
         const newPatternId2 = await callMethodWithUser(userId, 'pattern.add', {
           ...addPatternDataIndividual,
           createdBy: userId,
