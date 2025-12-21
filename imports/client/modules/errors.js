@@ -7,39 +7,39 @@ const CLEAR_ERRORS = 'CLEAR_ERRORS';
 
 // error is an object, e.g. { 'registration': error.message }
 export const logErrors = (error) => ({
-	'type': LOG_ERRORS,
-	'payload': error,
+  type: LOG_ERRORS,
+  payload: error,
 });
 
 export const clearErrors = () => ({
-	'type': CLEAR_ERRORS,
+  type: CLEAR_ERRORS,
 });
 
 const initialState = {};
 
 export default function (state = initialState, action) {
-	switch (action.type) {
-		case LOG_ERRORS: {
-			// ensure we have a key-value object to allow multiple errors to be displayed
-			const errors = {};
+  switch (action.type) {
+    case LOG_ERRORS: {
+      // ensure we have a key-value object to allow multiple errors to be displayed
+      const errors = {};
 
-			Object.keys(action.payload).forEach((key) => {
-				if (typeof action.payload[key] === 'string') {
-					// a string is simply copied
-					errors[key] = [action.payload[key]];
-				} else {
-					errors[key] = [...action.payload[key]];
-				}
-			});
+      Object.keys(action.payload).forEach((key) => {
+        if (typeof action.payload[key] === 'string') {
+          // a string is simply copied
+          errors[key] = [action.payload[key]];
+        } else {
+          errors[key] = [...action.payload[key]];
+        }
+      });
 
-			return updeep(errors, {}); // delete any existing errors
-		}
+      return updeep(errors, {}); // delete any existing errors
+    }
 
-		case CLEAR_ERRORS: {
-			return {};
-		}
+    case CLEAR_ERRORS: {
+      return {};
+    }
 
-		default:
-			return state;
-	}
+    default:
+      return state;
+  }
 }

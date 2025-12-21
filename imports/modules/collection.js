@@ -12,9 +12,9 @@ import PatternImagesSchema from './schemas/patternImagesSchema';
 import TagsSchema from './schemas/tagsSchema';
 import SetsSchema from './schemas/setsSchema';
 import {
-	getPatternPermissionQuery,
-	getSetPermissionQuery,
-	getUserPermissionQuery,
+  getPatternPermissionQuery,
+  getSetPermissionQuery,
+  getUserPermissionQuery,
 } from './permissionQueries';
 
 // Frequently Asked Questions
@@ -29,12 +29,12 @@ ColorBooks.attachSchema(ColorBooksSchema);
 export const Patterns = new Mongo.Collection('patterns');
 Patterns.attachSchema(PatternsSchema);
 Patterns.before.insert((userId, pattern) => {
-	pattern.createdAt = new Date();
+  pattern.createdAt = new Date();
 });
 
 Patterns.before.update((userId, doc, fieldNames, modifier, options) => {
-	modifier.$set = modifier.$set || {};
-	modifier.$set.modifiedAt = new Date();
+  modifier.$set = modifier.$set || {};
+  modifier.$set.modifiedAt = new Date();
 });
 
 // Pattern preview
@@ -58,12 +58,12 @@ Tags.attachSchema(TagsSchema);
 export const Sets = new Mongo.Collection('sets');
 Sets.attachSchema(SetsSchema);
 Sets.before.insert((userId, set) => {
-	set.createdAt = new Date();
+  set.createdAt = new Date();
 });
 
 Sets.before.update((userId, doc, fieldNames, modifier, options) => {
-	modifier.$set = modifier.$set || {};
-	modifier.$set.modifiedAt = new Date();
+  modifier.$set = modifier.$set || {};
+  modifier.$set.modifiedAt = new Date();
 });
 
 // Search is now handled by server publications in `imports/server/searchPublications.js`

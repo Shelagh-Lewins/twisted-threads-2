@@ -70,19 +70,19 @@ Meteor.startup(async () => {
     // ColorBooks
     await ColorBooks.rawCollection().createIndex(
       { createdAt: 1 },
-      { background: true },
+      { name: 'c2_createdAt', background: true },
     );
     await ColorBooks.rawCollection().createIndex(
       { createdBy: 1 },
-      { background: true },
+      { name: 'c2_createdBy', background: true },
     );
     await ColorBooks.rawCollection().createIndex(
       { isPublic: 1 },
-      { background: true },
+      { name: 'c2_isPublic', background: true },
     );
     await ColorBooks.rawCollection().createIndex(
       { nameSort: 1 },
-      { background: true },
+      { name: 'c2_nameSort', background: true },
     );
 
     // FAQ
