@@ -46,7 +46,7 @@ export const validRowsCheck = Match.Where((x) => {
 export const validTabletsCheck = Match.Where((x) => {
   check(x, Match.Integer);
 
-  return x >= 0 && x < MAX_TABLETS;
+  return x >= 0 && x <= MAX_TABLETS;
 });
 
 export const validPatternTypeCheck = Match.Where((x) => {
