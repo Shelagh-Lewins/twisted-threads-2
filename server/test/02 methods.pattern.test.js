@@ -29,7 +29,6 @@ import {
 } from './testData';
 import createManyPatterns from './createManyPatterns';
 import {
-  setupUserWithRole,
   createOtherUsersPatterns,
   createUserAndPattern,
 } from './testHelpers';
@@ -95,16 +94,18 @@ if (Meteor.isServer) {
       });
 
       it('can create the correct number of patterns if verified', async () => {
-        const currentUser = await setupUserWithRole('verified');
+        await ensureAllRolesExist();
+        const currentUser = await stubUser();
+        await Roles.addUsersToRolesAsync([currentUser._id], ['verified']);
         const patternLimit = ROLE_LIMITS.verified.maxPatternsPerUser;
-
         await testPatternLimit(currentUser._id, patternLimit);
       });
 
       it('can create the correct number of patterns if premium', async () => {
-        const currentUser = await setupUserWithRole('premium');
+        await ensureAllRolesExist();
+        const currentUser = await stubUser();
+        await Roles.addUsersToRolesAsync([currentUser._id], ['premium']);
         const patternLimit = ROLE_LIMITS.premium.maxPatternsPerUser;
-
         await testPatternLimit(currentUser._id, patternLimit);
       });
     });
@@ -341,7 +342,9 @@ if (Meteor.isServer) {
 
       it('can copy own pattern', async () => {
         // Create a fresh user with verified role for higher pattern limit
-        const currentUser = await setupUserWithRole('verified');
+        await ensureAllRolesExist();
+        const currentUser = await stubUser();
+        await Roles.addUsersToRolesAsync([currentUser._id], ['verified']);
 
         const myPattern = await createPattern({
           name: 'My Pattern',

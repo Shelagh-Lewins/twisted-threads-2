@@ -114,17 +114,7 @@ export async function testRequiresRole(
   ).to.be.rejectedWith(errorCode);
 }
 
-/**
- * Helper to setup user with specific role
- * @param {string} roleName - Role to assign
- * @returns {Object} User object with role assigned
- */
-export async function setupUserWithRole(roleName) {
-  const user = await stubUser();
-  await Roles.createRoleAsync(roleName, { unlessExists: true });
-  await Roles.addUsersToRolesAsync([user._id], [roleName]);
-  return user;
-}
+
 
 /**
  * Create test patterns owned by other users
