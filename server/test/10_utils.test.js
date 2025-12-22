@@ -410,4 +410,70 @@ describe('utils.js basic unit tests', () => {
       expect(result.value).to.be.true;
     });
   });
+
+  describe('updatePublicPatternsCountForUser', () => {
+    let user;
+    beforeEach(async () => {
+      await ensureAllRolesExist();
+      user = await stubUser({ roles: ['registered', 'verified'] });
+      // Clean up any patterns for this user
+      const { Patterns } = require('../../imports/modules/collection');
+      await Patterns.removeAsync({ createdBy: user._id });
+      await Meteor.users.updateAsync(
+        { _id: user._id },
+        { $set: { publicPatternsCount: 0 } },
+      );
+    });
+
+    it('should set publicPatternsCount to 0 if user has no public patterns', async () => {
+      await utils.updatePublicPatternsCountForUser(user._id);
+      const updatedUser = await Meteor.users.findOneAsync({ _id: user._id });
+      expect(updatedUser.publicPatternsCount).to.equal(0);
+    });
+
+    it('should count only public patterns for the user', async () => {
+      // Add 2 private and 3 public patterns using the helper and set isPublic via pattern.edit
+      const patternIds = [];
+      for (let i = 0; i < 2; i++) {
+        patternIds.push(await createPatternForUser(user));
+      }
+      for (let i = 0; i < 3; i++) {
+        const patternId = await createPatternForUser(user);
+        await Meteor.callAsync('pattern.edit', {
+          _id: patternId,
+          data: { type: 'editIsPublic', isPublic: true },
+        });
+        patternIds.push(patternId);
+      }
+      await utils.updatePublicPatternsCountForUser(user._id);
+      const updatedUser = await Meteor.users.findOneAsync({ _id: user._id });
+      expect(updatedUser.publicPatternsCount).to.equal(3);
+    });
+
+    it('should not count public patterns created by other users', async () => {
+      // Add 2 public patterns for another user using the helper and set isPublic via pattern.edit
+      const otherUser = await stubUser({
+        roles: ['registered', 'verified'],
+        removeExistingUsers: false, // keep existing user for this test
+        username: 'OtherUser', // ensure different username etc
+        emails: [
+          {
+            address: 'otheruser@here.com',
+            verified: true,
+          },
+        ],
+      });
+      for (let i = 0; i < 2; i++) {
+        const patternId = await createPatternForUser(otherUser);
+        await Meteor.callAsync('pattern.edit', {
+          _id: patternId,
+          data: { type: 'editIsPublic', isPublic: true },
+        });
+      }
+
+      await utils.updatePublicPatternsCountForUser(user._id);
+      const updatedUser = await Meteor.users.findOneAsync({ _id: user._id });
+      expect(updatedUser.publicPatternsCount).to.equal(0);
+    });
+  });
 });

@@ -19,7 +19,10 @@ const defaultUserData = {
 export async function stubUser(params = {}) {
   // Always unwrap before stubbing to avoid double-stubbing errors
   unwrapUser();
-  await Meteor.users.removeAsync({});
+  const { removeExistingUsers = true, ...userFields } = params;
+  if (removeExistingUsers) {
+    await Meteor.users.removeAsync({});
+  }
 
   const userData = { ...defaultUserData, ...params };
   const userId = await Meteor.users.insertAsync(userData);
