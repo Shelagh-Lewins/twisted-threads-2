@@ -1,3 +1,4 @@
+import { DOUBLE_FACED_ORIENTATIONS } from '../../imports/modules/parameters';
 /* eslint-env mocha */
 import { expect } from 'chai';
 import { check } from 'meteor/check';
@@ -11,6 +12,7 @@ import {
   insertColorBookForUser,
 } from './testHelpers';
 import { ColorBooks } from '../../imports/modules/collection';
+import { DEFAULT_ORIENTATION } from '../../imports/modules/parameters';
 import { stubUser } from './mockUser';
 
 describe('utils.js basic unit tests', () => {
@@ -828,6 +830,110 @@ describe('utils.js basic unit tests', () => {
           { willRepeat: true },
         ],
       });
+    });
+  });
+
+  describe('setupOrientations', () => {
+    it('should return all DEFAULT_ORIENTATION if no templateTypeDef or doubleFaced', () => {
+      // Use the real DEFAULT_ORIENTATION value from parameters
+      const tablets = 4;
+      const result = utils.setupOrientations({ tablets });
+      // Explicit expected array using the real value
+      const expected = Array(tablets).fill(DEFAULT_ORIENTATION);
+      expect(result).to.deep.equal(expected);
+    });
+
+    it('should use templateTypeDef.orientations cyclically (real values)', () => {
+      // Use a real orientation array from DOUBLE_FACED_ORIENTATIONS
+      // (not A/B, but e.g. ['/', '\'])
+      const realOrientations = DOUBLE_FACED_ORIENTATIONS[0].name.split('');
+      // For example, if name is '/\', realOrientations = ['/', '\']
+      const templateTypeDef = { orientations: realOrientations };
+      const tablets = 5;
+      const result = utils.setupOrientations({ tablets, templateTypeDef });
+      // Explicit expected array, cycling realOrientations
+      const expected = [
+        realOrientations[0],
+        realOrientations[1],
+        realOrientations[0],
+        realOrientations[1],
+        realOrientations[0],
+      ];
+      expect(result).to.deep.equal(expected);
+    });
+
+    it('should use alternating / \\ for 12 tablets', () => {
+      const orientationStr = '/\\';
+      const tablets = 12;
+      const result = utils.setupOrientations({
+        patternType: 'doubleFaced',
+        tablets,
+        doubleFacedOrientations: orientationStr,
+      });
+      const expected = [
+        '/',
+        '\\',
+        '/',
+        '\\',
+        '/',
+        '\\',
+        '/',
+        '\\',
+        '/',
+        '\\',
+        '/',
+        '\\',
+      ];
+      expect(result).to.deep.equal(expected);
+    });
+
+    it('should use alternating \\ / for 12 tablets', () => {
+      const orientationStr = '\\/';
+      const tablets = 12;
+      const result = utils.setupOrientations({
+        patternType: 'doubleFaced',
+        tablets,
+        doubleFacedOrientations: orientationStr,
+      });
+      const expected = [
+        '\\',
+        '/',
+        '\\',
+        '/',
+        '\\',
+        '/',
+        '\\',
+        '/',
+        '\\',
+        '/',
+        '\\',
+        '/',
+      ];
+      expect(result).to.deep.equal(expected);
+    });
+
+    it('should use all / for 12 tablets', () => {
+      const orientationStr = '//';
+      const tablets = 12;
+      const result = utils.setupOrientations({
+        patternType: 'doubleFaced',
+        tablets,
+        doubleFacedOrientations: orientationStr,
+      });
+      const expected = Array(12).fill('/');
+      expect(result).to.deep.equal(expected);
+    });
+
+    it('should use all \\ for 12 tablets', () => {
+      const orientationStr = '\\\\';
+      const tablets = 12;
+      const result = utils.setupOrientations({
+        patternType: 'doubleFaced',
+        tablets,
+        doubleFacedOrientations: orientationStr,
+      });
+      const expected = Array(12).fill('\\');
+      expect(result).to.deep.equal(expected);
     });
   });
 });
