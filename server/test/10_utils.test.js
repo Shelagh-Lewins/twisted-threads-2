@@ -7,6 +7,7 @@ import {
   createPatternForUser,
   insertPatternImage,
   insertColorBook,
+  createSetForUser,
 } from './testHelpers';
 import { stubUser } from './mockUser';
 
@@ -474,6 +475,103 @@ describe('utils.js basic unit tests', () => {
       await utils.updatePublicPatternsCountForUser(user._id);
       const updatedUser = await Meteor.users.findOneAsync({ _id: user._id });
       expect(updatedUser.publicPatternsCount).to.equal(0);
+    });
+  });
+
+  describe('updatePublicPatternsCountForSet', () => {
+    let user;
+    let Patterns, Sets;
+    beforeEach(async () => {
+      await ensureAllRolesExist();
+      user = await stubUser({ roles: ['registered', 'verified'] });
+      ({ Patterns, Sets } = require('../../imports/modules/collection'));
+      await Patterns.removeAsync({ createdBy: user._id });
+      await Sets.removeAsync({ createdBy: user._id });
+    });
+
+    it('should set publicPatternsCount to 0 if all patterns are private', async () => {
+      // Create 3 private patterns
+      const patternIds = [];
+      for (let i = 0; i < 3; i++) {
+        patternIds.push(await createPatternForUser(user));
+      }
+      // Create a set with these patterns using helper
+      const setId = await createSetForUser({
+        user,
+        patterns: patternIds,
+        name: 'Test Set',
+        nameSort: 'test set',
+        tags: [],
+      });
+      await utils.updatePublicPatternsCountForSet(setId);
+      const updatedSet = await Sets.findOneAsync({ _id: setId });
+      expect(updatedSet.publicPatternsCount).to.equal(0);
+    });
+
+    it('should count only public patterns in the set', async () => {
+      // Create 2 private and 2 public patterns
+      const patternIds = [];
+      for (let i = 0; i < 2; i++) {
+        patternIds.push(await createPatternForUser(user));
+      }
+      for (let i = 0; i < 2; i++) {
+        const patternId = await createPatternForUser(user);
+        await Meteor.callAsync('pattern.edit', {
+          _id: patternId,
+          data: { type: 'editIsPublic', isPublic: true },
+        });
+        patternIds.push(patternId);
+      }
+      // Create a set with these patterns using helper
+      const setId = await createSetForUser({
+        user,
+        patterns: patternIds,
+      });
+      await utils.updatePublicPatternsCountForSet(setId);
+      const updatedSet = await Sets.findOneAsync({ _id: setId });
+      expect(updatedSet.publicPatternsCount).to.equal(2);
+    });
+
+    it('should count all patterns if all are public', async () => {
+      // Create 3 public patterns
+      const patternIds = [];
+      for (let i = 0; i < 3; i++) {
+        const patternId = await createPatternForUser(user);
+        await Meteor.callAsync('pattern.edit', {
+          _id: patternId,
+          data: { type: 'editIsPublic', isPublic: true },
+        });
+        patternIds.push(patternId);
+      }
+      // Create a set with these patterns using helper
+      const setId = await createSetForUser({
+        user,
+        patterns: patternIds,
+      });
+      await utils.updatePublicPatternsCountForSet(setId);
+      const updatedSet = await Sets.findOneAsync({ _id: setId });
+      expect(updatedSet.publicPatternsCount).to.equal(3);
+    });
+
+    it('should not count public patterns not in the set', async () => {
+      // Create 2 patterns for the set, 1 public pattern not in the set
+      const patternIds = [];
+      for (let i = 0; i < 2; i++) {
+        patternIds.push(await createPatternForUser(user));
+      }
+      const notInSetId = await createPatternForUser(user);
+      await Meteor.callAsync('pattern.edit', {
+        _id: notInSetId,
+        data: { type: 'editIsPublic', isPublic: true },
+      });
+      // Create a set with only the first 2 patterns using helper
+      const setId = await createSetForUser({
+        user,
+        patterns: patternIds,
+      });
+      await utils.updatePublicPatternsCountForSet(setId);
+      const updatedSet = await Sets.findOneAsync({ _id: setId });
+      expect(updatedSet.publicPatternsCount).to.equal(0);
     });
   });
 });

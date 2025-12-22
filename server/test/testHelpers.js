@@ -129,3 +129,31 @@ export async function createOtherUsersPatterns(count = 3) {
   }
   return patterns;
 }
+
+/**
+ * Create a set for a user with all required fields
+ * @param {Object} params - { user, patterns, name, nameSort, description, tags, publicPatternsCount, createdAt }
+ * @returns {Promise<string>} setId
+ */
+import { Sets } from '../../imports/modules/collection';
+export async function createSetForUser({
+  user,
+  patterns = [],
+  name = 'Test Set',
+  nameSort = 'test set',
+  description = '',
+  tags = [],
+  publicPatternsCount = 0,
+  createdAt = new Date(),
+} = {}) {
+  return await Sets.insertAsync({
+    createdBy: user._id,
+    patterns,
+    name,
+    nameSort,
+    description,
+    tags,
+    publicPatternsCount,
+    createdAt,
+  });
+}
