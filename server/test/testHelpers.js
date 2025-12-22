@@ -1,4 +1,68 @@
 /**
+ * Create a user with specified roles and optional username
+ * @param {string[]} roles - Roles to assign (default: ['registered'])
+ * @param {string} username - Optional username
+ * @returns {Promise<Object>} User object
+ */
+export async function createUser(roles = ['registered'], username) {
+  const { stubUser } = require('./mockUser');
+  return await stubUser({ roles, ...(username ? { username } : {}) });
+}
+
+/**
+ * Create a pattern for a user
+ * @param {Object} user - User object
+ * @param {Object} patternDataOverride - Optional overrides for pattern data
+ * @returns {Promise<string>} patternId
+ */
+export async function createPatternForUser(user, patternDataOverride = {}) {
+  const { addPatternDataIndividual } = require('./testData');
+  return await require('./mockUser').callMethodWithUser(
+    user._id,
+    'pattern.add',
+    { ...addPatternDataIndividual, ...patternDataOverride },
+  );
+}
+
+/**
+ * Insert a pattern image for a user and pattern
+ * @param {Object} params - { patternId, user, key, url }
+ * @returns {Promise<void>}
+ */
+export async function insertPatternImage({ patternId, user, key, url }) {
+  const { PatternImages } = require('../../imports/modules/collection');
+  await PatternImages.insertAsync({
+    patternId,
+    createdBy: user._id,
+    createdAt: new Date(),
+    key,
+    url,
+  });
+}
+
+/**
+ * Insert a color book for a user
+ * @param {Object} params - { user, name, nameSort, colors, isPublic }
+ * @returns {Promise<void>}
+ */
+export async function insertColorBook({
+  user,
+  name,
+  nameSort,
+  colors = ['#fff'],
+  isPublic = false,
+}) {
+  const { ColorBooks } = require('../../imports/modules/collection');
+  await ColorBooks.insertAsync({
+    createdBy: user._id,
+    name,
+    nameSort,
+    colors,
+    createdAt: new Date(),
+    isPublic,
+  });
+}
+/**
  * Helper to stub user and create a pattern, returns patternId
  * @param {string} userId - The user ID
  * @param {string[]} roles - Roles to assign
