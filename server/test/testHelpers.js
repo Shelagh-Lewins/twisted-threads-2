@@ -1,15 +1,4 @@
 /**
- * Create a user with specified roles and optional username
- * @param {string[]} roles - Roles to assign (default: ['registered'])
- * @param {string} username - Optional username
- * @returns {Promise<Object>} User object
- */
-export async function createUser(roles = ['registered'], username) {
-  const { stubUser } = require('./mockUser');
-  return await stubUser({ roles, ...(username ? { username } : {}) });
-}
-
-/**
  * Create a pattern for a user
  * @param {Object} user - User object
  * @param {Object} patternDataOverride - Optional overrides for pattern data
@@ -63,14 +52,12 @@ export async function insertColorBook({
   });
 }
 /**
- * Helper to stub user and create a pattern, returns patternId
- * @param {string} userId - The user ID
- * @param {string[]} roles - Roles to assign
+ * Helper to create a user (via stubUser) and a pattern for that user, returns patternId
+ * @param {string} userId - The user ID (default: 'testUserId')
+ * @param {string[]} roles - Roles to assign (default: ['registered', 'verified'])
+ * @param {Object} patternDataOverride - Optional pattern data overrides
  * @returns {Promise<string>} patternId
  */
-
-// Note that isPublic is false by default when any pattern is created
-// A pattern must be explicitly edited by the owner to become public
 export async function createUserAndPattern(
   userId = 'testUserId',
   roles = ['registered', 'verified'],

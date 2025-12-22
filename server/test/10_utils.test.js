@@ -4,11 +4,11 @@ import { check } from 'meteor/check';
 import * as utils from '../../imports/server/modules/utils';
 import { ensureAllRolesExist } from './00_setup';
 import {
-  createUser,
   createPatternForUser,
   insertPatternImage,
   insertColorBook,
 } from './testHelpers';
+import { stubUser } from './mockUser';
 
 describe('utils.js basic unit tests', () => {
   describe('nonEmptyStringCheck', () => {
@@ -165,7 +165,7 @@ describe('utils.js basic unit tests', () => {
     });
 
     it('should return error if user is not registered', async () => {
-      const user = await createUser([]);
+      const user = await stubUser({ roles: [] });
       global.Patterns = { find: () => ({ countAsync: async () => 0 }) };
       const result = await utils.checkUserCanCreatePattern(user._id);
       expect(result.error).to.exist;
@@ -174,7 +174,7 @@ describe('utils.js basic unit tests', () => {
     });
 
     it('should return error if registered user has reached pattern limit', async () => {
-      const user = await createUser(['registered']);
+      const user = await stubUser({ roles: ['registered'] });
       await createPatternForUser(user); // 1 pattern
       const result = await utils.checkUserCanCreatePattern(user._id);
       expect(result.error).to.exist;
@@ -183,7 +183,7 @@ describe('utils.js basic unit tests', () => {
     });
 
     it('should return error if verified user has reached pattern limit', async () => {
-      const user = await createUser(['registered', 'verified']);
+      const user = await stubUser({ roles: ['registered', 'verified'] });
       for (let i = 0; i < 100; i++) {
         await createPatternForUser(user);
       }
@@ -194,7 +194,7 @@ describe('utils.js basic unit tests', () => {
     });
 
     it('should return value: true if user is registered and under limit', async () => {
-      const user = await createUser(['registered']);
+      const user = await stubUser({ roles: ['registered'] });
       global.Patterns = { find: () => ({ countAsync: async () => 0 }) };
       const result = await utils.checkUserCanCreatePattern(user._id);
       expect(result.error).to.not.exist;
@@ -223,8 +223,11 @@ describe('utils.js basic unit tests', () => {
     });
 
     it('should return error if user is not registered', async () => {
-      const user = await createUser([]);
-      const owner = await createUser(['registered'], 'Owner');
+      const user = await stubUser({ roles: [] });
+      const owner = await stubUser({
+        roles: ['registered'],
+        username: 'Owner',
+      });
       const patternId = await createPatternForUser(owner);
       const result = await utils.checkUserCanAddPatternImage(
         patternId,
@@ -236,7 +239,7 @@ describe('utils.js basic unit tests', () => {
     });
 
     it('should return error if pattern not found', async () => {
-      const user = await createUser(['registered']);
+      const user = await stubUser({ roles: ['registered'] });
       const result = await utils.checkUserCanAddPatternImage(
         'nonexistentPatternId',
         user._id,
@@ -247,9 +250,15 @@ describe('utils.js basic unit tests', () => {
     });
 
     it('should return error if pattern not created by user', async () => {
-      const owner = await createUser(['registered'], 'Owner');
+      const owner = await stubUser({
+        roles: ['registered'],
+        username: 'Owner',
+      });
       const patternId = await createPatternForUser(owner);
-      const otherUser = await createUser(['registered'], 'Other');
+      const otherUser = await stubUser({
+        roles: ['registered'],
+        username: 'Other',
+      });
       const result = await utils.checkUserCanAddPatternImage(
         patternId,
         otherUser._id,
@@ -262,7 +271,7 @@ describe('utils.js basic unit tests', () => {
     });
 
     it('should return error if registered user tries to add any image', async () => {
-      const user = await createUser(['registered']);
+      const user = await stubUser({ roles: ['registered'] });
       const patternId = await createPatternForUser(user);
       const result = await utils.checkUserCanAddPatternImage(
         patternId,
@@ -274,7 +283,7 @@ describe('utils.js basic unit tests', () => {
     });
 
     it('should return error if verified user has reached image limit', async () => {
-      const user = await createUser(['registered', 'verified']);
+      const user = await stubUser({ roles: ['registered', 'verified'] });
       const patternId = await createPatternForUser(user);
       for (let i = 0; i < 5; i++) {
         await insertPatternImage({
@@ -294,7 +303,7 @@ describe('utils.js basic unit tests', () => {
     });
 
     it('should return value: true if verified user can add image (under limit)', async () => {
-      const user = await createUser(['registered', 'verified']);
+      const user = await stubUser({ roles: ['registered', 'verified'] });
       const patternId = await createPatternForUser(user);
       for (let i = 0; i < 4; i++) {
         await insertPatternImage({
@@ -331,7 +340,7 @@ describe('utils.js basic unit tests', () => {
     });
 
     it('should return error if user is not registered', async () => {
-      const user = await createUser([]);
+      const user = await stubUser({ roles: [] });
       const result = await utils.checkCanCreateColorBook(user._id);
       expect(result.error).to.exist;
       expect(result.error.error).to.equal('add-color-book-not-registered');
@@ -339,7 +348,7 @@ describe('utils.js basic unit tests', () => {
     });
 
     it('should return error if registered user has reached color book limit', async () => {
-      const user = await createUser(['registered']);
+      const user = await stubUser({ roles: ['registered'] });
       await insertColorBook({
         user,
         name: 'Book 1',
@@ -356,7 +365,7 @@ describe('utils.js basic unit tests', () => {
     });
 
     it('should return value: true if registered user is under color book limit', async () => {
-      const user = await createUser(['registered']);
+      const user = await stubUser({ roles: ['registered'] });
       const { ColorBooks } = require('../../imports/modules/collection');
       await ColorBooks.removeAsync({ createdBy: user._id });
       const result = await utils.checkCanCreateColorBook(user._id);
@@ -365,7 +374,7 @@ describe('utils.js basic unit tests', () => {
     });
 
     it('should return error if verified user has reached color book limit', async () => {
-      const user = await createUser(['registered', 'verified']);
+      const user = await stubUser({ roles: ['registered', 'verified'] });
       for (let i = 0; i < 5; i++) {
         await insertColorBook({
           user,
@@ -384,7 +393,7 @@ describe('utils.js basic unit tests', () => {
     });
 
     it('should return value: true if verified user is under color book limit', async () => {
-      const user = await createUser(['registered', 'verified']);
+      const user = await stubUser({ roles: ['registered', 'verified'] });
       const { ColorBooks } = require('../../imports/modules/collection');
       await ColorBooks.removeAsync({ createdBy: user._id });
       for (let i = 0; i < 4; i++) {
