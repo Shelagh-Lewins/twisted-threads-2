@@ -9,13 +9,7 @@ import { Roles } from 'meteor/roles';
 import '../../imports/server/modules/publications';
 import '../../imports/server/searchPublications';
 import '../../server/methods/patternEdit';
-import {
-  ColorBooks,
-  PatternImages,
-  Patterns,
-  PatternPreviews,
-  Sets,
-} from '../../imports/modules/collection';
+import { ColorBooks, Patterns, Sets } from '../../imports/modules/collection';
 import {
   ALLOWED_ITEMS_PER_PAGE,
   ITEMS_PER_PREVIEW_LIST,
@@ -36,11 +30,8 @@ import {
   createPatternPreview,
   createPatternImage,
   defaultPatternData,
-  defaultColorBookData,
-  defaultSetData,
 } from './testData';
 import createManyPatterns from './createManyPatterns';
-import { ROLES } from '../../imports/modules/parameters';
 
 // fields that should be published for patterns list
 const patternsFields = [

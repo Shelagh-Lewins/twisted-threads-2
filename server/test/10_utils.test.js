@@ -2,6 +2,7 @@
 import { expect } from 'chai';
 import { check } from 'meteor/check';
 import * as utils from '../../imports/server/modules/utils';
+import { ensureAllRolesExist } from './00_setup';
 
 describe('utils.js basic unit tests', () => {
   describe('nonEmptyStringCheck', () => {
@@ -129,6 +130,85 @@ describe('utils.js basic unit tests', () => {
           expect(() => check(val, utils.validHexColorCheck)).to.throw();
         },
       );
+    });
+  });
+
+  describe('checkUserCanCreatePattern', () => {
+    let originalPatterns;
+    let stubUser, unwrapUser;
+    before(async () => {
+      await ensureAllRolesExist();
+      // Save originals
+      originalPatterns = global.Patterns;
+      // Import stubUser and unwrapUser dynamically to avoid circular deps
+      ({ stubUser, unwrapUser } = require('./mockUser'));
+    });
+
+    afterEach(async () => {
+      // Restore after each test
+      global.Patterns = originalPatterns;
+      if (unwrapUser) unwrapUser();
+    });
+
+    it('should return error if userId is missing', async () => {
+      global.Patterns = { find: () => ({ countAsync: async () => 0 }) };
+      const result = await utils.checkUserCanCreatePattern();
+      expect(result.error).to.exist;
+      expect(result.error.error).to.equal('add-pattern-not-logged-in');
+      expect(result.value).to.be.false;
+    });
+
+    it('should return error if user is not registered', async () => {
+      // Create a user with no roles
+      const user = await stubUser({ roles: [] });
+      global.Patterns = { find: () => ({ countAsync: async () => 0 }) };
+      const result = await utils.checkUserCanCreatePattern(user._id);
+      expect(result.error).to.exist;
+      expect(result.error.error).to.equal('add-pattern-not-registered');
+      expect(result.value).to.be.false;
+    });
+
+    it('should return error if registered user has reached pattern limit', async () => {
+      const user = await stubUser({ roles: ['registered'] });
+      // Add 1 pattern using the real Meteor method
+      const { addPatternDataIndividual } = require('./testData');
+      for (let i = 0; i < 1; i++) {
+        await require('./mockUser').callMethodWithUser(
+          user._id,
+          'pattern.add',
+          addPatternDataIndividual,
+        );
+      }
+      const result = await utils.checkUserCanCreatePattern(user._id);
+
+      expect(result.error).to.exist;
+      expect(result.error.error).to.equal('add-pattern-too-many-patterns');
+      expect(result.value).to.be.false;
+    });
+
+    it('should return error if verified user has reached pattern limit', async () => {
+      const user = await stubUser({ roles: ['registered', 'verified'] });
+      const { addPatternDataIndividual } = require('./testData');
+      for (let i = 0; i < 100; i++) {
+        await require('./mockUser').callMethodWithUser(
+          user._id,
+          'pattern.add',
+          addPatternDataIndividual,
+        );
+      }
+
+      const result = await utils.checkUserCanCreatePattern(user._id);
+      expect(result.error).to.exist;
+      expect(result.error.error).to.equal('add-pattern-too-many-patterns');
+      expect(result.value).to.be.false;
+    });
+
+    it('should return value: true if user is registered and under limit', async () => {
+      const user = await stubUser({ roles: ['registered'] });
+      global.Patterns = { find: () => ({ countAsync: async () => 0 }) };
+      const result = await utils.checkUserCanCreatePattern(user._id);
+      expect(result.error).to.not.exist;
+      expect(result.value).to.be.true;
     });
   });
 
