@@ -1,24 +1,24 @@
 import { expect } from 'chai';
-import tagsSchema from '../imports/modules/schemas/tagsSchema';
-import patternsSchema from '../imports/modules/schemas/patternsSchema';
-import setsSchema from '../imports/modules/schemas/setsSchema';
+import tagsSchema from '../../imports/modules/schemas/tagsSchema';
+import patternsSchema from '../../imports/modules/schemas/patternsSchema';
+import setsSchema from '../../imports/modules/schemas/setsSchema';
 
 describe('schemas import', function () {
   it('imports tags schema without throwing', function () {
     expect(() =>
-      require('../imports/modules/schemas/tagsSchema'),
+      require('../../imports/modules/schemas/tagsSchema'),
     ).to.not.throw();
   });
 
   it('imports patterns schema without throwing', function () {
     expect(() =>
-      require('../imports/modules/schemas/patternsSchema'),
+      require('../../imports/modules/schemas/patternsSchema'),
     ).to.not.throw();
   });
 
   it('imports sets schema without throwing', function () {
     expect(() =>
-      require('../imports/modules/schemas/setsSchema'),
+      require('../../imports/modules/schemas/setsSchema'),
     ).to.not.throw();
   });
 
