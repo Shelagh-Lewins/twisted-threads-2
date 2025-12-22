@@ -8,7 +8,9 @@ import {
   insertPatternImage,
   insertColorBook,
   createSetForUser,
+  insertColorBookForUser,
 } from './testHelpers';
+import { ColorBooks } from '../../imports/modules/collection';
 import { stubUser } from './mockUser';
 
 describe('utils.js basic unit tests', () => {
@@ -572,6 +574,64 @@ describe('utils.js basic unit tests', () => {
       await utils.updatePublicPatternsCountForSet(setId);
       const updatedSet = await Sets.findOneAsync({ _id: setId });
       expect(updatedSet.publicPatternsCount).to.equal(0);
+    });
+  });
+  describe('updatePublicColorBooksCount', () => {
+    let user;
+    beforeEach(async () => {
+      await ensureAllRolesExist();
+      user = await stubUser({ roles: ['registered', 'verified'] });
+      await ColorBooks.removeAsync({ createdBy: user._id });
+      await Meteor.users.updateAsync(
+        { _id: user._id },
+        { $set: { publicColorBooksCount: 0 } },
+      );
+    });
+
+    it('should set publicColorBooksCount to 0 if user has no public color books', async () => {
+      await utils.updatePublicColorBooksCount(user._id);
+      const updatedUser = await Meteor.users.findOneAsync({ _id: user._id });
+      expect(updatedUser.publicColorBooksCount).to.equal(0);
+    });
+
+    it('should count only public color books for the user', async () => {
+      // Add 2 private and 3 public color books
+      for (let i = 0; i < 2; i++) {
+        await insertColorBookForUser({ user });
+      }
+      for (let i = 0; i < 3; i++) {
+        await insertColorBookForUser({ user, isPublic: true });
+      }
+      await utils.updatePublicColorBooksCount(user._id);
+      const updatedUser = await Meteor.users.findOneAsync({ _id: user._id });
+      expect(updatedUser.publicColorBooksCount).to.equal(3);
+    });
+
+    it('should not count public color books created by other users', async () => {
+      // Add 2 public color books for another user
+      const otherUser = await stubUser({
+        roles: ['registered', 'verified'],
+        removeExistingUsers: false,
+        username: 'OtherUser',
+        emails: [
+          { address: 'otheruser@here.com', verified: true },
+        ],
+      });
+      for (let i = 0; i < 2; i++) {
+        await insertColorBookForUser({ user: otherUser, isPublic: true });
+      }
+      await utils.updatePublicColorBooksCount(user._id);
+      const updatedUser = await Meteor.users.findOneAsync({ _id: user._id });
+      expect(updatedUser.publicColorBooksCount).to.equal(0);
+    });
+
+    it('should count all if all are public', async () => {
+      for (let i = 0; i < 4; i++) {
+        await insertColorBookForUser({ user, isPublic: true });
+      }
+      await utils.updatePublicColorBooksCount(user._id);
+      const updatedUser = await Meteor.users.findOneAsync({ _id: user._id });
+      expect(updatedUser.publicColorBooksCount).to.equal(4);
     });
   });
 });

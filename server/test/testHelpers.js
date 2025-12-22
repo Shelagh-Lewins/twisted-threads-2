@@ -157,3 +157,26 @@ export async function createSetForUser({
     createdAt,
   });
 }
+
+/**
+ * Insert a color book for a user with all required fields
+ * @param {Object} params - { user, isPublic, name, nameSort, colors, createdAt }
+ * @returns {Promise<string>} colorBookId
+ */
+export async function insertColorBookForUser({
+  user,
+  isPublic = false,
+  name = 'Test Color Book',
+  nameSort = 'test color book',
+  colors = ['#fff'],
+  createdAt = new Date(),
+} = {}) {
+  return await ColorBooks.insertAsync({
+    createdBy: user._id,
+    isPublic,
+    name,
+    nameSort,
+    colors,
+    createdAt,
+  });
+}
