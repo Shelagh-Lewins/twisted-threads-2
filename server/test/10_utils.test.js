@@ -24,6 +24,88 @@ describe('utils.js basic unit tests', () => {
     });
   });
 
+  describe('updateMultiplePublicSetsCount', () => {
+    let user1, user2;
+    let Sets;
+    beforeEach(async () => {
+      await ensureAllRolesExist();
+      user1 = await stubUser({
+        roles: ['registered', 'verified'],
+        username: 'User1',
+        emails: [{ address: 'user1@here.com', verified: true }],
+      });
+      user2 = await stubUser({
+        roles: ['registered', 'verified'],
+        username: 'User2',
+        emails: [{ address: 'user2@here.com', verified: true }],
+        removeExistingUsers: false,
+      });
+      ({ Sets } = require('../../imports/modules/collection'));
+      await Sets.removeAsync({ createdBy: { $in: [user1._id, user2._id] } });
+      await Meteor.users.updateAsync(
+        { _id: { $in: [user1._id, user2._id] } },
+        { $set: { publicSetsCount: 0 } },
+        { multi: true },
+      );
+    });
+
+    it('should update publicSetsCount for each owner in setIds', async () => {
+      // user1: 2 sets (1 public, 1 not), user2: 2 sets (both public)
+      const set1 = await createSetForUser({
+        user: user1,
+        publicPatternsCount: 0,
+      });
+      const set2 = await createSetForUser({
+        user: user1,
+        publicPatternsCount: 2,
+      });
+      const set3 = await createSetForUser({
+        user: user2,
+        publicPatternsCount: 1,
+      });
+      const set4 = await createSetForUser({
+        user: user2,
+        publicPatternsCount: 3,
+      });
+      await utils.updateMultiplePublicSetsCount([set1, set2, set3, set4]);
+      const updatedUser1 = await Meteor.users.findOneAsync({ _id: user1._id });
+      const updatedUser2 = await Meteor.users.findOneAsync({ _id: user2._id });
+      expect(updatedUser1.publicSetsCount).to.equal(1);
+      expect(updatedUser2.publicSetsCount).to.equal(2);
+    });
+
+    it('should not fail if setIds is empty or null', async () => {
+      await utils.updateMultiplePublicSetsCount([]);
+      await utils.updateMultiplePublicSetsCount(null);
+      // Should not throw, and counts remain unchanged
+      const updatedUser1 = await Meteor.users.findOneAsync({ _id: user1._id });
+      const updatedUser2 = await Meteor.users.findOneAsync({ _id: user2._id });
+      expect(updatedUser1.publicSetsCount).to.equal(0);
+      expect(updatedUser2.publicSetsCount).to.equal(0);
+    });
+
+    it('should only update owners of provided setIds', async () => {
+      // user1: 1 set, user2: 2 sets
+      const set1 = await createSetForUser({
+        user: user1,
+        publicPatternsCount: 2,
+      });
+      const set2 = await createSetForUser({
+        user: user2,
+        publicPatternsCount: 1,
+      });
+      const set3 = await createSetForUser({
+        user: user2,
+        publicPatternsCount: 0,
+      });
+      await utils.updateMultiplePublicSetsCount([set2]);
+      const updatedUser1 = await Meteor.users.findOneAsync({ _id: user1._id });
+      const updatedUser2 = await Meteor.users.findOneAsync({ _id: user2._id });
+      expect(updatedUser1.publicSetsCount).to.equal(0);
+      expect(updatedUser2.publicSetsCount).to.equal(1);
+    });
+  });
+
   describe('validHolesCheck', () => {
     it('should pass check for allowed holes', () => {
       [2, 4, 6].forEach((val) => {
