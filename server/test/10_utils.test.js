@@ -777,4 +777,57 @@ describe('utils.js basic unit tests', () => {
       expect(updatedUser.publicSetsCount).to.equal(4);
     });
   });
+
+  describe('getPatternFilter', () => {
+    it('should return default selector with no filters', () => {
+      const selector = utils.getPatternFilter({});
+      expect(selector).to.deep.equal({
+        $and: [
+          { numberOfTablets: { $gte: 1 } },
+          { numberOfTablets: { $lte: 100 } },
+        ],
+      });
+    });
+
+    it('should apply min and max tablets', () => {
+      const selector = utils.getPatternFilter({
+        filterMinTablets: 5,
+        filterMaxTablets: 10,
+      });
+      expect(selector).to.deep.equal({
+        $and: [
+          { numberOfTablets: { $gte: 5 } },
+          { numberOfTablets: { $lte: 10 } },
+        ],
+      });
+    });
+
+    it('should clamp min and max tablets to allowed range', () => {
+      const selector = utils.getPatternFilter({
+        filterMinTablets: 0,
+        filterMaxTablets: 200,
+      });
+      expect(selector).to.deep.equal({
+        $and: [
+          { numberOfTablets: { $gte: 1 } },
+          { numberOfTablets: { $lte: 100 } },
+        ],
+      });
+    });
+
+    it('should add isTwistNeutral and willRepeat filters', () => {
+      const selector = utils.getPatternFilter({
+        filterIsTwistNeutral: true,
+        filterWillRepeat: true,
+      });
+      expect(selector).to.deep.equal({
+        $and: [
+          { numberOfTablets: { $gte: 1 } },
+          { numberOfTablets: { $lte: 100 } },
+          { isTwistNeutral: true },
+          { willRepeat: true },
+        ],
+      });
+    });
+  });
 });
