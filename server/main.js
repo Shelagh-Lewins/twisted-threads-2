@@ -9,24 +9,9 @@ import { Roles } from 'meteor/roles';
 
 Meteor.startup(() => {
   (async () => {
-    // ensure user roles exist
+    // ensure user roles exist (for loop enables await)
     for (const role of ROLES) {
-      try {
-        if (Roles && typeof Roles.createRoleAsync === 'function') {
-          // preferred async API
-          // eslint-disable-next-line no-await-in-loop
-          await Roles.createRoleAsync(role, { unlessExists: true });
-        } else if (Roles && typeof Roles.createRole === 'function') {
-          // fallback to sync API if present
-          Roles.createRole(role, { unlessExists: true });
-        } else {
-          console.warn(
-            `[roles] Roles.createRole not available; skipping creation of role "${role}". Ensure package "alanning:roles" or core "roles" is installed and loaded.`,
-          );
-        }
-      } catch (err) {
-        console.error(`[roles] Failed to create role "${role}":`, err);
-      }
+      await Roles.createRoleAsync(role, { unlessExists: true });
     }
 
     Accounts.config({

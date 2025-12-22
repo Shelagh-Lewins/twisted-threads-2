@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-. .env
+. .env-test
 
 # meteor
 NODE_OPTIONS='--trace-warnings' meteor
