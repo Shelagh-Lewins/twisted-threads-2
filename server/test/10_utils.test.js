@@ -356,4 +356,98 @@ describe('utils.js basic unit tests', () => {
       expect(result.value).to.be.true;
     });
   });
+
+  describe('checkCanCreateColorBook', () => {
+    let stubUser, unwrapUser;
+    before(() => {
+      ({ stubUser, unwrapUser } = require('./mockUser'));
+    });
+
+    afterEach(async () => {
+      if (unwrapUser) unwrapUser();
+    });
+
+    it('should return error if userId is missing', async () => {
+      const result = await utils.checkCanCreateColorBook();
+      expect(result.error).to.exist;
+      expect(result.error.error).to.equal('add-color-book-not-logged-in');
+      expect(result.value).to.be.false;
+    });
+
+    it('should return error if user is not registered', async () => {
+      const user = await stubUser({ roles: [] });
+      const result = await utils.checkCanCreateColorBook(user._id);
+      expect(result.error).to.exist;
+      expect(result.error.error).to.equal('add-color-book-not-registered');
+      expect(result.value).to.be.false;
+    });
+
+    it('should return error if registered user has reached color book limit', async () => {
+      const user = await stubUser({ roles: ['registered'] });
+      const { ColorBooks } = require('../../imports/modules/collection');
+      await ColorBooks.insertAsync({
+        createdBy: user._id,
+        name: 'Book 1',
+        nameSort: 'book 1',
+        colors: ['#fff'],
+        createdAt: new Date(),
+        isPublic: false,
+      });
+      const result = await utils.checkCanCreateColorBook(user._id);
+      expect(result.error).to.exist;
+      expect(result.error.error).to.equal(
+        'add-color-book-too-many-color-books',
+      );
+      expect(result.value).to.be.false;
+    });
+
+    it('should return value: true if registered user is under color book limit', async () => {
+      const user = await stubUser({ roles: ['registered'] });
+      const { ColorBooks } = require('../../imports/modules/collection');
+      await ColorBooks.removeAsync({ createdBy: user._id });
+      const result = await utils.checkCanCreateColorBook(user._id);
+      expect(result.error).to.not.exist;
+      expect(result.value).to.be.true;
+    });
+
+    it('should return error if verified user has reached color book limit', async () => {
+      const user = await stubUser({ roles: ['registered', 'verified'] });
+      const { ColorBooks } = require('../../imports/modules/collection');
+      for (let i = 0; i < 5; i++) {
+        await ColorBooks.insertAsync({
+          createdBy: user._id,
+          name: `Book ${i}`,
+          nameSort: `book ${i}`,
+          colors: ['#fff'],
+          createdAt: new Date(),
+          isPublic: false,
+        });
+      }
+      const result = await utils.checkCanCreateColorBook(user._id);
+      expect(result.error).to.exist;
+      expect(result.error.error).to.equal(
+        'add-color-book-too-many-color-books',
+      );
+      expect(result.value).to.be.false;
+    });
+
+    it('should return value: true if verified user is under color book limit', async () => {
+      const user = await stubUser({ roles: ['registered', 'verified'] });
+      const { ColorBooks } = require('../../imports/modules/collection');
+      await ColorBooks.removeAsync({ createdBy: user._id });
+      for (let i = 0; i < 4; i++) {
+        await ColorBooks.insertAsync({
+          createdBy: user._id,
+          name: `Book ${i}`,
+          nameSort: `book ${i}`,
+          colors: ['#fff'],
+          createdAt: new Date(),
+          isPublic: false,
+        });
+      }
+      const result = await utils.checkCanCreateColorBook(user._id);
+      expect(result.error).to.not.exist;
+      expect(result.value).to.be.true;
+    });
+  });
 });
