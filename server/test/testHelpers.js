@@ -1,3 +1,11 @@
+// Shared test helper functions for reuse across test files
+
+import { expect } from 'chai';
+import { Roles } from 'meteor/roles';
+import { stubUser, callMethodWithUser } from './mockUser';
+import { createPattern, addPatternDataIndividual } from './testData';
+import { PatternImages, ColorBooks } from '../../imports/modules/collection';
+
 /**
  * Create a pattern for a user
  * @param {Object} user - User object
@@ -5,12 +13,10 @@
  * @returns {Promise<string>} patternId
  */
 export async function createPatternForUser(user, patternDataOverride = {}) {
-  const { addPatternDataIndividual } = require('./testData');
-  return await require('./mockUser').callMethodWithUser(
-    user._id,
-    'pattern.add',
-    { ...addPatternDataIndividual, ...patternDataOverride },
-  );
+  return await callMethodWithUser(user._id, 'pattern.add', {
+    ...addPatternDataIndividual,
+    ...patternDataOverride,
+  });
 }
 
 /**
@@ -19,7 +25,6 @@ export async function createPatternForUser(user, patternDataOverride = {}) {
  * @returns {Promise<void>}
  */
 export async function insertPatternImage({ patternId, user, key, url }) {
-  const { PatternImages } = require('../../imports/modules/collection');
   await PatternImages.insertAsync({
     patternId,
     createdBy: user._id,
@@ -41,7 +46,6 @@ export async function insertColorBook({
   colors = ['#fff'],
   isPublic = false,
 }) {
-  const { ColorBooks } = require('../../imports/modules/collection');
   await ColorBooks.insertAsync({
     createdBy: user._id,
     name,
@@ -75,12 +79,6 @@ export async function createUserAndPattern(
   };
   return callMethodWithUser(currentUser._id, 'pattern.add', patternData);
 }
-// Shared test helper functions for reuse across test files
-
-import { expect } from 'chai';
-import { Roles } from 'meteor/roles';
-import { stubUser, callMethodWithUser } from './mockUser';
-import { createPattern, addPatternDataIndividual } from './testData';
 
 /**
  * Test that a method requires authentication
@@ -113,8 +111,6 @@ export async function testRequiresRole(
     callMethodWithUser(userId, methodName, ...args),
   ).to.be.rejectedWith(errorCode);
 }
-
-
 
 /**
  * Create test patterns owned by other users
