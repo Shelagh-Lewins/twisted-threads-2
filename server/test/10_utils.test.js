@@ -213,4 +213,147 @@ describe('utils.js basic unit tests', () => {
   });
 
   // Add more tests for other exported functions as needed
+
+  describe('checkUserCanAddPatternImage', () => {
+    let stubUser, unwrapUser, addPatternDataIndividual;
+    before(() => {
+      ({ stubUser, unwrapUser } = require('./mockUser'));
+      ({ addPatternDataIndividual } = require('./testData'));
+    });
+
+    afterEach(async () => {
+      if (unwrapUser) unwrapUser();
+    });
+
+    it('should return error if userId is missing', async () => {
+      const result = await utils.checkUserCanAddPatternImage('somePatternId');
+      expect(result.error).to.exist;
+      expect(result.error.error).to.equal('add-pattern-image-not-logged-in');
+      expect(result.value).to.be.false;
+    });
+
+    it('should return error if user is not registered', async () => {
+      const user = await stubUser({ roles: [] });
+      // Create a pattern as another user so it exists
+      const owner = await stubUser({
+        username: 'Owner',
+        roles: ['registered'],
+      });
+      const patternId = await require('./mockUser').callMethodWithUser(
+        owner._id,
+        'pattern.add',
+        addPatternDataIndividual,
+      );
+      const result = await utils.checkUserCanAddPatternImage(
+        patternId,
+        user._id,
+      );
+      expect(result.error).to.exist;
+      expect(result.error.error).to.equal('add-pattern-image-not-logged-in');
+      expect(result.value).to.be.false;
+    });
+
+    it('should return error if pattern not found', async () => {
+      const user = await stubUser({ roles: ['registered'] });
+      const result = await utils.checkUserCanAddPatternImage(
+        'nonexistentPatternId',
+        user._id,
+      );
+      expect(result.error).to.exist;
+      expect(result.error.error).to.equal('add-pattern-image-not-found');
+      expect(result.value).to.be.false;
+    });
+
+    it('should return error if pattern not created by user', async () => {
+      const owner = await stubUser({
+        username: 'Owner',
+        roles: ['registered'],
+      });
+      const patternId = await require('./mockUser').callMethodWithUser(
+        owner._id,
+        'pattern.add',
+        addPatternDataIndividual,
+      );
+      const otherUser = await stubUser({
+        username: 'Other',
+        roles: ['registered'],
+      });
+      const result = await utils.checkUserCanAddPatternImage(
+        patternId,
+        otherUser._id,
+      );
+      expect(result.error).to.exist;
+      expect(result.error.error).to.equal(
+        'add-pattern-image-not-created-by-user',
+      );
+      expect(result.value).to.be.false;
+    });
+
+    it('should return error if registered user tries to add any image', async () => {
+      const user = await stubUser({ roles: ['registered'] });
+      const patternId = await require('./mockUser').callMethodWithUser(
+        user._id,
+        'pattern.add',
+        addPatternDataIndividual,
+      );
+      const result = await utils.checkUserCanAddPatternImage(
+        patternId,
+        user._id,
+      );
+      expect(result.error).to.exist;
+      expect(result.error.error).to.equal('add-image-too-many-images');
+      expect(result.value).to.be.false;
+    });
+
+    it('should return error if verified user has reached image limit', async () => {
+      const user = await stubUser({ roles: ['registered', 'verified'] });
+      const patternId = await require('./mockUser').callMethodWithUser(
+        user._id,
+        'pattern.add',
+        addPatternDataIndividual,
+      );
+      const { PatternImages } = require('../../imports/modules/collection');
+      for (let i = 0; i < 5; i++) {
+        await PatternImages.insertAsync({
+          patternId,
+          createdBy: user._id,
+          createdAt: new Date(),
+          key: `test-key-${i}`,
+          url: `http://example.com/test${i}.jpg`,
+        });
+      }
+      const result = await utils.checkUserCanAddPatternImage(
+        patternId,
+        user._id,
+      );
+      expect(result.error).to.exist;
+      expect(result.error.error).to.equal('add-image-too-many-images');
+      expect(result.value).to.be.false;
+    });
+
+    it('should return value: true if verified user can add image (under limit)', async () => {
+      const user = await stubUser({ roles: ['registered', 'verified'] });
+      const patternId = await require('./mockUser').callMethodWithUser(
+        user._id,
+        'pattern.add',
+        addPatternDataIndividual,
+      );
+      const { PatternImages } = require('../../imports/modules/collection');
+      for (let i = 0; i < 4; i++) {
+        await PatternImages.insertAsync({
+          patternId,
+          createdBy: user._id,
+          createdAt: new Date(),
+          key: `test-key-${i}`,
+          url: `http://example.com/test${i}.jpg`,
+        });
+      }
+      const result = await utils.checkUserCanAddPatternImage(
+        patternId,
+        user._id,
+      );
+      expect(result.error).to.not.exist;
+      expect(result.value).to.be.true;
+    });
+  });
 });
