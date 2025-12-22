@@ -2,8 +2,8 @@
 import { clearErrors, logErrors } from './errors';
 // import { createSelector } from 'reselect';
 import { SEARCH_LIMIT, SEARCH_MORE } from '../../modules/parameters';
-
-const updeep = require('updeep');
+import * as updeepModule from 'updeep';
+const updeep = updeepModule.default || updeepModule;
 
 // ////////////////////////////////
 // Action creators
@@ -20,84 +20,84 @@ export const SET_SET_SEARCH_LIMIT = 'SET_SET_SEARCH_LIMIT'; // i.e. set the sear
 // and export them so other reducers can use them
 
 export function setIsSearching(isSearching) {
-	return {
-		'type': SET_IS_SEARCHING,
-		'payload': isSearching,
-	};
+  return {
+    type: SET_IS_SEARCHING,
+    payload: isSearching,
+  };
 }
 
 export function setSearchTerm(searchTerm) {
-	return {
-		'type': SET_SEARCH_TERM,
-		'payload': searchTerm,
-	};
+  return {
+    type: SET_SEARCH_TERM,
+    payload: searchTerm,
+  };
 }
 
 export function searchComplete(result) {
-	return {
-		'type': SEARCH_COMPLETE,
-		'payload': result,
-	};
+  return {
+    type: SEARCH_COMPLETE,
+    payload: result,
+  };
 }
 
 export function clearSearchResults() {
-	return {
-		'type': CLEAR_SEARCH_RESULTS,
-	};
+  return {
+    type: CLEAR_SEARCH_RESULTS,
+  };
 }
 
 // pattern search limit
 export function setPatternSearchLimit(patternSearchLimit) {
-	return {
-		'type': SET_PATTERN_SEARCH_LIMIT,
-		'payload': patternSearchLimit,
-	};
+  return {
+    type: SET_PATTERN_SEARCH_LIMIT,
+    payload: patternSearchLimit,
+  };
 }
 
 export const showMorePatterns = () => (dispatch, getState) => {
-	const { patternSearchLimit } = getState().search;
-	dispatch(setPatternSearchLimit(patternSearchLimit + SEARCH_MORE));
+  const { patternSearchLimit } = getState().search;
+  dispatch(setPatternSearchLimit(patternSearchLimit + SEARCH_MORE));
 };
 
 // user search limit
 export function setUserSearchLimit(userSearchLimit) {
-	return {
-		'type': SET_USER_SEARCH_LIMIT,
-		'payload': userSearchLimit,
-	};
+  return {
+    type: SET_USER_SEARCH_LIMIT,
+    payload: userSearchLimit,
+  };
 }
 
 export const showMoreUsers = () => (dispatch, getState) => {
-	const { userSearchLimit } = getState().search;
-	dispatch(setUserSearchLimit(userSearchLimit + SEARCH_MORE));
+  const { userSearchLimit } = getState().search;
+  dispatch(setUserSearchLimit(userSearchLimit + SEARCH_MORE));
 };
 
 // set search limit
 export function setSetSearchLimit(setSearchLimit) {
-	return {
-		'type': SET_SET_SEARCH_LIMIT,
-		'payload': setSearchLimit,
-	};
+  return {
+    type: SET_SET_SEARCH_LIMIT,
+    payload: setSearchLimit,
+  };
 }
 
 export const showMoreSets = () => (dispatch, getState) => {
-	const { setSearchLimit } = getState().search;
-	dispatch(setSetSearchLimit(setSearchLimit + SEARCH_MORE));
+  const { setSearchLimit } = getState().search;
+  dispatch(setSetSearchLimit(setSearchLimit + SEARCH_MORE));
 };
 
 // Start search
 export const searchStart = (searchTerm) => (dispatch) => {
-	dispatch(clearErrors());
-	dispatch(setIsSearching(true));
-	dispatch(clearSearchResults());
-	dispatch(setPatternSearchLimit(SEARCH_LIMIT));
-	dispatch(setUserSearchLimit(SEARCH_LIMIT));
+  dispatch(clearErrors());
+  dispatch(setIsSearching(true));
+  dispatch(clearSearchResults());
+  dispatch(setPatternSearchLimit(SEARCH_LIMIT));
+  dispatch(setUserSearchLimit(SEARCH_LIMIT));
 
-	if (!searchTerm || searchTerm === '') {
-		return;
-	}
+  if (!searchTerm || searchTerm === '') {
+    return;
+  }
 
-	dispatch(setSearchTerm(searchTerm));
+  dispatch(setSearchTerm(searchTerm));
 };
 
 // Provide info to UI
@@ -114,48 +114,51 @@ export const getSetSearchLimit = (state) => state.search.setSearchLimit;
 
 // default state
 const initialSearchState = {
-	'isSearching': false,
-	'patternSearchLimit': SEARCH_LIMIT,
-	'searchResults': [],
-	'searchTerm': '',
-	'userSearchLimit': SEARCH_LIMIT,
+  isSearching: false,
+  patternSearchLimit: SEARCH_LIMIT,
+  searchResults: [],
+  searchTerm: '',
+  userSearchLimit: SEARCH_LIMIT,
 };
 
 // state updates
 export default function auth(state = initialSearchState, action) {
-	switch (action.type) {
-		case SET_IS_SEARCHING: {
-			return updeep({ 'isSearching': action.payload }, state);
-		}
+  switch (action.type) {
+    case SET_IS_SEARCHING: {
+      return updeep({ isSearching: action.payload }, state);
+    }
 
-		case SET_SEARCH_TERM: {
-			return updeep({ 'searchTerm': action.payload }, state);
-		}
+    case SET_SEARCH_TERM: {
+      return updeep({ searchTerm: action.payload }, state);
+    }
 
-		case SEARCH_COMPLETE: {
-			return updeep({ 'searchResults': action.payload }, state);
-		}
+    case SEARCH_COMPLETE: {
+      return updeep({ searchResults: action.payload }, state);
+    }
 
-		case CLEAR_SEARCH_RESULTS: {
-			return updeep({
-				'searchResults': updeep.constant([]),
-				'searchTerm': '',
-			}, state);
-		}
+    case CLEAR_SEARCH_RESULTS: {
+      return updeep(
+        {
+          searchResults: updeep.constant([]),
+          searchTerm: '',
+        },
+        state,
+      );
+    }
 
-		case SET_PATTERN_SEARCH_LIMIT: {
-			return updeep({ 'patternSearchLimit': action.payload }, state);
-		}
+    case SET_PATTERN_SEARCH_LIMIT: {
+      return updeep({ patternSearchLimit: action.payload }, state);
+    }
 
-		case SET_USER_SEARCH_LIMIT: {
-			return updeep({ 'userSearchLimit': action.payload }, state);
-		}
+    case SET_USER_SEARCH_LIMIT: {
+      return updeep({ userSearchLimit: action.payload }, state);
+    }
 
-		case SET_SET_SEARCH_LIMIT: {
-			return updeep({ 'setSearchLimit': action.payload }, state);
-		}
+    case SET_SET_SEARCH_LIMIT: {
+      return updeep({ setSearchLimit: action.payload }, state);
+    }
 
-		default:
-			return state;
-	}
+    default:
+      return state;
+  }
 }

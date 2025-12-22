@@ -2,6 +2,7 @@
 
 import { check } from 'meteor/check';
 import {
+  asyncForEach,
   nonEmptyStringCheck,
   positiveIntegerCheck,
   updateMultiplePublicSetsCount,
@@ -40,7 +41,7 @@ const tinycolor = require('tinycolor2');
 Meteor.methods({
   // /////////////////////
   // multi-purpose edit pattern method to avoid having to repeat the same permissions checks
-  'pattern.edit': function ({ _id, data }) {
+  'pattern.edit': async function ({ _id, data }) {
     check(_id, nonEmptyStringCheck);
     check(data, Match.ObjectIncluding({ type: String }));
     // type specifies the update operation
@@ -54,7 +55,7 @@ Meteor.methods({
       );
     }
 
-    const pattern = Patterns.findOne({ _id });
+    const pattern = await Patterns.findOneAsync({ _id });
 
     if (!pattern) {
       throw new Meteor.Error(
@@ -119,7 +120,7 @@ Meteor.methods({
         check(isPublic, Boolean);
 
         // only verified users can publish patterns
-        if (!Roles.userIsInRole(Meteor.userId(), 'verified')) {
+        if (!(await Roles.userIsInRoleAsync(Meteor.userId(), 'verified'))) {
           throw new Meteor.Error(
             'edit-pattern-not-verified',
             "Unable to make the pattern public or private because the user's email address is not verified",
@@ -127,20 +128,23 @@ Meteor.methods({
         }
 
         // update the pattern
-        Patterns.update({ _id }, { $set: { isPublic: isPublic } });
+        await Patterns.updateAsync({ _id }, { $set: { isPublic } });
 
         // find all sets that contain this pattern
-        const sets = Sets.find({ _id: { $in: pattern.sets } }).fetch();
-        sets.forEach((set) => {
+        const sets = await Sets.find({
+          _id: { $in: pattern.sets },
+        }).fetchAsync();
+
+        await asyncForEach(sets, async (set) => {
           // update the set's count of public pattern
-          updatePublicPatternsCountForSet(set._id);
+          await updatePublicPatternsCountForSet(set._id);
         });
 
         // update the user's count of public patterns
-        updatePublicPatternsCountForUser(Meteor.userId());
+        await updatePublicPatternsCountForUser(Meteor.userId());
 
         // for each set to which the pattern belongs, update the owner's count of public sets
-        updateMultiplePublicSetsCount(pattern.sets);
+        await updateMultiplePublicSetsCount(pattern.sets);
 
         return;
 
@@ -149,7 +153,7 @@ Meteor.methods({
         check(isTwistNeutral, Boolean);
 
         // update the pattern
-        Patterns.update({ _id }, { $set: { isTwistNeutral } });
+        await Patterns.updateAsync({ _id }, { $set: { isTwistNeutral } });
 
         return;
 
@@ -158,7 +162,7 @@ Meteor.methods({
         check(willRepeat, Boolean);
 
         // update the pattern
-        Patterns.update({ _id }, { $set: { willRepeat } });
+        await Patterns.updateAsync({ _id }, { $set: { willRepeat } });
 
         return;
 
@@ -178,7 +182,7 @@ Meteor.methods({
               weavingInstructions[i][tablet].direction = newDirection;
             }
 
-            return Patterns.update(
+            return Patterns.updateAsync(
               { _id },
               {
                 $set: {
@@ -202,7 +206,7 @@ Meteor.methods({
 
         switch (patternType) {
           case 'individual':
-            return Patterns.update(
+            return Patterns.updateAsync(
               { _id },
               {
                 $set: {
@@ -228,7 +232,7 @@ Meteor.methods({
             const { weavingInstructions } = patternDesign;
             const newDirection = weavingInstructions[row] === 'F' ? 'B' : 'F';
 
-            return Patterns.update(
+            return Patterns.updateAsync(
               { _id },
               {
                 $set: {
@@ -263,7 +267,7 @@ Meteor.methods({
             const currentValue = chartToEdit[rowIndex][tabletIndex];
             const newValue = currentValue === '.' ? 'X' : '.';
 
-            return Patterns.update(
+            return Patterns.updateAsync(
               { _id },
               {
                 $set: {
@@ -307,7 +311,7 @@ Meteor.methods({
             const currentValue = chartToEdit[rowIndex][tabletIndex];
             const newValue = currentValue === '.' ? 'X' : '.';
 
-            return Patterns.update(
+            return Patterns.updateAsync(
               { _id },
               {
                 $set: {
@@ -344,7 +348,7 @@ Meteor.methods({
               );
             }
 
-            return Patterns.update(
+            return Patterns.updateAsync(
               { _id },
               { $set: { 'patternDesign.weavingStartRow': weavingStartRow } },
             );
@@ -365,7 +369,7 @@ Meteor.methods({
 
         switch (patternType) {
           case 'freehand':
-            return Patterns.update(
+            return Patterns.updateAsync(
               { _id },
               {
                 $set: {
@@ -395,7 +399,7 @@ Meteor.methods({
             const cell = patternDesign.freehandChart[row][tablet];
             const direction = cell.direction === 'F' ? 'B' : 'F';
 
-            return Patterns.update(
+            return Patterns.updateAsync(
               { _id },
               {
                 $set: {
@@ -580,7 +584,7 @@ Meteor.methods({
             );
         }
 
-        return Patterns.update({ _id }, update);
+        return Patterns.updateAsync({ _id }, update);
 
       case 'removeWeavingRows':
         ({ removeNRows, removeRowsAt } = data);
@@ -614,7 +618,7 @@ Meteor.methods({
             for (let i = 0; i < removeNRows; i += 1) {
               rowIndex = i + removeRowsAt;
 
-              Patterns.update(
+              await Patterns.updateAsync(
                 { _id },
                 {
                   $set: {
@@ -644,7 +648,7 @@ Meteor.methods({
             for (let i = 0; i < removeNRows; i += 1) {
               rowIndex = i + start;
 
-              Patterns.update(
+              await Patterns.updateAsync(
                 { _id },
                 {
                   $set: {
@@ -682,7 +686,7 @@ Meteor.methods({
             for (let i = 0; i < removeNRows / 2; i += 1) {
               rowIndex = i + removeRowsAt / 2;
 
-              Patterns.update(
+              await Patterns.updateAsync(
                 { _id },
                 {
                   $set: {
@@ -717,7 +721,7 @@ Meteor.methods({
             for (let i = 0; i < removeNRows / 2; i += 1) {
               rowIndex = i + removeRowsAt / 2;
 
-              Patterns.update(
+              await Patterns.updateAsync(
                 { _id },
                 {
                   $set: {
@@ -743,7 +747,7 @@ Meteor.methods({
                   i
                 ] === 'X'
               ) {
-                Patterns.update(
+                await Patterns.updateAsync(
                   { _id },
                   {
                     $set: {
@@ -757,7 +761,7 @@ Meteor.methods({
               if (
                 pattern.patternDesign.twillPatternChart[newFirstRow][i] === 'X'
               ) {
-                Patterns.update(
+                await Patterns.updateAsync(
                   { _id },
                   {
                     $set: {
@@ -780,7 +784,7 @@ Meteor.methods({
             for (let i = 0; i < removeNRows; i += 1) {
               rowIndex = i + removeRowsAt;
 
-              Patterns.update(
+              await Patterns.updateAsync(
                 { _id },
                 {
                   $set: {
@@ -805,21 +809,19 @@ Meteor.methods({
             );
         }
 
-        return Patterns.update({ _id }, update);
+        return Patterns.updateAsync({ _id }, update);
 
       case 'editThreadingCell':
         // broken twill sets two holes at once
         // other pattern types only set the one the user clicked
         ({ holesToSet, tablet, colorIndex } = data);
-
-        check(holesToSet, [Match.Integer]);
+        check(holesToSet, [positiveIntegerCheck]);
         check(tablet, validTabletsCheck);
         check(colorIndex, validPaletteIndexCheck);
 
         // update the value in the nested arrays
-        holesToSet.forEach((holeIndex) => {
-          check(holeIndex, positiveIntegerCheck);
-          Patterns.update(
+        await asyncForEach(holesToSet, async (holeIndex) => {
+          await Patterns.updateAsync(
             { _id },
             { $set: { [`threading.${holeIndex}.${tablet}`]: colorIndex } },
           );
@@ -1107,7 +1109,9 @@ Meteor.methods({
             break;
         }
 
-        return Patterns.update({ _id }, update, { bypassCollection2: true }); // schema rejects the operation. This may be a bug in Simple Schema; I have logged in issue
+        return Patterns.updateAsync({ _id }, update, {
+          bypassCollection2: true,
+        }); // schema rejects the operation. This may be a bug in Simple Schema; I have logged in issue
 
       case 'removeTablet':
         ({ tablet } = data);
@@ -1187,7 +1191,9 @@ Meteor.methods({
             );
         }
 
-        Patterns.update({ _id }, update, { bypassCollection2: true });
+        await Patterns.updateAsync({ _id }, update, {
+          bypassCollection2: true,
+        });
 
         const update2 = {}; // create the update object
 
@@ -1288,7 +1294,9 @@ Meteor.methods({
             break;
         }
 
-        return Patterns.update({ _id }, update2, { bypassCollection2: true });
+        return Patterns.updateAsync({ _id }, update2, {
+          bypassCollection2: true,
+        });
       // schema rejects the operation. This may be a bug in Simple Schema; I have logged in issue
 
       case 'paletteColor':
@@ -1322,7 +1330,7 @@ Meteor.methods({
           );
         }
         // update the value in the nested arrays
-        return Patterns.update(
+        return Patterns.updateAsync(
           { _id },
           { $set: { [`palette.${colorIndex}`]: colorHexValue } },
         );
@@ -1340,7 +1348,7 @@ Meteor.methods({
           pattern.patternDesign.holeHandedness === 'anticlockwise'
             ? 'clockwise'
             : 'anticlockwise';
-        return Patterns.update(
+        return Patterns.updateAsync(
           { _id },
           { $set: { 'patternDesign.holeHandedness': newHandedness } },
         );
@@ -1357,7 +1365,10 @@ Meteor.methods({
           );
         }
 
-        return Patterns.update({ _id }, { $set: { weftColor: colorIndex } });
+        return Patterns.updateAsync(
+          { _id },
+          { $set: { weftColor: colorIndex } },
+        );
 
       case 'includeInTwist':
         ({ tablet, tabletIncludeInTwist } = data);
@@ -1372,7 +1383,7 @@ Meteor.methods({
         }
 
         // update the value in the nested arrays
-        return Patterns.update(
+        return Patterns.updateAsync(
           { _id },
           { $set: { [`includeInTwist.${tablet}`]: tabletIncludeInTwist } },
         );
@@ -1392,14 +1403,14 @@ Meteor.methods({
           const defaultTabletGuides = new Array(numberOfTablets);
           defaultTabletGuides.fill(false);
 
-          Patterns.update(
+          await Patterns.updateAsync(
             { _id },
             { $set: { tabletGuides: defaultTabletGuides } },
           );
         }
 
         // update the value in the nested arrays
-        return Patterns.update(
+        return Patterns.updateAsync(
           { _id },
           { $set: { [`tabletGuides.${tablet}`]: tabletGuide } },
         );
@@ -1430,7 +1441,7 @@ Meteor.methods({
         }
 
         // update the value in the nested arrays
-        return Patterns.update(
+        return Patterns.updateAsync(
           { _id },
           { $set: { [`orientations.${tablet}`]: tabletOrientation } },
         );
@@ -1450,7 +1461,7 @@ Meteor.methods({
           );
         }
 
-        return Patterns.update(
+        return Patterns.updateAsync(
           { _id },
           { $set: { previewOrientation: orientation } },
         );
@@ -1478,7 +1489,7 @@ Meteor.methods({
           update.nameSort = fieldValue.toLowerCase();
         }
 
-        return Patterns.update({ _id }, { $set: update });
+        return Patterns.updateAsync({ _id }, { $set: update });
 
       default:
         throw new Meteor.Error(

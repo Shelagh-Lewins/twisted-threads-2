@@ -2,6 +2,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Roles } from 'meteor/roles';
 import WeavingChartCell from './WeavingChartCell';
 import FreehandChartCell from './FreehandChartCell';
 import VerticalGuides from './VerticalGuides';

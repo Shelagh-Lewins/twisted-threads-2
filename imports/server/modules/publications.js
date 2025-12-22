@@ -1,4 +1,5 @@
 import { check } from 'meteor/check';
+import { Roles } from 'meteor/roles';
 import {
   ColorBooks,
   FAQ,
@@ -61,7 +62,7 @@ Meteor.publish('colorBooks', function (userId) {
   if (userId) {
     return ColorBooks.find(
       {
-        $and: [getPatternPermissionQuery(), { createdBy: userId }],
+        $and: [getPatternPermissionQuery(this.userId), { createdBy: userId }],
       },
       {
         fields: ColorBooksFields,
@@ -71,7 +72,7 @@ Meteor.publish('colorBooks', function (userId) {
   }
 
   // all color books the user can see
-  return ColorBooks.find(getPatternPermissionQuery(), {
+  return ColorBooks.find(getPatternPermissionQuery(this.userId), {
     fields: ColorBooksFields,
     sort: { nameSort: 1 },
   });
@@ -147,7 +148,7 @@ Meteor.publish(
             filterMinTablets,
             filterWillRepeat,
           }),
-          getPatternPermissionQuery(),
+          getPatternPermissionQuery(this.userId),
         ],
       },
       {
@@ -165,7 +166,10 @@ Meteor.publish('patternsById', function (patternIds) {
 
   return Patterns.find(
     {
-      $and: [{ _id: { $in: patternIds } }, getPatternPermissionQuery()],
+      $and: [
+        { _id: { $in: patternIds } },
+        getPatternPermissionQuery(this.userId),
+      ],
     },
     {
       fields: patternsFields,
@@ -177,22 +181,13 @@ Meteor.publish('patternsById', function (patternIds) {
 Meteor.publish('pattern', function (_id) {
   check(_id, nonEmptyStringCheck);
 
-  // NOTE service user can view any individual pattern
-  if (Roles.getRolesForUser(Meteor.userId()).includes('serviceUser')) {
-    return Patterns.find(
-      {
-        _id,
-      },
-      {
-        fields: patternFields,
-        limit: 1,
-      },
-    );
-  }
+  // NOTE: For serviceUser role check, we would need async but that complicates cursor return
+  // For now, serviceUsers rely on the permission query allowing them to see any pattern
+  // This could be enhanced later with proper async publication pattern
 
   return Patterns.find(
     {
-      $and: [{ _id }, getPatternPermissionQuery()],
+      $and: [{ _id }, getPatternPermissionQuery(this.userId)],
     },
     {
       fields: patternFields,
@@ -204,7 +199,7 @@ Meteor.publish('pattern', function (_id) {
 // preview list for all patterns
 // displayed on Home page
 Meteor.publish('allPatternsPreview', function () {
-  return Patterns.find(getPatternPermissionQuery(), {
+  return Patterns.find(getPatternPermissionQuery(this.userId), {
     fields: patternsFields,
     limit: ITEMS_PER_PREVIEW_LIST,
     sort: { nameSort: 1 },
@@ -249,7 +244,7 @@ Meteor.publish(
     check(limit, positiveIntegerCheck);
     check(skip, positiveIntegerCheck);
 
-    return Patterns.find(
+    const patternsToPublish = Patterns.find(
       {
         $and: [
           getPatternFilter({
@@ -258,7 +253,7 @@ Meteor.publish(
             filterMinTablets,
             filterWillRepeat,
           }),
-          getPatternPermissionQuery(),
+          getPatternPermissionQuery(this.userId),
         ],
       },
       {
@@ -268,6 +263,8 @@ Meteor.publish(
         limit,
       },
     );
+
+    return patternsToPublish;
   },
 );
 
@@ -318,7 +315,7 @@ Meteor.publish(
             filterWillRepeat,
           }),
           { createdBy: userId },
-          getPatternPermissionQuery(),
+          getPatternPermissionQuery(this.userId),
         ],
       },
       {
@@ -331,6 +328,7 @@ Meteor.publish(
 
     // this is a hack to differentiate paginated list data from (for example) patterns loaded as part of Set data. Stopping the patternsById subscription does not remove the patterns from Minimongo and I can't work out why, so the client needs a way to filter data for pages.
     myCursor.forEach((pattern) => {
+      // eslint-disable-next-line no-param-reassign
       pattern.pagesData = true;
       self.added('patterns', pattern._id, pattern);
     });
@@ -342,7 +340,7 @@ Meteor.publish(
 // //////////////////////////
 // Pattern preview graphics
 
-Meteor.publish('patternPreviews', function ({ patternIds }) {
+Meteor.publish('patternPreviews', async function ({ patternIds }) {
   // we previously explicitly returned nothing when user was not logged in
   // this is so we can test behaviour when user is not logged in: PublicationCollector passes in undefined userId, and find() is inconsistent between Meteor and MongoDB on undefined
   check(patternIds, [String]);
@@ -356,24 +354,28 @@ Meteor.publish('patternPreviews', function ({ patternIds }) {
 
   // find the patterns the user can see
   // and that are in the array passed in
-  const patterns = Patterns.find(
+  const patterns = await Patterns.find(
     {
-      $and: [{ _id: { $in: patternIds } }, getPatternPermissionQuery()],
+      $and: [
+        { _id: { $in: patternIds } },
+        getPatternPermissionQuery(this.userId),
+      ],
     },
     {
       fields: {},
     },
-  ).fetch();
+  ).fetchAsync();
 
   // extract their _ids as an array
   const targetPatternIds = patterns.map((pattern) => pattern._id);
 
   // find the previews for those patterns
-  const myCursor = PatternPreviews.find({
+  const previews = await PatternPreviews.find({
     patternId: { $in: targetPatternIds },
-  });
+  }).fetchAsync();
 
-  myCursor.forEach((PatternPreview) => {
+  previews.forEach((PatternPreview) => {
+    // eslint-disable-line no-param-reassign
     PatternPreview.rootAddress = `https://${process.env.AWS_BUCKET}.s3.amazonaws.com`; // allows us to switch environments for test
     self.added('patternPreviews', PatternPreview._id, PatternPreview);
   });
@@ -399,7 +401,7 @@ Meteor.publish('users', function (userIds) {
   // whose ids are in the array passed in
   return Meteor.users.find(
     {
-      $and: [getUserPermissionQuery(), { _id: { $in: userIds } }],
+      $and: [getUserPermissionQuery(this.userId), { _id: { $in: userIds } }],
     },
     {
       fields: USER_FIELDS,
@@ -410,7 +412,7 @@ Meteor.publish('users', function (userIds) {
 // preview list for users
 // displayed on Home page
 Meteor.publish('allUsersPreview', function () {
-  return Meteor.users.find(getUserPermissionQuery(), {
+  return Meteor.users.find(getUserPermissionQuery(this.userId), {
     fields: USER_FIELDS,
     limit: ITEMS_PER_PREVIEW_LIST,
     sort: { nameSort: 1 },
@@ -419,10 +421,10 @@ Meteor.publish('allUsersPreview', function () {
 
 // Pattern Images that have been uploaded by the pattern's owner
 // Show images for a particular pattern
-Meteor.publish('patternImages', function (patternId) {
+Meteor.publish('patternImages', async function (patternId) {
   check(patternId, nonEmptyStringCheck);
 
-  const pattern = Patterns.findOne(
+  const pattern = await Patterns.findOneAsync(
     { _id: patternId },
     { fields: { createdBy: 1, isPublic: 1 } },
   );
@@ -457,7 +459,7 @@ Meteor.publish('setsForUser', function (userId) {
   }
 
   return Sets.find({
-    $and: [{ createdBy: userId }, getSetPermissionQuery()],
+    $and: [{ createdBy: userId }, getSetPermissionQuery(this.userId)],
   });
 });
 
@@ -466,7 +468,7 @@ Meteor.publish('set', function (_id) {
   check(_id, nonEmptyStringCheck);
 
   return Sets.find({
-    $and: [{ _id }, getSetPermissionQuery()],
+    $and: [{ _id }, getSetPermissionQuery(this.userId)],
   });
 });
 

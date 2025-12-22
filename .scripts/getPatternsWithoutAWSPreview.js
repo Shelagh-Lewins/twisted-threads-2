@@ -4,9 +4,9 @@
 // and return pattern _id's as an array
 
 if (mongoAddress) {
-	conn = new Mongo(mongoAddress);
+  conn = new Mongo(mongoAddress);
 } else {
-	conn = new Mongo(); // default for local
+  conn = new Mongo(); // default for local
 }
 
 db = conn.getDB(databaseName);
@@ -20,42 +20,41 @@ const patternsWithoutPreview = []; // just for testing
 const patternsWithAWSPreview = []; // just for testing
 const patternsWithoutKey = []; // just for testing
 const allPatterns = []; // just for testing
-//print('here 1', patterns.count());
 
 const numberOfPatternsToProcess = 1000;
 //print('patterns #', patterns.length);
 for (let i = 0; i < patterns.length; i += 1) {
-	const pattern = patterns[i];
+  const pattern = patterns[i];
 
-	const { _id } = pattern;
+  const { _id } = pattern;
 
-	allPatterns.push(_id);
+  allPatterns.push(_id);
 
-	const patternPreview = db.patternPreviews.findOne({ patternId: _id });
+  const patternPreview = db.patternPreviews.findOne({ patternId: _id });
 
-	// several runs are likely to be required because of timeout issues with Puppeteer
-	if (!patternPreview || !patternPreview.key) {
-		patternIdsToProcess.push(_id);
-	}
+  // several runs are likely to be required because of timeout issues with Puppeteer
+  if (!patternPreview || !patternPreview.key) {
+    patternIdsToProcess.push(_id);
+  }
 
-	if (!patternPreview) {
-		patternsWithoutPreview.push(_id);
-	}
+  if (!patternPreview) {
+    patternsWithoutPreview.push(_id);
+  }
 
-	if (patternPreview && patternPreview.key) {
-		patternsWithAWSPreview.push(_id);
-	}
+  if (patternPreview && patternPreview.key) {
+    patternsWithAWSPreview.push(_id);
+  }
 
-	if (patternPreview && !patternPreview.key) {
-		patternsWithoutKey.push(_id);
-	}
+  if (patternPreview && !patternPreview.key) {
+    patternsWithoutKey.push(_id);
+  }
 
-	if (
-		patternIdsToProcess.length >= numberOfPatternsToProcess ||
-		i >= patterns.length - 1
-	) {
-		break;
-	}
+  if (
+    patternIdsToProcess.length >= numberOfPatternsToProcess ||
+    i >= patterns.length - 1
+  ) {
+    break;
+  }
 }
 
 //const patternIdsToProcess = patternIds.slice(0, numberOfPatternsToProcess);

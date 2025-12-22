@@ -1,168 +1,246 @@
-@import "../constants/variables";
+@import '../constants/variables';
 
 .edit-tags {
-	margin-bottom: 8px;
+  margin-bottom: 8px;
 
-	.react-tags {
-		background: $color-tags-background;
-		border: 1px solid $color-tags-border;
-		border-radius: 1px;
-		color: $color-text;
-		cursor: text;
-		font-size: 1em;
-		line-height: 1.2;
-		padding: 6px 0 0 6px;
-		position: relative;
+  .react-tags {
+    background: $color-tags-background;
+    border: 1px solid $color-tags-border;
+    border-radius: 1px;
+    color: $color-text;
+    cursor: text;
+    font-size: 1em;
+    line-height: 1.2;
+    padding: 6px 0 0 6px;
+    position: relative;
 
-		button {
-			background: transparent;
-			border: 0;
-			color: $color-tags-delete;
-			margin-left: 8px;
-		}
+    // v7: Hide the label visually but keep for screen readers
+    #react-tags-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
 
-		.is-focused {
-			border-color: $color-tags-border;
-		}
+    // v7: Selected tags list
+    ul[aria-label='Selected tags'] {
+      display: inline;
+      list-style: none;
+      margin: 0;
+      padding: 0;
 
-		.selected {
-			display: inline;
-		}
+      li {
+        display: inline-block;
+        margin: 0;
+        padding: 0;
+      }
+    }
 
-		.selected-tag {
-			background: $color-tags-selected;
-			border: 1px solid $color-tags-border;
-			border-radius: 2px;
-			box-sizing: border-box;
-			display: inline-block;
-			font-size: inherit;
-			line-height: inherit;
-			margin: 0 6px 6px 0;
-			padding: 6px 8px;
+    .delete-tag-x {
+      background: transparent;
+      border: 0;
+      color: $color-tags-delete;
+      margin-left: 8px;
+    }
 
-			&:hover,
-			&:focus {
-				border-color: $color-tags-hover-border;
-			}
-		}
+    .is-focused {
+      border-color: $color-tags-border;
+    }
 
-		.search {
-			display: inline-block;
+    .selected {
+      display: inline;
+    }
 
-			// match tag layout
-			padding: 7px 2px;
-			margin-bottom: 6px;
+    .selected-tag {
+      background: $color-tags-selected;
+      border: 1px solid $color-tags-border;
+      border-radius: 2px;
+      box-sizing: border-box;
+      color: $color-text;
+      display: inline-block;
+      font-size: inherit;
+      line-height: inherit;
+      margin: 0 6px 6px 0;
+      padding: 6px 8px;
 
-			// prevent autoresize overflowing the container
-			max-width: 100%;
-		}
+      &:hover,
+      &:focus {
+        background: $color-tags-selected-hover;
+        border: 1px solid $color-tags-hover-border;
+      }
+    }
 
-		@media screen and (min-width: 30em) {
-			.search {
-				// this will become the offsetParent for suggestions
-				position: relative;
-			}
-		}
+    .search,
+    #react-tags-combobox {
+      display: inline-block;
 
-		input {
-			// prevent autoresize overflowing the container
-			max-width: 100%;
+      // match tag layout
+      padding: 7px 2px;
+      margin-bottom: 6px;
 
-			// remove styles and layout from this element
-			margin: 0;
-			padding: 0;
-			border: 0;
-			outline: none;
+      // prevent autoresize overflowing the container
+      max-width: 100%;
+    }
 
-			// match the font styles
-			font-size: inherit;
-			line-height: inherit;
-		}
+    @media screen and (min-width: 30em) {
+      .search,
+      #react-tags-combobox {
+        // this will become the offsetParent for suggestions
+        position: relative;
+      }
+    }
 
-		::-ms-clear {
-			display: none;
-		}
+    input {
+      // prevent autoresize overflowing the container
+      max-width: 100%;
 
-		.suggestions {
-			background: $color-tags-background;
-			border: 1px solid $color-tags-border;
-			border-radius: 2px;
-			box-shadow: 0 2px 6px $color-tags-shadow;
-			left: 0;
-			position: absolute;
-			top: 100%;
-			width: 100%;
+      // remove styles and layout from this element
+      margin: 0;
+      padding: 0;
+      border: 0;
+      outline: none;
 
-			ul {
-				list-style: none;
-				margin: 4px -1px;
-				padding: 0;
-			}
+      // match the font styles
+      font-size: inherit;
+      line-height: inherit;
+    }
 
-			li {
-				float: left;
-				padding: 6px 8px;
+    ::-ms-clear {
+      display: none;
+    }
 
-				mark {
-					background: none;
-					font-weight: 600;
-					text-decoration: underline;
-				}
-			}
+    // v7: Dropdown listbox
+    #react-tags-listbox {
+      background: $color-tags-background;
+      border: 1px solid $color-tags-border;
+      border-radius: 2px;
+      box-shadow: 0 2px 6px $color-tags-shadow;
+      left: 0;
+      max-height: 200px;
+      overflow-y: auto;
+      position: absolute;
+      top: 100%;
+      width: 100%;
+      z-index: 1000;
 
-			:hover {
-				background: $color-tags-hover;
-				cursor: pointer;
-			}
+      // Individual option divs
+      div[role='option'] {
+        padding: 6px 8px;
+        cursor: pointer;
 
-			.is-active {
-				background: $color-tags-bg-active;
-			}
+        mark {
+          background: none;
+          font-weight: 600;
+          text-decoration: underline;
+        }
 
-			.is-disabled {
-				cursor: auto;
-				opacity: .5;
-			}
-		}
+        &:hover {
+          background: $color-tags-hover;
+        }
 
-		@media screen and (min-width: 30em) {
-			.suggestions {
-				width: 240px;
-			}
-		}
-	}
+        &[aria-selected='true'] {
+          background: $color-tags-bg-active;
+        }
 
-	.invalid-feedback {
-		display: block;
-		font-size: .8rem;
-	}
+        &[aria-disabled='true'] {
+          cursor: auto;
+          opacity: 0.5;
+        }
+      }
+    }
+
+    @media screen and (min-width: 30em) {
+      #react-tags-listbox {
+        width: 240px;
+      }
+    }
+
+    // v6 styles kept for backwards compatibility
+    .suggestions {
+      background: $color-tags-background;
+      border: 1px solid $color-tags-border;
+      border-radius: 2px;
+      box-shadow: 0 2px 6px $color-tags-shadow;
+      left: 0;
+      position: absolute;
+      top: 100%;
+      width: 100%;
+
+      ul {
+        list-style: none;
+        margin: 4px -1px;
+        padding: 0;
+      }
+
+      li {
+        float: left;
+        padding: 6px 8px;
+
+        mark {
+          background: none;
+          font-weight: 600;
+          text-decoration: underline;
+        }
+      }
+
+      :hover {
+        background: $color-tags-hover;
+        cursor: pointer;
+      }
+
+      .is-active {
+        background: $color-tags-bg-active;
+      }
+
+      .is-disabled {
+        cursor: auto;
+        opacity: 0.5;
+      }
+    }
+
+    @media screen and (min-width: 30em) {
+      .suggestions {
+        width: 240px;
+      }
+    }
+  }
+
+  .invalid-feedback {
+    display: block;
+    font-size: 0.8rem;
+  }
 }
 
 .view-tags {
-	.label {
-		float: left;
-		margin-bottom: 1rem;
-		margin-right: 8px;
-	}
+  .label {
+    float: left;
+    margin-bottom: 1rem;
+    margin-right: 8px;
+  }
 
-	ul {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-	}
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
 
-	li {
-		float: left;
-		padding: 0 4px 0 0;
+  li {
+    float: left;
+    padding: 0 4px 0 0;
 
-		&::after {
-			content: ",";
-		}
+    &::after {
+      content: ',';
+    }
 
-		&:last-child {
-			&::after {
-				content: "";
-			}
-		}
-	}
+    &:last-child {
+      &::after {
+        content: '';
+      }
+    }
+  }
 }

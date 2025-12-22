@@ -300,7 +300,7 @@ class About extends Component {
                   rests with the designer of the pattern, not with the creator
                   or owner of the software.
                 </p>
-                <p className='notice'>Version: {version.toString()}</p>
+                <p className='notice'>Version: {version}</p>
               </Col>
             </Row>
           </Container>
@@ -313,7 +313,7 @@ class About extends Component {
 About.propTypes = {
   dispatch: PropTypes.func.isRequired,
   errors: PropTypes.objectOf(PropTypes.any).isRequired,
-  version: PropTypes.number.isRequired,
+  version: PropTypes.string.isRequired,
 };
 
 const mapStateToProps = (state) => ({

@@ -18,7 +18,9 @@
   "rules": {
     "array-callback-return": ["off"],
     "implicit-arrow-linebreak": ["off"],
+    "no-await-in-loop": ["off"],
     "no-confusing-arrow": ["off"],
+    "no-return-await": ["off"],
     "no-underscore-dangle": ["off"],
     "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
     "eol-last": ["error", "always"],
@@ -44,6 +46,7 @@
     "no-alert": ["off"],
     "object-curly-spacing": ["error", "always"],
     "object-curly-newline": ["off"],
+    "function-paren-newline": ["off"],
     "operator-linebreak": ["off"],
     "quote-props": [2, "as-needed"],
     "consistent-return": ["off"],

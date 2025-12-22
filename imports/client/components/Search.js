@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button, Input } from 'reactstrap';
@@ -10,435 +9,503 @@ import './Search.scss';
 import { ReactiveVar } from 'meteor/reactive-var';
 import store from '../modules/store';
 import {
-	getPatternSearchLimit,
-	getSearchTerm,
-	getSetSearchLimit,
-	getUserSearchLimit,
-	searchStart,
-	setIsSearching,
-	showMorePatterns,
-	showMoreUsers,
-	showMoreSets,
+  getPatternSearchLimit,
+  getSearchTerm,
+  getSetSearchLimit,
+  getUserSearchLimit,
+  searchStart,
+  setIsSearching,
+  showMorePatterns,
+  showMoreUsers,
+  showMoreSets,
 } from '../modules/search';
-import 'react-widgets/dist/css/react-widgets.css';
-import { PatternsIndex, SetsIndex, UsersIndex } from '../../modules/collection';
+import 'react-widgets/styles.css';
+import {
+  SearchPatterns,
+  SearchSets,
+  SearchUsers,
+} from '../../modules/searchCollections';
 import { iconColors, SEARCH_MORE } from '../../modules/parameters';
 
 import getUserpicStyle from '../modules/getUserpicStyle';
 import './Userpic.scss';
 
 class Search extends PureComponent {
-	constructor(props) {
-		super(props);
+  constructor(props) {
+    super(props);
 
-		this.state = {
-			'open': false,
-		};
+    this.state = {
+      open: false,
+    };
 
-		// bind onClick functions to provide context
-		const functionsToBind = [
-			'handleClickOutside',
-			'onChangeInput',
-			'onSelect',
-			'toggleOpen',
-		];
+    this.searchBoxRef = React.createRef();
 
-		functionsToBind.forEach((functionName) => {
-			this[functionName] = this[functionName].bind(this);
-		});
-	}
+    // bind onClick functions to provide context
+    const functionsToBind = [
+      'handleClickOutside',
+      'onChangeInput',
+      'onSelect',
+      'toggleOpen',
+    ];
 
-	componentDidMount() {
-		document.addEventListener('mousedown', this.handleClickOutside);
-	}
+    functionsToBind.forEach((functionName) => {
+      this[functionName] = this[functionName].bind(this);
+    });
+  }
 
-	componentDidUpdate(prevProps) {
-		const { isSearching, searchTerm } = this.props;
-		const { open } = this.state;
+  componentDidMount() {
+    document.addEventListener('mousedown', this.handleClickOutside);
+  }
 
-		if (prevProps.isSearching
-			&& !isSearching
-			&& searchTerm !== ''
-			&& !open) {
-			// allow search results to appear
-			// avoiding 'no results for' showing briefly
-			setTimeout(() => this.toggleOpen(), 100);
-		}
-	}
+  componentDidUpdate(prevProps) {
+    const { dispatch, hasSearchTerm, isSearching, searchTerm } = this.props;
+    const { open } = this.state;
 
-	componentWillUnmount() {
-		document.removeEventListener('mousedown', this.handleClickOutside);
-	}
+    // Stop searching once we have search term and results are ready
+    if (hasSearchTerm && isSearching && !prevProps.hasSearchTerm) {
+      dispatch(setIsSearching(false));
+    }
 
-	toggleOpen = () => {
-		const { open } = this.state;
+    if (prevProps.isSearching && !isSearching && searchTerm !== '' && !open) {
+      // allow search results to appear
+      // avoiding 'no results for' showing briefly
+      setTimeout(() => this.toggleOpen(), 100);
+    }
+  }
 
-		this.setState({ 'open': !open });
-	}
+  componentWillUnmount() {
+    document.removeEventListener('mousedown', this.handleClickOutside);
+  }
 
-	onChangeInput = (event) => {
-		const {
-			dispatch,
-		} = this.props;
-		const { value } = event.target;
+  toggleOpen = () => {
+    const { open } = this.state;
 
-		clearTimeout(global.searchTimeout);
+    this.setState({ open: !open });
+  };
 
-		global.searchTimeout = setTimeout(() => {
-			dispatch(searchStart(value));
-		}, 500);
-	};
+  onChangeInput = (event) => {
+    const { dispatch } = this.props;
+    const { value } = event.target;
 
-	onSelect = (value) => {
-		const {
-			dispatch,
-			history,
-		} = this.props;
+    clearTimeout(global.searchTimeout);
 
-		const { '__originalId': _id, type } = value;
-		let url;
+    global.searchTimeout = setTimeout(() => {
+      dispatch(searchStart(value));
+    }, 500);
+  };
 
-		switch (type) {
-			case 'pattern':
-				this.toggleOpen();
-				url = `/pattern/${_id}`;
-				break;
+  onSelect = (value) => {
+    const { dispatch, history } = this.props;
 
-			case 'user':
-				this.toggleOpen();
-				url = `/user/${_id}`;
-				break;
+    const { __originalId: _id, type } = value;
+    let url;
 
-			case 'set':
-				this.toggleOpen();
-				url = `/set/${_id}`;
-				break;
+    switch (type) {
+      case 'pattern':
+        this.toggleOpen();
+        url = `/pattern/${_id}`;
+        break;
 
-			case 'showMorePatterns':
-				dispatch(showMorePatterns());
-				Search.updateMe.set(true);
-				break;
+      case 'user':
+        this.toggleOpen();
+        url = `/user/${_id}`;
+        break;
 
-			case 'showMoreUsers':
-				dispatch(showMoreUsers());
-				Search.updateMe.set(true);
-				break;
+      case 'set':
+        this.toggleOpen();
+        url = `/set/${_id}`;
+        break;
 
-			case 'showMoreSets':
-				dispatch(showMoreSets());
-				Search.updateMe.set(true);
-				break;
+      case 'showMorePatterns':
+        dispatch(showMorePatterns());
+        Search.updateMe.set(true);
+        break;
 
-			default:
-				break;
-		}
-		history.push(url);
-	};
+      case 'showMoreUsers':
+        dispatch(showMoreUsers());
+        Search.updateMe.set(true);
+        break;
 
-	handleClickOutside(event) {
-		// only way I could think of to find the list inside the Combobox component
-		const node = ReactDOM.findDOMNode(this); // eslint-disable-line react/no-find-dom-node
-		const listNode = node.querySelector('.rw-list');
-		const toggleNode = node.querySelector('.toggle-results');
+      case 'showMoreSets':
+        dispatch(showMoreSets());
+        Search.updateMe.set(true);
+        break;
 
-		// if the user clicks outside the toggle button
-		// and the results list
-		// close the search results
-		if (listNode
-			&& !toggleNode.contains(event.target)
-			&& !listNode.contains(event.target)) {
-			this.setState({ 'open': false });
-		}
-	}
+      default:
+        break;
+    }
+    history.push(url);
+  };
 
-	// custom input and button prevents the selected item from being written to the input
-	renderSearchInput = () => {
-		const { isSearching } = this.props;
-		const iconClass = isSearching ? 'fa-spin' : '';
-		const iconName = isSearching ? 'spinner' : 'search';
+  handleClickOutside(event) {
+    const node = this.searchBoxRef.current;
+    if (!node) return;
 
-		return (
-			<div className="search-controls">
-				<Input
-					onChange={this.onChangeInput}
-					type="text"
-				/>
-				<Button
-					className="toggle-results"
-					onClick={this.toggleOpen}
-					title="toggle results"
-				>
-					<FontAwesomeIcon
-						className={iconClass}
-						icon={['fas', iconName]}
-						style={{ 'color': iconColors.default }}
-						size="1x"
-					/>
-				</Button>
-			</div>
-		);
-	}
+    const listNode = node.querySelector('.rw-list');
+    const toggleNode = node.querySelector('.toggle-results');
 
-	render() {
-		const {
-			isSearching,
-			searchResults,
-			searchTerm,
-		} = this.props;
-		const { open } = this.state;
+    // if the user clicks outside the toggle button
+    // and the results list
+    // close the search results
+    if (
+      listNode &&
+      !toggleNode.contains(event.target) &&
+      !listNode.contains(event.target)
+    ) {
+      this.setState({ open: false });
+    }
+  }
 
-		const GroupHeading = ({ item }) => {
-			// note 'item' here is actually the group property
-			let text;
+  // custom input and button prevents the selected item from being written to the input
+  renderSearchInput = () => {
+    const { isSearching } = this.props;
+    const iconClass = isSearching ? 'fa-spin' : '';
+    const iconName = isSearching ? 'spinner' : 'search';
 
-			switch (item) {
-				case 'pattern':
-					text = 'Patterns';
-					break;
+    return (
+      <div className='search-controls'>
+        <Input onChange={this.onChangeInput} type='text' />
+        <Button
+          className='toggle-results'
+          onClick={this.toggleOpen}
+          title='toggle results'
+        >
+          <FontAwesomeIcon
+            className={iconClass}
+            icon={['fas', iconName]}
+            style={{ color: iconColors.default }}
+            size='1x'
+          />
+        </Button>
+      </div>
+    );
+  };
 
-				case 'user':
-					text = 'Users';
-					break;
+  render() {
+    const { isSearching, searchResults, searchTerm } = this.props;
+    const { open } = this.state;
 
-				case 'set':
-					text = 'Sets';
-					break;
+    const GroupHeading = ({ item }) => {
+      // note 'item' here is actually the group property
+      let text;
 
-				default:
-					break;
-			}
+      switch (item) {
+        case 'pattern':
+          text = 'Patterns';
+          break;
 
-			return <span className="group-header">{text}</span>;
-		};
+        case 'user':
+          text = 'Users';
+          break;
 
-		const ListItem = ({ item }) => {
-			const {
-				_id,
-				name,
-				numberOfTablets,
-				patterns,
-				username,
-				type,
-			} = item;
+        case 'set':
+          text = 'Sets';
+          break;
 
-			let element;
+        default:
+          break;
+      }
 
-			switch (type) {
-				case 'pattern':
-					element = (
-						<span className="search-result-pattern">
-							<span
-								className="main-icon"
-								style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/search_pattern.png')}` }}
-							/>
-							<div>
-								<span className="name" title={name}>{name}</span>
-								<span className="tablets-count" title={`${numberOfTablets} tablets`}>
-									<span
-										className="icon"
-										style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/tablet_count.svg')}` }}
-									/>
-									{numberOfTablets}
-								</span>
-								<span className="created-by" title={`Created by ${username}`}>
-									<span
-										className="icon"
-										style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/created_by.png')}` }}
-									/>
-									<span className="text">{username}</span>
-								</span>
-							</div>
-						</span>
-					);
-					break;
+      return <span className='group-header'>{text}</span>;
+    };
 
-				case 'user':
-					element = (
-						<span className="search-result-user">
-							<span
-								className={`${getUserpicStyle(_id)} main-icon icon`}
-								style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/user_profile.png')}` }}
-							/>
-							<div>
-								<span className="name">{name}</span>
-							</div>
-						</span>
-					);
-					break;
+    const ListItem = ({ item }) => {
+      const { _id, name, numberOfTablets, patterns, username, type } = item;
 
-				case 'set':
-					// find the number of visible patterns in the set
-					const numberOfPatterns = item.createdBy === Meteor.userId() ? patterns.length : item.publicPatternsCount;
+      let element;
 
-					element = (
-						<span className="search-result-set">
-							<span
-								className="main-icon"
-								style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/search_set.png')}` }}
-							/>
-							<div>
-								<span className="name" title={name}>{name}</span>
-								<span className="patterns-count" title={`Patterns in set: ${numberOfPatterns}`}>
-									<span
-										className="icon"
-										style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/logo.png')}` }}
-									/>
-									{numberOfPatterns}
-								</span>
-								<span className="created-by" title={`Created by ${username}`}>
-									<span
-										className="icon"
-										style={{ 'backgroundImage': `url(${Meteor.absoluteUrl('/images/created_by.png')}` }}
-									/>{username}
-								</span>
-							</div>
-						</span>
-					);
-					break;
+      switch (type) {
+        case 'pattern':
+          element = (
+            <span className='search-result-pattern'>
+              <span
+                className='main-icon'
+                style={{
+                  backgroundImage: `url(${Meteor.absoluteUrl(
+                    '/images/search_pattern.png',
+                  )}`,
+                }}
+              />
+              <div>
+                <span className='name' title={name}>
+                  {name}
+                </span>
+                <span
+                  className='tablets-count'
+                  title={`${numberOfTablets} tablets`}
+                >
+                  <span
+                    className='icon'
+                    style={{
+                      backgroundImage: `url(${Meteor.absoluteUrl(
+                        '/images/tablet_count.svg',
+                      )}`,
+                    }}
+                  />
+                  {numberOfTablets}
+                </span>
+                <span className='created-by' title={`Created by ${username}`}>
+                  <span
+                    className='icon'
+                    style={{
+                      backgroundImage: `url(${Meteor.absoluteUrl(
+                        '/images/created_by.png',
+                      )}`,
+                    }}
+                  />
+                  <span className='text'>{username}</span>
+                </span>
+              </div>
+            </span>
+          );
+          break;
 
-				case 'showMorePatterns':
-					element = (
-						<span className="show-more-patterns">
-							<FontAwesomeIcon icon={['fas', 'search']} style={{ 'color': iconColors.default }} size="1x" />
-							Show more patterns...
-						</span>
-					);
-					break;
+        case 'user':
+          element = (
+            <span className='search-result-user'>
+              <span
+                className={`${getUserpicStyle(_id)} main-icon icon`}
+                style={{
+                  backgroundImage: `url(${Meteor.absoluteUrl(
+                    '/images/user_profile.png',
+                  )}`,
+                }}
+              />
+              <div>
+                <span className='name'>{name}</span>
+              </div>
+            </span>
+          );
+          break;
 
-				case 'showMoreUsers':
-					element = (
-						<span className="show-more-users">
-							<FontAwesomeIcon icon={['fas', 'search']} style={{ 'color': iconColors.default }} size="1x" />
-							Show more users...
-						</span>
-					);
-					break;
+        case 'set':
+          // find the number of visible patterns in the set
+          // eslint-disable-next-line no-case-declarations
+          const numberOfPatterns =
+            item.createdBy === Meteor.userId()
+              ? patterns.length
+              : item.publicPatternsCount;
 
-				case 'showMoreSets':
-					element = (
-						<span className="show-more-sets">
-							<FontAwesomeIcon icon={['fas', 'search']} style={{ 'color': iconColors.default }} size="1x" />
-							Show more sets...
-						</span>
-					);
-					break;
+          element = (
+            <span className='search-result-set'>
+              <span
+                className='main-icon'
+                style={{
+                  backgroundImage: `url(${Meteor.absoluteUrl(
+                    '/images/search_set.png',
+                  )}`,
+                }}
+              />
+              <div>
+                <span className='name' title={name}>
+                  {name}
+                </span>
+                <span
+                  className='patterns-count'
+                  title={`Patterns in set: ${numberOfPatterns}`}
+                >
+                  <span
+                    className='icon'
+                    style={{
+                      backgroundImage: `url(${Meteor.absoluteUrl(
+                        '/images/logo.png',
+                      )}`,
+                    }}
+                  />
+                  {numberOfPatterns}
+                </span>
+                <span className='created-by' title={`Created by ${username}`}>
+                  <span
+                    className='icon'
+                    style={{
+                      backgroundImage: `url(${Meteor.absoluteUrl(
+                        '/images/created_by.png',
+                      )}`,
+                    }}
+                  />
+                  {username}
+                </span>
+              </div>
+            </span>
+          );
+          break;
 
-				default:
-					element = <span className="default">{name}</span>;
-					break;
-			}
-			return element;
-		};
+        case 'showMorePatterns':
+          element = (
+            <span className='show-more-patterns'>
+              <FontAwesomeIcon
+                icon={['fas', 'search']}
+                style={{ color: iconColors.default }}
+                size='1x'
+              />
+              Show more patterns...
+            </span>
+          );
+          break;
 
-		let message = 'Enter a search term...';
+        case 'showMoreUsers':
+          element = (
+            <span className='show-more-users'>
+              <FontAwesomeIcon
+                icon={['fas', 'search']}
+                style={{ color: iconColors.default }}
+                size='1x'
+              />
+              Show more users...
+            </span>
+          );
+          break;
 
-		if (isSearching) {
-			message = 'Searching...';
-		} else if (searchTerm && searchTerm !== '') {
-			message = `no results found for ${searchTerm}`;
-		}
+        case 'showMoreSets':
+          element = (
+            <span className='show-more-sets'>
+              <FontAwesomeIcon
+                icon={['fas', 'search']}
+                style={{ color: iconColors.default }}
+                size='1x'
+              />
+              Show more sets...
+            </span>
+          );
+          break;
 
-		return (
-			<div className="search-box">
-				{this.renderSearchInput()}
-				<Combobox
-					busy={isSearching}
-					data={searchResults}
-					groupBy="type"
-					groupComponent={GroupHeading}
-					itemComponent={ListItem}
-					messages={{
-						'emptyList': message,
-					}}
-					onChange={() => {}}
-					open={open}
-					onSelect={this.onSelect}
-					onToggle={() => {}}
-					textField="name"
-					valueField="_id"
-				/>
-			</div>
-		);
-	}
+        default:
+          element = <span className='default'>{name}</span>;
+          break;
+      }
+      return element;
+    };
+
+    let message = 'Enter a search term...';
+
+    if (isSearching) {
+      message = 'Searching...';
+    } else if (searchTerm && searchTerm !== '') {
+      message = `no results found for ${searchTerm}`;
+    }
+
+    return (
+      <div className='search-box' ref={this.searchBoxRef}>
+        {this.renderSearchInput()}
+        <Combobox
+          busy={isSearching}
+          data={searchResults}
+          groupBy='type'
+          renderListGroup={GroupHeading}
+          renderListItem={ListItem}
+          messages={{
+            emptyList: message,
+          }}
+          onChange={() => {}}
+          open={open}
+          onSelect={this.onSelect}
+          onToggle={() => {}}
+          textField='name'
+          dataKey='_id'
+        />
+      </div>
+    );
+  }
 }
 
 // force withTracker to update when 'show more' is clicked
 Search.updateMe = new ReactiveVar(false);
 
 Search.propTypes = {
-	'dispatch': PropTypes.func.isRequired,
-	'history': PropTypes.objectOf(PropTypes.any).isRequired,
-	'isSearching': PropTypes.bool.isRequired,
-	'searchResults': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'searchTerm': PropTypes.string.isRequired,
+  dispatch: PropTypes.func.isRequired,
+  hasSearchTerm: PropTypes.bool.isRequired,
+  history: PropTypes.objectOf(PropTypes.any).isRequired,
+  isSearching: PropTypes.bool.isRequired,
+  searchResults: PropTypes.arrayOf(PropTypes.any).isRequired,
+  searchTerm: PropTypes.string.isRequired,
 };
 
 const Tracker = withTracker(({ dispatch }) => {
-	// force the results list to update when the user clicks "more..."
-	const trigger = Search.updateMe.get();
+  // force the results list to update when the user clicks "more..."
+  // eslint-disable-next-line no-unused-vars
+  const trigger = Search.updateMe.get();
 
-	const state = store.getState();
-	const searchTerm = getSearchTerm(state);
-	const patternSearchLimit = getPatternSearchLimit(state);
-	const userSearchLimit = getUserSearchLimit(state);
-	const setSearchLimit = getSetSearchLimit(state);
-	let patternsResults = [];
-	let usersResults = [];
-	let setsResults = [];
+  const state = store.getState();
+  const searchTerm = getSearchTerm(state);
+  const patternSearchLimit = getPatternSearchLimit(state);
+  const userSearchLimit = getUserSearchLimit(state);
+  const setSearchLimit = getSetSearchLimit(state);
+  let patternsResults = [];
+  let usersResults = [];
+  let setsResults = [];
 
-	if (searchTerm) {
-		// search for patterns
-		// server returns extra results so the client knows if 'show more' should be shown
-		const patternsCursor = PatternsIndex.search(searchTerm, { 'limit': patternSearchLimit + SEARCH_MORE }); // search is a reactive data source
+  if (searchTerm) {
+    const patternsLimit = patternSearchLimit + SEARCH_MORE;
+    const usersLimit = userSearchLimit + SEARCH_MORE;
+    const setsLimit = setSearchLimit + SEARCH_MORE;
 
-		patternsResults = patternsCursor.fetch();
+    // subscribe to server publications (reactive)
+    Meteor.subscribe('search.patterns', searchTerm, patternsLimit);
+    Meteor.subscribe('search.users', searchTerm, usersLimit);
+    Meteor.subscribe('search.sets', searchTerm, setsLimit);
 
-		// hide the 'more' results'
-		patternsResults = patternsResults.slice(0, patternSearchLimit);
+    // patterns
+    const patternsCursor = SearchPatterns.find({}, { sort: { nameSort: 1 } });
+    let fetchedPatterns = patternsCursor.fetch();
+    fetchedPatterns = fetchedPatterns.map((p) => ({
+      ...p,
+      type: 'pattern',
+      __originalId: p._id,
+    }));
 
-		if (patternsResults.length < patternsCursor.count()) {
-			patternsResults.push({
-				'name': 'Show more patterns',
-				'type': 'showMorePatterns',
-			});
-		}
+    const numberOfPatterns = fetchedPatterns.length;
+    const displayedPatterns = fetchedPatterns.slice(0, patternSearchLimit);
+    if (numberOfPatterns > patternSearchLimit) {
+      displayedPatterns.push({
+        name: 'Show more patterns',
+        type: 'showMorePatterns',
+      });
+    }
 
-		// search for users
-		// server returns extra results so the client knows if 'show more' should be shown
-		const usersCursor = UsersIndex.search(searchTerm, { 'limit': userSearchLimit + SEARCH_MORE }); // search is a reactive data source
-		usersResults = usersCursor.fetch();
+    patternsResults = displayedPatterns;
 
-		// hide the 'more' results'
-		usersResults = usersResults.slice(0, userSearchLimit);
+    // users
+    const usersCursor = SearchUsers.find({}, { sort: { username: 1 } });
+    let fetchedUsers = usersCursor.fetch();
+    fetchedUsers = fetchedUsers.map((u) => ({
+      _id: u._id,
+      name: u.username,
+      username: u.username,
+      type: 'user',
+      __originalId: u._id,
+    }));
 
-		if (usersResults.length < usersCursor.count()) {
-			usersResults.push({
-				'name': 'Show more users',
-				'type': 'showMoreUsers',
-			});
-		}
+    const numberOfUsers = fetchedUsers.length;
+    const displayedUsers = fetchedUsers.slice(0, userSearchLimit);
+    if (numberOfUsers > userSearchLimit) {
+      displayedUsers.push({ name: 'Show more users', type: 'showMoreUsers' });
+    }
 
-		// search for sets
-		const setsCursor = SetsIndex.search(searchTerm, { 'limit': userSearchLimit + SEARCH_MORE }); // search is a reactive data source
-		setsResults = setsCursor.fetch();
+    usersResults = displayedUsers;
 
-		// hide the 'more' results'
-		setsResults = setsResults.slice(0, setSearchLimit);
+    // sets
+    const setsCursor = SearchSets.find({}, { sort: { nameSort: 1 } });
+    let fetchedSets = setsCursor.fetch();
+    fetchedSets = fetchedSets.map((s) => ({
+      ...s,
+      type: 'set',
+      __originalId: s._id,
+    }));
 
-		if (setsResults.length < setsCursor.count()) {
-			usersResults.push({
-				'name': 'Show more sets',
-				'type': 'showMoreSets',
-			});
-		}
+    const numberOfSets = fetchedSets.length;
+    const displayedSets = fetchedSets.slice(0, setSearchLimit);
+    if (numberOfSets > setSearchLimit) {
+      displayedSets.push({ name: 'Show more sets', type: 'showMoreSets' });
+    }
 
-		dispatch(setIsSearching(false));
-	}
-	Search.updateMe.set('false');
+    setsResults = displayedSets;
+  }
+  Search.updateMe.set('false');
 
-	return {
-		'searchResults': patternsResults.concat(usersResults).concat(setsResults),
-	};
+  return {
+    searchResults: patternsResults.concat(usersResults).concat(setsResults),
+    hasSearchTerm: !!searchTerm,
+  };
 })(Search);
 
 export default connect()(Tracker);

@@ -1,13 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-  matchPath,
   BrowserRouter as Router,
   Route,
   Switch,
+  matchPath,
   withRouter,
 } from 'react-router-dom';
 import { connect, Provider } from 'react-redux';
+import { Roles } from 'meteor/roles';
 
 // fontawesome
 import { library } from '@fortawesome/fontawesome-svg-core';

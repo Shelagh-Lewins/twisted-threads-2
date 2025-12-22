@@ -35,8 +35,8 @@ import getColorsForRolesByTablet from '../../modules/getColorsForRolesByTablet';
 import patternAsText from './patternAsText';
 import newPatternFromFile from './newPatternFromFile';
 import getDoubleFacedOrientation from '../../modules/getDoubleFacedOrientation';
-
-const updeep = require('updeep');
+import * as updeepModule from 'updeep';
+const updeep = updeepModule.default || updeepModule;
 const filenamify = require('filenamify');
 
 /* eslint-disable no-case-declarations */
@@ -317,7 +317,9 @@ export const getPatternId = (state) => state.pattern._id;
 
 export const getPatternType = (state) => state.pattern.patternType;
 
-export const getPatternDesign = (state) => state.pattern.patternDesign || {};
+const EMPTY_PATTERN_DESIGN = {};
+export const getPatternDesign = (state) =>
+  state.pattern.patternDesign || EMPTY_PATTERN_DESIGN;
 
 export const getNumberOfRows = (state) => state.pattern.numberOfRows || 0;
 
@@ -519,19 +521,21 @@ export const getTotalTurnsByTabletSelector = createSelector(
     ),
 );
 
-export const getThreadCounts = createSelector(
+export const getFlatThreading = createSelector(
   getStateThreadingByTablet,
-  getPalette,
-  (threading) =>
-    threading.flat().reduce((accumulator, currentValue) => {
-      if (typeof accumulator[currentValue] === 'undefined') {
-        accumulator[currentValue] = 1;
-      } else {
-        accumulator[currentValue] += 1;
-      }
+  (threading) => threading.flat(),
+);
 
-      return accumulator;
-    }, {}),
+export const getThreadCounts = createSelector(getFlatThreading, (threading) =>
+  threading.reduce((accumulator, currentValue) => {
+    if (typeof accumulator[currentValue] === 'undefined') {
+      accumulator[currentValue] = 1;
+    } else {
+      accumulator[currentValue] += 1;
+    }
+
+    return accumulator;
+  }, {}),
 );
 
 export const getTotalThreads = createSelector(getThreadCounts, (threadCounts) =>

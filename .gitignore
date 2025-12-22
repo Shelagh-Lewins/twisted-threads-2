@@ -1,6 +1,7 @@
 node_modules/
 .env
+.env-test
 twistedthreads2.conf
 package.tar.gz
-.deploy/wyvern/twistedthreadssample.conf
+
 

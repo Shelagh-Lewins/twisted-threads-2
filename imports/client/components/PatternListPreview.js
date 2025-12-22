@@ -10,84 +10,77 @@ import './ItemListPreview.scss';
 
 import getListPreviewDimensions from '../modules/getListPreviewDimensions';
 
-
 const PatternListPreview = (props) => {
-	const {
-		dispatch,
-		listName,
-		patterns,
-		patternPreviews,
-		tags,
-		url,
-		users,
-		width,
-	} = props;
+  const {
+    dispatch,
+    listName,
+    patterns,
+    patternPreviews,
+    tags,
+    url,
+    users,
+    width,
+  } = props;
 
-	const { divWidth, numberToShow } = getListPreviewDimensions(width);
-	const patternsToShow = patterns.slice(0, numberToShow);
+  const { divWidth, numberToShow } = getListPreviewDimensions(width);
+  const patternsToShow = patterns.slice(0, numberToShow);
 
-	return (
-		<div
-			className="item-list-preview"
-			style={{ 'width': divWidth }}
-		>
-			<h1>{listName}</h1>
-			{patternsToShow.length === 0 && (
-				<div className="clearing">No patterns in list</div>
-			)}
-			{patternsToShow.length > 0 && (
-				<>
-					<Button
-						className="more"
-						color="secondary"
-						tag={Link}
-						to={url}
-					>
-						More...
-					</Button>
-					<ul>
-						{patternsToShow.map((pattern) => {
-							const { _id, createdBy, 'tags': patternTags } = pattern;
-							const tagTexts = [];
+  return (
+    <div className='item-list-preview' style={{ width: divWidth }}>
+      <h1>{listName}</h1>
+      {patternsToShow.length === 0 && (
+        <div className='clearing'>No patterns in list</div>
+      )}
+      {patternsToShow.length > 0 && (
+        <>
+          <Button className='more' color='secondary' tag={Link} to={url}>
+            More...
+          </Button>
+          <ul>
+            {patternsToShow.map((pattern) => {
+              const { _id, createdBy, tags: patternTags } = pattern;
+              const tagTexts = [];
 
-							// ensure tags subscription is ready
-							if (patternTags && tags && tags.length > 0) {
-								patternTags.forEach((patternTag) => {
-									const tagObject = tags.find((tag) => tag.name === patternTag);
-									if (tagObject && tagObject.name) {
-										tagTexts.push(tagObject.name);
-									}
-								});
-							}
+              // ensure tags subscription is ready
+              if (patternTags && tags && tags.length > 0) {
+                patternTags.forEach((patternTag) => {
+                  const tagObject = tags.find((tag) => tag.name === patternTag);
+                  if (tagObject && tagObject.name) {
+                    tagTexts.push(tagObject.name);
+                  }
+                });
+              }
 
-							return (
-								<div key={`item-summary-${url}-${_id}`}>
-									<PatternSummary
-										pattern={pattern}
-										dispatch={dispatch}
-										patternPreview={patternPreviews.find((patternPreview) => patternPreview.patternId === _id)}
-										tagTexts={tagTexts}
-										user={users.find((user) => user._id === createdBy)}
-									/>
-								</div>
-							);
-						})}
-					</ul>
-				</>
-			)}
-		</div>
-	);
+              return (
+                <div key={`item-summary-${url}-${_id}`}>
+                  <PatternSummary
+                    pattern={pattern}
+                    dispatch={dispatch}
+                    patternPreview={patternPreviews.find(
+                      (patternPreview) => patternPreview.patternId === _id,
+                    )}
+                    tagTexts={tagTexts}
+                    user={users.find((user) => user._id === createdBy)}
+                  />
+                </div>
+              );
+            })}
+          </ul>
+        </>
+      )}
+    </div>
+  );
 };
 
 PatternListPreview.propTypes = {
-	'dispatch': PropTypes.func.isRequired,
-	'listName': PropTypes.string.isRequired,
-	'patternPreviews': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'patterns': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'tags': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'users': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'url': PropTypes.string.isRequired,
-	'width': PropTypes.number.isRequired,
+  dispatch: PropTypes.func.isRequired,
+  listName: PropTypes.string.isRequired,
+  patternPreviews: PropTypes.arrayOf(PropTypes.any).isRequired,
+  patterns: PropTypes.arrayOf(PropTypes.any).isRequired,
+  tags: PropTypes.arrayOf(PropTypes.any).isRequired,
+  users: PropTypes.arrayOf(PropTypes.any).isRequired,
+  url: PropTypes.string.isRequired,
+  width: PropTypes.number.isRequired,
 };
 
 export default PatternListPreview;

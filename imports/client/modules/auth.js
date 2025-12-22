@@ -8,8 +8,8 @@ import {
   ROLE_LIMITS,
 } from '../../modules/parameters';
 import { getLocalStorageItem, setLocalStorageItem } from './localStorage';
-
-const updeep = require('updeep');
+import * as updeepModule from 'updeep';
+const updeep = updeepModule.default || updeepModule;
 
 // ////////////////////////////////
 // Action creators
@@ -649,7 +649,7 @@ const initialAuthState = {
   forgotPasswordEmailSent: false,
   isLoading: true,
   maintenanceMode: false,
-  version: 0,
+  version: '',
   numberOfColorBooks: 0,
   numberOfPatternImages: 0,
   numberOfPatterns: 0,

@@ -1,4 +1,5 @@
 import SimpleSchema from 'simpl-schema';
+import 'meteor/aldeed:collection2/static';
 
 import {
   MAX_PATTERNS_IN_SET,
@@ -11,14 +12,12 @@ const PatternsSchema = new SimpleSchema({
   createdAt: {
     type: Date,
     label: 'Created at date',
-    index: 1,
     optional: true, // automatically created by hook but if required here, an error is thrown
   },
   createdBy: {
     type: String,
     label: 'Created by',
     max: 200,
-    index: 1,
   },
   description: {
     type: String,
@@ -49,7 +48,6 @@ const PatternsSchema = new SimpleSchema({
     type: Boolean,
     label: 'Is public',
     min: 1,
-    index: 1,
   },
   isTwistNeutral: {
     type: Boolean,
@@ -59,7 +57,6 @@ const PatternsSchema = new SimpleSchema({
   modifiedAt: {
     type: Date,
     label: 'Modified at date',
-    index: 1,
     optional: true, // automatically created by hook but if required here, an error is thrown
   },
   name: {
@@ -71,7 +68,6 @@ const PatternsSchema = new SimpleSchema({
     type: String,
     label: 'Sortable name',
     max: MAX_TEXT_INPUT_LENGTH,
-    index: 1,
   },
   numberOfRows: {
     type: SimpleSchema.Integer,
@@ -82,7 +78,6 @@ const PatternsSchema = new SimpleSchema({
     type: SimpleSchema.Integer,
     label: 'Number of tablets',
     min: 1,
-    index: 1,
   },
   orientations: {
     type: Array,
@@ -122,7 +117,6 @@ const PatternsSchema = new SimpleSchema({
   sets: {
     type: Array,
     label: 'Sets',
-    index: 1,
     optional: true,
   },
   'sets.$': {
@@ -141,7 +135,6 @@ const PatternsSchema = new SimpleSchema({
   tags: {
     type: Array,
     label: 'Tags',
-    index: 1,
   },
   'tags.$': {
     type: String,

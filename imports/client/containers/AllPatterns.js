@@ -6,10 +6,10 @@ import PropTypes from 'prop-types';
 import PageWrapper from '../components/PageWrapper';
 import store from '../modules/store';
 import {
-	getIsLoading,
-	getPatternCount,
-	setIsLoading,
-	updatePatternCountUserId,
+  getIsLoading,
+  getPatternCount,
+  setIsLoading,
+  updatePatternCountUserId,
 } from '../modules/pattern';
 import { PatternPreviews, Patterns, Tags } from '../../modules/collection';
 import Loading from '../components/Loading';
@@ -19,207 +19,203 @@ import PaginatedList from '../components/PaginatedList';
 import PatternList from '../components/PatternList';
 
 import secondaryPatternSubscriptions from '../modules/secondaryPatternSubscriptions';
+import queryString from 'query-string';
 
 import './Home.scss';
-
-const queryString = require('query-string');
 
 const bodyClass = 'all-patterns';
 
 class AllPatterns extends Component {
-	constructor(props) {
-		super(props);
-		const { dispatch } = props;
+  constructor(props) {
+    super(props);
+    const { dispatch } = props;
 
-		// bind onClick functions to provide context
-		const functionsToBind = ['handlePaginationUpdate'];
+    // bind onClick functions to provide context
+    const functionsToBind = ['handlePaginationUpdate'];
 
-		functionsToBind.forEach((functionName) => {
-			this[functionName] = this[functionName].bind(this);
-		});
+    functionsToBind.forEach((functionName) => {
+      this[functionName] = this[functionName].bind(this);
+    });
 
-		dispatch(updatePatternCountUserId());
-	}
+    dispatch(updatePatternCountUserId());
+  }
 
-	componentDidMount() {
-		document.body.classList.add(bodyClass);
-	}
+  componentDidMount() {
+    document.body.classList.add(bodyClass);
+  }
 
-	componentWillUnmount() {
-		document.body.classList.remove(bodyClass);
-	}
+  componentWillUnmount() {
+    document.body.classList.remove(bodyClass);
+  }
 
-	handlePaginationUpdate() {
-		const { dispatch } = this.props;
+  handlePaginationUpdate() {
+    const { dispatch } = this.props;
 
-		dispatch(getPatternCount());
-	}
+    dispatch(getPatternCount());
+  }
 
-	render() {
-		const {
-			currentPageNumber,
-			dispatch,
-			errors,
-			history,
-			isLoading,
-			patternCount,
-			patternPreviews,
-			patterns,
-			tags,
-			users,
-		} = this.props;
+  render() {
+    const {
+      currentPageNumber,
+      dispatch,
+      errors,
+      history,
+      isLoading,
+      patternCount,
+      patternPreviews,
+      patterns,
+      tags,
+      users,
+    } = this.props;
 
-		return (
-			<PageWrapper
-				dispatch={dispatch}
-				errors={errors}
-			>
-				<MainMenu />
-				<div className='menu-selected-area'>
-					{isLoading && <Loading />}
-					<Container>
-						<Row>
-							<Col lg='12'>
-								<h1>All patterns</h1>
-							</Col>
-						</Row>
-					</Container>
-					{!isLoading && (
-						<>
-							<PatternFilterForm />
-							<PaginatedList
-								currentPageNumber={currentPageNumber}
-								dispatch={dispatch}
-								handlePaginationUpdate={this.handlePaginationUpdate}
-								history={history}
-								itemCount={patternCount}
-							>
-								<PatternList
-									dispatch={dispatch}
-									patternPreviews={patternPreviews}
-									patterns={patterns}
-									tags={tags}
-									users={users}
-								/>
-							</PaginatedList>
-						</>
-					)}
-				</div>
-			</PageWrapper>
-		);
-	}
+    return (
+      <PageWrapper dispatch={dispatch} errors={errors}>
+        <MainMenu />
+        <div className='menu-selected-area'>
+          {isLoading && <Loading />}
+          <Container>
+            <Row>
+              <Col lg='12'>
+                <h1>All patterns</h1>
+              </Col>
+            </Row>
+          </Container>
+          {!isLoading && (
+            <>
+              <PatternFilterForm />
+              <PaginatedList
+                currentPageNumber={currentPageNumber}
+                dispatch={dispatch}
+                handlePaginationUpdate={this.handlePaginationUpdate}
+                history={history}
+                itemCount={patternCount}
+              >
+                <PatternList
+                  dispatch={dispatch}
+                  patternPreviews={patternPreviews}
+                  patterns={patterns}
+                  tags={tags}
+                  users={users}
+                />
+              </PaginatedList>
+            </>
+          )}
+        </div>
+      </PageWrapper>
+    );
+  }
 }
 
 AllPatterns.defaultProps = {
-	currentPageNumber: 1,
+  currentPageNumber: 1,
 };
 
 AllPatterns.propTypes = {
-	currentPageNumber: PropTypes.number,
-	dispatch: PropTypes.func.isRequired,
-	errors: PropTypes.objectOf(PropTypes.any).isRequired,
-	// eslint doesn't realise the filters are used in Tracker
-	filterIsTwistNeutral: PropTypes.bool,
-	filterMaxTablets: PropTypes.number,
-	filterMinTablets: PropTypes.number,
-	filterWillRepeat: PropTypes.bool,
-	history: PropTypes.objectOf(PropTypes.any).isRequired,
-	isLoading: PropTypes.bool.isRequired,
-	itemsPerPage: PropTypes.number.isRequired,
-	patternCount: PropTypes.number.isRequired,
-	patternPreviews: PropTypes.arrayOf(PropTypes.any).isRequired,
-	patterns: PropTypes.arrayOf(PropTypes.any).isRequired,
-	tags: PropTypes.arrayOf(PropTypes.any).isRequired,
-	users: PropTypes.arrayOf(PropTypes.any).isRequired,
+  currentPageNumber: PropTypes.number,
+  dispatch: PropTypes.func.isRequired,
+  errors: PropTypes.objectOf(PropTypes.any).isRequired,
+  // eslint doesn't realise the filters are used in Tracker
+  filterIsTwistNeutral: PropTypes.bool,
+  filterMaxTablets: PropTypes.number,
+  filterMinTablets: PropTypes.number,
+  filterWillRepeat: PropTypes.bool,
+  history: PropTypes.objectOf(PropTypes.any).isRequired,
+  isLoading: PropTypes.bool.isRequired,
+  itemsPerPage: PropTypes.number.isRequired,
+  patternCount: PropTypes.number.isRequired,
+  patternPreviews: PropTypes.arrayOf(PropTypes.any).isRequired,
+  patterns: PropTypes.arrayOf(PropTypes.any).isRequired,
+  tags: PropTypes.arrayOf(PropTypes.any).isRequired,
+  users: PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
-	const { itemsPerPage } = state.page;
-	// find page number as URL query parameter, if present, in the form '/?page=1'
-	let currentPageNumber = 1;
-	const parsed = queryString.parse(ownProps.location.search);
-	const page = parseInt(parsed.page, 10);
+  const { itemsPerPage } = state.page;
+  // find page number as URL query parameter, if present, in the form '/?page=1'
+  let currentPageNumber = 1;
+  const parsed = queryString.parse(ownProps.location.search);
+  const page = parseInt(parsed.page, 10);
 
-	if (!Number.isNaN(page) && page > 0) {
-		currentPageNumber = page;
-	}
+  if (!Number.isNaN(page) && page > 0) {
+    currentPageNumber = page;
+  }
 
-	const {
-		filterIsTwistNeutral,
-		filterMaxTablets,
-		filterMinTablets,
-		filterWillRepeat,
-	} = state.pattern;
+  const {
+    filterIsTwistNeutral,
+    filterMaxTablets,
+    filterMinTablets,
+    filterWillRepeat,
+  } = state.pattern;
 
-	return {
-		currentPageNumber, // read the url parameter to find the currentPage
-		errors: state.errors,
-		filterIsTwistNeutral,
-		filterMaxTablets,
-		filterMinTablets,
-		filterWillRepeat,
-		isLoading: getIsLoading(state),
-		itemsPerPage,
-		pageSkip: (currentPageNumber - 1) * itemsPerPage,
-		patternCount: state.pattern.patternCount,
-	};
+  return {
+    currentPageNumber, // read the url parameter to find the currentPage
+    errors: state.errors,
+    filterIsTwistNeutral,
+    filterMaxTablets,
+    filterMinTablets,
+    filterWillRepeat,
+    isLoading: getIsLoading(state),
+    itemsPerPage,
+    pageSkip: (currentPageNumber - 1) * itemsPerPage,
+    patternCount: state.pattern.patternCount,
+  };
 }
 
 const Tracker = withTracker((props) => {
-	const {
-		dispatch,
-		filterIsTwistNeutral,
-		filterMaxTablets,
-		filterMinTablets,
-		filterWillRepeat,
-		itemsPerPage,
-		pageSkip,
-	} = props;
-	const state = store.getState();
-	const isLoading = getIsLoading(state);
-	const patterns = Patterns.find(
-		{},
-		{
-			sort: { nameSort: 1 },
-			limit: itemsPerPage,
-		}
-	).fetch();
+  const {
+    dispatch,
+    filterIsTwistNeutral,
+    filterMaxTablets,
+    filterMinTablets,
+    filterWillRepeat,
+    itemsPerPage,
+    pageSkip,
+  } = props;
+  const state = store.getState();
+  const isLoading = getIsLoading(state);
+  const patterns = Patterns.find(
+    {},
+    {
+      sort: { nameSort: 1 },
+      limit: itemsPerPage,
+    },
+  ).fetch();
 
-	Meteor.subscribe('tags');
+  Meteor.subscribe('tags');
 
-	const handle = Meteor.subscribe(
-		'patterns',
-		{
-			filterIsTwistNeutral,
-			filterMaxTablets,
-			filterMinTablets,
-			filterWillRepeat,
-			limit: itemsPerPage,
-			skip: pageSkip,
-		},
-		{
-			onReady: () => {
-				secondaryPatternSubscriptions(patterns);
-			},
-		}
-	);
+  const handle = Meteor.subscribe(
+    'patterns',
+    {
+      filterIsTwistNeutral,
+      filterMaxTablets,
+      filterMinTablets,
+      filterWillRepeat,
+      limit: itemsPerPage,
+      skip: pageSkip,
+    },
+    {
+      onReady: () => {
+        secondaryPatternSubscriptions(patterns);
+      },
+    },
+  );
 
-	if (isLoading && handle.ready()) {
-		setTimeout(() => {
-			dispatch(setIsLoading(false));
-		}, 1);
-	} else if (!isLoading && !handle.ready()) {
-		setTimeout(() => {
-			dispatch(setIsLoading(true));
-		}, 1);
-	}
+  if (isLoading && handle.ready()) {
+    setTimeout(() => {
+      dispatch(setIsLoading(false));
+    }, 1);
+  } else if (!isLoading && !handle.ready()) {
+    setTimeout(() => {
+      dispatch(setIsLoading(true));
+    }, 1);
+  }
 
-	return {
-		patterns,
-		patternPreviews: PatternPreviews.find().fetch(),
-		tags: Tags.find().fetch(),
-		users: Meteor.users.find().fetch(),
-	};
+  return {
+    patterns,
+    patternPreviews: PatternPreviews.find().fetch(),
+    tags: Tags.find().fetch(),
+    users: Meteor.users.find().fetch(),
+  };
 })(AllPatterns);
 
 export default connect(mapStateToProps)(Tracker);
