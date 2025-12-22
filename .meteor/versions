@@ -1,7 +1,7 @@
 accounts-base@3.1.2
 accounts-password@3.2.1
-aldeed:collection2@4.1.4
-aldeed:simple-schema@1.13.1
+aldeed:collection2@4.1.5
+aldeed:simple-schema@2.0.0
 allow-deny@2.1.0
 autoupdate@2.0.1
 babel-compiler@7.12.2
@@ -60,7 +60,7 @@ nodsec:scss@6.0.0
 npm-mongo@6.16.1
 ordered-dict@1.2.0
 promise@1.0.0
-raix:eventemitter@1.0.0
+raix:eventemitter@2.0.0
 random@1.2.2
 rate-limit@1.1.2
 react-fast-refresh@0.2.9

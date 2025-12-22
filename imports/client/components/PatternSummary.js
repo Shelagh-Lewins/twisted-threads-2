@@ -11,6 +11,8 @@ import AddToSet from './AddToSet';
 
 import { iconColors } from '../../modules/parameters';
 import getPatternPreviewAddress from '../modules/getPatternPreviewAddress';
+import DOMPurify from 'dompurify';
+import { marked } from 'marked';
 
 function PatternSummary(props) {
   const {
@@ -110,7 +112,12 @@ function PatternSummary(props) {
         <Link to={`/pattern/${_id}`}>
           <h3>{name}</h3>
           {canAddToSet && <AddToSet patternId={_id} patternName={name} />}
-          <div className='description'>{description}</div>
+          <div
+            className='description'
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(marked(description || '')),
+            }}
+          />
           <div className='info'>
             <div
               className='tablets item'
