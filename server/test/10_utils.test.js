@@ -576,6 +576,7 @@ describe('utils.js basic unit tests', () => {
       expect(updatedSet.publicPatternsCount).to.equal(0);
     });
   });
+
   describe('updatePublicColorBooksCount', () => {
     let user;
     beforeEach(async () => {
@@ -613,9 +614,7 @@ describe('utils.js basic unit tests', () => {
         roles: ['registered', 'verified'],
         removeExistingUsers: false,
         username: 'OtherUser',
-        emails: [
-          { address: 'otheruser@here.com', verified: true },
-        ],
+        emails: [{ address: 'otheruser@here.com', verified: true }],
       });
       for (let i = 0; i < 2; i++) {
         await insertColorBookForUser({ user: otherUser, isPublic: true });
@@ -632,6 +631,68 @@ describe('utils.js basic unit tests', () => {
       await utils.updatePublicColorBooksCount(user._id);
       const updatedUser = await Meteor.users.findOneAsync({ _id: user._id });
       expect(updatedUser.publicColorBooksCount).to.equal(4);
+    });
+  });
+
+  describe('updatePublicSetsCount', () => {
+    let user;
+    let Sets;
+    beforeEach(async () => {
+      await ensureAllRolesExist();
+      user = await stubUser({ roles: ['registered', 'verified'] });
+      ({ Sets } = require('../../imports/modules/collection'));
+      await Sets.removeAsync({ createdBy: user._id });
+      await Meteor.users.updateAsync(
+        { _id: user._id },
+        { $set: { publicSetsCount: 0 } },
+      );
+    });
+
+    it('should set publicSetsCount to 0 if user has no sets with public patterns', async () => {
+      // Create 2 sets, both with publicPatternsCount 0
+      for (let i = 0; i < 2; i++) {
+        await createSetForUser({ user, publicPatternsCount: 0 });
+      }
+      await utils.updatePublicSetsCount(user._id);
+      const updatedUser = await Meteor.users.findOneAsync({ _id: user._id });
+      expect(updatedUser.publicSetsCount).to.equal(0);
+    });
+
+    it('should count only sets with publicPatternsCount > 0', async () => {
+      // 2 sets with publicPatternsCount 0, 3 sets with publicPatternsCount > 0
+      for (let i = 0; i < 2; i++) {
+        await createSetForUser({ user, publicPatternsCount: 0 });
+      }
+      for (let i = 0; i < 3; i++) {
+        await createSetForUser({ user, publicPatternsCount: i + 1 });
+      }
+      await utils.updatePublicSetsCount(user._id);
+      const updatedUser = await Meteor.users.findOneAsync({ _id: user._id });
+      expect(updatedUser.publicSetsCount).to.equal(3);
+    });
+
+    it('should not count sets created by other users', async () => {
+      const otherUser = await stubUser({
+        roles: ['registered', 'verified'],
+        removeExistingUsers: false,
+        username: 'OtherUser',
+        emails: [{ address: 'otheruser@here.com', verified: true }],
+      });
+      for (let i = 0; i < 2; i++) {
+        await createSetForUser({ user: otherUser, publicPatternsCount: 2 });
+      }
+      await utils.updatePublicSetsCount(user._id);
+      const updatedUser = await Meteor.users.findOneAsync({ _id: user._id });
+      expect(updatedUser.publicSetsCount).to.equal(0);
+    });
+
+    it('should count all sets if all have publicPatternsCount > 0', async () => {
+      for (let i = 0; i < 4; i++) {
+        await createSetForUser({ user, publicPatternsCount: 2 });
+      }
+      await utils.updatePublicSetsCount(user._id);
+      const updatedUser = await Meteor.users.findOneAsync({ _id: user._id });
+      expect(updatedUser.publicSetsCount).to.equal(4);
     });
   });
 });
