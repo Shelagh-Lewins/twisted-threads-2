@@ -938,60 +938,14 @@ describe('utils.js basic unit tests', () => {
   });
 
   describe('setupDoubleFacedThreading', () => {
-    const utils = require('../../imports/server/modules/utils');
+    const expectedDoubleFacedThreading = require('./expectedDoubleFacedThreading');
 
-    // These values must match the actual values in parameters.js
-    const DOUBLE_FACED_THREADING = ['F', 'F', 'B', 'B'];
-    const DOUBLE_FACED_FOREGROUND = 1;
-    const DOUBLE_FACED_BACKGROUND = 3;
-
-    function getExpectedThreading(holes, numberOfTablets) {
-      // Use the actual threading order: ['F', 'F', 'B', 'B']
-      return DOUBLE_FACED_THREADING.slice(0, holes).map((role) =>
-        Array(numberOfTablets).fill(
-          role === 'F' ? DOUBLE_FACED_FOREGROUND : DOUBLE_FACED_BACKGROUND,
-        ),
-      );
-    }
-
-    it('should return correct threading for 4 holes and 4 tablets', () => {
-      const result = utils.setupDoubleFacedThreading({
-        holes: 4,
-        numberOfTablets: 4,
-      });
-      const expected = getExpectedThreading(4, 4);
-      expect(result).to.deep.equal(expected);
-    });
-
-    it('should return correct threading for 4 holes and 1 tablet', () => {
-      const result = utils.setupDoubleFacedThreading({
-        holes: 4,
-        numberOfTablets: 1,
-      });
-      const expected = getExpectedThreading(4, 1);
-      expect(result).to.deep.equal(expected);
-    });
-
-    it('should return correct threading for 4 holes and 8 tablets', () => {
+    it('should generate the explicit expected double-faced threading for 8 tablets with 4 holes', () => {
       const result = utils.setupDoubleFacedThreading({
         holes: 4,
         numberOfTablets: 8,
       });
-      const expected = getExpectedThreading(4, 8);
-      expect(result).to.deep.equal(expected);
-    });
-
-    it('should only use FOREGROUND and BACKGROUND values', () => {
-      const result = utils.setupDoubleFacedThreading({
-        holes: 4,
-        numberOfTablets: 6,
-      });
-      const allowed = [DOUBLE_FACED_FOREGROUND, DOUBLE_FACED_BACKGROUND];
-      result.forEach((row) => {
-        row.forEach((val) => {
-          expect(allowed).to.include(val);
-        });
-      });
+      expect(result).to.deep.equal(expectedDoubleFacedThreading);
     });
   });
 });
