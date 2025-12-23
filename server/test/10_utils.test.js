@@ -978,4 +978,49 @@ describe('utils.js basic unit tests', () => {
       clock.restore();
     });
   });
+
+  describe('asyncForEach', () => {
+    it('calls the callback for each element in order', async () => {
+      const arr = [1, 2, 3];
+      const result = [];
+      await utils.asyncForEach(arr, async (x) => {
+        result.push(x);
+      });
+      expect(result).to.deep.equal([1, 2, 3]);
+    });
+
+    it('awaits each callback sequentially', async () => {
+      const arr = [1, 2, 3];
+      const result = [];
+      await utils.asyncForEach(arr, async (x) => {
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        result.push(x);
+      });
+      expect(result).to.deep.equal([1, 2, 3]);
+    });
+
+    it('propagates errors from the callback', async () => {
+      const arr = [1, 2, 3];
+      let callCount = 0;
+      try {
+        await utils.asyncForEach(arr, async (x) => {
+          callCount += 1;
+          if (x === 2) throw new Error('fail');
+        });
+        throw new Error('should have thrown');
+      } catch (err) {
+        expect(err).to.be.an('error');
+        expect(err.message).to.equal('fail');
+        expect(callCount).to.equal(2); // stops at first error
+      }
+    });
+
+    it('handles empty array without error', async () => {
+      let called = false;
+      await utils.asyncForEach([], async () => {
+        called = true;
+      });
+      expect(called).to.be.false;
+    });
+  });
 });
