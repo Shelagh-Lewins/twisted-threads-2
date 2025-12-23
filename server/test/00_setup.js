@@ -15,6 +15,7 @@ import {
 } from '../../imports/modules/collection';
 import { Roles } from 'meteor/roles';
 import { ROLES } from '../../imports/modules/parameters';
+import { asyncForEach } from '../../imports/server/modules/utils';
 
 // Configure chai to use chai-as-promised for async assertions
 chai.use(chaiAsPromised);
@@ -45,13 +46,13 @@ export async function resetDatabase() {
 
 // Re-create all roles after resetDatabase to ensure roles exist for tests
 export async function ensureAllRolesExist() {
-  for (const role of ROLES) {
+  await asyncForEach(ROLES, async (role) => {
     if (Roles && typeof Roles.createRoleAsync === 'function') {
       await Roles.createRoleAsync(role, { unlessExists: true });
     } else if (Roles && typeof Roles.createRole === 'function') {
       Roles.createRole(role, { unlessExists: true });
     }
-  }
+  });
 }
 
 // Make resetDatabase and ensureAllRolesExist globally available for backwards compatibility

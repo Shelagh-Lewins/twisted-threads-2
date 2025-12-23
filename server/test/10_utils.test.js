@@ -1,5 +1,7 @@
-import { DOUBLE_FACED_ORIENTATIONS } from '../../imports/modules/parameters';
-/* eslint-env mocha */
+import {
+  DOUBLE_FACED_ORIENTATIONS,
+  DEFAULT_ORIENTATION,
+} from '../../imports/modules/parameters';
 import { expect } from 'chai';
 import { check } from 'meteor/check';
 import * as utils from '../../imports/server/modules/utils';
@@ -12,8 +14,10 @@ import {
   insertColorBookForUser,
 } from './testHelpers';
 import { ColorBooks } from '../../imports/modules/collection';
-import { DEFAULT_ORIENTATION } from '../../imports/modules/parameters';
 import { stubUser } from './mockUser';
+import expectedDoubleFacedThreading from './expectedDoubleFacedThreading.js';
+import expectedTwillThreading from './expectedTwillThreading.js';
+import sinon from 'sinon';
 
 describe('utils.js basic unit tests', () => {
   describe('nonEmptyStringCheck', () => {
@@ -228,13 +232,13 @@ describe('utils.js basic unit tests', () => {
 
   describe('checkUserCanCreatePattern', () => {
     let originalPatterns;
-    let stubUser, unwrapUser;
+    let unwrapUser;
     before(async () => {
       await ensureAllRolesExist();
       // Save originals
       originalPatterns = global.Patterns;
-      // Import stubUser and unwrapUser dynamically to avoid circular deps
-      ({ stubUser, unwrapUser } = require('./mockUser'));
+      // Import unwrapUser dynamically to avoid circular deps
+      ({ unwrapUser } = await import('./mockUser'));
     });
 
     afterEach(async () => {
@@ -938,8 +942,6 @@ describe('utils.js basic unit tests', () => {
   });
 
   describe('setupDoubleFacedThreading', () => {
-    const expectedDoubleFacedThreading = require('./expectedDoubleFacedThreading');
-
     it('should generate the explicit expected double-faced threading for 8 tablets with 4 holes', () => {
       const result = utils.setupDoubleFacedThreading({
         holes: 4,
@@ -950,9 +952,6 @@ describe('utils.js basic unit tests', () => {
   });
 
   describe('setupTwillThreading', () => {
-    const utils = require('../../imports/server/modules/utils');
-    const expectedTwillThreading = require('./expectedTwillThreading');
-
     it('should generate the explicit expected twill threading for 4 holes and 8 tablets', () => {
       const result = utils.setupTwillThreading({
         holes: 4,
@@ -964,9 +963,6 @@ describe('utils.js basic unit tests', () => {
   });
 
   describe('buildServerLogText', () => {
-    const utils = require('../../imports/server/modules/utils');
-    const sinon = require('sinon');
-
     it('should return a correctly formatted log string in test mode', async () => {
       // Freeze time to a known value
       const clock = sinon.useFakeTimers(
