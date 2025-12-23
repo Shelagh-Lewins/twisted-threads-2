@@ -948,4 +948,38 @@ describe('utils.js basic unit tests', () => {
       expect(result).to.deep.equal(expectedDoubleFacedThreading);
     });
   });
+
+  describe('setupTwillThreading', () => {
+    const utils = require('../../imports/server/modules/utils');
+    const expectedTwillThreading = require('./expectedTwillThreading');
+
+    it('should generate the explicit expected twill threading for 4 holes and 8 tablets', () => {
+      const result = utils.setupTwillThreading({
+        holes: 4,
+        numberOfTablets: 8,
+        startTablet: 0,
+      });
+      expect(result).to.deep.equal(expectedTwillThreading);
+    });
+  });
+
+  describe('buildServerLogText', () => {
+    const utils = require('../../imports/server/modules/utils');
+    const sinon = require('sinon');
+
+    it('should return a correctly formatted log string in test mode', async () => {
+      // Freeze time to a known value
+      const clock = sinon.useFakeTimers(
+        new Date('2025-12-23T12:34:56Z').getTime(),
+      );
+
+      const text = 'Test log entry';
+      const result = await utils.buildServerLogText(text);
+      expect(result).to.equal(
+        '2025/12/23 12:34:56 Test log entry, client: local.testing, host: "local.testing"',
+      );
+
+      clock.restore();
+    });
+  });
 });
