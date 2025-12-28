@@ -810,8 +810,7 @@ class Pattern extends PureComponent {
       threadingNotes,
       weavingNotes,
     } = pattern;
-    console.log('pattern data in renderTabContent:', pattern);
-    console.log('description:', description);
+
     const canEdit = createdBy === Meteor.userId();
 
     let tabContent;

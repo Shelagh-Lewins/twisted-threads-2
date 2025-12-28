@@ -25,6 +25,7 @@ export const SET_ISLOADING = 'SET_ISLOADING';
 export const REGISTER = 'REGISTER';
 export const LOGIN = 'LOGIN';
 export const LOGOUT = 'LOGOUT';
+export const RESET_AUTH_STATE = 'RESET_AUTH_STATE';
 
 export const VERIFICATION_EMAIL_SENT = 'VERIFICATION_EMAIL_SENT';
 export const VERIFICATION_EMAIL_NOT_SENT = 'VERIFICATION_EMAIL_NOT_SENT';
@@ -147,18 +148,19 @@ export function setWeavingBackwardsBackgroundColor(colorValue) {
 
 export const register =
   ({ email, username, password, history }) =>
-  (dispatch) => {
+  async (dispatch) => {
     dispatch(clearErrors());
     dispatch(setIsLoading(true));
 
-    Accounts.createUser({ email, username, password }, (error) => {
+    try {
+      await Accounts.createUserAsync({ email, username, password });
       dispatch(setIsLoading(false));
-      if (error) {
-        return dispatch(logErrors({ register: error.reason }));
-      }
-
       history.push('/welcome');
-    });
+    } catch (error) {
+      dispatch(setIsLoading(false));
+
+      dispatch(logErrors({ register: error.reason }));
+    }
   };
 
 // user can be email or username
@@ -171,7 +173,6 @@ export const login =
     Meteor.loginWithPassword(user, password, (error, data) => {
       dispatch(setIsLoading(false));
       if (error) {
-        console.log('*** auth login failed with error', error);
         return dispatch(logErrors({ login: error.reason }));
       }
 
@@ -187,9 +188,17 @@ export const logout = (history) => (dispatch) => {
       return dispatch(logErrors({ logout: error.reason }));
     }
 
+    dispatch(resetAuthState());
     history.push('/');
   });
 };
+
+// reset the Redux state for auth, e.g. on logout
+export function resetAuthState() {
+  return {
+    type: RESET_AUTH_STATE,
+  };
+}
 
 // editable text fields like description
 export function editTextField({ _id, fieldName, fieldValue }) {
@@ -281,6 +290,7 @@ export const sendVerificationEmail = (userId) => (dispatch) => {
     if (error) {
       return dispatch(logErrors({ 'send verification email': error.reason }));
     }
+
     dispatch(verificationEmailSent());
   });
 };
@@ -754,6 +764,10 @@ export default function auth(state = initialAuthState, action) {
 
     case SET_USER_ROLES: {
       return updeep({ userRoles: action.payload }, state);
+    }
+
+    case RESET_AUTH_STATE: {
+      return updeep(initialAuthState, {});
     }
 
     default:
