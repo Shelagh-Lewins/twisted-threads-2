@@ -4,8 +4,12 @@ set -e
 # use to reference other scripts in the same directory as this one
 my_dir=`dirname $0`
 
-# load environment variables: SERVER
-. $my_dir/.env
+# Load environment variables from argument
+if [ -z "$1" ]; then
+  echo "Usage: $0 path/to/.env"
+  exit 1
+fi
+. "$1"
 
 ### Configuration ###
 APP_DIR=/var/www/twistedthreads

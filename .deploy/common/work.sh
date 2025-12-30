@@ -18,8 +18,8 @@ rm -f $APP_DIR/package.tar.gz
 
 # Install dependencies
 cd $APP_DIR/tmp/bundle/programs/server
-npm install --production
-npm prune --production
+npm install --omit=dev
+npm prune --omit=dev
 
 # Copy over persistent files
 if [[ -e $APP_DIR/bundle/Passengerfile.json ]]; then

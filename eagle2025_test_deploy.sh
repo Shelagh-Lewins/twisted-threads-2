@@ -3,4 +3,5 @@
 # to the eagle2025 server
 # https://twistedthreadstest.shelaghlewins.com/
 # used for testing
-./.deploy/eagle2025/initiate.sh
+
+./.deploy/common/initiate.sh .deploy/eagle2025/.env

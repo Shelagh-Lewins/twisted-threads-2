@@ -9,6 +9,12 @@ import { Roles } from 'meteor/roles';
 
 Meteor.startup(() => {
   (async () => {
+    // log whether oplog is enabled
+    console.log(
+      'Oplog enabled in Meteor:',
+      !!MongoInternals?.defaultRemoteCollectionDriver()?.mongo?._oplogHandle,
+    );
+
     // ensure user roles exist (for loop enables await)
     for (const role of ROLES) {
       await Roles.createRoleAsync(role, { unlessExists: true });
