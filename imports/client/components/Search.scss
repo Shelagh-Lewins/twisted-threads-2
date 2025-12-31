@@ -2,13 +2,33 @@
 $rw-font-path: '~/fonts';
 $rw-img-path: '~/img';
 
+.group-header {
+  font-weight: bold;
+  color: $color-search-info;
+  font-size: 95%;
+  padding: 8px 12px 4px 8px;
+  display: block;
+  width: 100%;
+  background: none;
+  margin: 0;
+}
+
 .search-box {
+  .rw-list-optgroup {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    background: none;
+    border: none;
+    display: flex;
+    align-items: center;
+  }
+
   .search-controls {
     background-color: $color-search-controls-background;
     border-radius: 4px;
     color: $color-text;
     margin-bottom: 8px;
-
     input {
       border: 0;
       display: inline-block;
@@ -26,7 +46,7 @@ $rw-img-path: '~/img';
   }
 
   .rw-popup-container {
-    width: 240px;
+    width: 360px;
   }
 
   .rw-list {
@@ -38,6 +58,8 @@ $rw-img-path: '~/img';
     line-height: 1;
     width: 100%;
     padding: 0;
+    display: flex;
+    align-items: center;
 
     .search-result-pattern,
     .search-result-user,
@@ -53,14 +75,17 @@ $rw-img-path: '~/img';
     }
 
     .show-more-patterns,
-    .show-more-users {
-      color: $color-text;
-      float: left;
+    .show-more-users,
+    .show-more-sets {
+      color: $color-search-info;
       font-weight: bold;
       padding: 8px 0;
       text-align: center;
       text-decoration: none;
       width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
       svg {
         margin-right: 8px;

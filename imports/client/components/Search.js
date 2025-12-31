@@ -183,29 +183,25 @@ class Search extends PureComponent {
 
   render() {
     const { isSearching, searchResults, searchTerm } = this.props;
+    console.log('*** searchResults', searchResults);
     const { open } = this.state;
 
-    const GroupHeading = ({ item }) => {
-      // note 'item' here is actually the group property
+    const GroupHeading = ({ group }) => {
       let text;
-
-      switch (item) {
+      switch (group) {
         case 'pattern':
           text = 'Patterns';
           break;
-
         case 'user':
           text = 'Users';
           break;
-
         case 'set':
           text = 'Sets';
           break;
-
         default:
+          text = '';
           break;
       }
-
       return <span className='group-header'>{text}</span>;
     };
 
@@ -390,7 +386,7 @@ class Search extends PureComponent {
         <Combobox
           busy={isSearching}
           data={searchResults}
-          groupBy='type'
+          groupBy={item => item.type}
           renderListGroup={GroupHeading}
           renderListItem={ListItem}
           messages={{
