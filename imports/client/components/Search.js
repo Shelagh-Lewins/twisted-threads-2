@@ -15,6 +15,7 @@ import {
   getUserSearchLimit,
   searchStart,
   setIsSearching,
+  setSearchTerm,
   showMorePatterns,
   showMoreUsers,
   showMoreSets,
@@ -110,7 +111,7 @@ class Search extends PureComponent {
   onChangeInput = (event) => {
     const { dispatch } = this.props;
     const { value } = event.target;
-    console.log('Search input changed:', value);
+
     clearTimeout(global.searchTimeout);
 
     if (!value || value === '') {
