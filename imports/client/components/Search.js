@@ -29,7 +29,11 @@ import {
 } from '../../modules/searchCollections';
 import { iconColors, SEARCH_MORE } from '../../modules/parameters';
 
+import getPatternPreviewAddress from '../modules/getPatternPreviewAddress';
+import { PatternPreviews } from '../../modules/collection';
+
 import getUserpicStyle from '../modules/getUserpicStyle';
+import secondaryPatternSubscriptions from '../modules/secondaryPatternSubscriptions';
 import './Userpic.scss';
 
 class Search extends PureComponent {
@@ -38,6 +42,7 @@ class Search extends PureComponent {
 
     this.state = {
       open: false,
+      cacheDate: new Date(),
     };
 
     this.searchBoxRef = React.createRef();
@@ -219,6 +224,8 @@ class Search extends PureComponent {
 
     const { open } = this.state;
 
+    const patternPreviews = this.props.patternPreviews || [];
+
     const GroupHeading = ({ group }) => {
       let text;
       switch (group) {
@@ -244,17 +251,26 @@ class Search extends PureComponent {
       let element;
 
       switch (type) {
-        case 'pattern':
+        case 'pattern': {
+          const patternPreview = patternPreviews.find(
+            (patternPreview) => patternPreview.patternId === _id,
+          );
+
+          const cacheDate = this.state.cacheDate;
+          const patternPreviewAddress = getPatternPreviewAddress(
+            patternPreview,
+            cacheDate,
+          );
+
           element = (
             <span className='search-result-pattern'>
               <span
                 className='main-icon'
                 style={{
-                  backgroundImage: `url(${Meteor.absoluteUrl(
-                    '/images/search_pattern.png',
-                  )}`,
+                  backgroundImage: `url(${patternPreviewAddress})`,
                 }}
               />
+
               <div>
                 <span className='name' title={name}>
                   {name}
@@ -288,7 +304,7 @@ class Search extends PureComponent {
             </span>
           );
           break;
-
+        }
         case 'user':
           element = (
             <span className='search-result-user'>
@@ -306,10 +322,8 @@ class Search extends PureComponent {
             </span>
           );
           break;
-
-        case 'set':
+        case 'set': {
           // find the number of visible patterns in the set
-          // eslint-disable-next-line no-case-declarations
           const numberOfPatterns =
             item.createdBy === Meteor.userId()
               ? patterns.length
@@ -358,7 +372,7 @@ class Search extends PureComponent {
             </span>
           );
           break;
-
+        }
         case 'showMorePatterns':
           element = (
             <span className='show-more-patterns'>
@@ -371,7 +385,6 @@ class Search extends PureComponent {
             </span>
           );
           break;
-
         case 'showMoreUsers':
           element = (
             <span className='show-more-users'>
@@ -384,7 +397,6 @@ class Search extends PureComponent {
             </span>
           );
           break;
-
         case 'showMoreSets':
           element = (
             <span className='show-more-sets'>
@@ -397,7 +409,6 @@ class Search extends PureComponent {
             </span>
           );
           break;
-
         default:
           element = <span className='default'>{name}</span>;
           break;
@@ -491,6 +502,9 @@ const Tracker = withTracker(({ dispatch }) => {
       __originalId: p._id,
     }));
 
+    // Subscribe to previews and users for these patterns
+    secondaryPatternSubscriptions(fetchedPatterns);
+
     const numberOfPatterns = fetchedPatterns.length;
     const displayedPatterns = fetchedPatterns.slice(0, patternSearchLimit);
     if (numberOfPatterns > patternSearchLimit) {
@@ -501,6 +515,8 @@ const Tracker = withTracker(({ dispatch }) => {
     }
 
     patternsResults = displayedPatterns;
+
+    // patternPreviews will be fetched just before return
 
     // users
     const usersCursor = SearchUsers.find({}, { sort: { username: 1 } });
@@ -545,9 +561,16 @@ const Tracker = withTracker(({ dispatch }) => {
   }
   Search.updateMe.set('false');
 
+  // Only fetch patternPreviews for the patterns actually displayed (patternsResults)
+  const visiblePatternIds = patternsResults.map((p) => p._id);
+  const patternPreviews = PatternPreviews.find({
+    patternId: { $in: visiblePatternIds },
+  }).fetch();
+
   return {
     searchResults: patternsResults.concat(usersResults).concat(setsResults),
     hasSearchTerm: !!searchTerm,
+    patternPreviews,
   };
 })(Search);
 
