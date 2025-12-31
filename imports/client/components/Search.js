@@ -516,8 +516,6 @@ const Tracker = withTracker(({ dispatch }) => {
 
     patternsResults = displayedPatterns;
 
-    // patternPreviews will be fetched just before return
-
     // users
     const usersCursor = SearchUsers.find({}, { sort: { username: 1 } });
     let fetchedUsers = usersCursor.fetch();

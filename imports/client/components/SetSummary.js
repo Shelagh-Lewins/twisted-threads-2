@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { removeSet } from '../modules/set';
 import getPatternPreviewAddress from '../modules/getPatternPreviewAddress';
 import SetPreview from './SetPreview';
+import { NUMBER_OF_THUMBNAILS_IN_SET } from '../../modules/parameters';
 
 import './SetSummary.scss';
 
@@ -20,8 +21,6 @@ function SetSummary(props) {
     user,
   } = props;
 
-  const numberOfThumbnails = 4;
-
   let username = '';
   if (user) {
     username = user.username;
@@ -32,7 +31,7 @@ function SetSummary(props) {
 
   useEffect(() => {
     const summaryPatternPreviewAddresses = patterns
-      .slice(0, numberOfThumbnails)
+      .slice(0, NUMBER_OF_THUMBNAILS_IN_SET)
       .map((pattern) => {
         let patternPreviewAddress;
 
@@ -126,7 +125,6 @@ function SetSummary(props) {
           </div>
 
           <SetPreview
-            numberOfThumbnails={numberOfThumbnails}
             patternPreviewAddresses={patternPreviewAddresses}
             patterns={patterns}
           />
