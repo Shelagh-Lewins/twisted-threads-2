@@ -14,6 +14,8 @@ $rw-img-path: '~/img';
 }
 
 .search-box {
+  width: 100%; // default width, narrow viewport
+
   .rw-list-optgroup {
     width: 100%;
     padding: 0;
@@ -29,10 +31,11 @@ $rw-img-path: '~/img';
     border-radius: 4px;
     color: $color-text;
     margin-bottom: 8px;
+    width: 100%; // default width, narrow viewport
+
     input {
       border: 0;
       display: inline-block;
-      width: 300px;
     }
 
     button {
@@ -46,7 +49,7 @@ $rw-img-path: '~/img';
   }
 
   .rw-popup-container {
-    width: 360px;
+    width: 100%;
   }
 
   .rw-list {
@@ -101,9 +104,13 @@ $rw-img-path: '~/img';
       background-repeat: no-repeat;
       background-size: cover;
       float: left;
-      height: 40px;
+      height: 60px;
       margin: 4px 8px 4px 8px;
-      width: 40px;
+      width: 120px;
+
+      .pattern-previews {
+        width: 100%;
+      }
     }
 
     .search-result-pattern,
@@ -164,22 +171,34 @@ $rw-img-path: '~/img';
 
 @media (min-width: 540px) {
   .search-box {
+    width: unset; // tablet or larger
+
     .search-controls {
       margin-bottom: 0;
 
       input {
-        width: 120px;
+        width: 200px;
       }
+    }
+
+    .rw-popup-container {
+      width: 420px;
     }
   }
 }
 
 @media (min-width: 992px) {
   .search-box {
+    width: unset; // ddesktop width
+
     .search-controls {
       input {
-        width: 200px;
+        width: 300px;
       }
+    }
+
+    .rw-popup-container {
+      width: 600px;
     }
   }
 }

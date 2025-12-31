@@ -15,6 +15,8 @@ import {
   getSetPermissionQuery,
   getUserPermissionQuery,
 } from '/imports/modules/permissionQueries';
+import { NUMBER_OF_THUMBNAILS_IN_SET } from '../modules/parameters';
+import { asyncForEach } from './modules/utils';
 
 function escapeRegExp(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -316,9 +318,20 @@ Meteor.publish('search.sets', async function (searchTerm, limit = 20) {
   const usernameMap = Object.fromEntries(users.map((u) => [u._id, u.username]));
 
   // publish to dedicated searchSets collection with username included
-  sets.forEach((set) => {
+
+  asyncForEach(sets, async (set) => {
+    let previewPatterns = [];
+    if (Array.isArray(set.patterns) && set.patterns.length > 0) {
+      const patternIds = set.patterns.slice(0, NUMBER_OF_THUMBNAILS_IN_SET);
+      previewPatterns = await Patterns.find(
+        { _id: { $in: patternIds } },
+        { fields: { _id: 1, name: 1, createdBy: 1 } },
+      ).fetch();
+    }
+
     this.added('searchSets', set._id, {
       ...set,
+      patterns: previewPatterns,
       username: usernameMap[set.createdBy] || '',
     });
   });

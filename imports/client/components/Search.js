@@ -28,6 +28,7 @@ import {
   SearchUsers,
 } from '../../modules/searchCollections';
 import { iconColors, SEARCH_MORE } from '../../modules/parameters';
+import SetPreview from './SetPreview';
 
 import getPatternPreviewAddress from '../modules/getPatternPreviewAddress';
 import { PatternPreviews } from '../../modules/collection';
@@ -35,6 +36,7 @@ import { PatternPreviews } from '../../modules/collection';
 import getUserpicStyle from '../modules/getUserpicStyle';
 import secondaryPatternSubscriptions from '../modules/secondaryPatternSubscriptions';
 import './Userpic.scss';
+import { NUMBER_OF_THUMBNAILS_IN_SET } from '../../modules/parameters';
 
 class Search extends PureComponent {
   constructor(props) {
@@ -329,16 +331,31 @@ class Search extends PureComponent {
               ? patterns.length
               : item.publicPatternsCount;
 
+          // Build patternPreviewAddresses for the set (up to NUMBER_OF_THUMBNAILS_IN_SET)
+
+          const cacheDate = this.state.cacheDate;
+
+          const patternPreviewAddresses = (patterns || [])
+            .slice(0, NUMBER_OF_THUMBNAILS_IN_SET)
+            .map((pattern) => {
+              if (!pattern) return undefined;
+              const patternPreview = patternPreviews.find(
+                (preview) => preview.patternId === pattern._id,
+              );
+              if (patternPreview) {
+                return getPatternPreviewAddress(patternPreview, cacheDate);
+              }
+              return undefined;
+            });
+
           element = (
             <span className='search-result-set'>
-              <span
-                className='main-icon'
-                style={{
-                  backgroundImage: `url(${Meteor.absoluteUrl(
-                    '/images/search_set.png',
-                  )}`,
-                }}
-              />
+              <span className='main-icon'>
+                <SetPreview
+                  patternPreviewAddresses={patternPreviewAddresses}
+                  patterns={patterns || []}
+                />
+              </span>
               <div>
                 <span className='name' title={name}>
                   {name}
@@ -474,6 +491,7 @@ const Tracker = withTracker(({ dispatch }) => {
   let patternsResults = [];
   let usersResults = [];
   let setsResults = [];
+  let allPatternIds = [];
 
   if (searchTerm) {
     const patternsLimit = patternSearchLimit + SEARCH_MORE;
@@ -501,9 +519,6 @@ const Tracker = withTracker(({ dispatch }) => {
       type: 'pattern',
       __originalId: p._id,
     }));
-
-    // Subscribe to previews and users for these patterns
-    secondaryPatternSubscriptions(fetchedPatterns);
 
     const numberOfPatterns = fetchedPatterns.length;
     const displayedPatterns = fetchedPatterns.slice(0, patternSearchLimit);
@@ -549,8 +564,27 @@ const Tracker = withTracker(({ dispatch }) => {
     if (numberOfSets > setSearchLimit) {
       displayedSets.push({ name: 'Show more sets', type: 'showMoreSets' });
     }
-
     setsResults = displayedSets;
+
+    // Build deduped list of all pattern IDs needed for previews (from patterns and sets)
+    const patternIdsFromPatterns = fetchedPatterns.map((p) => p._id);
+    const patternIdsFromSets = fetchedSets.flatMap((set) =>
+      Array.isArray(set.patterns)
+        ? set.patterns.map((pat) => pat._id).filter(Boolean)
+        : [],
+    );
+    allPatternIds = Array.from(
+      new Set([...patternIdsFromPatterns, ...patternIdsFromSets]),
+    ).filter((id) => typeof id === 'string' && !!id);
+
+    // Subscribe to previews and users for all these patterns
+    const allPatternsForSubscription = [
+      ...fetchedPatterns,
+      ...fetchedSets.flatMap((set) =>
+        Array.isArray(set.patterns) ? set.patterns : [],
+      ),
+    ];
+    secondaryPatternSubscriptions(allPatternsForSubscription);
 
     // If all subscriptions are ready, stop the spinner
     if (patternsHandle.ready() && usersHandle.ready() && setsHandle.ready()) {
@@ -559,10 +593,9 @@ const Tracker = withTracker(({ dispatch }) => {
   }
   Search.updateMe.set('false');
 
-  // Only fetch patternPreviews for the patterns actually displayed (patternsResults)
-  const visiblePatternIds = patternsResults.map((p) => p._id);
+  // Only fetch patternPreviews for all patterns needed for both patterns and sets
   const patternPreviews = PatternPreviews.find({
-    patternId: { $in: visiblePatternIds },
+    patternId: { $in: allPatternIds },
   }).fetch();
 
   return {
