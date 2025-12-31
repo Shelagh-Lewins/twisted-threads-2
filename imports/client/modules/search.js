@@ -121,10 +121,11 @@ const initialSearchState = {
   searchResults: [],
   searchTerm: '',
   userSearchLimit: SEARCH_LIMIT,
+  setSearchLimit: SEARCH_LIMIT,
 };
 
 // state updates
-export default function auth(state = initialSearchState, action) {
+export default function search(state = initialSearchState, action) {
   switch (action.type) {
     case SET_IS_SEARCHING: {
       return updeep({ isSearching: action.payload }, state);

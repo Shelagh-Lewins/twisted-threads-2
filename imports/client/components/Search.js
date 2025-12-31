@@ -19,6 +19,7 @@ import {
   showMorePatterns,
   showMoreUsers,
   showMoreSets,
+  clearSearchResults,
 } from '../modules/search';
 import 'react-widgets/styles.css';
 import {
@@ -59,13 +60,8 @@ class Search extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    const { dispatch, hasSearchTerm, isSearching, searchTerm } = this.props;
+    const { searchTerm, isSearching } = this.props;
     const { open } = this.state;
-
-    // Only clear loading when search is actually complete
-    if (prevProps.isSearching && !isSearching) {
-      dispatch(setIsSearching(false));
-    }
 
     // Open dropdown after every search completes, not just the first
     if (prevProps.isSearching && !isSearching && searchTerm !== '') {
@@ -112,17 +108,19 @@ class Search extends PureComponent {
     const { dispatch } = this.props;
     const { value } = event.target;
 
-    clearTimeout(global.searchTimeout);
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
 
     if (!value || value === '') {
       this.setState({ open: false });
       dispatch(setIsSearching(false));
-      dispatch({ type: 'CLEAR_SEARCH_RESULTS' });
+      dispatch(clearSearchResults());
       dispatch(setSearchTerm(''));
       return;
     }
 
-    global.searchTimeout = setTimeout(() => {
+    this.searchTimeout = setTimeout(() => {
       dispatch(searchStart(value));
     }, 500);
   };
@@ -167,7 +165,9 @@ class Search extends PureComponent {
       default:
         break;
     }
-    history.push(url);
+    if (url) {
+      history.push(url);
+    }
   };
 
   handleClickOutside(event) {
@@ -425,6 +425,7 @@ class Search extends PureComponent {
           messages={{
             emptyList: message,
           }}
+          // onChange and onToggle are required by Combobox but not used
           onChange={() => {}}
           open={open}
           onSelect={this.onSelect}
