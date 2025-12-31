@@ -88,15 +88,17 @@ export const showMoreSets = () => (dispatch, getState) => {
 // Start search
 export const searchStart = (searchTerm) => (dispatch) => {
   dispatch(clearErrors());
+  if (!searchTerm || searchTerm === '') {
+    dispatch(setIsSearching(false));
+    dispatch(clearSearchResults());
+    dispatch(setPatternSearchLimit(SEARCH_LIMIT));
+    dispatch(setUserSearchLimit(SEARCH_LIMIT));
+    return;
+  }
   dispatch(setIsSearching(true));
   dispatch(clearSearchResults());
   dispatch(setPatternSearchLimit(SEARCH_LIMIT));
   dispatch(setUserSearchLimit(SEARCH_LIMIT));
-
-  if (!searchTerm || searchTerm === '') {
-    return;
-  }
-
   dispatch(setSearchTerm(searchTerm));
 };
 
@@ -140,7 +142,6 @@ export default function auth(state = initialSearchState, action) {
       return updeep(
         {
           searchResults: updeep.constant([]),
-          searchTerm: '',
         },
         state,
       );

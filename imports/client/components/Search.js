@@ -61,15 +61,25 @@ class Search extends PureComponent {
     const { dispatch, hasSearchTerm, isSearching, searchTerm } = this.props;
     const { open } = this.state;
 
-    // Stop searching once we have search term and results are ready
-    if (hasSearchTerm && isSearching && !prevProps.hasSearchTerm) {
+    // Only clear loading when search is actually complete
+    if (prevProps.isSearching && !isSearching) {
       dispatch(setIsSearching(false));
     }
 
-    if (prevProps.isSearching && !isSearching && searchTerm !== '' && !open) {
-      // allow search results to appear
-      // avoiding 'no results for' showing briefly
-      setTimeout(() => this.toggleOpen(), 100);
+    // Open dropdown after every search completes, not just the first
+    if (prevProps.isSearching && !isSearching && searchTerm !== '') {
+      if (!open) {
+        this.setState({ open: true }, () => {
+          // Focus the Combobox input for accessibility
+          setTimeout(() => {
+            if (this.searchBoxRef.current) {
+              const comboboxInput =
+                this.searchBoxRef.current.querySelector('.rw-combobox-input');
+              if (comboboxInput) comboboxInput.focus();
+            }
+          }, 0);
+        });
+      }
     }
   }
 
@@ -79,15 +89,37 @@ class Search extends PureComponent {
 
   toggleOpen = () => {
     const { open } = this.state;
-
-    this.setState({ open: !open });
+    this.setState(
+      (prevState) => ({ open: !prevState.open }),
+      () => {
+        // If opening, focus the Combobox input for accessibility
+        if (!open) {
+          // Delay to ensure Combobox is rendered
+          setTimeout(() => {
+            if (this.searchBoxRef.current) {
+              const comboboxInput =
+                this.searchBoxRef.current.querySelector('.rw-combobox-input');
+              if (comboboxInput) comboboxInput.focus();
+            }
+          }, 0);
+        }
+      },
+    );
   };
 
   onChangeInput = (event) => {
     const { dispatch } = this.props;
     const { value } = event.target;
-
+    console.log('Search input changed:', value);
     clearTimeout(global.searchTimeout);
+
+    if (!value || value === '') {
+      this.setState({ open: false });
+      dispatch(setIsSearching(false));
+      dispatch({ type: 'CLEAR_SEARCH_RESULTS' });
+      dispatch(setSearchTerm(''));
+      return;
+    }
 
     global.searchTimeout = setTimeout(() => {
       dispatch(searchStart(value));
@@ -183,7 +215,7 @@ class Search extends PureComponent {
 
   render() {
     const { isSearching, searchResults, searchTerm } = this.props;
-    console.log('*** searchResults', searchResults);
+
     const { open } = this.state;
 
     const GroupHeading = ({ group }) => {
@@ -386,7 +418,7 @@ class Search extends PureComponent {
         <Combobox
           busy={isSearching}
           data={searchResults}
-          groupBy={item => item.type}
+          groupBy={(item) => item.type}
           renderListGroup={GroupHeading}
           renderListItem={ListItem}
           messages={{
@@ -436,9 +468,17 @@ const Tracker = withTracker(({ dispatch }) => {
     const setsLimit = setSearchLimit + SEARCH_MORE;
 
     // subscribe to server publications (reactive)
-    Meteor.subscribe('search.patterns', searchTerm, patternsLimit);
-    Meteor.subscribe('search.users', searchTerm, usersLimit);
-    Meteor.subscribe('search.sets', searchTerm, setsLimit);
+    const patternsHandle = Meteor.subscribe(
+      'search.patterns',
+      searchTerm,
+      patternsLimit,
+    );
+    const usersHandle = Meteor.subscribe(
+      'search.users',
+      searchTerm,
+      usersLimit,
+    );
+    const setsHandle = Meteor.subscribe('search.sets', searchTerm, setsLimit);
 
     // patterns
     const patternsCursor = SearchPatterns.find({}, { sort: { nameSort: 1 } });
@@ -495,6 +535,11 @@ const Tracker = withTracker(({ dispatch }) => {
     }
 
     setsResults = displayedSets;
+
+    // If all subscriptions are ready, stop the spinner
+    if (patternsHandle.ready() && usersHandle.ready() && setsHandle.ready()) {
+      dispatch(setIsSearching(false));
+    }
   }
   Search.updateMe.set('false');
 
