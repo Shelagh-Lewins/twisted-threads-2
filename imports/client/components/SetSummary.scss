@@ -68,6 +68,50 @@
     white-space: pre-line;
   }
 
+  .pattern-previews {
+    background-color: $color-set-summary-preview-background;
+    border-radius: 4px;
+    float: left;
+    height: $set-summary-preview-height;
+    margin: 8px 8px;
+    width: $set-summary-preview-width;
+  }
+
+  .pattern-preview {
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    float: left;
+    height: $set-summary-pattern-height;
+    margin: 0;
+    overflow: hidden;
+    position: relative;
+    width: $set-summary-pattern-width;
+
+    &:nth-child(odd) {
+      &::after {
+        border-right: 1px solid $color-pattern-summary-background;
+        content: ' ';
+        height: 100%;
+        position: absolute;
+        right: 0;
+        top: 0;
+      }
+    }
+
+    &:nth-child(1),
+    &:nth-child(2) {
+      &::after {
+        border-bottom: 1px solid $color-pattern-summary-background;
+        bottom: 0;
+        content: ' ';
+        left: 0;
+        position: absolute;
+        width: 100%;
+      }
+    }
+  }
+
   .info {
     left: 8px;
     position: absolute;

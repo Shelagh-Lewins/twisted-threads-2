@@ -32,10 +32,15 @@ $rw-img-path: '~/img';
     color: $color-text;
     margin-bottom: 8px;
     width: 100%; // default width, narrow viewport
+    display: flex;
+    align-items: center;
 
-    input {
+    input.form-control {
       border: 0;
       display: inline-block;
+      width: unset;
+      flex: 1 1 0;
+      min-width: 0;
     }
 
     button {
@@ -50,10 +55,13 @@ $rw-img-path: '~/img';
 
   .rw-popup-container {
     width: 100%;
+    left: 0;
+    right: 0;
+    padding: 0;
   }
 
-  .rw-list {
-    max-height: 300px;
+  .rw-popup .rw-list {
+    max-height: 85vh;
   }
 
   .rw-list-option {
@@ -102,15 +110,27 @@ $rw-img-path: '~/img';
     .main-icon {
       background-position: left top;
       background-repeat: no-repeat;
-      background-size: cover;
+      background-size: contain;
       float: left;
-      height: 60px;
+      height: 90px;
       margin: 4px 8px 4px 8px;
-      width: 120px;
+      width: 180px;
 
       .pattern-previews {
         width: 100%;
+        height: 100%;
+        margin: 0;
       }
+
+      .pattern-preview {
+        width: 50%;
+        height: 50%;
+        margin: 0;
+      }
+    }
+
+    .search-result-user .main-icon {
+      width: 90px;
     }
 
     .search-result-pattern,
@@ -163,31 +183,11 @@ $rw-img-path: '~/img';
       font-weight: bold;
       margin: 7px 8px 0 0;
       overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
     }
   }
 }
 
-@media (min-width: 540px) {
-  .search-box {
-    width: unset; // tablet or larger
-
-    .search-controls {
-      margin-bottom: 0;
-
-      input {
-        width: 200px;
-      }
-    }
-
-    .rw-popup-container {
-      width: 420px;
-    }
-  }
-}
-
-@media (min-width: 992px) {
+@media (min-width: 768px) {
   .search-box {
     width: unset; // ddesktop width
 
@@ -198,7 +198,7 @@ $rw-img-path: '~/img';
     }
 
     .rw-popup-container {
-      width: 600px;
+      width: 560px;
     }
   }
 }
