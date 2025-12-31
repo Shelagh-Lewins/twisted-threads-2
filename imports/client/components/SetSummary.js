@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { removeSet } from '../modules/set';
 import getPatternPreviewAddress from '../modules/getPatternPreviewAddress';
+import SetPreview from './SetPreview';
 
 import './SetSummary.scss';
 
@@ -63,34 +64,6 @@ function SetSummary(props) {
   };
 
   const canEdit = Meteor.userId() === createdBy;
-
-  // use pattern previews for the first four patterns
-  const patternPreviewElms = [];
-
-  for (let i = 0; i < numberOfThumbnails; i += 1) {
-    let previewStyle = {};
-    const pattern = patterns[i];
-
-    if (pattern && patternPreviewAddresses[i]) {
-      previewStyle = {
-        backgroundImage: `url(${patternPreviewAddresses[i]})`,
-      };
-    }
-
-    const elm = (
-      <div
-        key={`pattern-preview-${i}`}
-        style={previewStyle}
-        className='pattern-preview'
-      />
-    );
-
-    patternPreviewElms.push(elm);
-  }
-
-  const patternPreviewElm = (
-    <div className='pattern-previews'>{patternPreviewElms}</div>
-  );
 
   const buttonRemove = (
     <Button
@@ -152,7 +125,11 @@ function SetSummary(props) {
             </div>
           </div>
 
-          {patternPreviewElm}
+          <SetPreview
+            numberOfThumbnails={numberOfThumbnails}
+            patternPreviewAddresses={patternPreviewAddresses}
+            patterns={patterns}
+          />
         </Link>
       </div>
       <div className='footer'>
