@@ -1,4 +1,5 @@
 // gatekeepers for pattern, color book, set visibility
+import { Patterns } from './collection';
 
 // logged in user can see their own patterns
 // and any public patterns
@@ -59,4 +60,21 @@ export const getSetPermissionQuery = (userId) => {
   }
 
   return permissionQuery;
+};
+
+export const getVisiblePatternIds = async (patternIds, userId) => {
+  if (!patternIds || patternIds.length === 0) {
+    return [];
+  }
+
+  const permissionQuery = {
+    _id: { $in: patternIds },
+    $or: [{ isPublic: true }, { createdBy: userId }],
+  };
+
+  const visiblePatterns = await Patterns.find(permissionQuery, {
+    fields: { _id: 1 },
+  }).fetchAsync();
+
+  return visiblePatterns.map((p) => p._id);
 };

@@ -23,6 +23,7 @@ import {
   getPatternPermissionQuery,
   getSetPermissionQuery,
   getUserPermissionQuery,
+  getVisiblePatternIds,
 } from '../../modules/permissionQueries';
 // arrow functions lose "this" context
 /* eslint-disable func-names */
@@ -449,27 +450,59 @@ Meteor.publish('tags', () => Tags.find());
 Meteor.publish('faq', () => FAQ.find());
 
 // the user can see their own sets and any sets containing public patterns
-// all visible set belonging to one user
+// all visible sets belonging to one user
 // sets don't have a lot of fields or data, and none of it is sensitive, so publish all fields.
-Meteor.publish('setsForUser', function (userId) {
+Meteor.publish('setsForUser', async function (userId) {
   check(userId, Match.Maybe(nonEmptyStringCheck));
 
   if (!userId) {
+    this.ready();
     return;
   }
 
-  return Sets.find({
+  const sets = await Sets.find({
     $and: [{ createdBy: userId }, getSetPermissionQuery(this.userId)],
-  });
+  }).fetchAsync();
+
+  for (const set of sets) {
+    const visiblePatternIds = await getVisiblePatternIds(
+      set.patterns,
+      this.userId,
+    );
+
+    this.added('sets', set._id, {
+      ...set,
+      patterns: visiblePatternIds,
+    });
+  }
+
+  this.ready();
 });
 
 // an individual set
-Meteor.publish('set', function (_id) {
+Meteor.publish('set', async function (_id) {
   check(_id, nonEmptyStringCheck);
 
-  return Sets.find({
+  const set = await Sets.findOneAsync({
     $and: [{ _id }, getSetPermissionQuery(this.userId)],
   });
+
+  if (!set) {
+    this.ready();
+    return;
+  }
+
+  const visiblePatternIds = await getVisiblePatternIds(
+    set.patterns,
+    this.userId,
+  );
+
+  this.added('sets', set._id, {
+    ...set,
+    patterns: visiblePatternIds,
+  });
+
+  this.ready();
 });
 
 // //////////////////////////

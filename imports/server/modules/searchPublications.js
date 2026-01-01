@@ -14,9 +14,9 @@ import {
   getPatternPermissionQuery,
   getSetPermissionQuery,
   getUserPermissionQuery,
+  getVisiblePatternIds,
 } from '/imports/modules/permissionQueries';
 import { NUMBER_OF_THUMBNAILS_IN_SET } from '../../modules/parameters';
-import { asyncForEach } from './utils';
 
 function escapeRegExp(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -260,14 +260,6 @@ Meteor.publish('search.users', async function (searchTerm, limit = 20) {
 
 // publish matching sets
 Meteor.publish('search.sets', async function (searchTerm, limit = 20) {
-  console.log(
-    'search.sets arguments:',
-    arguments,
-    'searchTerm:',
-    searchTerm,
-    'typeof:',
-    typeof searchTerm,
-  );
   check(searchTerm, String);
   check(limit, Number);
   console.log('search.sets called with term:', searchTerm, 'limit:', limit);
@@ -330,13 +322,22 @@ Meteor.publish('search.sets', async function (searchTerm, limit = 20) {
   // use a simple loop, not forEach with async calls inside
   // to make sure awaits complete before publication is marked ready
   for (const set of sets) {
+    // First filter to only visible patterns
+    const visiblePatternIds = await getVisiblePatternIds(
+      set.patterns,
+      this.userId,
+    );
+
     let previewPatterns = [];
-    if (Array.isArray(set.patterns) && set.patterns.length > 0) {
-      const patternIds = set.patterns.slice(0, NUMBER_OF_THUMBNAILS_IN_SET);
+    if (visiblePatternIds.length > 0) {
+      const patternIds = visiblePatternIds.slice(
+        0,
+        NUMBER_OF_THUMBNAILS_IN_SET,
+      );
       previewPatterns = await Patterns.find(
         { _id: { $in: patternIds } },
         { fields: { _id: 1, name: 1, createdBy: 1 } },
-      ).fetch();
+      ).fetchAsync();
     }
 
     this.added('searchSets', set._id, {

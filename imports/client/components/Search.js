@@ -343,6 +343,12 @@ class Search extends PureComponent {
               const patternPreview = patternPreviews.find(
                 (preview) => preview.patternId === pattern._id,
               );
+              console.log(
+                'patternPreview for set item',
+                pattern._id,
+                patternPreview,
+                getPatternPreviewAddress(patternPreview, cacheDate),
+              );
               if (patternPreview) {
                 return getPatternPreviewAddress(patternPreview, cacheDate);
               }

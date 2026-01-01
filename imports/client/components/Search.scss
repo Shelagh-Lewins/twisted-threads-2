@@ -23,7 +23,7 @@ $rw-img-path: '~/img';
     width: 100vw;
     height: 100vh;
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000; // Ensure it is behind other content
+    z-index: 1000; // Ensure it is above other content, except for the search component
     display: none;
 
     &.visible {
