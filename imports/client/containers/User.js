@@ -669,15 +669,19 @@ const Tracker = withTracker((props) => {
         { sort: { nameSort: 1 } },
       ).fetch();
 
+      let secondaryHandles;
       handle = Meteor.subscribe('setsForUser', _id, {
         onReady: () => {
           Meteor.subscribe('patternsById', patternsInSetsIds, {
             onReady: () => {
-              secondaryPatternSubscriptions(patternsInSets);
+              secondaryHandles = secondaryPatternSubscriptions(patternsInSets);
             },
           });
         },
       });
+
+      // Store the handles for readiness check below
+      handle.secondaryHandles = secondaryHandles;
       break;
 
     case 'patterns':
@@ -720,7 +724,11 @@ const Tracker = withTracker((props) => {
   // setTimeout prevents warning:
   // Warning: Cannot update a component (`ConnectFunction`) while rendering a different component (`ForwardRef`)
   if (handle) {
-    if (isLoading && handle.ready()) {
+    if (
+      isLoading &&
+      handle.ready() &&
+      handle.secondaryHandles?.ready() !== false
+    ) {
       setTimeout(() => {
         dispatch(setIsLoading(false));
       }, 1);

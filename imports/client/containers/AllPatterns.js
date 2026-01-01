@@ -183,6 +183,7 @@ const Tracker = withTracker((props) => {
 
   Meteor.subscribe('tags');
 
+  let secondaryHandles;
   const handle = Meteor.subscribe(
     'patterns',
     {
@@ -195,12 +196,12 @@ const Tracker = withTracker((props) => {
     },
     {
       onReady: () => {
-        secondaryPatternSubscriptions(patterns);
+        secondaryHandles = secondaryPatternSubscriptions(patterns);
       },
     },
   );
 
-  if (isLoading && handle.ready()) {
+  if (isLoading && handle.ready() && secondaryHandles?.ready()) {
     setTimeout(() => {
       dispatch(setIsLoading(false));
     }, 1);

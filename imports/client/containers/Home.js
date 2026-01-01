@@ -333,15 +333,19 @@ const Tracker = withTracker(({ dispatch }) => {
   Meteor.subscribe('tags');
 
   // handle so we can use onReady to set isLoading to false
+  let allPatternsSecondaryHandles;
+  let myPatternsSecondaryHandles;
+  let newPatternsSecondaryHandles;
+
   const handle = Meteor.subscribe('allPatternsPreview', {
     onReady: () => {
-      secondaryPatternSubscriptions(allPatterns);
+      allPatternsSecondaryHandles = secondaryPatternSubscriptions(allPatterns);
     },
   });
 
   Meteor.subscribe('myPatternsPreview', {
     onReady: () => {
-      secondaryPatternSubscriptions(myPatterns);
+      myPatternsSecondaryHandles = secondaryPatternSubscriptions(myPatterns);
     },
   });
 
@@ -354,13 +358,18 @@ const Tracker = withTracker(({ dispatch }) => {
           sort: { createdAt: -1 },
         },
       ).fetch();
-      secondaryPatternSubscriptions(newPatterns);
+      newPatternsSecondaryHandles = secondaryPatternSubscriptions(newPatterns);
     },
   });
 
   Meteor.subscribe('allUsersPreview');
 
-  if (isLoading && handle.ready()) {
+  const allSecondaryHandlesReady =
+    allPatternsSecondaryHandles?.ready() &&
+    myPatternsSecondaryHandles?.ready() &&
+    newPatternsSecondaryHandles?.ready();
+
+  if (isLoading && handle.ready() && allSecondaryHandlesReady) {
     setTimeout(() => {
       dispatch(setIsLoading(false));
     }, 1);

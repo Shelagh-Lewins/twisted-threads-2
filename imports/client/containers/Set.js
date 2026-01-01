@@ -241,12 +241,13 @@ const Tracker = withTracker((props) => {
     }
   }
 
+  let secondaryHandles;
   const handle = Meteor.subscribe('set', _id, {
     onReady: () => {
       if (set) {
         Meteor.subscribe('patternsById', set.patterns, {
           onReady: () => {
-            secondaryPatternSubscriptions(patternsInSet);
+            secondaryHandles = secondaryPatternSubscriptions(patternsInSet);
           },
         });
       }
@@ -255,7 +256,7 @@ const Tracker = withTracker((props) => {
 
   Meteor.subscribe('tags');
 
-  if (isLoading && handle.ready()) {
+  if (isLoading && handle.ready() && secondaryHandles?.ready()) {
     dispatch(setIsLoading(false));
   } else if (!isLoading && !handle.ready()) {
     dispatch(setIsLoading(true));
