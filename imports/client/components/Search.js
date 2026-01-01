@@ -37,6 +37,7 @@ import getUserpicStyle from '../modules/getUserpicStyle';
 import secondaryPatternSubscriptions from '../modules/secondaryPatternSubscriptions';
 import './Userpic.scss';
 import { NUMBER_OF_THUMBNAILS_IN_SET } from '../../modules/parameters';
+import classNames from 'classnames';
 
 class Search extends PureComponent {
   constructor(props) {
@@ -443,6 +444,11 @@ class Search extends PureComponent {
 
     return (
       <div className='search-box' ref={this.searchBoxRef}>
+        <div
+          className={classNames('full-screen-overlay', {
+            visible: open,
+          })}
+        />
         {this.renderSearchInput()}
         <Combobox
           busy={isSearching}
