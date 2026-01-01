@@ -262,7 +262,7 @@ Meteor.publish('search.users', async function (searchTerm, limit = 20) {
 Meteor.publish('search.sets', async function (searchTerm, limit = 20) {
   check(searchTerm, String);
   check(limit, Number);
-  console.log('search.sets called with term:', searchTerm, 'limit:', limit);
+
   const trimmed = searchTerm.trim();
 
   // Return nothing if no search term provided

@@ -28,7 +28,7 @@ function SetPreview({ patternPreviewAddresses, patterns }) {
     patternPreviewElms.push(elm);
   }
 
-  return <div className='pattern-previews'>{patternPreviewElms}</div>;
+  return <div className='set-preview'>{patternPreviewElms}</div>;
 }
 
 SetPreview.propTypes = {
