@@ -17,13 +17,13 @@ $rw-img-path: '~/img';
   width: 100%; // default width, narrow viewport
 
   .full-screen-overlay {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1; // Ensure it is behind other content
+    z-index: 1000; // Ensure it is behind other content
     display: none;
 
     &.visible {
