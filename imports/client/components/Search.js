@@ -339,16 +339,13 @@ class Search extends PureComponent {
           const patternPreviewAddresses = (patterns || [])
             .slice(0, NUMBER_OF_THUMBNAILS_IN_SET)
             .map((pattern) => {
-              if (!pattern) return undefined;
+              if (!pattern) {
+                return undefined;
+              }
               const patternPreview = patternPreviews.find(
                 (preview) => preview.patternId === pattern._id,
               );
-              console.log(
-                'patternPreview for set item',
-                pattern._id,
-                patternPreview,
-                getPatternPreviewAddress(patternPreview, cacheDate),
-              );
+
               if (patternPreview) {
                 return getPatternPreviewAddress(patternPreview, cacheDate);
               }
@@ -596,10 +593,17 @@ const Tracker = withTracker(({ dispatch }) => {
         Array.isArray(set.patterns) ? set.patterns : [],
       ),
     ];
-    secondaryPatternSubscriptions(allPatternsForSubscription);
+    const secondaryHandles = secondaryPatternSubscriptions(
+      allPatternsForSubscription,
+    );
 
     // If all subscriptions are ready, stop the spinner
-    if (patternsHandle.ready() && usersHandle.ready() && setsHandle.ready()) {
+    if (
+      patternsHandle.ready() &&
+      usersHandle.ready() &&
+      setsHandle.ready() &&
+      secondaryHandles.ready()
+    ) {
       dispatch(setIsSearching(false));
     }
   }
