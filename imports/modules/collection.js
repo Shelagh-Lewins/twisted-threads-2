@@ -1,5 +1,5 @@
 // Runs on both client and server
-// search handled by server publications (see imports/server/searchPublications.js)
+// search handled by server publications (see imports/server/modulese/searchPublications.js)
 
 // schemas
 import { Mongo } from 'meteor/mongo';
@@ -11,11 +11,6 @@ import ActionsLogSchema from './schemas/actionsLogSchema';
 import PatternImagesSchema from './schemas/patternImagesSchema';
 import TagsSchema from './schemas/tagsSchema';
 import SetsSchema from './schemas/setsSchema';
-import {
-  getPatternPermissionQuery,
-  getSetPermissionQuery,
-  getUserPermissionQuery,
-} from './permissionQueries';
 
 // Frequently Asked Questions
 export const FAQ = new Mongo.Collection('faq');

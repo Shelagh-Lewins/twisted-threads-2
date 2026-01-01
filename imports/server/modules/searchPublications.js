@@ -15,8 +15,8 @@ import {
   getSetPermissionQuery,
   getUserPermissionQuery,
 } from '/imports/modules/permissionQueries';
-import { NUMBER_OF_THUMBNAILS_IN_SET } from '../modules/parameters';
-import { asyncForEach } from './modules/utils';
+import { NUMBER_OF_THUMBNAILS_IN_SET } from '../../modules/parameters';
+import { asyncForEach } from './utils';
 
 function escapeRegExp(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -260,9 +260,17 @@ Meteor.publish('search.users', async function (searchTerm, limit = 20) {
 
 // publish matching sets
 Meteor.publish('search.sets', async function (searchTerm, limit = 20) {
+  console.log(
+    'search.sets arguments:',
+    arguments,
+    'searchTerm:',
+    searchTerm,
+    'typeof:',
+    typeof searchTerm,
+  );
   check(searchTerm, String);
   check(limit, Number);
-
+  console.log('search.sets called with term:', searchTerm, 'limit:', limit);
   const trimmed = searchTerm.trim();
 
   // Return nothing if no search term provided
@@ -317,9 +325,11 @@ Meteor.publish('search.sets', async function (searchTerm, limit = 20) {
     .fetchAsync();
   const usernameMap = Object.fromEntries(users.map((u) => [u._id, u.username]));
 
-  // publish to dedicated searchSets collection with username included
+  // publish to dedicated searchSets collection with username and preview patterns included
 
-  asyncForEach(sets, async (set) => {
+  // use a simple loop, not forEach with async calls inside
+  // to make sure awaits complete before publication is marked ready
+  for (const set of sets) {
     let previewPatterns = [];
     if (Array.isArray(set.patterns) && set.patterns.length > 0) {
       const patternIds = set.patterns.slice(0, NUMBER_OF_THUMBNAILS_IN_SET);
@@ -334,7 +344,7 @@ Meteor.publish('search.sets', async function (searchTerm, limit = 20) {
       patterns: previewPatterns,
       username: usernameMap[set.createdBy] || '',
     });
-  });
+  }
 
   this.ready();
 });

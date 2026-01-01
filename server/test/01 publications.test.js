@@ -7,7 +7,7 @@ import { resetDatabase, ensureAllRolesExist } from './00_setup';
 import { assert } from 'chai';
 import { Roles } from 'meteor/roles';
 import '../../imports/server/modules/publications';
-import '../../imports/server/searchPublications';
+import '../../imports/server/modules/searchPublications';
 import '../../server/methods/patternEdit';
 import { ColorBooks, Patterns, Sets } from '../../imports/modules/collection';
 import {
@@ -1840,14 +1840,6 @@ if (Meteor.isServer) {
           const handler = Meteor.server.publish_handlers['search.sets'];
           await handler.call(mockContext, 'Searchable', 20);
           const result = addedDocs;
-          console.log(
-            'search.sets result:',
-            result.length,
-            result.map((r) => ({
-              name: r.name,
-              publicPatternsCount: r.publicPatternsCount,
-            })),
-          );
 
           assert.equal(result.length, 2);
           result.forEach((set) => {
