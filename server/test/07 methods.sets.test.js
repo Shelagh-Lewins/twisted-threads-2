@@ -199,7 +199,6 @@ if (Meteor.isServer) {
       });
       // create a set and assign a pattern to it
       it('cannot add pattern to set if not logged in', async () => {
-        console.log('*** about to log user in');
         // Create all patterns and sets as a registered user
         const user = await stubUser({
           _id: 'testUserId',

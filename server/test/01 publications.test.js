@@ -1367,17 +1367,20 @@ if (Meteor.isServer) {
         stubNoUser();
 
         // if no public patterns in set, publish nothing
+        const addedDocs = [];
         const mockContext = {
           userId: undefined,
           ready: () => {},
-          added: () => {},
+          added: (collection, id, fields) => {
+            addedDocs.push({ _id: id, ...fields });
+          },
           changed: () => {},
           removed: () => {},
         };
 
         const handler = Meteor.server.publish_handlers['setsForUser'];
-        const cursor = handler.call(mockContext, userId);
-        const result = await cursor.fetchAsync();
+        await handler.call(mockContext, userId);
+        const result = addedDocs;
 
         assert.equal(result.length, 0);
       });
@@ -1400,17 +1403,20 @@ if (Meteor.isServer) {
         // wait before rechecking the database
         await new Promise((resolve) => setTimeout(resolve, 10));
 
+        const addedDocs = [];
         const mockContext = {
           userId: undefined,
           ready: () => {},
-          added: () => {},
+          added: (collection, id, fields) => {
+            addedDocs.push({ _id: id, ...fields });
+          },
           changed: () => {},
           removed: () => {},
         };
 
         const handler = Meteor.server.publish_handlers['setsForUser'];
-        const cursor = handler.call(mockContext, userId);
-        const result = await cursor.fetchAsync();
+        await handler.call(mockContext, userId);
+        const result = addedDocs;
 
         assert.equal(result.length, 2); // 2 sets published
 
@@ -1437,11 +1443,28 @@ if (Meteor.isServer) {
       it('should publish 2 sets if another user is logged in and there are 2 public sets', async () => {
         // make sure publications know there is no user
         const userId = this.currentUser._id;
-
         await Roles.createRoleAsync('verified', { unlessExists: true });
         await Roles.addUsersToRolesAsync(userId, ['verified']);
 
-        // set 1 pattern in set to public
+        // Create pattern3 and add it only to set1
+        const pattern3 = await createPattern({
+          name: 'Pattern 3',
+          createdBy: userId,
+        });
+
+        // Add pattern3 to set1's patterns array
+        await Sets.updateAsync(
+          { _id: this.set1._id },
+          { $push: { patterns: pattern3._id } },
+        );
+
+        // Update pattern3 to reference set1
+        await Patterns.updateAsync(
+          { _id: pattern3._id },
+          { $set: { sets: [this.set1._id] } },
+        );
+
+        // Make pattern1 public
         await Meteor.callAsync('pattern.edit', {
           _id: this.pattern1._id,
           data: {
@@ -1450,28 +1473,57 @@ if (Meteor.isServer) {
           },
         });
 
+        // Make pattern2 public
+        await Meteor.callAsync('pattern.edit', {
+          _id: this.pattern2._id,
+          data: {
+            type: 'editIsPublic',
+            isPublic: true,
+          },
+        });
+
+        // wait before rechecking the database
+        await new Promise((resolve) => setTimeout(resolve, 10));
+
         // log in other user
         const otherUser = await stubOtherUser();
 
+        const addedDocs = [];
         const mockContext = {
           userId: otherUser._id,
           ready: () => {},
-          added: () => {},
+          added: (collection, id, fields) => {
+            addedDocs.push({ _id: id, ...fields });
+          },
           changed: () => {},
           removed: () => {},
         };
 
         const handler = Meteor.server.publish_handlers['setsForUser'];
-        const cursor = handler.call(mockContext, userId);
-        const result = await cursor.fetchAsync();
+        await handler.call(mockContext, userId);
+        const result = addedDocs;
 
         assert.equal(result.length, 2); // 2 sets published
 
-        // two patterns are listed as belonging to the first set
-        const patternsInSet = result[0].patterns;
-        assert.equal(patternsInSet.length, 2);
+        // Find each set explicitly
+        const publishedSet1 = result.find((s) => s._id === this.set1._id);
+        const publishedSet2 = result.find((s) => s._id === this.set2._id);
 
-        // only the public pattern is published to the logged out user
+        assert.exists(publishedSet1, 'set1 should be published');
+        assert.exists(publishedSet2, 'set2 should be published');
+
+        // set1 should have 2 public patterns (pattern1 and pattern2, NOT pattern3 which is private)
+        assert.equal(publishedSet1.patterns.length, 2);
+        assert.include(publishedSet1.patterns, this.pattern1._id);
+        assert.include(publishedSet1.patterns, this.pattern2._id);
+        assert.notInclude(publishedSet1.patterns, pattern3._id);
+
+        // set2 should have 2 public patterns (pattern1 and pattern2)
+        assert.equal(publishedSet2.patterns.length, 2);
+        assert.include(publishedSet2.patterns, this.pattern1._id);
+        assert.include(publishedSet2.patterns, this.pattern2._id);
+
+        // verify the public patterns are published
         const mockContext2 = {
           userId: undefined,
           ready: () => {},
@@ -1484,23 +1536,25 @@ if (Meteor.isServer) {
         const cursor2 = handler2.call(mockContext2, { skip: 0, limit: 10 });
         const result2 = await cursor2.fetchAsync();
 
-        assert.equal(result2.length, 1); // 1 pattern is published
-        assert.equal(result2[0]._id, this.pattern1._id, 1); // it is the public pattern
+        assert.equal(result2.length, 2); // 2 patterns are published
       });
       it('should publish 2 sets if user logged in and their sets are private', async () => {
         const userId = this.currentUser._id;
 
+        const addedDocs = [];
         const mockContext = {
           userId: this.currentUser._id,
           ready: () => {},
-          added: () => {},
+          added: (collection, id, fields) => {
+            addedDocs.push({ _id: id, ...fields });
+          },
           changed: () => {},
           removed: () => {},
         };
 
         const handler = Meteor.server.publish_handlers['setsForUser'];
-        const cursor = handler.call(mockContext, userId);
-        const result = await cursor.fetchAsync();
+        await handler.call(mockContext, userId);
+        const result = addedDocs;
 
         assert.equal(result.length, 2);
       });
