@@ -66,22 +66,26 @@ if (typeof global !== 'undefined') {
 // This avoids SMTP authentication errors and speeds up test execution
 let sendVerificationEmailStub;
 
-before(function () {
-  // Stub at the start of all tests
-  sendVerificationEmailStub = sinon
-    .stub(Accounts, 'sendVerificationEmail')
-    .callsFake(async (userId) => {
-      // Return a realistic response
-      const user = await Meteor.users.findOneAsync({ _id: userId });
-      return {
-        email: user?.emails?.[0]?.address || 'test@example.com',
-      };
-    });
-});
+// Only execute setup code during test runs
+// the imports and exports can't be conditional but don't break regular builds
+if (Meteor.isTest) {
+  before(function () {
+    // Stub at the start of all tests
+    sendVerificationEmailStub = sinon
+      .stub(Accounts, 'sendVerificationEmail')
+      .callsFake(async (userId) => {
+        // Return a realistic response
+        const user = await Meteor.users.findOneAsync({ _id: userId });
+        return {
+          email: user?.emails?.[0]?.address || 'test@example.com',
+        };
+      });
+  });
 
-after(function () {
-  // Restore after all tests
-  if (sendVerificationEmailStub) {
-    sendVerificationEmailStub.restore();
-  }
-});
+  after(function () {
+    // Restore after all tests
+    if (sendVerificationEmailStub) {
+      sendVerificationEmailStub.restore();
+    }
+  });
+}

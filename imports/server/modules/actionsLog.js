@@ -43,11 +43,13 @@ const updateActionsLog = async function (action) {
     // try to detect automated actions
     // A human shouldn't perform 10 actions in 2 seconds
     if (actionLog.length >= 10) {
-      const timeSinceLastAction = moment().valueOf() - actionLog[0];
+      const timeSinceLastAction =
+        moment().valueOf() - moment(actionLog[0]).valueOf();
 
       if (timeSinceLastAction < 10000) {
         // if account has just been unlocked, we need to allow the user to start again after a break
-        const timeForLast10Actions = actionLog[0] - actionLog[9];
+        const timeForLast10Actions =
+          moment(actionLog[0]).valueOf() - moment(actionLog[9]).valueOf();
 
         if (timeForLast10Actions < 20000) {
           await ActionsLog.updateAsync(
@@ -60,7 +62,8 @@ const updateActionsLog = async function (action) {
           );
         }
 
-        const timeForLast5Actions = actionLog[0] - actionLog[4];
+        const timeForLast5Actions =
+          moment(actionLog[0]).valueOf() - moment(actionLog[4]).valueOf();
 
         if (timeForLast5Actions < 2000) {
           // Don't allow another attempt for 5 minutes
@@ -71,7 +74,8 @@ const updateActionsLog = async function (action) {
             );
           } else {
             // it's been at least 5 mins so consider allowing another image upload
-            const timeForPrevious5Actions = actionLog[4] - actionLog[9];
+            const timeForPrevious5Actions =
+              moment(actionLog[4]).valueOf() - moment(actionLog[9]).valueOf();
 
             if (timeForPrevious5Actions < 2000) {
               // if the 5 previous actions were in 2 seconds, wait 30 minutes
@@ -102,9 +106,9 @@ const updateActionsLog = async function (action) {
     },
   );
   // remove the oldest log entry if too many stored
-  const updatedActionsLog = await ActionsLog.findOneAsync({ userId })[action];
+  const updatedActionsLog = await ActionsLog.findOneAsync({ userId });
 
-  if (updatedActionsLog.length > NUMBER_OF_ACTIONS_LOGGED) {
+  if (updatedActionsLog[action].length > NUMBER_OF_ACTIONS_LOGGED) {
     await ActionsLog.updateAsync(
       { _id: actionsLogId },
       { $pop: { [action]: 1 } },
