@@ -7,7 +7,6 @@ import {
   uploadPatternImage,
   updateImageUploadPreview,
 } from '../modules/patternImages';
-import { logErrors } from '../modules/errors';
 import './ImageUploader.scss';
 
 const baseStyle = {
@@ -40,7 +39,6 @@ const rejectStyle = {
 };
 
 function ImageUploader(props) {
-  // Cleanup preview URL on unmount
   // Local state for preview and file
   const [localPreviewUrl, setLocalPreviewUrl] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -48,6 +46,7 @@ function ImageUploader(props) {
   const [validationError, setValidationError] = useState(null);
   const [isConfirming, setIsConfirming] = useState(false);
 
+  // Cleanup preview URL on unmount
   React.useEffect(() => {
     return () => {
       if (localPreviewUrl) {
@@ -56,13 +55,7 @@ function ImageUploader(props) {
     };
   }, [localPreviewUrl]);
 
-  const {
-    dispatch,
-    imageUploadPreviewUrl,
-    imageUploadProgress,
-    onClose,
-    patternId,
-  } = props;
+  const { dispatch, imageUploadProgress, onClose, patternId } = props;
   // Helper to validate file and generate preview
   const validateAndPreviewFile = useCallback((file) => {
     return new Promise((resolve) => {
@@ -98,18 +91,13 @@ function ImageUploader(props) {
     });
   }, []);
 
-  // Validate image type, size, and dimensions
-  const validateImage = useCallback((file) => {
-    // Type check
-    if (!file.type.startsWith('image/')) {
-      return 'File must be an image.';
-    }
-    // Size check (2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      return 'File is too large (max 2MB).';
-    }
-    return null;
-  }, []);
+  const resetComponentState = ({ validationErrorMessage = null }) => {
+    setLocalPreviewUrl(null);
+    setSelectedFile(null);
+    setFileInfo(null);
+    setValidationError(validationErrorMessage);
+    setIsConfirming(false);
+  };
 
   // Handle file selection
   const onFileAccept = useCallback(
@@ -117,11 +105,7 @@ function ImageUploader(props) {
       const file = files[0];
       validateAndPreviewFile(file).then((result) => {
         if (!result.isValid) {
-          setValidationError(result.error);
-          setLocalPreviewUrl(null);
-          setSelectedFile(null);
-          setFileInfo(null);
-          setIsConfirming(false);
+          resetComponentState({ validationErrorMessage: result.error });
           return;
         }
         setLocalPreviewUrl(result.previewUrl);
@@ -135,9 +119,7 @@ function ImageUploader(props) {
   );
 
   const onFileReject = () => {
-    setValidationError(
-      'File was not accepted. Check it is not larger than 2MB.',
-    );
+    setValidationError('File may not be larger than 2MB and must be an image.');
     setLocalPreviewUrl(null);
     setSelectedFile(null);
     setIsConfirming(false);
@@ -172,20 +154,14 @@ function ImageUploader(props) {
   // Confirm upload handler
   const handleConfirmUpload = () => {
     if (!selectedFile) return;
+
     dispatch(uploadPatternImage({ dispatch, patternId, file: selectedFile }));
-    setIsConfirming(false);
-    setLocalPreviewUrl(null);
-    setSelectedFile(null);
-    setValidationError(null);
+    resetComponentState();
   };
 
   // Cancel/clear selection handler
   const handleCancel = () => {
-    setIsConfirming(false);
-    setLocalPreviewUrl(null);
-    setSelectedFile(null);
-    setFileInfo(null);
-    setValidationError(null);
+    resetComponentState();
     // Also clear preview in redux if present
     dispatch(updateImageUploadPreview(null));
     // Cleanup preview URL
@@ -267,7 +243,6 @@ function ImageUploader(props) {
 
 ImageUploader.propTypes = {
   dispatch: PropTypes.func.isRequired,
-  imageUploadPreviewUrl: PropTypes.string,
   imageUploadProgress: PropTypes.number.isRequired,
   onClose: PropTypes.func.isRequired,
   patternId: PropTypes.string.isRequired,
