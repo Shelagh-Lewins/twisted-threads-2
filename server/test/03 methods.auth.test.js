@@ -4,6 +4,7 @@ import { resetDatabase, ensureAllRolesExist } from './00_setup';
 import * as chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { Roles } from 'meteor/roles';
+import { ActionsLog } from '../../imports/modules/collection';
 import '../../imports/server/modules/publications';
 import '../methods/auth';
 import {
@@ -71,6 +72,36 @@ if (Meteor.isServer) {
       );
 
       assert.equal(result.email, currentUser.emails[0].address);
+    });
+
+    it('updates actions log when sending verification email', async () => {
+      const currentUser = await stubUser();
+
+      await Meteor.users.updateAsync(
+        { _id: currentUser._id },
+        { $set: { 'emails.0.verified': false } },
+      );
+
+      // Verify no actions log exists yet
+      const beforeLog = await ActionsLog.findOneAsync({
+        userId: currentUser._id,
+      });
+      expect(beforeLog).to.not.exist;
+
+      await callMethodWithUser(
+        currentUser._id,
+        'auth.sendVerificationEmail',
+        currentUser._id,
+      );
+
+      // Verify actions log was created and updated
+      const afterLog = await ActionsLog.findOneAsync({
+        userId: currentUser._id,
+      });
+      expect(afterLog).to.exist;
+      expect(afterLog.verificationEmailSent).to.be.an('array');
+      expect(afterLog.verificationEmailSent.length).to.equal(1);
+      expect(afterLog.verificationEmailSent[0]).to.be.a('date');
     });
 
     describe('setRecentPatterns method', () => {
