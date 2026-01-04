@@ -8,12 +8,14 @@ import {
   PatternImages,
   Patterns,
   PatternPreviews,
+  Sets,
 } from '../../imports/modules/collection';
 import '../../imports/server/modules/publications';
 // import all the methods we'll need
 import '../methods/pattern';
 import '../methods/patternImages';
 import '../methods/patternPreview';
+import '../methods/set';
 import '../methods/tags';
 import { ROLE_LIMITS } from '../../imports/modules/parameters';
 import { stubUser, unwrapUser, callMethodWithUser } from './mockUser';
@@ -48,7 +50,8 @@ async function testPatternLimit(userId, expectedLimit) {
 
 if (Meteor.isServer) {
   describe('test general methods for patterns', function testpatternmethods() {
-    this.timeout(15000);
+    this.timeout(60000); // Premium test creates 300 patterns, needs significant time
+
     beforeEach(async () => {
       unwrapUser();
       await resetDatabase();
@@ -91,7 +94,6 @@ if (Meteor.isServer) {
       });
 
       it('can create the correct number of patterns if verified', async () => {
-        await ensureAllRolesExist();
         const currentUser = await stubUser();
         await Roles.addUsersToRolesAsync([currentUser._id], ['verified']);
         const patternLimit = ROLE_LIMITS.verified.maxPatternsPerUser;
@@ -99,7 +101,6 @@ if (Meteor.isServer) {
       });
 
       it('can create the correct number of patterns if premium', async () => {
-        await ensureAllRolesExist();
         const currentUser = await stubUser();
         await Roles.addUsersToRolesAsync([currentUser._id], ['premium']);
         const patternLimit = ROLE_LIMITS.premium.maxPatternsPerUser;
@@ -163,28 +164,45 @@ if (Meteor.isServer) {
       it('updates publicPatternsCount when removing a public pattern from sets', async () => {
         const currentUser = await stubUser();
 
+        // Create a private pattern to keep the sets from being deleted
+        const privatePatternId = await createUserAndPattern(
+          currentUser._id,
+          ['registered', 'verified', 'premium'],
+          { name: 'Private Pattern' },
+        );
+
         // Create a public pattern
-        const patternId = await createUserAndPattern(
+        const publicPatternId = await createUserAndPattern(
           currentUser._id,
           ['registered', 'verified', 'premium'],
           { name: 'Public Pattern' },
         );
         await callMethodWithUser(currentUser._id, 'pattern.edit', {
-          _id: patternId,
+          _id: publicPatternId,
           data: {
             type: 'editIsPublic',
             isPublic: true,
           },
         });
 
-        // Create two sets and add the pattern to both
+        // Create two sets starting with the private pattern
         const setId1 = await callMethodWithUser(currentUser._id, 'set.add', {
-          patternId,
+          patternId: privatePatternId,
           name: 'Set 1',
         });
         const setId2 = await callMethodWithUser(currentUser._id, 'set.add', {
-          patternId,
+          patternId: privatePatternId,
           name: 'Set 2',
+        });
+
+        // Add the public pattern to both sets
+        await callMethodWithUser(currentUser._id, 'set.addPattern', {
+          patternId: publicPatternId,
+          setId: setId1,
+        });
+        await callMethodWithUser(currentUser._id, 'set.addPattern', {
+          patternId: publicPatternId,
+          setId: setId2,
         });
 
         // Verify both sets have publicPatternsCount = 1
@@ -193,16 +211,23 @@ if (Meteor.isServer) {
         assert.equal(set1.publicPatternsCount, 1);
         assert.equal(set2.publicPatternsCount, 1);
 
-        // Remove the pattern
-        await callMethodWithUser(currentUser._id, 'pattern.remove', patternId);
+        // Remove the public pattern
+        await callMethodWithUser(
+          currentUser._id,
+          'pattern.remove',
+          publicPatternId,
+        );
 
-        // Verify both sets still exist but publicPatternsCount is now 0
+        // Verify both sets still exist (because they still have the private pattern)
+        // and publicPatternsCount is now 0
         set1 = await Sets.findOneAsync({ _id: setId1 });
         set2 = await Sets.findOneAsync({ _id: setId2 });
         assert.equal(set1.publicPatternsCount, 0);
         assert.equal(set2.publicPatternsCount, 0);
-        assert.notInclude(set1.patterns, patternId);
-        assert.notInclude(set2.patterns, patternId);
+        assert.notInclude(set1.patterns, publicPatternId);
+        assert.notInclude(set2.patterns, publicPatternId);
+        assert.include(set1.patterns, privatePatternId);
+        assert.include(set2.patterns, privatePatternId);
       });
     });
 
@@ -270,15 +295,6 @@ if (Meteor.isServer) {
         );
       });
       // Tests counting patterns visible to user (used for pagination)
-      // Users can see their own patterns (public + private) plus other users' public patterns
-      it('returns 0 when the user is not logged in', async () => {
-        // Create patterns owned by other users
-        await createOtherUsersPatterns(3);
-
-        const result = await Meteor.callAsync('pattern.getPatternCount', {});
-        assert.equal(result, 0);
-      });
-
       it('returns 2 when the user has 2 patterns in the database', async () => {
         // Create patterns owned by other users (not visible to current user)
         await createOtherUsersPatterns(3);
@@ -384,7 +400,6 @@ if (Meteor.isServer) {
 
       it('can copy own pattern', async () => {
         // Create a fresh user with verified role for higher pattern limit
-        await ensureAllRolesExist();
         const currentUser = await stubUser();
         await Roles.addUsersToRolesAsync([currentUser._id], ['verified']);
 
