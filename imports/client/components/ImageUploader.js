@@ -3,7 +3,10 @@ import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
-import { uploadPatternImage, updateImageUploadPreview } from '../modules/patternImages';
+import {
+  uploadPatternImage,
+  updateImageUploadPreview,
+} from '../modules/patternImages';
 import { logErrors } from '../modules/errors';
 import './ImageUploader.scss';
 
@@ -95,7 +98,6 @@ function ImageUploader(props) {
     });
   }, []);
 
-
   // Validate image type, size, and dimensions
   const validateImage = useCallback((file) => {
     // Type check
@@ -110,27 +112,32 @@ function ImageUploader(props) {
   }, []);
 
   // Handle file selection
-  const onFileAccept = useCallback((files) => {
-    const file = files[0];
-    validateAndPreviewFile(file).then((result) => {
-      if (!result.isValid) {
-        setValidationError(result.error);
-        setLocalPreviewUrl(null);
-        setSelectedFile(null);
-        setFileInfo(null);
-        setIsConfirming(false);
-        return;
-      }
-      setLocalPreviewUrl(result.previewUrl);
-      setSelectedFile(file);
-      setFileInfo(result.info);
-      setValidationError(null);
-      setIsConfirming(true);
-    });
-  }, [validateAndPreviewFile]);
+  const onFileAccept = useCallback(
+    (files) => {
+      const file = files[0];
+      validateAndPreviewFile(file).then((result) => {
+        if (!result.isValid) {
+          setValidationError(result.error);
+          setLocalPreviewUrl(null);
+          setSelectedFile(null);
+          setFileInfo(null);
+          setIsConfirming(false);
+          return;
+        }
+        setLocalPreviewUrl(result.previewUrl);
+        setSelectedFile(file);
+        setFileInfo(result.info);
+        setValidationError(null);
+        setIsConfirming(true);
+      });
+    },
+    [validateAndPreviewFile],
+  );
 
   const onFileReject = () => {
-    setValidationError('File was not accepted. Check it is not larger than 2MB.');
+    setValidationError(
+      'File was not accepted. Check it is not larger than 2MB.',
+    );
     setLocalPreviewUrl(null);
     setSelectedFile(null);
     setIsConfirming(false);
@@ -189,9 +196,7 @@ function ImageUploader(props) {
     <div className='image-uploader dropzone'>
       <div className='uploader-container'>
         {/* Dropzone area, disabled during confirmation or upload */}
-        <div
-          {...getRootProps({ style })}
-        >
+        <div {...getRootProps({ style })}>
           <Button
             type='button'
             className='btn btn-close'
@@ -208,15 +213,30 @@ function ImageUploader(props) {
         {localPreviewUrl && isConfirming && fileInfo && (
           <div className='pre-upload-preview'>
             <div className='preview-image'>
-              <img src={localPreviewUrl} alt='Preview' style={{ maxWidth: '100%', maxHeight: 200 }} />
+              <img
+                src={localPreviewUrl}
+                alt='Preview'
+                style={{ maxWidth: '100%', maxHeight: 200 }}
+              />
             </div>
             <div className='file-info'>
-              <div><strong>Filename:</strong> {fileInfo.name}</div>
-              <div><strong>Size:</strong> {(fileInfo.size / 1024).toFixed(1)} KB</div>
-              <div><strong>Dimensions:</strong> {fileInfo.width} × {fileInfo.height} px</div>
+              <div>
+                <strong>Filename:</strong> {fileInfo.name}
+              </div>
+              <div>
+                <strong>Size:</strong> {(fileInfo.size / 1024).toFixed(1)} KB
+              </div>
+              <div>
+                <strong>Dimensions:</strong> {fileInfo.width} ×{' '}
+                {fileInfo.height} px
+              </div>
             </div>
             <div className='preview-actions'>
-              <Button color='primary' onClick={handleConfirmUpload} disabled={!selectedFile}>
+              <Button
+                color='primary'
+                onClick={handleConfirmUpload}
+                disabled={!selectedFile}
+              >
                 Upload Image
               </Button>
               <Button color='secondary' onClick={handleCancel}>
@@ -238,9 +258,7 @@ function ImageUploader(props) {
 
         {/* Show error if present */}
         {validationError && (
-          <div className='upload-error'>
-            {validationError}
-          </div>
+          <div className='upload-error'>{validationError}</div>
         )}
       </div>
     </div>

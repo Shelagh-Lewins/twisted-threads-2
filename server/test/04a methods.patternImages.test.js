@@ -17,7 +17,7 @@ if (Meteor.isServer) {
     beforeEach(async () => {
       await resetDatabase();
       await ensureAllRolesExist();
-      
+
       // Stub S3 methods used in patternImages methods
       headObjectStub = sinon.stub().returns({
         promise: sinon.stub().resolves({
@@ -25,31 +25,33 @@ if (Meteor.isServer) {
           ContentType: 'image/jpeg',
         }),
       });
-      
+
       const deleteObjectStub = sinon.stub().callsFake((params, callback) => {
         // Simulate successful deletion
         if (callback) {
           callback(null, {});
         }
       });
-      
-      const createPresignedPostStub = sinon.stub().callsFake((params, callback) => {
-        // Return mock presigned POST data
-        callback(null, {
-          url: 'https://s3.eu-west-1.amazonaws.com/test-bucket',
-          fields: {
-            key: params.Fields.key,
-            acl: 'public-read',
-            'Content-Type': params.Fields['Content-Type'],
-            policy: 'mock-policy',
-            'x-amz-algorithm': 'AWS4-HMAC-SHA256',
-            'x-amz-credential': 'mock-credential',
-            'x-amz-date': '20260104T000000Z',
-            'x-amz-signature': 'mock-signature',
-          },
+
+      const createPresignedPostStub = sinon
+        .stub()
+        .callsFake((params, callback) => {
+          // Return mock presigned POST data
+          callback(null, {
+            url: 'https://s3.eu-west-1.amazonaws.com/test-bucket',
+            fields: {
+              key: params.Fields.key,
+              acl: 'public-read',
+              'Content-Type': params.Fields['Content-Type'],
+              policy: 'mock-policy',
+              'x-amz-algorithm': 'AWS4-HMAC-SHA256',
+              'x-amz-credential': 'mock-credential',
+              'x-amz-date': '20260104T000000Z',
+              'x-amz-signature': 'mock-signature',
+            },
+          });
         });
-      });
-      
+
       sinon.stub(AWS, 'S3').returns({
         headObject: headObjectStub,
         deleteObject: deleteObjectStub,

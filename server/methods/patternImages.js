@@ -136,7 +136,7 @@ Meteor.methods({
     // Parse and validate the download URL to extract the key
     const bucket = process.env.AWS_BUCKET;
     const region = process.env.AWSRegion;
-    
+
     let urlObj;
     try {
       urlObj = new URL(downloadUrl);
@@ -163,8 +163,8 @@ Meteor.methods({
     }
 
     // Extract key from pathname
-    let key = urlObj.pathname.startsWith('/') 
-      ? urlObj.pathname.slice(1) 
+    let key = urlObj.pathname.startsWith('/')
+      ? urlObj.pathname.slice(1)
       : urlObj.pathname;
 
     // For path-style URLs, remove bucket prefix
@@ -184,13 +184,15 @@ Meteor.methods({
     const s3 = getS3Client();
     let fileSize;
     try {
-      const headData = await s3.headObject({
-        Bucket: bucket,
-        Key: key,
-      }).promise();
-      
+      const headData = await s3
+        .headObject({
+          Bucket: bucket,
+          Key: key,
+        })
+        .promise();
+
       fileSize = headData.ContentLength;
-      
+
       if (fileSize > 2 * 1024 * 1024) {
         throw new Meteor.Error(
           'file-too-large',
@@ -199,10 +201,7 @@ Meteor.methods({
       }
     } catch (error) {
       if (error.code === 'NotFound' || error.statusCode === 404) {
-        throw new Meteor.Error(
-          'file-not-found',
-          'File was not found on S3',
-        );
+        throw new Meteor.Error('file-not-found', 'File was not found on S3');
       }
       // Re-throw Meteor errors (like file-too-large)
       if (error.error) {
