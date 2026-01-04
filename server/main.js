@@ -1,5 +1,4 @@
 import '../imports/server/modules/publications';
-import '../imports/server/modules/slingshot';
 import '../imports/server/modules/searchPublications';
 import { ROLES } from '../imports/modules/parameters';
 import { buildServerLogText } from '../imports/server/modules/utils';

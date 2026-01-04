@@ -28,7 +28,7 @@ Meteor.methods({
       );
     }
 
-    updateActionsLog('verificationEmailSent');
+    await updateActionsLog('verificationEmailSent');
 
     // log send of verification email so fail2ban can find them in the nginx logs
     const text = await buildServerLogText(

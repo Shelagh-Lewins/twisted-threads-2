@@ -742,7 +742,7 @@ Meteor.methods({
         await Sets.updateAsync({ _id: set._id }, { $pull: { patterns: _id } });
 
         // update the set's count of public pattern
-        updatePublicPatternsCountForSet(set._id);
+        await updatePublicPatternsCountForSet(set._id);
       });
     }
 
@@ -751,7 +751,7 @@ Meteor.methods({
       $and: [{ _id: { $in: pattern.sets } }, { patterns: { $size: 0 } }],
     });
 
-    updateMultiplePublicSetsCount(pattern.sets);
+    await updateMultiplePublicSetsCount(pattern.sets);
 
     // remove the pattern itself
     const removed = await Patterns.removeAsync({ _id });

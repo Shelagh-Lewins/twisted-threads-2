@@ -530,35 +530,37 @@ class Pattern extends PureComponent {
     }
     return (
       <div className='pattern-images'>
-        {patternImages.map((patternImage) => (
-          <div
-            className='thumbnail'
-            key={patternImage._id}
-            onClick={() => this.onClickPatternImageThumbnail(patternImage._id)}
-            onKeyPress={() =>
-              this.onClickPatternImageThumbnail(patternImage._id)
-            }
-            role='button'
-            style={{ backgroundImage: `url("${patternImage.url}")` }}
-            tabIndex='0'
-          >
-            <div className='controls'>
-              {canEdit && (
-                <Button
-                  onClick={this.onRemovePatternImage}
-                  title='Delete image'
-                  value={patternImage._id}
-                >
-                  <FontAwesomeIcon
-                    icon={['fas', 'trash']}
-                    style={{ color: iconColors.contrast }}
-                    size='1x'
-                  />
-                </Button>
-              )}
+        {patternImages.map((patternImage) => {
+          const { _id, caption, url } = patternImage;
+          return (
+            <div
+              className='thumbnail'
+              key={_id}
+              onClick={() => this.onClickPatternImageThumbnail(_id)}
+              onKeyUp={() => this.onClickPatternImageThumbnail(_id)}
+              role='button'
+              style={{ backgroundImage: `url("${url}")` }}
+              tabIndex='0'
+              title={caption}
+            >
+              <div className='controls'>
+                {canEdit && (
+                  <Button
+                    onClick={this.onRemovePatternImage}
+                    title='Delete image'
+                    value={_id}
+                  >
+                    <FontAwesomeIcon
+                      icon={['fas', 'trash']}
+                      style={{ color: iconColors.contrast }}
+                      size='1x'
+                    />
+                  </Button>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     );
   }
@@ -943,8 +945,6 @@ class Pattern extends PureComponent {
         break;
 
       case 'info':
-        console.log('rendering info tab');
-        console.log('description in info tab:', description);
         tabContent = (
           <div className='tab-content'>
             <p>
