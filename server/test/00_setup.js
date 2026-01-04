@@ -3,6 +3,7 @@
 
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
+import sinon from 'sinon';
 import {
   Patterns,
   Sets,
@@ -60,3 +61,27 @@ if (typeof global !== 'undefined') {
   global.resetDatabase = resetDatabase;
   global.ensureAllRolesExist = ensureAllRolesExist;
 }
+
+// Global stub for email sending to prevent actual emails in tests
+// This avoids SMTP authentication errors and speeds up test execution
+let sendVerificationEmailStub;
+
+before(function () {
+  // Stub at the start of all tests
+  sendVerificationEmailStub = sinon
+    .stub(Accounts, 'sendVerificationEmail')
+    .callsFake(async (userId) => {
+      // Return a realistic response
+      const user = await Meteor.users.findOneAsync({ _id: userId });
+      return {
+        email: user?.emails?.[0]?.address || 'test@example.com',
+      };
+    });
+});
+
+after(function () {
+  // Restore after all tests
+  if (sendVerificationEmailStub) {
+    sendVerificationEmailStub.restore();
+  }
+});
