@@ -74,9 +74,6 @@ Meteor.methods({
     name = name.replace(/\s/g, '_'); // replace spaces with underscore
     const key = `${this.userId}/${name.slice(0, 30)}-${moment().valueOf().toString()}.${extension}`;
 
-    // Update actions log for rate limiting
-    await updateActionsLog('imageUploaded');
-
     // Create presigned POST
     const s3 = getS3Client();
     const bucket = process.env.AWS_BUCKET;
@@ -133,15 +130,91 @@ Meteor.methods({
       throw error;
     }
 
-    // Find the key by stripping out the first part of the image url
+    // Log successful upload action for rate limiting
+    await updateActionsLog('imageUploaded');
+
+    // Parse and validate the download URL to extract the key
     const bucket = process.env.AWS_BUCKET;
     const region = process.env.AWSRegion;
-    // Handle both path-style (s3.region.amazonaws.com/bucket/) and virtual-hosted style (bucket.s3-region.amazonaws.com/)
-    const key = downloadUrl
-      .replace(`https://${bucket}.s3-${region}.amazonaws.com/`, '')
-      .replace(`https://s3.${region}.amazonaws.com/${bucket}/`, '')
-      .replace(`https://s3-${region}.amazonaws.com/${bucket}/`, '')
-      .replace(`https://s3.${region}.amazonaws.com/${bucket}/`, ''); // path-style with dot
+    
+    let urlObj;
+    try {
+      urlObj = new URL(downloadUrl);
+    } catch (e) {
+      throw new Meteor.Error(
+        'invalid-download-url',
+        'Download URL is not a valid URL',
+      );
+    }
+
+    // Validate hostname matches expected S3 patterns
+    const expectedHosts = [
+      `${bucket}.s3-${region}.amazonaws.com`,
+      `s3.${region}.amazonaws.com`,
+      `s3-${region}.amazonaws.com`,
+      `${bucket}.s3.${region}.amazonaws.com`,
+    ];
+
+    if (!expectedHosts.includes(urlObj.hostname)) {
+      throw new Meteor.Error(
+        'invalid-download-url',
+        'Download URL does not match expected S3 bucket hostname',
+      );
+    }
+
+    // Extract key from pathname
+    let key = urlObj.pathname.startsWith('/') 
+      ? urlObj.pathname.slice(1) 
+      : urlObj.pathname;
+
+    // For path-style URLs, remove bucket prefix
+    if (key.startsWith(`${bucket}/`)) {
+      key = key.slice(bucket.length + 1);
+    }
+
+    // Validate key belongs to current user
+    if (!key.startsWith(`${this.userId}/`)) {
+      throw new Meteor.Error(
+        'invalid-key-format',
+        'Image key does not belong to current user',
+      );
+    }
+
+    // Verify file exists on S3 and check its size
+    const s3 = getS3Client();
+    let fileSize;
+    try {
+      const headData = await s3.headObject({
+        Bucket: bucket,
+        Key: key,
+      }).promise();
+      
+      fileSize = headData.ContentLength;
+      
+      if (fileSize > 2 * 1024 * 1024) {
+        throw new Meteor.Error(
+          'file-too-large',
+          'Uploaded file exceeds 2MB limit',
+        );
+      }
+    } catch (error) {
+      if (error.code === 'NotFound' || error.statusCode === 404) {
+        throw new Meteor.Error(
+          'file-not-found',
+          'File was not found on S3',
+        );
+      }
+      // Re-throw Meteor errors (like file-too-large)
+      if (error.error) {
+        throw error;
+      }
+      // Log and throw other S3 errors
+      console.error('S3 headObject error:', error);
+      throw new Meteor.Error(
+        's3-verification-error',
+        'Failed to verify uploaded file',
+      );
+    }
 
     let imageId;
 
@@ -180,7 +253,18 @@ Meteor.methods({
     const newImage = new Jimp(
       downloadUrl,
       Meteor.bindEnvironment(async (error1, image) => {
-        if (!error1) {
+        if (error1) {
+          console.error('Jimp error processing image:', error1);
+          // Mark image as having processing error
+          await PatternImages.updateAsync(
+            { _id: imageId },
+            {
+              $set: {
+                processingError: true,
+              },
+            },
+          );
+        } else {
           const { height, width } = image.bitmap;
 
           await PatternImages.updateAsync(
@@ -189,6 +273,7 @@ Meteor.methods({
               $set: {
                 height,
                 width,
+                processingError: false,
               },
             },
           );

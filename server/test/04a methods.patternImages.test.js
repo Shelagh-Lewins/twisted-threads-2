@@ -6,16 +6,60 @@ import { PatternImages } from '../../imports/modules/collection';
 import '../methods/patternImages';
 import { createPattern, createPatternImage } from './testData';
 import { stubUser, unwrapUser, callMethodWithUser } from './mockUser';
+import sinon from 'sinon';
+
+const AWS = require('aws-sdk');
 
 if (Meteor.isServer) {
   describe('test methods for pattern images', () => {
+    let headObjectStub;
+
     beforeEach(async () => {
       await resetDatabase();
       await ensureAllRolesExist();
+      
+      // Stub S3 methods used in patternImages methods
+      headObjectStub = sinon.stub().returns({
+        promise: sinon.stub().resolves({
+          ContentLength: 1024 * 1024, // 1MB file
+          ContentType: 'image/jpeg',
+        }),
+      });
+      
+      const deleteObjectStub = sinon.stub().callsFake((params, callback) => {
+        // Simulate successful deletion
+        if (callback) {
+          callback(null, {});
+        }
+      });
+      
+      const createPresignedPostStub = sinon.stub().callsFake((params, callback) => {
+        // Return mock presigned POST data
+        callback(null, {
+          url: 'https://s3.eu-west-1.amazonaws.com/test-bucket',
+          fields: {
+            key: params.Fields.key,
+            acl: 'public-read',
+            'Content-Type': params.Fields['Content-Type'],
+            policy: 'mock-policy',
+            'x-amz-algorithm': 'AWS4-HMAC-SHA256',
+            'x-amz-credential': 'mock-credential',
+            'x-amz-date': '20260104T000000Z',
+            'x-amz-signature': 'mock-signature',
+          },
+        });
+      });
+      
+      sinon.stub(AWS, 'S3').returns({
+        headObject: headObjectStub,
+        deleteObject: deleteObjectStub,
+        createPresignedPost: createPresignedPostStub,
+      });
     });
 
     afterEach(async () => {
       if (unwrapUser) unwrapUser();
+      sinon.restore();
     });
 
     describe('patternImages.add method', () => {
@@ -120,7 +164,7 @@ if (Meteor.isServer) {
 
         const bucket = process.env.AWS_BUCKET || 'test-bucket';
         const region = process.env.AWSRegion || 'us-east-1';
-        const testKey = 'test-key-new';
+        const testKey = `${user._id}/test-image-${Date.now()}.jpg`;
         const downloadUrl = `https://${bucket}.s3-${region}.amazonaws.com/${testKey}`;
 
         const imageId = await callMethodWithUser(

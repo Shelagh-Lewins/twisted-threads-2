@@ -77,6 +77,7 @@ export function uploadPatternImage({ dispatch, patternId, file }) {
         if (xhr.status === 204 || xhr.status === 200) {
           // S3 upload successful, now log to database
           dispatch(updateImageUploadPreview(null));
+          dispatch(updateImageUploadProgress(0));
 
           Meteor.call(
             'patternImages.add',
@@ -100,10 +101,14 @@ export function uploadPatternImage({ dispatch, patternId, file }) {
       });
 
       xhr.addEventListener('error', () => {
+        dispatch(updateImageUploadPreview(null));
+        dispatch(updateImageUploadProgress(0));
         dispatch(logErrors({ 'image-upload': 'Network error during upload' }));
       });
 
       xhr.addEventListener('abort', () => {
+        dispatch(updateImageUploadPreview(null));
+        dispatch(updateImageUploadProgress(0));
         dispatch(logErrors({ 'image-upload': 'Upload was cancelled' }));
       });
 
