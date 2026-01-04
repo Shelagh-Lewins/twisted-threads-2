@@ -104,14 +104,14 @@ Accounts.onCreateUser(async (options, user) => {
   await Roles.addUsersToRolesAsync(newUser._id, 'registered');
 
   // log new user registrations so fail2ban can find them in the nginx logs
-  const text = buildServerLogText('[action]: Meteor create user');
+  const text = await buildServerLogText('[action]: Meteor create user');
   console.log(text);
 
   return newUser;
 });
 
 // log failed login attempts so fail2ban can find them in the Nginx logs
-Accounts.onLoginFailure(() => {
-  const text = buildServerLogText('[error]: Meteor login failure');
+Accounts.onLoginFailure(async () => {
+  const text = await buildServerLogText('[error]: Meteor login failure');
   console.log(text);
 });

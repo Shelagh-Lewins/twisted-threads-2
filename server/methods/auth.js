@@ -31,7 +31,9 @@ Meteor.methods({
     updateActionsLog('verificationEmailSent');
 
     // log send of verification email so fail2ban can find them in the nginx logs
-    const text = buildServerLogText('[action]: Meteor send verification email');
+    const text = await buildServerLogText(
+      '[action]: Meteor send verification email',
+    );
     // eslint-disable-next-line no-console
     console.log(text);
 
