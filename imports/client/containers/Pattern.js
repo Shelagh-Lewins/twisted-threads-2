@@ -943,8 +943,6 @@ class Pattern extends PureComponent {
         break;
 
       case 'info':
-        console.log('rendering info tab');
-        console.log('description in info tab:', description);
         tabContent = (
           <div className='tab-content'>
             <p>

@@ -15,7 +15,7 @@ Meteor.methods({
     check(_id, nonEmptyStringCheck);
     check(downloadUrl, nonEmptyStringCheck);
 
-    const { error } = checkUserCanAddPatternImage(_id);
+    const { error } = await checkUserCanAddPatternImage(_id, this.userId);
 
     if (error) {
       throw error;
