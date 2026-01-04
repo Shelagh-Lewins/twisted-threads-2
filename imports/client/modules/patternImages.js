@@ -37,7 +37,7 @@ export function uploadPatternImage({ dispatch, patternId, file }) {
     dispatch(updateImageUploadProgress(0));
 
     const uploader = new Slingshot.Upload('myImageUploads', { patternId });
-    let computation = 0;
+    let computation = null;
 
     try {
       uploader.send(file, (error, downloadUrl) => {

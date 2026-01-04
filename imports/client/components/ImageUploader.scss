@@ -1,40 +1,44 @@
 @import '../constants/variables';
 
 .image-uploader-wrapper {
-	margin-bottom: 16px;
+  margin-bottom: 16px;
 
-	.upload-progress-bar {
-		border: 1px solid $color-progress-border;
-		bottom: 8px;
-		height: 10px;
-		left: 50%;
-		margin-left: -75px;
-		position: absolute;
-		width: 150px;
-	}
+  .uploader-container {
+    position: relative;
+  }
 
-	.slider {
-		background: $color-progress-slider;
-		height: 100%;
-	}
+  .upload-progress-bar {
+    border: 1px solid $color-progress-border;
+    bottom: 8px;
+    height: 10px;
+    left: 50%;
+    margin-left: -75px;
+    position: absolute;
+    width: 150px;
+  }
 
-	*:focus {
-		outline: 2px dashed $color-focus !important;
-		outline-offset: 2px;
-	}
+  .slider {
+    background: $color-progress-slider;
+    height: 100%;
+  }
 
-	.upload-preview {
-		background-position: center center;
-		background-repeat: no-repeat;
-		background-size: cover;
-		border: 1px solid $color-progress-border;
-		height: 100px;
-		width: 100px;
-	}
+  *:focus {
+    outline: 2px dashed $color-focus !important;
+    outline-offset: 2px;
+  }
 
-	.btn-close {
-		position: absolute;
-		right: 8px;
-		top: 8px;
-	}
+  .upload-preview {
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    border: 1px solid $color-progress-border;
+    height: 100px;
+    width: 100px;
+  }
+
+  .btn-close {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+  }
 }
