@@ -9,35 +9,6 @@ import {
 } from '../modules/patternImages';
 import './ImageUploader.scss';
 
-const baseStyle = {
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  padding: '20px',
-  borderWidth: 2,
-  borderRadius: 2,
-  borderColor: '#7580ac',
-  borderStyle: 'solid',
-  backgroundColor: '#fafafa',
-  color: '#999',
-  outline: 'none',
-  position: 'relative',
-  transition: 'border .24s ease-in-out',
-};
-
-const activeStyle = {
-  borderColor: '#2196f3',
-};
-
-const acceptStyle = {
-  borderColor: '#00e676',
-};
-
-const rejectStyle = {
-  borderColor: '#ff1744',
-};
-
 function ImageUploader(props) {
   // Local state for preview and file
   const [localPreviewUrl, setLocalPreviewUrl] = useState(null);
@@ -91,7 +62,7 @@ function ImageUploader(props) {
     });
   }, []);
 
-  const resetComponentState = ({ validationErrorMessage = null }) => {
+  const resetComponentState = ({ validationErrorMessage = null } = {}) => {
     setLocalPreviewUrl(null);
     setSelectedFile(null);
     setFileInfo(null);
@@ -140,16 +111,16 @@ function ImageUploader(props) {
     disabled: isConfirming || !!imageUploadProgress,
   });
 
-  const style = useMemo(
-    () => ({
-      ...baseStyle,
-      ...(isDragActive ? activeStyle : {}),
-      ...(isDragAccept ? acceptStyle : {}),
-      ...(isDragReject ? rejectStyle : {}),
-      ...(isConfirming ? { opacity: 0.5, pointerEvents: 'none' } : {}),
-    }),
-    [isDragAccept, isDragActive, isDragReject, isConfirming],
-  );
+  // Compute dropzone className based on state
+  const dropzoneClass = [
+    'image-uploader-dropzone',
+    isDragActive ? 'active' : '',
+    isDragAccept ? 'accept' : '',
+    isDragReject ? 'reject' : '',
+    isConfirming ? 'disabled' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   // Confirm upload handler
   const handleConfirmUpload = () => {
@@ -172,7 +143,7 @@ function ImageUploader(props) {
     <div className='image-uploader dropzone'>
       <div className='uploader-container'>
         {/* Dropzone area, disabled during confirmation or upload */}
-        <div {...getRootProps({ style })}>
+        <div {...getRootProps({ className: dropzoneClass })}>
           <Button
             type='button'
             className='btn btn-close'
