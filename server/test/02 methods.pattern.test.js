@@ -159,6 +159,51 @@ if (Meteor.isServer) {
         assert.equal(await PatternPreviews.find().countAsync(), 0);
         assert.equal(await PatternImages.find().countAsync(), 0);
       });
+
+      it('updates publicPatternsCount when removing a public pattern from sets', async () => {
+        const currentUser = await stubUser();
+
+        // Create a public pattern
+        const patternId = await createUserAndPattern(
+          currentUser._id,
+          ['registered', 'verified', 'premium'],
+          { name: 'Public Pattern' },
+        );
+        await callMethodWithUser(currentUser._id, 'pattern.edit', {
+          _id: patternId,
+          data: {
+            type: 'editIsPublic',
+            isPublic: true,
+          },
+        });
+
+        // Create two sets and add the pattern to both
+        const setId1 = await callMethodWithUser(currentUser._id, 'set.add', {
+          patternId,
+          name: 'Set 1',
+        });
+        const setId2 = await callMethodWithUser(currentUser._id, 'set.add', {
+          patternId,
+          name: 'Set 2',
+        });
+
+        // Verify both sets have publicPatternsCount = 1
+        let set1 = await Sets.findOneAsync({ _id: setId1 });
+        let set2 = await Sets.findOneAsync({ _id: setId2 });
+        assert.equal(set1.publicPatternsCount, 1);
+        assert.equal(set2.publicPatternsCount, 1);
+
+        // Remove the pattern
+        await callMethodWithUser(currentUser._id, 'pattern.remove', patternId);
+
+        // Verify both sets still exist but publicPatternsCount is now 0
+        set1 = await Sets.findOneAsync({ _id: setId1 });
+        set2 = await Sets.findOneAsync({ _id: setId2 });
+        assert.equal(set1.publicPatternsCount, 0);
+        assert.equal(set2.publicPatternsCount, 0);
+        assert.notInclude(set1.patterns, patternId);
+        assert.notInclude(set2.patterns, patternId);
+      });
     });
 
     describe('pattern.getPatternCount method', () => {

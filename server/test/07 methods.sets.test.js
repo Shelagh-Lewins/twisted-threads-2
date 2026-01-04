@@ -197,6 +197,62 @@ if (Meteor.isServer) {
         const set = await Sets.findOneAsync({ _id: setId });
         assert.include(set.patterns, patternId);
       });
+
+      it('updates publicPatternsCount when adding a public pattern to a set', async () => {
+        const userId = 'testUserId';
+        const otherUserId = 'otherUserId';
+
+        // Create a public pattern as otherUserId
+        await stubUser({
+          _id: otherUserId,
+          username: otherUserId,
+          roles: ['registered', 'verified', 'premium'],
+        });
+        const publicPatternId = await createUserAndPattern(otherUserId, [
+          'registered',
+          'verified',
+          'premium',
+        ]);
+        await callMethodWithUser(otherUserId, 'pattern.edit', {
+          _id: publicPatternId,
+          data: {
+            type: 'editIsPublic',
+            isPublic: true,
+          },
+        });
+
+        // Create userId with their own pattern and set
+        await stubUser({
+          _id: userId,
+          username: userId,
+          roles: ['registered', 'verified', 'premium'],
+        });
+        const myPatternId = await createUserAndPattern(userId, [
+          'registered',
+          'verified',
+          'premium',
+        ]);
+        const setId = await callMethodWithUser(userId, 'set.add', {
+          patternId: myPatternId,
+          name: 'My Set',
+        });
+
+        // Verify initial count is 0 (myPattern is private)
+        let set = await Sets.findOneAsync({ _id: setId });
+        assert.equal(set.publicPatternsCount, 0);
+
+        // Add the public pattern to the set
+        await callMethodWithUser(userId, 'set.addPattern', {
+          patternId: publicPatternId,
+          setId,
+        });
+
+        // Verify publicPatternsCount is now 1
+        set = await Sets.findOneAsync({ _id: setId });
+        assert.equal(set.publicPatternsCount, 1);
+        assert.include(set.patterns, publicPatternId);
+      });
+
       // create a set and assign a pattern to it
       it('cannot add pattern to set if not logged in', async () => {
         // Create all patterns and sets as a registered user

@@ -145,7 +145,7 @@ Meteor.methods({
     );
 
     if (pattern.isPublic) {
-      updatePublicPatternsCountForSet(setId);
+      await updatePublicPatternsCountForSet(setId);
     }
 
     // update the user's count of public sets
