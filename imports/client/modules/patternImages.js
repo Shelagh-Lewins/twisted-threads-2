@@ -32,23 +32,50 @@ export function updateImageUploadProgress(imageUploadProgress) {
 // used for create new and edit. Simply overwrite the data
 export function uploadPatternImage({ dispatch, patternId, file }) {
   // eslint-disable-line import/prefer-default-export
-  return () => {
+  return async () => {
     dispatch(clearErrors());
     dispatch(updateImageUploadProgress(0));
 
-    const uploader = new Slingshot.Upload('myImageUploads', { patternId });
-    let computation = null;
-
     try {
-      uploader.send(file, (error, downloadUrl) => {
-        computation.stop(); // Stop progress tracking on upload finish
+      // Get presigned POST data from server
+      const presignedData = await Meteor.callAsync(
+        'patternImages.getPresignedPost',
+        {
+          patternId,
+          fileName: file.name,
+          fileType: file.type,
+        },
+      );
 
-        if (error) {
-          if (uploader.xhr) {
-            dispatch(logErrors({ 'image-upload': uploader.xhr.response }));
-          }
-          dispatch(logErrors({ 'image-upload': error.reason }));
-        } else {
+      const { url, fields, key, downloadUrl } = presignedData;
+
+      // Show preview URL immediately
+      dispatch(updateImageUploadPreview(downloadUrl));
+
+      // Build FormData for S3 upload
+      const formData = new FormData();
+
+      // Add all fields from presigned POST (must come before file)
+      Object.keys(fields).forEach((fieldKey) => {
+        formData.append(fieldKey, fields[fieldKey]);
+      });
+
+      // Add the file last
+      formData.append('file', file);
+
+      // Upload to S3 using XMLHttpRequest for progress tracking
+      const xhr = new XMLHttpRequest();
+
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = (event.loaded / event.total) * 100;
+          dispatch(updateImageUploadProgress(percentComplete));
+        }
+      });
+
+      xhr.addEventListener('load', () => {
+        if (xhr.status === 204 || xhr.status === 200) {
+          // S3 upload successful, now log to database
           dispatch(updateImageUploadPreview(null));
 
           Meteor.call(
@@ -62,24 +89,34 @@ export function uploadPatternImage({ dispatch, patternId, file }) {
               }
             },
           );
+        } else {
+          // S3 upload failed
+          dispatch(
+            logErrors({
+              'image-upload': `Image upload failed with status ${xhr.status}`,
+            }),
+          );
         }
       });
+
+      xhr.addEventListener('error', () => {
+        dispatch(logErrors({ 'image-upload': 'Network error during upload' }));
+      });
+
+      xhr.addEventListener('abort', () => {
+        dispatch(logErrors({ 'image-upload': 'Upload was cancelled' }));
+      });
+
+      xhr.open('POST', url);
+      xhr.send(formData);
     } catch (error) {
       dispatch(
         logErrors({
-          'image-upload': `error uploading image: ${error.message}`,
+          'image-upload':
+            error.reason || error.message || 'Error uploading image',
         }),
       );
     }
-
-    dispatch(updateImageUploadPreview(uploader.url));
-
-    // Track Progress
-    computation = Tracker.autorun(() => {
-      if (!isNaN(uploader.progress())) {
-        dispatch(updateImageUploadProgress(uploader.progress() * 100));
-      }
-    });
   };
 }
 

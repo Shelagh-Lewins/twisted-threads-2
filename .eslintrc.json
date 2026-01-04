@@ -12,8 +12,7 @@
   },
   "globals": {
     "Factory": true,
-    "Roles": true,
-    "Slingshot": true
+    "Roles": true
   },
   "rules": {
     "array-callback-return": ["off"],

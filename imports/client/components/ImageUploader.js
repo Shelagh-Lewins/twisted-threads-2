@@ -70,7 +70,7 @@ function ImageUploader(props) {
     isDragReject,
   } = useDropzone({
     accept: { 'image/*': [] },
-    maxSize: 5000000,
+    maxSize: 2097152, // 2MB (2 * 1024 * 1024)
     multiple: false,
     onDropAccepted: (acceptedFiles) => onFileAccept(acceptedFiles),
     onDropRejected: (acceptedFiles) => onFileReject(acceptedFiles),

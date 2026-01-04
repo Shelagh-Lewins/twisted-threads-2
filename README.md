@@ -24,7 +24,7 @@ To send emails, you'll need to provide a valid MAIL_URL.
 
 To save pattern images and preview thumbnails, you'll need to provide AWS credentials.
 
-Required environment variables for S3 uploads (Slingshot):
+Required environment variables for S3 uploads (using AWS SDK):
 
 - `AWS_ACCESS_KEY_ID`
 - `AWS_SECRET_ACCESS_KEY`
