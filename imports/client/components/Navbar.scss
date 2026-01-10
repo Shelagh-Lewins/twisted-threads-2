@@ -54,8 +54,29 @@
 
 // desktop view (default css is mobile)
 @media (min-width: 768px) {
+  .navbar-collapse {
+    align-items: center;
+    flex-basis: 100%;
+    flex-grow: 1;
+    justify-content: space-between;
+  }
+
   .navbar {
     --bs-navbar-padding-x: 1rem !important;
+
+    .ml-auto {
+      width: auto;
+      .nav-item,
+      .nav-link {
+        color: $color-navbar-color !important;
+
+        &:focus,
+        &:hover {
+          color: $color-navbar-hover !important;
+          background-color: unset;
+        }
+      }
+    }
 
     .navbar-main {
       padding: 0;
@@ -66,18 +87,32 @@
 
     .pattern-menu,
     .upload-menu {
-      .nav-link {
+      width: auto;
+
+      .navbar-nav {
+        display: flex;
+        width: auto;
+      }
+
+      .nav-link,
+      .nav-item {
         color: $color-navbar-color !important;
 
         &:focus,
         &:hover {
           color: $color-navbar-hover !important;
+          background-color: unset;
         }
+      }
+
+      .nav-item {
+        width: auto;
       }
 
       button {
         background-color: $color-navbar-background;
         color: $color-navbar-color;
+        padding: 6px;
 
         &:focus {
           outline: 1px dotted $color-navbar-focus;
