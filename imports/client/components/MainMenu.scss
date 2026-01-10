@@ -1,4 +1,8 @@
-@import "../constants/variables";
+@import '../constants/variables';
+
+.main-menu {
+  display: none;
+}
 
 // menu and content for Home and 'listing' pages like My Patterns
 .home,
@@ -11,53 +15,140 @@
 .set,
 .user,
 .account {
-	background-color: $color-home-page-background;
+  background-color: $color-home-page-background;
 
-	.main-container {
-		max-width: unset;
-		width: unset;
-	}
+  .main-container {
+    max-width: unset;
+    width: unset;
+  }
 
-	.container {
-		max-width: 600px;
-	}
+  .container {
+    max-width: 600px;
+  }
 
-	.main-menu {
-		background-color: $color-main-menu-background;
-		float: left;
-		list-style: none;
-		padding: 16px 0;
-		position: relative;
-		top: -16px;
-		width: 200px;
+  .main-menu {
+    display: none;
+  }
 
-		li {
-			cursor: pointer;
-			float: left;
-			line-height: 2;
-			padding: 0 16px;
-			text-overflow: ellipsis;
-			white-space: pre-line;
-			width: 100%;
+  .main-menu,
+  .navbar .upload-menu,
+  .navbar .ml-auto {
+    background-color: $color-main-menu-background;
+    color: $color-text;
+    float: left;
+    list-style: none;
+    padding: 16px 0;
+    position: relative;
 
-			&.selected {
-				background-color: $color-main-menu-selected-background;
-			}
+    width: 200px;
 
-			&.section-break {
-				border-bottom: 1px solid $color-main-menu-break;
-			}
-		}
-	}
+    li {
+      cursor: pointer;
+      float: left;
+      line-height: 2;
+      padding: 0 16px;
+      text-overflow: ellipsis;
+      white-space: pre-line;
+      width: 100%;
 
-	.menu-selected-area {
-		margin-left: 200px;
-		max-width: unset;
-		width: unset;
+      &.selected {
+        background-color: $color-main-menu-selected-background;
+      }
 
-		.container {
-			margin-left: 0;
-		}
-	}
+      &.section-break {
+        border-bottom: 1px solid $color-main-menu-break;
+      }
+
+      &:hover {
+        background-color: $color-main-menu-hover-background;
+      }
+    }
+  }
+
+  .navbar .ml-auto {
+    border-bottom: 1px solid $color-main-menu-break;
+  }
+
+  .menu-selected-area {
+    margin-left: 200px;
+    max-width: unset;
+    width: unset;
+
+    .container {
+      margin-left: 0;
+    }
+  }
+
+  .menu-selected-area {
+    margin-left: 0;
+    max-width: unset;
+    width: unset;
+
+    .container {
+      margin-left: 0;
+    }
+  }
+
+  // show menu in mobile view inside the navbar mobile menu
+  .navbar .main-menu,
+  .navbar .upload-menu,
+  .navbar .ml-auto {
+    display: block;
+    padding: 0;
+    width: 100%;
+
+    .nav-link {
+      color: $color-text !important;
+      padding: 0;
+    }
+  }
+
+  // desktop view (default css is mobile)
+  @media (min-width: 768px) {
+    .main-menu {
+      display: block;
+      float: left;
+      top: -16px;
+      width: 200px;
+    }
+
+    .navbar .main-menu,
+    .navbar .upload-menu,
+    .navbar .ml-auto {
+      background-color: $color-navbar-background;
+      color: $color-navbar-color;
+      padding: 0;
+    }
+    .navbar .ml-auto {
+      border-bottom: none;
+
+      .nav-item {
+        width: unset;
+        padding: 0;
+      }
+      f .nav-link {
+        background-color: $color-navbar-background !important;
+        color: $color-navbar-color !important;
+
+        &:focus,
+        &:hover {
+          color: var(--bs-nav-link-hover-color) !important;
+        }
+      }
+    }
+
+    .navbar.ml-auto .nav-item {
+      padding: 0;
+    }
+
+    .menu-selected-area {
+      margin-left: 200px;
+      max-width: unset;
+      width: unset;
+
+      .container {
+        margin-left: 0;
+      }
+    }
+  }
 }
-

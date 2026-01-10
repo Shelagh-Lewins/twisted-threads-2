@@ -1,80 +1,133 @@
 @import '../constants/variables';
 
 .navbar {
-	--bs-navbar-padding-x: 0.5rem !important;
-	background: $color-navbar-background;
-	color: $color-navbar-color;
+  --bs-navbar-padding-x: 0;
+  background: $color-navbar-background;
+  color: $color-navbar-color;
 
-	.pattern-menu,
-	.upload-menu {
-		button {
-			background-color: transparent;
-			border-color: transparent;
+  .navbar-main {
+    padding: 0.5rem;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
 
-			&:focus {
-				outline: 1px dotted $color-navbar-focus;
-			}
+  .pattern-menu,
+  .upload-menu {
+    button {
+      background-color: transparent;
+      border-color: transparent;
+      color: $color-text;
+      padding-left: 0;
 
-			svg {
-				color: $color-navbar-color !important;
-			}
-		}
-	}
+      &:focus {
+        outline: 1px dotted $color-navbar-focus;
+      }
 
-	.button-text {
-		margin-left: 8px;
-	}
+      svg {
+        color: $color-text !important;
+      }
+    }
+  }
 
-	.logo {
-		background-size: 32px 32px;
-		float: left;
-		font-weight: bold;
-		height: 32px;
-		line-height: 32px;
-		margin: 0 8px 0 0;
-		width: 32px;
-	}
+  .button-text {
+    margin-left: 8px;
+    color: $color-text !important;
+  }
+
+  .logo {
+    background-size: 32px 32px;
+    float: left;
+    font-weight: bold;
+    height: 32px;
+    line-height: 32px;
+    margin: 0 8px 0 0;
+    width: 32px;
+  }
 }
 
 .navbar-brand,
 .nav-link {
-	color: $color-navbar-color !important;
-
-	&:hover {
-		color: $color-navbar-hover !important;
-	}
+  color: $color-navbar-color !important;
 }
 
+// desktop view (default css is mobile)
 @media (min-width: 768px) {
-	.navbar {
-		--bs-navbar-padding-x: 1rem !important;
-	}
+  .navbar {
+    --bs-navbar-padding-x: 1rem !important;
 
-	.nav-link {
-		padding: 0.5rem 1rem !important;
-	}
+    .navbar-main {
+      padding: 0;
+      display: inline-flex;
+      width: auto;
+      white-space: nowrap;
+    }
+
+    .pattern-menu,
+    .upload-menu {
+      .nav-link {
+        color: $color-navbar-color !important;
+
+        &:focus,
+        &:hover {
+          color: $color-navbar-hover !important;
+        }
+      }
+
+      button {
+        background-color: $color-navbar-background;
+        color: $color-navbar-color;
+
+        &:focus {
+          outline: 1px dotted $color-navbar-focus;
+        }
+
+        svg {
+          color: $color-navbar-color !important;
+        }
+      }
+
+      .button-text {
+        color: $color-navbar-color !important;
+      }
+    }
+
+    .nav-link {
+      padding: 0.5rem 1rem !important;
+
+      &:hover {
+        color: $color-navbar-hover !important;
+      }
+    }
+  }
 }
 
 .nav-link {
-	padding-left: 0;
-	padding-right: 0;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .navbar-collapse {
-	justify-content: space-between;
+  justify-content: space-between;
 }
 
 .nav-item {
-	button {
-		width: auto;
+  button {
+    width: auto;
 
-		.icon {
-			margin-right: 0;
-		}
-	}
+    .icon {
+      margin-right: 0;
+    }
+  }
 }
 
 .navbar-brand {
-	font-size: 0.8rem;
-	font-weight: bold;
+  font-size: 0.8rem;
+  font-weight: bold;
+
+  &:focus,
+  &:hover {
+    color: $color-navbar-hover !important;
+  }
 }
