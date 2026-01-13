@@ -224,41 +224,48 @@ const Tracker = withTracker((props) => {
   const state = store.getState();
   const isLoading = getIsLoading(state);
 
+  // Subscribe to the set
+  const setHandle = Meteor.subscribe('set', _id);
   const set = Sets.findOne({ _id });
-  let patternsInSet = [];
-  let createdByUsername = '';
 
-  if (set) {
+  // Subscribe to tags (always)
+  Meteor.subscribe('tags');
+
+  // Subscribe to patterns in the set (when set is available)
+  let patternsInSet = [];
+  let patternsHandle;
+  if (set?.patterns?.length > 0) {
+    patternsHandle = Meteor.subscribe('patternsById', set.patterns);
     patternsInSet = Patterns.find(
       { _id: { $in: set.patterns } },
       { sort: { nameSort: 1 } },
     ).fetch();
+  }
 
+  // Subscribe to secondary data (previews, users) when patterns are available
+  let secondaryHandles;
+  if (patternsInSet.length > 0) {
+    secondaryHandles = secondaryPatternSubscriptions(patternsInSet);
+  }
+
+  // Get createdByUsername
+  let createdByUsername = '';
+  if (set) {
     const createdByUser = Meteor.users.findOne({ _id: set.createdBy });
-
     if (createdByUser) {
       createdByUsername = createdByUser.username;
     }
   }
 
-  let secondaryHandles;
-  const handle = Meteor.subscribe('set', _id, {
-    onReady: () => {
-      if (set) {
-        Meteor.subscribe('patternsById', set.patterns, {
-          onReady: () => {
-            secondaryHandles = secondaryPatternSubscriptions(patternsInSet);
-          },
-        });
-      }
-    },
-  });
+  // Determine loading state: all handles must be ready
+  const allReady =
+    setHandle.ready() &&
+    (!patternsHandle || patternsHandle.ready()) &&
+    (!secondaryHandles || secondaryHandles.ready());
 
-  Meteor.subscribe('tags');
-
-  if (isLoading && handle.ready() && secondaryHandles?.ready()) {
+  if (isLoading && allReady) {
     dispatch(setIsLoading(false));
-  } else if (!isLoading && !handle.ready()) {
+  } else if (!isLoading && !allReady) {
     dispatch(setIsLoading(true));
   }
 
