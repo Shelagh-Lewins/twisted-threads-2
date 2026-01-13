@@ -234,7 +234,7 @@ const Tracker = withTracker((props) => {
   // Subscribe to patterns in the set (when set is available)
   let patternsInSet = [];
   let patternsHandle;
-  if (set && set.patterns && set.patterns.length > 0) {
+  if (set?.patterns?.length > 0) {
     patternsHandle = Meteor.subscribe('patternsById', set.patterns);
     patternsInSet = Patterns.find(
       { _id: { $in: set.patterns } },
