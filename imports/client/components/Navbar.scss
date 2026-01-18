@@ -1,5 +1,9 @@
 @import '../constants/variables';
 
+// ====================
+// MOBILE-FIRST STYLES (DEFAULT)
+// ====================
+
 .navbar {
   --bs-navbar-padding-x: 0;
   background: $color-navbar-background;
@@ -47,36 +51,44 @@
   }
 }
 
-.navbar-brand,
-.nav-link {
+.navbar-brand {
   color: $color-navbar-color !important;
+  font-size: 0.8rem;
+  font-weight: bold;
+
+  &:focus,
+  &:hover {
+    color: $color-navbar-hover !important;
+  }
 }
 
-// desktop view (default css is mobile)
-@media (min-width: 768px) {
-  .navbar-collapse {
-    align-items: center;
-    flex-basis: 100%;
-    flex-grow: 1;
-    justify-content: space-between;
-  }
+.nav-link {
+  color: $color-navbar-color !important;
+  padding-left: 0;
+  padding-right: 0;
+}
 
+.navbar-collapse {
+  justify-content: space-between;
+}
+
+.nav-item {
+  button {
+    width: auto;
+
+    .icon {
+      margin-right: 0;
+    }
+  }
+}
+
+// ====================
+// DESKTOP STYLES
+// ====================
+
+@media (min-width: 768px) {
   .navbar {
     --bs-navbar-padding-x: 1rem !important;
-
-    .ml-auto {
-      width: auto;
-      .nav-item,
-      .nav-link {
-        color: $color-navbar-color !important;
-
-        &:focus,
-        &:hover {
-          color: $color-navbar-hover !important;
-          background-color: unset;
-        }
-      }
-    }
 
     .navbar-main {
       padding: 0;
@@ -94,8 +106,8 @@
         width: auto;
       }
 
-      .nav-link,
       .nav-item {
+        width: auto;
         color: $color-navbar-color !important;
         padding: 0;
 
@@ -106,8 +118,15 @@
         }
       }
 
-      .nav-item {
-        width: auto;
+      .nav-link {
+        color: $color-navbar-color !important;
+        padding: 0;
+
+        &:focus,
+        &:hover {
+          color: $color-navbar-hover !important;
+          background-color: unset;
+        }
       }
 
       button {
@@ -136,34 +155,27 @@
         color: $color-navbar-hover !important;
       }
     }
-  }
-}
 
-.nav-link {
-  padding-left: 0;
-  padding-right: 0;
-}
+    .ml-auto {
+      width: auto;
 
-.navbar-collapse {
-  justify-content: space-between;
-}
+      .nav-item,
+      .nav-link {
+        color: $color-navbar-color !important;
 
-.nav-item {
-  button {
-    width: auto;
-
-    .icon {
-      margin-right: 0;
+        &:focus,
+        &:hover {
+          color: $color-navbar-hover !important;
+          background-color: unset;
+        }
+      }
     }
   }
-}
 
-.navbar-brand {
-  font-size: 0.8rem;
-  font-weight: bold;
-
-  &:focus,
-  &:hover {
-    color: $color-navbar-hover !important;
+  .navbar-collapse {
+    align-items: center;
+    flex-basis: 100%;
+    flex-grow: 1;
+    justify-content: space-between;
   }
 }

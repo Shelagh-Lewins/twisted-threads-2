@@ -1,62 +1,62 @@
-@import "../constants/variables";
+@import '../constants/variables';
 
 .user {
-	background-color: $color-home-page-background;
+  background-color: $color-home-page-background;
 
-	.main-container {
-		max-width: unset;
-		width: unset;
-	}
+  .main-container {
+    max-width: unset;
+    width: unset;
+  }
 
-	.add-controls {
-		margin-bottom: 8px;
-	}
+  .add-controls {
+    margin-bottom: 8px;
+  }
 
-	h1 {
-		.icon {
-			background-position: left top;
-			background-repeat: no-repeat;
-			background-size: 32px 32px;
-			content: "";
-			float: left;
-			height: 32px;
-			margin: 0 8px 0 0;
-			width: 32px;
-		}
-	}
+  h1 {
+    .icon {
+      background-position: left top;
+      background-repeat: no-repeat;
+      background-size: 32px 32px;
+      content: '';
+      float: left;
+      height: 32px;
+      margin: 0 8px 0 0;
+      width: 32px;
+    }
+  }
 
-	.container {
-		margin-left: 15px;
-		max-width: 600px;
-	}
+  .container {
+    padding-left: 15px;
+    max-width: 600px;
+  }
 
-	.pattern-list-holder {
-		max-width: unset;
-		width: unset;
-	}
+  .pattern-list-holder {
+    max-width: unset;
+    width: unset;
+  }
 
-	.tablet-filter-form {
-		padding-left: 0;
-	}
+  .tablet-filter-form {
+    padding-left: 0;
+  }
 
-	.editable-text {
-		clear: none;
+  .editable-text {
+    clear: none;
 
-		form {
-			clear: none;
-		}
+    form {
+      clear: none;
+    }
 
-		.field-value {
-			clear: none;
-		}
-	}
+    .field-value {
+      clear: none;
+    }
+  }
 
-	.sets-list {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: space-evenly;
-		margin-left: 0;
-		margin-right: 0;
-		padding: 8px;
-	}
+  .sets-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 8px;
+  }
 }

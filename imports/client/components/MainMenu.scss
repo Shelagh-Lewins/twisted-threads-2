@@ -1,8 +1,8 @@
 @import '../constants/variables';
 
-.main-menu {
-  display: none;
-}
+// ====================
+// MOBILE-FIRST STYLES (DEFAULT)
+// ====================
 
 // menu and content for Home and 'listing' pages like My Patterns
 .home,
@@ -27,20 +27,15 @@
   }
 }
 
+// Main menu - hidden by default on mobile, shown inside navbar collapse
 .main-menu {
   display: none;
-}
-
-.main-menu,
-.navbar .upload-menu,
-.navbar .ml-auto {
   background-color: $color-main-menu-background;
   color: $color-text;
   float: left;
   list-style: none;
   padding: 16px 0;
   position: relative;
-
   width: 200px;
 
   li {
@@ -66,20 +61,7 @@
   }
 }
 
-.navbar .ml-auto {
-  border-bottom: 1px solid $color-main-menu-break;
-}
-
-.menu-selected-area {
-  margin-left: 200px;
-  max-width: unset;
-  width: unset;
-
-  .container {
-    margin-left: 0;
-  }
-}
-
+// Menu selected area - mobile default (no left margin)
 .menu-selected-area {
   margin-left: 0;
   max-width: unset;
@@ -90,22 +72,59 @@
   }
 }
 
-// show menu in mobile view inside the navbar mobile menu
-.navbar .main-menu,
-.navbar .upload-menu,
-.navbar .ml-auto {
-  display: block;
-  padding: 0;
-  width: 100%;
-
-  .nav-link {
-    color: $color-text !important;
+// Navbar menus - styled for mobile view inside collapsed navbar
+.navbar {
+  .main-menu,
+  .upload-menu,
+  .ml-auto {
+    background-color: $color-main-menu-background;
+    color: $color-text;
+    display: block;
+    float: left;
+    list-style: none;
     padding: 0;
+    position: relative;
+    width: 100%;
+
+    .nav-link {
+      color: $color-text !important;
+      padding: 0;
+    }
+
+    li {
+      cursor: pointer;
+      float: left;
+      line-height: 2;
+      padding: 0 16px;
+      text-overflow: ellipsis;
+      white-space: pre-line;
+      width: 100%;
+
+      &.selected {
+        background-color: $color-main-menu-selected-background;
+      }
+
+      &.section-break {
+        border-bottom: 1px solid $color-main-menu-break;
+      }
+
+      &:hover {
+        background-color: $color-main-menu-hover-background;
+      }
+    }
+  }
+
+  .ml-auto {
+    border-bottom: 1px solid $color-main-menu-break;
   }
 }
 
-// desktop view (default css is mobile)
+// ====================
+// DESKTOP STYLES
+// ====================
+
 @media (min-width: 768px) {
+  // Show main menu as sidebar
   .main-menu {
     display: block;
     float: left;
@@ -113,35 +132,7 @@
     width: 200px;
   }
 
-  .navbar .main-menu,
-  .navbar .upload-menu,
-  .navbar .ml-auto {
-    background-color: $color-navbar-background;
-    color: $color-navbar-color;
-    padding: 0;
-  }
-  .navbar .ml-auto {
-    border-bottom: none;
-
-    .nav-item {
-      width: unset;
-      padding: 0;
-    }
-    f .nav-link {
-      background-color: $color-navbar-background !important;
-      color: $color-navbar-color !important;
-
-      &:focus,
-      &:hover {
-        color: var(--bs-nav-link-hover-color) !important;
-      }
-    }
-  }
-
-  .navbar.ml-auto .nav-item {
-    padding: 0;
-  }
-
+  // Adjust content area to account for sidebar
   .menu-selected-area {
     margin-left: 200px;
     max-width: unset;
@@ -149,6 +140,36 @@
 
     .container {
       margin-left: 0;
+    }
+  }
+
+  // Reset navbar menus to navbar style (not sidebar style)
+  .navbar {
+    .main-menu,
+    .upload-menu,
+    .ml-auto {
+      background-color: $color-navbar-background;
+      color: $color-navbar-color;
+      padding: 0;
+
+      .nav-link {
+        background-color: $color-navbar-background !important;
+        color: $color-navbar-color !important;
+
+        &:focus,
+        &:hover {
+          color: var(--bs-nav-link-hover-color) !important;
+        }
+      }
+    }
+
+    .ml-auto {
+      border-bottom: none;
+
+      .nav-item {
+        width: unset;
+        padding: 0;
+      }
     }
   }
 }
