@@ -26,7 +26,7 @@
       }
 
       svg {
-        color: $color-text !important;
+        color: $color-navbar-background !important;
       }
     }
   }
@@ -97,6 +97,7 @@
       .nav-link,
       .nav-item {
         color: $color-navbar-color !important;
+        padding: 0;
 
         &:focus,
         &:hover {
@@ -112,7 +113,7 @@
       button {
         background-color: $color-navbar-background;
         color: $color-navbar-color;
-        padding: 6px;
+        padding: 6px 12px;
 
         &:focus {
           outline: 1px dotted $color-navbar-focus;

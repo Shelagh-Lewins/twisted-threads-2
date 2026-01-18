@@ -233,6 +233,7 @@ class Navbar extends Component {
             navBar={true}
             patternId={patternId}
             patternName={pattern.name}
+            isMobile={isMobile}
           />
         </>
       );
