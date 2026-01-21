@@ -123,7 +123,7 @@ class Navbar extends Component {
       searchTerm,
       username,
     } = this.props;
-    console.log('*** isMobile:', this.context.isMobile);
+
     if (maintenanceMode) {
       return (
         <nav className='navbar navbar-expand-md navbar-dark'>
