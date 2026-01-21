@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
   BrowserRouter as Router,
@@ -81,7 +81,10 @@ import Set from './Set';
 import User from './User';
 import InteractiveWeavingChart from './InteractiveWeavingChart';
 import WeavingPrintView from './PrintView';
-import { DEFAULT_WEAVING_BACKWARDS_BACKGROUND_COLOR } from '../../modules/parameters';
+import {
+  DEFAULT_WEAVING_BACKWARDS_BACKGROUND_COLOR,
+  MOBILE_BREAKPOINT,
+} from '../../modules/parameters';
 import './App.scss';
 
 // for optional url parameter with specified options, use regex: https://stackoverflow.com/questions/47369023/react-router-v4-allow-only-certain-parameters-in-url
@@ -381,6 +384,31 @@ function ProviderInner({
   patternImages,
   sets,
 }) {
+  // isMobile state and debounced resize handler
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < MOBILE_BREAKPOINT;
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    let timeoutId = null;
+    const handleResize = () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+      }, 100);
+    };
+    window.addEventListener('resize', handleResize);
+    // Set initial value in case of resize after mount
+    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, []);
+
   return (
     <AppContext.Provider
       value={{
@@ -392,6 +420,7 @@ function ProviderInner({
         patternId,
         patternImages,
         sets,
+        isMobile,
       }}
     >
       {children}
@@ -414,6 +443,9 @@ ProviderInner.propTypes = {
   patternId: PropTypes.string,
   patternImages: PropTypes.arrayOf(PropTypes.any),
   sets: PropTypes.arrayOf(PropTypes.any),
+  // isMobile is managed by ProviderInner
+  // not passed as a prop by a parent componet
+  // so it's not in propTypes
 };
 
 // withRouter gives us location

@@ -1,4 +1,8 @@
-@import "../constants/variables";
+@import '../constants/variables';
+
+// ====================
+// MOBILE-FIRST STYLES (DEFAULT)
+// ====================
 
 // menu and content for Home and 'listing' pages like My Patterns
 .home,
@@ -11,53 +15,161 @@
 .set,
 .user,
 .account {
-	background-color: $color-home-page-background;
+  background-color: $color-home-page-background;
 
-	.main-container {
-		max-width: unset;
-		width: unset;
-	}
+  .main-container {
+    max-width: unset;
+    width: unset;
+  }
 
-	.container {
-		max-width: 600px;
-	}
-
-	.main-menu {
-		background-color: $color-main-menu-background;
-		float: left;
-		list-style: none;
-		padding: 16px 0;
-		position: relative;
-		top: -16px;
-		width: 200px;
-
-		li {
-			cursor: pointer;
-			float: left;
-			line-height: 2;
-			padding: 0 16px;
-			text-overflow: ellipsis;
-			white-space: pre-line;
-			width: 100%;
-
-			&.selected {
-				background-color: $color-main-menu-selected-background;
-			}
-
-			&.section-break {
-				border-bottom: 1px solid $color-main-menu-break;
-			}
-		}
-	}
-
-	.menu-selected-area {
-		margin-left: 200px;
-		max-width: unset;
-		width: unset;
-
-		.container {
-			margin-left: 0;
-		}
-	}
+  .container {
+    max-width: 600px;
+  }
 }
 
+// Main menu - hidden by default on mobile, shown inside navbar collapse
+.main-menu {
+  display: none;
+  background-color: $color-main-menu-background;
+  color: $color-text;
+  float: left;
+  list-style: none;
+  padding: 16px 0;
+  position: relative;
+  width: 200px;
+
+  li {
+    cursor: pointer;
+    float: left;
+    line-height: 2;
+    padding: 0 16px;
+    text-overflow: ellipsis;
+    white-space: pre-line;
+    width: 100%;
+
+    &.selected {
+      background-color: $color-main-menu-selected-background;
+    }
+
+    &.section-break {
+      border-bottom: 1px solid $color-main-menu-break;
+    }
+
+    &:hover {
+      background-color: $color-main-menu-hover-background;
+    }
+  }
+}
+
+// Menu selected area - mobile default (no left margin)
+.menu-selected-area {
+  margin-left: 0;
+  max-width: unset;
+  width: unset;
+
+  .container {
+    margin-left: 0;
+  }
+}
+
+// Navbar menus - styled for mobile view inside collapsed navbar
+.navbar {
+  .main-menu,
+  .upload-menu,
+  .ml-auto {
+    background-color: $color-main-menu-background;
+    color: $color-text;
+    display: block;
+    float: left;
+    list-style: none;
+    padding: 0;
+    position: relative;
+    width: 100%;
+
+    .nav-link {
+      color: $color-text !important;
+      padding: 0;
+    }
+
+    li {
+      cursor: pointer;
+      float: left;
+      line-height: 2;
+      padding: 0 16px;
+      text-overflow: ellipsis;
+      white-space: pre-line;
+      width: 100%;
+
+      &.selected {
+        background-color: $color-main-menu-selected-background;
+      }
+
+      &.section-break {
+        border-bottom: 1px solid $color-main-menu-break;
+      }
+
+      &:hover {
+        background-color: $color-main-menu-hover-background;
+      }
+    }
+  }
+
+  .ml-auto {
+    border-bottom: 1px solid $color-main-menu-break;
+  }
+}
+
+// ====================
+// DESKTOP STYLES
+// ====================
+
+@media (min-width: 768px) {
+  // Show main menu as sidebar
+  .main-menu {
+    display: block;
+    float: left;
+    top: -16px;
+    width: 200px;
+  }
+
+  // Adjust content area to account for sidebar
+  .menu-selected-area {
+    margin-left: 200px;
+    max-width: unset;
+    width: unset;
+
+    .container {
+      margin-left: 0;
+    }
+  }
+
+  // Reset navbar menus to navbar style (not sidebar style)
+  .navbar {
+    .main-menu,
+    .upload-menu,
+    .ml-auto {
+      background-color: $color-navbar-background;
+      color: $color-navbar-color;
+      padding: 0;
+
+      .nav-link {
+        background-color: $color-navbar-background !important;
+        color: $color-navbar-color !important;
+
+        &:focus,
+        &:hover {
+          color: var(--bs-nav-link-hover-color) !important;
+        }
+      }
+    }
+
+    .ml-auto {
+      border-bottom: none;
+
+      .nav-item {
+        width: unset;
+        padding: 0;
+      }
+    }
+  }
+}

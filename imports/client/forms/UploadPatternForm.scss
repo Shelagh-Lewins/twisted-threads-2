@@ -1,34 +1,61 @@
 @import '../constants/variables';
 
+// ====================
+// MOBILE-FIRST STYLES (DEFAULT)
+//
+
 .upload-pattern-form {
-	color: $color-text;
-	left: 50%;
-	position: absolute;
-	top: 100px;
-	width: 350px;
-	z-index: 100;
+  color: $color-text;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 100;
 
-	form {
-		background: $color-panel-background;
-		border: 1px solid $color-panel-border;
-		border-radius: 4px;
-		margin-left: -50%;
-		padding: 8px;
-	}
+  form {
+    background: $color-panel-background;
+    border: 1px solid $color-panel-border;
+    border-radius: 4px;
+    margin: 6px;
+    padding: 8px;
 
-	label {
-		font-size: 0;
+    p {
+      white-space: normal;
+      word-wrap: break-word;
+    }
+  }
 
-		.invalid {
-			font-size: 1rem;
-		}
-	}
+  label {
+    font-size: 0;
 
-	.btn-close {
-		float: right;
-	}
+    .invalid {
+      font-size: 1rem;
+    }
+  }
 
-	[type='submit'] {
-		display: none;
-	}
+  .btn-close {
+    float: right;
+  }
+
+  [type='submit'] {
+    display: none;
+  }
+}
+
+// ====================
+// DESKTOP STYLES
+// ====================
+
+@media (min-width: 768px) {
+  .upload-pattern-form {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    top: 100px;
+
+    form {
+      width: 500px;
+      margin: 0;
+    }
+  }
 }

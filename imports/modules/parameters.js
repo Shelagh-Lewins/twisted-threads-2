@@ -372,3 +372,5 @@ export const PATTERN_AS_TEXT_FIELDS = [
     required: true,
   },
 ];
+
+export const MOBILE_BREAKPOINT = 768;

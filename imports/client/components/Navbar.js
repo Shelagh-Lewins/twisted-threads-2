@@ -22,6 +22,7 @@ import AppContext from '../modules/appContext';
 import Search from './Search';
 import UploadPatternForm from '../forms/UploadPatternForm';
 import AddToSet from './AddToSet';
+import MainMenu from '../components/MainMenu';
 import './Navbar.scss';
 import { iconColors } from '../../modules/parameters';
 
@@ -143,7 +144,7 @@ class Navbar extends Component {
 
     const { showDropdown, showUploadPatternForm } = this.state;
 
-    const { pattern, patternId } = this.context;
+    const { pattern, patternId, isMobile } = this.context;
 
     let isOwner = false;
 
@@ -232,6 +233,7 @@ class Navbar extends Component {
             navBar={true}
             patternId={patternId}
             patternName={pattern.name}
+            isMobile={isMobile}
           />
         </>
       );
@@ -291,37 +293,39 @@ class Navbar extends Component {
 
     return (
       <nav className='nav navbar navbar-expand-md navbar-dark'>
-        {showUploadPatternForm && this.renderUploadPatternForm()}
-        <Link className='navbar-brand' to='/'>
-          <span
-            className='logo'
-            style={{
-              backgroundImage: `url(${Meteor.absoluteUrl('/images/logo.png')}`,
-            }}
+        <div className='navbar-main'>
+          {showUploadPatternForm && this.renderUploadPatternForm()}
+          <Link className='navbar-brand' to='/'>
+            <span
+              className='logo'
+              style={{
+                backgroundImage: `url(${Meteor.absoluteUrl('/images/logo.png')}`,
+              }}
+            />
+            Twisted Threads
+          </Link>
+          <Search
+            dispatch={dispatch}
+            history={history}
+            isSearching={isSearching}
+            searchTerm={searchTerm}
           />
-          Twisted Threads
-        </Link>
-        <Search
-          dispatch={dispatch}
-          history={history}
-          isSearching={isSearching}
-          searchTerm={searchTerm}
-        />
-        {myPatternsLink}
-        <button
-          className='navbar-toggler'
-          type='button'
-          data-toggle='collapse'
-          data-target='#navbarSupportedContent'
-          aria-controls='navbarSupportedContent'
-          aria-expanded='false'
-          aria-label='Toggle navigation'
-          onClick={(e) => {
-            this.showDropdown(e);
-          }}
-        >
-          <span className='navbar-toggler-icon' />
-        </button>
+          {myPatternsLink}
+          <button
+            className='navbar-toggler'
+            type='button'
+            data-toggle='collapse'
+            data-target='#navbarSupportedContent'
+            aria-controls='navbarSupportedContent'
+            aria-expanded='false'
+            aria-label='Toggle navigation'
+            onClick={(e) => {
+              this.showDropdown(e);
+            }}
+          >
+            <span className='navbar-toggler-icon' />
+          </button>
+        </div>
         <div
           className={`collapse navbar-collapse ${showDropdown ? 'show' : ''}`}
           id='navbarSupportedContent'
@@ -329,6 +333,7 @@ class Navbar extends Component {
           {uploadMenu}
           {showPatternMenu && patternMenu}
           {isAuthenticated ? authLinks : guestLinks}
+          {this.context.isMobile && <MainMenu />}
         </div>
       </nav>
     );

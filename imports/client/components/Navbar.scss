@@ -1,80 +1,181 @@
 @import '../constants/variables';
 
+// ====================
+// MOBILE-FIRST STYLES (DEFAULT)
+// ====================
+
 .navbar {
-	--bs-navbar-padding-x: 0.5rem !important;
-	background: $color-navbar-background;
-	color: $color-navbar-color;
+  --bs-navbar-padding-x: 0;
+  background: $color-navbar-background;
+  color: $color-navbar-color;
 
-	.pattern-menu,
-	.upload-menu {
-		button {
-			background-color: transparent;
-			border-color: transparent;
+  .navbar-main {
+    padding: 0.5rem;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
 
-			&:focus {
-				outline: 1px dotted $color-navbar-focus;
-			}
+  .pattern-menu,
+  .upload-menu {
+    button {
+      background-color: transparent;
+      border-color: transparent;
+      color: $color-text;
+      padding-left: 0;
 
-			svg {
-				color: $color-navbar-color !important;
-			}
-		}
-	}
+      &:focus {
+        outline: 1px dotted $color-navbar-focus;
+      }
 
-	.button-text {
-		margin-left: 8px;
-	}
+      svg {
+        color: $color-navbar-background !important;
+      }
+    }
+  }
 
-	.logo {
-		background-size: 32px 32px;
-		float: left;
-		font-weight: bold;
-		height: 32px;
-		line-height: 32px;
-		margin: 0 8px 0 0;
-		width: 32px;
-	}
-}
+  .button-text {
+    margin-left: 8px;
+    color: $color-text !important;
+  }
 
-.navbar-brand,
-.nav-link {
-	color: $color-navbar-color !important;
-
-	&:hover {
-		color: $color-navbar-hover !important;
-	}
-}
-
-@media (min-width: 768px) {
-	.navbar {
-		--bs-navbar-padding-x: 1rem !important;
-	}
-
-	.nav-link {
-		padding: 0.5rem 1rem !important;
-	}
-}
-
-.nav-link {
-	padding-left: 0;
-	padding-right: 0;
-}
-
-.navbar-collapse {
-	justify-content: space-between;
-}
-
-.nav-item {
-	button {
-		width: auto;
-
-		.icon {
-			margin-right: 0;
-		}
-	}
+  .logo {
+    background-size: 32px 32px;
+    float: left;
+    font-weight: bold;
+    height: 32px;
+    line-height: 32px;
+    margin: 0 8px 0 0;
+    width: 32px;
+  }
 }
 
 .navbar-brand {
-	font-size: 0.8rem;
-	font-weight: bold;
+  color: $color-navbar-color !important;
+  font-size: 0.8rem;
+  font-weight: bold;
+
+  &:focus,
+  &:hover {
+    color: $color-navbar-hover !important;
+  }
+}
+
+.nav-link {
+  color: $color-navbar-color !important;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.navbar-collapse {
+  justify-content: space-between;
+}
+
+.nav-item {
+  button {
+    width: auto;
+
+    .icon {
+      margin-right: 0;
+    }
+  }
+}
+
+// ====================
+// DESKTOP STYLES
+// ====================
+
+@media (min-width: 768px) {
+  .navbar {
+    --bs-navbar-padding-x: 1rem !important;
+
+    .navbar-main {
+      padding: 0;
+      display: inline-flex;
+      width: auto;
+      white-space: nowrap;
+    }
+
+    .pattern-menu,
+    .upload-menu {
+      width: auto;
+
+      .navbar-nav {
+        display: flex;
+        width: auto;
+      }
+
+      .nav-item {
+        width: auto;
+        color: $color-navbar-color !important;
+        padding: 0;
+
+        &:focus,
+        &:hover {
+          color: $color-navbar-hover !important;
+          background-color: unset;
+        }
+      }
+
+      .nav-link {
+        color: $color-navbar-color !important;
+        padding: 0;
+
+        &:focus,
+        &:hover {
+          color: $color-navbar-hover !important;
+          background-color: unset;
+        }
+      }
+
+      button {
+        background-color: $color-navbar-background;
+        color: $color-navbar-color;
+        padding: 6px 12px;
+
+        &:focus {
+          outline: 1px dotted $color-navbar-focus;
+        }
+
+        svg {
+          color: $color-navbar-color !important;
+        }
+      }
+
+      .button-text {
+        color: $color-navbar-color !important;
+      }
+    }
+
+    .nav-link {
+      padding: 0.5rem 1rem !important;
+
+      &:hover {
+        color: $color-navbar-hover !important;
+      }
+    }
+
+    .ml-auto {
+      width: auto;
+
+      .nav-item,
+      .nav-link {
+        color: $color-navbar-color !important;
+
+        &:focus,
+        &:hover {
+          color: $color-navbar-hover !important;
+          background-color: unset;
+        }
+      }
+    }
+  }
+
+  .navbar-collapse {
+    align-items: center;
+    flex-basis: 100%;
+    flex-grow: 1;
+    justify-content: space-between;
+  }
 }
