@@ -199,28 +199,6 @@ class PrintView extends PureComponent {
             {/* if navigating from the home page, the pattern summary is in MiniMongo before Tracker sets isLoading to true. This doesn't include the detail fields so we need to prevent errors. */}
             {pattern.patternDesign && pattern.previewOrientation && (
               <>
-                <h2>Woven band</h2>
-                <TwistCalculationHints
-                  canEdit={false}
-                  includeInTwist={includeInTwist}
-                  patternIsTwistNeutral={patternIsTwistNeutral}
-                  patternType={patternType}
-                  patternWillRepeat={patternWillRepeat}
-                  previewOrientation={previewOrientation}
-                  printView={true}
-                  repeats={getNumberOfRepeats(numberOfRows)}
-                />
-                <PatternPreview
-                  dispatch={dispatch}
-                  holes={holes}
-                  numberOfRows={numberOfRows}
-                  numberOfTablets={numberOfTablets}
-                  palette={palette}
-                  pattern={pattern}
-                  patternWillRepeat={patternWillRepeat}
-                  printView={true}
-                  totalTurnsByTablet={totalTurnsByTablet}
-                />
                 {weavingInstructions}
                 {weavingNotes && weavingNotes !== '' && (
                   <>
@@ -246,6 +224,28 @@ class PrintView extends PureComponent {
                   </>
                 )}
                 <Notation />
+                <h2 className='woven-band-header'>Woven band</h2>
+                <TwistCalculationHints
+                  canEdit={false}
+                  includeInTwist={includeInTwist}
+                  patternIsTwistNeutral={patternIsTwistNeutral}
+                  patternType={patternType}
+                  patternWillRepeat={patternWillRepeat}
+                  previewOrientation={previewOrientation}
+                  printView={true}
+                  repeats={getNumberOfRepeats(numberOfRows)}
+                />
+                <PatternPreview
+                  dispatch={dispatch}
+                  holes={holes}
+                  numberOfRows={numberOfRows}
+                  numberOfTablets={numberOfTablets}
+                  palette={palette}
+                  pattern={pattern}
+                  patternWillRepeat={patternWillRepeat}
+                  printView={true}
+                  totalTurnsByTablet={totalTurnsByTablet}
+                />
               </>
             )}
           </>

@@ -54,6 +54,7 @@ const AddRowsForm = (props) => {
 	const stepNRows = rowsInPairs(patternType) ? 2 : 1;
 	const stepInsertAt = rowsInPairs(patternType) ? 2 : 1;
 	const minNRows = rowsInPairs(patternType) ? 2 : 1;
+	const cannotAddRows = numberOfRows >= MAX_ROWS;
 
 	const formik = useFormik({
 		'initialValues': {
@@ -99,6 +100,7 @@ const AddRowsForm = (props) => {
 							onChange={formik.handleChange}
 							onBlur={formik.handleBlur}
 							value={formik.values.insertNRows}
+							 disabled={cannotAddRows} 
 						/>
 						{formik.touched.insertNRows && formik.errors.insertNRows ? (
 							<div className="invalid-feedback invalid">{formik.errors.insertNRows}</div>
@@ -119,13 +121,14 @@ const AddRowsForm = (props) => {
 							onChange={formik.handleChange}
 							onBlur={formik.handleBlur}
 							value={formik.values.insertRowsAt}
+							 disabled={cannotAddRows} 
 						/>
 						{formik.touched.tablets && formik.errors.tablets ? (
 							<div className="invalid-feedback invalid">{formik.errors.tablets}</div>
 						) : null}
 					</label>
 					<div className="controls">
-						<Button type="submit" color="primary">Add rows</Button>
+						<Button disabled={cannotAddRows} type="submit" color="primary">Add rows</Button>
 					</div>
 				</div>
 			</form>
