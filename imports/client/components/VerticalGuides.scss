@@ -18,11 +18,23 @@
     width: 33px;
     margin-left: 1px; // adjust for line width
     top: 0;
+    background-color: transparent;
 
     @include verticalGuide();
 
     &.center {
       @include verticalGuideCenter();
     }
+  }
+}
+
+@media print {
+  // Browsers strip background images (including radial-gradient used by the verticalGuide mixin)
+// when printing. print-color-adjust: exact prevents this, ensuring the guide lines
+// remain transparent rather than rendering as solid white boxes.
+  .vertical-guide {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background-color: transparent !important;
   }
 }

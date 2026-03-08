@@ -266,6 +266,17 @@ class PatternPreview extends Component {
         break;
     }
 
+    // scale the preview to fit on a printed page
+    // otherwise it gets pushed to a new page and separarated from necessary text
+    if (printView) {
+      const targetPageHeight = 900; // usable px height on A4/letter after margins and header
+      const scale = Math.min(1, targetPageHeight / imageHeight);
+      wrapperStyle = {
+        ...wrapperStyle,
+        zoom: scale,
+      };
+    }
+
     // /////////////
     // render the preview
     // reverse order of tablets if showing back of band
