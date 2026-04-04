@@ -295,43 +295,7 @@ class ThreadingBorder extends PureComponent {
   }
 
   renderIncludeInTwistButtons() {
-    const { border } = this.props;
-    const { isEditing } = this.state;
-    const { includeInTwist, numberOfTablets } = border;
-
-    if (!includeInTwist) return null;
-
-    const buttons = [];
-    for (let i = 0; i < numberOfTablets; i += 1) {
-      const identifier = `border-include-in-twist-${i}`;
-      const checked = includeInTwist[i];
-      const tooltip = checked
-        ? `Border tablet ${i + 1}: included in twist calculations`
-        : `Border tablet ${i + 1}: excluded from twist calculations`;
-
-      buttons.push(
-        <li className='cell label' key={identifier}>
-          <span>
-            <input
-              checked={checked}
-              disabled={!isEditing}
-              type='checkbox'
-              id={identifier}
-              name={identifier}
-              onChange={() => this.handleChangeIncludeInTwistCheckbox(i)}
-              title={tooltip}
-            />
-            <label htmlFor={identifier}>{tooltip}</label>
-          </span>
-        </li>,
-      );
-    }
-
-    return (
-      <div className='include-in-twist-buttons'>
-        <ul>{buttons}</ul>
-      </div>
-    );
+    return null;
   }
 
   renderChart() {

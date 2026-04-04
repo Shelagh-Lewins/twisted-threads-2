@@ -4,6 +4,9 @@ import PropTypes from 'prop-types';
 import ChartSVG from './ChartSVG';
 
 import {
+  getCombinedOrientationForTablet,
+  getCombinedPickForChart,
+  getCombinedThreadingForTablet,
   getHoles,
   getOrientationForTablet,
   getPalette,
@@ -64,21 +67,23 @@ WeavingChartCellBase.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
-  const { tabletIndex, rowIndex } = ownProps;
+  const { combined, tabletIndex, rowIndex } = ownProps;
 
-  const { direction, numberOfTurns, totalTurns } = getPickForChart(
-    state,
-    tabletIndex,
-    rowIndex,
-  );
+  const { direction, numberOfTurns, totalTurns } = combined
+    ? getCombinedPickForChart(state, tabletIndex, rowIndex)
+    : getPickForChart(state, tabletIndex, rowIndex);
 
   return {
     direction: direction,
     holes: getHoles(state),
     numberOfTurns: numberOfTurns,
-    orientation: getOrientationForTablet(state, tabletIndex),
+    orientation: combined
+      ? getCombinedOrientationForTablet(state, tabletIndex)
+      : getOrientationForTablet(state, tabletIndex),
     palette: getPalette(state),
-    threadingForTablet: getThreadingForTablet(state, tabletIndex),
+    threadingForTablet: combined
+      ? getCombinedThreadingForTablet(state, tabletIndex)
+      : getThreadingForTablet(state, tabletIndex),
     totalTurns: totalTurns,
   };
 }

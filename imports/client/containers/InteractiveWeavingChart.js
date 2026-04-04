@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 import PageWrapper from '../components/PageWrapper';
 import {
   getIsLoading,
+  getCombinedNumberOfTablets,
   getNumberOfRowsForChart,
   getNumberOfTablets,
 } from '../modules/pattern';
@@ -248,6 +249,7 @@ class InteractiveWeavingChart extends PureComponent {
       errors,
       numberOfRows,
       numberOfTablets,
+      combinedNumberOfTablets,
       isLoading,
     } = this.props;
     const { selectedRow } = this.state;
@@ -278,13 +280,14 @@ class InteractiveWeavingChart extends PureComponent {
                   <h2>Weaving chart</h2>
                   <div ref={this.chartRef}>
                     <WeavingChart
+                      combined={true}
                       createdBy={createdBy}
                       dispatch={dispatch}
                       handleClickDown={this.handleClickDown}
                       handleClickRow={this.handleClickRow}
                       handleClickUp={this.handleClickUp}
                       numberOfRows={numberOfRows}
-                      numberOfTablets={numberOfTablets}
+                      numberOfTablets={combinedNumberOfTablets}
                       patternType={patternType}
                       patternId={_id}
                       printView={false}
@@ -307,10 +310,11 @@ class InteractiveWeavingChart extends PureComponent {
                       </p>
                       <Threading
                         canEdit={false}
+                        combined={true}
                         dispatch={dispatch}
                         holes={holes}
                         numberOfRows={numberOfRows}
-                        numberOfTablets={numberOfTablets}
+                        numberOfTablets={combinedNumberOfTablets}
                         pattern={pattern}
                         selectedRow={selectedRow}
                       />
@@ -350,6 +354,7 @@ class InteractiveWeavingChart extends PureComponent {
 InteractiveWeavingChart.contextType = AppContext;
 
 InteractiveWeavingChart.propTypes = {
+  combinedNumberOfTablets: PropTypes.number.isRequired,
   createdBy: PropTypes.string.isRequired,
   dispatch: PropTypes.func.isRequired,
   errors: PropTypes.objectOf(PropTypes.any).isRequired,
@@ -361,6 +366,7 @@ InteractiveWeavingChart.propTypes = {
 
 function mapStateToProps(state) {
   return {
+    combinedNumberOfTablets: getCombinedNumberOfTablets(state),
     createdBy: state.pattern.createdBy,
     errors: state.errors,
     isLoading: getIsLoading(state),

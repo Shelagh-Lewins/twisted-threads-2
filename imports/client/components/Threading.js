@@ -282,6 +282,7 @@ class Threading extends PureComponent {
         tabIndex={isEditing ? '0' : undefined}
       >
         <ThreadingChartCell
+          combined={this.props.combined}
           rowIndex={rowIndex}
           selectedRow={selectedRow}
           tabletIndex={tabletIndex}
@@ -536,6 +537,7 @@ class Threading extends PureComponent {
 Threading.propTypes = {
   canEdit: PropTypes.bool.isRequired,
   colorBooks: PropTypes.arrayOf(PropTypes.any),
+  combined: PropTypes.bool,
   dispatch: PropTypes.func,
   holes: PropTypes.number.isRequired,
   isEditingThreading: PropTypes.bool,

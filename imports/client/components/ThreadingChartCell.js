@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 import ChartSVG from './ChartSVG';
 
 import {
+	getCombinedOrientationForTablet,
+	getCombinedThreadingForHole,
 	getHoles,
 	getOrientationForTablet,
 	getPalette,
@@ -66,18 +68,17 @@ ThreadingChartCell.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
-	const { rowIndex, selectedRow, tabletIndex } = ownProps;
+	const { combined, rowIndex, selectedRow, tabletIndex } = ownProps;
 
 	return {
 		holes: getHoles(state),
-		orientation: getOrientationForTablet(state, tabletIndex),
+		orientation: combined
+			? getCombinedOrientationForTablet(state, tabletIndex)
+			: getOrientationForTablet(state, tabletIndex),
 		palette: getPalette(state),
-		threadingForHole: getThreadingForHole({
-			holeIndex: rowIndex,
-			selectedRow,
-			state,
-			tabletIndex,
-		}),
+		threadingForHole: combined
+			? getCombinedThreadingForHole({ holeIndex: rowIndex, selectedRow, state, tabletIndex })
+			: getThreadingForHole({ holeIndex: rowIndex, selectedRow, state, tabletIndex }),
 	};
 }
 

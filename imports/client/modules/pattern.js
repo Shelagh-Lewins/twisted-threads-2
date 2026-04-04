@@ -267,13 +267,24 @@ export function setPatternData({
   const defaultTabletGuides = new Array(numberOfTablets);
   defaultTabletGuides.fill(false);
 
+  // tabletGuides is stored as a combined array: [left border falses, main guides, right border falses]
+  // This means combined tablet indices work directly with getShowGuideForTablet
+  const leftN = leftBorderData?.numberOfTablets || 0;
+  const rightN = rightBorderData?.numberOfTablets || 0;
+  const mainTabletGuides = tabletGuides || defaultTabletGuides;
+  const combinedTabletGuides = [
+    ...new Array(leftN).fill(false),
+    ...mainTabletGuides,
+    ...new Array(rightN).fill(false),
+  ];
+
   return {
     type: SET_PATTERN_DATA,
     payload: {
       createdBy,
       holes,
       includeInTwist,
-      tabletGuides: tabletGuides || defaultTabletGuides,
+      tabletGuides: combinedTabletGuides,
       numberOfRows,
       numberOfTablets,
       orientations,
@@ -542,6 +553,86 @@ export const getCombinedNumberOfTablets = (state) => {
     (numberOfTablets || 0) +
     (rightBorder?.numberOfTablets ?? 0)
   );
+};
+
+// Private helper: resolve a combined tablet index to { borderKey, localIndex }
+// borderKey is 'leftBorder', 'rightBorder', or null (main pattern)
+const resolveCombinedTablet = (state, tabletIndex) => {
+  const leftN = state.pattern.leftBorder?.numberOfTablets || 0;
+  if (tabletIndex < leftN) {
+    return { borderKey: 'leftBorder', localIndex: tabletIndex };
+  }
+  const mainN = state.pattern.numberOfTablets;
+  if (tabletIndex < leftN + mainN) {
+    return { borderKey: null, localIndex: tabletIndex - leftN };
+  }
+  return { borderKey: 'rightBorder', localIndex: tabletIndex - leftN - mainN };
+};
+
+export const getCombinedOrientationForTablet = (state, tabletIndex) => {
+  const { borderKey, localIndex } = resolveCombinedTablet(state, tabletIndex);
+  if (borderKey) {
+    return state.pattern[borderKey].orientations[localIndex];
+  }
+  return getOrientationForTablet(state, localIndex);
+};
+
+export const getCombinedPickForChart = (state, tabletIndex, rowIndex) => {
+  const { borderKey, localIndex } = resolveCombinedTablet(state, tabletIndex);
+  if (borderKey) {
+    return state.pattern[borderKey].picks[localIndex][rowIndex];
+  }
+  return getPickForChart(state, localIndex, rowIndex);
+};
+
+export const getCombinedThreadingForTablet = (state, tabletIndex) => {
+  const { borderKey, localIndex } = resolveCombinedTablet(state, tabletIndex);
+  if (borderKey) {
+    return state.pattern[borderKey].threadingByTablet[localIndex];
+  }
+  return getThreadingForTablet(state, localIndex);
+};
+
+// Used by ThreadingChartCell in combined mode to show current thread positions
+export const getCombinedThreadingForHole = ({
+  holeIndex,
+  selectedRow,
+  state,
+  tabletIndex,
+}) => {
+  const { borderKey, localIndex } = resolveCombinedTablet(state, tabletIndex);
+
+  if (borderKey) {
+    const border = state.pattern[borderKey];
+    const { threadingByTablet, picks } = border;
+
+    if (!threadingByTablet) return undefined;
+
+    let offsetThreadingByTablet = threadingByTablet;
+
+    if (typeof selectedRow !== 'undefined') {
+      const currentRow = getNumberOfRowsForChart(state) - selectedRow;
+      if (currentRow) {
+        const { holes } = state.pattern;
+        offsetThreadingByTablet = buildOffsetThreading({
+          holes,
+          numberOfTablets: border.numberOfTablets,
+          picks,
+          threadingByTablet,
+          currentRow,
+        });
+      }
+    }
+
+    return offsetThreadingByTablet[localIndex][holeIndex];
+  }
+
+  return getThreadingForHole({
+    holeIndex,
+    selectedRow,
+    state,
+    tabletIndex: localIndex,
+  });
 };
 
 export const getStateThreadingByTablet = (state) =>
@@ -1666,20 +1757,37 @@ export function updateTabletGuides(data) {
   };
 }
 
-export function editTabletGuides({ canSave, _id, tablet }) {
+export function editTabletGuides({ canSave, combined, _id, tablet }) {
   return (dispatch, getState) => {
-    const tabletGuide = !getState().pattern.tabletGuides[tablet];
+    const state = getState();
+    const tabletGuide = !state.pattern.tabletGuides[tablet];
+
+    // In combined mode, resolve whether this is a border or main tablet.
+    // Border tablet guides are local-only (not persisted to DB).
+    // Main tablet guides are saved using the local (non-combined) index.
+    let doSave = canSave;
+    let serverTablet = tablet;
+
+    if (combined) {
+      const leftN = state.pattern.leftBorder?.numberOfTablets || 0;
+      const mainN = state.pattern.numberOfTablets;
+      if (tablet < leftN || tablet >= leftN + mainN) {
+        doSave = false; // border tablet — transient only
+      } else {
+        serverTablet = tablet - leftN; // main tablet — use local index
+      }
+    }
 
     // Any user can set guides in the client
     // Only the pattern's owner can save guides to the pattern
-    if (canSave) {
+    if (doSave) {
       Meteor.call(
         'pattern.edit',
         {
           _id,
           data: {
             type: 'tabletGuides',
-            tablet,
+            tablet: serverTablet,
             tabletGuide,
           },
         },
@@ -3349,6 +3457,17 @@ export default function pattern(state = initialPatternState, action) {
       const { holes, numberOfRows } = state;
       const existingBorder = state[borderKey];
 
+      // Keep combined tabletGuides in sync
+      const leftN = state.leftBorder?.numberOfTablets || 0;
+      const combinedInsertAt =
+        action.type === ADD_LEFT_BORDER_TABLETS
+          ? insertTabletsAt
+          : leftN + state.numberOfTablets + insertTabletsAt;
+      const newTabletGuides = [...state.tabletGuides];
+      for (let i = 0; i < insertNTablets; i += 1) {
+        newTabletGuides.splice(combinedInsertAt, 0, false);
+      }
+
       // Build Individual-type weaving instructions for new tablets
       const newWeavingInstructionsForTablet = [];
       for (let j = 0; j < numberOfRows; j += 1) {
@@ -3395,7 +3514,10 @@ export default function pattern(state = initialPatternState, action) {
           weavingInstructionsByTablet,
           picks,
         };
-        return updeep({ [borderKey]: updeep.constant(newBorder) }, state);
+        return updeep(
+          { [borderKey]: updeep.constant(newBorder), tabletGuides: updeep.constant(newTabletGuides) },
+          state,
+        );
       }
 
       // Extend existing border
@@ -3441,7 +3563,10 @@ export default function pattern(state = initialPatternState, action) {
         weavingInstructionsByTablet: newWeavingInstructionsByTablet,
         picks: newBorderPicks,
       };
-      return updeep({ [borderKey]: updeep.constant(updatedBorder) }, state);
+      return updeep(
+        { [borderKey]: updeep.constant(updatedBorder), tabletGuides: updeep.constant(newTabletGuides) },
+        state,
+      );
     }
 
     case REMOVE_LEFT_BORDER_TABLET:
@@ -3454,10 +3579,22 @@ export default function pattern(state = initialPatternState, action) {
         return state;
       }
 
+      // Keep combined tabletGuides in sync
+      const leftNRemove = state.leftBorder?.numberOfTablets || 0;
+      const combinedRemoveAt =
+        action.type === REMOVE_LEFT_BORDER_TABLET
+          ? tablet
+          : leftNRemove + state.numberOfTablets + tablet;
+      const newTabletGuidesRemove = [...state.tabletGuides];
+      newTabletGuidesRemove.splice(combinedRemoveAt, 1);
+
       const newNumberOfBorderTablets = existingBorder.numberOfTablets - 1;
 
       if (newNumberOfBorderTablets === 0) {
-        return updeep({ [borderKey]: updeep.constant(null) }, state);
+        return updeep(
+          { [borderKey]: updeep.constant(null), tabletGuides: updeep.constant(newTabletGuidesRemove) },
+          state,
+        );
       }
 
       const newThreadingByTablet = [...existingBorder.threadingByTablet];
@@ -3497,7 +3634,10 @@ export default function pattern(state = initialPatternState, action) {
         weavingInstructionsByTablet: newWeavingInstructionsByTablet,
         picks: newBorderPicks,
       };
-      return updeep({ [borderKey]: updeep.constant(updatedBorder) }, state);
+      return updeep(
+        { [borderKey]: updeep.constant(updatedBorder), tabletGuides: updeep.constant(newTabletGuidesRemove) },
+        state,
+      );
     }
 
     case SET_IS_EDITING_LEFT_BORDER_WEAVING: {
