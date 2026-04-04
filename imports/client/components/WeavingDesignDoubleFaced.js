@@ -7,6 +7,8 @@ import {
 	editDoubleFacedChart,
 	removeWeavingRows,
 	setIsEditingWeaving,
+	setIsEditingLeftBorderWeaving,
+	setIsEditingRightBorderWeaving,
 } from '../modules/pattern';
 import calculateScrolling from '../modules/calculateScrolling';
 import AddRowsForm from '../forms/AddRowsForm';
@@ -45,6 +47,18 @@ class WeavingDesignDoubleFaced extends PureComponent {
 		// ref to find nodes so we can keep controls in view
 		this.weavingRef = React.createRef();
 		this.controlsRef = React.createRef();
+	}
+
+	componentDidUpdate(prevProps) {
+		const { isEditingWeaving } = this.props;
+		const { isEditing } = this.state;
+		// If something external (e.g. a border starting to edit) cleared isEditingWeaving,
+		// sync our local editing state to match.
+		if (!isEditingWeaving && prevProps.isEditingWeaving && isEditing) {
+			document.removeEventListener('scroll', this.trackScrolling);
+			window.removeEventListener('resize', this.trackScrolling);
+			this.setState({ 'isEditing': false });
+		}
 	}
 
 	componentWillUnmount() {
@@ -129,6 +143,8 @@ class WeavingDesignDoubleFaced extends PureComponent {
 			document.addEventListener('scroll', this.trackScrolling);
 			window.addEventListener('resize', this.trackScrolling);
 			setTimeout(() => this.trackScrolling(), 100); // give the controls time to render
+			dispatch(setIsEditingLeftBorderWeaving(false));
+			dispatch(setIsEditingRightBorderWeaving(false));
 		} else {
 			document.removeEventListener('scroll', this.trackScrolling);
 			window.removeEventListener('resize', this.trackScrolling);
@@ -337,6 +353,7 @@ class WeavingDesignDoubleFaced extends PureComponent {
 
 WeavingDesignDoubleFaced.propTypes = {
 	'dispatch': PropTypes.func.isRequired,
+	'isEditingWeaving': PropTypes.bool.isRequired,
 	'numberOfRows': PropTypes.number.isRequired,
 	'numberOfTablets': PropTypes.number.isRequired,
 	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
@@ -345,6 +362,7 @@ WeavingDesignDoubleFaced.propTypes = {
 
 function mapStateToProps(state) {
 	return {
+		'isEditingWeaving': state.pattern.isEditingWeaving,
 		'patternDesign': state.pattern.patternDesign,
 	};
 }

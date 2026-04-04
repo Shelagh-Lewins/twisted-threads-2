@@ -13,6 +13,7 @@ import {
 	getRightBorder,
 	setIsEditingLeftBorderWeaving,
 	setIsEditingRightBorderWeaving,
+	setIsEditingWeaving,
 } from '../modules/pattern';
 import calculateScrolling from '../modules/calculateScrolling';
 import { WeavingChartCellBase } from './WeavingChartCell';
@@ -110,6 +111,12 @@ class WeavingDesignBorder extends PureComponent {
 			document.addEventListener('scroll', this.trackScrolling);
 			window.addEventListener('resize', this.trackScrolling);
 			setTimeout(() => this.trackScrolling(), 100);
+			dispatch(setIsEditingWeaving(false));
+			if (side === 'left') {
+				dispatch(setIsEditingRightBorderWeaving(false));
+			} else {
+				dispatch(setIsEditingLeftBorderWeaving(false));
+			}
 		} else {
 			document.removeEventListener('scroll', this.trackScrolling);
 			window.removeEventListener('resize', this.trackScrolling);
