@@ -12,6 +12,8 @@ import {
   editBorderOrientation,
   editBorderThreadingCell,
   getHoles,
+  getIsEditingLeftBorderThreading,
+  getIsEditingRightBorderThreading,
   getLeftBorder,
   getPalette,
   getRightBorder,
@@ -19,11 +21,9 @@ import {
   removeRightBorderTablet,
   setIsEditingLeftBorderThreading,
   setIsEditingRightBorderThreading,
+  setIsEditingThreading,
 } from '../modules/pattern';
-import {
-  DEFAULT_PALETTE_COLOR,
-  HOLE_LABELS,
-} from '../../modules/parameters';
+import { DEFAULT_PALETTE_COLOR, HOLE_LABELS } from '../../modules/parameters';
 import './Threading.scss';
 
 /* eslint-disable react/no-array-index-key */
@@ -58,6 +58,14 @@ class ThreadingBorder extends PureComponent {
     this.setState({ selectedColorIndex: index });
   }
 
+  componentDidUpdate(prevProps) {
+    const { isEditingThisBorderThreading } = this.props;
+    const { isEditing } = this.state;
+    if (!isEditingThisBorderThreading && prevProps.isEditingThisBorderThreading && isEditing) {
+      this.setState({ isEditing: false });
+    }
+  }
+
   toggleEditThreading() {
     const { dispatch, side } = this.props;
     const { isEditing } = this.state;
@@ -66,8 +74,16 @@ class ThreadingBorder extends PureComponent {
     this.setState({ isEditing: newIsEditing });
 
     if (side === 'left') {
+      if (newIsEditing) {
+        dispatch(setIsEditingThreading(false));
+        dispatch(setIsEditingRightBorderThreading(false));
+      }
       dispatch(setIsEditingLeftBorderThreading(newIsEditing));
     } else {
+      if (newIsEditing) {
+        dispatch(setIsEditingThreading(false));
+        dispatch(setIsEditingLeftBorderThreading(false));
+      }
       dispatch(setIsEditingRightBorderThreading(newIsEditing));
     }
   }
@@ -130,7 +146,8 @@ class ThreadingBorder extends PureComponent {
       side,
     } = this.props;
 
-    const response = confirm( // eslint-disable-line no-restricted-globals
+    const response = confirm(
+      // eslint-disable-line no-restricted-globals
       `Do you want to delete border tablet ${tabletIndex + 1}?`,
     );
 
@@ -168,7 +185,10 @@ class ThreadingBorder extends PureComponent {
   renderControls() {
     const { side } = this.props;
     const { isEditing } = this.state;
-    const label = side === 'left' ? 'Edit left border threading' : 'Edit right border threading';
+    const label =
+      side === 'left'
+        ? 'Edit left border threading'
+        : 'Edit right border threading';
 
     return (
       <div className='controls'>
@@ -204,8 +224,16 @@ class ThreadingBorder extends PureComponent {
     return (
       <span
         type={isEditing ? 'button' : undefined}
-        onClick={isEditing ? () => this.handleClickThreadingCell(rowIndex, tabletIndex) : undefined}
-        onKeyPress={isEditing ? () => this.handleClickThreadingCell(rowIndex, tabletIndex) : undefined}
+        onClick={
+          isEditing
+            ? () => this.handleClickThreadingCell(rowIndex, tabletIndex)
+            : undefined
+        }
+        onKeyPress={
+          isEditing
+            ? () => this.handleClickThreadingCell(rowIndex, tabletIndex)
+            : undefined
+        }
         role={isEditing ? 'button' : undefined}
         tabIndex={isEditing ? '0' : undefined}
       >
@@ -231,7 +259,10 @@ class ThreadingBorder extends PureComponent {
     const cells = [];
     for (let i = 0; i < numberOfTablets; i += 1) {
       cells.push(
-        <li className='cell value' key={`border-threading-cell-${rowIndex}-${i}`}>
+        <li
+          className='cell value'
+          key={`border-threading-cell-${rowIndex}-${i}`}
+        >
           {this.renderCell(rowIndex, i)}
         </li>,
       );
@@ -248,14 +279,14 @@ class ThreadingBorder extends PureComponent {
   }
 
   renderTabletLabels() {
-    const { border } = this.props;
+    const { border, tabletOffset } = this.props;
     const { numberOfTablets } = border;
 
     const labels = [];
     for (let i = 0; i < numberOfTablets; i += 1) {
       labels.push(
         <li className='cell label' key={`border-tablet-label-${i}`}>
-          <span>{i + 1}</span>
+          <span>{(tabletOffset || 0) + i + 1}</span>
         </li>,
       );
     }
@@ -373,8 +404,12 @@ class ThreadingBorder extends PureComponent {
         <li className='cell value' key={`border-orientation-${i}`}>
           <span
             type={isEditing ? 'button' : undefined}
-            onClick={isEditing ? () => this.handleClickOrientation(i) : undefined}
-            onKeyPress={isEditing ? () => this.handleClickOrientation(i) : undefined}
+            onClick={
+              isEditing ? () => this.handleClickOrientation(i) : undefined
+            }
+            onKeyPress={
+              isEditing ? () => this.handleClickOrientation(i) : undefined
+            }
             role={isEditing ? 'button' : undefined}
             tabIndex={isEditing ? '0' : undefined}
             title={`${orientation === '/' ? 'Orientation S' : 'Orientation Z'}`}
@@ -388,11 +423,6 @@ class ThreadingBorder extends PureComponent {
     return (
       <div className='orientations'>
         <ul className='orientations'>{cells}</ul>
-        <p className='hint'>
-          The sloping line below each tablet shows you how to orient that
-          tablet. The slope of the tablet when viewed from above should match
-          the slope of the line.
-        </p>
       </div>
     );
   }
@@ -436,7 +466,9 @@ class ThreadingBorder extends PureComponent {
     }
 
     return (
-      <div className={`threading border-threading ${isEditing ? 'editing' : ''}`}>
+      <div
+        className={`threading border-threading ${isEditing ? 'editing' : ''}`}
+      >
         {canEdit && this.renderControls()}
         <div className='content'>
           {this.renderChart()}
@@ -465,9 +497,11 @@ ThreadingBorder.propTypes = {
   colorBooks: PropTypes.arrayOf(PropTypes.any),
   dispatch: PropTypes.func,
   holes: PropTypes.number.isRequired,
+  isEditingThisBorderThreading: PropTypes.bool,
   palette: PropTypes.arrayOf(PropTypes.any).isRequired,
   pattern: PropTypes.objectOf(PropTypes.any).isRequired,
   side: PropTypes.oneOf(['left', 'right']).isRequired,
+  tabletOffset: PropTypes.number,
 };
 
 function mapStateToProps(state, ownProps) {
@@ -476,8 +510,14 @@ function mapStateToProps(state, ownProps) {
   return {
     border: side === 'left' ? getLeftBorder(state) : getRightBorder(state),
     holes: getHoles(state),
+    isEditingThisBorderThreading:
+      side === 'left'
+        ? getIsEditingLeftBorderThreading(state)
+        : getIsEditingRightBorderThreading(state),
     palette: getPalette(state),
   };
 }
 
-export default connect(mapStateToProps, null, null, { forwardRef: true })(ThreadingBorder);
+export default connect(mapStateToProps, null, null, { forwardRef: true })(
+  ThreadingBorder,
+);

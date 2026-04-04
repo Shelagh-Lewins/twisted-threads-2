@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import { Button } from 'reactstrap';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import {
   addTablets,
@@ -8,6 +9,8 @@ import {
   editThreadingCell,
   removeTablet,
   setIsEditingThreading,
+  setIsEditingLeftBorderThreading,
+  setIsEditingRightBorderThreading,
 } from '../modules/pattern';
 import ThreadingChartCell from './ThreadingChartCell';
 import IncludeInTwistCell from './IncludeInTwistCell';
@@ -56,6 +59,16 @@ class Threading extends PureComponent {
     // ref to find nodes so we can keep controls in view
     this.threadingRef = React.createRef();
     this.controlsRef = React.createRef();
+  }
+
+  componentDidUpdate(prevProps) {
+    const { isEditingThreading } = this.props;
+    const { isEditing } = this.state;
+    if (!isEditingThreading && prevProps.isEditingThreading && isEditing) {
+      document.removeEventListener('scroll', this.trackScrolling);
+      window.removeEventListener('resize', this.trackScrolling);
+      this.setState({ isEditing: false });
+    }
   }
 
   componentWillUnmount() {
@@ -216,6 +229,8 @@ class Threading extends PureComponent {
     if (!isEditing) {
       document.addEventListener('scroll', this.trackScrolling);
       window.addEventListener('resize', this.trackScrolling);
+      dispatch(setIsEditingLeftBorderThreading(false));
+      dispatch(setIsEditingRightBorderThreading(false));
     } else {
       document.removeEventListener('scroll', this.trackScrolling);
       window.removeEventListener('resize', this.trackScrolling);
@@ -351,13 +366,13 @@ class Threading extends PureComponent {
   }
 
   renderTabletLabels() {
-    const { numberOfTablets } = this.props;
+    const { numberOfTablets, tabletOffset } = this.props;
 
     const labels = [];
     for (let i = 0; i < numberOfTablets; i += 1) {
       labels.push(
         <li className='cell label' key={`tablet-label-${i}`}>
-          <span>{i + 1}</span>
+          <span>{(tabletOffset || 0) + i + 1}</span>
         </li>,
       );
     }
@@ -456,11 +471,6 @@ class Threading extends PureComponent {
     return (
       <div className='orientations'>
         <ul className='orientations'>{orientations}</ul>
-        <p className='hint'>
-          The sloping line below each tablet shows you how to orient that
-          tablet. The slope of the tablet when viewed from above should match
-          the slope of the line.
-        </p>
       </div>
     );
   }
@@ -528,9 +538,19 @@ Threading.propTypes = {
   colorBooks: PropTypes.arrayOf(PropTypes.any),
   dispatch: PropTypes.func,
   holes: PropTypes.number.isRequired,
+  isEditingThreading: PropTypes.bool,
   numberOfTablets: PropTypes.number.isRequired,
   pattern: PropTypes.objectOf(PropTypes.any).isRequired,
   selectedRow: PropTypes.number,
+  tabletOffset: PropTypes.number,
 };
 
-export default Threading;
+function mapStateToProps(state) {
+  return {
+    isEditingThreading: state.pattern.isEditingThreading,
+  };
+}
+
+export default connect(mapStateToProps, null, null, { forwardRef: true })(
+  Threading,
+);

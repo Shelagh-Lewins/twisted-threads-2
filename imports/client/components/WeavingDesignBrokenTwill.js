@@ -308,13 +308,13 @@ class WeavingDesignBrokenTwill extends PureComponent {
   }
 
   renderTabletLabels() {
-    const { numberOfTablets } = this.props;
+    const { numberOfTablets, tabletOffset } = this.props;
 
     const labels = [];
     for (let i = 0; i < numberOfTablets; i += 1) {
       labels.push(
         <li className='cell label' key={`tablet-label-${i}`}>
-          <span>{i + 1}</span>
+          <span>{tabletOffset + i + 1}</span>
         </li>,
       );
     }
@@ -446,6 +446,11 @@ WeavingDesignBrokenTwill.propTypes = {
   numberOfTablets: PropTypes.number.isRequired,
   pattern: PropTypes.objectOf(PropTypes.any).isRequired,
   patternDesign: PropTypes.objectOf(PropTypes.any).isRequired, // updated in state
+  tabletOffset: PropTypes.number,
+};
+
+WeavingDesignBrokenTwill.defaultProps = {
+  tabletOffset: 0,
 };
 
 function mapStateToProps(state) {
