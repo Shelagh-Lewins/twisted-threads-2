@@ -210,7 +210,7 @@ class WeavingDesignBrokenTwill extends PureComponent {
           </Button>
         ) : (
           <Button color='primary' onClick={this.toggleEditWeaving}>
-            Edit weaving design
+            Edit main pattern
           </Button>
         )}
       </div>

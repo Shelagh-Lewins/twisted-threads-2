@@ -140,7 +140,7 @@ class WeavingDesignBorder extends PureComponent {
 
   renderControls() {
     const { isEditing, side } = this.props;
-    const label = side === 'left' ? 'left border' : 'right border';
+    const label = side === 'left' ? 'Edit left border' : 'Edit right border';
 
     return (
       <div className='controls'>
@@ -149,10 +149,9 @@ class WeavingDesignBorder extends PureComponent {
             Done
           </Button>
         ) : (
-          <Button
-            color='primary'
-            onClick={this.toggleEditWeaving}
-          >{`Edit ${label} weaving design`}</Button>
+          <Button color='primary' onClick={this.toggleEditWeaving}>
+            {label}
+          </Button>
         )}
       </div>
     );

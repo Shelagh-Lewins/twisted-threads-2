@@ -18,7 +18,7 @@ import {
   unwrapUser,
   callMethodWithUser,
 } from './mockUser';
-import { addPatternDataIndividual } from './testData';
+import { addPatternDataIndividual, createPattern } from './testData';
 
 if (Meteor.isServer) {
   describe('test edit method for patterns', function testEditMethod() {
@@ -142,6 +142,182 @@ if (Meteor.isServer) {
         const updated = await Patterns.findOneAsync({ _id: patternId });
 
         assert.equal(updated.threading[0][0], 3);
+      });
+
+      describe('border operations', () => {
+        beforeEach(async () => {
+          const pattern = await createPattern({
+            createdBy: this.currentUser._id,
+            patternType: 'brokenTwill',
+          });
+          this.brokenTwillPatternId = pattern._id;
+        });
+
+        it('can add a new left border', async () => {
+          const { brokenTwillPatternId } = this;
+
+          await callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+            _id: brokenTwillPatternId,
+            data: {
+              type: 'addLeftBorderTablets',
+              colorIndex: 0,
+              insertNTablets: 2,
+              insertTabletsAt: 0,
+            },
+          });
+
+          const updated = await Patterns.findOneAsync({ _id: brokenTwillPatternId });
+
+          assert.equal(updated.leftBorder.numberOfTablets, 2);
+          // 4 holes, each with 2 tablets filled with colorIndex 0
+          assert.equal(updated.leftBorder.threading.length, 4);
+          assert.deepEqual(updated.leftBorder.threading[0], [0, 0]);
+          assert.equal(updated.leftBorder.orientations.length, 2);
+        });
+
+        it('can extend an existing left border', async () => {
+          const { brokenTwillPatternId } = this;
+
+          await callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+            _id: brokenTwillPatternId,
+            data: {
+              type: 'addLeftBorderTablets',
+              colorIndex: 0,
+              insertNTablets: 2,
+              insertTabletsAt: 0,
+            },
+          });
+
+          await callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+            _id: brokenTwillPatternId,
+            data: {
+              type: 'addLeftBorderTablets',
+              colorIndex: 1,
+              insertNTablets: 1,
+              insertTabletsAt: 0,
+            },
+          });
+
+          const updated = await Patterns.findOneAsync({ _id: brokenTwillPatternId });
+
+          assert.equal(updated.leftBorder.numberOfTablets, 3);
+          assert.equal(updated.leftBorder.threading[0].length, 3);
+        });
+
+        it('cannot add border tablets to an individual pattern', async () => {
+          const { patternId } = this;
+
+          await expect(
+            callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+              _id: patternId,
+              data: {
+                type: 'addLeftBorderTablets',
+                colorIndex: 0,
+                insertNTablets: 1,
+                insertTabletsAt: 0,
+              },
+            }),
+          ).to.be.rejectedWith('add-border-tablets-invalid-pattern-type');
+        });
+
+        it('can remove the only border tablet, clearing the border', async () => {
+          const { brokenTwillPatternId } = this;
+
+          await callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+            _id: brokenTwillPatternId,
+            data: {
+              type: 'addLeftBorderTablets',
+              colorIndex: 0,
+              insertNTablets: 1,
+              insertTabletsAt: 0,
+            },
+          });
+
+          await callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+            _id: brokenTwillPatternId,
+            data: {
+              type: 'removeLeftBorderTablet',
+              tablet: 0,
+            },
+          });
+
+          const updated = await Patterns.findOneAsync({ _id: brokenTwillPatternId });
+
+          assert.isUndefined(updated.leftBorder);
+        });
+
+        it('can remove one of two border tablets, reducing count to 1', async () => {
+          const { brokenTwillPatternId } = this;
+
+          await callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+            _id: brokenTwillPatternId,
+            data: {
+              type: 'addLeftBorderTablets',
+              colorIndex: 0,
+              insertNTablets: 2,
+              insertTabletsAt: 0,
+            },
+          });
+
+          await callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+            _id: brokenTwillPatternId,
+            data: {
+              type: 'removeLeftBorderTablet',
+              tablet: 0,
+            },
+          });
+
+          const updated = await Patterns.findOneAsync({ _id: brokenTwillPatternId });
+
+          assert.equal(updated.leftBorder.numberOfTablets, 1);
+          assert.equal(updated.leftBorder.threading[0].length, 1);
+        });
+
+        it('can edit a border threading cell', async () => {
+          const { brokenTwillPatternId } = this;
+
+          await callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+            _id: brokenTwillPatternId,
+            data: {
+              type: 'addLeftBorderTablets',
+              colorIndex: 0,
+              insertNTablets: 2,
+              insertTabletsAt: 0,
+            },
+          });
+
+          await callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+            _id: brokenTwillPatternId,
+            data: {
+              type: 'editBorderThreadingCell',
+              side: 'left',
+              holesToSet: [0],
+              tablet: 0,
+              colorIndex: 2,
+            },
+          });
+
+          const updated = await Patterns.findOneAsync({ _id: brokenTwillPatternId });
+
+          assert.equal(updated.leftBorder.threading[0][0], 2);
+        });
+
+        it('can set a tablet guide for a main-pattern tablet', async () => {
+          const { brokenTwillPatternId } = this;
+
+          await callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+            _id: brokenTwillPatternId,
+            data: {
+              type: 'tabletGuides',
+              tablet: 0,
+              tabletGuide: true,
+            },
+          });
+
+          const updated = await Patterns.findOneAsync({ _id: brokenTwillPatternId });
+
+          assert.equal(updated.tabletGuides[0], true);
+        });
       });
     });
   });

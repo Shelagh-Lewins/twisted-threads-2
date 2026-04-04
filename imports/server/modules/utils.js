@@ -40,7 +40,7 @@ export const validHolesCheck = Match.Where((x) => {
 export const validRowsCheck = Match.Where((x) => {
   check(x, Match.Integer);
 
-  return x >= 0 && x <= MAX_ROWS;
+  return x >= 0 && x < MAX_ROWS;
 });
 
 export const validTabletsCheck = Match.Where((x) => {

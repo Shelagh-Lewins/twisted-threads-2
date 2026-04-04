@@ -84,14 +84,19 @@ export const ADD_RIGHT_BORDER_TABLETS = 'ADD_RIGHT_BORDER_TABLETS';
 export const REMOVE_LEFT_BORDER_TABLET = 'REMOVE_LEFT_BORDER_TABLET';
 export const REMOVE_RIGHT_BORDER_TABLET = 'REMOVE_RIGHT_BORDER_TABLET';
 export const UPDATE_BORDER_WEAVING_CELL = 'UPDATE_BORDER_WEAVING_CELL';
-export const UPDATE_BORDER_WEAVING_CELL_TURNS = 'UPDATE_BORDER_WEAVING_CELL_TURNS';
+export const UPDATE_BORDER_WEAVING_CELL_TURNS =
+  'UPDATE_BORDER_WEAVING_CELL_TURNS';
 export const UPDATE_BORDER_THREADING_CELL = 'UPDATE_BORDER_THREADING_CELL';
 export const UPDATE_BORDER_ORIENTATION = 'UPDATE_BORDER_ORIENTATION';
 export const UPDATE_BORDER_INCLUDE_IN_TWIST = 'UPDATE_BORDER_INCLUDE_IN_TWIST';
-export const SET_IS_EDITING_LEFT_BORDER_WEAVING = 'SET_IS_EDITING_LEFT_BORDER_WEAVING';
-export const SET_IS_EDITING_RIGHT_BORDER_WEAVING = 'SET_IS_EDITING_RIGHT_BORDER_WEAVING';
-export const SET_IS_EDITING_LEFT_BORDER_THREADING = 'SET_IS_EDITING_LEFT_BORDER_THREADING';
-export const SET_IS_EDITING_RIGHT_BORDER_THREADING = 'SET_IS_EDITING_RIGHT_BORDER_THREADING';
+export const SET_IS_EDITING_LEFT_BORDER_WEAVING =
+  'SET_IS_EDITING_LEFT_BORDER_WEAVING';
+export const SET_IS_EDITING_RIGHT_BORDER_WEAVING =
+  'SET_IS_EDITING_RIGHT_BORDER_WEAVING';
+export const SET_IS_EDITING_LEFT_BORDER_THREADING =
+  'SET_IS_EDITING_LEFT_BORDER_THREADING';
+export const SET_IS_EDITING_RIGHT_BORDER_THREADING =
+  'SET_IS_EDITING_RIGHT_BORDER_THREADING';
 
 // more than one patternType
 export const SET_UPDATE_PREVIEW_WHILE_EDITING =
@@ -334,10 +339,11 @@ export const savePatternData = (patternObj) => (dispatch) => {
   // Build border data if present
   const buildBorderData = (border) => {
     if (!border || !border.numberOfTablets) return null;
-    const borderWeavingInstructionsByTablet = buildBorderWeavingInstructionsByTablet({
-      border,
-      numberOfRows,
-    });
+    const borderWeavingInstructionsByTablet =
+      buildBorderWeavingInstructionsByTablet({
+        border,
+        numberOfRows,
+      });
     const borderThreadingByTablet = getThreadingByTabletForBorder(border);
     const borderPicks = calculateAllPicks({
       numberOfRows,
@@ -1565,39 +1571,69 @@ export function editIncludeInTwist({ _id, tablet }) {
 // /////////////////////
 // Border tablet management
 
-export function addLeftBorderTablets({ _id, insertNTablets, insertTabletsAt, colorIndex }) {
+export function addLeftBorderTablets({
+  _id,
+  insertNTablets,
+  insertTabletsAt,
+  colorIndex,
+}) {
   return (dispatch) => {
     Meteor.call(
       'pattern.edit',
       {
         _id,
-        data: { type: 'addLeftBorderTablets', insertNTablets, insertTabletsAt, colorIndex },
+        data: {
+          type: 'addLeftBorderTablets',
+          insertNTablets,
+          insertTabletsAt,
+          colorIndex,
+        },
       },
       (error) => {
         if (error) {
-          return dispatch(logErrors({ 'add left border tablets': error.reason }));
+          return dispatch(
+            logErrors({ 'add left border tablets': error.reason }),
+          );
         }
       },
     );
-    dispatch({ type: ADD_LEFT_BORDER_TABLETS, payload: { insertNTablets, insertTabletsAt, insertTabletsAt, colorIndex } });
+    dispatch({
+      type: ADD_LEFT_BORDER_TABLETS,
+      payload: { insertNTablets, insertTabletsAt, insertTabletsAt, colorIndex },
+    });
   };
 }
 
-export function addRightBorderTablets({ _id, insertNTablets, insertTabletsAt, colorIndex }) {
+export function addRightBorderTablets({
+  _id,
+  insertNTablets,
+  insertTabletsAt,
+  colorIndex,
+}) {
   return (dispatch) => {
     Meteor.call(
       'pattern.edit',
       {
         _id,
-        data: { type: 'addRightBorderTablets', insertNTablets, insertTabletsAt, colorIndex },
+        data: {
+          type: 'addRightBorderTablets',
+          insertNTablets,
+          insertTabletsAt,
+          colorIndex,
+        },
       },
       (error) => {
         if (error) {
-          return dispatch(logErrors({ 'add right border tablets': error.reason }));
+          return dispatch(
+            logErrors({ 'add right border tablets': error.reason }),
+          );
         }
       },
     );
-    dispatch({ type: ADD_RIGHT_BORDER_TABLETS, payload: { insertNTablets, insertTabletsAt, colorIndex } });
+    dispatch({
+      type: ADD_RIGHT_BORDER_TABLETS,
+      payload: { insertNTablets, insertTabletsAt, colorIndex },
+    });
   };
 }
 
@@ -1611,7 +1647,9 @@ export function removeLeftBorderTablet({ _id, tablet }) {
       },
       (error) => {
         if (error) {
-          return dispatch(logErrors({ 'remove left border tablet': error.reason }));
+          return dispatch(
+            logErrors({ 'remove left border tablet': error.reason }),
+          );
         }
       },
     );
@@ -1629,7 +1667,9 @@ export function removeRightBorderTablet({ _id, tablet }) {
       },
       (error) => {
         if (error) {
-          return dispatch(logErrors({ 'remove right border tablet': error.reason }));
+          return dispatch(
+            logErrors({ 'remove right border tablet': error.reason }),
+          );
         }
       },
     );
@@ -1637,13 +1677,25 @@ export function removeRightBorderTablet({ _id, tablet }) {
   };
 }
 
-export function editBorderThreadingCell({ _id, side, holesToSet, tablet, colorIndex }) {
+export function editBorderThreadingCell({
+  _id,
+  side,
+  holesToSet,
+  tablet,
+  colorIndex,
+}) {
   return (dispatch) => {
     Meteor.call(
       'pattern.edit',
       {
         _id,
-        data: { type: 'editBorderThreadingCell', side, holesToSet, tablet, colorIndex },
+        data: {
+          type: 'editBorderThreadingCell',
+          side,
+          holesToSet,
+          tablet,
+          colorIndex,
+        },
       },
       (error) => {
         if (error) {
@@ -1651,28 +1703,44 @@ export function editBorderThreadingCell({ _id, side, holesToSet, tablet, colorIn
         }
       },
     );
-    dispatch({ type: UPDATE_BORDER_THREADING_CELL, payload: { side, holesToSet, tablet, colorIndex } });
+    dispatch({
+      type: UPDATE_BORDER_THREADING_CELL,
+      payload: { side, holesToSet, tablet, colorIndex },
+    });
   };
 }
 
 export function editBorderOrientation({ _id, side, tablet }) {
   return (dispatch, getState) => {
-    const border = side === 'left' ? getState().pattern.leftBorder : getState().pattern.rightBorder;
+    const border =
+      side === 'left'
+        ? getState().pattern.leftBorder
+        : getState().pattern.rightBorder;
     const tabletOrientation = border.orientations[tablet] === 'S' ? 'Z' : 'S';
 
     Meteor.call(
       'pattern.edit',
       {
         _id,
-        data: { type: 'editBorderOrientation', side, tablet, tabletOrientation },
+        data: {
+          type: 'editBorderOrientation',
+          side,
+          tablet,
+          tabletOrientation,
+        },
       },
       (error) => {
         if (error) {
-          return dispatch(logErrors({ 'edit border orientation': error.reason }));
+          return dispatch(
+            logErrors({ 'edit border orientation': error.reason }),
+          );
         }
       },
     );
-    dispatch({ type: UPDATE_BORDER_ORIENTATION, payload: { side, tablet, tabletOrientation } });
+    dispatch({
+      type: UPDATE_BORDER_ORIENTATION,
+      payload: { side, tablet, tabletOrientation },
+    });
   };
 }
 
@@ -1686,50 +1754,85 @@ export function editBorderWeavingCell({ _id, side, row, tablet }) {
       },
       (error) => {
         if (error) {
-          return dispatch(logErrors({ 'edit border weaving cell': error.reason }));
+          return dispatch(
+            logErrors({ 'edit border weaving cell': error.reason }),
+          );
         }
       },
     );
-    dispatch({ type: UPDATE_BORDER_WEAVING_CELL, payload: { side, row, tablet } });
+    dispatch({
+      type: UPDATE_BORDER_WEAVING_CELL,
+      payload: { side, row, tablet },
+    });
   };
 }
 
-export function editBorderWeavingCellTurns({ _id, side, row, tablet, numberOfTurns }) {
+export function editBorderWeavingCellTurns({
+  _id,
+  side,
+  row,
+  tablet,
+  numberOfTurns,
+}) {
   return (dispatch) => {
     Meteor.call(
       'pattern.edit',
       {
         _id,
-        data: { type: 'editBorderWeavingCellTurns', side, row, tablet, numberOfTurns },
+        data: {
+          type: 'editBorderWeavingCellTurns',
+          side,
+          row,
+          tablet,
+          numberOfTurns,
+        },
       },
       (error) => {
         if (error) {
-          return dispatch(logErrors({ 'edit border weaving cell turns': error.reason }));
+          return dispatch(
+            logErrors({ 'edit border weaving cell turns': error.reason }),
+          );
         }
       },
     );
-    dispatch({ type: UPDATE_BORDER_WEAVING_CELL_TURNS, payload: { side, row, tablet, numberOfTurns } });
+    dispatch({
+      type: UPDATE_BORDER_WEAVING_CELL_TURNS,
+      payload: { side, row, tablet, numberOfTurns },
+    });
   };
 }
 
 export function editBorderIncludeInTwist({ _id, side, tablet }) {
   return (dispatch, getState) => {
-    const border = side === 'left' ? getState().pattern.leftBorder : getState().pattern.rightBorder;
+    const border =
+      side === 'left'
+        ? getState().pattern.leftBorder
+        : getState().pattern.rightBorder;
     const tabletIncludeInTwist = !border.includeInTwist[tablet];
 
     Meteor.call(
       'pattern.edit',
       {
         _id,
-        data: { type: 'editBorderIncludeInTwist', side, tablet, tabletIncludeInTwist },
+        data: {
+          type: 'editBorderIncludeInTwist',
+          side,
+          tablet,
+          tabletIncludeInTwist,
+        },
       },
       (error) => {
         if (error) {
-          return dispatch(logErrors({ 'edit border include in twist': error.reason }));
+          return dispatch(
+            logErrors({ 'edit border include in twist': error.reason }),
+          );
         }
       },
     );
-    dispatch({ type: UPDATE_BORDER_INCLUDE_IN_TWIST, payload: { side, tablet, tabletIncludeInTwist } });
+    dispatch({
+      type: UPDATE_BORDER_INCLUDE_IN_TWIST,
+      payload: { side, tablet, tabletIncludeInTwist },
+    });
   };
 }
 
@@ -3453,7 +3556,8 @@ export default function pattern(state = initialPatternState, action) {
     case ADD_LEFT_BORDER_TABLETS:
     case ADD_RIGHT_BORDER_TABLETS: {
       const { insertNTablets, insertTabletsAt, colorIndex } = action.payload;
-      const borderKey = action.type === ADD_LEFT_BORDER_TABLETS ? 'leftBorder' : 'rightBorder';
+      const borderKey =
+        action.type === ADD_LEFT_BORDER_TABLETS ? 'leftBorder' : 'rightBorder';
       const { holes, numberOfRows } = state;
       const existingBorder = state[borderKey];
 
@@ -3494,13 +3598,18 @@ export default function pattern(state = initialPatternState, action) {
         for (let j = 0; j < numberOfRows; j += 1) {
           const rowData = [];
           for (let i = 0; i < insertNTablets; i += 1) {
-            rowData.push({ direction: DEFAULT_DIRECTION, numberOfTurns: DEFAULT_NUMBER_OF_TURNS });
+            rowData.push({
+              direction: DEFAULT_DIRECTION,
+              numberOfTurns: DEFAULT_NUMBER_OF_TURNS,
+            });
           }
           weavingInstructions.push(rowData);
         }
         for (let i = 0; i < insertNTablets; i += 1) {
           threadingByTablet.push(new Array(holes).fill(colorIndex));
-          weavingInstructionsByTablet.push([...newWeavingInstructionsForTablet]);
+          weavingInstructionsByTablet.push([
+            ...newWeavingInstructionsForTablet,
+          ]);
           picks.push(newPicksForTablet);
         }
         const newBorder = {
@@ -3515,25 +3624,37 @@ export default function pattern(state = initialPatternState, action) {
           picks,
         };
         return updeep(
-          { [borderKey]: updeep.constant(newBorder), tabletGuides: updeep.constant(newTabletGuides) },
+          {
+            [borderKey]: updeep.constant(newBorder),
+            tabletGuides: updeep.constant(newTabletGuides),
+          },
           state,
         );
       }
 
       // Extend existing border
-      const newNumberOfBorderTablets = existingBorder.numberOfTablets + insertNTablets;
+      const newNumberOfBorderTablets =
+        existingBorder.numberOfTablets + insertNTablets;
 
       const newThreadingByTablet = [...existingBorder.threadingByTablet];
       const newOrientations = [...existingBorder.orientations];
       const newIncludeInTwist = [...existingBorder.includeInTwist];
-      const newWeavingInstructionsByTablet = [...existingBorder.weavingInstructionsByTablet];
+      const newWeavingInstructionsByTablet = [
+        ...existingBorder.weavingInstructionsByTablet,
+      ];
       const newBorderPicks = [...existingBorder.picks];
 
       for (let i = 0; i < insertNTablets; i += 1) {
-        newThreadingByTablet.splice(insertTabletsAt, 0, new Array(holes).fill(colorIndex));
+        newThreadingByTablet.splice(
+          insertTabletsAt,
+          0,
+          new Array(holes).fill(colorIndex),
+        );
         newOrientations.splice(insertTabletsAt, 0, DEFAULT_ORIENTATION);
         newIncludeInTwist.splice(insertTabletsAt, 0, true);
-        newWeavingInstructionsByTablet.splice(insertTabletsAt, 0, [...newWeavingInstructionsForTablet]);
+        newWeavingInstructionsByTablet.splice(insertTabletsAt, 0, [
+          ...newWeavingInstructionsForTablet,
+        ]);
         newBorderPicks.splice(insertTabletsAt, 0, newPicksForTablet);
       }
 
@@ -3544,13 +3665,18 @@ export default function pattern(state = initialPatternState, action) {
         }
         return r;
       });
-      const newWeavingInstructions = existingBorder.weavingInstructions.map((rowData) => {
-        const r = [...rowData];
-        for (let i = 0; i < insertNTablets; i += 1) {
-          r.splice(insertTabletsAt, 0, { direction: DEFAULT_DIRECTION, numberOfTurns: DEFAULT_NUMBER_OF_TURNS });
-        }
-        return r;
-      });
+      const newWeavingInstructions = existingBorder.weavingInstructions.map(
+        (rowData) => {
+          const r = [...rowData];
+          for (let i = 0; i < insertNTablets; i += 1) {
+            r.splice(insertTabletsAt, 0, {
+              direction: DEFAULT_DIRECTION,
+              numberOfTurns: DEFAULT_NUMBER_OF_TURNS,
+            });
+          }
+          return r;
+        },
+      );
 
       const updatedBorder = {
         ...existingBorder,
@@ -3564,7 +3690,10 @@ export default function pattern(state = initialPatternState, action) {
         picks: newBorderPicks,
       };
       return updeep(
-        { [borderKey]: updeep.constant(updatedBorder), tabletGuides: updeep.constant(newTabletGuides) },
+        {
+          [borderKey]: updeep.constant(updatedBorder),
+          tabletGuides: updeep.constant(newTabletGuides),
+        },
         state,
       );
     }
@@ -3572,7 +3701,10 @@ export default function pattern(state = initialPatternState, action) {
     case REMOVE_LEFT_BORDER_TABLET:
     case REMOVE_RIGHT_BORDER_TABLET: {
       const { tablet } = action.payload;
-      const borderKey = action.type === REMOVE_LEFT_BORDER_TABLET ? 'leftBorder' : 'rightBorder';
+      const borderKey =
+        action.type === REMOVE_LEFT_BORDER_TABLET
+          ? 'leftBorder'
+          : 'rightBorder';
       const existingBorder = state[borderKey];
 
       if (!existingBorder) {
@@ -3592,7 +3724,10 @@ export default function pattern(state = initialPatternState, action) {
 
       if (newNumberOfBorderTablets === 0) {
         return updeep(
-          { [borderKey]: updeep.constant(null), tabletGuides: updeep.constant(newTabletGuidesRemove) },
+          {
+            [borderKey]: updeep.constant(null),
+            tabletGuides: updeep.constant(newTabletGuidesRemove),
+          },
           state,
         );
       }
@@ -3606,7 +3741,9 @@ export default function pattern(state = initialPatternState, action) {
       const newIncludeInTwist = [...existingBorder.includeInTwist];
       newIncludeInTwist.splice(tablet, 1);
 
-      const newWeavingInstructionsByTablet = [...existingBorder.weavingInstructionsByTablet];
+      const newWeavingInstructionsByTablet = [
+        ...existingBorder.weavingInstructionsByTablet,
+      ];
       newWeavingInstructionsByTablet.splice(tablet, 1);
 
       const newBorderPicks = [...existingBorder.picks];
@@ -3617,11 +3754,13 @@ export default function pattern(state = initialPatternState, action) {
         r.splice(tablet, 1);
         return r;
       });
-      const newWeavingInstructions = existingBorder.weavingInstructions.map((rowData) => {
-        const r = [...rowData];
-        r.splice(tablet, 1);
-        return r;
-      });
+      const newWeavingInstructions = existingBorder.weavingInstructions.map(
+        (rowData) => {
+          const r = [...rowData];
+          r.splice(tablet, 1);
+          return r;
+        },
+      );
 
       const updatedBorder = {
         ...existingBorder,
@@ -3635,7 +3774,10 @@ export default function pattern(state = initialPatternState, action) {
         picks: newBorderPicks,
       };
       return updeep(
-        { [borderKey]: updeep.constant(updatedBorder), tabletGuides: updeep.constant(newTabletGuidesRemove) },
+        {
+          [borderKey]: updeep.constant(updatedBorder),
+          tabletGuides: updeep.constant(newTabletGuidesRemove),
+        },
         state,
       );
     }
@@ -3666,7 +3808,11 @@ export default function pattern(state = initialPatternState, action) {
           : t,
       );
       return updeep(
-        { [borderKey]: { threadingByTablet: updeep.constant(newThreadingByTablet) } },
+        {
+          [borderKey]: {
+            threadingByTablet: updeep.constant(newThreadingByTablet),
+          },
+        },
         state,
       );
     }
@@ -3695,9 +3841,14 @@ export default function pattern(state = initialPatternState, action) {
       const border = state[borderKey];
       const weavingInstructionsByTablet = border.weavingInstructionsByTablet;
 
-      const obj = { ...weavingInstructionsByTablet[tablet][row], numberOfTurns };
+      const obj = {
+        ...weavingInstructionsByTablet[tablet][row],
+        numberOfTurns,
+      };
 
-      const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tablet]];
+      const weavingInstructionsForTablet = [
+        ...weavingInstructionsByTablet[tablet],
+      ];
       weavingInstructionsForTablet[row] = obj;
 
       const picksForTablet = calculatePicksForTablet({
@@ -3724,11 +3875,14 @@ export default function pattern(state = initialPatternState, action) {
       const { numberOfRows } = state;
       const weavingInstructionsByTablet = border.weavingInstructionsByTablet;
 
-      const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tablet]];
+      const weavingInstructionsForTablet = [
+        ...weavingInstructionsByTablet[tablet],
+      ];
 
       for (let i = row; i < numberOfRows; i += 1) {
         const obj = { ...weavingInstructionsForTablet[i] };
-        obj.direction = weavingInstructionsForTablet[i].direction === 'F' ? 'B' : 'F';
+        obj.direction =
+          weavingInstructionsForTablet[i].direction === 'F' ? 'B' : 'F';
         weavingInstructionsForTablet[i] = obj;
       }
 
@@ -3746,7 +3900,9 @@ export default function pattern(state = initialPatternState, action) {
       return updeep(
         {
           [borderKey]: {
-            weavingInstructionsByTablet: { [tablet]: newWeavingInstructionsForTablet },
+            weavingInstructionsByTablet: {
+              [tablet]: newWeavingInstructionsForTablet,
+            },
             picks: { [tablet]: picksForTablet },
           },
         },

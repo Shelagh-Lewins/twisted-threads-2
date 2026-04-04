@@ -117,6 +117,14 @@ export const addPatternDataIndividual = {
   patternType: 'individual',
 };
 
+export const addPatternDataBrokenTwill = {
+  holes: 4,
+  name: 'BrokenTwill Pattern',
+  rows: 6,
+  tablets: 8,
+  patternType: 'brokenTwill',
+};
+
 export const defaultColorBookData = {
   _id: 'hGyoeA5tfZ4MuwfLj',
   name: 'Another book',

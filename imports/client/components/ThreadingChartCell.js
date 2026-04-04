@@ -4,82 +4,92 @@ import PropTypes from 'prop-types';
 import ChartSVG from './ChartSVG';
 
 import {
-	getCombinedOrientationForTablet,
-	getCombinedThreadingForHole,
-	getHoles,
-	getOrientationForTablet,
-	getPalette,
-	getThreadingForHole,
+  getCombinedOrientationForTablet,
+  getCombinedThreadingForHole,
+  getHoles,
+  getOrientationForTablet,
+  getPalette,
+  getThreadingForHole,
 } from '../modules/pattern';
 
 function ThreadingChartCell(props) {
-	const {
-		holes,
-		orientation,
-		palette,
-		rowIndex,
-		tabletIndex,
-		threadingForHole,
-	} = props;
+  const {
+    holes,
+    orientation,
+    palette,
+    rowIndex,
+    tabletIndex,
+    threadingForHole,
+  } = props;
 
-	if (!orientation) {
-		return null;
-	}
+  if (!orientation) {
+    return null;
+  }
 
-	const holeToShow = rowIndex;
-	const colorIndex = threadingForHole;
+  const holeToShow = rowIndex;
+  const colorIndex = threadingForHole;
 
-	// threading chart is always single turns forwards from home position
-	// so we don't need to pass the entire threading for the tablet, only the thread for this hole
-	// this means only the changed hole re-renders when the colour changes, not all four holes
-	const threadDetails = {
-		colorIndex: colorIndex,
-		holeToShow: holeToShow,
-		threadAngle: orientation === '\\' ? '\\' : '/',
-		threadColor: palette[colorIndex],
-	};
+  // threading chart is always single turns forwards from home position
+  // so we don't need to pass the entire threading for the tablet, only the thread for this hole
+  // this means only the changed hole re-renders when the colour changes, not all four holes
+  const threadDetails = {
+    colorIndex: colorIndex,
+    holeToShow: holeToShow,
+    threadAngle: orientation === '\\' ? '\\' : '/',
+    threadColor: palette[colorIndex],
+  };
 
-	return (
-		<ChartSVG
-			direction='F'
-			holes={holes}
-			netTurns={
-				holes -
-				rowIndex /* hole labels run bottom to top, indexes run top to bottom */
-			}
-			numberOfTurns={1}
-			orientation={orientation}
-			palette={palette}
-			tabletIndex={tabletIndex}
-			threadDetails={threadDetails}
-		/>
-	);
+  return (
+    <ChartSVG
+      direction='F'
+      holes={holes}
+      netTurns={
+        holes -
+        rowIndex /* hole labels run bottom to top, indexes run top to bottom */
+      }
+      numberOfTurns={1}
+      orientation={orientation}
+      palette={palette}
+      tabletIndex={tabletIndex}
+      threadDetails={threadDetails}
+    />
+  );
 }
 
 ThreadingChartCell.propTypes = {
-	orientation: PropTypes.string,
-	holes: PropTypes.number.isRequired,
-	palette: PropTypes.arrayOf(PropTypes.any).isRequired,
-	rowIndex: PropTypes.number.isRequired, // eslint-disable-line react/no-unused-prop-types
-	selectedRow: PropTypes.number, // eslint-disable-line react/no-unused-prop-types
-	tabletIndex: PropTypes.number.isRequired,
-	threadingForHole: PropTypes.number.isRequired,
-	// 'threadingForTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
+  orientation: PropTypes.string,
+  holes: PropTypes.number.isRequired,
+  palette: PropTypes.arrayOf(PropTypes.any).isRequired,
+  rowIndex: PropTypes.number.isRequired, // eslint-disable-line react/no-unused-prop-types
+  selectedRow: PropTypes.number, // eslint-disable-line react/no-unused-prop-types
+  tabletIndex: PropTypes.number.isRequired,
+  threadingForHole: PropTypes.number.isRequired,
+  // 'threadingForTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
-	const { combined, rowIndex, selectedRow, tabletIndex } = ownProps;
+  const { combined, rowIndex, selectedRow, tabletIndex } = ownProps;
 
-	return {
-		holes: getHoles(state),
-		orientation: combined
-			? getCombinedOrientationForTablet(state, tabletIndex)
-			: getOrientationForTablet(state, tabletIndex),
-		palette: getPalette(state),
-		threadingForHole: combined
-			? getCombinedThreadingForHole({ holeIndex: rowIndex, selectedRow, state, tabletIndex })
-			: getThreadingForHole({ holeIndex: rowIndex, selectedRow, state, tabletIndex }),
-	};
+  return {
+    holes: getHoles(state),
+    orientation: combined
+      ? getCombinedOrientationForTablet(state, tabletIndex)
+      : getOrientationForTablet(state, tabletIndex),
+    palette: getPalette(state),
+    threadingForHole: combined
+      ? getCombinedThreadingForHole({
+          holeIndex: rowIndex,
+          selectedRow,
+          state,
+          tabletIndex,
+        })
+      : getThreadingForHole({
+          holeIndex: rowIndex,
+          selectedRow,
+          state,
+          tabletIndex,
+        }),
+  };
 }
 
 export default connect(mapStateToProps)(ThreadingChartCell);

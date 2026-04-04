@@ -61,7 +61,11 @@ class ThreadingBorder extends PureComponent {
   componentDidUpdate(prevProps) {
     const { isEditingThisBorderThreading } = this.props;
     const { isEditing } = this.state;
-    if (!isEditingThisBorderThreading && prevProps.isEditingThisBorderThreading && isEditing) {
+    if (
+      !isEditingThisBorderThreading &&
+      prevProps.isEditingThisBorderThreading &&
+      isEditing
+    ) {
       this.setState({ isEditing: false });
     }
   }
@@ -185,10 +189,7 @@ class ThreadingBorder extends PureComponent {
   renderControls() {
     const { side } = this.props;
     const { isEditing } = this.state;
-    const label =
-      side === 'left'
-        ? 'Edit left border threading'
-        : 'Edit right border threading';
+    const label = side === 'left' ? 'Edit left border' : 'Edit right border';
 
     return (
       <div className='controls'>
