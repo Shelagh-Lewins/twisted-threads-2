@@ -45,9 +45,11 @@ import WeavingDesignAllTogether from '../components/WeavingDesignAllTogether';
 import WeavingDesignBrokenTwill from '../components/WeavingDesignBrokenTwill';
 import WeavingDesignDoubleFaced from '../components/WeavingDesignDoubleFaced';
 import WeavingDesignFreehand from '../components/WeavingDesignFreehand';
+import WeavingDesignBorder from '../components/WeavingDesignBorder';
 import Weft from '../components/Weft';
 import PatternPreview from '../components/PatternPreview';
 import Threading from '../components/Threading';
+import ThreadingBorder from '../components/ThreadingBorder';
 import ThreadCounts from '../components/ThreadCounts';
 import Notation from '../components/Notation';
 import PreviewOrientation from '../components/PreviewOrientation';
@@ -58,6 +60,7 @@ import TwistCalculationHints from '../components/TwistCalculationHints';
 import ShowVerticalGuides from '../components/ShowVerticalGuides';
 import {
   findPatternTypeDisplayName,
+  getPatternSupportsBorders,
   iconColors,
 } from '../../modules/parameters';
 import './Pattern.scss';
@@ -71,10 +74,13 @@ class Pattern extends PureComponent {
   constructor(props) {
     super(props);
     this.childThreading = React.createRef();
+    this.childThreadingLeftBorder = React.createRef();
+    this.childThreadingRightBorder = React.createRef();
     this.childWeaving = React.createRef();
 
     this.state = {
-      gotUser: false, // add to recents after user has loaded
+      gotUser: false,
+      threadingEditSection: null, // add to recents after user has loaded
       recentPatternId: null, // id that has been added to recent patterns list. This lets us check for navigation to a new pattern, e.g. because of copy
       showCopyIDSuccess: false,
       selectedPatternImage: null,
@@ -565,6 +571,58 @@ class Pattern extends PureComponent {
     );
   }
 
+  handleClickThreadingSection(section) {
+    const { threadingEditSection } = this.state;
+
+    const refs = {
+      left: this.childThreadingLeftBorder,
+      main: this.childThreading,
+      right: this.childThreadingRightBorder,
+    };
+
+    // stop the currently-editing section if it is different from the one clicked
+    if (threadingEditSection && threadingEditSection !== section) {
+      refs[threadingEditSection].current.toggleEditThreading();
+    }
+
+    // toggle the clicked section
+    refs[section].current.toggleEditThreading();
+
+    this.setState({
+      threadingEditSection: threadingEditSection === section ? null : section,
+    });
+  }
+
+  renderThreadingEditControls() {
+    const { threadingEditSection } = this.state;
+
+    return (
+      <div className='threading-section-controls'>
+        <Button
+          color='primary'
+          active={threadingEditSection === 'left'}
+          onClick={() => this.handleClickThreadingSection('left')}
+        >
+          {threadingEditSection === 'left' ? 'Done' : 'Edit left border'}
+        </Button>
+        <Button
+          color='primary'
+          active={threadingEditSection === 'main'}
+          onClick={() => this.handleClickThreadingSection('main')}
+        >
+          {threadingEditSection === 'main' ? 'Done' : 'Edit main pattern'}
+        </Button>
+        <Button
+          color='primary'
+          active={threadingEditSection === 'right'}
+          onClick={() => this.handleClickThreadingSection('right')}
+        >
+          {threadingEditSection === 'right' ? 'Done' : 'Edit right border'}
+        </Button>
+      </div>
+    );
+  }
+
   renderTagInput(canEdit) {
     const { dispatch } = this.props;
     const {
@@ -626,13 +684,27 @@ class Pattern extends PureComponent {
         weavingInstructions = (
           <>
             <h2>Weaving design</h2>
-            <WeavingDesignBrokenTwill
-              dispatch={dispatch}
-              numberOfRows={numberOfRows}
-              numberOfTablets={numberOfTablets}
-              pattern={pattern}
-              ref={this.childWeaving}
-            />
+            <div className='weaving-with-borders'>
+              <WeavingDesignBorder
+                dispatch={dispatch}
+                numberOfRows={numberOfRows}
+                pattern={pattern}
+                side='left'
+              />
+              <WeavingDesignBrokenTwill
+                dispatch={dispatch}
+                numberOfRows={numberOfRows}
+                numberOfTablets={numberOfTablets}
+                pattern={pattern}
+                ref={this.childWeaving}
+              />
+              <WeavingDesignBorder
+                dispatch={dispatch}
+                numberOfRows={numberOfRows}
+                pattern={pattern}
+                side='right'
+              />
+            </div>
           </>
         );
         break;
@@ -641,13 +713,27 @@ class Pattern extends PureComponent {
         weavingInstructions = (
           <>
             <h2>Weaving design</h2>
-            <WeavingDesignDoubleFaced
-              dispatch={dispatch}
-              numberOfRows={numberOfRows}
-              numberOfTablets={numberOfTablets}
-              pattern={pattern}
-              ref={this.childWeaving}
-            />
+            <div className='weaving-with-borders'>
+              <WeavingDesignBorder
+                dispatch={dispatch}
+                numberOfRows={numberOfRows}
+                pattern={pattern}
+                side='left'
+              />
+              <WeavingDesignDoubleFaced
+                dispatch={dispatch}
+                numberOfRows={numberOfRows}
+                numberOfTablets={numberOfTablets}
+                pattern={pattern}
+                ref={this.childWeaving}
+              />
+              <WeavingDesignBorder
+                dispatch={dispatch}
+                numberOfRows={numberOfRows}
+                pattern={pattern}
+                side='right'
+              />
+            </div>
           </>
         );
         break;
@@ -911,8 +997,21 @@ class Pattern extends PureComponent {
             <ShowVerticalGuides />
             {pattern.threading && (
               <>
+                {getPatternSupportsBorders(patternType) && canEdit &&
+                  this.renderThreadingEditControls()
+                }
+                {getPatternSupportsBorders(patternType) && (
+                  <ThreadingBorder
+                    canEdit={false}
+                    colorBooks={colorBooks}
+                    dispatch={dispatch}
+                    pattern={pattern}
+                    ref={this.childThreadingLeftBorder}
+                    side='left'
+                  />
+                )}
                 <Threading
-                  canEdit={canEdit}
+                  canEdit={getPatternSupportsBorders(patternType) ? false : canEdit}
                   colorBooks={colorBooks}
                   dispatch={dispatch}
                   holes={holes}
@@ -920,6 +1019,16 @@ class Pattern extends PureComponent {
                   pattern={pattern}
                   ref={this.childThreading}
                 />
+                {getPatternSupportsBorders(patternType) && (
+                  <ThreadingBorder
+                    canEdit={false}
+                    colorBooks={colorBooks}
+                    dispatch={dispatch}
+                    pattern={pattern}
+                    ref={this.childThreadingRightBorder}
+                    side='right'
+                  />
+                )}
                 <h2>Thread counts</h2>
                 <ThreadCounts pattern={pattern} />
               </>

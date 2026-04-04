@@ -11,10 +11,12 @@ import {
   buildOffsetThreading,
   buildTwillWeavingInstructionsForTablet,
   buildWeavingInstructionsByTablet,
+  buildBorderWeavingInstructionsByTablet,
   calculateAllPicks,
   calculatePicksForTablet,
   findPatternTwist,
   getThreadingByTablet,
+  getThreadingByTabletForBorder,
   getTotalTurnsForTablet,
   modulus,
 } from './weavingUtils';
@@ -75,6 +77,21 @@ export const UPDATE_TWILL_WEAVING_START_ROW = 'UPDATE_TWILL_WEAVING_START_ROW';
 // 'freehand' patternType
 export const UPDATE_FREEHAND_CELL_THREAD = 'UPDATE_FREEHAND_CELL_THREAD';
 export const UPDATE_FREEHAND_CELL_DIRECTION = 'UPDATE_FREEHAND_CELL_DIRECTION';
+
+// Border operations (doubleFaced and brokenTwill only)
+export const ADD_LEFT_BORDER_TABLETS = 'ADD_LEFT_BORDER_TABLETS';
+export const ADD_RIGHT_BORDER_TABLETS = 'ADD_RIGHT_BORDER_TABLETS';
+export const REMOVE_LEFT_BORDER_TABLET = 'REMOVE_LEFT_BORDER_TABLET';
+export const REMOVE_RIGHT_BORDER_TABLET = 'REMOVE_RIGHT_BORDER_TABLET';
+export const UPDATE_BORDER_WEAVING_CELL = 'UPDATE_BORDER_WEAVING_CELL';
+export const UPDATE_BORDER_WEAVING_CELL_TURNS = 'UPDATE_BORDER_WEAVING_CELL_TURNS';
+export const UPDATE_BORDER_THREADING_CELL = 'UPDATE_BORDER_THREADING_CELL';
+export const UPDATE_BORDER_ORIENTATION = 'UPDATE_BORDER_ORIENTATION';
+export const UPDATE_BORDER_INCLUDE_IN_TWIST = 'UPDATE_BORDER_INCLUDE_IN_TWIST';
+export const SET_IS_EDITING_LEFT_BORDER_WEAVING = 'SET_IS_EDITING_LEFT_BORDER_WEAVING';
+export const SET_IS_EDITING_RIGHT_BORDER_WEAVING = 'SET_IS_EDITING_RIGHT_BORDER_WEAVING';
+export const SET_IS_EDITING_LEFT_BORDER_THREADING = 'SET_IS_EDITING_LEFT_BORDER_THREADING';
+export const SET_IS_EDITING_RIGHT_BORDER_THREADING = 'SET_IS_EDITING_RIGHT_BORDER_THREADING';
 
 // more than one patternType
 export const SET_UPDATE_PREVIEW_WHILE_EDITING =
@@ -232,6 +249,8 @@ export function setPatternData({
   patternDesign,
   patternObj,
   threadingByTablet,
+  leftBorderData,
+  rightBorderData,
 }) {
   const {
     createdBy,
@@ -263,6 +282,8 @@ export function setPatternData({
       patternType,
       picks,
       threadingByTablet,
+      leftBorder: leftBorderData ?? null,
+      rightBorder: rightBorderData ?? null,
     },
   };
 }
@@ -299,12 +320,38 @@ export const savePatternData = (patternObj) => (dispatch) => {
       break;
   }
 
+  // Build border data if present
+  const buildBorderData = (border) => {
+    if (!border || !border.numberOfTablets) return null;
+    const borderWeavingInstructionsByTablet = buildBorderWeavingInstructionsByTablet({
+      border,
+      numberOfRows,
+    });
+    const borderThreadingByTablet = getThreadingByTabletForBorder(border);
+    const borderPicks = calculateAllPicks({
+      numberOfRows,
+      numberOfTablets: border.numberOfTablets,
+      weavingInstructionsByTablet: borderWeavingInstructionsByTablet,
+    });
+    return {
+      ...border,
+      threadingByTablet: borderThreadingByTablet,
+      weavingInstructionsByTablet: borderWeavingInstructionsByTablet,
+      picks: borderPicks,
+    };
+  };
+
+  const leftBorderData = buildBorderData(patternObj.leftBorder);
+  const rightBorderData = buildBorderData(patternObj.rightBorder);
+
   dispatch(
     setPatternData({
       picks,
       patternDesign,
       patternObj,
       threadingByTablet,
+      leftBorderData,
+      rightBorderData,
     }),
   );
 };
@@ -471,6 +518,31 @@ export const getPreviewShouldUpdate = (state) =>
 export const getShowTabletGuides = (state) => state.pattern.showTabletGuides;
 
 export const getShowCenterGuide = (state) => state.pattern.showCenterGuide;
+
+export const getLeftBorder = (state) => state.pattern.leftBorder;
+
+export const getRightBorder = (state) => state.pattern.rightBorder;
+
+export const getIsEditingLeftBorderWeaving = (state) =>
+  state.pattern.isEditingLeftBorderWeaving;
+
+export const getIsEditingRightBorderWeaving = (state) =>
+  state.pattern.isEditingRightBorderWeaving;
+
+export const getIsEditingLeftBorderThreading = (state) =>
+  state.pattern.isEditingLeftBorderThreading;
+
+export const getIsEditingRightBorderThreading = (state) =>
+  state.pattern.isEditingRightBorderThreading;
+
+export const getCombinedNumberOfTablets = (state) => {
+  const { leftBorder, numberOfTablets, rightBorder } = state.pattern;
+  return (
+    (leftBorder?.numberOfTablets ?? 0) +
+    (numberOfTablets || 0) +
+    (rightBorder?.numberOfTablets ?? 0)
+  );
+};
 
 export const getStateThreadingByTablet = (state) =>
   state.pattern.threadingByTablet;
@@ -1399,6 +1471,193 @@ export function editIncludeInTwist({ _id, tablet }) {
   };
 }
 
+// /////////////////////
+// Border tablet management
+
+export function addLeftBorderTablets({ _id, insertNTablets, insertTabletsAt, colorIndex }) {
+  return (dispatch) => {
+    Meteor.call(
+      'pattern.edit',
+      {
+        _id,
+        data: { type: 'addLeftBorderTablets', insertNTablets, insertTabletsAt, colorIndex },
+      },
+      (error) => {
+        if (error) {
+          return dispatch(logErrors({ 'add left border tablets': error.reason }));
+        }
+      },
+    );
+    dispatch({ type: ADD_LEFT_BORDER_TABLETS, payload: { insertNTablets, insertTabletsAt, insertTabletsAt, colorIndex } });
+  };
+}
+
+export function addRightBorderTablets({ _id, insertNTablets, insertTabletsAt, colorIndex }) {
+  return (dispatch) => {
+    Meteor.call(
+      'pattern.edit',
+      {
+        _id,
+        data: { type: 'addRightBorderTablets', insertNTablets, insertTabletsAt, colorIndex },
+      },
+      (error) => {
+        if (error) {
+          return dispatch(logErrors({ 'add right border tablets': error.reason }));
+        }
+      },
+    );
+    dispatch({ type: ADD_RIGHT_BORDER_TABLETS, payload: { insertNTablets, insertTabletsAt, colorIndex } });
+  };
+}
+
+export function removeLeftBorderTablet({ _id, tablet }) {
+  return (dispatch) => {
+    Meteor.call(
+      'pattern.edit',
+      {
+        _id,
+        data: { type: 'removeLeftBorderTablet', tablet },
+      },
+      (error) => {
+        if (error) {
+          return dispatch(logErrors({ 'remove left border tablet': error.reason }));
+        }
+      },
+    );
+    dispatch({ type: REMOVE_LEFT_BORDER_TABLET, payload: { tablet } });
+  };
+}
+
+export function removeRightBorderTablet({ _id, tablet }) {
+  return (dispatch) => {
+    Meteor.call(
+      'pattern.edit',
+      {
+        _id,
+        data: { type: 'removeRightBorderTablet', tablet },
+      },
+      (error) => {
+        if (error) {
+          return dispatch(logErrors({ 'remove right border tablet': error.reason }));
+        }
+      },
+    );
+    dispatch({ type: REMOVE_RIGHT_BORDER_TABLET, payload: { tablet } });
+  };
+}
+
+export function editBorderThreadingCell({ _id, side, holesToSet, tablet, colorIndex }) {
+  return (dispatch) => {
+    Meteor.call(
+      'pattern.edit',
+      {
+        _id,
+        data: { type: 'editBorderThreadingCell', side, holesToSet, tablet, colorIndex },
+      },
+      (error) => {
+        if (error) {
+          return dispatch(logErrors({ 'edit border threading': error.reason }));
+        }
+      },
+    );
+    dispatch({ type: UPDATE_BORDER_THREADING_CELL, payload: { side, holesToSet, tablet, colorIndex } });
+  };
+}
+
+export function editBorderOrientation({ _id, side, tablet }) {
+  return (dispatch, getState) => {
+    const border = side === 'left' ? getState().pattern.leftBorder : getState().pattern.rightBorder;
+    const tabletOrientation = border.orientations[tablet] === 'S' ? 'Z' : 'S';
+
+    Meteor.call(
+      'pattern.edit',
+      {
+        _id,
+        data: { type: 'editBorderOrientation', side, tablet, tabletOrientation },
+      },
+      (error) => {
+        if (error) {
+          return dispatch(logErrors({ 'edit border orientation': error.reason }));
+        }
+      },
+    );
+    dispatch({ type: UPDATE_BORDER_ORIENTATION, payload: { side, tablet, tabletOrientation } });
+  };
+}
+
+export function editBorderWeavingCell({ _id, side, row, tablet }) {
+  return (dispatch) => {
+    Meteor.call(
+      'pattern.edit',
+      {
+        _id,
+        data: { type: 'editBorderWeavingCell', side, row, tablet },
+      },
+      (error) => {
+        if (error) {
+          return dispatch(logErrors({ 'edit border weaving cell': error.reason }));
+        }
+      },
+    );
+    dispatch({ type: UPDATE_BORDER_WEAVING_CELL, payload: { side, row, tablet } });
+  };
+}
+
+export function editBorderWeavingCellTurns({ _id, side, row, tablet, numberOfTurns }) {
+  return (dispatch) => {
+    Meteor.call(
+      'pattern.edit',
+      {
+        _id,
+        data: { type: 'editBorderWeavingCellTurns', side, row, tablet, numberOfTurns },
+      },
+      (error) => {
+        if (error) {
+          return dispatch(logErrors({ 'edit border weaving cell turns': error.reason }));
+        }
+      },
+    );
+    dispatch({ type: UPDATE_BORDER_WEAVING_CELL_TURNS, payload: { side, row, tablet, numberOfTurns } });
+  };
+}
+
+export function editBorderIncludeInTwist({ _id, side, tablet }) {
+  return (dispatch, getState) => {
+    const border = side === 'left' ? getState().pattern.leftBorder : getState().pattern.rightBorder;
+    const tabletIncludeInTwist = !border.includeInTwist[tablet];
+
+    Meteor.call(
+      'pattern.edit',
+      {
+        _id,
+        data: { type: 'editBorderIncludeInTwist', side, tablet, tabletIncludeInTwist },
+      },
+      (error) => {
+        if (error) {
+          return dispatch(logErrors({ 'edit border include in twist': error.reason }));
+        }
+      },
+    );
+    dispatch({ type: UPDATE_BORDER_INCLUDE_IN_TWIST, payload: { side, tablet, tabletIncludeInTwist } });
+  };
+}
+
+export function setIsEditingLeftBorderWeaving(value) {
+  return { type: SET_IS_EDITING_LEFT_BORDER_WEAVING, payload: value };
+}
+
+export function setIsEditingRightBorderWeaving(value) {
+  return { type: SET_IS_EDITING_RIGHT_BORDER_WEAVING, payload: value };
+}
+
+export function setIsEditingLeftBorderThreading(value) {
+  return { type: SET_IS_EDITING_LEFT_BORDER_THREADING, payload: value };
+}
+
+export function setIsEditingRightBorderThreading(value) {
+  return { type: SET_IS_EDITING_RIGHT_BORDER_THREADING, payload: value };
+}
+
 // Show guide line for tablet
 export function updateTabletGuides(data) {
   return {
@@ -1738,6 +1997,12 @@ const initialPatternState = {
   updatePreviewWhileEditing: false,
   showTabletGuides: true,
   showCenterGuide: true,
+  leftBorder: null,
+  rightBorder: null,
+  isEditingLeftBorderWeaving: false,
+  isEditingRightBorderWeaving: false,
+  isEditingLeftBorderThreading: false,
+  isEditingRightBorderThreading: false,
 };
 
 // state updates
@@ -1781,6 +2046,8 @@ export default function pattern(state = initialPatternState, action) {
         picks,
         threadingByTablet,
         tabletGuides,
+        leftBorder,
+        rightBorder,
       } = action.payload;
 
       const update = {
@@ -1796,6 +2063,8 @@ export default function pattern(state = initialPatternState, action) {
         picks,
         threadingByTablet,
         tabletGuides,
+        leftBorder: updeep.constant(leftBorder ?? null),
+        rightBorder: updeep.constant(rightBorder ?? null),
       };
 
       update.patternDesign = updeep.constant(patternDesign); // completely replace patternDesign from any previous pattern
@@ -3071,6 +3340,278 @@ export default function pattern(state = initialPatternState, action) {
       }
 
       return updeep(update, state);
+    }
+
+    case ADD_LEFT_BORDER_TABLETS:
+    case ADD_RIGHT_BORDER_TABLETS: {
+      const { insertNTablets, insertTabletsAt, colorIndex } = action.payload;
+      const borderKey = action.type === ADD_LEFT_BORDER_TABLETS ? 'leftBorder' : 'rightBorder';
+      const { holes, numberOfRows } = state;
+      const existingBorder = state[borderKey];
+
+      // Build Individual-type weaving instructions for new tablets
+      const newWeavingInstructionsForTablet = [];
+      for (let j = 0; j < numberOfRows; j += 1) {
+        newWeavingInstructionsForTablet.push({
+          direction: DEFAULT_DIRECTION,
+          numberOfTurns: DEFAULT_NUMBER_OF_TURNS,
+        });
+      }
+      const newPicksForTablet = calculatePicksForTablet({
+        weavingInstructionsForTablet: newWeavingInstructionsForTablet,
+        row: 0,
+      });
+
+      if (!existingBorder) {
+        // Create new border from scratch
+        const threading = [];
+        for (let h = 0; h < holes; h += 1) {
+          threading.push(new Array(insertNTablets).fill(colorIndex));
+        }
+        const threadingByTablet = [];
+        const weavingInstructionsByTablet = [];
+        const picks = [];
+        const weavingInstructions = [];
+        for (let j = 0; j < numberOfRows; j += 1) {
+          const rowData = [];
+          for (let i = 0; i < insertNTablets; i += 1) {
+            rowData.push({ direction: DEFAULT_DIRECTION, numberOfTurns: DEFAULT_NUMBER_OF_TURNS });
+          }
+          weavingInstructions.push(rowData);
+        }
+        for (let i = 0; i < insertNTablets; i += 1) {
+          threadingByTablet.push(new Array(holes).fill(colorIndex));
+          weavingInstructionsByTablet.push([...newWeavingInstructionsForTablet]);
+          picks.push(newPicksForTablet);
+        }
+        const newBorder = {
+          holes,
+          numberOfTablets: insertNTablets,
+          threading,
+          threadingByTablet,
+          orientations: new Array(insertNTablets).fill(DEFAULT_ORIENTATION),
+          includeInTwist: new Array(insertNTablets).fill(true),
+          weavingInstructions,
+          weavingInstructionsByTablet,
+          picks,
+        };
+        return updeep({ [borderKey]: updeep.constant(newBorder) }, state);
+      }
+
+      // Extend existing border
+      const newNumberOfBorderTablets = existingBorder.numberOfTablets + insertNTablets;
+
+      const newThreadingByTablet = [...existingBorder.threadingByTablet];
+      const newOrientations = [...existingBorder.orientations];
+      const newIncludeInTwist = [...existingBorder.includeInTwist];
+      const newWeavingInstructionsByTablet = [...existingBorder.weavingInstructionsByTablet];
+      const newBorderPicks = [...existingBorder.picks];
+
+      for (let i = 0; i < insertNTablets; i += 1) {
+        newThreadingByTablet.splice(insertTabletsAt, 0, new Array(holes).fill(colorIndex));
+        newOrientations.splice(insertTabletsAt, 0, DEFAULT_ORIENTATION);
+        newIncludeInTwist.splice(insertTabletsAt, 0, true);
+        newWeavingInstructionsByTablet.splice(insertTabletsAt, 0, [...newWeavingInstructionsForTablet]);
+        newBorderPicks.splice(insertTabletsAt, 0, newPicksForTablet);
+      }
+
+      const newThreading = existingBorder.threading.map((holeRow) => {
+        const r = [...holeRow];
+        for (let i = 0; i < insertNTablets; i += 1) {
+          r.splice(insertTabletsAt, 0, colorIndex);
+        }
+        return r;
+      });
+      const newWeavingInstructions = existingBorder.weavingInstructions.map((rowData) => {
+        const r = [...rowData];
+        for (let i = 0; i < insertNTablets; i += 1) {
+          r.splice(insertTabletsAt, 0, { direction: DEFAULT_DIRECTION, numberOfTurns: DEFAULT_NUMBER_OF_TURNS });
+        }
+        return r;
+      });
+
+      const updatedBorder = {
+        ...existingBorder,
+        numberOfTablets: newNumberOfBorderTablets,
+        threading: newThreading,
+        threadingByTablet: newThreadingByTablet,
+        orientations: newOrientations,
+        includeInTwist: newIncludeInTwist,
+        weavingInstructions: newWeavingInstructions,
+        weavingInstructionsByTablet: newWeavingInstructionsByTablet,
+        picks: newBorderPicks,
+      };
+      return updeep({ [borderKey]: updeep.constant(updatedBorder) }, state);
+    }
+
+    case REMOVE_LEFT_BORDER_TABLET:
+    case REMOVE_RIGHT_BORDER_TABLET: {
+      const { tablet } = action.payload;
+      const borderKey = action.type === REMOVE_LEFT_BORDER_TABLET ? 'leftBorder' : 'rightBorder';
+      const existingBorder = state[borderKey];
+
+      if (!existingBorder) {
+        return state;
+      }
+
+      const newNumberOfBorderTablets = existingBorder.numberOfTablets - 1;
+
+      if (newNumberOfBorderTablets === 0) {
+        return updeep({ [borderKey]: updeep.constant(null) }, state);
+      }
+
+      const newThreadingByTablet = [...existingBorder.threadingByTablet];
+      newThreadingByTablet.splice(tablet, 1);
+
+      const newOrientations = [...existingBorder.orientations];
+      newOrientations.splice(tablet, 1);
+
+      const newIncludeInTwist = [...existingBorder.includeInTwist];
+      newIncludeInTwist.splice(tablet, 1);
+
+      const newWeavingInstructionsByTablet = [...existingBorder.weavingInstructionsByTablet];
+      newWeavingInstructionsByTablet.splice(tablet, 1);
+
+      const newBorderPicks = [...existingBorder.picks];
+      newBorderPicks.splice(tablet, 1);
+
+      const newThreading = existingBorder.threading.map((holeRow) => {
+        const r = [...holeRow];
+        r.splice(tablet, 1);
+        return r;
+      });
+      const newWeavingInstructions = existingBorder.weavingInstructions.map((rowData) => {
+        const r = [...rowData];
+        r.splice(tablet, 1);
+        return r;
+      });
+
+      const updatedBorder = {
+        ...existingBorder,
+        numberOfTablets: newNumberOfBorderTablets,
+        threading: newThreading,
+        threadingByTablet: newThreadingByTablet,
+        orientations: newOrientations,
+        includeInTwist: newIncludeInTwist,
+        weavingInstructions: newWeavingInstructions,
+        weavingInstructionsByTablet: newWeavingInstructionsByTablet,
+        picks: newBorderPicks,
+      };
+      return updeep({ [borderKey]: updeep.constant(updatedBorder) }, state);
+    }
+
+    case SET_IS_EDITING_LEFT_BORDER_WEAVING: {
+      return updeep({ isEditingLeftBorderWeaving: action.payload }, state);
+    }
+
+    case SET_IS_EDITING_RIGHT_BORDER_WEAVING: {
+      return updeep({ isEditingRightBorderWeaving: action.payload }, state);
+    }
+
+    case SET_IS_EDITING_LEFT_BORDER_THREADING: {
+      return updeep({ isEditingLeftBorderThreading: action.payload }, state);
+    }
+
+    case SET_IS_EDITING_RIGHT_BORDER_THREADING: {
+      return updeep({ isEditingRightBorderThreading: action.payload }, state);
+    }
+
+    case UPDATE_BORDER_THREADING_CELL: {
+      const { side, holesToSet, tablet, colorIndex } = action.payload;
+      const borderKey = side === 'left' ? 'leftBorder' : 'rightBorder';
+      const border = state[borderKey];
+      const newThreadingByTablet = border.threadingByTablet.map((t, i) =>
+        i === tablet
+          ? t.map((h, hi) => (holesToSet.includes(hi) ? colorIndex : h))
+          : t,
+      );
+      return updeep(
+        { [borderKey]: { threadingByTablet: updeep.constant(newThreadingByTablet) } },
+        state,
+      );
+    }
+
+    case UPDATE_BORDER_ORIENTATION: {
+      const { side, tablet, tabletOrientation } = action.payload;
+      const borderKey = side === 'left' ? 'leftBorder' : 'rightBorder';
+      return updeep(
+        { [borderKey]: { orientations: { [tablet]: tabletOrientation } } },
+        state,
+      );
+    }
+
+    case UPDATE_BORDER_INCLUDE_IN_TWIST: {
+      const { side, tablet, tabletIncludeInTwist } = action.payload;
+      const borderKey = side === 'left' ? 'leftBorder' : 'rightBorder';
+      return updeep(
+        { [borderKey]: { includeInTwist: { [tablet]: tabletIncludeInTwist } } },
+        state,
+      );
+    }
+
+    case UPDATE_BORDER_WEAVING_CELL_TURNS: {
+      const { side, row, tablet, numberOfTurns } = action.payload;
+      const borderKey = side === 'left' ? 'leftBorder' : 'rightBorder';
+      const border = state[borderKey];
+      const weavingInstructionsByTablet = border.weavingInstructionsByTablet;
+
+      const obj = { ...weavingInstructionsByTablet[tablet][row], numberOfTurns };
+
+      const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tablet]];
+      weavingInstructionsForTablet[row] = obj;
+
+      const picksForTablet = calculatePicksForTablet({
+        currentPicks: border.picks[tablet],
+        weavingInstructionsForTablet,
+        row,
+      });
+
+      return updeep(
+        {
+          [borderKey]: {
+            weavingInstructionsByTablet: { [tablet]: { [row]: obj } },
+            picks: { [tablet]: picksForTablet },
+          },
+        },
+        state,
+      );
+    }
+
+    case UPDATE_BORDER_WEAVING_CELL: {
+      const { side, row, tablet } = action.payload;
+      const borderKey = side === 'left' ? 'leftBorder' : 'rightBorder';
+      const border = state[borderKey];
+      const { numberOfRows } = state;
+      const weavingInstructionsByTablet = border.weavingInstructionsByTablet;
+
+      const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tablet]];
+
+      for (let i = row; i < numberOfRows; i += 1) {
+        const obj = { ...weavingInstructionsForTablet[i] };
+        obj.direction = weavingInstructionsForTablet[i].direction === 'F' ? 'B' : 'F';
+        weavingInstructionsForTablet[i] = obj;
+      }
+
+      const picksForTablet = calculatePicksForTablet({
+        currentPicks: border.picks[tablet],
+        weavingInstructionsForTablet,
+        row,
+      });
+
+      const newWeavingInstructionsForTablet = {};
+      for (let i = row; i < numberOfRows; i += 1) {
+        newWeavingInstructionsForTablet[i] = weavingInstructionsForTablet[i];
+      }
+
+      return updeep(
+        {
+          [borderKey]: {
+            weavingInstructionsByTablet: { [tablet]: newWeavingInstructionsForTablet },
+            picks: { [tablet]: picksForTablet },
+          },
+        },
+        state,
+      );
     }
 
     case SET_FILTER_IS_TWIST_NEUTRAL: {

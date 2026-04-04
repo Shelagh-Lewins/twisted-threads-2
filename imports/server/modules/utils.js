@@ -97,6 +97,12 @@ export const asyncForEach = async (myArray, myFunction) => {
   }
 };
 
+// Return the total number of tablets across the main pattern and any borders
+export const getTotalPatternTablets = (pattern) =>
+  (pattern.leftBorder?.numberOfTablets ?? 0) +
+  pattern.numberOfTablets +
+  (pattern.rightBorder?.numberOfTablets ?? 0);
+
 // check whether the current logged in user can create a pattern
 // this may be a new pattern, or a copy
 export const checkUserCanCreatePattern = async (userId) => {
