@@ -108,10 +108,12 @@ const patternFields = {
   ...{
     holeHandedness: 1,
     includeInTwist: 1,
+    leftBorder: 1,
     orientations: 1,
     palette: 1,
     patternDesign: 1,
     previewOrientation: 1,
+    rightBorder: 1,
     tabletGuides: 1,
     threading: 1,
     threadingNotes: 1,

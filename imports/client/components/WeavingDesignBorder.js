@@ -14,9 +14,8 @@ import {
 	setIsEditingLeftBorderWeaving,
 	setIsEditingRightBorderWeaving,
 } from '../modules/pattern';
-import { modulus } from '../modules/weavingUtils';
 import calculateScrolling from '../modules/calculateScrolling';
-import ChartSVG from './ChartSVG';
+import { WeavingChartCellBase } from './WeavingChartCell';
 import EditWeavingCellForm from '../forms/EditWeavingCellForm';
 import './Threading.scss';
 import './WeavingDesignIndividual.scss';
@@ -145,14 +144,8 @@ class WeavingDesignBorder extends PureComponent {
 
 		const pick = border.picks[tabletIndex][rowIndex];
 		const { direction, numberOfTurns, totalTurns } = pick;
-		const netTurns = modulus(totalTurns, holes);
 		const orientation = border.orientations[tabletIndex];
 		const threadingForTablet = border.threadingByTablet[tabletIndex];
-
-		let directionClass = '';
-		if (numberOfTurns !== 0) {
-			directionClass = direction === 'F' ? 'forward' : 'backward';
-		}
 
 		return (
 			<li
@@ -160,22 +153,21 @@ class WeavingDesignBorder extends PureComponent {
 				key={`border-weaving-cell-${rowIndex}-${tabletIndex}`}
 			>
 				<span
-					className={directionClass}
 					type={isEditing ? 'button' : undefined}
 					onClick={isEditing ? () => this.handleClickWeavingCell(rowIndex, tabletIndex) : undefined}
 					onKeyPress={isEditing ? () => this.handleClickWeavingCell(rowIndex, tabletIndex) : undefined}
 					role={isEditing ? 'button' : undefined}
 					tabIndex={isEditing ? '0' : undefined}
 				>
-					<ChartSVG
+					<WeavingChartCellBase
 						direction={direction}
 						holes={holes}
-						netTurns={netTurns}
 						numberOfTurns={numberOfTurns}
 						orientation={orientation}
 						palette={palette}
 						tabletIndex={tabletIndex}
 						threadingForTablet={threadingForTablet}
+						totalTurns={totalTurns}
 					/>
 				</span>
 			</li>
@@ -233,10 +225,10 @@ class WeavingDesignBorder extends PureComponent {
 
 		return (
 			<>
+				{this.renderTabletLabels()}
 				<ul className="weaving-chart">
 					{rows}
 				</ul>
-				{this.renderTabletLabels()}
 			</>
 		);
 	}

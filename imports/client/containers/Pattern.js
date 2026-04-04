@@ -1000,33 +1000,43 @@ class Pattern extends PureComponent {
                 {getPatternSupportsBorders(patternType) && canEdit &&
                   this.renderThreadingEditControls()
                 }
-                {getPatternSupportsBorders(patternType) && (
-                  <ThreadingBorder
-                    canEdit={false}
+                {getPatternSupportsBorders(patternType) ? (
+                  <div className='threading-with-borders'>
+                    <ThreadingBorder
+                      canEdit={false}
+                      colorBooks={colorBooks}
+                      dispatch={dispatch}
+                      pattern={pattern}
+                      ref={this.childThreadingLeftBorder}
+                      side='left'
+                    />
+                    <Threading
+                      canEdit={false}
+                      colorBooks={colorBooks}
+                      dispatch={dispatch}
+                      holes={holes}
+                      numberOfTablets={numberOfTablets}
+                      pattern={pattern}
+                      ref={this.childThreading}
+                    />
+                    <ThreadingBorder
+                      canEdit={false}
+                      colorBooks={colorBooks}
+                      dispatch={dispatch}
+                      pattern={pattern}
+                      ref={this.childThreadingRightBorder}
+                      side='right'
+                    />
+                  </div>
+                ) : (
+                  <Threading
+                    canEdit={canEdit}
                     colorBooks={colorBooks}
                     dispatch={dispatch}
+                    holes={holes}
+                    numberOfTablets={numberOfTablets}
                     pattern={pattern}
-                    ref={this.childThreadingLeftBorder}
-                    side='left'
-                  />
-                )}
-                <Threading
-                  canEdit={getPatternSupportsBorders(patternType) ? false : canEdit}
-                  colorBooks={colorBooks}
-                  dispatch={dispatch}
-                  holes={holes}
-                  numberOfTablets={numberOfTablets}
-                  pattern={pattern}
-                  ref={this.childThreading}
-                />
-                {getPatternSupportsBorders(patternType) && (
-                  <ThreadingBorder
-                    canEdit={false}
-                    colorBooks={colorBooks}
-                    dispatch={dispatch}
-                    pattern={pattern}
-                    ref={this.childThreadingRightBorder}
-                    side='right'
+                    ref={this.childThreading}
                   />
                 )}
                 <h2>Thread counts</h2>

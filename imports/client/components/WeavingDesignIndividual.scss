@@ -1,5 +1,15 @@
 @import "../constants/variables";
 
+.weaving-with-borders {
+  display: flex;
+  align-items: flex-start;
+
+  .weaving {
+    float: none;
+    padding-right: 0;
+  }
+}
+
 .weaving {
 	clear: both;
 	float: left;

@@ -14,7 +14,7 @@ import {
 	modulus,
 } from '../modules/weavingUtils';
 
-function WeavingChartCell(props) {
+export function WeavingChartCellBase(props) {
 	const {
 		direction,
 		holes,
@@ -56,13 +56,12 @@ function WeavingChartCell(props) {
 	);
 }
 
-WeavingChartCell.propTypes = {
+WeavingChartCellBase.propTypes = {
 	'direction': PropTypes.string.isRequired,
 	'holes': PropTypes.number.isRequired,
 	'numberOfTurns': PropTypes.number.isRequired,
 	'orientation': PropTypes.string.isRequired,
 	'palette': PropTypes.arrayOf(PropTypes.any).isRequired,
-	'rowIndex': PropTypes.number.isRequired, // eslint-disable-line react/no-unused-prop-types
 	'tabletIndex': PropTypes.number.isRequired,
 	'threadingForTablet': PropTypes.arrayOf(PropTypes.any).isRequired,
 	'totalTurns': PropTypes.number.isRequired,
@@ -84,4 +83,4 @@ function mapStateToProps(state, ownProps) {
 	};
 }
 
-export default connect(mapStateToProps)(WeavingChartCell);
+export default connect(mapStateToProps)(WeavingChartCellBase);

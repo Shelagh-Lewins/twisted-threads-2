@@ -15,6 +15,15 @@
   }
 }
 
+.threading-with-borders {
+  display: flex;
+  align-items: flex-start;
+
+  .threading {
+    padding-right: 0;
+  }
+}
+
 .threading {
   clear: both;
   float: left;

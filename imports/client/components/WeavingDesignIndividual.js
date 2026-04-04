@@ -278,10 +278,10 @@ class WeavingDesignIndividual extends PureComponent {
 
 		return (
 			<>
+				{this.renderTabletLabels()}
 				<ul className="weaving-chart">
 					{rows}
 				</ul>
-				{this.renderTabletLabels()}
 			</>
 		);
 	}
