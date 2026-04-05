@@ -9,12 +9,8 @@ import {
   editThreadingCell,
   removeTablet,
   setIsEditingThreading,
-  setIsEditingLeftBorderThreading,
-  setIsEditingRightBorderThreading,
-  setIsEditingWeaving,
-  setIsEditingLeftBorderWeaving,
-  setIsEditingRightBorderWeaving,
 } from '../modules/pattern';
+import { clearAllEditModes } from '../modules/editingUtils';
 import ThreadingChartCell from './ThreadingChartCell';
 import IncludeInTwistCell, {
   IncludeInTwistButtons,
@@ -22,7 +18,11 @@ import IncludeInTwistCell, {
 import OrientationCell from './OrientationCell';
 import AddTabletsForm from '../forms/AddTabletsForm';
 import './Threading.scss';
-import { DEFAULT_PALETTE_COLOR, HOLE_LABELS } from '../../modules/parameters';
+import {
+  DEFAULT_PALETTE_COLOR,
+  HOLE_LABELS,
+  MAX_TABLETS,
+} from '../../modules/parameters';
 import Palette from './Palette';
 import VerticalGuides from './VerticalGuides';
 
@@ -233,11 +233,7 @@ class Threading extends PureComponent {
     if (!isEditing) {
       document.addEventListener('scroll', this.trackScrolling);
       window.addEventListener('resize', this.trackScrolling);
-      dispatch(setIsEditingWeaving(false));
-      dispatch(setIsEditingLeftBorderWeaving(false));
-      dispatch(setIsEditingRightBorderWeaving(false));
-      dispatch(setIsEditingLeftBorderThreading(false));
-      dispatch(setIsEditingRightBorderThreading(false));
+      clearAllEditModes(dispatch);
     } else {
       document.removeEventListener('scroll', this.trackScrolling);
       window.removeEventListener('resize', this.trackScrolling);
@@ -478,8 +474,8 @@ class Threading extends PureComponent {
     return (
       <AddTabletsForm
         handleSubmit={this.handleSubmitAddTablets}
+        maxTablets={MAX_TABLETS}
         numberOfTablets={numberOfTablets}
-        enableReinitialize={true}
       />
     );
   }

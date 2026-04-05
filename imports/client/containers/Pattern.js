@@ -31,10 +31,9 @@ import {
   getPatternTwistSelector,
   getTotalTurnsByTabletSelector,
   savePatternData,
-  setIsEditingThreading,
-  setIsEditingWeaving,
   setUpdatePreviewWhileEditing,
 } from '../modules/pattern';
+import { clearAllEditModes } from '../modules/editingUtils';
 import {
   editPatternImageCaption,
   removePatternImage,
@@ -119,8 +118,7 @@ class Pattern extends PureComponent {
 
     document.body.classList.add(bodyClass);
     dispatch(setUpdatePreviewWhileEditing(true));
-    dispatch(setIsEditingThreading(false));
-    dispatch(setIsEditingWeaving(false));
+    clearAllEditModes(dispatch);
   }
 
   componentDidUpdate(prevProps) {

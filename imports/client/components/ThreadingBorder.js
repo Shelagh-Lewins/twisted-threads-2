@@ -8,7 +8,7 @@ import {
   IncludeInTwistButtons,
 } from './IncludeInTwistCell';
 import Palette from './Palette';
-import AddBorderTabletsForm from '../forms/AddBorderTabletsForm';
+import AddTabletsForm from '../forms/AddTabletsForm';
 import {
   addLeftBorderTablets,
   addRightBorderTablets,
@@ -25,17 +25,19 @@ import {
   removeRightBorderTablet,
   setIsEditingLeftBorderThreading,
   setIsEditingRightBorderThreading,
-  setIsEditingThreading,
-  setIsEditingWeaving,
-  setIsEditingLeftBorderWeaving,
-  setIsEditingRightBorderWeaving,
 } from '../modules/pattern';
+import { clearAllEditModes } from '../modules/editingUtils';
 import { DEFAULT_PALETTE_COLOR, HOLE_LABELS } from '../../modules/parameters';
 import './Threading.scss';
 
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable jsx-a11y/no-noninteractive-tabindex */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
+
+const BORDER_BUTTON_LABELS = {
+  left: { add: 'Add left border', edit: 'Edit left border' },
+  right: { add: 'Add right border', edit: 'Edit right border' },
+};
 
 class ThreadingBorder extends PureComponent {
   constructor(props) {
@@ -84,25 +86,16 @@ class ThreadingBorder extends PureComponent {
     const newIsEditing = !isEditing;
     this.setState({ isEditing: newIsEditing });
 
-    if (side === 'left') {
-      if (newIsEditing) {
-        dispatch(setIsEditingWeaving(false));
-        dispatch(setIsEditingLeftBorderWeaving(false));
-        dispatch(setIsEditingRightBorderWeaving(false));
-        dispatch(setIsEditingThreading(false));
-        dispatch(setIsEditingRightBorderThreading(false));
-      }
-      dispatch(setIsEditingLeftBorderThreading(newIsEditing));
-    } else {
-      if (newIsEditing) {
-        dispatch(setIsEditingWeaving(false));
-        dispatch(setIsEditingLeftBorderWeaving(false));
-        dispatch(setIsEditingRightBorderWeaving(false));
-        dispatch(setIsEditingThreading(false));
-        dispatch(setIsEditingLeftBorderThreading(false));
-      }
-      dispatch(setIsEditingRightBorderThreading(newIsEditing));
+    if (newIsEditing) {
+      // Clear all other edit modes before activating this one
+      clearAllEditModes(dispatch);
     }
+
+    const setAction =
+      side === 'left'
+        ? setIsEditingLeftBorderThreading
+        : setIsEditingRightBorderThreading;
+    dispatch(setAction(newIsEditing));
   }
 
   handleClickThreadingCell(rowIndex, tabletIndex) {
@@ -200,9 +193,10 @@ class ThreadingBorder extends PureComponent {
   }
 
   renderControls() {
-    const { side } = this.props;
+    const { border, side } = this.props;
     const { isEditing } = this.state;
-    const label = side === 'left' ? 'Edit left border' : 'Edit right border';
+    const hasBorder = !!border?.numberOfTablets;
+    const label = BORDER_BUTTON_LABELS[side][hasBorder ? 'edit' : 'add'];
 
     return (
       <div className='controls'>
@@ -447,22 +441,30 @@ class ThreadingBorder extends PureComponent {
   render() {
     const { border, canEdit, side } = this.props;
     const { isEditing } = this.state;
+    const hasBorder = border?.numberOfTablets > 0;
 
-    if (!border || !border.numberOfTablets) {
-      if (!isEditing) return null;
-      // editing is active but no tablets yet — show the add-tablets form
-      const sideLabel = side === 'left' ? 'Left border' : 'Right border';
-      return (
-        <div className='threading border-threading border-threading-empty editing'>
-          <p className='hint'>{`${sideLabel}: add tablets below to create a border.`}</p>
-          <AddBorderTabletsForm
-            handleSubmit={this.handleSubmitAddTablets}
-            numberOfTablets={0}
-          />
-          {this.renderPalette()}
-        </div>
-      );
-    }
+    // if (!border || !border.numberOfTablets) {
+    //   // Always show the edit button so the user can add the first border tablets.
+    //   // When editing with no tablets yet, also show the add-tablets form.
+    //   const sideLabel = side === 'left' ? 'Left border' : 'Right border';
+    //   return (
+    //     <div
+    //       className={`threading border-threading border-threading-empty ${isEditing ? 'editing' : ''}`}
+    //     >
+    //       {canEdit && this.renderControls()}
+    //       {isEditing && (
+    //         <>
+    //           <p className='hint'>{`${sideLabel}: add tablets below to create a border.`}</p>
+    //           <AddTabletsForm
+    //             handleSubmit={this.handleSubmitAddTablets}
+    //             numberOfTablets={0}
+    //           />
+    //           {this.renderPalette()}
+    //         </>
+    //       )}
+    //     </div>
+    //   );
+    // }
 
     return (
       <div
@@ -470,14 +472,23 @@ class ThreadingBorder extends PureComponent {
       >
         {canEdit && this.renderControls()}
         <div className='content'>
-          {this.renderChart()}
-          {isEditing && this.renderRemoveTabletButtons()}
-          {this.renderOrientations()}
+          {hasBorder && (
+            <>
+              {this.renderChart()}
+              {isEditing && this.renderRemoveTabletButtons()}
+              {this.renderOrientations()}
+            </>
+          )}
+          {!hasBorder && isEditing && (
+            <div className='hint'>
+              <p className='hint'>{'Add tablets to create a border.'}</p>
+            </div>
+          )}
           {isEditing && (
             <div>
-              <AddBorderTabletsForm
+              <AddTabletsForm
                 handleSubmit={this.handleSubmitAddTablets}
-                numberOfTablets={border.numberOfTablets}
+                numberOfTablets={border?.numberOfTablets || 0}
               />
               {this.renderPalette()}
             </div>

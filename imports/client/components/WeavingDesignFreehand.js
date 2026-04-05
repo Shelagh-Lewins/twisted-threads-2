@@ -174,6 +174,7 @@ class WeavingDesignFreehand extends PureComponent {
 			document.addEventListener('scroll', this.trackScrolling);
 			window.addEventListener('resize', this.trackScrolling);
 			setTimeout(() => this.trackScrolling(), 100); // give the controls time to render
+			clearAllEditModes(dispatch);
 		} else {
 			document.removeEventListener('scroll', this.trackScrolling);
 			window.removeEventListener('resize', this.trackScrolling);

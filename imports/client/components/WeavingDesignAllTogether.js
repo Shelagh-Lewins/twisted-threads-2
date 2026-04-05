@@ -8,8 +8,7 @@ import {
 	removeWeavingRows,
 	setIsEditingWeaving,
 } from '../modules/pattern';
-import AllTogetherRowsForm from '../forms/AllTogetherRowsForm';
-
+import { clearAllEditModes } from '../modules/editingUtils';
 import './WeavingDesignAllTogether.scss';
 
 class WeavingDesignAllTogether extends PureComponent {
@@ -44,6 +43,9 @@ class WeavingDesignAllTogether extends PureComponent {
 			'isEditing': !isEditing,
 		});
 
+		if (!isEditing) {
+			clearAllEditModes(dispatch);
+		}
 		dispatch(setIsEditingWeaving(!isEditing));
 	}
 

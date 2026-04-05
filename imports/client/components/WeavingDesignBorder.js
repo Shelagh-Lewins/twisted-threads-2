@@ -13,11 +13,8 @@ import {
   getRightBorder,
   setIsEditingLeftBorderWeaving,
   setIsEditingRightBorderWeaving,
-  setIsEditingWeaving,
-  setIsEditingThreading,
-  setIsEditingLeftBorderThreading,
-  setIsEditingRightBorderThreading,
 } from '../modules/pattern';
+import { clearAllEditModes } from '../modules/editingUtils';
 import calculateScrolling from '../modules/calculateScrolling';
 import { WeavingChartCellBase } from './WeavingChartCell';
 import EditWeavingCellForm from '../forms/EditWeavingCellForm';
@@ -118,15 +115,7 @@ class WeavingDesignBorder extends PureComponent {
       document.addEventListener('scroll', this.trackScrolling);
       window.addEventListener('resize', this.trackScrolling);
       setTimeout(() => this.trackScrolling(), 100);
-      dispatch(setIsEditingThreading(false));
-      dispatch(setIsEditingLeftBorderThreading(false));
-      dispatch(setIsEditingRightBorderThreading(false));
-      dispatch(setIsEditingWeaving(false));
-      if (side === 'left') {
-        dispatch(setIsEditingRightBorderWeaving(false));
-      } else {
-        dispatch(setIsEditingLeftBorderWeaving(false));
-      }
+      clearAllEditModes(dispatch);
     } else {
       document.removeEventListener('scroll', this.trackScrolling);
       window.removeEventListener('resize', this.trackScrolling);
@@ -146,8 +135,9 @@ class WeavingDesignBorder extends PureComponent {
   }
 
   renderControls() {
-    const { isEditing, side } = this.props;
+    const { border, isEditing, side } = this.props;
     const label = side === 'left' ? 'Edit left border' : 'Edit right border';
+    const hasBorder = !!(border && border.numberOfTablets);
 
     return (
       <div className='controls'>
@@ -156,7 +146,16 @@ class WeavingDesignBorder extends PureComponent {
             Done
           </Button>
         ) : (
-          <Button color='primary' onClick={this.toggleEditWeaving}>
+          <Button
+            color='primary'
+            disabled={!hasBorder}
+            onClick={this.toggleEditWeaving}
+            title={
+              !hasBorder
+                ? 'Add border tablets in the threading chart first'
+                : undefined
+            }
+          >
             {label}
           </Button>
         )}
@@ -319,21 +318,20 @@ class WeavingDesignBorder extends PureComponent {
   render() {
     const { border, isEditing, pattern, side } = this.props;
     const canEdit = pattern.createdBy === Meteor.userId();
-
-    if (!border || !border.numberOfTablets) {
-      return null;
-    }
+    const hasBorder = !!(border && border.numberOfTablets);
 
     return (
       <div
         className={`weaving border-weaving border-weaving-${side} ${isEditing ? 'editing' : ''}`}
       >
         {canEdit && this.renderControls()}
-        <div className='content' ref={this.weavingRef}>
-          {this.renderChart()}
-          {isEditing && this.renderToolbar()}
-          <div className='clearing' />
-        </div>
+        {hasBorder && (
+          <div className='content' ref={this.weavingRef}>
+            {this.renderChart()}
+            {isEditing && this.renderToolbar()}
+            <div className='clearing' />
+          </div>
+        )}
       </div>
     );
   }

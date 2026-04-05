@@ -8,6 +8,7 @@ import {
   removeWeavingRows,
   setIsEditingWeaving,
 } from '../modules/pattern';
+import { clearAllEditModes } from '../modules/editingUtils';
 import calculateScrolling from '../modules/calculateScrolling';
 import WeavingChartCell from './WeavingChartCell';
 import AddRowsForm from '../forms/AddRowsForm';
@@ -169,6 +170,7 @@ class WeavingDesignIndividual extends PureComponent {
       document.addEventListener('scroll', this.trackScrolling);
       window.addEventListener('resize', this.trackScrolling);
       setTimeout(() => this.trackScrolling(), 100); // give the controls time to render
+      clearAllEditModes(dispatch);
     } else {
       document.removeEventListener('scroll', this.trackScrolling);
       window.removeEventListener('resize', this.trackScrolling);

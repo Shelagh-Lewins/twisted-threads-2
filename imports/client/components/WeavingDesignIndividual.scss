@@ -8,6 +8,10 @@
   .weaving {
     float: none;
   }
+
+  .border-weaving {
+    min-width: 170px; // leave room for edit button
+  }
 }
 
 .weaving {
@@ -18,7 +22,6 @@
     .content {
       background: $color-chart-editing-background;
       border: 1px solid $color-focus;
-      min-width: 500px; // leave room for edit controls
     }
   }
 
