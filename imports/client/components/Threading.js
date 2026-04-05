@@ -537,7 +537,7 @@ class Threading extends PureComponent {
           {showChart && this.renderOrientations()}
           {side && !hasBorder && isEditing && (
             <div className='hint'>
-              <p className='hint'>{'Add tablets to create a border.'}</p>
+              <p>{'Add tablets to create a border.'}</p>
             </div>
           )}
           <div

@@ -47,7 +47,6 @@ import WeavingDesignAllTogether from '../components/WeavingDesignAllTogether';
 import WeavingDesignBrokenTwill from '../components/WeavingDesignBrokenTwill';
 import WeavingDesignDoubleFaced from '../components/WeavingDesignDoubleFaced';
 import WeavingDesignFreehand from '../components/WeavingDesignFreehand';
-import WeavingDesignBorder from '../components/WeavingDesignBorder';
 import Weft from '../components/Weft';
 import PatternPreview from '../components/PatternPreview';
 import Threading from '../components/Threading';
@@ -650,7 +649,7 @@ class Pattern extends PureComponent {
           <>
             <h2>Weaving design</h2>
             <div className='weaving-with-borders'>
-              <WeavingDesignBorder
+              <WeavingDesignIndividual
                 dispatch={dispatch}
                 numberOfRows={numberOfRows}
                 pattern={pattern}
@@ -665,7 +664,7 @@ class Pattern extends PureComponent {
                 ref={this.childWeaving}
                 tabletOffset={leftBorderNumberOfTablets}
               />
-              <WeavingDesignBorder
+              <WeavingDesignIndividual
                 dispatch={dispatch}
                 numberOfRows={numberOfRows}
                 pattern={pattern}
@@ -682,7 +681,7 @@ class Pattern extends PureComponent {
           <>
             <h2>Weaving design</h2>
             <div className='weaving-with-borders'>
-              <WeavingDesignBorder
+              <WeavingDesignIndividual
                 dispatch={dispatch}
                 numberOfRows={numberOfRows}
                 pattern={pattern}
@@ -697,7 +696,7 @@ class Pattern extends PureComponent {
                 ref={this.childWeaving}
                 tabletOffset={leftBorderNumberOfTablets}
               />
-              <WeavingDesignBorder
+              <WeavingDesignIndividual
                 dispatch={dispatch}
                 numberOfRows={numberOfRows}
                 pattern={pattern}

@@ -1,11 +1,18 @@
 import React, { PureComponent } from 'react';
 import { Button, ButtonGroup, ButtonToolbar } from 'reactstrap';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import {
   addWeavingRows,
+  editBorderWeavingCell,
+  editBorderWeavingCellTurns,
   editWeavingCellDirection,
   editWeavingCellNumberOfTurns,
+  getLeftBorder,
+  getRightBorder,
   removeWeavingRows,
+  setIsEditingLeftBorderWeaving,
+  setIsEditingRightBorderWeaving,
   setIsEditingWeaving,
 } from '../modules/pattern';
 import { clearAllEditModes } from '../modules/editingUtils';
@@ -76,34 +83,19 @@ class WeavingDesignIndividual extends PureComponent {
   };
 
   handleClickWeavingCell(rowIndex, tabletIndex) {
-    const {
-      dispatch,
-      pattern: { _id },
-    } = this.props;
+    const { onEditWeavingCell } = this.props;
     const { isEditing, editMode, numberOfTurns } = this.state;
 
     if (!isEditing) {
       return;
     }
 
-    if (editMode === 'direction') {
-      dispatch(
-        editWeavingCellDirection({
-          _id,
-          row: rowIndex,
-          tablet: tabletIndex,
-        }),
-      );
-    } else if (editMode === 'numberOfTurns') {
-      dispatch(
-        editWeavingCellNumberOfTurns({
-          _id,
-          row: rowIndex,
-          tablet: tabletIndex,
-          numberOfTurns: parseInt(numberOfTurns, 10),
-        }),
-      );
-    }
+    onEditWeavingCell({
+      row: rowIndex,
+      tablet: tabletIndex,
+      editMode,
+      numberOfTurns: parseInt(numberOfTurns, 10),
+    });
   }
 
   handleClickRemoveRow(rowIndex) {
@@ -163,7 +155,7 @@ class WeavingDesignIndividual extends PureComponent {
   }
 
   toggleEditWeaving() {
-    const { dispatch } = this.props;
+    const { dispatch, onToggleEdit } = this.props;
     const { isEditing } = this.state;
 
     if (!isEditing) {
@@ -183,10 +175,11 @@ class WeavingDesignIndividual extends PureComponent {
       numberOfTurns: 1,
     });
 
-    dispatch(setIsEditingWeaving(!isEditing));
+    onToggleEdit(!isEditing);
   }
 
   renderControls() {
+    const { controlsLabel, hasBorder } = this.props;
     const { isEditing } = this.state;
 
     return (
@@ -196,8 +189,17 @@ class WeavingDesignIndividual extends PureComponent {
             Done
           </Button>
         ) : (
-          <Button color='primary' onClick={this.toggleEditWeaving}>
-            Edit weaving design
+          <Button
+            color='primary'
+            disabled={!hasBorder}
+            onClick={this.toggleEditWeaving}
+            title={
+              !hasBorder
+                ? 'Add border tablets in the threading chart first'
+                : undefined
+            }
+          >
+            {controlsLabel}
           </Button>
         )}
       </div>
@@ -205,6 +207,7 @@ class WeavingDesignIndividual extends PureComponent {
   }
 
   renderCell(rowIndex, tabletIndex) {
+    const { side, tabletOffset } = this.props;
     const { isEditing } = this.state;
 
     return (
@@ -227,14 +230,18 @@ class WeavingDesignIndividual extends PureComponent {
           role={isEditing ? 'button' : undefined}
           tabIndex={isEditing ? '0' : undefined}
         >
-          <WeavingChartCell rowIndex={rowIndex} tabletIndex={tabletIndex} />
+          <WeavingChartCell
+            combined={!!side}
+            rowIndex={rowIndex}
+            tabletIndex={side ? (tabletOffset || 0) + tabletIndex : tabletIndex}
+          />
         </span>
       </li>
     );
   }
 
   renderRow(rowIndex) {
-    const { numberOfRows, numberOfTablets } = this.props;
+    const { canAddRemoveRows, numberOfRows, numberOfTablets } = this.props;
     const { isEditing } = this.state;
     const rowLabel = numberOfRows - rowIndex;
 
@@ -250,7 +257,7 @@ class WeavingDesignIndividual extends PureComponent {
             <span>{rowLabel}</span>
           </li>
           {cells}
-          {isEditing && numberOfRows > 1 && (
+          {canAddRemoveRows && isEditing && numberOfRows > 1 && (
             <li className='cell delete'>
               <span
                 title={`delete row ${rowLabel}`}
@@ -270,13 +277,13 @@ class WeavingDesignIndividual extends PureComponent {
   }
 
   renderTabletLabels() {
-    const { numberOfTablets } = this.props;
+    const { numberOfTablets, tabletOffset } = this.props;
 
     const labels = [];
     for (let i = 0; i < numberOfTablets; i += 1) {
       labels.push(
         <li className='cell label' key={`tablet-label-${i}`}>
-          <span>{i + 1}</span>
+          <span>{(tabletOffset || 0) + i + 1}</span>
         </li>,
       );
     }
@@ -318,33 +325,28 @@ class WeavingDesignIndividual extends PureComponent {
     ];
 
     return (
-      <>
-        <ButtonToolbar>
-          <ButtonGroup className='edit-mode segmented'>
-            {options.map((option) => (
-              <Button
-                className={editMode === option.value ? 'selected' : ''}
-                color='secondary'
-                key={option.value}
-                onClick={this.handleClickEditMode}
-                value={option.value}
-              >
-                {option.name}
-              </Button>
-            ))}
-          </ButtonGroup>
-        </ButtonToolbar>
-      </>
+      <ButtonToolbar>
+        <ButtonGroup className='edit-mode segmented'>
+          {options.map((option) => (
+            <Button
+              className={editMode === option.value ? 'selected' : ''}
+              color='secondary'
+              key={option.value}
+              onClick={this.handleClickEditMode}
+              value={option.value}
+            >
+              {option.name}
+            </Button>
+          ))}
+        </ButtonGroup>
+      </ButtonToolbar>
     );
   }
 
   renderToolbar() {
-    const { numberOfRows } = this.props;
+    const { canAddRemoveRows, numberOfRows } = this.props;
     const { controlsOffsetX, controlsOffsetY, editMode, numberOfTurns } =
       this.state;
-
-    let rowIndex;
-    let tabletIndex;
 
     return (
       <div
@@ -361,43 +363,135 @@ class WeavingDesignIndividual extends PureComponent {
           canEdit={editMode === 'numberOfTurns'}
           handleSubmit={this.handleSubmitEditWeavingCellForm}
           numberOfTurns={numberOfTurns}
-          rowIndex={rowIndex}
-          tabletIndex={tabletIndex}
         />
-        <AddRowsForm
-          enableReinitialize={true}
-          handleSubmit={this.handleSubmitAddRows}
-          numberOfRows={numberOfRows}
-        />
+        {canAddRemoveRows && (
+          <AddRowsForm
+            enableReinitialize={true}
+            handleSubmit={this.handleSubmitAddRows}
+            numberOfRows={numberOfRows}
+          />
+        )}
       </div>
     );
   }
 
   render() {
     const {
+      cssClass,
+      hasBorder,
       pattern: { createdBy },
+      side,
     } = this.props;
     const { isEditing } = this.state;
     const canEdit = createdBy === Meteor.userId();
+    const showChart = !side || hasBorder;
 
     return (
-      <div className={`weaving ${isEditing ? 'editing' : ''}`}>
+      <div className={`${cssClass}${isEditing ? ' editing' : ''}`}>
         {canEdit && this.renderControls()}
-        <div className='content' ref={this.weavingRef}>
-          {this.renderChart()}
-          {isEditing && this.renderToolbar()}
-          <div className='clearing' />
-        </div>
+        {showChart && (
+          <div className='content' ref={this.weavingRef}>
+            {this.renderChart()}
+            {isEditing && this.renderToolbar()}
+            <div className='clearing' />
+          </div>
+        )}
       </div>
     );
   }
 }
 
 WeavingDesignIndividual.propTypes = {
+  canAddRemoveRows: PropTypes.bool.isRequired,
+  controlsLabel: PropTypes.string.isRequired,
+  cssClass: PropTypes.string.isRequired,
   dispatch: PropTypes.func.isRequired,
+  hasBorder: PropTypes.bool.isRequired,
   numberOfRows: PropTypes.number.isRequired,
   numberOfTablets: PropTypes.number.isRequired,
+  onEditWeavingCell: PropTypes.func.isRequired,
+  onToggleEdit: PropTypes.func.isRequired,
   pattern: PropTypes.objectOf(PropTypes.any).isRequired,
+  side: PropTypes.oneOf(['left', 'right']),
+  tabletOffset: PropTypes.number,
 };
 
-export default WeavingDesignIndividual;
+function mapStateToProps(state, ownProps) {
+  const { side } = ownProps;
+
+  if (side) {
+    const border =
+      side === 'left' ? getLeftBorder(state) : getRightBorder(state);
+    return {
+      hasBorder: !!border?.numberOfTablets,
+      numberOfTablets: border?.numberOfTablets || 0,
+    };
+  }
+
+  return {};
+}
+
+function mergeProps(stateProps, { dispatch }, ownProps) {
+  const {
+    side,
+    pattern: { _id },
+    numberOfTablets: ownNumberOfTablets,
+  } = ownProps;
+
+  if (side) {
+    return {
+      ...ownProps,
+      ...stateProps,
+      dispatch,
+      canAddRemoveRows: false,
+      controlsLabel: `Edit ${side} border`,
+      cssClass: `weaving border-weaving border-weaving-${side}`,
+      onEditWeavingCell: ({ row, tablet, editMode, numberOfTurns }) => {
+        if (editMode === 'direction') {
+          dispatch(editBorderWeavingCell({ _id, side, row, tablet }));
+        } else if (editMode === 'numberOfTurns') {
+          dispatch(
+            editBorderWeavingCellTurns({
+              _id,
+              side,
+              row,
+              tablet,
+              numberOfTurns,
+            }),
+          );
+        }
+      },
+      onToggleEdit: (isEditing) =>
+        dispatch(
+          side === 'left'
+            ? setIsEditingLeftBorderWeaving(isEditing)
+            : setIsEditingRightBorderWeaving(isEditing),
+        ),
+    };
+  }
+
+  return {
+    ...ownProps,
+    ...stateProps,
+    dispatch,
+    canAddRemoveRows: true,
+    controlsLabel: 'Edit weaving design',
+    cssClass: 'weaving',
+    hasBorder: true,
+    numberOfTablets: ownNumberOfTablets,
+    onEditWeavingCell: ({ row, tablet, editMode, numberOfTurns }) => {
+      if (editMode === 'direction') {
+        dispatch(editWeavingCellDirection({ _id, row, tablet }));
+      } else if (editMode === 'numberOfTurns') {
+        dispatch(
+          editWeavingCellNumberOfTurns({ _id, row, tablet, numberOfTurns }),
+        );
+      }
+    },
+    onToggleEdit: (isEditing) => dispatch(setIsEditingWeaving(isEditing)),
+  };
+}
+
+export default connect(mapStateToProps, null, mergeProps, { forwardRef: true })(
+  WeavingDesignIndividual,
+);
