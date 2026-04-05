@@ -166,7 +166,9 @@ if (Meteor.isServer) {
             },
           });
 
-          const updated = await Patterns.findOneAsync({ _id: brokenTwillPatternId });
+          const updated = await Patterns.findOneAsync({
+            _id: brokenTwillPatternId,
+          });
 
           assert.equal(updated.leftBorder.numberOfTablets, 2);
           // 4 holes, each with 2 tablets filled with colorIndex 0
@@ -198,7 +200,9 @@ if (Meteor.isServer) {
             },
           });
 
-          const updated = await Patterns.findOneAsync({ _id: brokenTwillPatternId });
+          const updated = await Patterns.findOneAsync({
+            _id: brokenTwillPatternId,
+          });
 
           assert.equal(updated.leftBorder.numberOfTablets, 3);
           assert.equal(updated.leftBorder.threading[0].length, 3);
@@ -241,7 +245,9 @@ if (Meteor.isServer) {
             },
           });
 
-          const updated = await Patterns.findOneAsync({ _id: brokenTwillPatternId });
+          const updated = await Patterns.findOneAsync({
+            _id: brokenTwillPatternId,
+          });
 
           assert.isUndefined(updated.leftBorder);
         });
@@ -267,7 +273,9 @@ if (Meteor.isServer) {
             },
           });
 
-          const updated = await Patterns.findOneAsync({ _id: brokenTwillPatternId });
+          const updated = await Patterns.findOneAsync({
+            _id: brokenTwillPatternId,
+          });
 
           assert.equal(updated.leftBorder.numberOfTablets, 1);
           assert.equal(updated.leftBorder.threading[0].length, 1);
@@ -297,7 +305,9 @@ if (Meteor.isServer) {
             },
           });
 
-          const updated = await Patterns.findOneAsync({ _id: brokenTwillPatternId });
+          const updated = await Patterns.findOneAsync({
+            _id: brokenTwillPatternId,
+          });
 
           assert.equal(updated.leftBorder.threading[0][0], 2);
         });
@@ -314,7 +324,9 @@ if (Meteor.isServer) {
             },
           });
 
-          const updated = await Patterns.findOneAsync({ _id: brokenTwillPatternId });
+          const updated = await Patterns.findOneAsync({
+            _id: brokenTwillPatternId,
+          });
 
           assert.equal(updated.tabletGuides[0], true);
         });

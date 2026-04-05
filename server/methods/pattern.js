@@ -345,6 +345,7 @@ Meteor.methods({
         description: Match.Maybe(String),
         holes: positiveIntegerCheck,
         includeInTwist: Match.Maybe([Boolean]),
+        leftBorder: Match.Maybe(Object),
         name: nonEmptyStringCheck,
         numberOfRows: positiveIntegerCheck,
         numberOfTablets: positiveIntegerCheck,
@@ -352,6 +353,7 @@ Meteor.methods({
         palette: [Match.OneOf(Number, String)],
         patternDesign: Object,
         patternType: String,
+        rightBorder: Match.Maybe(Object),
         tags: Match.Maybe([String]),
         threading: [[Number]],
         threadingNotes: Match.Maybe(String),
@@ -364,6 +366,7 @@ Meteor.methods({
       description,
       holes,
       includeInTwist,
+      leftBorder,
       name,
       numberOfRows,
       numberOfTablets,
@@ -371,6 +374,7 @@ Meteor.methods({
       palette,
       patternDesign,
       patternType,
+      rightBorder,
       tags,
       threading,
       threadingNotes,
@@ -651,6 +655,14 @@ Meteor.methods({
       update.$set.includeInTwist = includeInTwist;
     }
 
+    if (leftBorder) {
+      update.$set.leftBorder = leftBorder;
+    }
+
+    if (rightBorder) {
+      update.$set.rightBorder = rightBorder;
+    }
+
     await Patterns.updateAsync({ _id: patternId }, update);
 
     if (tags) {
@@ -824,25 +836,30 @@ Meteor.methods({
     const addMethod = Meteor.server.method_handlers['pattern.add'];
     const newPatternId = await addMethod.call(this, data);
 
-    await Patterns.updateAsync(
-      { _id: newPatternId },
-      {
-        $set: {
-          description: pattern.description,
-          includeInTwist: pattern.includeInTwist,
-          isPublic: false,
-          threading: pattern.threading,
-          orientations: pattern.orientations,
-          palette: pattern.palette,
-          patternDesign: pattern.patternDesign,
-          previewOrentation: pattern.patternDesign,
-          tags: pattern.tags,
-          threadingNotes: pattern.threadingNotes,
-          weavingNotes: pattern.weavingNotes,
-          weftColor: pattern.weftColor,
-        },
-      },
-    );
+    const copyUpdate = {
+      description: pattern.description,
+      includeInTwist: pattern.includeInTwist,
+      isPublic: false,
+      threading: pattern.threading,
+      orientations: pattern.orientations,
+      palette: pattern.palette,
+      patternDesign: pattern.patternDesign,
+      previewOrentation: pattern.patternDesign,
+      tags: pattern.tags,
+      threadingNotes: pattern.threadingNotes,
+      weavingNotes: pattern.weavingNotes,
+      weftColor: pattern.weftColor,
+    };
+
+    if (pattern.leftBorder) {
+      copyUpdate.leftBorder = pattern.leftBorder;
+    }
+
+    if (pattern.rightBorder) {
+      copyUpdate.rightBorder = pattern.rightBorder;
+    }
+
+    await Patterns.updateAsync({ _id: newPatternId }, { $set: copyUpdate });
 
     return newPatternId;
   },

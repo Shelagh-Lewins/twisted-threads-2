@@ -377,6 +377,14 @@ export const PATTERN_AS_TEXT_FIELDS = [
     displayName: 'Weft colour',
     required: true,
   },
+  {
+    fieldName: 'leftBorder',
+    displayName: 'Left border',
+  },
+  {
+    fieldName: 'rightBorder',
+    displayName: 'Right border',
+  },
 ];
 
 export const MOBILE_BREAKPOINT = 768;
