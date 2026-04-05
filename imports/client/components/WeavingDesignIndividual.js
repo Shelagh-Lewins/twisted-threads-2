@@ -208,8 +208,12 @@ class WeavingDesignIndividual extends PureComponent {
   }
 
   renderCell(rowIndex, tabletIndex) {
-    const { side, tabletOffset } = this.props;
+    const { leftBorderN, side, tabletOffset } = this.props;
     const { isEditing } = this.state;
+
+    const effectiveTabletIndex = side
+      ? (tabletOffset || 0) + tabletIndex
+      : (leftBorderN || 0) + tabletIndex;
 
     return (
       <li
@@ -232,9 +236,8 @@ class WeavingDesignIndividual extends PureComponent {
           tabIndex={isEditing ? '0' : undefined}
         >
           <WeavingChartCell
-            combined={!!side}
             rowIndex={rowIndex}
-            tabletIndex={side ? (tabletOffset || 0) + tabletIndex : tabletIndex}
+            tabletIndex={effectiveTabletIndex}
           />
         </span>
       </li>
@@ -392,6 +395,7 @@ WeavingDesignIndividual.propTypes = {
   cssClass: PropTypes.string.isRequired,
   dispatch: PropTypes.func.isRequired,
   hasBorder: PropTypes.bool.isRequired,
+  leftBorderN: PropTypes.number,
   numberOfRows: PropTypes.number.isRequired,
   numberOfTablets: PropTypes.number.isRequired,
   onEditWeavingCell: PropTypes.func.isRequired,
@@ -413,7 +417,9 @@ function mapStateToProps(state, ownProps) {
     };
   }
 
-  return {};
+  return {
+    leftBorderN: getLeftBorder(state)?.numberOfTablets || 0,
+  };
 }
 
 function mergeProps(stateProps, { dispatch }, ownProps) {

@@ -8,10 +8,7 @@ import {
   getCombinedPickForChart,
   getCombinedThreadingForTablet,
   getHoles,
-  getOrientationForTablet,
   getPalette,
-  getPickForChart,
-  getThreadingForTablet,
 } from '../modules/pattern';
 import { modulus } from '../modules/weavingUtils';
 
@@ -67,23 +64,21 @@ WeavingChartCellBase.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
-  const { combined, tabletIndex, rowIndex } = ownProps;
+  const { tabletIndex, rowIndex } = ownProps;
 
-  const { direction, numberOfTurns, totalTurns } = combined
-    ? getCombinedPickForChart(state, tabletIndex, rowIndex)
-    : getPickForChart(state, tabletIndex, rowIndex);
+  const { direction, numberOfTurns, totalTurns } = getCombinedPickForChart(
+    state,
+    tabletIndex,
+    rowIndex,
+  );
 
   return {
     direction: direction,
     holes: getHoles(state),
     numberOfTurns: numberOfTurns,
-    orientation: combined
-      ? getCombinedOrientationForTablet(state, tabletIndex)
-      : getOrientationForTablet(state, tabletIndex),
+    orientation: getCombinedOrientationForTablet(state, tabletIndex),
     palette: getPalette(state),
-    threadingForTablet: combined
-      ? getCombinedThreadingForTablet(state, tabletIndex)
-      : getThreadingForTablet(state, tabletIndex),
+    threadingForTablet: getCombinedThreadingForTablet(state, tabletIndex),
     totalTurns: totalTurns,
   };
 }

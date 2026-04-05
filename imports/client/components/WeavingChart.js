@@ -62,13 +62,7 @@ function WeavingChart(props) {
         <FreehandChartCell rowIndex={rowIndex} tabletIndex={tabletIndex} />
       );
     } else {
-      cell = (
-        <WeavingChartCell
-          combined={combined}
-          rowIndex={rowIndex}
-          tabletIndex={tabletIndex}
-        />
-      );
+      cell = <WeavingChartCell rowIndex={rowIndex} tabletIndex={tabletIndex} />;
     }
 
     return (
