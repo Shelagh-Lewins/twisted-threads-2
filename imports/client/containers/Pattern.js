@@ -1010,11 +1010,6 @@ class Pattern extends PureComponent {
                     ref={this.childThreading}
                   />
                 )}
-                <p className='hint'>
-                  The sloping line below each tablet shows you how to orient
-                  that tablet. The slope of the tablet when viewed from above
-                  should match the slope of the line.
-                </p>
                 <h2>Thread counts</h2>
                 <ThreadCounts pattern={pattern} />
               </>

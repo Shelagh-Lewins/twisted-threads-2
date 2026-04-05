@@ -25,6 +25,7 @@ import {
   setIsEditingThreading,
 } from '../modules/pattern';
 import { clearAllEditModes } from '../modules/editingUtils';
+import InfoButton from './InfoButton';
 import ThreadingChartCell from './ThreadingChartCell';
 import {
   IncludeInTwistCell,
@@ -41,6 +42,10 @@ import {
 } from '../../modules/parameters';
 import Palette from './Palette';
 import VerticalGuides from './VerticalGuides';
+
+const ORIENTATION_INFO_TEXT =
+  'The sloping line below each tablet shows you how to orient that tablet. The slope of the tablet when viewed from above should match the slope of the line.';
+const ORIENTATION_INFO_TITLE = 'Click to learn about tablet orientations';
 
 // row and tablet have nothing to identify them except index
 // note row here indicates hole of the tablet
@@ -480,6 +485,12 @@ class Threading extends PureComponent {
 
     return (
       <div className='orientations'>
+        <div className='orientation-info-button'>
+          <InfoButton
+            message={ORIENTATION_INFO_TEXT}
+            title={ORIENTATION_INFO_TITLE}
+          />
+        </div>
         <ul className='orientations'>{orientations}</ul>
       </div>
     );

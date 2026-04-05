@@ -153,6 +153,13 @@
   }
 
   .orientations {
+    position: relative;
+
+    .orientation-info-button {
+      left: 8px;
+      position: absolute;
+    }
+
     ul {
       clear: both;
       margin-left: 32px;
