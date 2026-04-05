@@ -278,12 +278,11 @@ class Threading extends PureComponent {
   }
 
   renderCell(rowIndex, selectedRow, tabletIndex) {
-    const { combined, side, tabletOffset } = this.props;
+    const { side, tabletOffset } = this.props;
     const { isEditing } = this.state;
 
-    // Border sections use combined mode so ThreadingChartCell reads from the
-    // correct border slice of state via resolveCombinedTablet.
-    const effectiveCombined = side ? true : combined;
+    // All cells use absolute combined tablet index so ThreadingChartCell reads
+    // from the correct slice of state via resolveCombinedTablet.
     const effectiveTabletIndex = side
       ? (tabletOffset || 0) + tabletIndex
       : tabletIndex;
@@ -305,7 +304,6 @@ class Threading extends PureComponent {
         tabIndex={isEditing ? '0' : undefined}
       >
         <ThreadingChartCell
-          combined={effectiveCombined}
           rowIndex={rowIndex}
           selectedRow={selectedRow}
           tabletIndex={effectiveTabletIndex}
@@ -570,7 +568,6 @@ Threading.propTypes = {
   canChangeOrientation: PropTypes.bool,
   canEdit: PropTypes.bool.isRequired,
   colorBooks: PropTypes.arrayOf(PropTypes.any),
-  combined: PropTypes.bool,
   controlsLabel: PropTypes.string,
   dispatch: PropTypes.func,
   holes: PropTypes.number.isRequired,

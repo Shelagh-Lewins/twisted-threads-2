@@ -7,9 +7,7 @@ import {
   getCombinedOrientationForTablet,
   getCombinedThreadingForHole,
   getHoles,
-  getOrientationForTablet,
   getPalette,
-  getThreadingForHole,
 } from '../modules/pattern';
 
 function ThreadingChartCell(props) {
@@ -68,27 +66,18 @@ ThreadingChartCell.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
-  const { combined, rowIndex, selectedRow, tabletIndex } = ownProps;
+  const { rowIndex, selectedRow, tabletIndex } = ownProps;
 
   return {
     holes: getHoles(state),
-    orientation: combined
-      ? getCombinedOrientationForTablet(state, tabletIndex)
-      : getOrientationForTablet(state, tabletIndex),
+    orientation: getCombinedOrientationForTablet(state, tabletIndex),
     palette: getPalette(state),
-    threadingForHole: combined
-      ? getCombinedThreadingForHole({
-          holeIndex: rowIndex,
-          selectedRow,
-          state,
-          tabletIndex,
-        })
-      : getThreadingForHole({
-          holeIndex: rowIndex,
-          selectedRow,
-          state,
-          tabletIndex,
-        }),
+    threadingForHole: getCombinedThreadingForHole({
+      holeIndex: rowIndex,
+      selectedRow,
+      state,
+      tabletIndex,
+    }),
   };
 }
 
