@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Button, ButtonGroup, ButtonToolbar } from 'reactstrap';
+import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import {
@@ -12,6 +12,7 @@ import calculateScrolling from '../modules/calculateScrolling';
 import { toggleEditMainPatternWeaving } from '../modules/editingUtils';
 import AddRowsForm from '../forms/AddRowsForm';
 import TwillWeavingStartRowForm from '../forms/TwillWeavingStartRowForm';
+import WeavingEditOptions from './WeavingEditOptions';
 import './WeavingDesignBrokenTwill.scss';
 
 // row and tablet have nothing to identify them except index
@@ -341,34 +342,17 @@ class WeavingDesignBrokenTwill extends PureComponent {
   renderEditOptions() {
     const { editMode } = this.state;
     const options = [
-      {
-        name: 'Edit colour',
-        value: 'color',
-      },
-      {
-        name: 'Edit twill direction',
-        value: 'twillDirection',
-      },
+      { name: 'Edit colour', value: 'color' },
+      { name: 'Edit twill direction', value: 'twillDirection' },
     ];
 
     return (
-      <>
-        <ButtonToolbar>
-          <ButtonGroup className='edit-mode'>
-            {options.map((option) => (
-              <Button
-                className={editMode === option.value ? 'selected' : ''}
-                color='secondary'
-                key={option.value}
-                onClick={this.handleClickEditMode}
-                value={option.value}
-              >
-                {option.name}
-              </Button>
-            ))}
-          </ButtonGroup>
-        </ButtonToolbar>
-      </>
+      <WeavingEditOptions
+        editMode={editMode}
+        onClickEditMode={this.handleClickEditMode}
+        options={options}
+        segmented={false}
+      />
     );
   }
 

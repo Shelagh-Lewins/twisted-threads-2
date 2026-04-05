@@ -698,9 +698,16 @@ export const getTotalTurnsByTabletSelector = createSelector(
     ),
 );
 
+// Includes left-border + main + right-border threading so ThreadCounts covers the whole band.
 export const getFlatThreading = createSelector(
   getStateThreadingByTablet,
-  (threading) => threading.flat(),
+  getLeftBorder,
+  getRightBorder,
+  (threading, leftBorder, rightBorder) => [
+    ...(leftBorder?.threadingByTablet?.flat() || []),
+    ...threading.flat(),
+    ...(rightBorder?.threadingByTablet?.flat() || []),
+  ],
 );
 
 export const getThreadCounts = createSelector(getFlatThreading, (threading) =>

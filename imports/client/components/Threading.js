@@ -141,7 +141,7 @@ class Threading extends PureComponent {
   }
 
   handleClickRemoveTablet(tabletIndex) {
-    const { onRemoveTablet, tabletLabel, tabletOffset } = this.props;
+    const { onRemoveTablet, tabletOffset } = this.props;
     const { isEditing } = this.state;
 
     if (!isEditing) {
@@ -149,9 +149,7 @@ class Threading extends PureComponent {
     }
 
     const displayNumber = (tabletOffset || 0) + tabletIndex + 1;
-    const response = confirm(
-      `Do you want to delete ${tabletLabel} ${displayNumber}?`,
-    ); // eslint-disable-line no-restricted-globals
+    const response = confirm(`Do you want to delete tablet ${displayNumber}?`); // eslint-disable-line no-restricted-globals
 
     if (response === true) {
       onRemoveTablet({ tablet: tabletIndex });
@@ -580,7 +578,6 @@ Threading.propTypes = {
   pattern: PropTypes.objectOf(PropTypes.any).isRequired,
   selectedRow: PropTypes.number,
   side: PropTypes.oneOf(['left', 'right']),
-  tabletLabel: PropTypes.string,
   tabletOffset: PropTypes.number,
 };
 
@@ -625,7 +622,6 @@ function mergeProps(stateProps, { dispatch }, ownProps) {
       controlsLabel: hasBorder ? `Edit ${side} border` : `Add ${side} border`,
       maxTablets: MAX_BORDER_TABLETS,
       paletteElementId: `border-threading-palette-${side}`,
-      tabletLabel: 'border tablet',
       onAddTablets: (params) =>
         dispatch(
           side === 'left'
@@ -670,7 +666,6 @@ function mergeProps(stateProps, { dispatch }, ownProps) {
     controlsLabel: 'Edit main pattern',
     maxTablets: MAX_TABLETS,
     paletteElementId: 'threading-palette',
-    tabletLabel: 'tablet',
     onAddTablets: (params) => dispatch(addTablets(params)),
     onChangeIncludeInTwist: ({ _id: id, tablet }) =>
       dispatch(editIncludeInTwist({ _id: id, tablet })),

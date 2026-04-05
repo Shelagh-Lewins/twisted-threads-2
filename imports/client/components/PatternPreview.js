@@ -312,39 +312,9 @@ class PatternPreview extends Component {
         cell = (
           <FreehandPreviewCell rowIndex={rowIndex} tabletIndex={tabletIndex} />
         );
-      } else if (leftN > 0 && tabletIndex < leftN) {
-        // left border tablet
-        cell = (
-          <PreviewCell
-            combined={true}
-            currentRepeat={currentRepeat}
-            numberOfRepeats={numberOfRepeats}
-            numberOfRows={numberOfRows}
-            patternWillRepeat={patternWillRepeat}
-            patternType={patternType}
-            rowIndex={rowIndex}
-            showBackOfBand={showBackOfBand}
-            tabletIndex={tabletIndex}
-          />
-        );
-      } else if (rightN > 0 && tabletIndex >= leftN + numberOfTablets) {
-        // right border tablet
-        cell = (
-          <PreviewCell
-            combined={true}
-            currentRepeat={currentRepeat}
-            numberOfRepeats={numberOfRepeats}
-            numberOfRows={numberOfRows}
-            patternWillRepeat={patternWillRepeat}
-            patternType={patternType}
-            rowIndex={rowIndex}
-            showBackOfBand={showBackOfBand}
-            tabletIndex={tabletIndex}
-          />
-        );
       } else {
-        // main pattern tablet - adjust index for Redux store lookup
-        const mainTabletIndex = tabletIndex - leftN;
+        // tabletIndex is an absolute combined index; resolveCombinedTablet inside the
+        // getCombined* selectors handles routing to border or main-pattern data.
         cell = (
           <PreviewCell
             currentRepeat={currentRepeat}
@@ -354,7 +324,7 @@ class PatternPreview extends Component {
             patternType={patternType}
             rowIndex={rowIndex}
             showBackOfBand={showBackOfBand}
-            tabletIndex={mainTabletIndex}
+            tabletIndex={tabletIndex}
           />
         );
       }
@@ -504,13 +474,13 @@ class PatternPreview extends Component {
       if (leftN > 0 && combinedTabletIndex < leftN) {
         // left border tablet
         const bPicks = leftBorder?.picks?.[combinedTabletIndex];
-        return bPicks ? bPicks[bPicks.length - 1]?.totalTurns ?? 0 : 0;
+        return bPicks ? (bPicks[bPicks.length - 1]?.totalTurns ?? 0) : 0;
       }
       if (rightN > 0 && combinedTabletIndex >= leftN + numberOfTablets) {
         // right border tablet
         const borderIdx = combinedTabletIndex - leftN - numberOfTablets;
         const bPicks = rightBorder?.picks?.[borderIdx];
-        return bPicks ? bPicks[bPicks.length - 1]?.totalTurns ?? 0 : 0;
+        return bPicks ? (bPicks[bPicks.length - 1]?.totalTurns ?? 0) : 0;
       }
       // main pattern tablet
       return totalTurnsByTablet[combinedTabletIndex - leftN];
@@ -555,9 +525,7 @@ class PatternPreview extends Component {
         <span
           className={`${totalTurns === 0 ? 'twist-neutral' : ''} ${
             startPosition ? 'start-position' : ''
-          } ${
-            getIsInTwistCalc(tabletIndex) ? '' : 'not-in-twist'
-          }`}
+          } ${getIsInTwistCalc(tabletIndex) ? '' : 'not-in-twist'}`}
           key={`preview-total-turns-${tabletIndex}`}
           title={title}
         >

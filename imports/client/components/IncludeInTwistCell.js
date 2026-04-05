@@ -76,4 +76,8 @@ function mapStateToProps(state, ownProps) {
   };
 }
 
+// CAUTION: the default connected export uses getIncludeInTwistForTablet which reads from
+// state.pattern.* and expects a main-pattern (local) tablet index.
+// Always use the named export { IncludeInTwistCell } when rendering border tablets,
+// supplying includeInTwistForTablet directly via props (as Threading.js does).
 export default connect(mapStateToProps)(IncludeInTwistCell);

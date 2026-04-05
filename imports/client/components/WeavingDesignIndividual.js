@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Button, ButtonGroup, ButtonToolbar } from 'reactstrap';
+import { Button } from 'reactstrap';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import {
@@ -20,6 +20,7 @@ import calculateScrolling from '../modules/calculateScrolling';
 import WeavingChartCell from './WeavingChartCell';
 import AddRowsForm from '../forms/AddRowsForm';
 import EditWeavingCellForm from '../forms/EditWeavingCellForm';
+import WeavingEditOptions from './WeavingEditOptions';
 import './Threading.scss';
 import './WeavingDesignIndividual.scss';
 
@@ -314,32 +315,16 @@ class WeavingDesignIndividual extends PureComponent {
   renderEditOptions() {
     const { editMode } = this.state;
     const options = [
-      {
-        name: 'Edit turning direction',
-        value: 'direction',
-      },
-      {
-        name: 'Edit number of turns',
-        value: 'numberOfTurns',
-      },
+      { name: 'Edit turning direction', value: 'direction' },
+      { name: 'Edit number of turns', value: 'numberOfTurns' },
     ];
 
     return (
-      <ButtonToolbar>
-        <ButtonGroup className='edit-mode segmented'>
-          {options.map((option) => (
-            <Button
-              className={editMode === option.value ? 'selected' : ''}
-              color='secondary'
-              key={option.value}
-              onClick={this.handleClickEditMode}
-              value={option.value}
-            >
-              {option.name}
-            </Button>
-          ))}
-        </ButtonGroup>
-      </ButtonToolbar>
+      <WeavingEditOptions
+        editMode={editMode}
+        onClickEditMode={this.handleClickEditMode}
+        options={options}
+      />
     );
   }
 
