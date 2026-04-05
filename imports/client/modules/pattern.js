@@ -599,6 +599,14 @@ export const getCombinedThreadingForTablet = (state, tabletIndex) => {
   return getThreadingForTablet(state, localIndex);
 };
 
+export const getCombinedPicksForTabletForChart = (state, tabletIndex) => {
+  const { borderKey, localIndex } = resolveCombinedTablet(state, tabletIndex);
+  if (borderKey) {
+    return [...(state.pattern[borderKey]?.picks?.[localIndex] || [])];
+  }
+  return getPicksForTabletForChart(state, localIndex);
+};
+
 // Used by ThreadingChartCell in combined mode to show current thread positions
 export const getCombinedThreadingForHole = ({
   holeIndex,

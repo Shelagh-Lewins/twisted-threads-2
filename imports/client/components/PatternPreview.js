@@ -7,7 +7,6 @@ import PropTypes from 'prop-types';
 import { Roles } from 'meteor/roles';
 import PreviewCell from './PreviewCell';
 import FreehandPreviewCell from './FreehandPreviewCell';
-import BorderPreviewCell from './BorderPreviewCell';
 import {
   getIncludeInTwist,
   getLeftBorder,
@@ -316,15 +315,13 @@ class PatternPreview extends Component {
       } else if (leftN > 0 && tabletIndex < leftN) {
         // left border tablet
         cell = (
-          <BorderPreviewCell
-            border={leftBorder}
-            borderTabletIndex={tabletIndex}
+          <PreviewCell
+            combined={true}
             currentRepeat={currentRepeat}
-            holes={holes}
             numberOfRepeats={numberOfRepeats}
             numberOfRows={numberOfRows}
-            palette={palette}
             patternWillRepeat={patternWillRepeat}
+            patternType={patternType}
             rowIndex={rowIndex}
             showBackOfBand={showBackOfBand}
             tabletIndex={tabletIndex}
@@ -332,17 +329,14 @@ class PatternPreview extends Component {
         );
       } else if (rightN > 0 && tabletIndex >= leftN + numberOfTablets) {
         // right border tablet
-        const borderTabletIndex = tabletIndex - leftN - numberOfTablets;
         cell = (
-          <BorderPreviewCell
-            border={rightBorder}
-            borderTabletIndex={borderTabletIndex}
+          <PreviewCell
+            combined={true}
             currentRepeat={currentRepeat}
-            holes={holes}
             numberOfRepeats={numberOfRepeats}
             numberOfRows={numberOfRows}
-            palette={palette}
             patternWillRepeat={patternWillRepeat}
+            patternType={patternType}
             rowIndex={rowIndex}
             showBackOfBand={showBackOfBand}
             tabletIndex={tabletIndex}

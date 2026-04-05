@@ -5,6 +5,9 @@ import PreviewSVG from './PreviewSVG';
 
 import {
 	getPreviewShouldUpdate,
+	getCombinedOrientationForTablet,
+	getCombinedPicksForTabletForChart,
+	getCombinedThreadingForTablet,
 	getHoles,
 	getOrientationForTablet,
 	getPalette,
@@ -60,6 +63,7 @@ class PreviewCell extends Component {
 
 // some props are briefly unavailable after a row or tablet has been deleted
 PreviewCell.propTypes = {
+	combined: PropTypes.bool,
 	componentShouldUpdate: PropTypes.bool.isRequired,
 	currentRepeat: PropTypes.number.isRequired,
 	holes: PropTypes.number.isRequired,
@@ -76,7 +80,18 @@ PreviewCell.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
-	const { tabletIndex } = ownProps;
+	const { combined, tabletIndex } = ownProps;
+
+	if (combined) {
+		return {
+			componentShouldUpdate: getPreviewShouldUpdate(state),
+			holes: getHoles(state),
+			orientation: getCombinedOrientationForTablet(state, tabletIndex),
+			palette: getPalette(state),
+			picksForTablet: getCombinedPicksForTabletForChart(state, tabletIndex),
+			threadingForTablet: getCombinedThreadingForTablet(state, tabletIndex),
+		};
+	}
 
 	return {
 		componentShouldUpdate: getPreviewShouldUpdate(state),
