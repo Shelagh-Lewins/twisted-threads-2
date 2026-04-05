@@ -3,6 +3,7 @@
 .weaving-with-borders {
   display: flex;
   align-items: flex-start;
+  gap: 8px;
 
   .weaving {
     float: none;
@@ -12,12 +13,12 @@
 .weaving {
   clear: both;
   float: left;
-  padding-right: 8px;
 
   &.editing {
     .content {
       background: $color-chart-editing-background;
       border: 1px solid $color-focus;
+      min-width: 500px; // leave room for edit controls
     }
   }
 
@@ -25,7 +26,7 @@
     border: 1px solid transparent;
     border-radius: 4px;
     margin: 8px 0;
-    min-width: 500px; // leave room for edit controls
+    min-width: 170px; // leave room for edit button
     padding: 8px;
   }
 

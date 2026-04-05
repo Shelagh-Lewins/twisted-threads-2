@@ -1599,7 +1599,7 @@ export function addLeftBorderTablets({
     );
     dispatch({
       type: ADD_LEFT_BORDER_TABLETS,
-      payload: { insertNTablets, insertTabletsAt, insertTabletsAt, colorIndex },
+      payload: { insertNTablets, insertTabletsAt, colorIndex },
     });
   };
 }
@@ -1716,7 +1716,7 @@ export function editBorderOrientation({ _id, side, tablet }) {
       side === 'left'
         ? getState().pattern.leftBorder
         : getState().pattern.rightBorder;
-    const tabletOrientation = border.orientations[tablet] === 'S' ? 'Z' : 'S';
+    const tabletOrientation = border.orientations[tablet] === '/' ? '\\' : '/'; // '/' = S, '\' = Z, consistent with main pattern
 
     Meteor.call(
       'pattern.edit',
@@ -1898,7 +1898,7 @@ export function editTabletGuides({ canSave, combined, _id, tablet }) {
           if (error) {
             return dispatch(
               logErrors({
-                'update include tablet in twist calculations': error.reason,
+                'edit tablet guides': error.reason,
               }),
             );
           }
@@ -2186,6 +2186,65 @@ export function updateFilterRemove() {
 }
 
 // ///////////////////////////
+// Reducer helpers
+
+// Returns { obj, picksForTablet } after setting numberOfTurns on one row.
+// obj is the updated weaving instruction for [tablet][row].
+// Used by both main pattern and border TURNS cases.
+function applyWeavingCellTurns(
+  weavingInstructionsByTablet,
+  currentPicks,
+  row,
+  tablet,
+  numberOfTurns,
+) {
+  const obj = { ...weavingInstructionsByTablet[tablet][row], numberOfTurns };
+  const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tablet]];
+  weavingInstructionsForTablet[row] = obj;
+  const picksForTablet = calculatePicksForTablet({
+    currentPicks,
+    weavingInstructionsForTablet,
+    row,
+  });
+  return { obj, picksForTablet };
+}
+
+// Returns { weavingInstructionsForTablet, picksForTablet } after toggling
+// direction F<->B from row onwards for the given tablet.
+// Used by both main pattern and border DIRECTION cases.
+function applyWeavingCellDirection(
+  weavingInstructionsByTablet,
+  currentPicks,
+  numberOfRows,
+  row,
+  tablet,
+) {
+  const weavingInstructionsForTablet = [...weavingInstructionsByTablet[tablet]];
+  for (let i = row; i < numberOfRows; i += 1) {
+    const obj = { ...weavingInstructionsForTablet[i] };
+    obj.direction =
+      weavingInstructionsForTablet[i].direction === 'F' ? 'B' : 'F';
+    weavingInstructionsForTablet[i] = obj;
+  }
+  const picksForTablet = calculatePicksForTablet({
+    currentPicks,
+    weavingInstructionsForTablet,
+    row,
+  });
+  return { weavingInstructionsForTablet, picksForTablet };
+}
+
+// Returns an updeep partial-update for threadingByTablet: sets specific holes
+// of a given tablet to colorIndex. Used by both main pattern and border cases.
+function buildThreadingCellUpdate(tablet, holesToSet, colorIndex) {
+  const tabletUpdate = {};
+  holesToSet.forEach((holeIndex) => {
+    tabletUpdate[holeIndex] = colorIndex;
+  });
+  return { [tablet]: tabletUpdate };
+}
+
+// ///////////////////////////
 // default state
 const initialPatternState = {
   createdBy: '',
@@ -2284,26 +2343,13 @@ export default function pattern(state = initialPatternState, action) {
 
     case UPDATE_WEAVING_CELL_TURNS: {
       const { numberOfTurns, row, tablet } = action.payload;
-      const { weavingInstructionsByTablet } = state;
-
-      // to update the weaving instructions
-      const obj = { ...weavingInstructionsByTablet[tablet][row] };
-
-      obj.numberOfTurns = numberOfTurns;
-
-      // to calculate new picks for this tablet
-      const weavingInstructionsForTablet = [
-        ...weavingInstructionsByTablet[tablet],
-      ];
-
-      weavingInstructionsForTablet[row] = obj;
-
-      const picksForTablet = calculatePicksForTablet({
-        currentPicks: state.picks[tablet],
-        weavingInstructionsForTablet,
+      const { obj, picksForTablet } = applyWeavingCellTurns(
+        state.weavingInstructionsByTablet,
+        state.picks[tablet],
         row,
-      });
-
+        tablet,
+        numberOfTurns,
+      );
       return updeep(
         {
           weavingInstructionsByTablet: { [tablet]: { [row]: obj } },
@@ -2315,26 +2361,14 @@ export default function pattern(state = initialPatternState, action) {
 
     case UPDATE_WEAVING_CELL_DIRECTION: {
       const { row, tablet } = action.payload;
-      const { numberOfRows, weavingInstructionsByTablet } = state;
-
-      const weavingInstructionsForTablet = [
-        ...weavingInstructionsByTablet[tablet],
-      ];
-
-      // change direction of tablet for this row and all following rows
-      for (let i = row; i < numberOfRows; i += 1) {
-        const obj = { ...weavingInstructionsForTablet[i] };
-        obj.direction =
-          weavingInstructionsForTablet[i].direction === 'F' ? 'B' : 'F';
-        weavingInstructionsForTablet[i] = obj;
-      }
-
-      const picksForTablet = calculatePicksForTablet({
-        currentPicks: state.picks[tablet],
-        weavingInstructionsForTablet,
-        row,
-      });
-
+      const { weavingInstructionsForTablet, picksForTablet } =
+        applyWeavingCellDirection(
+          state.weavingInstructionsByTablet,
+          state.picks[tablet],
+          state.numberOfRows,
+          row,
+          tablet,
+        );
       return updeep(
         {
           weavingInstructionsByTablet: {
@@ -2567,18 +2601,16 @@ export default function pattern(state = initialPatternState, action) {
 
     case UPDATE_THREADING_CELL: {
       const { colorIndex, holesToSet, tablet } = action.payload;
-
-      const update = {
-        threadingByTablet: {
-          [tablet]: {},
+      return updeep(
+        {
+          threadingByTablet: buildThreadingCellUpdate(
+            tablet,
+            holesToSet,
+            colorIndex,
+          ),
         },
-      };
-
-      holesToSet.forEach((holeIndex) => {
-        update.threadingByTablet[tablet][holeIndex] = colorIndex;
-      });
-
-      return updeep(update, state);
+        state,
+      );
     }
 
     case UPDATE_INCLUDE_IN_TWIST: {
@@ -3801,16 +3833,14 @@ export default function pattern(state = initialPatternState, action) {
     case UPDATE_BORDER_THREADING_CELL: {
       const { side, holesToSet, tablet, colorIndex } = action.payload;
       const borderKey = side === 'left' ? 'leftBorder' : 'rightBorder';
-      const border = state[borderKey];
-      const newThreadingByTablet = border.threadingByTablet.map((t, i) =>
-        i === tablet
-          ? t.map((h, hi) => (holesToSet.includes(hi) ? colorIndex : h))
-          : t,
-      );
       return updeep(
         {
           [borderKey]: {
-            threadingByTablet: updeep.constant(newThreadingByTablet),
+            threadingByTablet: buildThreadingCellUpdate(
+              tablet,
+              holesToSet,
+              colorIndex,
+            ),
           },
         },
         state,
@@ -3839,24 +3869,13 @@ export default function pattern(state = initialPatternState, action) {
       const { side, row, tablet, numberOfTurns } = action.payload;
       const borderKey = side === 'left' ? 'leftBorder' : 'rightBorder';
       const border = state[borderKey];
-      const weavingInstructionsByTablet = border.weavingInstructionsByTablet;
-
-      const obj = {
-        ...weavingInstructionsByTablet[tablet][row],
-        numberOfTurns,
-      };
-
-      const weavingInstructionsForTablet = [
-        ...weavingInstructionsByTablet[tablet],
-      ];
-      weavingInstructionsForTablet[row] = obj;
-
-      const picksForTablet = calculatePicksForTablet({
-        currentPicks: border.picks[tablet],
-        weavingInstructionsForTablet,
+      const { obj, picksForTablet } = applyWeavingCellTurns(
+        border.weavingInstructionsByTablet,
+        border.picks[tablet],
         row,
-      });
-
+        tablet,
+        numberOfTurns,
+      );
       return updeep(
         {
           [borderKey]: {
@@ -3872,36 +3891,19 @@ export default function pattern(state = initialPatternState, action) {
       const { side, row, tablet } = action.payload;
       const borderKey = side === 'left' ? 'leftBorder' : 'rightBorder';
       const border = state[borderKey];
-      const { numberOfRows } = state;
-      const weavingInstructionsByTablet = border.weavingInstructionsByTablet;
-
-      const weavingInstructionsForTablet = [
-        ...weavingInstructionsByTablet[tablet],
-      ];
-
-      for (let i = row; i < numberOfRows; i += 1) {
-        const obj = { ...weavingInstructionsForTablet[i] };
-        obj.direction =
-          weavingInstructionsForTablet[i].direction === 'F' ? 'B' : 'F';
-        weavingInstructionsForTablet[i] = obj;
-      }
-
-      const picksForTablet = calculatePicksForTablet({
-        currentPicks: border.picks[tablet],
-        weavingInstructionsForTablet,
-        row,
-      });
-
-      const newWeavingInstructionsForTablet = {};
-      for (let i = row; i < numberOfRows; i += 1) {
-        newWeavingInstructionsForTablet[i] = weavingInstructionsForTablet[i];
-      }
-
+      const { weavingInstructionsForTablet, picksForTablet } =
+        applyWeavingCellDirection(
+          border.weavingInstructionsByTablet,
+          border.picks[tablet],
+          state.numberOfRows,
+          row,
+          tablet,
+        );
       return updeep(
         {
           [borderKey]: {
             weavingInstructionsByTablet: {
-              [tablet]: newWeavingInstructionsForTablet,
+              [tablet]: weavingInstructionsForTablet,
             },
             picks: { [tablet]: picksForTablet },
           },

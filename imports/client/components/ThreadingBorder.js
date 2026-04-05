@@ -3,6 +3,10 @@ import { connect } from 'react-redux';
 import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import ChartSVG from './ChartSVG';
+import {
+  IncludeInTwistCell,
+  IncludeInTwistButtons,
+} from './IncludeInTwistCell';
 import Palette from './Palette';
 import AddBorderTabletsForm from '../forms/AddBorderTabletsForm';
 import {
@@ -296,7 +300,28 @@ class ThreadingBorder extends PureComponent {
   }
 
   renderIncludeInTwistButtons() {
-    return null;
+    const { border, tabletOffset } = this.props;
+    const { isEditing } = this.state;
+    const { includeInTwist, numberOfTablets } = border;
+
+    const buttons = [];
+    for (let i = 0; i < numberOfTablets; i += 1) {
+      buttons.push(
+        <li className='cell label' key={`border-include-in-twist-${i}`}>
+          <IncludeInTwistCell
+            handleChangeIncludInTwistCheckbox={
+              this.handleChangeIncludeInTwistCheckbox
+            }
+            includeInTwistForTablet={!!(includeInTwist && includeInTwist[i])}
+            isEditing={isEditing}
+            tabletIndex={i}
+            tabletOffset={tabletOffset || 0}
+          />
+        </li>,
+      );
+    }
+
+    return <IncludeInTwistButtons>{buttons}</IncludeInTwistButtons>;
   }
 
   renderChart() {

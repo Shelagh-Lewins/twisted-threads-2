@@ -844,7 +844,7 @@ Meteor.methods({
       orientations: pattern.orientations,
       palette: pattern.palette,
       patternDesign: pattern.patternDesign,
-      previewOrentation: pattern.patternDesign,
+      previewOrientation: pattern.previewOrientation,
       tags: pattern.tags,
       threadingNotes: pattern.threadingNotes,
       weavingNotes: pattern.weavingNotes,

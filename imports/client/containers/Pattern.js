@@ -82,8 +82,7 @@ class Pattern extends PureComponent {
     this.childWeaving = React.createRef();
 
     this.state = {
-      gotUser: false,
-      threadingEditSection: null, // add to recents after user has loaded
+      gotUser: false, // add to recents after user has loaded
       recentPatternId: null, // id that has been added to recent patterns list. This lets us check for navigation to a new pattern, e.g. because of copy
       showCopyIDSuccess: false,
       selectedPatternImage: null,
@@ -587,58 +586,6 @@ class Pattern extends PureComponent {
     );
   }
 
-  handleClickThreadingSection(section) {
-    const { threadingEditSection } = this.state;
-
-    const refs = {
-      left: this.childThreadingLeftBorder,
-      main: this.childThreading,
-      right: this.childThreadingRightBorder,
-    };
-
-    // stop the currently-editing section if it is different from the one clicked
-    if (threadingEditSection && threadingEditSection !== section) {
-      refs[threadingEditSection].current.toggleEditThreading();
-    }
-
-    // toggle the clicked section
-    refs[section].current.toggleEditThreading();
-
-    this.setState({
-      threadingEditSection: threadingEditSection === section ? null : section,
-    });
-  }
-
-  renderThreadingEditControls() {
-    const { threadingEditSection } = this.state;
-
-    return (
-      <div className='threading-section-controls'>
-        <Button
-          color='primary'
-          active={threadingEditSection === 'left'}
-          onClick={() => this.handleClickThreadingSection('left')}
-        >
-          {threadingEditSection === 'left' ? 'Done' : 'Edit left border'}
-        </Button>
-        <Button
-          color='primary'
-          active={threadingEditSection === 'main'}
-          onClick={() => this.handleClickThreadingSection('main')}
-        >
-          {threadingEditSection === 'main' ? 'Done' : 'Edit main pattern'}
-        </Button>
-        <Button
-          color='primary'
-          active={threadingEditSection === 'right'}
-          onClick={() => this.handleClickThreadingSection('right')}
-        >
-          {threadingEditSection === 'right' ? 'Done' : 'Edit right border'}
-        </Button>
-      </div>
-    );
-  }
-
   renderTagInput(canEdit) {
     const { dispatch } = this.props;
     const {
@@ -1025,10 +972,6 @@ class Pattern extends PureComponent {
             <ShowVerticalGuides />
             {pattern.threading && (
               <>
-                {getPatternSupportsBorders(patternType) &&
-                  canEdit &&
-                  false &&
-                  this.renderThreadingEditControls()}
                 {getPatternSupportsBorders(patternType) ? (
                   <div className='threading-with-borders'>
                     <ThreadingBorder

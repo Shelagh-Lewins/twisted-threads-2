@@ -85,7 +85,7 @@
     .first-row {
       .cell {
         &:nth-child(even) {
-          height: 34px;
+          height: 33px;
 
           span {
             pointer-events: none;
@@ -107,9 +107,10 @@
       background-color: $color-twill-design-cell-background;
       border-bottom: 1px solid $color-twill-design-cell-border;
       border-right: 1px solid $color-twill-design-cell-border;
+      box-sizing: content-box;
       display: inline-block;
       font-size: 16px;
-      height: 66px;
+      height: 65px;
       line-height: 32px;
       margin: 0;
       padding: 0;

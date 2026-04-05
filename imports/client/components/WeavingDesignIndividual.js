@@ -176,6 +176,7 @@ class WeavingDesignIndividual extends PureComponent {
 
     this.setState({
       controlsOffsetX: 0,
+      controlsOffsetY: 0,
       isEditing: !isEditing,
       numberOfTurns: 1,
     });

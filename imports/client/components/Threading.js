@@ -13,14 +13,15 @@ import {
   setIsEditingRightBorderThreading,
 } from '../modules/pattern';
 import ThreadingChartCell from './ThreadingChartCell';
-import IncludeInTwistCell from './IncludeInTwistCell';
+import IncludeInTwistCell, {
+  IncludeInTwistButtons,
+} from './IncludeInTwistCell';
 import OrientationCell from './OrientationCell';
 import AddTabletsForm from '../forms/AddTabletsForm';
 import './Threading.scss';
 import { DEFAULT_PALETTE_COLOR, HOLE_LABELS } from '../../modules/parameters';
 import Palette from './Palette';
 import VerticalGuides from './VerticalGuides';
-import InfoButton from './InfoButton';
 
 // row and tablet have nothing to identify them except index
 // note row here indicates hole of the tablet
@@ -184,7 +185,7 @@ class Threading extends PureComponent {
     );
   }
 
-  handleChangeIncludInTwistCheckbox(event, tabletIndex) {
+  handleChangeIncludInTwistCheckbox(tabletIndex) {
     const {
       dispatch,
       pattern: { _id },
@@ -318,6 +319,7 @@ class Threading extends PureComponent {
   }
 
   renderIncludeInTwistCalculationsButton(tabletIndex) {
+    const { tabletOffset } = this.props;
     const { isEditing } = this.state;
 
     return (
@@ -327,18 +329,18 @@ class Threading extends PureComponent {
         }
         isEditing={isEditing}
         tabletIndex={tabletIndex}
+        tabletOffset={tabletOffset || 0}
       />
     );
   }
 
   renderIncludeInTwistCalculationsButtons() {
     const {
-      pattern: { includeInTwist, patternType },
+      pattern: { includeInTwist },
       numberOfTablets,
     } = this.props;
 
-    // only 'individual' patterns can have borders that turn differently to the main pattern
-    if (!includeInTwist || patternType !== 'individual') {
+    if (!includeInTwist) {
       return;
     }
 
@@ -351,19 +353,7 @@ class Threading extends PureComponent {
       );
     }
 
-    const twistInfoText =
-      'Uncheck the "Include in twist calculations" checkbox for any border tablet that you will always turn forwards. Otherwise, border tablets may prevent the pattern from being identified as twist neutral or repeating.';
-    const twistInfoTitle =
-      'Click to learn about the "Include in twist calculations" checkboxes';
-
-    return (
-      <div className='include-in-twist-buttons'>
-        <div className='twist-info-button'>
-          <InfoButton message={twistInfoText} title={twistInfoTitle} />
-        </div>
-        <ul>{buttons}</ul>
-      </div>
-    );
+    return <IncludeInTwistButtons>{buttons}</IncludeInTwistButtons>;
   }
 
   renderTabletLabels() {

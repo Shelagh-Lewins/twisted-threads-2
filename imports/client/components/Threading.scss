@@ -48,7 +48,7 @@
     border: 1px solid transparent;
     border-radius: 4px;
     margin: 0;
-    min-width: 500px; // leave room for edit controls
+    min-width: 170px; // leave room for edit button
     padding: 8px;
   }
 
@@ -124,6 +124,7 @@
 
   .include-in-twist-buttons {
     margin-left: 32px;
+    position: relative;
 
     ul {
       font-size: 1rem;
@@ -134,7 +135,7 @@
     }
 
     .twist-info-button {
-      left: 24px;
+      left: -24px;
       position: absolute;
     }
   }

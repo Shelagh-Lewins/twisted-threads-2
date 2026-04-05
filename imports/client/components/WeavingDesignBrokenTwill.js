@@ -7,11 +7,9 @@ import {
   editTwillChart,
   editTwillWeavingStartRow,
   removeWeavingRows,
-  setIsEditingWeaving,
-  setIsEditingLeftBorderWeaving,
-  setIsEditingRightBorderWeaving,
 } from '../modules/pattern';
 import calculateScrolling from '../modules/calculateScrolling';
+import { toggleEditMainPatternWeaving } from '../modules/editingUtils';
 import AddRowsForm from '../forms/AddRowsForm';
 import TwillWeavingStartRowForm from '../forms/TwillWeavingStartRowForm';
 import './WeavingDesignBrokenTwill.scss';
@@ -172,23 +170,12 @@ class WeavingDesignBrokenTwill extends PureComponent {
   toggleEditWeaving() {
     const { dispatch } = this.props;
     const { isEditing } = this.state;
-
-    if (!isEditing) {
-      document.addEventListener('scroll', this.trackScrolling);
-      window.addEventListener('resize', this.trackScrolling);
-      setTimeout(() => this.trackScrolling(), 100); // give the controls time to render
-      dispatch(setIsEditingLeftBorderWeaving(false));
-      dispatch(setIsEditingRightBorderWeaving(false));
-    } else {
-      document.removeEventListener('scroll', this.trackScrolling);
-      window.removeEventListener('resize', this.trackScrolling);
-    }
-
-    this.setState({
-      isEditing: !isEditing,
+    toggleEditMainPatternWeaving({
+      dispatch,
+      isEditing,
+      setState: this.setState.bind(this),
+      trackScrolling: this.trackScrolling,
     });
-
-    dispatch(setIsEditingWeaving(!isEditing));
   }
 
   handleClickEditMode(event) {

@@ -128,6 +128,7 @@ class WeavingDesignBorder extends PureComponent {
 
     this.setState({
       controlsOffsetX: 0,
+      controlsOffsetY: 0,
       numberOfTurns: 1,
     });
 
