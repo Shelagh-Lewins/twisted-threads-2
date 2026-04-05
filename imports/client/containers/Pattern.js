@@ -1219,8 +1219,7 @@ function mapStateToProps(state, ownProps) {
     canAddPatternImage: getCanAddPatternImage(state),
     canPublish: getCanPublish(state),
     errors: state.errors,
-    leftBorderNumberOfTablets:
-      (getLeftBorder(state) && getLeftBorder(state).numberOfTablets) || 0,
+    leftBorderNumberOfTablets: getLeftBorder(state)?.numberOfTablets ?? 0,
     holeHandedness: getHoleHandedness(state),
     holes: getHoles(state),
     isEditing: getIsEditing(state),

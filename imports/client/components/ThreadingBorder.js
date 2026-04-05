@@ -26,6 +26,9 @@ import {
   setIsEditingLeftBorderThreading,
   setIsEditingRightBorderThreading,
   setIsEditingThreading,
+  setIsEditingWeaving,
+  setIsEditingLeftBorderWeaving,
+  setIsEditingRightBorderWeaving,
 } from '../modules/pattern';
 import { DEFAULT_PALETTE_COLOR, HOLE_LABELS } from '../../modules/parameters';
 import './Threading.scss';
@@ -83,12 +86,18 @@ class ThreadingBorder extends PureComponent {
 
     if (side === 'left') {
       if (newIsEditing) {
+        dispatch(setIsEditingWeaving(false));
+        dispatch(setIsEditingLeftBorderWeaving(false));
+        dispatch(setIsEditingRightBorderWeaving(false));
         dispatch(setIsEditingThreading(false));
         dispatch(setIsEditingRightBorderThreading(false));
       }
       dispatch(setIsEditingLeftBorderThreading(newIsEditing));
     } else {
       if (newIsEditing) {
+        dispatch(setIsEditingWeaving(false));
+        dispatch(setIsEditingLeftBorderWeaving(false));
+        dispatch(setIsEditingRightBorderWeaving(false));
         dispatch(setIsEditingThreading(false));
         dispatch(setIsEditingLeftBorderThreading(false));
       }
@@ -469,7 +478,6 @@ class ThreadingBorder extends PureComponent {
               <AddBorderTabletsForm
                 handleSubmit={this.handleSubmitAddTablets}
                 numberOfTablets={border.numberOfTablets}
-                enableReinitialize={true}
               />
               {this.renderPalette()}
             </div>

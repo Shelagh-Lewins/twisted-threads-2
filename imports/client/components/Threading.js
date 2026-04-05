@@ -11,6 +11,9 @@ import {
   setIsEditingThreading,
   setIsEditingLeftBorderThreading,
   setIsEditingRightBorderThreading,
+  setIsEditingWeaving,
+  setIsEditingLeftBorderWeaving,
+  setIsEditingRightBorderWeaving,
 } from '../modules/pattern';
 import ThreadingChartCell from './ThreadingChartCell';
 import IncludeInTwistCell, {
@@ -230,6 +233,9 @@ class Threading extends PureComponent {
     if (!isEditing) {
       document.addEventListener('scroll', this.trackScrolling);
       window.addEventListener('resize', this.trackScrolling);
+      dispatch(setIsEditingWeaving(false));
+      dispatch(setIsEditingLeftBorderWeaving(false));
+      dispatch(setIsEditingRightBorderWeaving(false));
       dispatch(setIsEditingLeftBorderThreading(false));
       dispatch(setIsEditingRightBorderThreading(false));
     } else {

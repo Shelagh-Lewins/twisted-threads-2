@@ -312,6 +312,173 @@ if (Meteor.isServer) {
           assert.equal(updated.leftBorder.threading[0][0], 2);
         });
 
+        it('can edit a border orientation', async () => {
+          const { brokenTwillPatternId } = this;
+
+          await callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+            _id: brokenTwillPatternId,
+            data: {
+              type: 'addLeftBorderTablets',
+              colorIndex: 0,
+              insertNTablets: 1,
+              insertTabletsAt: 0,
+            },
+          });
+
+          await callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+            _id: brokenTwillPatternId,
+            data: {
+              type: 'editBorderOrientation',
+              side: 'left',
+              tablet: 0,
+              tabletOrientation: '\\',
+            },
+          });
+
+          const updated = await Patterns.findOneAsync({
+            _id: brokenTwillPatternId,
+          });
+
+          assert.equal(updated.leftBorder.orientations[0], '\\');
+        });
+
+        it('can edit a border weaving cell direction', async () => {
+          const { brokenTwillPatternId } = this;
+
+          await callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+            _id: brokenTwillPatternId,
+            data: {
+              type: 'addLeftBorderTablets',
+              colorIndex: 0,
+              insertNTablets: 1,
+              insertTabletsAt: 0,
+            },
+          });
+
+          await callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+            _id: brokenTwillPatternId,
+            data: {
+              type: 'editBorderWeavingCell',
+              side: 'left',
+              row: 0,
+              tablet: 0,
+            },
+          });
+
+          const updated = await Patterns.findOneAsync({
+            _id: brokenTwillPatternId,
+          });
+
+          // toggling direction from default 'F' should give 'B' for row 0 onwards
+          assert.equal(
+            updated.leftBorder.weavingInstructions[0][0].direction,
+            'B',
+          );
+        });
+
+        it('can edit a border weaving cell number of turns', async () => {
+          const { brokenTwillPatternId } = this;
+
+          await callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+            _id: brokenTwillPatternId,
+            data: {
+              type: 'addLeftBorderTablets',
+              colorIndex: 0,
+              insertNTablets: 1,
+              insertTabletsAt: 0,
+            },
+          });
+
+          await callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+            _id: brokenTwillPatternId,
+            data: {
+              type: 'editBorderWeavingCellTurns',
+              side: 'left',
+              row: 0,
+              tablet: 0,
+              numberOfTurns: 3,
+            },
+          });
+
+          const updated = await Patterns.findOneAsync({
+            _id: brokenTwillPatternId,
+          });
+
+          assert.equal(
+            updated.leftBorder.weavingInstructions[0][0].numberOfTurns,
+            3,
+          );
+        });
+
+        it('can edit border includeInTwist', async () => {
+          const { brokenTwillPatternId } = this;
+
+          await callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+            _id: brokenTwillPatternId,
+            data: {
+              type: 'addLeftBorderTablets',
+              colorIndex: 0,
+              insertNTablets: 1,
+              insertTabletsAt: 0,
+            },
+          });
+
+          await callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+            _id: brokenTwillPatternId,
+            data: {
+              type: 'editBorderIncludeInTwist',
+              side: 'left',
+              tablet: 0,
+              tabletIncludeInTwist: false,
+            },
+          });
+
+          const updated = await Patterns.findOneAsync({
+            _id: brokenTwillPatternId,
+          });
+
+          assert.equal(updated.leftBorder.includeInTwist[0], false);
+        });
+
+        it('can add a new right border', async () => {
+          const { brokenTwillPatternId } = this;
+
+          await callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+            _id: brokenTwillPatternId,
+            data: {
+              type: 'addRightBorderTablets',
+              colorIndex: 0,
+              insertNTablets: 2,
+              insertTabletsAt: 0,
+            },
+          });
+
+          const updated = await Patterns.findOneAsync({
+            _id: brokenTwillPatternId,
+          });
+
+          assert.equal(updated.rightBorder.numberOfTablets, 2);
+          assert.equal(updated.rightBorder.threading.length, 4);
+          assert.deepEqual(updated.rightBorder.threading[0], [0, 0]);
+        });
+
+        it('cannot add border tablets that would exceed MAX_TABLETS', async () => {
+          const { brokenTwillPatternId } = this;
+
+          // Pattern has 8 main tablets; adding 93 would give 101 > MAX_TABLETS (100)
+          await expect(
+            callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+              _id: brokenTwillPatternId,
+              data: {
+                type: 'addLeftBorderTablets',
+                colorIndex: 0,
+                insertNTablets: 93,
+                insertTabletsAt: 0,
+              },
+            }),
+          ).to.be.rejectedWith('add-border-tablets-too-many');
+        });
+
         it('can set a tablet guide for a main-pattern tablet', async () => {
           const { brokenTwillPatternId } = this;
 

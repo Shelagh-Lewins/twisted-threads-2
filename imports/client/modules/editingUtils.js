@@ -1,6 +1,9 @@
 import {
+  setIsEditingLeftBorderThreading,
   setIsEditingLeftBorderWeaving,
+  setIsEditingRightBorderThreading,
   setIsEditingRightBorderWeaving,
+  setIsEditingThreading,
   setIsEditingWeaving,
 } from './pattern';
 
@@ -17,6 +20,9 @@ export function toggleEditMainPatternWeaving({
     document.addEventListener('scroll', trackScrolling);
     window.addEventListener('resize', trackScrolling);
     setTimeout(() => trackScrolling(), 100); // give the controls time to render
+    dispatch(setIsEditingThreading(false));
+    dispatch(setIsEditingLeftBorderThreading(false));
+    dispatch(setIsEditingRightBorderThreading(false));
     dispatch(setIsEditingLeftBorderWeaving(false));
     dispatch(setIsEditingRightBorderWeaving(false));
   } else {

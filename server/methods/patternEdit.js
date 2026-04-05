@@ -1684,7 +1684,7 @@ Meteor.methods({
         ({ side, holesToSet, tablet, colorIndex } = data);
         check(side, String);
         check(holesToSet, [positiveIntegerCheck]);
-        check(tablet, Match.Integer);
+        check(tablet, positiveIntegerCheck);
         check(colorIndex, validPaletteIndexCheck);
 
         const borderKey = side === 'left' ? 'leftBorder' : 'rightBorder';
@@ -1700,7 +1700,7 @@ Meteor.methods({
         let side;
         ({ side, tablet, tabletOrientation } = data);
         check(side, String);
-        check(tablet, Match.Integer);
+        check(tablet, positiveIntegerCheck);
         check(tabletOrientation, String);
 
         const borderKey = side === 'left' ? 'leftBorder' : 'rightBorder';
@@ -1720,7 +1720,7 @@ Meteor.methods({
         ({ side, row, tablet } = data);
         check(side, String);
         check(row, Match.Integer);
-        check(tablet, Match.Integer);
+        check(tablet, positiveIntegerCheck);
 
         const borderKey = side === 'left' ? 'leftBorder' : 'rightBorder';
         const border = pattern[borderKey];
@@ -1752,7 +1752,7 @@ Meteor.methods({
         ({ side, row, tablet, numberOfTurns } = data);
         check(side, String);
         check(row, Match.Integer);
-        check(tablet, Match.Integer);
+        check(tablet, positiveIntegerCheck);
         check(numberOfTurns, Match.Integer);
 
         const borderKey = side === 'left' ? 'leftBorder' : 'rightBorder';
@@ -1771,7 +1771,7 @@ Meteor.methods({
         let side;
         ({ side, tablet, tabletIncludeInTwist } = data);
         check(side, String);
-        check(tablet, Match.Integer);
+        check(tablet, positiveIntegerCheck);
         check(tabletIncludeInTwist, Boolean);
 
         const borderKey = side === 'left' ? 'leftBorder' : 'rightBorder';
