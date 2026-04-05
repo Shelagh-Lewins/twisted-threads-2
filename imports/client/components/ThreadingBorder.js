@@ -2,7 +2,8 @@ import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
-import ChartSVG from './ChartSVG';
+import ThreadingChartCell from './ThreadingChartCell';
+import { OrientationCell } from './OrientationCell';
 import {
   IncludeInTwistCell,
   IncludeInTwistButtons,
@@ -19,7 +20,6 @@ import {
   getIsEditingLeftBorderThreading,
   getIsEditingRightBorderThreading,
   getLeftBorder,
-  getPalette,
   getRightBorder,
   removeLeftBorderTablet,
   removeRightBorderTablet,
@@ -44,15 +44,16 @@ class ThreadingBorder extends PureComponent {
     super(props);
 
     this.state = {
+      controlsOffset: 0,
       isEditing: false,
       selectedColorIndex: DEFAULT_PALETTE_COLOR,
     };
 
     const functionsToBind = [
+      'handleChangeIncludeInTwistCheckbox',
       'handleClickOrientation',
       'handleClickRemoveTablet',
       'handleClickThreadingCell',
-      'handleChangeIncludeInTwistCheckbox',
       'handleSubmitAddTablets',
       'selectColor',
       'toggleEditThreading',
@@ -61,6 +62,10 @@ class ThreadingBorder extends PureComponent {
     functionsToBind.forEach((functionName) => {
       this[functionName] = this[functionName].bind(this);
     });
+
+    // ref to find nodes so we can keep controls in view
+    this.threadingRef = React.createRef();
+    this.controlsRef = React.createRef();
   }
 
   selectColor(index) {
@@ -75,20 +80,68 @@ class ThreadingBorder extends PureComponent {
       prevProps.isEditingThisBorderThreading &&
       isEditing
     ) {
+      document.removeEventListener('scroll', this.trackScrolling);
+      window.removeEventListener('resize', this.trackScrolling);
       this.setState({ isEditing: false });
     }
   }
+
+  componentWillUnmount() {
+    document.removeEventListener('scroll', this.trackScrolling);
+    window.removeEventListener('resize', this.trackScrolling);
+  }
+
+  // ensure the edit tools remain in view
+  trackScrolling = () => {
+    const threadingElm = this.threadingRef.current;
+
+    const { x: threadingLeftOffset } = threadingElm.getBoundingClientRect();
+
+    const compStyles = window.getComputedStyle(threadingElm);
+
+    const threadingWidth =
+      parseFloat(threadingElm.clientWidth) -
+      parseFloat(compStyles.getPropertyValue('padding-left')) -
+      parseFloat(compStyles.getPropertyValue('padding-right'));
+
+    let myNode;
+    [myNode] = this.controlsRef.current.getElementsByClassName('swatches');
+
+    if (!myNode) {
+      [myNode] = this.controlsRef.current.getElementsByClassName('color-books');
+    }
+
+    const controlsWidth = myNode.getBoundingClientRect().width;
+
+    const widthDifference = threadingWidth - controlsWidth;
+
+    if (threadingLeftOffset < 0) {
+      this.setState({
+        controlsOffset: Math.min(-1 * threadingLeftOffset, widthDifference),
+      });
+    } else {
+      this.setState({
+        controlsOffset: 0,
+      });
+    }
+  };
 
   toggleEditThreading() {
     const { dispatch, side } = this.props;
     const { isEditing } = this.state;
 
     const newIsEditing = !isEditing;
-    this.setState({ isEditing: newIsEditing });
+    this.setState({ controlsOffset: 0, isEditing: newIsEditing });
 
     if (newIsEditing) {
+      document.addEventListener('scroll', this.trackScrolling);
+      window.addEventListener('resize', this.trackScrolling);
+      setTimeout(() => this.trackScrolling(), 100); // give the controls time to render
       // Clear all other edit modes before activating this one
       clearAllEditModes(dispatch);
+    } else {
+      document.removeEventListener('scroll', this.trackScrolling);
+      window.removeEventListener('resize', this.trackScrolling);
     }
 
     const setAction =
@@ -214,20 +267,8 @@ class ThreadingBorder extends PureComponent {
   }
 
   renderCell(rowIndex, tabletIndex) {
-    const { border, holes, palette } = this.props;
+    const { tabletOffset } = this.props;
     const { isEditing } = this.state;
-
-    const colorIndex = border.threadingByTablet[tabletIndex][rowIndex];
-    const orientation = border.orientations[tabletIndex];
-
-    if (!orientation) return null;
-
-    const threadDetails = {
-      colorIndex,
-      holeToShow: rowIndex,
-      threadAngle: orientation === '\\' ? '\\' : '/',
-      threadColor: palette[colorIndex],
-    };
 
     return (
       <span
@@ -245,15 +286,10 @@ class ThreadingBorder extends PureComponent {
         role={isEditing ? 'button' : undefined}
         tabIndex={isEditing ? '0' : undefined}
       >
-        <ChartSVG
-          direction='F'
-          holes={holes}
-          netTurns={holes - rowIndex}
-          numberOfTurns={1}
-          orientation={orientation}
-          palette={palette}
-          tabletIndex={tabletIndex}
-          threadDetails={threadDetails}
+        <ThreadingChartCell
+          combined
+          rowIndex={rowIndex}
+          tabletIndex={(tabletOffset || 0) + tabletIndex}
         />
       </span>
     );
@@ -392,23 +428,16 @@ class ThreadingBorder extends PureComponent {
 
     const cells = [];
     for (let i = 0; i < numberOfTablets; i += 1) {
-      const orientation = orientations[i];
       cells.push(
         <li className='cell value' key={`border-orientation-${i}`}>
-          <span
-            type={isEditing ? 'button' : undefined}
-            onClick={
-              isEditing ? () => this.handleClickOrientation(i) : undefined
+          <OrientationCell
+            handleClickOrientation={
+              isEditing ? this.handleClickOrientation : undefined
             }
-            onKeyPress={
-              isEditing ? () => this.handleClickOrientation(i) : undefined
-            }
-            role={isEditing ? 'button' : undefined}
-            tabIndex={isEditing ? '0' : undefined}
-            title={`${orientation === '/' ? 'Orientation S' : 'Orientation Z'}`}
-          >
-            <span className={`${orientation === '/' ? 's' : 'z'}`} />
-          </span>
+            isEditing={isEditing}
+            orientation={orientations[i]}
+            tabletIndex={i}
+          />
         </li>,
       );
     }
@@ -440,38 +469,15 @@ class ThreadingBorder extends PureComponent {
 
   render() {
     const { border, canEdit, side } = this.props;
-    const { isEditing } = this.state;
+    const { controlsOffset, isEditing } = this.state;
     const hasBorder = border?.numberOfTablets > 0;
-
-    // if (!border || !border.numberOfTablets) {
-    //   // Always show the edit button so the user can add the first border tablets.
-    //   // When editing with no tablets yet, also show the add-tablets form.
-    //   const sideLabel = side === 'left' ? 'Left border' : 'Right border';
-    //   return (
-    //     <div
-    //       className={`threading border-threading border-threading-empty ${isEditing ? 'editing' : ''}`}
-    //     >
-    //       {canEdit && this.renderControls()}
-    //       {isEditing && (
-    //         <>
-    //           <p className='hint'>{`${sideLabel}: add tablets below to create a border.`}</p>
-    //           <AddTabletsForm
-    //             handleSubmit={this.handleSubmitAddTablets}
-    //             numberOfTablets={0}
-    //           />
-    //           {this.renderPalette()}
-    //         </>
-    //       )}
-    //     </div>
-    //   );
-    // }
 
     return (
       <div
         className={`threading border-threading ${isEditing ? 'editing' : ''}`}
       >
         {canEdit && this.renderControls()}
-        <div className='content'>
+        <div className='content' ref={this.threadingRef}>
           {hasBorder && (
             <>
               {this.renderChart()}
@@ -484,15 +490,21 @@ class ThreadingBorder extends PureComponent {
               <p className='hint'>{'Add tablets to create a border.'}</p>
             </div>
           )}
-          {isEditing && (
-            <div>
+          <div
+            ref={this.controlsRef}
+            style={{
+              left: `${controlsOffset}px`,
+              position: 'relative',
+            }}
+          >
+            {isEditing && (
               <AddTabletsForm
                 handleSubmit={this.handleSubmitAddTablets}
                 numberOfTablets={border?.numberOfTablets || 0}
               />
-              {this.renderPalette()}
-            </div>
-          )}
+            )}
+            {isEditing && this.renderPalette()}
+          </div>
           <div className='clearing' />
         </div>
       </div>
@@ -507,7 +519,6 @@ ThreadingBorder.propTypes = {
   dispatch: PropTypes.func,
   holes: PropTypes.number.isRequired,
   isEditingThisBorderThreading: PropTypes.bool,
-  palette: PropTypes.arrayOf(PropTypes.any).isRequired,
   pattern: PropTypes.objectOf(PropTypes.any).isRequired,
   side: PropTypes.oneOf(['left', 'right']).isRequired,
   tabletOffset: PropTypes.number,
@@ -523,7 +534,6 @@ function mapStateToProps(state, ownProps) {
       side === 'left'
         ? getIsEditingLeftBorderThreading(state)
         : getIsEditingRightBorderThreading(state),
-    palette: getPalette(state),
   };
 }
 
