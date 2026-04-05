@@ -51,7 +51,6 @@ import WeavingDesignBorder from '../components/WeavingDesignBorder';
 import Weft from '../components/Weft';
 import PatternPreview from '../components/PatternPreview';
 import Threading from '../components/Threading';
-import ThreadingBorder from '../components/ThreadingBorder';
 import ThreadCounts from '../components/ThreadCounts';
 import Notation from '../components/Notation';
 import PreviewOrientation from '../components/PreviewOrientation';
@@ -972,7 +971,7 @@ class Pattern extends PureComponent {
               <>
                 {getPatternSupportsBorders(patternType) ? (
                   <div className='threading-with-borders'>
-                    <ThreadingBorder
+                    <Threading
                       canEdit={canEdit}
                       colorBooks={colorBooks}
                       dispatch={dispatch}
@@ -991,7 +990,7 @@ class Pattern extends PureComponent {
                       ref={this.childThreading}
                       tabletOffset={leftBorderNumberOfTablets}
                     />
-                    <ThreadingBorder
+                    <Threading
                       canEdit={canEdit}
                       colorBooks={colorBooks}
                       dispatch={dispatch}

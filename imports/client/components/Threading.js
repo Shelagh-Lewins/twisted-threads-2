@@ -3,24 +3,40 @@ import { Button } from 'reactstrap';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import {
+  addLeftBorderTablets,
+  addRightBorderTablets,
   addTablets,
+  editBorderIncludeInTwist,
+  editBorderOrientation,
+  editBorderThreadingCell,
   editIncludeInTwist,
   editOrientation,
   editThreadingCell,
+  getHoles,
+  getIsEditingLeftBorderThreading,
+  getIsEditingRightBorderThreading,
+  getLeftBorder,
+  getRightBorder,
+  removeLeftBorderTablet,
+  removeRightBorderTablet,
   removeTablet,
+  setIsEditingLeftBorderThreading,
+  setIsEditingRightBorderThreading,
   setIsEditingThreading,
 } from '../modules/pattern';
 import { clearAllEditModes } from '../modules/editingUtils';
 import ThreadingChartCell from './ThreadingChartCell';
-import IncludeInTwistCell, {
+import {
+  IncludeInTwistCell,
   IncludeInTwistButtons,
 } from './IncludeInTwistCell';
-import OrientationCell from './OrientationCell';
+import { OrientationCell } from './OrientationCell';
 import AddTabletsForm from '../forms/AddTabletsForm';
 import './Threading.scss';
 import {
   DEFAULT_PALETTE_COLOR,
   HOLE_LABELS,
+  MAX_BORDER_TABLETS,
   MAX_TABLETS,
 } from '../../modules/parameters';
 import Palette from './Palette';
@@ -66,9 +82,9 @@ class Threading extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    const { isEditingThreading } = this.props;
+    const { isEditingThisSection } = this.props;
     const { isEditing } = this.state;
-    if (!isEditingThreading && prevProps.isEditingThreading && isEditing) {
+    if (!isEditingThisSection && prevProps.isEditingThisSection && isEditing) {
       document.removeEventListener('scroll', this.trackScrolling);
       window.removeEventListener('resize', this.trackScrolling);
       this.setState({ isEditing: false });
@@ -125,22 +141,20 @@ class Threading extends PureComponent {
   }
 
   handleClickRemoveTablet(tabletIndex) {
-    const {
-      dispatch,
-      pattern: { _id },
-    } = this.props;
+    const { onRemoveTablet, tabletLabel, tabletOffset } = this.props;
     const { isEditing } = this.state;
 
     if (!isEditing) {
       return;
     }
 
+    const displayNumber = (tabletOffset || 0) + tabletIndex + 1;
     const response = confirm(
-      `Do you want to delete tablet ${tabletIndex + 1}?`,
+      `Do you want to delete ${tabletLabel} ${displayNumber}?`,
     ); // eslint-disable-line no-restricted-globals
 
     if (response === true) {
-      dispatch(removeTablet({ _id, tablet: tabletIndex }));
+      onRemoveTablet({ tablet: tabletIndex });
 
       setTimeout(() => this.trackScrolling(), 100); // give the change time to render
     }
@@ -148,19 +162,17 @@ class Threading extends PureComponent {
 
   handleSubmitAddTablets(data) {
     const {
-      dispatch,
+      onAddTablets,
       pattern: { _id },
     } = this.props;
     const { selectedColorIndex } = this.state;
 
-    dispatch(
-      addTablets({
-        _id,
-        insertNTablets: parseInt(data.insertNTablets, 10),
-        insertTabletsAt: parseInt(data.insertTabletsAt - 1, 10),
-        colorIndex: parseInt(selectedColorIndex, 10),
-      }),
-    );
+    onAddTablets({
+      _id,
+      insertNTablets: parseInt(data.insertNTablets, 10),
+      insertTabletsAt: parseInt(data.insertTabletsAt - 1, 10),
+      colorIndex: parseInt(selectedColorIndex, 10),
+    });
 
     setTimeout(() => this.trackScrolling(), 100); // give the change time to render
   }
@@ -173,24 +185,22 @@ class Threading extends PureComponent {
     }
 
     const {
-      dispatch,
+      onEditThreadingCell,
       pattern: { _id },
     } = this.props;
     const { selectedColorIndex } = this.state;
 
-    dispatch(
-      editThreadingCell({
-        _id,
-        hole: rowIndex,
-        tablet: tabletIndex,
-        colorIndex: selectedColorIndex,
-      }),
-    );
+    onEditThreadingCell({
+      _id,
+      hole: rowIndex,
+      tablet: tabletIndex,
+      colorIndex: selectedColorIndex,
+    });
   }
 
   handleChangeIncludInTwistCheckbox(tabletIndex) {
     const {
-      dispatch,
+      onChangeIncludeInTwist,
       pattern: { _id },
     } = this.props;
     const { isEditing } = this.state;
@@ -199,17 +209,15 @@ class Threading extends PureComponent {
       return;
     }
 
-    dispatch(
-      editIncludeInTwist({
-        _id,
-        tablet: tabletIndex,
-      }),
-    );
+    onChangeIncludeInTwist({
+      _id,
+      tablet: tabletIndex,
+    });
   }
 
   handleClickOrientation(tabletIndex) {
     const {
-      dispatch,
+      onChangeOrientation,
       pattern: { _id },
     } = this.props;
     const { isEditing } = this.state;
@@ -218,36 +226,37 @@ class Threading extends PureComponent {
       return;
     }
 
-    dispatch(
-      editOrientation({
-        _id,
-        tablet: tabletIndex,
-      }),
-    );
+    onChangeOrientation({
+      _id,
+      tablet: tabletIndex,
+    });
   }
 
   toggleEditThreading() {
-    const { dispatch } = this.props;
+    const { dispatch, onToggleEdit } = this.props;
     const { isEditing } = this.state;
+    const newIsEditing = !isEditing;
 
-    if (!isEditing) {
+    this.setState({
+      controlsOffset: 0,
+      isEditing: newIsEditing,
+    });
+
+    if (newIsEditing) {
       document.addEventListener('scroll', this.trackScrolling);
       window.addEventListener('resize', this.trackScrolling);
+      setTimeout(() => this.trackScrolling(), 100); // give the controls time to render
       clearAllEditModes(dispatch);
     } else {
       document.removeEventListener('scroll', this.trackScrolling);
       window.removeEventListener('resize', this.trackScrolling);
     }
 
-    this.setState({
-      controlsOffset: 0,
-      isEditing: !isEditing,
-    });
-
-    dispatch(setIsEditingThreading(!isEditing));
+    onToggleEdit(newIsEditing);
   }
 
   renderControls() {
+    const { controlsLabel } = this.props;
     const { isEditing } = this.state;
 
     return (
@@ -258,7 +267,7 @@ class Threading extends PureComponent {
           </Button>
         ) : (
           <Button color='primary' onClick={this.toggleEditThreading}>
-            Edit main pattern
+            {controlsLabel}
           </Button>
         )}
       </div>
@@ -266,7 +275,15 @@ class Threading extends PureComponent {
   }
 
   renderCell(rowIndex, selectedRow, tabletIndex) {
+    const { combined, side, tabletOffset } = this.props;
     const { isEditing } = this.state;
+
+    // Border sections use combined mode so ThreadingChartCell reads from the
+    // correct border slice of state via resolveCombinedTablet.
+    const effectiveCombined = side ? true : combined;
+    const effectiveTabletIndex = side
+      ? (tabletOffset || 0) + tabletIndex
+      : tabletIndex;
 
     return (
       <span
@@ -285,17 +302,17 @@ class Threading extends PureComponent {
         tabIndex={isEditing ? '0' : undefined}
       >
         <ThreadingChartCell
-          combined={this.props.combined}
+          combined={effectiveCombined}
           rowIndex={rowIndex}
           selectedRow={selectedRow}
-          tabletIndex={tabletIndex}
+          tabletIndex={effectiveTabletIndex}
         />
       </span>
     );
   }
 
   renderRow(rowIndex) {
-    const { holes, numberOfTablets, selectedRow } = this.props;
+    const { holes, numberOfTablets, selectedRow, side } = this.props;
     const labelIndex = holes - rowIndex - 1;
 
     const cells = [];
@@ -314,20 +331,23 @@ class Threading extends PureComponent {
             <span>{HOLE_LABELS[labelIndex]}</span>
           </li>
           {cells}
-          <VerticalGuides numberOfTablets={numberOfTablets} />
+          {!side && <VerticalGuides numberOfTablets={numberOfTablets} />}
         </ul>
       </>
     );
   }
 
   renderIncludeInTwistCalculationsButton(tabletIndex) {
-    const { tabletOffset } = this.props;
+    const { includeInTwist, tabletOffset } = this.props;
     const { isEditing } = this.state;
 
     return (
       <IncludeInTwistCell
         handleChangeIncludInTwistCheckbox={
           this.handleChangeIncludInTwistCheckbox
+        }
+        includeInTwistForTablet={
+          !!(includeInTwist && includeInTwist[tabletIndex])
         }
         isEditing={isEditing}
         tabletIndex={tabletIndex}
@@ -337,10 +357,7 @@ class Threading extends PureComponent {
   }
 
   renderIncludeInTwistCalculationsButtons() {
-    const {
-      pattern: { includeInTwist },
-      numberOfTablets,
-    } = this.props;
+    const { includeInTwist, numberOfTablets } = this.props;
 
     if (!includeInTwist) {
       return;
@@ -396,6 +413,9 @@ class Threading extends PureComponent {
   }
 
   renderRemoveTabletButton(tabletIndex) {
+    const { tabletOffset } = this.props;
+    const displayNumber = (tabletOffset || 0) + tabletIndex + 1;
+
     return (
       <span
         type='button'
@@ -403,7 +423,7 @@ class Threading extends PureComponent {
         onKeyPress={() => this.handleClickRemoveTablet(tabletIndex)}
         role='button'
         tabIndex='0'
-        title={`Delete tablet ${tabletIndex + 1}`}
+        title={`Delete tablet ${displayNumber}`}
       >
         X
       </span>
@@ -411,11 +431,11 @@ class Threading extends PureComponent {
   }
 
   renderRemoveTabletButtons() {
-    const { numberOfTablets } = this.props;
+    const { numberOfTablets, side } = this.props;
     const buttons = [];
     for (let i = 0; i < numberOfTablets; i += 1) {
       buttons.push(
-        <li className='cell delete' key={`orientation-${i}`}>
+        <li className='cell delete' key={`remove-tablet-${i}`}>
           {this.renderRemoveTabletButton(i)}
         </li>,
       );
@@ -424,27 +444,26 @@ class Threading extends PureComponent {
     return (
       <div className='remove-tablet-buttons'>
         <ul className='remove-tablet-buttons'>{buttons}</ul>
-        <p className='hint'>
-          Slope of line = angle of tablet viewed from above
-        </p>
+        {!side && (
+          <p className='hint'>
+            Slope of line = angle of tablet viewed from above
+          </p>
+        )}
       </div>
     );
   }
 
   renderOrientation(tabletIndex) {
-    const {
-      pattern: { patternType },
-    } = this.props;
+    const { canChangeOrientation, orientations } = this.props;
     const { isEditing } = this.state;
-    const canChange =
-      patternType !== 'brokenTwill' && patternType !== 'doubleFaced';
 
     return (
       <OrientationCell
         handleClickOrientation={
-          canChange ? this.handleClickOrientation : undefined
+          canChangeOrientation ? this.handleClickOrientation : undefined
         }
         isEditing={isEditing}
+        orientation={orientations?.[tabletIndex]}
         tabletIndex={tabletIndex}
       />
     );
@@ -469,12 +488,12 @@ class Threading extends PureComponent {
   }
 
   renderToolbar() {
-    const { numberOfTablets } = this.props;
+    const { maxTablets, numberOfTablets } = this.props;
 
     return (
       <AddTabletsForm
         handleSubmit={this.handleSubmitAddTablets}
-        maxTablets={MAX_TABLETS}
+        maxTablets={maxTablets}
         numberOfTablets={numberOfTablets}
       />
     );
@@ -483,6 +502,7 @@ class Threading extends PureComponent {
   renderPalette() {
     const {
       colorBooks,
+      paletteElementId,
       pattern: { _id },
     } = this.props;
     const { selectedColorIndex } = this.state;
@@ -491,7 +511,7 @@ class Threading extends PureComponent {
       <Palette
         _id={_id}
         colorBooks={colorBooks}
-        elementId='threading-palette'
+        elementId={paletteElementId}
         selectColor={this.selectColor}
         initialColorIndex={selectedColorIndex}
       />
@@ -499,16 +519,27 @@ class Threading extends PureComponent {
   }
 
   render() {
-    const { canEdit } = this.props;
+    const { canEdit, numberOfTablets, side } = this.props;
     const { controlsOffset, isEditing } = this.state;
+    const hasBorder = side && numberOfTablets > 0;
+    const showChart = !side || hasBorder;
 
     return (
-      <div className={`threading ${isEditing ? 'editing' : ''}`}>
+      <div
+        className={`threading${side ? ' border-threading' : ''}${
+          isEditing ? ' editing' : ''
+        }`}
+      >
         {canEdit && this.renderControls()}
         <div className='content' ref={this.threadingRef}>
-          {this.renderChart()}
-          {isEditing && this.renderRemoveTabletButtons()}
-          {this.renderOrientations()}
+          {showChart && this.renderChart()}
+          {showChart && isEditing && this.renderRemoveTabletButtons()}
+          {showChart && this.renderOrientations()}
+          {side && !hasBorder && isEditing && (
+            <div className='hint'>
+              <p className='hint'>{'Add tablets to create a border.'}</p>
+            </div>
+          )}
           <div
             ref={this.controlsRef}
             style={{
@@ -527,24 +558,131 @@ class Threading extends PureComponent {
 }
 
 Threading.propTypes = {
+  canChangeOrientation: PropTypes.bool,
   canEdit: PropTypes.bool.isRequired,
   colorBooks: PropTypes.arrayOf(PropTypes.any),
   combined: PropTypes.bool,
+  controlsLabel: PropTypes.string,
   dispatch: PropTypes.func,
   holes: PropTypes.number.isRequired,
-  isEditingThreading: PropTypes.bool,
+  includeInTwist: PropTypes.arrayOf(PropTypes.any),
+  isEditingThisSection: PropTypes.bool,
+  maxTablets: PropTypes.number,
   numberOfTablets: PropTypes.number.isRequired,
+  onAddTablets: PropTypes.func,
+  onChangeIncludeInTwist: PropTypes.func,
+  onChangeOrientation: PropTypes.func,
+  onEditThreadingCell: PropTypes.func,
+  onRemoveTablet: PropTypes.func,
+  onToggleEdit: PropTypes.func,
+  orientations: PropTypes.arrayOf(PropTypes.any),
+  paletteElementId: PropTypes.string,
   pattern: PropTypes.objectOf(PropTypes.any).isRequired,
   selectedRow: PropTypes.number,
+  side: PropTypes.oneOf(['left', 'right']),
+  tabletLabel: PropTypes.string,
   tabletOffset: PropTypes.number,
 };
 
-function mapStateToProps(state) {
+function mapStateToProps(state, ownProps) {
+  const { side } = ownProps;
+
+  if (side) {
+    const border =
+      side === 'left' ? getLeftBorder(state) : getRightBorder(state);
+    return {
+      holes: getHoles(state),
+      includeInTwist: border?.includeInTwist,
+      isEditingThisSection:
+        side === 'left'
+          ? getIsEditingLeftBorderThreading(state)
+          : getIsEditingRightBorderThreading(state),
+      numberOfTablets: border?.numberOfTablets || 0,
+      orientations: border?.orientations,
+    };
+  }
+
   return {
-    isEditingThreading: state.pattern.isEditingThreading,
+    includeInTwist: state.pattern.includeInTwist,
+    isEditingThisSection: state.pattern.isEditingThreading,
+    orientations: state.pattern.orientations,
   };
 }
 
-export default connect(mapStateToProps, null, null, { forwardRef: true })(
+function mergeProps(stateProps, { dispatch }, ownProps) {
+  const {
+    side,
+    pattern: { _id, patternType },
+  } = ownProps;
+
+  if (side) {
+    const hasBorder = stateProps.numberOfTablets > 0;
+    return {
+      ...ownProps,
+      ...stateProps,
+      dispatch,
+      canChangeOrientation: true,
+      controlsLabel: hasBorder ? `Edit ${side} border` : `Add ${side} border`,
+      maxTablets: MAX_BORDER_TABLETS,
+      paletteElementId: `border-threading-palette-${side}`,
+      tabletLabel: 'border tablet',
+      onAddTablets: (params) =>
+        dispatch(
+          side === 'left'
+            ? addLeftBorderTablets(params)
+            : addRightBorderTablets(params),
+        ),
+      onChangeIncludeInTwist: ({ _id: id, tablet }) =>
+        dispatch(editBorderIncludeInTwist({ _id: id, side, tablet })),
+      onChangeOrientation: ({ _id: id, tablet }) =>
+        dispatch(editBorderOrientation({ _id: id, side, tablet })),
+      onEditThreadingCell: ({ _id: id, colorIndex, hole, tablet }) =>
+        dispatch(
+          editBorderThreadingCell({
+            _id: id,
+            colorIndex,
+            holesToSet: [hole],
+            side,
+            tablet,
+          }),
+        ),
+      onRemoveTablet: ({ tablet }) =>
+        dispatch(
+          side === 'left'
+            ? removeLeftBorderTablet({ _id, tablet })
+            : removeRightBorderTablet({ _id, tablet }),
+        ),
+      onToggleEdit: (isEditing) =>
+        dispatch(
+          side === 'left'
+            ? setIsEditingLeftBorderThreading(isEditing)
+            : setIsEditingRightBorderThreading(isEditing),
+        ),
+    };
+  }
+
+  return {
+    ...ownProps,
+    ...stateProps,
+    dispatch,
+    canChangeOrientation:
+      patternType !== 'brokenTwill' && patternType !== 'doubleFaced',
+    controlsLabel: 'Edit main pattern',
+    maxTablets: MAX_TABLETS,
+    paletteElementId: 'threading-palette',
+    tabletLabel: 'tablet',
+    onAddTablets: (params) => dispatch(addTablets(params)),
+    onChangeIncludeInTwist: ({ _id: id, tablet }) =>
+      dispatch(editIncludeInTwist({ _id: id, tablet })),
+    onChangeOrientation: ({ _id: id, tablet }) =>
+      dispatch(editOrientation({ _id: id, tablet })),
+    onEditThreadingCell: ({ _id: id, colorIndex, hole, tablet }) =>
+      dispatch(editThreadingCell({ _id: id, hole, tablet, colorIndex })),
+    onRemoveTablet: ({ tablet }) => dispatch(removeTablet({ _id, tablet })),
+    onToggleEdit: (isEditing) => dispatch(setIsEditingThreading(isEditing)),
+  };
+}
+
+export default connect(mapStateToProps, null, mergeProps, { forwardRef: true })(
   Threading,
 );
