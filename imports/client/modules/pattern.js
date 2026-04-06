@@ -698,14 +698,15 @@ export const getTotalTurnsByTabletSelector = createSelector(
     ),
 );
 
-// Includes left-border + main + right-border threading so ThreadCounts covers the whole band.
+// for each threading chart (left border, main, right border) we flatten the nested array of tablets to produce a single array of hole values
+// this is used to count threads
 export const getFlatThreading = createSelector(
   getStateThreadingByTablet,
   getLeftBorder,
   getRightBorder,
   (threading, leftBorder, rightBorder) => [
     ...(leftBorder?.threadingByTablet?.flat() || []),
-    ...threading.flat(),
+    ...(threading?.flat() || []),
     ...(rightBorder?.threadingByTablet?.flat() || []),
   ],
 );

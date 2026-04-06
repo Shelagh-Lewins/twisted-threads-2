@@ -14,6 +14,7 @@ import AddRowsForm from '../forms/AddRowsForm';
 import Palette from './Palette';
 import FreehandThreads from './FreehandThreads';
 import WeavingEditOptions from './WeavingEditOptions';
+import { clearAllEditModes } from '../modules/editingUtils';
 import {
   ALLOWED_DIRECTIONS,
   DEFAULT_DIRECTION,
