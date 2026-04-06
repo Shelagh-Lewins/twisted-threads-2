@@ -283,9 +283,9 @@ class Threading extends PureComponent {
 
     // All cells use absolute combined tablet index so ThreadingChartCell reads
     // from the correct slice of state via resolveCombinedTablet.
-    const effectiveTabletIndex = side
-      ? (tabletOffset || 0) + tabletIndex
-      : tabletIndex;
+    // tabletOffset is leftBorderNumberOfTablets for the main pattern, so that
+    // resolveCombinedTablet correctly skips past border tablets.
+    const effectiveTabletIndex = (tabletOffset || 0) + tabletIndex;
 
     return (
       <span
@@ -620,14 +620,26 @@ function mergeProps(stateProps, { dispatch }, ownProps) {
     pattern: { _id, patternType },
   } = ownProps;
 
+  const buttonTexts = {
+    left: {
+      add: 'Add left border',
+      edit: 'Edit left border',
+    },
+    right: {
+      add: 'Add right border',
+      edit: 'Edit right border',
+    },
+  };
+
   if (side) {
-    const hasBorder = stateProps.numberOfTablets > 0;
+    const hasBorder = stateProps.numberOfTablets > 0; // does the border already exist?
+
     return {
       ...ownProps,
       ...stateProps,
       dispatch,
       canChangeOrientation: true,
-      controlsLabel: hasBorder ? `Edit ${side} border` : `Add ${side} border`,
+      controlsLabel: hasBorder ? buttonTexts[side].edit : buttonTexts[side].add,
       maxTablets: MAX_BORDER_TABLETS,
       paletteElementId: `border-threading-palette-${side}`,
       onAddTablets: (params) =>
@@ -665,13 +677,20 @@ function mergeProps(stateProps, { dispatch }, ownProps) {
     };
   }
 
+  // double faced and twill patterns do not allow orientation to be changed
+  // double faced and twill patterns allow borders
+  // although these are currently the same, they may diverge in future so we have separate checks below
+
   return {
     ...ownProps,
     ...stateProps,
     dispatch,
     canChangeOrientation:
       patternType !== 'brokenTwill' && patternType !== 'doubleFaced',
-    controlsLabel: 'Edit main pattern',
+    controlsLabel:
+      patternType === 'brokenTwill' || patternType === 'doubleFaced'
+        ? 'Edit main chart'
+        : 'Edit threading chart',
     maxTablets: MAX_TABLETS,
     paletteElementId: 'threading-palette',
     onAddTablets: (params) => dispatch(addTablets(params)),
