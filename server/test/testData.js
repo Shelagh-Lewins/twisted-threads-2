@@ -194,6 +194,30 @@ export async function createPattern(params = {}) {
   return Patterns.findOneAsync(patternId);
 }
 
+// Creates a brokenTwill pattern with a properly initialised patternDesign,
+// bypassing the pattern.add method (and its per-user pattern limit check).
+export async function createBrokenTwillPattern(params = {}) {
+  // numberOfRows: 6, numberOfTablets: 8 (from defaultPatternData)
+  // twillChart has rows/2 + 1 = 4 rows, each with numberOfTablets columns
+  const twillChartRow = new Array(8).fill('.');
+  const twillChart = Array.from({ length: 4 }, () => [...twillChartRow]);
+  const data = {
+    ...defaultPatternData,
+    patternType: 'brokenTwill',
+    patternDesign: {
+      twillDirection: 'S',
+      twillPatternChart: twillChart,
+      twillDirectionChangeChart: Array.from({ length: 4 }, () => [
+        ...twillChartRow,
+      ]),
+      weavingStartRow: 1,
+    },
+    ...params,
+  };
+  const patternId = await Patterns.insertAsync(data);
+  return Patterns.findOneAsync(patternId);
+}
+
 export async function createColorBook(params = {}) {
   const data = { ...defaultColorBookData, ...params };
   const colorBookId = await ColorBooks.insertAsync(data);

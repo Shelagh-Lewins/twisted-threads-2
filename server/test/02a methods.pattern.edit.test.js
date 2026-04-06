@@ -18,7 +18,11 @@ import {
   unwrapUser,
   callMethodWithUser,
 } from './mockUser';
-import { addPatternDataIndividual, createPattern } from './testData';
+import {
+  addPatternDataIndividual,
+  createPattern,
+  createBrokenTwillPattern,
+} from './testData';
 
 if (Meteor.isServer) {
   describe('test edit method for patterns', function testEditMethod() {
@@ -146,9 +150,8 @@ if (Meteor.isServer) {
 
       describe('border operations', () => {
         beforeEach(async () => {
-          const pattern = await createPattern({
+          const pattern = await createBrokenTwillPattern({
             createdBy: this.currentUser._id,
-            patternType: 'brokenTwill',
           });
           this.brokenTwillPatternId = pattern._id;
         });
@@ -496,6 +499,78 @@ if (Meteor.isServer) {
           });
 
           assert.equal(updated.tabletGuides[0], true);
+        });
+
+        it('addWeavingRows also updates border weavingInstructions', async () => {
+          const { brokenTwillPatternId } = this;
+
+          // Add a left border with 2 tablets
+          await callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+            _id: brokenTwillPatternId,
+            data: {
+              type: 'addLeftBorderTablets',
+              colorIndex: 0,
+              insertNTablets: 2,
+              insertTabletsAt: 0,
+            },
+          });
+
+          // Add 2 weaving rows (must be even for brokenTwill)
+          await callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+            _id: brokenTwillPatternId,
+            data: {
+              type: 'addWeavingRows',
+              insertNRows: 2,
+              insertRowsAt: 0,
+            },
+          });
+
+          const updated = await Patterns.findOneAsync({
+            _id: brokenTwillPatternId,
+          });
+
+          // Pattern had 6 rows; should now have 8
+          assert.equal(updated.numberOfRows, 8);
+          // Border weavingInstructions should match new numberOfRows
+          assert.equal(updated.leftBorder.weavingInstructions.length, 8);
+          // Each row should still have one entry per border tablet
+          assert.equal(updated.leftBorder.weavingInstructions[0].length, 2);
+        });
+
+        it('removeWeavingRows also updates border weavingInstructions', async () => {
+          const { brokenTwillPatternId } = this;
+
+          // Add a left border with 2 tablets
+          await callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+            _id: brokenTwillPatternId,
+            data: {
+              type: 'addLeftBorderTablets',
+              colorIndex: 0,
+              insertNTablets: 2,
+              insertTabletsAt: 0,
+            },
+          });
+
+          // Remove 2 weaving rows (must be even for brokenTwill)
+          await callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+            _id: brokenTwillPatternId,
+            data: {
+              type: 'removeWeavingRows',
+              removeNRows: 2,
+              removeRowsAt: 0,
+            },
+          });
+
+          const updated = await Patterns.findOneAsync({
+            _id: brokenTwillPatternId,
+          });
+
+          // Pattern had 6 rows; should now have 4
+          assert.equal(updated.numberOfRows, 4);
+          // Border weavingInstructions should match new numberOfRows
+          assert.equal(updated.leftBorder.weavingInstructions.length, 4);
+          // Each row should still have one entry per border tablet
+          assert.equal(updated.leftBorder.weavingInstructions[0].length, 2);
         });
       });
     });
