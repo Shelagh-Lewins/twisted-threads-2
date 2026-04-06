@@ -3,6 +3,7 @@
 import { check } from 'meteor/check';
 import {
   asyncForEach,
+  getTotalPatternTablets,
   nonEmptyStringCheck,
   positiveIntegerCheck,
   updateMultiplePublicSetsCount,
@@ -37,6 +38,20 @@ const tinycolor = require('tinycolor2');
 
 // the switch block in editPattern would be very messy otherwise
 /* eslint-disable no-case-declarations */
+
+// Toggle weaving direction for a tablet from a given row onwards (each row independently)
+// This is the shared logic for Individual pattern and border weaving cell direction edits
+function toggleWeavingDirectionFromRow(weavingInstructions, row, tablet) {
+  return weavingInstructions.map((rowData, rowIdx) => {
+    if (rowIdx < row) return rowData;
+    const r = [...rowData];
+    r[tablet] = {
+      ...r[tablet],
+      direction: r[tablet].direction === 'F' ? 'B' : 'F',
+    };
+    return r;
+  });
+}
 
 Meteor.methods({
   // /////////////////////
@@ -173,20 +188,17 @@ Meteor.methods({
 
         switch (patternType) {
           case 'individual':
-            const { weavingInstructions } = patternDesign;
-
-            // change direction of tablet for this row and all followiing rows
-            for (let i = row; i < numberOfRows; i += 1) {
-              const newDirection =
-                weavingInstructions[i][tablet].direction === 'F' ? 'B' : 'F';
-              weavingInstructions[i][tablet].direction = newDirection;
-            }
+            const newWeavingInstructions = toggleWeavingDirectionFromRow(
+              patternDesign.weavingInstructions,
+              row,
+              tablet,
+            );
 
             return Patterns.updateAsync(
               { _id },
               {
                 $set: {
-                  'patternDesign.weavingInstructions': weavingInstructions,
+                  'patternDesign.weavingInstructions': newWeavingInstructions,
                 },
               },
             );
@@ -584,6 +596,29 @@ Meteor.methods({
             );
         }
 
+        // Update border weavingInstructions to match the new numberOfRows
+        for (const borderKey of ['leftBorder', 'rightBorder']) {
+          const border = pattern[borderKey];
+          if (border && border.numberOfTablets > 0) {
+            const newBorderRows = [];
+            for (let i = 0; i < insertNRows; i += 1) {
+              const newBorderRow = [];
+              for (let k = 0; k < border.numberOfTablets; k += 1) {
+                newBorderRow.push({
+                  direction: DEFAULT_DIRECTION,
+                  numberOfTurns: DEFAULT_NUMBER_OF_TURNS,
+                });
+              }
+              newBorderRows.push(newBorderRow);
+            }
+            if (!update.$push) update.$push = {};
+            update.$push[`${borderKey}.weavingInstructions`] = {
+              $each: newBorderRows,
+              $position: insertRowsAt,
+            };
+          }
+        }
+
         return Patterns.updateAsync({ _id }, update);
 
       case 'removeWeavingRows':
@@ -809,6 +844,28 @@ Meteor.methods({
             );
         }
 
+        // Update border weavingInstructions to match the new numberOfRows
+        for (const borderKey of ['leftBorder', 'rightBorder']) {
+          const border = pattern[borderKey];
+          if (border && border.numberOfTablets > 0) {
+            for (let i = 0; i < removeNRows; i += 1) {
+              rowIndex = i + removeRowsAt;
+              await Patterns.updateAsync(
+                { _id },
+                {
+                  $set: {
+                    [`${borderKey}.weavingInstructions.${rowIndex}.0.toBeRemoved`]: true,
+                  },
+                },
+              );
+            }
+            if (!update.$pull) update.$pull = {};
+            update.$pull[`${borderKey}.weavingInstructions`] = {
+              $elemMatch: { toBeRemoved: true },
+            };
+          }
+        }
+
         return Patterns.updateAsync({ _id }, update);
 
       case 'editThreadingCell':
@@ -864,7 +921,7 @@ Meteor.methods({
 
         update.$push = {};
 
-        if (insertNTablets + numberOfTablets > MAX_TABLETS) {
+        if (getTotalPatternTablets(pattern) + insertNTablets > MAX_TABLETS) {
           throw new Meteor.Error(
             'add-tablets-too-many-rows',
             'Unable to add tablets because the pattern will have too many tablets',
@@ -1490,6 +1547,288 @@ Meteor.methods({
         }
 
         return Patterns.updateAsync({ _id }, { $set: update });
+
+      // /////////////////////
+      // Border tablet operations (doubleFaced and brokenTwill patterns only)
+      // A border is created implicitly when the first tablet is added (numberOfTablets goes from 0 to N).
+      // It is removed implicitly when the last tablet is removed (numberOfTablets reaches 0).
+
+      case 'addLeftBorderTablets':
+      case 'addRightBorderTablets': {
+        const borderKey =
+          type === 'addLeftBorderTablets' ? 'leftBorder' : 'rightBorder';
+        ({ colorIndex, insertNTablets, insertTabletsAt } = data);
+        check(insertNTablets, Match.Integer);
+        check(insertTabletsAt, Match.Integer);
+        check(colorIndex, validPaletteIndexCheck);
+
+        if (!['doubleFaced', 'brokenTwill'].includes(patternType)) {
+          throw new Meteor.Error(
+            'add-border-tablets-invalid-pattern-type',
+            `Unable to add border tablets because the pattern type ${patternType} does not support borders`,
+          );
+        }
+
+        if (getTotalPatternTablets(pattern) + insertNTablets > MAX_TABLETS) {
+          throw new Meteor.Error(
+            'add-border-tablets-too-many',
+            'Unable to add border tablets because the total tablet count would exceed the maximum',
+          );
+        }
+
+        const existingBorderTablets = pattern[borderKey]?.numberOfTablets ?? 0;
+        if (insertTabletsAt < 0 || insertTabletsAt > existingBorderTablets) {
+          throw new Meteor.Error(
+            'add-border-tablets-invalid-position',
+            'Unable to add border tablets because the position is invalid',
+          );
+        }
+
+        const existingBorder = pattern[borderKey];
+
+        if (existingBorder && existingBorder.numberOfTablets > 0) {
+          // Extend existing border
+          const existingTablets = existingBorder.numberOfTablets;
+          const newBorderTablets = existingTablets + insertNTablets;
+          const newThreading = existingBorder.threading.map((holeRow) => {
+            const r = [...holeRow];
+            for (let j = 0; j < insertNTablets; j += 1) {
+              r.splice(insertTabletsAt, 0, colorIndex);
+            }
+            return r;
+          });
+          const newOrientations = [...existingBorder.orientations];
+          for (let j = 0; j < insertNTablets; j += 1) {
+            newOrientations.splice(insertTabletsAt, 0, DEFAULT_ORIENTATION);
+          }
+          const newWeavingInstructions = existingBorder.weavingInstructions.map(
+            (row) => {
+              const r = [...row];
+              for (let k = 0; k < insertNTablets; k += 1) {
+                r.splice(insertTabletsAt, 0, {
+                  direction: DEFAULT_DIRECTION,
+                  numberOfTurns: DEFAULT_NUMBER_OF_TURNS,
+                });
+              }
+              return r;
+            },
+          );
+          const newIncludeInTwist = [...existingBorder.includeInTwist];
+          for (let j = 0; j < insertNTablets; j += 1) {
+            newIncludeInTwist.splice(insertTabletsAt, 0, true);
+          }
+
+          return Patterns.updateAsync(
+            { _id },
+            {
+              $set: {
+                [`${borderKey}.numberOfTablets`]: newBorderTablets,
+                [`${borderKey}.threading`]: newThreading,
+                [`${borderKey}.orientations`]: newOrientations,
+                [`${borderKey}.weavingInstructions`]: newWeavingInstructions,
+                [`${borderKey}.includeInTwist`]: newIncludeInTwist,
+              },
+            },
+          );
+        }
+
+        // Create new border
+        const borderThreading = [];
+        for (let i = 0; i < holes; i += 1) {
+          borderThreading.push(new Array(insertNTablets).fill(colorIndex));
+        }
+        const borderOrientations = new Array(insertNTablets).fill(
+          DEFAULT_ORIENTATION,
+        );
+        const borderWeavingInstructions = [];
+        for (let j = 0; j < numberOfRows; j += 1) {
+          const row = [];
+          for (let k = 0; k < insertNTablets; k += 1) {
+            row.push({
+              direction: DEFAULT_DIRECTION,
+              numberOfTurns: DEFAULT_NUMBER_OF_TURNS,
+            });
+          }
+          borderWeavingInstructions.push(row);
+        }
+        const borderIncludeInTwist = new Array(insertNTablets).fill(true);
+
+        return Patterns.updateAsync(
+          { _id },
+          {
+            $set: {
+              [borderKey]: {
+                holes,
+                includeInTwist: borderIncludeInTwist,
+                numberOfTablets: insertNTablets,
+                orientations: borderOrientations,
+                threading: borderThreading,
+                weavingInstructions: borderWeavingInstructions,
+              },
+            },
+          },
+        );
+      }
+
+      case 'removeLeftBorderTablet':
+      case 'removeRightBorderTablet': {
+        const borderKey =
+          type === 'removeLeftBorderTablet' ? 'leftBorder' : 'rightBorder';
+        ({ tablet } = data);
+        check(tablet, positiveIntegerCheck);
+
+        const existingBorder = pattern[borderKey];
+        if (!existingBorder || existingBorder.numberOfTablets === 0) {
+          throw new Meteor.Error(
+            'remove-border-tablet-no-border',
+            `Unable to remove border tablet because the ${borderKey} does not exist`,
+          );
+        }
+
+        const newBorderTablets = existingBorder.numberOfTablets - 1;
+
+        if (newBorderTablets === 0) {
+          // Remove the entire border
+          return Patterns.updateAsync({ _id }, { $unset: { [borderKey]: '' } });
+        }
+
+        const newThreading = existingBorder.threading.map((holeRow) => {
+          const r = [...holeRow];
+          r.splice(tablet, 1);
+          return r;
+        });
+        const newOrientations = [...existingBorder.orientations];
+        newOrientations.splice(tablet, 1);
+        const newWeavingInstructions = existingBorder.weavingInstructions.map(
+          (row) => {
+            const r = [...row];
+            r.splice(tablet, 1);
+            return r;
+          },
+        );
+        const newIncludeInTwist = [...existingBorder.includeInTwist];
+        newIncludeInTwist.splice(tablet, 1);
+
+        return Patterns.updateAsync(
+          { _id },
+          {
+            $set: {
+              [`${borderKey}.numberOfTablets`]: newBorderTablets,
+              [`${borderKey}.threading`]: newThreading,
+              [`${borderKey}.orientations`]: newOrientations,
+              [`${borderKey}.weavingInstructions`]: newWeavingInstructions,
+              [`${borderKey}.includeInTwist`]: newIncludeInTwist,
+            },
+          },
+        );
+      }
+
+      case 'editBorderThreadingCell': {
+        // side: 'left' | 'right', holesToSet: number[], tablet: number, colorIndex: number
+        let side;
+        ({ side, holesToSet, tablet, colorIndex } = data);
+        check(side, String);
+        check(holesToSet, [positiveIntegerCheck]);
+        check(tablet, positiveIntegerCheck);
+        check(colorIndex, validPaletteIndexCheck);
+
+        const borderKey = side === 'left' ? 'leftBorder' : 'rightBorder';
+        const setObj = {};
+        holesToSet.forEach((holeIndex) => {
+          setObj[`${borderKey}.threading.${holeIndex}.${tablet}`] = colorIndex;
+        });
+
+        return Patterns.updateAsync({ _id }, { $set: setObj });
+      }
+
+      case 'editBorderOrientation': {
+        let side;
+        ({ side, tablet, tabletOrientation } = data);
+        check(side, String);
+        check(tablet, positiveIntegerCheck);
+        check(tabletOrientation, String);
+
+        const borderKey = side === 'left' ? 'leftBorder' : 'rightBorder';
+        return Patterns.updateAsync(
+          { _id },
+          {
+            $set: {
+              [`${borderKey}.orientations.${tablet}`]: tabletOrientation,
+            },
+          },
+        );
+      }
+
+      case 'editBorderWeavingCell': {
+        // Toggle direction for this row and all following rows (same as Individual pattern logic)
+        let side;
+        ({ side, row, tablet } = data);
+        check(side, String);
+        check(row, Match.Integer);
+        check(tablet, positiveIntegerCheck);
+
+        const borderKey = side === 'left' ? 'leftBorder' : 'rightBorder';
+        const border = pattern[borderKey];
+        if (!border) {
+          throw new Meteor.Error(
+            'edit-border-weaving-cell-no-border',
+            `Border ${borderKey} does not exist`,
+          );
+        }
+
+        const newWeavingInstructions = toggleWeavingDirectionFromRow(
+          border.weavingInstructions,
+          row,
+          tablet,
+        );
+
+        return Patterns.updateAsync(
+          { _id },
+          {
+            $set: {
+              [`${borderKey}.weavingInstructions`]: newWeavingInstructions,
+            },
+          },
+        );
+      }
+
+      case 'editBorderWeavingCellTurns': {
+        let side;
+        ({ side, row, tablet, numberOfTurns } = data);
+        check(side, String);
+        check(row, Match.Integer);
+        check(tablet, positiveIntegerCheck);
+        check(numberOfTurns, Match.Integer);
+
+        const borderKey = side === 'left' ? 'leftBorder' : 'rightBorder';
+        return Patterns.updateAsync(
+          { _id },
+          {
+            $set: {
+              [`${borderKey}.weavingInstructions.${row}.${tablet}.numberOfTurns`]:
+                numberOfTurns,
+            },
+          },
+        );
+      }
+
+      case 'editBorderIncludeInTwist': {
+        let side;
+        ({ side, tablet, tabletIncludeInTwist } = data);
+        check(side, String);
+        check(tablet, positiveIntegerCheck);
+        check(tabletIncludeInTwist, Boolean);
+
+        const borderKey = side === 'left' ? 'leftBorder' : 'rightBorder';
+        return Patterns.updateAsync(
+          { _id },
+          {
+            $set: {
+              [`${borderKey}.includeInTwist.${tablet}`]: tabletIncludeInTwist,
+            },
+          },
+        );
+      }
 
       default:
         throw new Meteor.Error(

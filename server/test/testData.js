@@ -117,6 +117,14 @@ export const addPatternDataIndividual = {
   patternType: 'individual',
 };
 
+export const addPatternDataBrokenTwill = {
+  holes: 4,
+  name: 'BrokenTwill Pattern',
+  rows: 6,
+  tablets: 8,
+  patternType: 'brokenTwill',
+};
+
 export const defaultColorBookData = {
   _id: 'hGyoeA5tfZ4MuwfLj',
   name: 'Another book',
@@ -182,6 +190,30 @@ export const defaultSetData = {
 // Async helper functions to create documents using insertAsync()
 export async function createPattern(params = {}) {
   const data = { ...defaultPatternData, ...params };
+  const patternId = await Patterns.insertAsync(data);
+  return Patterns.findOneAsync(patternId);
+}
+
+// Creates a brokenTwill pattern with a properly initialised patternDesign,
+// bypassing the pattern.add method (and its per-user pattern limit check).
+export async function createBrokenTwillPattern(params = {}) {
+  // numberOfRows: 6, numberOfTablets: 8 (from defaultPatternData)
+  // twillChart has rows/2 + 1 = 4 rows, each with numberOfTablets columns
+  const twillChartRow = new Array(8).fill('.');
+  const twillChart = Array.from({ length: 4 }, () => [...twillChartRow]);
+  const data = {
+    ...defaultPatternData,
+    patternType: 'brokenTwill',
+    patternDesign: {
+      twillDirection: 'S',
+      twillPatternChart: twillChart,
+      twillDirectionChangeChart: Array.from({ length: 4 }, () => [
+        ...twillChartRow,
+      ]),
+      weavingStartRow: 1,
+    },
+    ...params,
+  };
   const patternId = await Patterns.insertAsync(data);
   return Patterns.findOneAsync(patternId);
 }

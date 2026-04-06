@@ -7,6 +7,7 @@ import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import PageWrapper from '../components/PageWrapper';
 import {
+  getCombinedNumberOfTablets,
   getHoles,
   getIsLoading,
   getNumberOfRowsForChart,
@@ -82,6 +83,7 @@ class PrintView extends PureComponent {
       isLoading,
       numberOfRows,
       numberOfTablets,
+      combinedNumberOfTablets,
       palette,
       patternIsTwistNeutral,
       patternWillRepeat,
@@ -132,9 +134,10 @@ class PrintView extends PureComponent {
               <>
                 <h2>Weaving chart</h2>
                 <WeavingChart
+                  combined={true}
                   createdBy={createdBy}
                   numberOfRows={numberOfRows}
-                  numberOfTablets={numberOfTablets}
+                  numberOfTablets={combinedNumberOfTablets}
                   patternType={patternType}
                   patternId={_id}
                   printView={true}
@@ -210,8 +213,9 @@ class PrintView extends PureComponent {
                 <h2>Threading chart</h2>
                 <Threading
                   canEdit={false}
+                  combined={true}
                   holes={holes}
-                  numberOfTablets={numberOfTablets}
+                  numberOfTablets={combinedNumberOfTablets}
                   pattern={pattern}
                 />
                 <h2>Thread counts</h2>
@@ -269,6 +273,7 @@ class PrintView extends PureComponent {
 }
 
 PrintView.propTypes = {
+  combinedNumberOfTablets: PropTypes.number.isRequired,
   dispatch: PropTypes.func.isRequired,
   errors: PropTypes.objectOf(PropTypes.any).isRequired,
   history: PropTypes.objectOf(PropTypes.any).isRequired,
@@ -297,6 +302,7 @@ function mapStateToProps(state) {
   }
 
   return {
+    combinedNumberOfTablets: getCombinedNumberOfTablets(state),
     createdBy: state.pattern.createdBy,
     errors: state.errors,
     holes: getHoles(state),

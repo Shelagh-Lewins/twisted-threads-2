@@ -15,11 +15,25 @@
   }
 }
 
+.threading-with-borders {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+
+  .threading {
+    padding-right: 0;
+  }
+}
+
 .threading {
   clear: both;
   float: left;
   margin: 0 0 8px 0;
   padding-right: 8px;
+
+  .controls button {
+    white-space: nowrap;
+  }
 
   &.editing {
     min-width: 728px;
@@ -113,6 +127,7 @@
 
   .include-in-twist-buttons {
     margin-left: 32px;
+    position: relative;
 
     ul {
       font-size: 1rem;
@@ -123,7 +138,7 @@
     }
 
     .twist-info-button {
-      left: 24px;
+      left: -24px;
       position: absolute;
     }
   }
@@ -138,6 +153,13 @@
   }
 
   .orientations {
+    position: relative;
+
+    .orientation-info-button {
+      left: 8px;
+      position: absolute;
+    }
+
     ul {
       clear: both;
       margin-left: 32px;

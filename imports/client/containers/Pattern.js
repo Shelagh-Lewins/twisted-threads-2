@@ -21,17 +21,19 @@ import {
   getHoles,
   getIsEditing,
   getIsLoading,
+  getLeftBorder,
   getNumberOfRows,
   getNumberOfRowsForChart,
   getNumberOfTablets,
+  getIsEditingLeftBorderThreading,
+  getIsEditingRightBorderThreading,
   getPatternDesign,
   getPatternTwistSelector,
   getTotalTurnsByTabletSelector,
   savePatternData,
-  setIsEditingThreading,
-  setIsEditingWeaving,
   setUpdatePreviewWhileEditing,
 } from '../modules/pattern';
+import { clearAllEditModes } from '../modules/editingUtils';
 import {
   editPatternImageCaption,
   removePatternImage,
@@ -58,6 +60,7 @@ import TwistCalculationHints from '../components/TwistCalculationHints';
 import ShowVerticalGuides from '../components/ShowVerticalGuides';
 import {
   findPatternTypeDisplayName,
+  getPatternSupportsBorders,
   iconColors,
 } from '../../modules/parameters';
 import './Pattern.scss';
@@ -71,6 +74,8 @@ class Pattern extends PureComponent {
   constructor(props) {
     super(props);
     this.childThreading = React.createRef();
+    this.childThreadingLeftBorder = React.createRef();
+    this.childThreadingRightBorder = React.createRef();
     this.childWeaving = React.createRef();
 
     this.state = {
@@ -111,8 +116,7 @@ class Pattern extends PureComponent {
 
     document.body.classList.add(bodyClass);
     dispatch(setUpdatePreviewWhileEditing(true));
-    dispatch(setIsEditingThreading(false));
-    dispatch(setIsEditingWeaving(false));
+    clearAllEditModes(dispatch);
   }
 
   componentDidUpdate(prevProps) {
@@ -290,15 +294,28 @@ class Pattern extends PureComponent {
   }
 
   handleChangeShowBackOfBand(event) {
-    const { isEditingThreading, isEditingWeaving } = this.props;
+    const {
+      isEditingLeftBorderThreading,
+      isEditingRightBorderThreading,
+      isEditingThreading,
+      isEditingWeaving,
+    } = this.props;
 
     this.setState({
       showBackOfBand: event.target.checked,
     });
 
     if (event.target.checked) {
+      if (isEditingLeftBorderThreading) {
+        this.childThreadingLeftBorder.current.toggleEditThreading();
+      }
+
       if (isEditingThreading) {
         this.childThreading.current.toggleEditThreading();
+      }
+
+      if (isEditingRightBorderThreading) {
+        this.childThreadingRightBorder.current.toggleEditThreading();
       }
 
       if (isEditingWeaving) {
@@ -586,8 +603,13 @@ class Pattern extends PureComponent {
 
   renderWeavingInstructions() {
     const { colorBooks, pattern } = this.context;
-    const { dispatch, numberOfRows, numberOfTablets, patternDesign } =
-      this.props;
+    const {
+      dispatch,
+      leftBorderNumberOfTablets,
+      numberOfRows,
+      numberOfTablets,
+      patternDesign,
+    } = this.props;
     const { patternType } = pattern;
 
     let weavingInstructions;
@@ -626,13 +648,30 @@ class Pattern extends PureComponent {
         weavingInstructions = (
           <>
             <h2>Weaving design</h2>
-            <WeavingDesignBrokenTwill
-              dispatch={dispatch}
-              numberOfRows={numberOfRows}
-              numberOfTablets={numberOfTablets}
-              pattern={pattern}
-              ref={this.childWeaving}
-            />
+            <div className='weaving-with-borders'>
+              <WeavingDesignIndividual
+                dispatch={dispatch}
+                numberOfRows={numberOfRows}
+                pattern={pattern}
+                side='left'
+                tabletOffset={0}
+              />
+              <WeavingDesignBrokenTwill
+                dispatch={dispatch}
+                numberOfRows={numberOfRows}
+                numberOfTablets={numberOfTablets}
+                pattern={pattern}
+                ref={this.childWeaving}
+                tabletOffset={leftBorderNumberOfTablets}
+              />
+              <WeavingDesignIndividual
+                dispatch={dispatch}
+                numberOfRows={numberOfRows}
+                pattern={pattern}
+                side='right'
+                tabletOffset={leftBorderNumberOfTablets + numberOfTablets}
+              />
+            </div>
           </>
         );
         break;
@@ -641,13 +680,30 @@ class Pattern extends PureComponent {
         weavingInstructions = (
           <>
             <h2>Weaving design</h2>
-            <WeavingDesignDoubleFaced
-              dispatch={dispatch}
-              numberOfRows={numberOfRows}
-              numberOfTablets={numberOfTablets}
-              pattern={pattern}
-              ref={this.childWeaving}
-            />
+            <div className='weaving-with-borders'>
+              <WeavingDesignIndividual
+                dispatch={dispatch}
+                numberOfRows={numberOfRows}
+                pattern={pattern}
+                side='left'
+                tabletOffset={0}
+              />
+              <WeavingDesignDoubleFaced
+                dispatch={dispatch}
+                numberOfRows={numberOfRows}
+                numberOfTablets={numberOfTablets}
+                pattern={pattern}
+                ref={this.childWeaving}
+                tabletOffset={leftBorderNumberOfTablets}
+              />
+              <WeavingDesignIndividual
+                dispatch={dispatch}
+                numberOfRows={numberOfRows}
+                pattern={pattern}
+                side='right'
+                tabletOffset={leftBorderNumberOfTablets + numberOfTablets}
+              />
+            </div>
           </>
         );
         break;
@@ -794,6 +850,7 @@ class Pattern extends PureComponent {
       holeHandedness,
       holes,
       isEditing,
+      leftBorderNumberOfTablets,
       numberOfRows,
       numberOfTablets,
       patternIsTwistNeutral,
@@ -911,15 +968,48 @@ class Pattern extends PureComponent {
             <ShowVerticalGuides />
             {pattern.threading && (
               <>
-                <Threading
-                  canEdit={canEdit}
-                  colorBooks={colorBooks}
-                  dispatch={dispatch}
-                  holes={holes}
-                  numberOfTablets={numberOfTablets}
-                  pattern={pattern}
-                  ref={this.childThreading}
-                />
+                {getPatternSupportsBorders(patternType) ? (
+                  <div className='threading-with-borders'>
+                    <Threading
+                      canEdit={canEdit}
+                      colorBooks={colorBooks}
+                      dispatch={dispatch}
+                      pattern={pattern}
+                      ref={this.childThreadingLeftBorder}
+                      side='left'
+                      tabletOffset={0}
+                    />
+                    <Threading
+                      canEdit={canEdit}
+                      colorBooks={colorBooks}
+                      dispatch={dispatch}
+                      holes={holes}
+                      numberOfTablets={numberOfTablets}
+                      pattern={pattern}
+                      ref={this.childThreading}
+                      tabletOffset={leftBorderNumberOfTablets}
+                    />
+                    <Threading
+                      canEdit={canEdit}
+                      colorBooks={colorBooks}
+                      dispatch={dispatch}
+                      pattern={pattern}
+                      ref={this.childThreadingRightBorder}
+                      side='right'
+                      tabletOffset={leftBorderNumberOfTablets + numberOfTablets}
+                    />
+                  </div>
+                ) : (
+                  <Threading
+                    canEdit={canEdit}
+                    colorBooks={colorBooks}
+                    dispatch={dispatch}
+                    holes={holes}
+                    numberOfTablets={numberOfTablets}
+                    pattern={pattern}
+                    ref={this.childThreading}
+                  />
+                )}
                 <h2>Thread counts</h2>
                 <ThreadCounts pattern={pattern} />
               </>
@@ -1120,9 +1210,12 @@ function mapStateToProps(state, ownProps) {
     canAddPatternImage: getCanAddPatternImage(state),
     canPublish: getCanPublish(state),
     errors: state.errors,
+    leftBorderNumberOfTablets: getLeftBorder(state)?.numberOfTablets ?? 0,
     holeHandedness: getHoleHandedness(state),
     holes: getHoles(state),
     isEditing: getIsEditing(state),
+    isEditingLeftBorderThreading: getIsEditingLeftBorderThreading(state),
+    isEditingRightBorderThreading: getIsEditingRightBorderThreading(state),
     isLoading: getIsLoading(state),
     isEditingThreading,
     isEditingWeaving,

@@ -175,6 +175,21 @@ const PatternsSchema = new SimpleSchema({
     label: 'Pattern will repeat',
     optional: true,
   },
+  // Optional borders for doubleFaced and brokenTwill patterns.
+  // A border is absent when not set; present when numberOfTablets > 0.
+  // Border tablets use Individual-type weaving (explicit per-row instructions).
+  leftBorder: {
+    type: Object,
+    label: 'Left border',
+    blackbox: true,
+    optional: true,
+  },
+  rightBorder: {
+    type: Object,
+    label: 'Right border',
+    blackbox: true,
+    optional: true,
+  },
 });
 
 export default PatternsSchema;

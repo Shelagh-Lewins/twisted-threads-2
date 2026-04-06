@@ -796,3 +796,49 @@ export const buildOffsetThreading = ({
 
   return offsetThreadingByTablet;
 };
+
+// ////////////////////////////
+// Border helpers
+
+// Recast a border's threading array (by hole, by tablet) into threadingByTablet format
+export const getThreadingByTabletForBorder = (border) => {
+  if (!border || !border.numberOfTablets) {
+    return [];
+  }
+
+  const { holes, numberOfTablets, threading } = border;
+  const threadingByTablet = [];
+
+  for (let i = 0; i < numberOfTablets; i += 1) {
+    const threadingForTablet = [];
+    for (let j = 0; j < holes; j += 1) {
+      threadingForTablet.push(threading[j][i]);
+    }
+    threadingByTablet.push(threadingForTablet);
+  }
+
+  return threadingByTablet;
+};
+
+// Build Individual-type weavingInstructionsByTablet for a border
+export const buildBorderWeavingInstructionsByTablet = ({
+  border,
+  numberOfRows,
+}) => {
+  if (!border || !border.numberOfTablets) {
+    return [];
+  }
+
+  const { numberOfTablets, weavingInstructions } = border;
+  const weavingInstructionsByTablet = [];
+
+  for (let i = 0; i < numberOfTablets; i += 1) {
+    const instructionsForTablet = [];
+    for (let j = 0; j < numberOfRows; j += 1) {
+      instructionsForTablet.push(weavingInstructions[j]?.[i]);
+    }
+    weavingInstructionsByTablet.push(instructionsForTablet);
+  }
+
+  return weavingInstructionsByTablet;
+};

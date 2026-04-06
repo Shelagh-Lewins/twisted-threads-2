@@ -9,52 +9,56 @@ import { getOrientationForTablet } from '../modules/pattern';
 /* eslint-disable jsx-a11y/no-noninteractive-tabindex */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
-function OrientationCell(props) {
-	const { handleClickOrientation, isEditing, orientation, tabletIndex } = props;
+export function OrientationCell(props) {
+  const { handleClickOrientation, isEditing, orientation, tabletIndex } = props;
 
-	if (!orientation) {
-		return null;
-	}
+  if (!orientation) {
+    return null;
+  }
 
-	let onClick;
-	let role;
-	let tabIndex;
-	let type;
+  let onClick;
+  let role;
+  let tabIndex;
+  let type;
 
-	if (handleClickOrientation && isEditing) {
-		onClick = () => handleClickOrientation(tabletIndex);
-		role = 'button';
-		tabIndex = 0;
-		type = 'button';
-	}
+  if (handleClickOrientation && isEditing) {
+    onClick = () => handleClickOrientation(tabletIndex);
+    role = 'button';
+    tabIndex = 0;
+    type = 'button';
+  }
 
-	return (
-		<span
-			type={type}
-			onClick={onClick}
-			onKeyPress={onClick}
-			role={role}
-			tabIndex={tabIndex}
-			title={`${orientation === '/' ? 'Orientation S' : 'Orientation Z'}`}
-		>
-			<span className={`${orientation === '/' ? 's' : 'z'}`} />
-		</span>
-	);
+  return (
+    <span
+      type={type}
+      onClick={onClick}
+      onKeyPress={onClick}
+      role={role}
+      tabIndex={tabIndex}
+      title={`${orientation === '/' ? 'Orientation S' : 'Orientation Z'}`}
+    >
+      <span className={`${orientation === '/' ? 's' : 'z'}`} />
+    </span>
+  );
 }
 
 OrientationCell.propTypes = {
-	handleClickOrientation: PropTypes.func,
-	isEditing: PropTypes.bool.isRequired,
-	orientation: PropTypes.string,
-	tabletIndex: PropTypes.number.isRequired,
+  handleClickOrientation: PropTypes.func,
+  isEditing: PropTypes.bool.isRequired,
+  orientation: PropTypes.string,
+  tabletIndex: PropTypes.number.isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
-	const { tabletIndex } = ownProps;
+  const { tabletIndex } = ownProps;
 
-	return {
-		orientation: getOrientationForTablet(state, tabletIndex),
-	};
+  return {
+    orientation: getOrientationForTablet(state, tabletIndex),
+  };
 }
 
+// CAUTION: the default connected export uses getOrientationForTablet which reads from
+// state.pattern.* and expects a main-pattern (local) tablet index.
+// Always use the named export { OrientationCell } when rendering border tablets,
+// supplying orientation directly via props (as Threading.js does).
 export default connect(mapStateToProps)(OrientationCell);

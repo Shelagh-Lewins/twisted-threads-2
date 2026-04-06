@@ -1,17 +1,18 @@
 import React, { PureComponent } from 'react';
-import { Button, ButtonGroup, ButtonToolbar } from 'reactstrap';
+import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import {
-	addWeavingRows,
-	editTwillChart,
-	editTwillWeavingStartRow,
-	removeWeavingRows,
-	setIsEditingWeaving,
+  addWeavingRows,
+  editTwillChart,
+  editTwillWeavingStartRow,
+  removeWeavingRows,
 } from '../modules/pattern';
 import calculateScrolling from '../modules/calculateScrolling';
+import { toggleEditMainPatternWeaving } from '../modules/editingUtils';
 import AddRowsForm from '../forms/AddRowsForm';
 import TwillWeavingStartRowForm from '../forms/TwillWeavingStartRowForm';
+import WeavingEditOptions from './WeavingEditOptions';
 import './WeavingDesignBrokenTwill.scss';
 
 // row and tablet have nothing to identify them except index
@@ -25,401 +26,412 @@ import './WeavingDesignBrokenTwill.scss';
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
 class WeavingDesignBrokenTwill extends PureComponent {
-	constructor(props) {
-		super(props);
+  constructor(props) {
+    super(props);
 
-		this.state = {
-			'isEditing': false,
-			'editMode': 'color',
-		};
+    this.state = {
+      isEditing: false,
+      editMode: 'color',
+    };
 
-		// bind onClick functions to provide context
-		const functionsToBind = [
-			'handleSubmitAddRows',
-			'handleSubmitWeavingStartRow',
-			'toggleEditWeaving',
-			'handleClickEditMode',
-			'handleClickRemoveRow',
-			'handleClickWeavingCell',
-		];
+    // bind onClick functions to provide context
+    const functionsToBind = [
+      'handleSubmitAddRows',
+      'handleSubmitWeavingStartRow',
+      'toggleEditWeaving',
+      'handleClickEditMode',
+      'handleClickRemoveRow',
+      'handleClickWeavingCell',
+    ];
 
-		functionsToBind.forEach((functionName) => {
-			this[functionName] = this[functionName].bind(this);
-		});
+    functionsToBind.forEach((functionName) => {
+      this[functionName] = this[functionName].bind(this);
+    });
 
-		// ref to find nodes so we can keep controls in view
-		this.weavingRef = React.createRef();
-		this.controlsRef = React.createRef();
-	}
+    // ref to find nodes so we can keep controls in view
+    this.weavingRef = React.createRef();
+    this.controlsRef = React.createRef();
+  }
 
-	componentWillUnmount() {
-		document.removeEventListener('scroll', this.trackScrolling);
-		window.removeEventListener('resize', this.trackScrolling);
-	}
+  componentDidUpdate(prevProps) {
+    const { isEditingWeaving } = this.props;
+    const { isEditing } = this.state;
+    // If something external (e.g. a border starting to edit) cleared isEditingWeaving,
+    // sync our local editing state to match.
+    if (!isEditingWeaving && prevProps.isEditingWeaving && isEditing) {
+      document.removeEventListener('scroll', this.trackScrolling);
+      window.removeEventListener('resize', this.trackScrolling);
+      this.setState({ isEditing: false });
+    }
+  }
 
-	// ensure the edit tools remain in view
-	trackScrolling = () => {
-		const { controlsOffsetX, controlsOffsetY } = calculateScrolling({
-			'controlsElm': this.controlsRef.current,
-			'weavingElm': this.weavingRef.current,
-		});
+  componentWillUnmount() {
+    document.removeEventListener('scroll', this.trackScrolling);
+    window.removeEventListener('resize', this.trackScrolling);
+  }
 
-		this.setState({
-			controlsOffsetX,
-			controlsOffsetY,
-		});
-	}
+  // ensure the edit tools remain in view
+  trackScrolling = () => {
+    const { controlsOffsetX, controlsOffsetY } = calculateScrolling({
+      controlsElm: this.controlsRef.current,
+      weavingElm: this.weavingRef.current,
+    });
 
-	handleClickWeavingCell(rowIndex, tabletIndex) {
-		const {
-			dispatch,
-			'pattern': { _id },
-		} = this.props;
-		const { editMode, isEditing } = this.state;
+    this.setState({
+      controlsOffsetX,
+      controlsOffsetY,
+    });
+  };
 
-		if (!isEditing) {
-			return;
-		}
+  handleClickWeavingCell(rowIndex, tabletIndex) {
+    const {
+      dispatch,
+      pattern: { _id },
+    } = this.props;
+    const { editMode, isEditing } = this.state;
 
-		dispatch(editTwillChart({
-			_id,
-			rowIndex,
-			tabletIndex,
-			'twillChart': editMode === 'color' ? 'twillPatternChart' : 'twillDirectionChangeChart',
-		}));
-	}
+    if (!isEditing) {
+      return;
+    }
 
-	handleSubmitAddRows(data) {
-		const { dispatch, 'pattern': { _id } } = this.props;
+    dispatch(
+      editTwillChart({
+        _id,
+        rowIndex,
+        tabletIndex,
+        twillChart:
+          editMode === 'color'
+            ? 'twillPatternChart'
+            : 'twillDirectionChangeChart',
+      }),
+    );
+  }
 
-		dispatch(addWeavingRows({
-			_id,
-			'insertNRows': parseInt(data.insertNRows, 10),
-			'insertRowsAt': parseInt(data.insertRowsAt - 1, 10),
-		}));
+  handleSubmitAddRows(data) {
+    const {
+      dispatch,
+      pattern: { _id },
+    } = this.props;
 
-		setTimeout(() => this.trackScrolling(), 100); // give the new rows time to render
-	}
+    dispatch(
+      addWeavingRows({
+        _id,
+        insertNRows: parseInt(data.insertNRows, 10),
+        insertRowsAt: parseInt(data.insertRowsAt - 1, 10),
+      }),
+    );
 
-	handleSubmitWeavingStartRow(value) {
-		const { dispatch, 'pattern': { _id } } = this.props;
+    setTimeout(() => this.trackScrolling(), 100); // give the new rows time to render
+  }
 
-		dispatch(editTwillWeavingStartRow({
-			_id,
-			'weavingStartRow': parseInt(value, 10),
-		}));
-	}
+  handleSubmitWeavingStartRow(value) {
+    const {
+      dispatch,
+      pattern: { _id },
+    } = this.props;
 
-	handleClickRemoveRow(rowIndex) {
-		const {
-			dispatch,
-			'pattern': { _id },
-		} = this.props;
+    dispatch(
+      editTwillWeavingStartRow({
+        _id,
+        weavingStartRow: parseInt(value, 10),
+      }),
+    );
+  }
 
-		const { isEditing } = this.state;
+  handleClickRemoveRow(rowIndex) {
+    const {
+      dispatch,
+      pattern: { _id },
+    } = this.props;
 
-		if (!isEditing) {
-			return;
-		}
+    const { isEditing } = this.state;
 
-		const rowFirst = (rowIndex * 2) + 1; // convert from chart row to weaving row
+    if (!isEditing) {
+      return;
+    }
 
-		const response = confirm(`Do you want to delete rows ${rowFirst} and ${rowFirst + 1}?`); // eslint-disable-line no-restricted-globals
+    const rowFirst = rowIndex * 2 + 1; // convert from chart row to weaving row
 
-		if (response === true) {
-			dispatch(removeWeavingRows({
-				_id,
-				'removeNRows': 2,
-				'removeRowsAt': rowIndex * 2, // convert from chart row to weaving row
-			}));
-			setTimeout(() => this.trackScrolling(), 100); // give time for the deleted rows to be removed
-		}
-	}
+    const response = confirm(
+      `Do you want to delete rows ${rowFirst} and ${rowFirst + 1}?`,
+    ); // eslint-disable-line no-restricted-globals
 
-	toggleEditWeaving() {
-		const { dispatch } = this.props;
-		const { isEditing } = this.state;
+    if (response === true) {
+      dispatch(
+        removeWeavingRows({
+          _id,
+          removeNRows: 2,
+          removeRowsAt: rowIndex * 2, // convert from chart row to weaving row
+        }),
+      );
+      setTimeout(() => this.trackScrolling(), 100); // give time for the deleted rows to be removed
+    }
+  }
 
-		if (!isEditing) {
-			document.addEventListener('scroll', this.trackScrolling);
-			window.addEventListener('resize', this.trackScrolling);
-			setTimeout(() => this.trackScrolling(), 100); // give the controls time to render
-		} else {
-			document.removeEventListener('scroll', this.trackScrolling);
-			window.removeEventListener('resize', this.trackScrolling);
-		}
+  toggleEditWeaving() {
+    const { dispatch } = this.props;
+    const { isEditing } = this.state;
+    toggleEditMainPatternWeaving({
+      dispatch,
+      isEditing,
+      setState: this.setState.bind(this),
+      trackScrolling: this.trackScrolling,
+    });
+  }
 
-		this.setState({
-			'isEditing': !isEditing,
-		});
+  handleClickEditMode(event) {
+    const newEditMode = event.target.value;
 
-		dispatch(setIsEditingWeaving(!isEditing));
-	}
+    this.setState({
+      editMode: newEditMode,
+    });
+  }
 
-	handleClickEditMode(event) {
-		const newEditMode = event.target.value;
+  renderControls() {
+    const { isEditing } = this.state;
 
-		this.setState({
-			'editMode': newEditMode,
-		});
-	}
+    return (
+      <div className='controls'>
+        {isEditing ? (
+          <Button color='primary' onClick={this.toggleEditWeaving}>
+            Done
+          </Button>
+        ) : (
+          <Button color='primary' onClick={this.toggleEditWeaving}>
+            Edit main pattern
+          </Button>
+        )}
+      </div>
+    );
+  }
 
-	renderControls() {
-		const { isEditing } = this.state;
+  renderCell(rowIndex, tabletIndex) {
+    const {
+      patternDesign: { twillDirectionChangeChart, twillPatternChart },
+    } = this.props;
+    const numberOfChartRows = twillPatternChart.length;
 
-		return (
-			<div className="controls">
-				{isEditing
-					? <Button color="primary" onClick={this.toggleEditWeaving}>Done</Button>
-					: <Button color="primary" onClick={this.toggleEditWeaving}>Edit weaving design</Button>}
-			</div>
-		);
-	}
+    const { isEditing } = this.state;
 
-	renderCell(rowIndex, tabletIndex) {
-		const {
-			'patternDesign': {
-				twillDirectionChangeChart,
-				twillPatternChart,
-			},
-		} = this.props;
-		const numberOfChartRows = twillPatternChart.length;
+    // ensure visible cells and delete row buttons are focusable
+    let tabIndex;
 
-		const {
-			isEditing,
-		} = this.state;
+    if (isEditing) {
+      if (rowIndex !== numberOfChartRows - 1 || tabletIndex % 2 === 1) {
+        tabIndex = 0;
+      }
+    }
 
-		// ensure visible cells and delete row buttons are focusable
-		let tabIndex;
+    const isForeground = twillPatternChart[rowIndex][tabletIndex] === 'X';
+    const isDirectionChange =
+      twillDirectionChangeChart[rowIndex][tabletIndex] === 'X';
 
-		if (isEditing) {
-			if (rowIndex !== numberOfChartRows - 1 || tabletIndex % 2 === 1) {
-				tabIndex = 0;
-			}
-		}
+    return (
+      <li
+        className={`cell value ${tabletIndex === 0 ? 'first-tablet' : ''} ${isForeground ? 'foreground' : ''} ${isDirectionChange ? 'direction-change' : ''}`}
+        key={`twill-design-cell-${rowIndex}-${tabletIndex}`}
+      >
+        <span
+          type={isEditing ? 'button' : undefined}
+          onClick={
+            isEditing
+              ? () => this.handleClickWeavingCell(rowIndex, tabletIndex)
+              : undefined
+          }
+          onKeyPress={
+            isEditing
+              ? () => this.handleClickWeavingCell(rowIndex, tabletIndex)
+              : undefined
+          }
+          role={isEditing ? 'button' : undefined}
+          tabIndex={tabIndex}
+        />
+      </li>
+    );
+  }
 
-		const isForeground = twillPatternChart[rowIndex][tabletIndex] === 'X';
-		const isDirectionChange = twillDirectionChangeChart[rowIndex][tabletIndex] === 'X';
+  renderRow(rowIndex) {
+    const {
+      numberOfTablets,
+      patternDesign: { twillPatternChart, weavingStartRow },
+    } = this.props;
+    const numberOfChartRows = twillPatternChart.length;
+    const { isEditing } = this.state;
+    const rowLabel = numberOfChartRows - rowIndex;
 
-		return (
-			<li
-				className={`cell value ${tabletIndex === 0 ? 'first-tablet' : ''} ${isForeground ? 'foreground' : ''} ${isDirectionChange ? 'direction-change' : ''}`}
-				key={`twill-design-cell-${rowIndex}-${tabletIndex}`}
-			>
-				<span
-					type={isEditing ? 'button' : undefined}
-					onClick={isEditing ? () => this.handleClickWeavingCell(rowIndex, tabletIndex) : undefined}
-					onKeyPress={isEditing ? () => this.handleClickWeavingCell(rowIndex, tabletIndex) : undefined}
-					role={isEditing ? 'button' : undefined}
-					tabIndex={tabIndex}
-				/>
-			</li>
-		);
-	}
+    const cells = [];
+    for (let i = 0; i < numberOfTablets; i += 1) {
+      cells.push(this.renderCell(rowLabel - 1, i));
+    }
 
-	renderRow(rowIndex) {
-		const {
-			numberOfTablets,
-			'patternDesign': {
-				twillPatternChart,
-				weavingStartRow,
-			},
-		} = this.props;
-		const numberOfChartRows = twillPatternChart.length;
-		const { isEditing } = this.state;
-		const rowLabel = numberOfChartRows - rowIndex;
+    return (
+      <>
+        <ul
+          className={`${rowIndex === 0 ? 'last-row' : ''} ${rowIndex === numberOfChartRows - 1 ? 'first-row' : ''} ${rowLabel * 2 < weavingStartRow ? 'inactive' : ''}`}
+        >
+          <li className='row-label even'>
+            <span>{rowLabel * 2}</span>
+          </li>
+          <li className='row-label odd'>
+            <span>{rowLabel * 2 - 1}</span>
+          </li>
+          {cells}
+          {isEditing && numberOfChartRows > 2 && rowIndex !== 0 && (
+            <li className='delete'>
+              <span
+                title={`delete rows ${rowLabel * 2 - 1} and ${rowLabel * 2}`}
+                type='button'
+                onClick={() => this.handleClickRemoveRow(rowLabel - 1)}
+                onKeyPress={() => this.handleClickRemoveRow(rowLabel - 1)}
+                role='button'
+                tabIndex='0'
+              >
+                X
+              </span>
+            </li>
+          )}
+        </ul>
+      </>
+    );
+  }
 
-		const cells = [];
-		for (let i = 0; i < numberOfTablets; i += 1) {
-			cells.push(this.renderCell(rowLabel - 1, i));
-		}
+  renderTabletLabels() {
+    const { numberOfTablets, tabletOffset } = this.props;
 
-		return (
-			<>
-				<ul className={`${rowIndex === 0 ? 'last-row' : ''} ${(rowIndex === numberOfChartRows - 1) ? 'first-row' : ''} ${rowLabel * 2 < weavingStartRow ? 'inactive' : ''}`}>
-					<li className="row-label even"><span>{rowLabel * 2}</span></li>
-					<li className="row-label odd"><span>{(rowLabel * 2) - 1}</span></li>
-					{cells}
-					{isEditing && numberOfChartRows > 2 && rowIndex !== 0 && (
-						<li className="delete">
-							<span
-								title={`delete rows ${rowLabel * 2 - 1} and ${rowLabel * 2}`}
-								type="button"
-								onClick={() => this.handleClickRemoveRow(rowLabel - 1)}
-								onKeyPress={() => this.handleClickRemoveRow(rowLabel - 1)}
-								role="button"
-								tabIndex="0"
-							>
-							X
-							</span>
-						</li>
-					)}
-				</ul>
-			</>
-		);
-	}
+    const labels = [];
+    for (let i = 0; i < numberOfTablets; i += 1) {
+      labels.push(
+        <li className='cell label' key={`tablet-label-${i}`}>
+          <span>{tabletOffset + i + 1}</span>
+        </li>,
+      );
+    }
 
-	renderTabletLabels() {
-		const {
-			numberOfTablets,
-		} = this.props;
+    return <ul className='tablet-labels'>{labels}</ul>;
+  }
 
-		const labels = [];
-		for (let i = 0; i < numberOfTablets; i += 1) {
-			labels.push((
-				<li
-					className="cell label"
-					key={`tablet-label-${i}`}
-				>
-					<span>{i + 1}</span>
-				</li>
-			));
-		}
+  renderChart() {
+    const {
+      patternDesign: { twillPatternChart },
+    } = this.props;
+    const numberOfChartRows = twillPatternChart.length;
+    const { isEditing } = this.state;
 
-		return <ul className="tablet-labels">{labels}</ul>;
-	}
+    const rows = [];
+    for (let i = 0; i < numberOfChartRows; i += 1) {
+      rows.push(
+        <li className='weaving-design-row' key={`weaving-design-row-${i}`}>
+          {this.renderRow(i)}
+        </li>,
+      );
+    }
 
-	renderChart() {
-		const {
-			'patternDesign': {
-				twillPatternChart,
-			},
-		} = this.props;
-		const numberOfChartRows = twillPatternChart.length;
-		const { isEditing } = this.state;
+    return (
+      <>
+        {this.renderTabletLabels()}
+        <ul className='weaving-chart'>{rows}</ul>
+        {isEditing && (
+          <>
+            <p>Change the twill direction to create smooth diagonal lines.</p>
+          </>
+        )}
+      </>
+    );
+  }
 
-		const rows = [];
-		for (let i = 0; i < numberOfChartRows; i += 1) {
-			rows.push(
-				<li
-					className="weaving-design-row"
-					key={`weaving-design-row-${i}`}
-				>
-					{this.renderRow(i)}
-				</li>,
-			);
-		}
+  renderEditOptions() {
+    const { editMode } = this.state;
+    const options = [
+      { name: 'Edit colour', value: 'color' },
+      { name: 'Edit twill direction', value: 'twillDirection' },
+    ];
 
-		return (
-			<>
-				{isEditing && (
-					<>
-						<p>Change the twill direction to create smooth diagonal lines.</p>
-					</>
-				)}
-				{this.renderTabletLabels()}
-				<ul className="weaving-chart">
-					{rows}
-				</ul>
-			</>
-		);
-	}
+    return (
+      <WeavingEditOptions
+        editMode={editMode}
+        onClickEditMode={this.handleClickEditMode}
+        options={options}
+        segmented={false}
+      />
+    );
+  }
 
-	renderEditOptions() {
-		const { editMode } = this.state;
-		const options = [
-			{
-				'name': 'Edit colour',
-				'value': 'color',
-			},
-			{
-				'name': 'Edit twill direction',
-				'value': 'twillDirection',
-			},
-		];
+  renderToolbar() {
+    const {
+      numberOfRows,
+      pattern: { patternDesign },
+    } = this.props;
+    const { weavingStartRow } = patternDesign;
+    const { controlsOffsetX, controlsOffsetY } = this.state;
 
-		return (
-			<>
-				<ButtonToolbar>
-					<ButtonGroup className="edit-mode">
-						{options.map((option) => (
-							<Button
-								className={editMode === option.value ? 'selected' : ''}
-								color="secondary"
-								key={option.value}
-								onClick={this.handleClickEditMode}
-								value={option.value}
-							>
-								{option.name}
-							</Button>
-						))}
-					</ButtonGroup>
-				</ButtonToolbar>
-			</>
-		);
-	}
+    return (
+      <div
+        className={`weaving-toolbar ${controlsOffsetY > 0 ? 'scrolling' : ''}`}
+        ref={this.controlsRef}
+        style={{
+          left: `${controlsOffsetX}px`,
+          bottom: `${controlsOffsetY}px`,
+          position: 'relative',
+        }}
+      >
+        {this.renderEditOptions()}
+        <AddRowsForm
+          enableReinitialize={true}
+          handleSubmit={this.handleSubmitAddRows}
+          numberOfRows={numberOfRows}
+          patternType='brokenTwill'
+        />
+        <TwillWeavingStartRowForm
+          numberOfRows={numberOfRows}
+          handleSubmit={this.handleSubmitWeavingStartRow}
+          weavingStartRow={weavingStartRow}
+        />
+      </div>
+    );
+  }
 
-	renderToolbar() {
-		const {
-			numberOfRows,
-			'pattern': { patternDesign },
-		} = this.props;
-		const { weavingStartRow } = patternDesign;
-		const {
-			controlsOffsetX,
-			controlsOffsetY,
-		} = this.state;
+  render() {
+    const {
+      pattern: { createdBy },
+    } = this.props;
+    const { isEditing } = this.state;
+    const canEdit = createdBy === Meteor.userId();
 
-		return (
-			<div
-				className={`weaving-toolbar ${controlsOffsetY > 0 ? 'scrolling' : ''}`}
-				ref={this.controlsRef}
-				style={{
-					'left': `${controlsOffsetX}px`,
-					'bottom': `${controlsOffsetY}px`,
-					'position': 'relative',
-				}}
-			>
-				{this.renderEditOptions()}
-				<AddRowsForm
-					enableReinitialize={true}
-					handleSubmit={this.handleSubmitAddRows}
-					numberOfRows={numberOfRows}
-					patternType="brokenTwill"
-				/>
-				<TwillWeavingStartRowForm
-					numberOfRows={numberOfRows}
-					handleSubmit={this.handleSubmitWeavingStartRow}
-					weavingStartRow={weavingStartRow}
-				/>
-			</div>
-		);
-	}
-
-	render() {
-		const { 'pattern': { createdBy } } = this.props;
-		const { isEditing } = this.state;
-		const canEdit = createdBy === Meteor.userId();
-
-		return (
-			<div className={`weaving-design-twill ${isEditing ? 'editing' : ''}`}>
-				{canEdit && this.renderControls()}
-				<div
-					className="content"
-					ref={this.weavingRef}
-				>
-					{this.renderChart()}
-					{isEditing && this.renderToolbar()}
-					<div className="clearing" />
-				</div>
-			</div>
-		);
-	}
+    return (
+      <div className={`weaving-design-twill ${isEditing ? 'editing' : ''}`}>
+        {canEdit && this.renderControls()}
+        <div className='content' ref={this.weavingRef}>
+          {this.renderChart()}
+          {isEditing && this.renderToolbar()}
+          <div className='clearing' />
+        </div>
+      </div>
+    );
+  }
 }
 
 WeavingDesignBrokenTwill.propTypes = {
-	'dispatch': PropTypes.func.isRequired,
-	'numberOfRows': PropTypes.number.isRequired,
-	'numberOfTablets': PropTypes.number.isRequired,
-	'pattern': PropTypes.objectOf(PropTypes.any).isRequired,
-	'patternDesign': PropTypes.objectOf(PropTypes.any).isRequired, // updated in state
+  dispatch: PropTypes.func.isRequired,
+  isEditingWeaving: PropTypes.bool.isRequired,
+  numberOfRows: PropTypes.number.isRequired,
+  numberOfTablets: PropTypes.number.isRequired,
+  pattern: PropTypes.objectOf(PropTypes.any).isRequired,
+  patternDesign: PropTypes.objectOf(PropTypes.any).isRequired, // updated in state
+  tabletOffset: PropTypes.number,
+};
+
+WeavingDesignBrokenTwill.defaultProps = {
+  tabletOffset: 0,
 };
 
 function mapStateToProps(state) {
-	return {
-		'patternDesign': state.pattern.patternDesign,
-	};
+  return {
+    isEditingWeaving: state.pattern.isEditingWeaving,
+    patternDesign: state.pattern.patternDesign,
+  };
 }
 
 // we need forwardRef to allow the wrapped component to be referenced from the Pattern.js component
-export default connect(mapStateToProps, null, null, { 'forwardRef': true })(WeavingDesignBrokenTwill);
+export default connect(mapStateToProps, null, null, { forwardRef: true })(
+  WeavingDesignBrokenTwill,
+);

@@ -1,149 +1,168 @@
-@import "../constants/variables";
+@import '../constants/variables';
+
+.weaving-with-borders {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+
+  .weaving {
+    float: none;
+  }
+
+  .border-weaving {
+    min-width: 170px; // leave room for edit button
+  }
+}
 
 .weaving {
-	clear: both;
-	float: left;
-	padding-right: 8px;
+  clear: both;
+  float: left;
 
-	&.editing {
-		.content {
-			background: $color-chart-editing-background;
-			border: 1px solid $color-focus;
-		}
-	}
+  &.editing {
+    .content {
+      background: $color-chart-editing-background;
+      border: 1px solid $color-focus;
+    }
+  }
 
-	.content {
-		border: 1px solid transparent;
-		border-radius: 4px;
-		margin: 8px 0;
-		min-width: 500px; // leave room for edit controls
-		padding: 8px;
-	}
+  .content {
+    border: 1px solid transparent;
+    border-radius: 4px;
+    margin: 8px 0;
+    min-width: 170px; // leave room for edit button
+    padding: 8px;
+  }
 
-	ul {
-		font-size: 0;
-		list-style-type: none;
-		margin: 0;
-		padding: 0;
+  ul {
+    font-size: 0;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
 
-		li {
-			margin: 0;
-			padding: 0;
-		}
+    li {
+      margin: 0;
+      padding: 0;
+    }
 
-		.cell {
-			display: inline-block;
-			overflow: hidden;
+    .cell {
+      display: inline-block;
+      overflow: hidden;
 
-			span {
-				-moz-appearance: none; /* Mozilla */
-				-webkit-appearance: none; /* WebKit */
-				appearance: none; /* CSS3 */
-				display: inline-block;
-				height: 32px;
-				width: 32px;
+      span {
+        -moz-appearance: none; /* Mozilla */
+        -webkit-appearance: none; /* WebKit */
+        appearance: none; /* CSS3 */
+        display: inline-block;
+        height: 32px;
+        width: 32px;
 
-				&:focus {
-					outline: 2px dashed $color-focus;
-					outline-offset: -2px;
-				}
+        &:focus {
+          outline: 2px dashed $color-focus;
+          outline-offset: -2px;
+        }
 
-				&.backward {
-					background: var(--color-weaving-backwards-bg);
-				}
-			}
-		}
+        &.backward {
+          background: var(--color-weaving-backwards-bg);
+        }
+      }
+    }
 
-		.label {
-			border-right: 1px solid transparent;
-			border-top: 1px solid transparent;
-			font-size: 1rem;
-			line-height: 32px;
-			text-align: center;
-		}
+    .label {
+      border-right: 1px solid transparent;
+      border-top: 1px solid transparent;
+      font-size: 1rem;
+      line-height: 32px;
+      text-align: center;
+    }
 
-		.value {
-			background: $color-chart-background;
-			border-right: 1px solid $color-chart-border;
-			border-top: 1px solid $color-chart-border;
+    .value {
+      background: $color-chart-background;
+      border-right: 1px solid $color-chart-border;
+      border-top: 1px solid $color-chart-border;
 
-			&:nth-child(2) {
-				border-left: 1px solid $color-chart-border;
-			}
-		}
+      &:nth-child(2) {
+        border-left: 1px solid $color-chart-border;
+      }
+    }
 
-		.delete {
-			color: $color-weaving-delete;
-			font-size: 1rem;
-			line-height: 32px;
-			text-align: center;
-		}
-	}
+    .delete {
+      color: $color-weaving-delete;
+      font-size: 1rem;
+      line-height: 32px;
+      text-align: center;
+    }
+  }
 
-	.row {
-		&:last-child {
-			.weaving-row {
-				.value {
-					border-bottom: 1px solid $color-chart-border;
-				}
-			}
-		}
-	}
+  .row {
+    &:last-child {
+      .weaving-row {
+        .value {
+          border-bottom: 1px solid $color-chart-border;
+        }
+      }
+    }
+  }
 
-	.tablet-labels {
-		margin-left: 32px;
-		overflow-x: auto;
-		white-space: nowrap;
-	}
+  .tablet-labels {
+    margin-left: 32px;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
 
-	.weaving-chart {
-		clear: both;
-	}
+  .weaving-chart {
+    clear: both;
+  }
 
-	.weaving-row {
-		overflow-x: auto;
-		white-space: nowrap;
-	}
+  .weaving-row {
+    overflow-x: auto;
+    white-space: nowrap;
+  }
 
-	.hint {
-		clear: both;
-	}
+  .hint {
+    clear: both;
+  }
 
-	.weaving-toolbar {
-		background-color: $color-chart-editing-background;
-		border: 1px solid transparent;
-		border-radius: 4px;
-		clear: both;
-		float: left;
-		padding: 8px;
+  .weaving-toolbar {
+    background-color: $color-chart-editing-background;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    clear: both;
+    float: left;
+    padding: 8px;
 
-		&.scrolling {
-			border-color: $color-chart-border;
-		}
+    &.scrolling {
+      border-color: $color-chart-border;
+    }
 
-		.form-group {
-			clear: both;
-			float: left;
-			margin-bottom: 0;
-		}
+    button,
+    label {
+      white-space: nowrap;
+    }
 
-		.btn-toolbar {
-			.segmented {
-				float: left;
-				margin: 0 8px 8px 0;
+    .form-group {
+      clear: both;
+      display: flex;
+      float: left;
+      margin-bottom: 0;
+    }
 
-				button {
-					background: $color-weaving-toolbar-btn-background;
-					border-color: $color-weaving-toolbar-btn-color;
-					color: $color-weaving-toolbar-btn-color;
+    .btn-toolbar {
+      .segmented {
+        float: left;
+        margin: 0 8px 8px 0;
 
-					&.selected {
-						background: $color-weaving-toolbar-btn-selected-background;
-						border-color: $color-weaving-toolbar-btn-selected-background;
-						color: $color-weaving-toolbar-btn-selected-color;
-					}
-				}
-			}
-		}
-	}
+        button {
+          background: $color-weaving-toolbar-btn-background;
+          border-color: $color-weaving-toolbar-btn-color;
+          color: $color-weaving-toolbar-btn-color;
+
+          &.selected {
+            background: $color-weaving-toolbar-btn-selected-background;
+            border-color: $color-weaving-toolbar-btn-selected-background;
+            color: $color-weaving-toolbar-btn-selected-color;
+          }
+        }
+      }
+    }
+  }
 }

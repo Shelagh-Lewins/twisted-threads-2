@@ -53,12 +53,11 @@ import {
   clearPatternData,
   getIsLoading,
   getPatternId,
-  setIsEditingWeaving,
-  setIsEditingThreading,
   setIsLoading,
   savePatternData,
   setPatternId,
 } from '../modules/pattern';
+import { clearAllEditModes } from '../modules/editingUtils';
 import AppContext from '../modules/appContext';
 import Navbar from '../components/Navbar';
 import Login from './Login';
@@ -348,8 +347,7 @@ export const withDatabase = withTracker((props) => {
             if (!state.pattern.patternDataReady) {
               // once the data are loaded, build the charts
               dispatch(savePatternData(pattern));
-              dispatch(setIsEditingWeaving(false));
-              dispatch(setIsEditingThreading(false));
+              clearAllEditModes(dispatch);
             }
 
             // everything is ready to render

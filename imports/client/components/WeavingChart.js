@@ -25,6 +25,7 @@ import './WeavingChart.scss';
 
 function WeavingChart(props) {
   const {
+    combined,
     createdBy,
     printView,
     dispatch,
@@ -46,6 +47,7 @@ function WeavingChart(props) {
     dispatch(
       editTabletGuides({
         canSave,
+        combined,
         _id: patternId,
         tablet: tabletIndex,
       }),
@@ -229,6 +231,7 @@ function WeavingChart(props) {
 // known bug that eslint does not reliably detect props inside functions in a functional component
 // https://github.com/yannickcr/eslint-plugin-react/issues/885
 WeavingChart.propTypes = {
+  combined: PropTypes.bool,
   createdBy: PropTypes.string.isRequired,
   dispatch: PropTypes.func,
   handleClickUp: PropTypes.func,

@@ -9,8 +9,10 @@ import PreviewCell from './PreviewCell';
 import FreehandPreviewCell from './FreehandPreviewCell';
 import {
   getIncludeInTwist,
+  getLeftBorder,
   getPalette,
   getPreviewShouldUpdate,
+  getRightBorder,
 } from '../modules/pattern';
 import { getNumberOfRepeats, modulus } from '../modules/weavingUtils';
 import { PathWeft } from '../modules/previewPaths';
@@ -87,10 +89,12 @@ class PatternPreview extends Component {
     const {
       holes,
       includeInTwist,
+      leftBorder,
       numberOfRows,
       numberOfTablets,
       patternWillRepeat,
       palette,
+      rightBorder,
       pattern: {
         patternType,
         previewOrientation: patternPreviewOrientation,
@@ -110,6 +114,11 @@ class PatternPreview extends Component {
 
     // in print view, always show preview 'up' to ensure it does not scroll
     const previewOrientation = printView ? 'up' : patternPreviewOrientation;
+
+    // combined tablet count includes borders (0 when no borders)
+    const leftN = leftBorder?.numberOfTablets || 0;
+    const rightN = rightBorder?.numberOfTablets || 0;
+    const combinedN = leftN + numberOfTablets + rightN;
 
     // ///////////////////////////
     // calculate sizes and rotations
@@ -131,7 +140,7 @@ class PatternPreview extends Component {
     const weftOverlap = 0.2; // how much the weft sticks out each side
 
     // size of svg viewbox and parent element
-    const widthInUnits = numberOfTablets + weftOverlap * 2;
+    const widthInUnits = combinedN + weftOverlap * 2;
     const heightInUnits = numberOfRows / 2;
 
     // elements overlap by half their height
@@ -281,7 +290,7 @@ class PatternPreview extends Component {
     // render the preview
     // reverse order of tablets if showing back of band
     const findTabletIndex = (index) =>
-      showBackOfBand ? numberOfTablets - index - 1 : index;
+      showBackOfBand ? combinedN - index - 1 : index;
 
     const yOffsetForRow = (rowIndex, repeatOffset) =>
       (numberOfRows - rowIndex - 1) * (unitHeight / 2) + repeatOffset;
@@ -304,6 +313,8 @@ class PatternPreview extends Component {
           <FreehandPreviewCell rowIndex={rowIndex} tabletIndex={tabletIndex} />
         );
       } else {
+        // tabletIndex is an absolute combined index; resolveCombinedTablet inside the
+        // getCombined* selectors handles routing to border or main-pattern data.
         cell = (
           <PreviewCell
             currentRepeat={currentRepeat}
@@ -330,7 +341,7 @@ class PatternPreview extends Component {
     };
 
     const renderRowNumber = function (currentRepeat, repeatOffset, rowIndex) {
-      const xOffset = (numberOfTablets + weftOverlap) * cellWidth;
+      const xOffset = (combinedN + weftOverlap) * cellWidth;
       const yOffset =
         (numberOfRows - rowIndex + 0.5) * (cellHeight / 2) + repeatOffset;
 
@@ -413,7 +424,7 @@ class PatternPreview extends Component {
           >
             <PathWeft
               fill={palette[weftColor]}
-              scale={numberOfTablets + 2 * weftOverlap}
+              scale={combinedN + 2 * weftOverlap}
             />
           </g>,
         );
@@ -421,7 +432,7 @@ class PatternPreview extends Component {
         // draw the weaving cells
         const cells = [];
 
-        for (let j = 0; j < numberOfTablets; j += 1) {
+        for (let j = 0; j < combinedN; j += 1) {
           // we do not need to change the order of the tablets depending on whether front or back of band is showing
           // the xOffset will take care of this
           cells.push(
@@ -458,13 +469,42 @@ class PatternPreview extends Component {
       }
     }
 
+    // helper: get total turns for any combined tablet index
+    const getTotalTurnsForCombinedTablet = (combinedTabletIndex) => {
+      if (leftN > 0 && combinedTabletIndex < leftN) {
+        // left border tablet
+        const bPicks = leftBorder?.picks?.[combinedTabletIndex];
+        return bPicks ? (bPicks[bPicks.length - 1]?.totalTurns ?? 0) : 0;
+      }
+      if (rightN > 0 && combinedTabletIndex >= leftN + numberOfTablets) {
+        // right border tablet
+        const borderIdx = combinedTabletIndex - leftN - numberOfTablets;
+        const bPicks = rightBorder?.picks?.[borderIdx];
+        return bPicks ? (bPicks[bPicks.length - 1]?.totalTurns ?? 0) : 0;
+      }
+      // main pattern tablet
+      return totalTurnsByTablet[combinedTabletIndex - leftN];
+    };
+
+    // helper: get includeInTwist for any combined tablet index
+    const getIsInTwistCalc = (combinedTabletIndex) => {
+      if (combinedTabletIndex < leftN) {
+        return leftBorder?.includeInTwist?.[combinedTabletIndex] ?? false;
+      }
+      if (combinedTabletIndex >= leftN + numberOfTablets) {
+        const borderIdx = combinedTabletIndex - leftN - numberOfTablets;
+        return rightBorder?.includeInTwist?.[borderIdx] ?? false;
+      }
+      return includeInTwist?.[combinedTabletIndex - leftN] ?? true;
+    };
+
     // total turns
     const totalTurnCells = [];
 
-    for (let j = 0; j < numberOfTablets; j += 1) {
+    for (let j = 0; j < combinedN; j += 1) {
       const tabletIndex = findTabletIndex(j);
 
-      const totalTurns = totalTurnsByTablet[tabletIndex];
+      const totalTurns = getTotalTurnsForCombinedTablet(tabletIndex);
       const startPosition = modulus(totalTurns, holes) === 0; // tablet is back at start position
       let title = `Tablet number ${
         tabletIndex + 1
@@ -485,9 +525,7 @@ class PatternPreview extends Component {
         <span
           className={`${totalTurns === 0 ? 'twist-neutral' : ''} ${
             startPosition ? 'start-position' : ''
-          } ${
-            includeInTwist && includeInTwist[tabletIndex] ? '' : 'not-in-twist'
-          }`}
+          } ${getIsInTwistCalc(tabletIndex) ? '' : 'not-in-twist'}`}
           key={`preview-total-turns-${tabletIndex}`}
           title={title}
         >
@@ -509,7 +547,7 @@ class PatternPreview extends Component {
     // tablet labels
     const tabletLabelCells = [];
 
-    for (let j = 0; j < numberOfTablets; j += 1) {
+    for (let j = 0; j < combinedN; j += 1) {
       const tabletIndex = findTabletIndex(j);
 
       tabletLabelCells.push(
@@ -563,12 +601,14 @@ PatternPreview.propTypes = {
   dispatch: PropTypes.func.isRequired,
   holes: PropTypes.number.isRequired,
   includeInTwist: PropTypes.arrayOf(PropTypes.any),
+  leftBorder: PropTypes.objectOf(PropTypes.any),
   numberOfRows: PropTypes.number.isRequired,
   numberOfTablets: PropTypes.number.isRequired,
   palette: PropTypes.arrayOf(PropTypes.any).isRequired,
   pattern: PropTypes.objectOf(PropTypes.any).isRequired,
   patternWillRepeat: PropTypes.bool.isRequired,
   printView: PropTypes.bool,
+  rightBorder: PropTypes.objectOf(PropTypes.any),
   rowsAtStartPosition: PropTypes.arrayOf(PropTypes.any),
   showBackOfBand: PropTypes.bool,
   showStartPosition: PropTypes.bool,
@@ -579,7 +619,9 @@ function mapStateToProps(state) {
   return {
     componentShouldUpdate: getPreviewShouldUpdate(state),
     includeInTwist: getIncludeInTwist(state),
+    leftBorder: getLeftBorder(state),
     palette: getPalette(state),
+    rightBorder: getRightBorder(state),
   };
 }
 

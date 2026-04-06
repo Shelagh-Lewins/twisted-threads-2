@@ -1,54 +1,58 @@
 // used to keep weaving toolbar visible when editing large weaving instructions
 
-const calculateScrolling = ({
-	controlsElm,
-	weavingElm,
-}) => {
-	const {
-		'x': weavingPositionX,
-		'y': weavingPositionY,
-	} = weavingElm.getBoundingClientRect();
+const calculateScrolling = ({ controlsElm, weavingElm }) => {
+  if (!weavingElm || !controlsElm) {
+    return { controlsOffsetX: 0, controlsOffsetY: 0 };
+  }
 
-	// find the containing element's applied styles
-	const weavingCompStyles = window.getComputedStyle(weavingElm);
-	const controlsCompStyles = window.getComputedStyle(controlsElm);
+  const { x: weavingPositionX, y: weavingPositionY } =
+    weavingElm.getBoundingClientRect();
 
-	const weavingWidth = parseFloat(weavingElm.clientWidth)
-	- parseFloat(weavingCompStyles.getPropertyValue('padding-left'))
-	- parseFloat(weavingCompStyles.getPropertyValue('padding-right'));
+  // find the containing element's applied styles
+  const weavingCompStyles = window.getComputedStyle(weavingElm);
+  const controlsCompStyles = window.getComputedStyle(controlsElm);
 
-	const weavingHeight = parseFloat(weavingElm.clientHeight)
-	- parseFloat(weavingCompStyles.getPropertyValue('padding-top'))
-	- parseFloat(weavingCompStyles.getPropertyValue('padding-bottom'));
+  const weavingWidth =
+    parseFloat(weavingElm.clientWidth) -
+    parseFloat(weavingCompStyles.getPropertyValue('padding-left')) -
+    parseFloat(weavingCompStyles.getPropertyValue('padding-right'));
 
-	const windowHeight = window.innerHeight;
-	const controlsPaddingY = parseFloat(controlsCompStyles.getPropertyValue('padding-top')) + parseFloat(controlsCompStyles.getPropertyValue('padding-bottom'));
-	const weavingLeftOffset = weavingPositionX;
-	const weavingBottomOffset = weavingHeight + weavingPositionY - windowHeight + controlsPaddingY + 16; // extra bit to raise panel above bottom of window
+  const weavingHeight =
+    parseFloat(weavingElm.clientHeight) -
+    parseFloat(weavingCompStyles.getPropertyValue('padding-top')) -
+    parseFloat(weavingCompStyles.getPropertyValue('padding-bottom'));
 
-	const controlsWidth = controlsElm.getBoundingClientRect().width;
+  const windowHeight = window.innerHeight;
+  const controlsPaddingY =
+    parseFloat(controlsCompStyles.getPropertyValue('padding-top')) +
+    parseFloat(controlsCompStyles.getPropertyValue('padding-bottom'));
+  const weavingLeftOffset = weavingPositionX;
+  const weavingBottomOffset =
+    weavingHeight + weavingPositionY - windowHeight + controlsPaddingY + 16; // extra bit to raise panel above bottom of window
 
-	const controlsHeight = controlsElm.getBoundingClientRect().height;
+  const controlsWidth = controlsElm.getBoundingClientRect().width;
 
-	const widthDifference = weavingWidth - controlsWidth;
+  const controlsHeight = controlsElm.getBoundingClientRect().height;
 
-	const heightDifference = weavingHeight - controlsHeight;
+  const widthDifference = weavingWidth - controlsWidth;
 
-	let offsetX = 0;
-	let offsetY = 0;
+  const heightDifference = weavingHeight - controlsHeight;
 
-	if (weavingLeftOffset < 0) {
-		offsetX = Math.min(-1 * weavingLeftOffset, widthDifference);
-	}
+  let offsetX = 0;
+  let offsetY = 0;
 
-	if (weavingBottomOffset > 0) {
-		offsetY = Math.min(weavingBottomOffset, heightDifference);
-	}
+  if (weavingLeftOffset < 0) {
+    offsetX = Math.min(-1 * weavingLeftOffset, widthDifference);
+  }
 
-	return {
-		'controlsOffsetX': offsetX,
-		'controlsOffsetY': offsetY,
-	};
+  if (weavingBottomOffset > 0) {
+    offsetY = Math.min(weavingBottomOffset, heightDifference);
+  }
+
+  return {
+    controlsOffsetX: offsetX,
+    controlsOffsetY: offsetY,
+  };
 };
 
 export default calculateScrolling;

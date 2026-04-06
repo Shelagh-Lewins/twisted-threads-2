@@ -1,0 +1,40 @@
+import {
+  setIsEditingLeftBorderThreading,
+  setIsEditingLeftBorderWeaving,
+  setIsEditingRightBorderThreading,
+  setIsEditingRightBorderWeaving,
+  setIsEditingThreading,
+  setIsEditingWeaving,
+} from './pattern';
+
+export function clearAllEditModes(dispatch) {
+  dispatch(setIsEditingThreading(false));
+  dispatch(setIsEditingLeftBorderThreading(false));
+  dispatch(setIsEditingRightBorderThreading(false));
+  dispatch(setIsEditingWeaving(false));
+  dispatch(setIsEditingLeftBorderWeaving(false));
+  dispatch(setIsEditingRightBorderWeaving(false));
+}
+
+// Shared toggleEditWeaving logic for doubleFaced and brokenTwill weaving
+// design components. Both components manage their own local isEditing state
+// and also clear the border editing flags when they start editing.
+export function toggleEditMainPatternWeaving({
+  dispatch,
+  isEditing,
+  setState,
+  trackScrolling,
+}) {
+  if (!isEditing) {
+    document.addEventListener('scroll', trackScrolling);
+    window.addEventListener('resize', trackScrolling);
+    setTimeout(() => trackScrolling(), 100); // give the controls time to render
+    clearAllEditModes(dispatch);
+  } else {
+    document.removeEventListener('scroll', trackScrolling);
+    window.removeEventListener('resize', trackScrolling);
+  }
+
+  setState({ isEditing: !isEditing });
+  dispatch(setIsEditingWeaving(!isEditing));
+}
