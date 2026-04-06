@@ -12,7 +12,7 @@ import {
 } from '../modules/pattern';
 import { modulus } from '../modules/weavingUtils';
 
-export function WeavingChartCellBase(props) {
+export function WeavingChartCell(props) {
   const {
     direction,
     holes,
@@ -52,7 +52,7 @@ export function WeavingChartCellBase(props) {
   );
 }
 
-WeavingChartCellBase.propTypes = {
+WeavingChartCell.propTypes = {
   direction: PropTypes.string.isRequired,
   holes: PropTypes.number.isRequired,
   numberOfTurns: PropTypes.number.isRequired,
@@ -80,4 +80,4 @@ function mapStateToProps(state, ownProps) {
   };
 }
 
-export default connect(mapStateToProps)(WeavingChartCellBase);
+export default connect(mapStateToProps)(WeavingChartCell);
