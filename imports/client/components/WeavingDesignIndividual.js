@@ -458,7 +458,7 @@ function mergeProps(stateProps, { dispatch }, ownProps) {
       ...stateProps,
       dispatch,
       canAddRemoveRows: false,
-      controlsLabel: `Edit ${side} border`,
+      controlsLabel: side === 'left' ? 'Edit left border' : 'Edit right border',
       cssClass: `weaving border-weaving border-weaving-${side}`,
       onEditWeavingCell: ({ row, tablet, editMode, numberOfTurns }) => {
         if (editMode === 'direction') {
