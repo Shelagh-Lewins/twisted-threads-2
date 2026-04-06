@@ -4,6 +4,10 @@ const calculateScrolling = ({
 	controlsElm,
 	weavingElm,
 }) => {
+	if (!weavingElm || !controlsElm) {
+		return { controlsOffsetX: 0, controlsOffsetY: 0 };
+	}
+
 	const {
 		'x': weavingPositionX,
 		'y': weavingPositionY,

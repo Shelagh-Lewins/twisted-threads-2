@@ -586,7 +586,7 @@ export const getCombinedOrientationForTablet = (state, tabletIndex) => {
 export const getCombinedPickForChart = (state, tabletIndex, rowIndex) => {
   const { borderKey, localIndex } = resolveCombinedTablet(state, tabletIndex);
   if (borderKey) {
-    return state.pattern[borderKey].picks[localIndex][rowIndex];
+    return state.pattern[borderKey]?.picks?.[localIndex]?.[rowIndex];
   }
   return getPickForChart(state, localIndex, rowIndex);
 };

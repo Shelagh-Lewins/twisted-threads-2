@@ -189,12 +189,18 @@
     padding: 8px;
     z-index: 30;
 
+    button,
+    label {
+      white-space: nowrap;
+    }
+
     &.scrolling {
       border-color: $color-chart-border;
     }
 
     .form-group {
       clear: both;
+      display: flex;
       float: left;
       margin-bottom: 0;
     }
@@ -207,6 +213,7 @@
         background: $color-weaving-toolbar-btn-background;
         border-color: $color-weaving-toolbar-btn-color;
         color: $color-weaving-toolbar-btn-color;
+        white-space: nowrap;
 
         &.selected {
           background: $color-weaving-toolbar-btn-selected-background;

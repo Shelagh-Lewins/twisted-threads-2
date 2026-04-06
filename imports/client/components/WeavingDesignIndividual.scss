@@ -134,8 +134,14 @@
       border-color: $color-chart-border;
     }
 
+    button,
+    label {
+      white-space: nowrap;
+    }
+
     .form-group {
       clear: both;
+      display: flex;
       float: left;
       margin-bottom: 0;
     }

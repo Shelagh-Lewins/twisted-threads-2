@@ -596,6 +596,29 @@ Meteor.methods({
             );
         }
 
+        // Update border weavingInstructions to match the new numberOfRows
+        for (const borderKey of ['leftBorder', 'rightBorder']) {
+          const border = pattern[borderKey];
+          if (border && border.numberOfTablets > 0) {
+            const newBorderRows = [];
+            for (let i = 0; i < insertNRows; i += 1) {
+              const newBorderRow = [];
+              for (let k = 0; k < border.numberOfTablets; k += 1) {
+                newBorderRow.push({
+                  direction: DEFAULT_DIRECTION,
+                  numberOfTurns: DEFAULT_NUMBER_OF_TURNS,
+                });
+              }
+              newBorderRows.push(newBorderRow);
+            }
+            if (!update.$push) update.$push = {};
+            update.$push[`${borderKey}.weavingInstructions`] = {
+              $each: newBorderRows,
+              $position: insertRowsAt,
+            };
+          }
+        }
+
         return Patterns.updateAsync({ _id }, update);
 
       case 'removeWeavingRows':
@@ -819,6 +842,28 @@ Meteor.methods({
               'remove-row-unknown-pattern-type',
               `Unable to remove row because the pattern type ${patternType} was not recognised`,
             );
+        }
+
+        // Update border weavingInstructions to match the new numberOfRows
+        for (const borderKey of ['leftBorder', 'rightBorder']) {
+          const border = pattern[borderKey];
+          if (border && border.numberOfTablets > 0) {
+            for (let i = 0; i < removeNRows; i += 1) {
+              rowIndex = i + removeRowsAt;
+              await Patterns.updateAsync(
+                { _id },
+                {
+                  $set: {
+                    [`${borderKey}.weavingInstructions.${rowIndex}.0.toBeRemoved`]: true,
+                  },
+                },
+              );
+            }
+            if (!update.$pull) update.$pull = {};
+            update.$pull[`${borderKey}.weavingInstructions`] = {
+              $elemMatch: { toBeRemoved: true },
+            };
+          }
         }
 
         return Patterns.updateAsync({ _id }, update);

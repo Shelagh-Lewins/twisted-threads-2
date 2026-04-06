@@ -835,7 +835,7 @@ export const buildBorderWeavingInstructionsByTablet = ({
   for (let i = 0; i < numberOfTablets; i += 1) {
     const instructionsForTablet = [];
     for (let j = 0; j < numberOfRows; j += 1) {
-      instructionsForTablet.push(weavingInstructions[j][i]);
+      instructionsForTablet.push(weavingInstructions[j]?.[i]);
     }
     weavingInstructionsByTablet.push(instructionsForTablet);
   }

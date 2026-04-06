@@ -70,7 +70,7 @@ function mapStateToProps(state, ownProps) {
     state,
     tabletIndex,
     rowIndex,
-  );
+  ) || {};
 
   return {
     direction: direction,

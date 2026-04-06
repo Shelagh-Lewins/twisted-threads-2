@@ -251,8 +251,14 @@
 
     .form-group {
       clear: both;
+      display: flex;
       float: left;
       margin-bottom: 0;
+
+      button,
+      label {
+        white-space: nowrap;
+      }
     }
 
     .btn-toolbar {
@@ -263,6 +269,7 @@
         background: $color-weaving-toolbar-btn-background;
         border-color: $color-weaving-toolbar-btn-color;
         color: $color-weaving-toolbar-btn-color;
+        white-space: nowrap;
 
         &.selected {
           background: $color-weaving-toolbar-btn-selected-background;

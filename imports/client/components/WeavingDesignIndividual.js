@@ -8,6 +8,8 @@ import {
   editBorderWeavingCellTurns,
   editWeavingCellDirection,
   editWeavingCellNumberOfTurns,
+  getIsEditingLeftBorderWeaving,
+  getIsEditingRightBorderWeaving,
   getLeftBorder,
   getRightBorder,
   removeWeavingRows,
@@ -63,6 +65,22 @@ class WeavingDesignIndividual extends PureComponent {
     // ref to find nodes so we can keep controls in view
     this.weavingRef = React.createRef();
     this.controlsRef = React.createRef();
+  }
+
+  componentDidUpdate(prevProps) {
+    const { isEditingBorderWeaving } = this.props;
+    const { isEditing } = this.state;
+    // If something external (e.g. main pattern starting to edit) cleared
+    // isEditingBorderWeaving, sync our local editing state to match.
+    if (
+      !isEditingBorderWeaving &&
+      prevProps.isEditingBorderWeaving &&
+      isEditing
+    ) {
+      document.removeEventListener('scroll', this.trackScrolling);
+      window.removeEventListener('resize', this.trackScrolling);
+      this.setState({ isEditing: false });
+    }
   }
 
   componentWillUnmount() {
@@ -395,6 +413,7 @@ WeavingDesignIndividual.propTypes = {
   cssClass: PropTypes.string.isRequired,
   dispatch: PropTypes.func.isRequired,
   hasBorder: PropTypes.bool.isRequired,
+  isEditingBorderWeaving: PropTypes.bool,
   leftBorderN: PropTypes.number,
   numberOfRows: PropTypes.number.isRequired,
   numberOfTablets: PropTypes.number.isRequired,
@@ -413,6 +432,10 @@ function mapStateToProps(state, ownProps) {
       side === 'left' ? getLeftBorder(state) : getRightBorder(state);
     return {
       hasBorder: !!border?.numberOfTablets,
+      isEditingBorderWeaving:
+        side === 'left'
+          ? getIsEditingLeftBorderWeaving(state)
+          : getIsEditingRightBorderWeaving(state),
       numberOfTablets: border?.numberOfTablets || 0,
     };
   }
