@@ -3994,8 +3994,8 @@ export default function pattern(state = initialPatternState, action) {
         threadingByTablet,
       } = state;
 
-      const remapThreadingByTablet = (tbt) =>
-        tbt.map((tabletColors) =>
+      const remapThreadingByTablet = (threadingByTablet) =>
+        threadingByTablet.map((tabletColors) =>
           tabletColors.map((colorIndex) =>
             colorIndex === fromColorIndex ? toColorIndex : colorIndex,
           ),
