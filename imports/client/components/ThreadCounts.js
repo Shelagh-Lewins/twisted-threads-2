@@ -48,8 +48,8 @@ function ThreadCounts(props) {
     if (threadCounts[toColorIndex] !== undefined) {
       const confirmationText =
         toColorIndex === -1
-          ? `Empty hole is already used by ${threadCounts[toColorIndex]} threads. Are you sure you want to remap ${threadCounts[selectedColorIndex]} threads to empty hole? This change cannot be undone.`
-          : `Colour #${toColorIndex + 1} is already used by ${threadCounts[toColorIndex]} threads. Are you sure you want to remap ${threadCounts[selectedColorIndex]} threads to this colour? This change cannot be undone.`;
+          ? `Empty hole is already used by ${threadCounts[toColorIndex]} threads. Are you sure you want to change ${threadCounts[selectedColorIndex]} threads to empty hole? This action cannot be undone.`
+          : `Colour #${toColorIndex + 1} is already used by ${threadCounts[toColorIndex]} threads. Are you sure you want to change ${threadCounts[selectedColorIndex]} threads to this colour? This action cannot be undone.`;
 
       const confirmed = window.confirm(confirmationText);
 
