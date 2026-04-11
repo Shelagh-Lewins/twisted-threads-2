@@ -215,7 +215,7 @@ class PrintView extends PureComponent {
                   pattern={pattern}
                 />
                 <h2>Thread counts</h2>
-                <ThreadCounts pattern={pattern} />
+                <ThreadCounts canEdit={false} pattern={pattern} />
                 {threadingNotes && threadingNotes !== '' && (
                   <>
                     <h2>Threading notes</h2>

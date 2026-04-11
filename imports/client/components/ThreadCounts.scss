@@ -4,6 +4,36 @@
   margin: 8px 0 1rem 0;
   position: relative;
 
+  &.editing {
+    min-width: 728px;
+
+    .content {
+      background: $color-chart-editing-background;
+      border: 1px solid $color-focus;
+      padding: 12px 8px 8px 8px;
+    }
+  }
+
+  .controls {
+    margin-bottom: 8px;
+  }
+
+  .content {
+    border: 1px solid transparent;
+    border-radius: 4px;
+    margin: 8px 8px 0 0;
+    overflow: hidden;
+    padding: 12px 8px 0 8px;
+  }
+
+  .swatches-row {
+    align-items: center;
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    width: 100%;
+  }
+
   .wrapper {
     display: inline-block;
     margin-right: 8px;
@@ -13,12 +43,32 @@
     text-align: center;
   }
 
+  .text {
+    display: inline-block;
+    height: 32px;
+    vertical-align: top;
+  }
+
   .thread-count {
     border: 1px solid $color-panel-border;
     display: inline-block;
     height: 32px;
     position: relative;
     width: 32px;
+
+    &.clickable {
+      cursor: pointer;
+
+      &:hover {
+        outline: 2px solid $color-palette-outline;
+        outline-offset: 1px;
+      }
+    }
+
+    &.selected-for-remap {
+      outline: 3px solid $color-palette-outline;
+      outline-offset: 1px;
+    }
   }
 
   .empty-hole {
@@ -27,12 +77,17 @@
     display: inline-block;
 
     height: 32px;
-    margin-right: 8px;
     position: relative;
     width: 32px;
 
     svg {
       position: absolute;
     }
+  }
+
+  .thread-counts-palette {
+    clear: both;
+    margin-top: 8px;
+    overflow: hidden;
   }
 }

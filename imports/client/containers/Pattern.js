@@ -921,7 +921,11 @@ class Pattern extends PureComponent {
                   ref={this.childThreading}
                 />
                 <h2>Thread counts</h2>
-                <ThreadCounts pattern={pattern} />
+                <ThreadCounts
+                  canEdit={canEdit}
+                  colorBooks={colorBooks}
+                  pattern={pattern}
+                />
               </>
             )}
             <EditableText

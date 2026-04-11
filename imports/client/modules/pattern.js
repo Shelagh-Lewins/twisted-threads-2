@@ -84,6 +84,7 @@ export const UPDATE_INCLUDE_IN_TWIST = 'UPDATE_INCLUDE_IN_TWIST';
 export const UPDATE_ORIENTATION = 'UPDATE_ORIENTATION';
 export const UPDATE_PALETTE_COLOR = 'UPDATE_PALETTE_COLOR';
 export const UPDATE_HOLE_HANDEDNESS = 'UPDATE_HOLE_HANDEDNESS';
+export const REPLACE_COLOR_IN_THREADING = 'REPLACE_COLOR_IN_THREADING';
 
 export const UPDATE_ADD_WEAVING_ROWS = 'UPDATE_ADD_WEAVING_ROWS';
 export const UPDATE_REMOVE_WEAVING_ROWS = 'UPDATE_REMOVE_WEAVING_ROWS';
@@ -1518,6 +1519,41 @@ export function editPaletteColor({ _id, colorHexValue, colorIndex }) {
         colorIndex,
       }),
     );
+  };
+}
+
+export function updateReplaceColorInThreading({
+  fromColorIndex,
+  toColorIndex,
+}) {
+  return {
+    type: REPLACE_COLOR_IN_THREADING,
+    payload: { fromColorIndex, toColorIndex },
+  };
+}
+
+export function replaceColorInThreading({ _id, fromColorIndex, toColorIndex }) {
+  return (dispatch) => {
+    Meteor.call(
+      'pattern.edit',
+      {
+        _id,
+        data: {
+          type: 'replaceColorInThreading',
+          fromColorIndex,
+          toColorIndex,
+        },
+      },
+      (error) => {
+        if (error) {
+          return dispatch(
+            logErrors({ 'replace color in threading': error.reason }),
+          );
+        }
+      },
+    );
+
+    dispatch(updateReplaceColorInThreading({ fromColorIndex, toColorIndex }));
   };
 }
 
@@ -3091,6 +3127,45 @@ export default function pattern(state = initialPatternState, action) {
 
     case REMOVE_TABLET_FILTER: {
       return updeep({ filterMaxTablets: null, filterMinTablets: null }, state);
+    }
+
+    case REPLACE_COLOR_IN_THREADING: {
+      const { fromColorIndex, toColorIndex } = action.payload;
+      const { patternDesign, patternType, threadingByTablet } = state;
+
+      const newThreadingByTablet = threadingByTablet.map((tabletColors) =>
+        tabletColors.map((colorIndex) =>
+          colorIndex === fromColorIndex ? toColorIndex : colorIndex,
+        ),
+      );
+
+      const stateUpdate = {
+        threadingByTablet: updeep.constant(newThreadingByTablet),
+      };
+
+      // For freehand patterns, also remap threadColor in the freehandChart
+      if (
+        patternType === 'freehand' &&
+        patternDesign &&
+        patternDesign.freehandChart
+      ) {
+        const newFreehandChart = patternDesign.freehandChart.map((row) =>
+          row.map((cell) => ({
+            ...cell,
+            threadColor:
+              cell.threadColor === fromColorIndex
+                ? toColorIndex
+                : cell.threadColor,
+          })),
+        );
+
+        stateUpdate.patternDesign = updeep.constant({
+          ...patternDesign,
+          freehandChart: newFreehandChart,
+        });
+      }
+
+      return updeep(stateUpdate, state);
     }
 
     default:

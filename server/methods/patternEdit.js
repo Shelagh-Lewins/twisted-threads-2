@@ -111,6 +111,8 @@ Meteor.methods({
     let willRepeat;
     let tabletIncludeInTwist;
     let tabletGuide;
+    let fromColorIndex;
+    let toColorIndex;
 
     const update = {}; // builds the Mongo update
 
@@ -1490,6 +1492,52 @@ Meteor.methods({
         }
 
         return Patterns.updateAsync({ _id }, { $set: update });
+
+      case 'replaceColorInThreading':
+        ({ fromColorIndex, toColorIndex } = data);
+
+        check(fromColorIndex, validPaletteIndexCheck);
+        check(toColorIndex, validPaletteIndexCheck);
+
+        if (fromColorIndex === toColorIndex) {
+          return;
+        }
+
+        const replaceUpdate = {};
+
+        // Update threading array (all pattern types)
+        for (let hole = 0; hole < pattern.threading.length; hole += 1) {
+          for (let t = 0; t < pattern.threading[hole].length; t += 1) {
+            if (pattern.threading[hole][t] === fromColorIndex) {
+              replaceUpdate[`threading.${hole}.${t}`] = toColorIndex;
+            }
+          }
+        }
+
+        // For freehand patterns, also update threadColor in the freehandChart
+        if (
+          patternType === 'freehand' &&
+          patternDesign &&
+          patternDesign.freehandChart
+        ) {
+          const { freehandChart } = patternDesign;
+
+          for (let row = 0; row < freehandChart.length; row += 1) {
+            for (let t = 0; t < freehandChart[row].length; t += 1) {
+              if (freehandChart[row][t].threadColor === fromColorIndex) {
+                replaceUpdate[
+                  `patternDesign.freehandChart.${row}.${t}.threadColor`
+                ] = toColorIndex;
+              }
+            }
+          }
+        }
+
+        if (Object.keys(replaceUpdate).length === 0) {
+          return;
+        }
+
+        return Patterns.updateAsync({ _id }, { $set: replaceUpdate });
 
       default:
         throw new Meteor.Error(

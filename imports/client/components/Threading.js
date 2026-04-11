@@ -258,11 +258,6 @@ class Threading extends PureComponent {
             ? () => this.handleClickThreadingCell(rowIndex, tabletIndex)
             : undefined
         }
-        onKeyPress={
-          isEditing
-            ? () => this.handleClickThreadingCell(rowIndex, tabletIndex)
-            : undefined
-        }
         role={isEditing ? 'button' : undefined}
         tabIndex={isEditing ? '0' : undefined}
       >
@@ -392,7 +387,6 @@ class Threading extends PureComponent {
       <span
         type='button'
         onClick={() => this.handleClickRemoveTablet(tabletIndex)}
-        onKeyPress={() => this.handleClickRemoveTablet(tabletIndex)}
         role='button'
         tabIndex='0'
         title={`Delete tablet ${tabletIndex + 1}`}
