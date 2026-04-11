@@ -201,7 +201,6 @@ function WeavingChart(props) {
             className={`row ${i === selectedRow ? 'selected' : ''}`}
             key={`weaving-row-${i}`}
             onClick={i === selectedRow ? undefined : () => handleClickRow(i)}
-            onKeyPress={i === selectedRow ? undefined : () => handleClickRow(i)}
             role='button' // eslint-disable-line
             tabIndex='0'
             type='button'

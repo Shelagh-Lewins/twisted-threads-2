@@ -32,7 +32,6 @@ export function OrientationCell(props) {
     <span
       type={type}
       onClick={onClick}
-      onKeyPress={onClick}
       role={role}
       tabIndex={tabIndex}
       title={`${orientation === '/' ? 'Orientation S' : 'Orientation Z'}`}

@@ -135,7 +135,6 @@ class MainMenu extends Component {
           className={className}
           key={value}
           onClick={() => handleClickMenuItem({ value, url })}
-          onKeyPress={() => handleClickMenuItem({ value, url })}
           role='menuitem'
           tabIndex='0'
         >

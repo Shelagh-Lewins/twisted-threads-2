@@ -240,11 +240,6 @@ class WeavingDesignFreehand extends PureComponent {
               ? () => this.handleClickChartCell(rowIndex, tabletIndex)
               : undefined
           }
-          onKeyPress={
-            isEditing
-              ? () => this.handleClickChartCell(rowIndex, tabletIndex)
-              : undefined
-          }
           role={isEditing ? 'button' : undefined}
           tabIndex={isEditing ? '0' : undefined}
         >
@@ -277,7 +272,6 @@ class WeavingDesignFreehand extends PureComponent {
                 title={`delete row ${rowLabel}`}
                 type='button'
                 onClick={() => this.handleClickRemoveRow(rowLabel - 1)}
-                onKeyPress={() => this.handleClickRemoveRow(rowLabel - 1)}
                 role='button'
                 tabIndex='0'
               >

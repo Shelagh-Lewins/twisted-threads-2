@@ -1011,7 +1011,11 @@ class Pattern extends PureComponent {
                   />
                 )}
                 <h2>Thread counts</h2>
-                <ThreadCounts pattern={pattern} />
+                <ThreadCounts
+                  canEdit={canEdit}
+                  colorBooks={colorBooks}
+                  pattern={pattern}
+                />
               </>
             )}
             <EditableText

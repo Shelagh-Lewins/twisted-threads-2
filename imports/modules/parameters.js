@@ -271,12 +271,12 @@ export const ROLE_LIMITS = {
   },
   verified: {
     maxColorBooksPerUser: 5,
-    maxPatternsPerUser: 100,
+    maxPatternsPerUser: 150,
     maxImagesPerPattern: 5,
   },
   premium: {
     maxColorBooksPerUser: 20,
-    maxPatternsPerUser: 300,
+    maxPatternsPerUser: 500,
     maxImagesPerPattern: 10,
   },
 };

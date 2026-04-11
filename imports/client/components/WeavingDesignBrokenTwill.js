@@ -238,11 +238,6 @@ class WeavingDesignBrokenTwill extends PureComponent {
               ? () => this.handleClickWeavingCell(rowIndex, tabletIndex)
               : undefined
           }
-          onKeyPress={
-            isEditing
-              ? () => this.handleClickWeavingCell(rowIndex, tabletIndex)
-              : undefined
-          }
           role={isEditing ? 'button' : undefined}
           tabIndex={tabIndex}
         />
@@ -282,7 +277,6 @@ class WeavingDesignBrokenTwill extends PureComponent {
                 title={`delete rows ${rowLabel * 2 - 1} and ${rowLabel * 2}`}
                 type='button'
                 onClick={() => this.handleClickRemoveRow(rowLabel - 1)}
-                onKeyPress={() => this.handleClickRemoveRow(rowLabel - 1)}
                 role='button'
                 tabIndex='0'
               >
