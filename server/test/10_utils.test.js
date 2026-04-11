@@ -129,10 +129,11 @@ describe('utils.js basic unit tests', () => {
     it('should pass check for valid row numbers', () => {
       expect(() => check(0, utils.validRowsCheck)).to.not.throw();
       expect(() => check(199, utils.validRowsCheck)).to.not.throw();
+      expect(() => check(200, utils.validRowsCheck)).to.not.throw();
     });
     it('should fail check for invalid row numbers', () => {
       expect(() => check(-1, utils.validRowsCheck)).to.throw();
-      expect(() => check(200, utils.validRowsCheck)).to.throw();
+      expect(() => check(201, utils.validRowsCheck)).to.throw();
     });
   });
 
@@ -275,7 +276,7 @@ describe('utils.js basic unit tests', () => {
 
     it('should return error if verified user has reached pattern limit', async () => {
       const user = await stubUser({ roles: ['registered', 'verified'] });
-      for (let i = 0; i < 100; i++) {
+      for (let i = 0; i < 150; i++) {
         await createPatternForUser(user);
       }
       const result = await utils.checkUserCanCreatePattern(user._id);

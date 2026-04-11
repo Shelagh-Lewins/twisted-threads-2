@@ -1871,6 +1871,21 @@ Meteor.methods({
           }
         }
 
+        // Also update border threading arrays (leftBorder and rightBorder)
+        for (const borderKey of ['leftBorder', 'rightBorder']) {
+          const border = pattern[borderKey];
+          if (border && border.threading && border.numberOfTablets > 0) {
+            for (let hole = 0; hole < border.threading.length; hole += 1) {
+              for (let t = 0; t < border.threading[hole].length; t += 1) {
+                if (border.threading[hole][t] === fromColorIndex) {
+                  replaceUpdate[`${borderKey}.threading.${hole}.${t}`] =
+                    toColorIndex;
+                }
+              }
+            }
+          }
+        }
+
         if (Object.keys(replaceUpdate).length === 0) {
           return;
         }

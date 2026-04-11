@@ -44,6 +44,19 @@ function ThreadCounts(props) {
   };
 
   const handleSelectNewColor = (toColorIndex) => {
+    // If the target colour is already in use, ask for confirmation before merging
+    if (threadCounts[toColorIndex] !== undefined) {
+      const confirmationText =
+        toColorIndex === -1
+          ? `Empty hole is already used by ${threadCounts[toColorIndex]} threads. Are you sure you want to remap ${threadCounts[selectedColorIndex]} threads to empty hole? This change cannot be undone.`
+          : `Colour #${toColorIndex + 1} is already used by ${threadCounts[toColorIndex]} threads. Are you sure you want to remap ${threadCounts[selectedColorIndex]} threads to this colour? This change cannot be undone.`;
+
+      const confirmed = window.confirm(confirmationText);
+
+      if (!confirmed) {
+        return;
+      }
+    }
     dispatch(
       replaceColorInThreading({
         _id,
