@@ -148,6 +148,34 @@ if (Meteor.isServer) {
         assert.equal(updated.threading[0][0], 3);
       });
 
+      it('replaceColorInThreading updates main pattern threading', async () => {
+        const { patternId } = this;
+
+        // First set a known colour so we can remap it
+        await callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+          _id: patternId,
+          data: {
+            type: 'editThreadingCell',
+            holesToSet: [0],
+            tablet: 0,
+            colorIndex: 3,
+          },
+        });
+
+        await callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+          _id: patternId,
+          data: {
+            type: 'replaceColorInThreading',
+            fromColorIndex: 3,
+            toColorIndex: 5,
+          },
+        });
+
+        const updated = await Patterns.findOneAsync({ _id: patternId });
+
+        assert.equal(updated.threading[0][0], 5);
+      });
+
       describe('border operations', () => {
         beforeEach(async () => {
           const pattern = await createBrokenTwillPattern({
@@ -571,6 +599,56 @@ if (Meteor.isServer) {
           assert.equal(updated.leftBorder.weavingInstructions.length, 4);
           // Each row should still have one entry per border tablet
           assert.equal(updated.leftBorder.weavingInstructions[0].length, 2);
+        });
+
+        it('replaceColorInThreading also updates left and right border threading', async () => {
+          const { brokenTwillPatternId } = this;
+
+          // Add a left border with colorIndex 0
+          await callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+            _id: brokenTwillPatternId,
+            data: {
+              type: 'addLeftBorderTablets',
+              colorIndex: 0,
+              insertNTablets: 2,
+              insertTabletsAt: 0,
+            },
+          });
+
+          // Add a right border with colorIndex 0
+          await callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+            _id: brokenTwillPatternId,
+            data: {
+              type: 'addRightBorderTablets',
+              colorIndex: 0,
+              insertNTablets: 1,
+              insertTabletsAt: 0,
+            },
+          });
+
+          // Remap colorIndex 0 → 1 (affects both borders; main threading has [[1]] so no changes there)
+          await callMethodWithUser(this.currentUser._id, 'pattern.edit', {
+            _id: brokenTwillPatternId,
+            data: {
+              type: 'replaceColorInThreading',
+              fromColorIndex: 0,
+              toColorIndex: 1,
+            },
+          });
+
+          const updated = await Patterns.findOneAsync({
+            _id: brokenTwillPatternId,
+          });
+
+          // Left border threading should be updated: all 0s → all 1s
+          assert.deepEqual(updated.leftBorder.threading[0], [1, 1]);
+          assert.deepEqual(updated.leftBorder.threading[1], [1, 1]);
+
+          // Right border threading should be updated: 0 → 1
+          assert.deepEqual(updated.rightBorder.threading[0], [1]);
+
+          // Main pattern threading should be unchanged (it had [[1]], no 0s)
+          assert.equal(updated.threading[0][0], 1);
         });
       });
     });

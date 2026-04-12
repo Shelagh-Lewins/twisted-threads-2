@@ -3986,17 +3986,45 @@ export default function pattern(state = initialPatternState, action) {
 
     case REPLACE_COLOR_IN_THREADING: {
       const { fromColorIndex, toColorIndex } = action.payload;
-      const { patternDesign, patternType, threadingByTablet } = state;
+      const {
+        leftBorder,
+        patternDesign,
+        patternType,
+        rightBorder,
+        threadingByTablet,
+      } = state;
 
-      const newThreadingByTablet = threadingByTablet.map((tabletColors) =>
-        tabletColors.map((colorIndex) =>
-          colorIndex === fromColorIndex ? toColorIndex : colorIndex,
-        ),
-      );
+      const remapThreadingByTablet = (threadingByTablet) =>
+        threadingByTablet.map((tabletColors) =>
+          tabletColors.map((colorIndex) =>
+            colorIndex === fromColorIndex ? toColorIndex : colorIndex,
+          ),
+        );
+
+      const newThreadingByTablet = remapThreadingByTablet(threadingByTablet);
 
       const stateUpdate = {
         threadingByTablet: updeep.constant(newThreadingByTablet),
       };
+
+      // Also remap border threading in Redux state
+      if (leftBorder && leftBorder.threadingByTablet) {
+        stateUpdate.leftBorder = updeep.constant({
+          ...leftBorder,
+          threadingByTablet: remapThreadingByTablet(
+            leftBorder.threadingByTablet,
+          ),
+        });
+      }
+
+      if (rightBorder && rightBorder.threadingByTablet) {
+        stateUpdate.rightBorder = updeep.constant({
+          ...rightBorder,
+          threadingByTablet: remapThreadingByTablet(
+            rightBorder.threadingByTablet,
+          ),
+        });
+      }
 
       // For freehand patterns, also remap threadColor in the freehandChart
       if (
