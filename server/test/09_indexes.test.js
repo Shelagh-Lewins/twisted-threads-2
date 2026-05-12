@@ -42,6 +42,13 @@ if (Meteor.isServer) {
       const hasIndex = (info, fieldName) =>
         Object.keys(info).some((k) => k.indexOf(fieldName) !== -1);
 
+      // check compound indexes exist by field names in order
+      const hasCompoundIndex = (info, ...fieldNames) => {
+        const pattern = fieldNames.join('.*');
+        const regex = new RegExp(pattern);
+        return Object.keys(info).some((k) => regex.test(k));
+      };
+
       assert.isTrue(
         hasIndex(patternsInfo, 'createdAt'),
         'Patterns should have createdAt index',
@@ -53,6 +60,36 @@ if (Meteor.isServer) {
       assert.isTrue(
         hasIndex(patternsInfo, 'tags') || hasIndex(patternsInfo, 'tags_'),
         'Patterns should have tags index',
+      );
+
+      // Verify critical compound indexes for query performance
+      assert.isTrue(
+        hasCompoundIndex(patternsInfo, 'isPublic', 'numberOfTablets', 'nameSort'),
+        'Patterns should have isPublic+numberOfTablets+nameSort compound index',
+      );
+      assert.isTrue(
+        hasCompoundIndex(patternsInfo, 'isPublic', 'numberOfTablets', 'createdAt'),
+        'Patterns should have isPublic+numberOfTablets+createdAt compound index',
+      );
+      assert.isTrue(
+        hasCompoundIndex(
+          patternsInfo,
+          'isPublic',
+          'isTwistNeutral',
+          'numberOfTablets',
+          'nameSort',
+        ),
+        'Patterns should have isPublic+isTwistNeutral+numberOfTablets+nameSort compound index',
+      );
+      assert.isTrue(
+        hasCompoundIndex(
+          patternsInfo,
+          'isPublic',
+          'isTwistNeutral',
+          'numberOfTablets',
+          'createdAt',
+        ),
+        'Patterns should have isPublic+isTwistNeutral+numberOfTablets+createdAt compound index',
       );
 
       assert.isTrue(
