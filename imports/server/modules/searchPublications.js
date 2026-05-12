@@ -69,6 +69,25 @@ Meteor.startup(async () => {
       { background: true },
     );
 
+    // Compound indexes for common Patterns query patterns
+    // These optimize queries that filter by isPublic + numberOfTablets and sort by nameSort or createdAt
+    await Patterns.rawCollection().createIndex(
+      { isPublic: 1, numberOfTablets: 1, nameSort: 1 },
+      { background: true },
+    );
+    await Patterns.rawCollection().createIndex(
+      { isPublic: 1, numberOfTablets: 1, createdAt: -1 },
+      { background: true },
+    );
+    await Patterns.rawCollection().createIndex(
+      { isPublic: 1, isTwistNeutral: 1, numberOfTablets: 1, nameSort: 1 },
+      { background: true },
+    );
+    await Patterns.rawCollection().createIndex(
+      { isPublic: 1, isTwistNeutral: 1, numberOfTablets: 1, createdAt: -1 },
+      { background: true },
+    );
+
     // ColorBooks
     await ColorBooks.rawCollection().createIndex(
       { createdAt: 1 },
