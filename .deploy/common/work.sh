@@ -27,8 +27,8 @@ if [[ -e $APP_DIR/bundle/Passengerfile.json ]]; then
 fi
 
 # Switch directories, restart app
+rm -rf $APP_DIR/bundle.old
 mv $APP_DIR/bundle $APP_DIR/bundle.old
 mv $APP_DIR/tmp/bundle $APP_DIR/bundle
 passenger-config restart-app --ignore-app-not-running --ignore-passenger-not-running $RESTART_ARGS $APP_DIR/bundle
 rm -rf $APP_DIR/bundle.old
-
