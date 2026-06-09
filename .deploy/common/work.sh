@@ -27,8 +27,12 @@ if [[ -e $APP_DIR/bundle/Passengerfile.json ]]; then
 fi
 
 # Switch directories, restart app
+rm -rf $APP_DIR/bundle.old
 mv $APP_DIR/bundle $APP_DIR/bundle.old
 mv $APP_DIR/tmp/bundle $APP_DIR/bundle
 passenger-config restart-app --ignore-app-not-running --ignore-passenger-not-running $RESTART_ARGS $APP_DIR/bundle
 rm -rf $APP_DIR/bundle.old
 
+uous segmentation faults prevented the app from serving any requests
+We downgraded nginx back to 14.12 and set all critical packages on hold
+App is now back online and stable
