@@ -89,55 +89,51 @@ Meteor.startup(() => {
       },
     });
 
-    // Define a distinct rule ONLY for the forgotPassword method
-    const forgotPasswordRateLimitRule = {
+    /* Configure rate limiter rules */
+    // 1. Remove the weak default rule before we define custom rules
+    Accounts.removeDefaultRateLimit();
+
+    // 2. TIER 1: Strict Rule for High-Cost Email Actions (Max 3 per hour)
+    const emailRule = {
       type: 'method',
-      name: 'forgotPassword',
+      name(name) {
+        return [
+          'forgotPassword',
+          'verifyEmail',
+          'sendVerificationEmail',
+        ].includes(name);
+      },
       clientAddress() {
         return true;
-      }, // Tracks by client IP address
+      }, // Match by IP address
     };
 
-    // max number of requests allowed within this time interval (in milliseconds)
-    const forgotPasswordNumRequests = 2;
-    const forgotPasswordTimeInterval = 60000;
+    const emailRuleId = DDPRateLimiter.addRule(emailRule, 3, 3600000);
 
-    // Add the rule. Meteor will evaluate BOTH this rule and the default blanket rule.
-    const ruleId1 = DDPRateLimiter.addRule(
-      forgotPasswordRateLimitRule,
-      forgotPasswordNumRequests,
-      forgotPasswordTimeInterval,
+    // 3. Use that ID to attach your custom error message
+    DDPRateLimiter.setErrorMessageOnRule(
+      emailRuleId,
+      'Too many email requests. Please try again later.',
     );
 
-    // Set an explicit error message specific only to this rule (Meteor 3.x feature)
-    DDPRateLimiter.setErrorMessageOnRule(ruleId1, () => {
-      return `Too many password reset requests. Please wait a little while before trying again.`;
-    });
-
-    // Define a distinct rule ONLY for the verifyEmail method
-    const verifyEmailRateLimitRule = {
+    // 3. TIER 2: Protected Rule for Authentication (Max 5 per 10 seconds)
+    // This recreates the default protections for login/register, tracked securely by IP
+    const authRule = {
       type: 'method',
-      name: 'verifyEmail',
+      name(name) {
+        return ['login', 'createUser', 'resetPassword'].includes(name);
+      },
       clientAddress() {
         return true;
-      }, // Tracks by client IP address
+      }, // Match by IP address instead of just session ID
     };
 
-    // max number of requests allowed within this time interval (in milliseconds)
-    const verifyEmailNumRequests = 2;
-    const verifyEmailTimeInterval = 60000;
+    const authRuleId = DDPRateLimiter.addRule(authRule, 5, 10000);
 
-    // Add the rule. Meteor will evaluate BOTH this rule and the default blanket rule.
-    const ruleId = DDPRateLimiter.addRule(
-      verifyEmailRateLimitRule,
-      verifyEmailNumRequests,
-      verifyEmailTimeInterval,
+    DDPRateLimiter.setErrorMessageOnRule(
+      authRuleId,
+      'Too many authentication requests. Please try again later.',
     );
-
-    // Set an explicit error message specific only to this rule (Meteor 3.x feature)
-    DDPRateLimiter.setErrorMessageOnRule(ruleId, () => {
-      return `Too many send verification email requests. Please wait a little while before trying again.`;
-    });
   })();
 });
 
