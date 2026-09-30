@@ -88,6 +88,56 @@ Meteor.startup(() => {
         }
       },
     });
+
+    // Define a distinct rule ONLY for the forgotPassword method
+    const forgotPasswordRateLimitRule = {
+      type: 'method',
+      name: 'forgotPassword',
+      clientAddress() {
+        return true;
+      }, // Tracks by client IP address
+    };
+
+    // max number of requests allowed within this time interval (in milliseconds)
+    const forgotPasswordNumRequests = 2;
+    const forgotPasswordTimeInterval = 60000;
+
+    // Add the rule. Meteor will evaluate BOTH this rule and the default blanket rule.
+    const ruleId1 = DDPRateLimiter.addRule(
+      forgotPasswordRateLimitRule,
+      forgotPasswordNumRequests,
+      forgotPasswordTimeInterval,
+    );
+
+    // Set an explicit error message specific only to this rule (Meteor 3.x feature)
+    DDPRateLimiter.setErrorMessageOnRule(ruleId1, () => {
+      return `Too many password reset requests. Please wait a little while before trying again.`;
+    });
+
+    // Define a distinct rule ONLY for the verifyEmail method
+    const verifyEmailRateLimitRule = {
+      type: 'method',
+      name: 'verifyEmail',
+      clientAddress() {
+        return true;
+      }, // Tracks by client IP address
+    };
+
+    // max number of requests allowed within this time interval (in milliseconds)
+    const verifyEmailNumRequests = 2;
+    const verifyEmailTimeInterval = 60000;
+
+    // Add the rule. Meteor will evaluate BOTH this rule and the default blanket rule.
+    const ruleId = DDPRateLimiter.addRule(
+      verifyEmailRateLimitRule,
+      verifyEmailNumRequests,
+      verifyEmailTimeInterval,
+    );
+
+    // Set an explicit error message specific only to this rule (Meteor 3.x feature)
+    DDPRateLimiter.setErrorMessageOnRule(ruleId, () => {
+      return `Too many send verification email requests. Please wait a little while before trying again.`;
+    });
   })();
 });
 

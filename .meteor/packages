@@ -31,3 +31,4 @@ matb33:collection-hooks
 react-meteor-data
 nodsec:scss
 aldeed:collection2
+ddp-rate-limiter
