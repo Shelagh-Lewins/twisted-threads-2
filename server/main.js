@@ -88,6 +88,52 @@ Meteor.startup(() => {
         }
       },
     });
+
+    /* Configure rate limiter rules */
+    // 1. Remove the weak default rule before we define custom rules
+    Accounts.removeDefaultRateLimit();
+
+    // 2. TIER 1: Strict Rule for High-Cost Email Actions (Max 3 per hour)
+    const emailRule = {
+      type: 'method',
+      name(name) {
+        return [
+          'forgotPassword',
+          'verifyEmail',
+          'sendVerificationEmail',
+        ].includes(name);
+      },
+      clientAddress() {
+        return true;
+      }, // Match by IP address
+    };
+
+    const emailRuleId = DDPRateLimiter.addRule(emailRule, 3, 3600000);
+
+    // 3. Use that ID to attach your custom error message
+    DDPRateLimiter.setErrorMessageOnRule(
+      emailRuleId,
+      'Too many email requests. Please try again later.',
+    );
+
+    // 3. TIER 2: Protected Rule for Authentication (Max 5 per 10 seconds)
+    // This recreates the default protections for login/register, tracked securely by IP
+    const authRule = {
+      type: 'method',
+      name(name) {
+        return ['login', 'createUser', 'resetPassword'].includes(name);
+      },
+      clientAddress() {
+        return true;
+      }, // Match by IP address instead of just session ID
+    };
+
+    const authRuleId = DDPRateLimiter.addRule(authRule, 5, 10000);
+
+    DDPRateLimiter.setErrorMessageOnRule(
+      authRuleId,
+      'Too many authentication requests. Please try again later.',
+    );
   })();
 });
 
