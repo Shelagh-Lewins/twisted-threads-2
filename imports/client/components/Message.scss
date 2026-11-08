@@ -1,0 +1,30 @@
+@import '../constants/variables';
+
+.message {
+  &.warning {
+    background-color: $color-warning-bg;
+    color: $color-warning-message;
+    padding: 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+
+    > .icon {
+      flex: 0 0 auto;
+    }
+
+    > p {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  &.text {
+    line-height: 3em;
+    text-align: center;
+  }
+
+  > p:last-child {
+    margin-bottom: 0;
+  }
+}
