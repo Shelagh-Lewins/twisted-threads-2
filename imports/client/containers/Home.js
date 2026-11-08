@@ -22,7 +22,6 @@ import DonatePayPal from '../components/DonatePayPal';
 import DonateKoFi from '../components/DonateKoFi';
 import DonatePatreon from '../components/DonatePatreon';
 import AddPatternButton from '../components/AddPatternButton';
-import CreatePatternWarning from '../components/CreatePatternWarning';
 
 import { ITEMS_PER_PREVIEW_LIST } from '../../modules/parameters';
 import secondaryPatternSubscriptions from '../modules/secondaryPatternSubscriptions';
@@ -128,6 +127,34 @@ class Home extends Component {
                   </strong>
                   <br />
                 </p>
+                {!isAuthenticated && (
+                  <p>
+                    To get started, please <Link to='/login'>Login</Link>. If
+                    you don&apos;t already have an account, please{' '}
+                    <Link to='/register'>Register</Link>.
+                  </p>
+                )}
+                {isAuthenticated && !canCreatePattern && !isVerified && (
+                  <p>
+                    To create more patterns, please verify your email address.
+                    You can request a new verification email from your{' '}
+                    <Link to='/account'>Account</Link> page
+                  </p>
+                )}
+                {isAuthenticated && !canCreatePattern && isVerified && (
+                  <p>
+                    To create more patterns, please get in touch with the
+                    developer of Twisted Threads via the{' '}
+                    <a
+                      href='https://www.facebook.com/groups/927805953974190/'
+                      target='_blank'
+                      rel='noreferrer noopener'
+                    >
+                      Twisted Threads Facebook group
+                    </a>
+                    .
+                  </p>
+                )}
               </Col>
             </Row>
             <Row>
@@ -163,25 +190,17 @@ class Home extends Component {
                 </p>
               </Col>
             </Row>
-            <Row>
-              <Col>
-                <AddPatternButton
-                  disabled={canCreatePattern === false}
-                  dispatch={dispatch}
-                  history={history}
-                  updateShowAddPatternForm={this.updateShowAddPatternForm}
-                />
-              </Col>
-            </Row>
-            <Row>
-              <Col>
-                <CreatePatternWarning
-                  canCreatePattern={canCreatePattern}
-                  isAuthenticated={isAuthenticated}
-                  isVerified={isVerified}
-                />
-              </Col>
-            </Row>
+            {canCreatePattern && (
+              <Row>
+                <Col lg='12'>
+                  <AddPatternButton
+                    dispatch={dispatch}
+                    history={history}
+                    updateShowAddPatternForm={this.updateShowAddPatternForm}
+                  />
+                </Col>
+              </Row>
+            )}
           </Container>
           {!isLoading && !showAddPatternForm && (
             <>
