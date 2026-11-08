@@ -152,36 +152,34 @@ class Navbar extends Component {
       isOwner = pattern.createdBy === Meteor.user()._id;
     }
 
-    const showPatternMenu =
-      !isLoading && patternId && pattern && (canCreatePattern || isOwner);
+    const showPatternMenu = !isLoading && patternId && pattern;
 
     let uploadMenu;
     let patternMenu;
     let myPatternsLink;
 
-    if (canCreatePattern) {
-      // allow patterns to be uploaded / created from file
-      uploadMenu = (
-        <ul className='upload-menu navbar-nav'>
-          <li className='nav-item'>
-            <Button
-              type='button'
-              onClick={() => this.handleClickButtonUpload({ _id: patternId })}
-              title='Import pattern from file'
-            >
-              <FontAwesomeIcon
-                icon={['fas', 'file-upload']}
-                style={{ color: iconColors.contrast }}
-                size='1x'
-              />
-              <span className='d-inline d-md-none button-text nav-link'>
-                Import pattern
-              </span>
-            </Button>
-          </li>
-        </ul>
-      );
-    }
+    // allow patterns to be uploaded / created from file
+    uploadMenu = (
+      <ul className='upload-menu navbar-nav'>
+        <li className='nav-item'>
+          <Button
+            disabled={canCreatePattern === false}
+            type='button'
+            onClick={() => this.handleClickButtonUpload({ _id: patternId })}
+            title='Import pattern from file'
+          >
+            <FontAwesomeIcon
+              icon={['fas', 'file-upload']}
+              style={{ color: iconColors.contrast }}
+              size='1x'
+            />
+            <span className='d-inline d-md-none button-text nav-link'>
+              Import pattern
+            </span>
+          </Button>
+        </li>
+      </ul>
+    );
 
     if (Meteor.user()) {
       myPatternsLink = (
@@ -191,6 +189,7 @@ class Navbar extends Component {
       );
     }
 
+    // can't construct the buttons until the pattern is loaded
     if (showPatternMenu) {
       const buttonDownload = (
         <Button
@@ -211,6 +210,7 @@ class Navbar extends Component {
 
       const buttonCopy = (
         <Button
+          disabled={canCreatePattern === false}
           type='button'
           onClick={() => this.handleClickButtonCopy({ _id: patternId })}
           title='Copy pattern'
@@ -260,7 +260,7 @@ class Navbar extends Component {
       patternMenu = (
         <ul className='pattern-menu navbar-nav ml-auto'>
           <li className='nav-item'>{buttonDownload}</li>
-          {canCreatePattern && <li className='nav-item'>{buttonCopy}</li>}
+          <li className='nav-item'>{buttonCopy}</li>
           {Meteor.userId() && <li className='nav-item'>{buttonAddToSet}</li>}
           {isOwner && <li className='nav-item'>{buttonRemove}</li>}
         </ul>

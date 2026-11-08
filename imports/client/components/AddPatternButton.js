@@ -5,6 +5,7 @@ import { Button, Col, Row } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { addPattern } from '../modules/pattern';
 import AddPatternForm from '../forms/AddPatternForm';
+import './AddPatternButton.scss';
 
 class AddPatternButton extends PureComponent {
   constructor(props) {
@@ -67,6 +68,7 @@ class AddPatternButton extends PureComponent {
             className='show-add-pattern-form'
             color='primary'
             onClick={this.handleClickShowAddPatternForm}
+            disabled={this.props.disabled}
           >
             + New pattern
           </Button>
@@ -94,6 +96,7 @@ class AddPatternButton extends PureComponent {
 
 AddPatternButton.propTypes = {
   dispatch: PropTypes.func.isRequired,
+  disabled: PropTypes.bool.isRequired,
   history: PropTypes.objectOf(PropTypes.any).isRequired,
   updateShowAddPatternForm: PropTypes.func.isRequired,
 };

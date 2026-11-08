@@ -271,7 +271,7 @@ export const ROLE_LIMITS = {
   },
   verified: {
     maxColorBooksPerUser: 5,
-    maxPatternsPerUser: 150,
+    maxPatternsPerUser: 1,
     maxImagesPerPattern: 5,
   },
   premium: {

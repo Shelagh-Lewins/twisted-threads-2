@@ -30,6 +30,7 @@ import {
   getCanCreateColorBook,
   getCanCreatePattern,
   getIsAuthenticated,
+  getIsVerified,
   editTextField,
 } from '../modules/auth';
 import secondaryPatternSubscriptions from '../modules/secondaryPatternSubscriptions';
@@ -43,6 +44,7 @@ import PageWrapper from '../components/PageWrapper';
 import ColorBookSummary from '../components/ColorBookSummary';
 import AddColorBookForm from '../forms/AddColorBookForm';
 import AddPatternButton from '../components/AddPatternButton';
+import CreatePatternWarning from '../components/CreatePatternWarning';
 import EditableText from '../components/EditableText';
 import SetSummary from '../components/SetSummary';
 
@@ -393,19 +395,33 @@ class User extends PureComponent {
     const { canCreatePattern, dispatch, history, user } = this.props;
 
     const { _id } = user;
-    const canCreate = canCreatePattern && Meteor.userId() === _id;
+    const isViewingOwnProfile = Meteor.userId() === _id;
 
     return (
       <>
-        <Container>
-          {canCreate && (
-            <AddPatternButton
-              dispatch={dispatch}
-              history={history}
-              updateShowAddPatternForm={this.updateShowAddPatternForm}
-            />
-          )}
-        </Container>
+        {isViewingOwnProfile && (
+          <Container>
+            <Row>
+              <Col>
+                <AddPatternButton
+                  disabled={canCreatePattern === false}
+                  dispatch={dispatch}
+                  history={history}
+                  updateShowAddPatternForm={this.updateShowAddPatternForm}
+                />
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <CreatePatternWarning
+                  canCreatePattern={canCreatePattern}
+                  isAuthenticated={this.props.isAuthenticated}
+                  isVerified={this.props.isVerified}
+                />
+              </Col>
+            </Row>
+          </Container>
+        )}
         <Container className='pattern-list-holder'>
           {this.renderPatternsList()}
         </Container>
@@ -570,6 +586,7 @@ User.propTypes = {
   history: PropTypes.objectOf(PropTypes.any).isRequired,
   isAuthenticated: PropTypes.bool.isRequired,
   isLoading: PropTypes.bool.isRequired,
+  isVerified: PropTypes.bool.isRequired,
   itemsPerPage: PropTypes.number.isRequired,
   patternCount: PropTypes.number.isRequired,
   patternPreviews: PropTypes.arrayOf(PropTypes.any).isRequired,
@@ -613,6 +630,7 @@ function mapStateToProps(state, ownProps) {
     filterWillRepeat,
     isAuthenticated: getIsAuthenticated(state),
     isLoading: state.pattern.isLoading,
+    isVerified: getIsVerified(state),
     itemsPerPage,
     pageSkip: (currentPageNumber - 1) * itemsPerPage,
     patternCount: state.pattern.patternCount,
